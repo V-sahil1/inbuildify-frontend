@@ -1,11 +1,16 @@
 class API_ENDPOINTS {
+  // user
+  public static USER_BASE = "/user";
+  public static LOGIN = `${this.USER_BASE}/login`;
+  public static FORGET_PASSWORD = `${this.USER_BASE}/forgot-password`;
+  public static PROFILE = `${this.USER_BASE}/profile`;
+  
   //auth
   public static AUTH_BASE = "/auth";
   public static REFRESH_TOKEN = `${this.AUTH_BASE}/refresh`;
   public static REGISTER_BASE = `${this.AUTH_BASE}/register`;
   public static MANAGER_REGISTER = `${this.REGISTER_BASE}/manager`;
   public static EMPLOYEE_REGISTER = `${this.REGISTER_BASE}/employee`;
-  public static LOGIN = `${this.AUTH_BASE}/login`;
   public static VERIFY_EMAIL = `${this.AUTH_BASE}/verify-email-otp`;
   public static RESEND_OTP = `${this.AUTH_BASE}/resend-email-otp`;
   public static FORGOT_PASSWORD = `${this.AUTH_BASE}/forgot-password`;

@@ -1,15 +1,17 @@
 "use client";
 import React, { useState } from "react";
-import { Form, Input, Checkbox, Divider } from "antd";
+import { Form, Input, Checkbox, Divider, message } from "antd";
 import {
   IconBrandGoogleFilled,
   IconEye,
   IconEyeOff,
+  IconLoader,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import SystemRoutes from "@lib/constants/Routes";
 import { useAppDispatch } from "@hooks/redux";
-import { SignInThunk } from "@redux/feature/auth/authThunk";
+import { getUserThunk, SignInThunk } from "@redux/feature/auth/authThunk";
+import { useRouter } from "next/navigation";
 
 export async function getStaticProps() {
   return {
@@ -22,21 +24,27 @@ export async function getStaticProps() {
 export default function Signin() {
   const [form] = Form.useForm();
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
-  const onFinish = () => {
-    form.validateFields().then((values) => {
-      try {
-        dispatch(SignInThunk(values)).unwrap;
-      } catch (error) {
-        console.log(error);
-      }
-    });
+  const onFinish = async () => {
+    try {
+      const values = await form.validateFields();
+      setLoading(true);
+      const response = await dispatch(SignInThunk(values)).unwrap();
+      await dispatch(getUserThunk()).unwrap();
+      message.success(response.message);
+      router.push("/");
+    } catch (error: any) {
+      message.error(error?.message);
+    } finally {
+      setLoading(false);
+    }
   };
-
   return (
     <>
       <div className="sm:mb-8 mb-6 text-center">
@@ -55,7 +63,6 @@ export default function Signin() {
         <Divider>OR</Divider>
       </div>
 
-      {/* AntD Form */}
       <Form
         layout="vertical"
         name="signin"
@@ -113,8 +120,10 @@ export default function Signin() {
         <Form.Item>
           <button
             type="submit"
+            disabled={loading}
             className="btn btn-secondary large w-full uppercase"
           >
+            {loading ? <IconLoader /> : ""}
             Sign In
           </button>
         </Form.Item>

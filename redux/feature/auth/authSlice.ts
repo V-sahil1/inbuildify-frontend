@@ -1,13 +1,15 @@
 // src/store/auth/authSlice.ts
 import { createSlice } from "@reduxjs/toolkit";
-import { AuthState } from "./IAuthState";
+import { AuthState, Status } from "./IAuthState";
+import { getUserThunk } from "./authThunk";
 
 const initialState: AuthState = {
   isAuthenticated: false,
   user: null,
+  role: null,
   accessToken: null,
   error: null,
-  status: "idle",
+  status: Status.IDLE,
 };
 
 const authSlice = createSlice({
@@ -15,30 +17,21 @@ const authSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    // login
-    // builder.addCase(loginThunk.pending, (state) => {
-    //   state.status = "loading";
-    //   state.error = null;
-    // });
-    // builder.addCase(loginThunk.fulfilled, (state, action) => {
-    //   state.isAuthenticated = true;
-    //   state.user = action.payload.user;
-    //   state.accessToken = action.payload.accessToken;
-    //   localStorage.setItem("accessToken", action.payload.accessToken);
-    //   state.status = "succeeded";
-    // });
-    // builder.addCase(loginThunk.rejected, (state, action) => {
-    //   state.status = "failed";
-    //   state.error = action.payload as string;
-    // });
-
-    // // logout
-    // builder.addCase(logoutThunk.fulfilled, (state) => {
-    //   state.isAuthenticated = false;
-    //   state.user = null;
-    //   state.accessToken = null;
-    //   state.status = "idle";
-    // });
+    // get user
+    builder.addCase(getUserThunk.pending, (state) => {
+      state.status = Status.PENDING;
+      state.error = null;
+    });
+    builder.addCase(getUserThunk.fulfilled, (state, action) => {
+      state.isAuthenticated = true;
+      state.role = action.payload.role;
+      state.user = action.payload;
+      state.status = Status.SUCCEEDED;
+    });
+    builder.addCase(getUserThunk.rejected, (state, action) => {
+      state.status = Status.FAILED;
+      state.error = action.payload as string;
+    });
   },
 });
 

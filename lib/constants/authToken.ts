@@ -22,12 +22,13 @@ export const getStoredAuthToken = (): string | undefined => {
   }
 };
 
-// Useless
 //eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const storeAuthToken = (token: any) =>
   localStorage.setItem("accessToken", token);
 
-// Useless
+export const storeRefreshToken = (token: any) =>
+  localStorage.setItem("refreshToken", token);
+
 export const removeStoredAuthToken = () =>
   localStorage.removeItem(getKeyAccessToken());
 

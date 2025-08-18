@@ -17,17 +17,21 @@ import {
 import WelcomeHeader from "../components/common/WelcomeHeader";
 import Link from "next/link";
 import Breadcrumb from "../components/common/Breadcrumb";
+import { useAppSelector } from "@hooks/redux";
 
 export default function Analysis() {
   const [adminMenu, setAdminMenu] = useState<boolean>(false);
+  const { role } = useAppSelector((state) => state.auth);
   const menuRef = useRef(null);
   const buttonRef = useRef(null);
-
+  console.log(role)
   const breadcrumbItem = [
     {
       name: "Dashboard",
     },
   ];
+
+
 
   const chartData1 = {
     series: [
@@ -279,11 +283,10 @@ export default function Analysis() {
                 </button>
                 <ul
                   ref={menuRef}
-                  className={`bg-card-color text-font-color z-[1] rounded-xl w-[180px] shadow-shadow-lg absolute end-0 top-full origin-top-right transition-all duration-300 ${
-                    adminMenu
+                  className={`bg-card-color text-font-color z-[1] rounded-xl w-[180px] shadow-shadow-lg absolute end-0 top-full origin-top-right transition-all duration-300 ${adminMenu
                       ? " opacity-100 visible scale-100"
                       : "opacity-0 invisible scale-0"
-                  }`}
+                    }`}
                 >
                   <li>
                     <Link href="#" className="px-4 py-2 flex hover:bg-gray-100">
