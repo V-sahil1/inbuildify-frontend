@@ -10,7 +10,7 @@ import AuthLayout from '../components/layout/AuthLayout';
 import { Provider } from 'react-redux';
 import { store } from '../redux/feature/store';
 import { ConfigProvider } from 'antd';
-import theme from '../theme.config';
+import theme from '../antd.config';
 
 export default function App({ Component, pageProps }) {
 
