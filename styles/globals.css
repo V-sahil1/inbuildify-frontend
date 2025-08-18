@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import "./antd.override.css";
+/* @import "./antd.override.css"; */
 :root {
   --font-family: Mulish;
 

@@ -7,6 +7,10 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Layout from '../components/layout/Layout';
 import AuthLayout from '../components/layout/AuthLayout';
+import { Provider } from 'react-redux';
+import { store } from '../redux/feature/store';
+import { ConfigProvider } from 'antd';
+import theme from '../theme.config';
 
 export default function App({ Component, pageProps }) {
 
@@ -23,6 +27,8 @@ export default function App({ Component, pageProps }) {
 
   return (
     <>
+    <Provider store={store}>
+    <ConfigProvider theme={theme}>
       <Head>
         <link rel="icon" href="/favicon.ico" />
         <title>:: Luno Next Tailwind ::</title>
@@ -38,6 +44,8 @@ export default function App({ Component, pageProps }) {
           </Layout>
         )
       }
+      </ConfigProvider>
+      </Provider>
     </>
   );
 }

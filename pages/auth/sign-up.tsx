@@ -4,6 +4,8 @@ import Link from "next/link";
 import React from "react";
 import { Form, Input, Checkbox } from "antd";
 import SystemRoutes from "@lib/constants/Routes";
+import { useAppDispatch } from "@hooks/redux";
+import { SignUpThunk } from "@redux/feature/auth/authThunk";
 
 export async function getStaticProps() {
   return {
@@ -48,10 +50,15 @@ const passwordRules = [
 
 export default function Signup() {
   const [form] = Form.useForm();
+  const dispatch = useAppDispatch();
 
   const onFinish = () => {
     form.validateFields().then((values) => {
-      console.log("Form values:", values);
+      try {
+        dispatch(SignUpThunk(values)).unwrap();
+      } catch (error) {
+        console.log(error);
+      }
     });
   };
 

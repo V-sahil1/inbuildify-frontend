@@ -8,6 +8,8 @@ import {
 } from "@tabler/icons-react";
 import Link from "next/link";
 import SystemRoutes from "@lib/constants/Routes";
+import { useAppDispatch } from "@hooks/redux";
+import { SignInThunk } from "@redux/feature/auth/authThunk";
 
 export async function getStaticProps() {
   return {
@@ -18,14 +20,21 @@ export async function getStaticProps() {
 }
 
 export default function Signin() {
+  const [form] = Form.useForm();
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const dispatch = useAppDispatch();
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
-  const onFinish = (values: any) => {
-    console.log("✅ Form Submitted:", values);
-    // TODO: dispatch login action here
+  const onFinish = () => {
+    form.validateFields().then((values) => {
+      try {
+        dispatch(SignInThunk(values)).unwrap;
+      } catch (error) {
+        console.log(error);
+      }
+    });
   };
 
   return (
@@ -50,6 +59,7 @@ export default function Signin() {
       <Form
         layout="vertical"
         name="signin"
+        form={form}
         onFinish={onFinish}
         className="w-full"
         requiredMark={false}

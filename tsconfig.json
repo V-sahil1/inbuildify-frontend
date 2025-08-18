@@ -18,6 +18,7 @@
     "paths": {
       "@/components/*": ["components/*"],
       "@lib/*": ["lib/*"],
+      "@redux/*": ["redux/*"],
       "@styles/*": ["styles/*"],
       "@utils/*": ["utils/*"],
       "@hooks/*": ["hooks/*"],
