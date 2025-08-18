@@ -1,0 +1,86 @@
+/* Reset Antd default form label */
+.ant-form-item-label > label {
+    font-size: 14px !important;
+    line-height: 20px !important;
+    color: var(--font-color-100) !important;
+    margin-bottom: 2px !important;
+  }
+  
+  /* Reset Input, Textarea, Select to match your .form-control */
+  .ant-input,
+  .ant-input-textarea,
+  .ant-select-selector {
+    padding: 2px 12px !important;
+    border-radius: 6px !important;
+    border: 1px solid var(--border-color) !important;
+    background-color: var(--card-color) !important;
+    width: 100% !important;
+    height: 32px !important;
+    box-shadow: none !important;
+  }
+  
+  /* Placeholder styling */
+  .ant-input::placeholder,
+  .ant-input-textarea::placeholder,
+  .ant-select-selection-placeholder {
+    opacity: 0.5 !important;
+  }
+  
+  /* Focus state */
+  .ant-input:focus,
+  .ant-input-focused,
+  .ant-select-focused .ant-select-selector,
+  .ant-input-textarea:focus {
+    outline: none !important;
+    border: 1px solid var(--primary) !important;
+    color: var(--primary) !important;
+    box-shadow: var(--shadow-normal) !important;
+  }
+  
+  /* Disabled state */
+  .ant-input[disabled],
+  .ant-input-disabled,
+  .ant-select-disabled .ant-select-selector,
+  .ant-input-textarea[disabled] {
+    cursor: not-allowed !important;
+    background-color: var(--border-color) !important;
+  }
+  
+  /* File input (custom Antd Upload button) */
+  .ant-upload .ant-btn {
+    background: var(--body-color) !important;
+    border: 0 !important;
+    padding: 6px 12px !important;
+    margin-right: 12px !important;
+    border-right: 1px solid var(--border-color) !important;
+    height: auto !important;
+    border-radius: 6px !important;
+  }
+  
+  /* -------- Password Input Fix -------- */
+  
+  /* Remove extra wrapper styling */
+  .ant-input-affix-wrapper {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    height: auto !important;
+  }
+  
+  /* Make password input match normal input */
+  .ant-input-affix-wrapper .ant-input {
+    background: var(--card-color) !important;
+    border-radius: 6px !important;
+    border: 1px solid var(--border-color) !important;
+    padding: 2px 12px !important;
+    height: 32px !important;
+    box-shadow: none !important;
+  }
+  
+  /* Eye icon alignment */
+  .ant-input-suffix {
+    margin-right: 8px !important;
+    color: var(--font-color-100) !important;
+  }
+  

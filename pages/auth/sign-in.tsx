@@ -1,10 +1,13 @@
+"use client";
 import React, { useState } from "react";
+import { Form, Input, Checkbox, Divider } from "antd";
 import {
   IconBrandGoogleFilled,
   IconEye,
   IconEyeOff,
 } from "@tabler/icons-react";
 import Link from "next/link";
+import SystemRoutes from "@lib/constants/Routes";
 
 export async function getStaticProps() {
   return {
@@ -20,6 +23,11 @@ export default function Signin() {
     setShowPassword(!showPassword);
   };
 
+  const onFinish = (values: any) => {
+    console.log("✅ Form Submitted:", values);
+    // TODO: dispatch login action here
+  };
+
   return (
     <>
       <div className="sm:mb-8 mb-6 text-center">
@@ -31,74 +39,83 @@ export default function Signin() {
         </span>
       </div>
       <div className="sm:mb-6 mb-4 text-center">
-        <Link href="#" className="btn btn-white !border-border-color">
+        <button className="btn btn-white !border-border-color">
           <IconBrandGoogleFilled className="fill-font-color-100" />
           Sign in with Google
-        </Link>
-        <div className="mt-6 flex items-center">
-          <span className="inline-block h-[1px] w-full bg-font-color-400"></span>
-          <span className="px-30 text-font-color-400">OR</span>
-          <span className="inline-block h-[1px] w-full bg-font-color-400"></span>
-        </div>
+        </button>
+        <Divider>OR</Divider>
       </div>
-      <div className="">
-        <div className="form-control mb-15">
-          <label htmlFor="email" className="form-label">
-            Email
-          </label>
-          <input
-            type="email"
-            id="email"
-            placeholder="name@example.com"
-            className="form-input"
+
+      {/* AntD Form */}
+      <Form
+        layout="vertical"
+        name="signin"
+        onFinish={onFinish}
+        className="w-full"
+        requiredMark={false}
+      >
+        {/* Email */}
+        <Form.Item
+          label="Email"
+          name="email"
+          rules={[
+            { required: true, message: "Please enter your email!" },
+            { type: "email", message: "Enter a valid email!" },
+          ]}
+        >
+          <Input placeholder="name@example.com" />
+        </Form.Item>
+
+        {/* Password */}
+        <Form.Item
+          label="Password"
+          name="password"
+          rules={[{ required: true, message: "Please enter your password!" }]}
+        >
+          <Input
+            type={showPassword ? "text" : "password"}
+            placeholder="Enter the password"
+            suffix={
+              <span
+                onClick={togglePasswordVisibility}
+                className="cursor-pointer text-font-color-100"
+              >
+                {showPassword ? <IconEyeOff /> : <IconEye />}
+              </span>
+            }
           />
-        </div>
-        <div className="form-control mb-15">
-          <label htmlFor="password" className="form-label">
-            Password
-          </label>
-          <div className="relative">
-            <input
-              type={showPassword ? "text" : "password"}
-              id="password"
-              placeholder="Enter the password"
-              className="form-input !pr-12"
-            />
-            <button
-              onClick={togglePasswordVisibility}
-              className="absolute top-[50%] translate-y-[-50%] right-3 text-font-color-100"
-            >
-              {showPassword ? <IconEyeOff /> : <IconEye />}
-            </button>
-          </div>
-        </div>
-        <div className="flex flex-wrap items-center justify-between gap-10 sm:mb-30 mb-6">
-          <div className="form-check">
-            <input
-              type="checkbox"
-              id="forgotPassword"
-              className="form-check-input"
-            />
-            <label className="form-check-label" htmlFor="forgotPassword">
-              Remember me
-            </label>
-          </div>
+        </Form.Item>
+
+        {/* Remember + Forgot password */}
+        <div className="flex items-center justify-between mb-6">
+          <Form.Item name="remember" valuePropName="checked" noStyle>
+            <Checkbox>Remember me</Checkbox>
+          </Form.Item>
           <Link
-            href="/auth/forgot-password"
+            href={SystemRoutes.FORGOT_PASSWORD}
             className="text-primary sm:text-[16px]/[24px] text-[14px]/[20px]"
           >
             Forgot Password?
           </Link>
         </div>
-        <Link href="/" className="btn btn-secondary large w-full uppercase">
-          Sign In
+
+        {/* Submit button */}
+        <Form.Item>
+          <button
+            type="submit"
+            className="btn btn-secondary large w-full uppercase"
+          >
+            Sign In
+          </button>
+        </Form.Item>
+      </Form>
+
+      {/* Footer */}
+      <div className="text-center sm:mt-30 mt-6 text-font-color-100">
+        <p>Don't have an account?</p>
+        <Link href={SystemRoutes.SIGNUP} className="text-primary">
+          Sign up here
         </Link>
-        <div className="text-center sm:mt-30 mt-6 text-font-color-100">
-          <p>Don't have an account yet?</p>
-          <Link href="/auth/sign-up" className="text-primary">
-            Sign up here
-          </Link>
-        </div>
       </div>
     </>
   );

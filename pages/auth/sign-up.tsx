@@ -1,5 +1,9 @@
-import Link from 'next/link'
-import React from 'react'
+"use client";
+
+import Link from "next/link";
+import React from "react";
+import { Form, Input, Checkbox } from "antd";
+import SystemRoutes from "@lib/constants/Routes";
 
 export async function getStaticProps() {
   return {
@@ -9,71 +13,165 @@ export async function getStaticProps() {
   };
 }
 
+const passwordRules = [
+  { required: true, message: "Password is required" },
+  {
+    validator: (_: any, value: string) => {
+      if (!value) return Promise.resolve();
+
+      const hasMinLength = value.length >= 8;
+      const hasNumber = /\d/.test(value);
+      const hasSpecial = /[^A-Za-z0-9.]/.test(value); // exclude dot
+      const hasUpper = /[A-Z]/.test(value);
+      const hasLower = /[a-z]/.test(value);
+
+      if (!hasMinLength) {
+        return Promise.reject("Password must be at least 8 characters long");
+      }
+      if (!hasNumber) {
+        return Promise.reject("Password must contain at least one number");
+      }
+      if (!hasSpecial) {
+        return Promise.reject("Password must contain at least one special symbol (not '.')");
+      }
+      if (!hasUpper) {
+        return Promise.reject("Password must contain an uppercase letter");
+      }
+      if (!hasLower) {
+        return Promise.reject("Password must contain a lowercase letter");
+      }
+
+      return Promise.resolve();
+    },
+  },
+];
 
 export default function Signup() {
+  const [form] = Form.useForm();
+
+  const onFinish = () => {
+    form.validateFields().then((values) => {
+      console.log("Form values:", values);
+    });
+  };
+
   return (
     <>
-      <div className='sm:mb-8 mb-6 text-center'>
-        <div className='sm:text-[40px]/[48px] text-[30px]/[36px] font-medium mb-2'>
+      <div className="sm:mb-8 mb-6 text-center">
+        <div className="sm:text-[40px]/[48px] text-[30px]/[36px] font-medium mb-2">
           Create Account
         </div>
-        <span className='text-font-color-100 inline-block'>
+        <span className="text-font-color-100 inline-block">
           Free access to our dashboard.
         </span>
       </div>
-      <div className=''>
-        <div className='mb-15 flex gap-15'>
-          <div className='form-control'>
-            <label htmlFor='firstName' className='form-label'>
-              Firstname
-            </label>
-            <input type='text' id='firstName' placeholder='John' className='form-input' />
-          </div>
-          <div className='form-control'>
-            <label htmlFor='lastName' className='form-label'>
-              Lastname
-            </label>
-            <input type='text' id='lastName' placeholder='Parker' className='form-input' />
-          </div>
+
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={onFinish}
+        className="signup-form"
+      >
+        <div className="w-full flex gap-15">
+          <Form.Item
+            label="Firstname"
+            name="firstName"
+            className="form-control w-full"
+            rules={[{ required: true, message: "Firstname is required" }]}
+          >
+            <Input placeholder="John" className="form-input" />
+          </Form.Item>
+
+          <Form.Item
+            label="Lastname"
+            name="lastName"
+            className="form-control w-full"
+            rules={[{ required: true, message: "Lastname is required" }]}
+          >
+            <Input placeholder="Parker" className="form-input" />
+          </Form.Item>
         </div>
-        <div className='form-control mb-15'>
-          <label htmlFor='email' className='form-label'>
-            Email
-          </label>
-          <input type='email' id='email' placeholder='name@example.com' className='form-input' />
-        </div>
-        <div className='form-control mb-15'>
-          <label htmlFor='password' className='form-label'>
-            Password
-          </label>
-          <input type='password' id='password' placeholder='8+ characters required' className='form-input' />
-        </div>
-        <div className='form-control mb-15'>
-          <label htmlFor='confirmPassword' className='form-label'>
-            Confirm Password
-          </label>
-          <input type='password' id='confirmPassword' placeholder='8+ characters required' className='form-input' />
-        </div>
-        <div className="form-check mb-30">
-          <input
-            type="checkbox"
-            id="forgotPassword"
-            className="form-check-input"
+
+        <Form.Item
+          label="Email"
+          name="email"
+          className="form-control mb-15"
+          rules={[
+            { required: true, message: "Email is required" },
+            { type: "email", message: "Invalid email address" },
+          ]}
+        >
+          <Input placeholder="name@example.com" className="form-input" />
+        </Form.Item>
+
+        <Form.Item
+          label="Password"
+          name="password"
+          className="form-control mb-15"
+          rules={passwordRules}
+        >
+          <Input.Password
+            placeholder="8+ characters required"
+            className="form-input"
           />
-          <label className="form-check-label" htmlFor="forgotPassword">I accept the <Link href="/" className='text-primary'>Terms and Conditions</Link></label>
-        </div>
-        <Link href="/" className='btn btn-secondary large w-full uppercase'>
-          Sign Up
+        </Form.Item>
+
+        <Form.Item
+          label="Confirm Password"
+          name="confirmPassword"
+          className="form-control mb-15"
+          dependencies={["password"]}
+          rules={[
+            { required: true, message: "Confirm Password is required" },
+            ({ getFieldValue }) => ({
+              validator(_, value) {
+                if (!value || getFieldValue("password") === value) {
+                  return Promise.resolve();
+                }
+                return Promise.reject("Passwords do not match");
+              },
+            }),
+          ]}
+        >
+          <Input.Password
+            placeholder="8+ characters required"
+            className="form-input"
+          />
+        </Form.Item>
+
+        <Form.Item
+          name="terms"
+          valuePropName="checked"
+          rules={[
+            {
+              validator: (_, value) =>
+                value
+                  ? Promise.resolve()
+                  : Promise.reject("You must accept Terms and Conditions"),
+            },
+          ]}
+        >
+          <Checkbox className="form-check-input">
+            I accept the{" "}
+            <Link href="/" className="text-primary">
+              Terms and Conditions
+            </Link>
+          </Checkbox>
+        </Form.Item>
+
+        <Form.Item>
+          <button type="submit" className="btn btn-secondary large w-full uppercase">
+            Sign Up
+          </button>
+        </Form.Item>
+      </Form>
+
+      <div className="text-center sm:mt-30 mt-6 text-font-color-100">
+        <p>Already have an account?</p>
+        <Link href={SystemRoutes.LOGIN} className="text-primary">
+          Sign in here
         </Link>
-        <div className='text-center sm:mt-30 mt-6 text-font-color-100'>
-          <p>
-            Already have an account?
-          </p>
-          <Link href="/auth/sign-in" className='text-primary'>
-            Sign in here
-          </Link>
-        </div>
       </div>
     </>
-  )
+  );
 }
