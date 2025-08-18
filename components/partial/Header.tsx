@@ -51,7 +51,6 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import CompanyLogo from "../common/CompanyLogo";
-import TopMenuBar from "./TopMenuBar";
 
 type ColorPickerOption = {
   color: string;
@@ -436,7 +435,7 @@ export default function Header({
             </Link>
           </div>
           <div className="relative px-4 flex-1 md:block hidden">
-            <TopMenuBar />
+            {/* <TopMenuBar /> */}
           </div>
           <div className="flex items-center ms-auto">
             <div className="relative group">

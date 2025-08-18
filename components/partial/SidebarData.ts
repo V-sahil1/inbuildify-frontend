@@ -18,170 +18,136 @@ export const menuList = [
   {
     icon: IconHome,
     link: "My Dashboard",
+    roles: ["builder", "contractor", "customer"],
     children: [
       {
         link: "Analysis",
         url: "/",
+        roles: ["builder", "contractor", "customer"],
       },
       {
         link: "My Wallet",
         url: "/dashboard/my-wallet",
+        roles: ["builder", "contractor", "customer"],
       },
       {
         link: "Smart IOT",
         url: "/dashboard/smart-iot",
+        roles: ["builder", "contractor", "customer"],
       },
     ],
   },
   {
     icon: IconApps,
     link: "Applications",
+    roles: ["builder", "contractor", "customer"],
     children: [
       {
         link: "Calendar",
         url: "/app/calendar",
+        roles: ["builder", "contractor", "customer"],
       },
-      // {
-      //     link: "tui Calendar",
-      //     url: "/app-calendar-tui",
-      // },
       {
         link: "Email App",
         url: "/app/email",
+        roles: ["builder", "contractor", "customer"],
       },
       {
         link: "Chat App",
         url: "/app/chat",
+        roles: ["builder", "contractor", "customer"],
       },
       {
         link: "Campaigns",
         url: "/app/campaign",
+        roles: ["builder", "contractor", "customer"],
       },
       {
         link: "Social App",
         url: "/app/social",
+        roles: ["builder", "contractor", "customer"],
       },
       {
         link: "File Manager",
         url: "/app/file-manager",
+        roles: ["builder", "contractor", "customer"],
       },
       {
         link: "Todo App",
         url: "/app/todo",
+        roles: ["builder", "contractor", "customer"],
       },
       {
         link: "Contact",
         url: "/app/contact",
+        roles: ["builder", "contractor", "customer"],
       },
       {
         link: "Task",
         url: "/app/task",
+        roles: ["builder", "contractor", "customer"],
       },
       {
         link: "Project List",
         url: "/app/project/list",
+        roles: ["builder", "contractor", "customer"],
       },
     ],
   },
   {
     icon: IconNotebook,
     link: "More Pages",
+    roles: ["builder", "contractor", "customer"],
     children: [
       {
         link: "My Profile",
         url: "/page/my-profile",
+        roles: ["builder", "contractor", "customer"],
       },
       {
         link: "Bookmarks",
         url: "/page/bookmark",
+        roles: ["builder", "contractor", "customer"],
       },
       {
         link: "Timeline",
         url: "/page/timeline",
+        roles: ["builder", "contractor", "customer"],
       },
       {
         link: "Image Gallery",
         url: "/page/image-gallery",
+        roles: ["builder", "contractor", "customer"],
       },
       {
         link: "Pricing",
         url: "/page/pricing",
+        roles: ["builder", "contractor", "customer"],
       },
       {
         link: "Teams Board",
         url: "/page/team-board",
+        roles: ["builder", "contractor", "customer"],
       },
       {
         link: "Support Ticket",
         url: "/page/support-ticket",
+        roles: ["builder", "contractor", "customer"],
       },
       {
         link: "FAQs",
         url: "/page/faq",
+        roles: ["builder", "contractor", "customer"],
       },
       {
         link: "Search Page",
         url: "/page/search-page",
+        roles: ["builder", "contractor", "customer"],
       },
       {
         link: "Footers",
         url: "/page/footers",
-      },
-    ],
-  },
-  {
-    icon: IconId,
-    link: "Account",
-    children: [
-      {
-        link: "Setting",
-        url: "/account/setting",
-      },
-      {
-        link: "Invoice List",
-        url: "/account/invoice",
-      },
-      {
-        link: "Create Invoice",
-        url: "/account/create-invoice",
-      },
-      {
-        link: "Billing",
-        url: "/account/billing",
-      },
-    ],
-  },
-  {
-    icon: IconShieldLock,
-    link: "Authentication",
-    children: [
-      {
-        link: "404",
-        url: "/auth/error",
-      },
-      {
-        link: "Sign In",
-        url: "/auth/sign-in",
-      },
-      {
-        link: "Sign Up",
-        url: "/auth/sign-up",
-      },
-      {
-        link: "Forgot Password",
-        url: "/auth/forgot-password",
-      },
-      {
-        link: "2-Step Authentication",
-        url: "/auth/two-step",
-      },
-      {
-        link: "Lockscreen",
-        url: "/auth/lockscreen",
-      },
-      {
-        link: "Maintenance",
-        url: "/auth/maintenance",
+        roles: ["builder", "contractor", "customer"],
       },
     ],
   },
@@ -191,16 +157,19 @@ export const menuList = [
     children: [
       {
         link: "Level 1",
+        roles: ["builder", "contractor", "customer"],
         children: [
           {
             link: "Level 2",
             url: "#",
+            roles: ["builder", "contractor", "customer"],
           },
         ],
       },
       {
         link: "Level 1",
         url: "#",
+        roles: ["builder", "contractor", "customer"],
       },
     ],
   },
@@ -211,110 +180,24 @@ export const menuList = [
     icon: IconSquares,
     link: "Modals Popups",
     url: "/modals",
+    roles: ["builder", "contractor", "customer"],
   },
   {
     icon: IconLayout2,
     link: "Widget's",
     url: "/widgets",
+    roles: ["builder", "contractor", "customer"],
   },
   {
     icon: IconChecklist,
     link: "Documentation",
     url: "/documentation",
+    roles: ["builder", "contractor", "customer"],
   },
   {
     icon: IconTimelineEventPlus,
     link: "Changelog",
     url: "/documentation/change-log",
-  },
-];
-
-export const orderMenu = [
-  {
-    devider: "ORDERS",
-  },
-  {
-    icon: IconId,
-    link: "Orders",
-    children: [
-      {
-        link: "All Orders",
-        url: "/orders",
-      },
-      {
-        link: "Order Form 1",
-        url: "/orders/order-form-1",
-      },
-      {
-        link: "Order Form 2",
-        url: "/orders/order-form-2",
-      },
-    ],
-  },
-]
-
-export const documentationItem = [
-  {
-    devider: "DOCUMENTATION",
-    color: "primary",
-    fontWeight: "bold",
-  },
-  {
-    link: "Overview",
-    url: "/documentation",
-  },
-  {
-    link: "Dev Setup",
-    url: "/documentation/dev-setup",
-  },
-  {
-    link: "File Structure",
-    url: "/documentation/file-structure",
-  },
-  {
-    link: "References",
-    url: "/documentation/references",
-  },
-  {
-    link: "Helper Class",
-    url: "/documentation/helperclass",
-  },
-  {
-    link: "Changelog",
-    url: "/documentation/change-log",
-  },
-];
-
-export const crmManagement = [
-  {
-    link: "sdfsdf",
-    url: "#",
-  },
-  {
-    link: "sdadasaffsdf",
-    url: "#",
-  },
-];
-
-export const topMenu = [
-  {
-    title: "Menu 1",
-    path: "/",
-    subMenu: menuList,
-  },
-  {
-    title: "Orders",
-    path: "/orders",
-    subMenu: orderMenu,
-  },
-  {
-    title: "Menu 2",
-    path: "/documentation",
-    subMenu: documentationItem,
-  },
-  {
-    title: "Menu 3",
-    path: "/crm-management",
-    subMenu: crmManagement,
+    roles: ["builder", "contractor", "customer"],
   },
 ];

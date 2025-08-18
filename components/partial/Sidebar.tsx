@@ -1,7 +1,7 @@
-import React, { ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import { useRouter } from "next/router";
-import { menuList, documentationItem, crmManagement, orderMenu, topMenu } from "./SidebarData";
+import { menuList } from "./SidebarData";
 import {
   avatar1,
   avatar2,
@@ -49,6 +49,7 @@ interface MenuDivider {
   url?: string;
   icon?: React.ComponentType<{ className?: string }>;
   children?: MenuItem[];
+  roles?: string[];
 };
 
 interface MenuItem {
@@ -56,9 +57,10 @@ interface MenuItem {
   url?: string;
   icon?: React.ComponentType<{ className?: string }>;
   children?: MenuItem[];
+  roles?: string[];
 };
 
-type SidebarMenuItem = MenuDivider;
+type SidebarMenuItem = MenuDivider | MenuItem;
 
 export default function Sidebar({
   setMobileNav,
@@ -74,13 +76,71 @@ export default function Sidebar({
   toggleChat: () => void;
 }) {
   const pageUrl = useRouter().pathname;
+  // const userRole = useSelector((state) => state.auth.user.role);
+  const userRole = 'builder';
+
+  const filteredMenuList = useMemo(() => {
+    // Helper function with correct type annotation
+    const hasAccess = (item: SidebarMenuItem) => {
+      if (!item.roles) {
+        return true;
+      }
+      return item.roles.includes(userRole);
+    };
+
+    // Use `map` to create a new array and handle nested filtering
+    const newMenuList = menuList.map(item => {
+      // Handle divider items first, as they are a different type
+      if ('devider' in item) {
+        return item;
+      }
+
+      // Check if the top-level item has access
+      if (!hasAccess(item)) {
+        return null; // Return null if no access to this top-level item
+      }
+
+      // Deep clone the item to avoid mutating the original `menuList`
+      const newItem = { ...item };
+
+      // Check for and filter children
+      if (newItem.children) {
+        const filteredChildren = newItem.children.map(child => {
+          // Check for sub-children
+          if (child.children) {
+            const filteredSubChildren = child.children.filter(subChild => hasAccess(subChild));
+            // Only return the child if it has sub-children with access
+            if (filteredSubChildren.length > 0) {
+              return { ...child, children: filteredSubChildren };
+            }
+            return null;
+          }
+          // Check access for the direct child
+          if (hasAccess(child)) {
+            return child;
+          }
+          return null;
+        }).filter(Boolean); // Filter out any null values
+
+        // Update the item's children with the filtered list
+        newItem.children = filteredChildren;
+
+        // If after filtering children, there are none, hide the parent
+        if (filteredChildren.length === 0) {
+          return null;
+        }
+      }
+
+      return newItem;
+    }).filter(Boolean) as SidebarMenuItem[]; // Filter out nulls and assert the type
+
+    return newMenuList;
+  }, [userRole]);
+
 
   const [adminMenu, setAdminMenu] = useState<boolean>(false);
   const menuRef = useRef(null);
   const buttonRef = useRef(null);
-  const toggleAdminMenu = () => {
-    setAdminMenu(!adminMenu);
-  };
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -112,45 +172,6 @@ export default function Sidebar({
     setSchedule(!schedule);
   };
 
-  const [newProjectSidebar, setNewProjectSidebar] = useState<boolean>(false);
-  const toggleNewProject = () => {
-    setNewProjectSidebar(!newProjectSidebar);
-  };
-
-  const data: SidebarMenuItem[] = useMemo(() => {
-    const pagePath = pageUrl?.split("/")?.[1];
-    const path = pagePath? `/${pagePath}` : '/'
-    const menu = topMenu.find((item) => item.path.startsWith(path));
-    if (menu) {
-      return menu.subMenu as SidebarMenuItem[];
-    }
-
-    return menuList as SidebarMenuItem[];
-  }, [pageUrl]);
-
-  useEffect(() => {
-    data.forEach((item, index) => {
-      // Type narrowing: only proceed if it's a menu item (not a divider)
-      if ("link" in item && item.children) {
-        item.children.forEach((child, subIndex) => {
-          if ("url" in child && child.url === pageUrl) {
-            setMenuActive(index);
-            setMenuActiveSub(subIndex);
-          } else if (child.children) {
-            child.children.forEach((subChild) => {
-              if ("url" in subChild && subChild.url === pageUrl) {
-                setMenuActive(index);
-                setMenuActiveSub(subIndex);
-              }
-            });
-          }
-        });
-      } else if ("url" in item && item.url === pageUrl) {
-        setMenuActive(index);
-      }
-    });
-  }, [pageUrl, data]);
-
   return (
     <>
       <div className="sidebar-header px-3 mb-6 flex items-center justify-between gap-2">
@@ -158,70 +179,10 @@ export default function Sidebar({
           <span className="sm-txt">L</span>
           <span>UNO Admin</span>
         </h4>
-        <div className="sidebar-dropdown relative flex">
-          <button
-            ref={buttonRef}
-            onClick={toggleAdminMenu}
-            className="bg-primary-10 p-[2px] rounded-full text-primary transition-all hover:bg-primary hover:text-white"
-          >
-            <IconDots className="w-[20px] h-[20px]" />
-          </button>
-          <ul
-            ref={menuRef}
-            className={`bg-card-color text-font-color z-[1] rounded-xl w-[180px] shadow-shadow-lg absolute end-0 top-full origin-top-right transition-all duration-300 ${
-              adminMenu
-                ? " opacity-100 visible scale-100"
-                : "opacity-0 invisible scale-0"
-            }`}
-          >
-            <li>
-              <Link href="#" className="px-4 py-2 flex hover:bg-gray-100">
-                Landing page
-              </Link>
-            </li>
-            <li>
-              <Link href="#" className="px-4 py-2 flex hover:bg-gray-100">
-                Inventary
-              </Link>
-            </li>
-            <li>
-              <Link href="#" className="px-4 py-2 flex hover:bg-gray-100">
-                eCommerce
-              </Link>
-            </li>
-            <li>
-              <Link href="#" className="px-4 py-2 flex hover:bg-gray-100">
-                HRMS
-              </Link>
-            </li>
-          </ul>
-        </div>
       </div>
-      <Search />
-      <div className="create-new-project px-3 py-4 flex gap-5">
-        <select className="select-project form-select cursor-pointer rounded-full bg-card-color py-[6px] ps-15 pe-30 text-[14px]/[20px] w-full appearance-none border border-border-color focus:outline-0 focus:border-primary">
-          <option defaultValue="">Select Project</option>
-          <option value="1">Luno University</option>
-          <option value="2">Book Manager</option>
-          <option value="3">Luno Sass App</option>
-        </select>
-        <button
-          onClick={toggleNewProject}
-          className={`add-project bg-primary text-white rounded-full p-2 transition-all duration-300 after:fixed after:z-[4] after:w-full after:h-full after:left-0 after:top-0 after:bg-black-50 after:backdrop-blur-[2px] after:transition-all after:duration-500 after:ease-in-out ${
-            newProjectSidebar
-              ? "after:opacity-1 after:visible after:overflow-auto"
-              : "after:opacity-0 after:invisible after:overflow-hidden"
-          }`}
-        >
-          <IconPlus className="w-[20px] h-[20px]" />
-        </button>
-        <NewProject
-          newProjectSidebar={newProjectSidebar}
-          toggleNewProject={toggleNewProject}
-        />
-      </div>
+      {/* <Search /> */}
       <ul className="sidebar-list px-3 mb-4 main-menu">
-        {data.map((item: SidebarMenuItem, key: number) =>
+        {filteredMenuList.map((item: SidebarMenuItem, key: number) =>
           "link" in item && item?.children ? (
             <li key={key} className="sidebar-listitem">
               <button
@@ -327,16 +288,16 @@ export default function Sidebar({
                 <span className="link">{item.link}</span>
               </Link>
             </li>
-          ) : (
+          ) : 'devider' in item ? (
             <li
               key={key}
               className={`devider py-3 menu-devider uppercase text-[12px]/[15px]${
-                item.color ? ` text-${item.color}` : ""
-              }${item.fontWeight ? ` font-${item.fontWeight}` : ""}`}
-            >
+                  item.color ? ` text-${item.color}` : ""
+                }${item.fontWeight ? ` font-${item.fontWeight}` : ""}`}
+              >
               {item.devider}
             </li>
-          )
+          ) : null
         )}
       </ul>
       <div className="sidebar-bottom-link flex justify-evenly gap-3 mx-3 border border-dashed rounded-xl p-2 mt-auto">
