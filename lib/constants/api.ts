@@ -7,6 +7,7 @@ import {
 
 import API_ENDPOINTS from "./apiEndpoints";
 import { objectToQueryString } from "./url";
+import SystemRoutes from "./Routes";
 
 interface ApiError {
   code: string;
@@ -127,8 +128,8 @@ const api = async <T>(
           return retryResponse.data;
         } else {
           localStorage.clear();
-          if (window.location.pathname !== "/login") {
-            window.location.href = "/login";
+          if (window.location.pathname !== `${SystemRoutes.LOGIN}`) {
+            window.location.href = `${SystemRoutes.LOGIN}`;
           }
 
           throw {
@@ -142,8 +143,8 @@ const api = async <T>(
         isRefreshing = false;
         localStorage.clear();
 
-        if (window.location.pathname !== "/login") {
-          window.location.href = "/login";
+        if (window.location.pathname !== `${SystemRoutes.LOGIN}`) {
+          window.location.href = `${SystemRoutes.LOGIN}`;
         }
 
         console.error("Token refresh failed:", refreshError);

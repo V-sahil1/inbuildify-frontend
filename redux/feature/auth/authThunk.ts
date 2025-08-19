@@ -20,12 +20,36 @@ export const SignInThunk = createAsyncThunk(
 
 export const ForgetPasswordThunk = createAsyncThunk(
   "auth/login",
-  async (payload: { email: string }, thunkAPI) => {
+  async (payload: { email: string }, {rejectWithValue}) => {
     try {
-      const response: ApiResponse<LoginResponse> = await api.post(API_ENDPOINTS.FORGET_PASSWORD, { data: payload });
+      const response: ApiResponse<LoginResponse> = await api.post(API_ENDPOINTS.FORGOT_PASSWORD, { data: payload });
       return response;
     } catch (err: any) {
-      return thunkAPI.rejectWithValue(err.message);
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+export const ResetPasswordThunk = createAsyncThunk(
+  "auth/login",
+  async (payload: { token: string, newPassword: string }, {rejectWithValue}) => {
+    try {
+      const response: ApiResponse<LoginResponse> = await api.post(API_ENDPOINTS.RESET_PASSWORD, { data: payload });
+      return response;
+    } catch (err: any) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+export const VerifyEmailThunk = createAsyncThunk(
+  "auth/login",
+  async (payload: { otp: string }, {rejectWithValue}) => {
+    try {
+      const response: ApiResponse<LoginResponse> = await api.post(API_ENDPOINTS.VERIFY_EMAIL, { data: payload });
+      return response;
+    } catch (err: any) {
+      return rejectWithValue(err.message);
     }
   }
 );

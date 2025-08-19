@@ -1,11 +1,14 @@
 import React, { useState } from "react";
-import { auth_forgot_password } from "/public/images";
 import Link from "next/link";
 import Image from "next/image";
-import { ForgetPasswordThunk } from "@redux/feature/auth/authThunk";
-import { useAppDispatch } from "@hooks/redux";
+import { useRouter } from "next/navigation";
 import { message } from "antd";
 import { IconLoader } from "@tabler/icons-react";
+import { auth_forgot_password } from "/public/images";
+import { ForgetPasswordThunk } from "@redux/feature/auth/authThunk";
+import { useAppDispatch } from "@hooks/redux";
+import SystemRoutes from "@lib/constants/Routes";
+
 
 export async function getStaticProps() {
   return {
@@ -19,13 +22,15 @@ export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false)
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const handleForgetPassword = async () => {
     setLoading(true)
     try {
       const response = await dispatch(ForgetPasswordThunk({ email })).unwrap();
       message.success(response.message);
+      router.push(SystemRoutes.LOGIN);
     } catch (error) {
-      message.error(error?.message);
+      message.error(error);
     } finally {
       setLoading(false)
     }

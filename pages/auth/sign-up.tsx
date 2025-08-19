@@ -4,8 +4,8 @@ import Link from "next/link";
 import React from "react";
 import { Form, Input, Checkbox } from "antd";
 import SystemRoutes from "@lib/constants/Routes";
-import { useAppDispatch } from "@hooks/redux";
-import { SignUpThunk } from "@redux/feature/auth/authThunk";
+// import { useAppDispatch } from "@hooks/redux";
+// import { SignUpThunk } from "@redux/feature/auth/authThunk";
 
 export async function getStaticProps() {
   return {
@@ -15,7 +15,7 @@ export async function getStaticProps() {
   };
 }
 
-const passwordRules = [
+export const passwordRules = [
   { required: true, message: "Password is required" },
   {
     validator: (_: any, value: string) => {
@@ -50,15 +50,15 @@ const passwordRules = [
 
 export default function Signup() {
   const [form] = Form.useForm();
-  const dispatch = useAppDispatch();
+  // const dispatch = useAppDispatch();
 
   const onFinish = () => {
     form.validateFields().then((values) => {
-      try {
-        dispatch(SignUpThunk(values)).unwrap();
-      } catch (error) {
-        console.log(error);
-      }
+      // try {
+      //   dispatch(SignUpThunk(values)).unwrap();
+      // } catch (error) {
+      //   console.log(error);
+      // }
     });
   };
 

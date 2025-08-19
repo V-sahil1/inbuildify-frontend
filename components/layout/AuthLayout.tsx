@@ -21,7 +21,7 @@ export default function AuthLayout({
             <div className="max-w-[400px]">
               <div className="mb-4">
                 {/* <CompanyLogo className="text-primary w-[116px] h-auto" /> */}
-                <h2 className="text-primary text-[24px]/[30px] text-red-500 font-medium">CRMSimplify</h2>
+                <h2 className="text-primary text-[24px]/[30px] text-red-500 font-medium">Builder Pro</h2>
               </div>
               <p className="mb-12 text-[32px]/[40px] font-medium">
                 Build digital products with:

@@ -16,7 +16,6 @@ class API_ENDPOINTS {
   public static FORGOT_PASSWORD = `${this.AUTH_BASE}/forgot-password`;
   public static RESET_PASSWORD = `${this.AUTH_BASE}/reset-password`;
   public static UPDATE_PASSWORD = `${this.AUTH_BASE}/update-password`;
-  public static GET_PROFILE = `${this.AUTH_BASE}/me`;
   public static LOGOUT = `${this.AUTH_BASE}/logout`;
 
  // contractors
