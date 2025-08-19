@@ -19,6 +19,11 @@ class API_ENDPOINTS {
   public static GET_PROFILE = `${this.AUTH_BASE}/me`;
   public static LOGOUT = `${this.AUTH_BASE}/logout`;
 
+ // contractors
+ public static CONTRACTOR_BASE = "/contractor";
+ public static CREATE_CONTRACTOR = `${this.CONTRACTOR_BASE}`;
+ public static GET_CONTRACTORS = `${this.CONTRACTOR_BASE}`;
+
 }
 
 export default API_ENDPOINTS;

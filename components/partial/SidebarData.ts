@@ -38,6 +38,12 @@ export const menuList = [
     ],
   },
   {
+    icon: IconHome,
+    link: "Manage Contractor",
+    url: "/contractor",
+    roles: ["builder", "contractor", "customer"],
+  },
+  {
     icon: IconApps,
     link: "Applications",
     roles: ["builder", "contractor", "customer"],
