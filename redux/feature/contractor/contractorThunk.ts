@@ -35,3 +35,44 @@ export const getContractorsThunk = createAsyncThunk(
     }
   }
 );
+
+export const updateContractorThunk = createAsyncThunk(
+  "contractor/update",
+  async (
+    {
+      contractorId,
+      payload,
+    }: { contractorId: string; payload: { name: string; phone: string; address: string } },
+    thunkAPI
+  ) => {
+    try {
+      console.log("abc",contractorId);
+      const response: ApiResponse<ContractorRequest> = await api.put(
+        `${API_ENDPOINTS.CREATE_CONTRACTOR}/${contractorId}`,
+        {
+          data: payload, // ✅ only send object of object
+        }
+      );
+
+      return response;
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue(err.message);
+    }
+  }
+);
+
+
+export const deleteContractorThunk = createAsyncThunk(
+  "contractor/delete",
+  async (contractorId: string, thunkAPI) => {
+    try {
+      const response: ApiResponse<ContractorRequest> = await api.delete(
+        `${API_ENDPOINTS.CREATE_CONTRACTOR}/${contractorId}` // ✅ delete not put
+      );
+
+      return response;
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue(err.message);
+    }
+  }
+);

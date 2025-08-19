@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Button, Form, Input, Modal, Table, Typography, message, Spin } from 'antd'
 import type { TableColumnsType } from 'antd'
 import { useAppDispatch } from '@hooks/redux'
-import { createContractorThunk, getContractorsThunk } from '@redux/feature/contractor/contractorThunk'
+import { createContractorThunk, deleteContractorThunk, getContractorsThunk, updateContractorThunk } from '@redux/feature/contractor/contractorThunk'
 import { ContractorResponse } from "@redux/feature/contractor/IContractorState";
 
 type Contractor = {
@@ -17,6 +17,9 @@ const initialData: Contractor[] = []
 
 const ContractorPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingKey, setEditingKey] = useState<string | null>(null);
+
   const [form] = Form.useForm<Contractor>();
   const [contractors, setContractors] = useState<Contractor[]>(initialData);
   const [loading, setLoading] = useState(false);
@@ -45,6 +48,98 @@ const ContractorPage = () => {
       });
   }, [dispatch])
 
+  const handleOpenModal = () => {
+    setIsEditing(false);
+    setEditingKey(null);
+    form.resetFields();
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (record: Contractor) => {
+    setIsEditing(true);
+    setEditingKey(record.key);
+    form.setFieldsValue(record);
+    setIsModalOpen(true);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+    setIsEditing(false);
+    setEditingKey(null);
+  };
+
+ const handleDelete = async (record: Contractor) => {
+  try {
+    const contractorId = record.key;
+
+    const res = await dispatch(deleteContractorThunk(contractorId)).unwrap();
+
+    if (res) {
+      message.success(res.message);
+      setContractors(prev => prev.filter(c => c.key !== record.key));
+    }
+  } catch (err) {
+    console.error("Failed to delete the Contractor", err);
+    message.error(err);
+  }
+};
+
+
+  const handleSubmit = async () => {
+    try {
+      setLoading(true);
+      const values = await form.validateFields();
+
+      if (isEditing && editingKey) {
+        // Update existing contractor 
+        const payload = {
+          name: values.fullName,
+          phone: values.phone,
+          address: values.address,
+        };
+        const res = await dispatch(updateContractorThunk({ contractorId: editingKey, payload })).unwrap();
+
+        if(res){
+        setContractors(prev =>
+          prev.map(c =>
+            c.key === editingKey ? { ...c, ...values } : c
+          )
+        );
+        message.success(res.message);
+        }
+      } else {
+        // Create new contractor
+        await dispatch(
+          createContractorThunk({
+            name: values.fullName,
+            email: values.email,
+            phone: values.phone,
+            address: values.address,
+          })
+        ).unwrap();
+
+        const newContractor: Contractor = {
+          key: `${Date.now()}`,
+          fullName: values.fullName,
+          email: values.email,
+          phone: values.phone,
+          address: values.address,
+        };
+        setContractors(prev => [newContractor, ...prev]);
+        message.success("Contractor created");
+      }
+
+      setIsModalOpen(false);
+      form.resetFields();
+      setIsEditing(false);
+      setEditingKey(null);
+    } catch (err) {
+      message.error((err as any)?.message || 'Failed to save contractor');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const columns: TableColumnsType<Contractor> = useMemo(
     () => [
       {
@@ -67,59 +162,37 @@ const ContractorPage = () => {
         dataIndex: "address",
         key: "address",
       },
+      {
+        title: "Actions",
+        key: "actions",
+        render: (_, record) => (
+          <div className="flex gap-2">
+            <Button type="link" onClick={() => handleEdit(record)}>
+              Edit
+            </Button>
+            <Button
+              type="link"
+              danger
+              onClick={() => handleDelete(record)}>
+              Delete
+            </Button>
+          </div>
+        ),
+      },
     ],
     []
   );
-
-  const handleOpenModal = () => {
-    form.resetFields();
-    setIsModalOpen(true);
-  };
-
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleCreate = async () => {
-    try {
-      setLoading(true);
-      const values = await form.validateFields();
-      await dispatch(
-        createContractorThunk({
-          name: values.fullName,
-          email: values.email,
-          phone: values.phone,
-          address: values.address,
-        })
-      ).unwrap()
-
-      const newContractor: Contractor = {
-        key: `${Date.now()}`,
-        fullName: values.fullName,
-        email: values.email,
-        phone: values.phone,
-        address: values.address,
-      }
-      setContractors((prev) => [newContractor, ...prev])
-      setIsModalOpen(false)
-      form.resetFields()
-    } catch (err) {
-      message.error((err as any)?.message || 'Failed to create contractor')
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="p-4">
       <div className="w-full">
         <div className="flex items-center justify-between mb-4">
-          <Typography.Title level={4} style={{ margin: 0, color: "var(--font-color)" }} >
+          <Typography.Title level={4} style={{ margin: 0, color: "var(--font-color)" }}>
             Contractors
           </Typography.Title>
-          <Button type="primary" onClick={handleOpenModal} loading={loading}>
+          <button className="btn large bg-[#4c3575] cursor-pointer text-white" onClick={handleOpenModal}>
             Create Contractor
-          </Button>
+          </button>
         </div>
 
         <Spin spinning={loading}>
@@ -129,16 +202,23 @@ const ContractorPage = () => {
             dataSource={contractors}
             pagination={{ pageSize: 10 }}
             loading={false}
+            scroll={{ x: "max-content" }}
           />
         </Spin>
 
         <Modal
-          title="Create Contractor"
+          title={isEditing ? "Edit Contractor" : "Create Contractor"}
           open={isModalOpen}
-          onOk={handleCreate}
+          onOk={handleSubmit}
           onCancel={handleCancel}
-          okText="Create"
+          okText={isEditing ? "Update" : "Create"}
           confirmLoading={loading}
+          cancelButtonProps={{
+            style: { color: "#4c3575", borderColor: "#4c3575" }, 
+          }}
+           okButtonProps={{
+            style: { backgroundColor: "#4c3575", borderColor: "#4c3575" },
+          }}
         >
           <Form form={form} layout="vertical">
             <Form.Item
@@ -157,13 +237,18 @@ const ContractorPage = () => {
                 { type: "email", message: "Please enter a valid email" },
               ]}
             >
-              <Input placeholder="john@example.com" />
+              <Input placeholder="john@example.com"  disabled={isEditing}/>
             </Form.Item>
 
             <Form.Item
               label="Phone"
               name="phone"
-              rules={[{ required: true, message: "Please enter phone" }]}
+              rules={[{ required: true, message: "Please enter phone" },
+                 {
+                    pattern: /^\d{10,15}$/,
+                    message: "Phone number must be between 10 to 15 digits",
+                 },
+              ]}
             >
               <Input placeholder="+1 555 0100" />
             </Form.Item>
@@ -171,7 +256,9 @@ const ContractorPage = () => {
             <Form.Item
               label="Address"
               name="address"
-              rules={[{ required: true, message: "Please enter address" }]}
+              rules={[{ required: true, message: "Please enter address" },
+                      { min: 10, message: "Address must be at least 10 characters" },
+                     ]}
             >
               <Input placeholder="123 Main St, Springfield" />
             </Form.Item>
