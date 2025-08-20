@@ -7,7 +7,7 @@ class API_ENDPOINTS {
   public static AUTH_BASE = "/auth";
   public static LOGIN = `${this.AUTH_BASE}/login`;
   public static PROFILE = `${this.AUTH_BASE}/profile`;
-  public static REFRESH_TOKEN = `${this.AUTH_BASE}/refresh`;
+  public static REFRESH_TOKEN = `${this.AUTH_BASE}/refresh-token`;
   public static REGISTER_BASE = `${this.AUTH_BASE}/register`;
   public static MANAGER_REGISTER = `${this.REGISTER_BASE}/manager`;
   public static EMPLOYEE_REGISTER = `${this.REGISTER_BASE}/employee`;

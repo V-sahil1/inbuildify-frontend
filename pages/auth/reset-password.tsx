@@ -4,7 +4,7 @@ import SystemRoutes from "@lib/constants/Routes";
 import { Form, Input, message } from "antd";
 import Link from "next/link";
 import { auth_two_step } from "/public/images";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { IconEye, IconEyeOff, IconLoader } from "@tabler/icons-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { passwordRules } from "./sign-up";
@@ -26,50 +26,42 @@ const ResetPassword = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const router = useRouter();
     const searchParams = useSearchParams();
-    const [token, setToken] = useState<string>("");
+    const [token, setToken] = useState<{ resetPasswordToken: string | null, email: string | null }>({
+        resetPasswordToken: null,
+        email: null
+    });
     const dispatch = useAppDispatch()
 
-    // useEffect(() => {
-    //     const urlToken = searchParams.get('token');
-    //     if (!urlToken) {
-    //         message.error("Invalid or missing reset token");
-    //         router.push(SystemRoutes.FORGOT_PASSWORD);
-    //         return;
-    //     }
-    //     setToken(urlToken);
-    // }, [searchParams, router]);
-
+    useEffect(() => {
+        const urlToken = searchParams.get("token");
+        const email = searchParams.get("email");
+        setToken({
+          resetPasswordToken: urlToken ?? "",
+          email: email ?? ""
+        });
+      }, [searchParams]);
+      
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
     };
 
-    const onFinish = async (values: { newPassword: string; confirmPassword: string }) => {
-        if (values.newPassword !== values.confirmPassword) {
+    const onFinish = async (values: any) => {
+        if (values.password !== values.confirmPassword) {
             message.error("Passwords do not match");
-            return;
-        }
-
-        if (!token) {
-            message.error("Invalid or expired token");
             return;
         }
 
         setLoading(true);
         try {
-            const response = await dispatch(ResetPasswordThunk({ token, newPassword: values.newPassword })).unwrap();
+            const response = await dispatch(ResetPasswordThunk({ resetPasswordToken: token.resetPasswordToken, password: values.password, email: token.email })).unwrap();
             message.success(response.message);
             router.push(SystemRoutes.LOGIN);
         } catch (error: any) {
-            console.error('Error resetting password:', error);
-            message.error(error.message || 'Failed to reset password');
+            message.error(error || 'Failed to reset password');
         } finally {
             setLoading(false);
         }
     };
-
-    // if (!token) {
-    //     return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
-    // }
 
     return (
         <>
@@ -95,7 +87,7 @@ const ResetPassword = () => {
             >
                 <Form.Item
                     label="New Password"
-                    name="newPassword"
+                    name="password"
                     rules={passwordRules}
                 >
                     <Input.Password
@@ -112,12 +104,12 @@ const ResetPassword = () => {
                 <Form.Item
                     label="Confirm Password"
                     name="confirmPassword"
-                    dependencies={['newPassword']}
+                    dependencies={['password']}
                     rules={[
                         { required: true, message: 'Please confirm your password!' },
                         ({ getFieldValue }) => ({
                             validator(_, value) {
-                                if (!value || getFieldValue('newPassword') === value) {
+                                if (!value || getFieldValue('password') === value) {
                                     return Promise.resolve();
                                 }
                                 return Promise.reject(new Error('The two passwords do not match!'));

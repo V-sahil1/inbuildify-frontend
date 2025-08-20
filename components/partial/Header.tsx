@@ -51,7 +51,11 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import CompanyLogo from "../common/CompanyLogo";
-
+import { useAppDispatch } from "@hooks/redux";
+import { logoutThunk } from "@redux/feature/auth/authThunk";
+import { message } from "antd";
+import { useRouter } from "next/navigation";
+import SystemRoutes from "@lib/constants/Routes";
 type ColorPickerOption = {
   color: string;
   label: string;
@@ -85,6 +89,8 @@ export default function Header({
   const toggleMiniSidebar = () => {
     setMiniSidebar((prev) => !prev);
   };
+  const dispatch = useAppDispatch();
+  const router = useRouter();
   useEffect(() => {
     const sidebarElement = document.querySelector(".admin-wrapper");
     if (sidebarElement) {
@@ -299,6 +305,15 @@ export default function Header({
     };
   }, [searchBar]);
 
+  const handleSignOut = async () => {
+    try {
+      const response = await dispatch(logoutThunk()).unwrap();
+      message.success(response);
+      router.push(SystemRoutes.LOGIN);
+    } catch (e) {
+      message.error(e);
+    }
+  };
   const colorItem = [
     {
       name: "indigo",
@@ -833,12 +848,12 @@ export default function Header({
                     Support Ticket
                   </Link>
                 </div>
-                <Link
-                  href="/auth/sign-in"
+                <button
+                  onClick={handleSignOut}
                   className="bg-secondary uppercase text-[14px]/[20px] text-white py-5 px-10 text-center w-full inline-block"
                 >
                   Sign Out
-                </Link>
+                </button>
               </div>
             </div>
             <button

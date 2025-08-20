@@ -5,7 +5,7 @@ import { ApiResponse, LoginResponse, User } from "./IAuthState";
 import { storeAuthToken, storeRefreshToken } from "@lib/constants/authToken";
 
 export const SignInThunk = createAsyncThunk(
-  "auth/login",
+  "auth/signIn",
   async (payload: { email: string; password: string }, thunkAPI) => {
     try {
       const response: ApiResponse<LoginResponse> = await api.post(API_ENDPOINTS.LOGIN, { data: payload });
@@ -19,7 +19,7 @@ export const SignInThunk = createAsyncThunk(
 );
 
 export const ForgetPasswordThunk = createAsyncThunk(
-  "auth/login",
+  "auth/forgetPassword",
   async (payload: { email: string }, {rejectWithValue}) => {
     try {
       const response: ApiResponse<LoginResponse> = await api.post(API_ENDPOINTS.FORGOT_PASSWORD, { data: payload });
@@ -31,8 +31,8 @@ export const ForgetPasswordThunk = createAsyncThunk(
 );
 
 export const ResetPasswordThunk = createAsyncThunk(
-  "auth/login",
-  async (payload: { token: string, newPassword: string }, {rejectWithValue}) => {
+  "auth/resetPassword",
+  async (payload: { resetPasswordToken: string, password: string, email: string }, {rejectWithValue}) => {
     try {
       const response: ApiResponse<LoginResponse> = await api.post(API_ENDPOINTS.RESET_PASSWORD, { data: payload });
       return response;
@@ -43,7 +43,7 @@ export const ResetPasswordThunk = createAsyncThunk(
 );
 
 export const VerifyEmailThunk = createAsyncThunk(
-  "auth/login",
+  "auth/verifyEmail",
   async (payload: { otp: string }, {rejectWithValue}) => {
     try {
       const response: ApiResponse<LoginResponse> = await api.post(API_ENDPOINTS.VERIFY_EMAIL, { data: payload });
@@ -78,10 +78,19 @@ export const getUserThunk = createAsyncThunk(
   }
 );
 
-
-
-export const logoutThunk = createAsyncThunk("auth/logout", async () => {
-  localStorage.removeItem("accessToken");
-  localStorage.removeItem("refreshToken");
-  return true;
-});
+export const logoutThunk = createAsyncThunk(
+  "auth/logout",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response: ApiResponse<{ message: string }> = await api.post(
+        API_ENDPOINTS.LOGOUT
+      );
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      return response.message;
+    } catch (e) {
+      rejectWithValue(e.message);
+    }
+    return true;
+  }
+);

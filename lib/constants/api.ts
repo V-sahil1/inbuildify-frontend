@@ -141,7 +141,7 @@ const api = async <T>(
         }
       } catch (refreshError: any) {
         isRefreshing = false;
-        localStorage.clear();
+        // localStorage.clear();
 
         if (window.location.pathname !== `${SystemRoutes.LOGIN}`) {
           window.location.href = `${SystemRoutes.LOGIN}`;
