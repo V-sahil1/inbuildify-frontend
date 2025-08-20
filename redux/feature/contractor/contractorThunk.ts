@@ -8,30 +8,45 @@ export const createContractorThunk = createAsyncThunk(
   "contractor/create",
   async (
     payload: { email: string; name: string; phone: string; address: string },
-    thunkAPI
+    {rejectWithValue}
   ) => {
     try {
       const response: ApiResponse<ContractorRequest> = await api.post(
         API_ENDPOINTS.CREATE_CONTRACTOR,
         { data: payload }
       );
-      return response.data;
+      return response;
     } catch (err: any) {
-      return thunkAPI.rejectWithValue(err.message);
+      return rejectWithValue(err.message);
     }
   }
 );
 
 export const getContractorsThunk = createAsyncThunk(
   "contractor/getAll",
-  async (_, thunkAPI) => {
+  async (_, {rejectWithValue}) => {
     try {
       const response: ApiResponse<ContractorResponse> = await api.get(
         API_ENDPOINTS.GET_CONTRACTORS
       );
       return response.data;
     } catch (err: any) {
-      return thunkAPI.rejectWithValue(err.message);
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+export const getContractorByIdThunk = createAsyncThunk(
+  "contractor/delete",
+  async (contractorId: string, {rejectWithValue}) => {
+    try {
+      const response: ApiResponse<any> = await api.get(
+        `${API_ENDPOINTS.CREATE_CONTRACTOR}/${contractorId}` 
+      );
+      console.log("API",response);
+      return response;
+    } catch (err: any) {
+      return rejectWithValue(err.message);
     }
   }
 );
@@ -43,7 +58,7 @@ export const updateContractorThunk = createAsyncThunk(
       contractorId,
       payload,
     }: { contractorId: string; payload: { name: string; phone: string; address: string } },
-    thunkAPI
+    {rejectWithValue}
   ) => {
     try {
       console.log("abc",contractorId);
@@ -56,7 +71,7 @@ export const updateContractorThunk = createAsyncThunk(
 
       return response;
     } catch (err: any) {
-      return thunkAPI.rejectWithValue(err.message);
+      return rejectWithValue(err.message);
     }
   }
 );
@@ -64,15 +79,16 @@ export const updateContractorThunk = createAsyncThunk(
 
 export const deleteContractorThunk = createAsyncThunk(
   "contractor/delete",
-  async (contractorId: string, thunkAPI) => {
+  async (contractorId: string, {rejectWithValue}) => {
     try {
       const response: ApiResponse<ContractorRequest> = await api.delete(
-        `${API_ENDPOINTS.CREATE_CONTRACTOR}/${contractorId}` // ✅ delete not put
+        `${API_ENDPOINTS.CREATE_CONTRACTOR}/${contractorId}` 
       );
-
       return response;
     } catch (err: any) {
-      return thunkAPI.rejectWithValue(err.message);
+      return rejectWithValue(err.message);
     }
   }
 );
+
+

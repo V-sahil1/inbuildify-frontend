@@ -9,6 +9,8 @@ import {
   IconLayout2,
   IconChecklist,
   IconTimelineEventPlus,
+  IconBuildingSkyscraper,
+  IconUsers,
 } from "@tabler/icons-react";
 
 export const menuList = [
@@ -38,9 +40,21 @@ export const menuList = [
     ],
   },
   {
-    icon: IconHome,
+    icon: IconBuildingSkyscraper,
     link: "Manage Contractor",
     url: "/contractor",
+    roles: ["builder", "contractor", "customer"],
+  },
+    {
+    icon: IconUsers,
+    link: "Manage User",
+    url: "/user",
+    roles: ["builder", "contractor", "customer"],
+  },
+  {
+    icon: IconUsers,
+    link: "Manage Customer",
+    url: "/customer",
     roles: ["builder", "contractor", "customer"],
   },
   {

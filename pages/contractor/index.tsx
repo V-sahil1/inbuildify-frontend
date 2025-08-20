@@ -2,8 +2,9 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Button, Form, Input, Modal, Table, Typography, message, Spin } from 'antd'
 import type { TableColumnsType } from 'antd'
 import { useAppDispatch } from '@hooks/redux'
-import { createContractorThunk, deleteContractorThunk, getContractorsThunk, updateContractorThunk } from '@redux/feature/contractor/contractorThunk'
+import { createContractorThunk, deleteContractorThunk, getContractorByIdThunk, getContractorsThunk, updateContractorThunk } from '@redux/feature/contractor/contractorThunk'
 import { ContractorResponse } from "@redux/feature/contractor/IContractorState";
+import { DetailModal } from "@/components/common/DetailModal";
 
 type Contractor = {
   key: string
@@ -24,6 +25,9 @@ const ContractorPage = () => {
   const [contractors, setContractors] = useState<Contractor[]>(initialData);
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch()
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [selectedContractor, setSelectedContractor] = useState<Contractor | null>(null);
+  const [loadingDetails, setLoadingDetails] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -109,7 +113,7 @@ const ContractorPage = () => {
         }
       } else {
         // Create new contractor
-        await dispatch(
+        const res  = await dispatch(
           createContractorThunk({
             name: values.fullName,
             email: values.email,
@@ -117,6 +121,7 @@ const ContractorPage = () => {
             address: values.address,
           })
         ).unwrap();
+        if(res){
 
         const newContractor: Contractor = {
           key: `${Date.now()}`,
@@ -126,7 +131,8 @@ const ContractorPage = () => {
           address: values.address,
         };
         setContractors(prev => [newContractor, ...prev]);
-        message.success("Contractor created");
+        message.success(res.message);
+      }
       }
 
       setIsModalOpen(false);
@@ -139,6 +145,35 @@ const ContractorPage = () => {
       setLoading(false);
     }
   };
+
+ const handleRowClick = async (record: Contractor) => {
+  try {
+    setLoadingDetails(true);
+    setIsViewModalOpen(true);
+
+    // Call API with contractorId
+    const response = await dispatch(getContractorByIdThunk(record.key)).unwrap();
+    
+    if (response && response.data) {
+      // Transform API response into Contractor type
+      console.log("API Called", response.data);
+        const contractor = {
+        key: response.data.contractorId,
+        fullName: response.data.name,
+        email: response.data.email,
+        phone: response.data.phone,
+        address: response.data.address,
+      };
+       setSelectedContractor(contractor);
+    }
+  } catch (error) {
+    console.error("Failed to fetch contractor details:", error);
+  } finally {
+    setLoadingDetails(false);
+  }
+};
+
+
 
   const columns: TableColumnsType<Contractor> = useMemo(
     () => [
@@ -167,13 +202,23 @@ const ContractorPage = () => {
         key: "actions",
         render: (_, record) => (
           <div className="flex gap-2">
-            <Button type="link" onClick={() => handleEdit(record)}>
+            <Button
+              type="link"
+              onClick={(e) => {
+                e.stopPropagation(); // ✅ prevent row click
+                handleEdit(record);
+              }}
+            >
               Edit
             </Button>
             <Button
               type="link"
               danger
-              onClick={() => handleDelete(record)}>
+              onClick={(e) => {
+                e.stopPropagation(); // ✅ prevent row click
+                handleDelete(record);
+              }}
+            >
               Delete
             </Button>
           </div>
@@ -203,6 +248,9 @@ const ContractorPage = () => {
             pagination={{ pageSize: 10 }}
             loading={false}
             scroll={{ x: "max-content" }}
+             onRow={(record) => ({
+              onClick: () => handleRowClick(record),
+            })}
           />
         </Spin>
 
@@ -264,6 +312,84 @@ const ContractorPage = () => {
             </Form.Item>
           </Form>
         </Modal>
+
+        {/* <Modal
+          title="Contractor Details"
+          open={isViewModalOpen}
+          footer={null}
+          onCancel={() => setIsViewModalOpen(false)}
+        >
+          {loadingDetails ? (
+            <p>Loading contractor details...</p>
+          ) : selectedContractor ? (
+            <div className="space-y-2">
+              <p><strong>Full Name:</strong> {selectedContractor.fullName}</p>
+              <p><strong>Email:</strong> {selectedContractor.email}</p>
+              <p><strong>Phone:</strong> {selectedContractor.phone}</p>
+              <p><strong>Address:</strong> {selectedContractor.address}</p>
+            </div>
+          ) : (
+            <p>No contractor details found.</p>
+          )}
+        </Modal> */}
+        {/* <Modal
+          title="Contractor Details"
+          open={isViewModalOpen}
+          footer={null}
+          onCancel={() => setIsViewModalOpen(false)}
+          centered
+        >
+          {loadingDetails ? (
+            <div className="flex justify-center items-center py-10">
+              <Spin size="large" />
+            </div>
+          ) : selectedContractor ? (
+            <div className="">
+              <Card bordered={false} className="shadow-md mt-3 rounded-xl ">
+                <Descriptions
+                  bordered
+                  column={1}
+                  labelStyle={{ fontWeight: 600, width: "150px" }}
+                  contentStyle={{ backgroundColor: "#fff" }}
+                >
+                  <Descriptions.Item label="Full Name">
+                    {selectedContractor.fullName}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Email">
+                    <a href={`mailto:${selectedContractor.email}`}>
+                      {selectedContractor.email}
+                    </a>
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Phone">
+                    <a href={`tel:${selectedContractor.phone}`}>
+                      {selectedContractor.phone}
+                    </a>
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Address">
+                    {selectedContractor.address}
+                  </Descriptions.Item>
+                </Descriptions>
+              </Card>
+            </div>
+          ) : (
+            <p className="text-center text-gray-500">No contractor details found.</p>
+          )}
+        </Modal> */}
+
+        <DetailModal
+          title="Contractor Details"
+          open={isViewModalOpen}
+          loading={loadingDetails}
+          onCancel={() => setIsViewModalOpen(false)}
+          data={selectedContractor}
+          fields={[
+            { label: "Full Name", key: "fullName" },
+            { label: "Email", key: "email", isLink: "email" },
+            { label: "Phone", key: "phone", isLink: "phone" },
+            { label: "Address", key: "address" },
+          ]}
+        />
+
       </div>
     </div>
   );
