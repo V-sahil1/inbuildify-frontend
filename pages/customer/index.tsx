@@ -2,11 +2,10 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Button, Form, Input, Modal, Table, Typography, message, Spin } from 'antd'
 import type { TableColumnsType } from 'antd'
 import { useAppDispatch } from '@hooks/redux'
-import { createContractorThunk, deleteContractorThunk, getContractorByIdThunk, getContractorsThunk, updateContractorThunk } from '@redux/feature/contractor/contractorThunk'
-import { ContractorResponse } from "@redux/feature/contractor/IContractorState";
+import { createCustomerThunk, deleteCustomerThunk, getCustomerByIdThunk, getCustomersThunk, updateCustomerThunk } from "@redux/feature/customer/customerThunk";
 import { DetailModal } from "@/components/common/DetailModal";
 
-type Contractor = {
+type Customer = {
   key: string
   fullName: string
   email: string
@@ -14,38 +13,38 @@ type Contractor = {
   address: string
 }
 
-const initialData: Contractor[] = []
+const initialData: Customer[] = []
 
-const ContractorPage = () => {
+const CustomerPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingKey, setEditingKey] = useState<string | null>(null);
 
-  const [form] = Form.useForm<Contractor>();
-  const [contractors, setContractors] = useState<Contractor[]>(initialData);
+  const [form] = Form.useForm<Customer>();
+  const [customers, setCustomers] = useState<Customer[]>(initialData);
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch()
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [selectedContractor, setSelectedContractor] = useState<Contractor | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
 
   useEffect(() => {
     setLoading(true);
-    dispatch(getContractorsThunk())
+    dispatch(getCustomersThunk())
       .unwrap()
-      .then((res: ContractorResponse) => {
-        const mappedContractors: Contractor[] = res.map(contractor => ({
-          key: contractor.contractorId,
-          fullName: contractor.name,
-          email: contractor.email,
-          phone: contractor.phone,
-          address: contractor.address,
+      .then((res: any) => {
+        const mappedCustomer: Customer[] = res.map(customer => ({
+          key: customer.customerId,
+          fullName: customer.name,
+          email: customer.email,
+          phone: customer.phone,
+          address: customer.address,
         }));
-        setContractors(mappedContractors);
+        setCustomers(mappedCustomer);
       })
       .catch((err) => {
-        console.log('GET contractors failed:', err);
-        message.error('Failed to fetch contractors');
+        console.log('GET customer failed:', err);
+        message.error('Failed to fetch customers');
       })
       .finally(() => {
         setLoading(false);
@@ -59,7 +58,7 @@ const ContractorPage = () => {
     setIsModalOpen(true);
   };
 
-  const handleEdit = (record: Contractor) => {
+  const handleEdit = (record: Customer) => {
     setIsEditing(true);
     setEditingKey(record.key);
     form.setFieldsValue(record);
@@ -72,15 +71,15 @@ const ContractorPage = () => {
     setEditingKey(null);
   };
 
- const handleDelete = async (record: Contractor) => {
+ const handleDelete = async (record: Customer) => {
   try {
-    const contractorId = record.key;
+    const customerId = record.key;
 
-    const res = await dispatch(deleteContractorThunk(contractorId)).unwrap();
+    const res = await dispatch(deleteCustomerThunk(customerId)).unwrap();
 
     if (res) {
       message.success(res.message);
-      setContractors(prev => prev.filter(c => c.key !== record.key));
+      setCustomers(prev => prev.filter(c => c.key !== record.key));
     }
   } catch (err) {
     console.error("Failed to delete the Contractor", err);
@@ -101,10 +100,10 @@ const ContractorPage = () => {
           phone: values.phone,
           address: values.address,
         };
-        const res = await dispatch(updateContractorThunk({ contractorId: editingKey, payload })).unwrap();
+        const res = await dispatch(updateCustomerThunk({ customerId: editingKey, payload })).unwrap();
 
         if(res){
-        setContractors(prev =>
+        setCustomers(prev =>
           prev.map(c =>
             c.key === editingKey ? { ...c, ...values } : c
           )
@@ -113,26 +112,27 @@ const ContractorPage = () => {
         }
       } else {
         // Create new contractor
-        const res  = await dispatch(
-          createContractorThunk({
+        const res = await dispatch(
+          createCustomerThunk({
             name: values.fullName,
             email: values.email,
             phone: values.phone,
             address: values.address,
           })
         ).unwrap();
+        
         if(res){
-          const data = res.data;
-        const newContractor: Contractor = {
-          key:data.contractor_id,
+          const data = res.data        
+        const newContractor: Customer = {
+          key: data.customer_id,
           fullName: data.name,
           email: data.email,
           phone: data.phone,
           address: data.address,
         };
-        setContractors(prev => [newContractor, ...prev]);
+        setCustomers(prev => [newContractor, ...prev]);
         message.success(res.message);
-      }
+        }
       }
 
       setIsModalOpen(false);
@@ -140,34 +140,33 @@ const ContractorPage = () => {
       setIsEditing(false);
       setEditingKey(null);
     } catch (err) {
-      message.error((err as any)?.message || 'Failed to save contractor');
+      console.log("Error",err);
+      message.error((err as any)?.message || 'Failed to save customer');
     } finally {
       setLoading(false);
     }
   };
 
- const handleRowClick = async (record: Contractor) => {
+ const handleRowClick = async (record: Customer) => {
   try {
     setLoadingDetails(true);
     setIsViewModalOpen(true);
 
-    // Call API with contractorId
-    const response = await dispatch(getContractorByIdThunk(record.key)).unwrap();
+    const response = await dispatch(getCustomerByIdThunk(record.key)).unwrap();
     
     if (response && response.data) {
-      // Transform API response into Contractor type
-      console.log("API Called", response.data);
-        const contractor = {
-        key: response.data.contractorId,
+
+        const customer = {
+        key: response.data.customer_id,
         fullName: response.data.name,
         email: response.data.email,
         phone: response.data.phone,
         address: response.data.address,
       };
-       setSelectedContractor(contractor);
+       setSelectedCustomer(customer);
     }
   } catch (error) {
-    console.error("Failed to fetch contractor details:", error);
+    console.error("Failed to fetch customer details:", error);
   } finally {
     setLoadingDetails(false);
   }
@@ -175,7 +174,7 @@ const ContractorPage = () => {
 
 
 
-  const columns: TableColumnsType<Contractor> = useMemo(
+  const columns: TableColumnsType<Customer> = useMemo(
     () => [
       {
         title: "Full Name",
@@ -205,7 +204,7 @@ const ContractorPage = () => {
             <Button
               type="link"
               onClick={(e) => {
-                e.stopPropagation(); // ✅ prevent row click
+                e.stopPropagation();
                 handleEdit(record);
               }}
             >
@@ -215,7 +214,7 @@ const ContractorPage = () => {
               type="link"
               danger
               onClick={(e) => {
-                e.stopPropagation(); // ✅ prevent row click
+                e.stopPropagation();
                 handleDelete(record);
               }}
             >
@@ -227,16 +226,16 @@ const ContractorPage = () => {
     ],
     []
   );
-
+        console.log("List",customers);
   return (
     <div className="p-4">
       <div className="w-full">
         <div className="flex items-center justify-between mb-4">
           <Typography.Title level={4} style={{ margin: 0, color: "var(--font-color)" }}>
-            Contractors
+            Customers
           </Typography.Title>
           <button className="btn large bg-[#4c3575] cursor-pointer text-white" onClick={handleOpenModal}>
-            Create Contractor
+            Create Customer
           </button>
         </div>
 
@@ -244,7 +243,7 @@ const ContractorPage = () => {
           <Table
             rowKey="key"
             columns={columns}
-            dataSource={contractors}
+            dataSource={customers}
             pagination={{ pageSize: 10 }}
             loading={false}
             scroll={{ x: "max-content" }}
@@ -255,7 +254,7 @@ const ContractorPage = () => {
         </Spin>
 
         <Modal
-          title={isEditing ? "Edit Contractor" : "Create Contractor"}
+          title={isEditing ? "Edit Customer" : "Create Customer"}
           open={isModalOpen}
           onOk={handleSubmit}
           onCancel={handleCancel}
@@ -333,7 +332,7 @@ const ContractorPage = () => {
           )}
         </Modal> */}
         {/* <Modal
-          title="Contractor Details"
+          title="Customer Details"
           open={isViewModalOpen}
           footer={null}
           onCancel={() => setIsViewModalOpen(false)}
@@ -375,13 +374,12 @@ const ContractorPage = () => {
             <p className="text-center text-gray-500">No contractor details found.</p>
           )}
         </Modal> */}
-
         <DetailModal
-          title="Contractor Details"
+          title="Customer Details"
           open={isViewModalOpen}
           loading={loadingDetails}
           onCancel={() => setIsViewModalOpen(false)}
-          data={selectedContractor}
+          data={selectedCustomer}
           fields={[
             { label: "Full Name", key: "fullName" },
             { label: "Email", key: "email", isLink: "email" },
@@ -395,4 +393,4 @@ const ContractorPage = () => {
   );
 };
 
-export default ContractorPage;
+export default CustomerPage;

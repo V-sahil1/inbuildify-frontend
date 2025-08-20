@@ -1,8 +1,8 @@
 // Types for contractors
 
 // API Response Type (what comes from the backend)
-export interface ContractorResponse extends Array<{
-  contractorId: string
+export interface CustomerResponse extends Array<{
+  customerId: string
   name: string
   email: string
   phone: string
@@ -13,7 +13,7 @@ export interface ContractorResponse extends Array<{
 }> {}
 
 // Component Data Type (what the UI components use)
-export interface Contractor {
+export interface Customer {
   key: string
   fullName: string
   email: string
@@ -22,8 +22,8 @@ export interface Contractor {
 }
 
 // Contractor Request Type (for create/update operations)
-export interface ContractorRequest {
-  contractor_id?:string
+export interface CustomerRequest {
+  customer_id?: string
   name: string
   email: string
   phone: string
@@ -31,14 +31,14 @@ export interface ContractorRequest {
 }
 
 // Contractor State Interface
-export interface IContractorState {
-  contractors: Contractor[]
+export interface ICustomerState {
+  contractors: Customer[]
   loading: boolean
   error: string | null
 }
 
 // Initial State
-export const initialState: IContractorState = {
+export const initialState: ICustomerState = {
   contractors: [],
   loading: false,
   error: null
