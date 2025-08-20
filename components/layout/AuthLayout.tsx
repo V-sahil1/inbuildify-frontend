@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   IconBrandFacebookFilled,
   IconBrandGithubFilled,
@@ -7,6 +7,11 @@ import {
 } from "@tabler/icons-react";
 import Link from "next/link";
 import CompanyLogo from "../common/CompanyLogo";
+import { useRouter } from "next/navigation";
+import { useAppSelector } from "@hooks/redux";
+import { getRefreshToken, getStoredAuthToken } from "@lib/constants/authToken";
+import { useAppDispatch } from "@hooks/redux";
+import { getUserThunk } from "@redux/feature/auth/authThunk";
 
 export default function AuthLayout({
   children,

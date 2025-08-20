@@ -10,7 +10,8 @@ import AuthLayout from '../components/layout/AuthLayout';
 import { Provider } from 'react-redux';
 import { store } from '../redux/feature/store';
 import { ConfigProvider } from 'antd';
-import theme from '../antd.config';
+import theme from '../antd.config'; 
+import AuthValidator from '@/components/common/AuthValidator';
 
 export default function App({ Component, pageProps }) {
 
@@ -33,6 +34,7 @@ export default function App({ Component, pageProps }) {
         <link rel="icon" href="/favicon.ico" />
         <title>:: Luno Next Tailwind ::</title>
       </Head>
+      <AuthValidator>
       {
         isAuthRoute ? (
           <AuthLayout>
@@ -44,6 +46,7 @@ export default function App({ Component, pageProps }) {
           </Layout>
         )
       }
+      </AuthValidator>
       </ConfigProvider>
       </Provider>
     </>
