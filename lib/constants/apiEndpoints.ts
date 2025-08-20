@@ -18,14 +18,9 @@ class API_ENDPOINTS {
   public static ACCEPT_INVITE = `${this.AUTH_BASE}/accept-invite`;
   public static LOGOUT = `${this.AUTH_BASE}/logout`;
 
-
-
-
   // users
   public static INVITE_USER = `${this.AUTH_BASE}/invite-user`;
   public static GET_USERS = `${this.AUTH_BASE}/users`;
-
-
 
  // contractors
  public static CONTRACTOR_BASE = "/contractor";
@@ -36,6 +31,12 @@ class API_ENDPOINTS {
  public static CUSTOMER_BASE = "/customer"
   public static CREATE_CUSTOMER = `${this.CUSTOMER_BASE}`;
  public static GET_CUSTOMERS = `${this.CUSTOMER_BASE}`;
+
+ //leads
+ public static LEAD_BASE = "/leads"
+ public static CREATE_LEAD = `${this.LEAD_BASE}`;
+ public static GET_LEAD_BY_ID = (id: string) => `${this.LEAD_BASE}/${id}`;
+
 }
 
 export default API_ENDPOINTS;

@@ -4,6 +4,7 @@ import Link from "next/link";
 import React from "react";
 import { Form, Input, Checkbox } from "antd";
 import SystemRoutes from "@lib/constants/Routes";
+import { passwordRules } from "@lib/constants/formInputValidations";
 // import { useAppDispatch } from "@hooks/redux";
 // import { SignUpThunk } from "@redux/feature/auth/authThunk";
 
@@ -14,39 +15,6 @@ export async function getStaticProps() {
     },
   };
 }
-
-export const passwordRules = [
-  { required: true, message: "Password is required" },
-  {
-    validator: (_: any, value: string) => {
-      if (!value) return Promise.resolve();
-
-      const hasMinLength = value.length >= 8;
-      const hasNumber = /\d/.test(value);
-      const hasSpecial = /[^A-Za-z0-9.]/.test(value); // exclude dot
-      const hasUpper = /[A-Z]/.test(value);
-      const hasLower = /[a-z]/.test(value);
-
-      if (!hasMinLength) {
-        return Promise.reject("Password must be at least 8 characters long");
-      }
-      if (!hasNumber) {
-        return Promise.reject("Password must contain at least one number");
-      }
-      if (!hasSpecial) {
-        return Promise.reject("Password must contain at least one special symbol (not '.')");
-      }
-      if (!hasUpper) {
-        return Promise.reject("Password must contain an uppercase letter");
-      }
-      if (!hasLower) {
-        return Promise.reject("Password must contain a lowercase letter");
-      }
-
-      return Promise.resolve();
-    },
-  },
-];
 
 export default function Signup() {
   const [form] = Form.useForm();

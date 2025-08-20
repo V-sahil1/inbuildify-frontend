@@ -313,69 +313,6 @@ const ContractorPage = () => {
           </Form>
         </Modal>
 
-        {/* <Modal
-          title="Contractor Details"
-          open={isViewModalOpen}
-          footer={null}
-          onCancel={() => setIsViewModalOpen(false)}
-        >
-          {loadingDetails ? (
-            <p>Loading contractor details...</p>
-          ) : selectedContractor ? (
-            <div className="space-y-2">
-              <p><strong>Full Name:</strong> {selectedContractor.fullName}</p>
-              <p><strong>Email:</strong> {selectedContractor.email}</p>
-              <p><strong>Phone:</strong> {selectedContractor.phone}</p>
-              <p><strong>Address:</strong> {selectedContractor.address}</p>
-            </div>
-          ) : (
-            <p>No contractor details found.</p>
-          )}
-        </Modal> */}
-        {/* <Modal
-          title="Contractor Details"
-          open={isViewModalOpen}
-          footer={null}
-          onCancel={() => setIsViewModalOpen(false)}
-          centered
-        >
-          {loadingDetails ? (
-            <div className="flex justify-center items-center py-10">
-              <Spin size="large" />
-            </div>
-          ) : selectedContractor ? (
-            <div className="">
-              <Card bordered={false} className="shadow-md mt-3 rounded-xl ">
-                <Descriptions
-                  bordered
-                  column={1}
-                  labelStyle={{ fontWeight: 600, width: "150px" }}
-                  contentStyle={{ backgroundColor: "#fff" }}
-                >
-                  <Descriptions.Item label="Full Name">
-                    {selectedContractor.fullName}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Email">
-                    <a href={`mailto:${selectedContractor.email}`}>
-                      {selectedContractor.email}
-                    </a>
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Phone">
-                    <a href={`tel:${selectedContractor.phone}`}>
-                      {selectedContractor.phone}
-                    </a>
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Address">
-                    {selectedContractor.address}
-                  </Descriptions.Item>
-                </Descriptions>
-              </Card>
-            </div>
-          ) : (
-            <p className="text-center text-gray-500">No contractor details found.</p>
-          )}
-        </Modal> */}
-
         <DetailModal
           title="Contractor Details"
           open={isViewModalOpen}

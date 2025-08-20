@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { getRefreshToken, getStoredAuthToken } from "@lib/constants/authToken";
 import { getUserThunk } from "@redux/feature/auth/authThunk";
+import SystemRoutes from "@lib/constants/Routes";
 
 export default function AuthValidator({ children }) {
   const router = useRouter();
@@ -28,13 +29,13 @@ export default function AuthValidator({ children }) {
           setLoading(true);
           await dispatch(getUserThunk()).unwrap();
         } catch (error) {
-          router.replace("/login");
+          router.replace(SystemRoutes.LOGIN);
         } finally {
           setLoading(false);
         }
       } else {
         setLoading(false);
-        router.replace("/login");
+        router.replace(SystemRoutes.LOGIN);
       }
     }
     validateAuth();

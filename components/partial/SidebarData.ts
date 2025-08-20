@@ -58,6 +58,12 @@ export const menuList = [
     roles: ["builder", "contractor", "customer"],
   },
   {
+    icon: IconUsers,
+    link: "Manage Leads",
+    url: "/leads",
+    roles: ["builder", "contractor", "customer"],
+  },
+  {
     icon: IconApps,
     link: "Applications",
     roles: ["builder", "contractor", "customer"],
