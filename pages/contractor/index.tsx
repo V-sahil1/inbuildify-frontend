@@ -144,7 +144,7 @@ const ContractorPage = () => {
       setIsEditing(false);
       setEditingKey(null);
     } catch (err) {
-      message.error((err as any)?.message || 'Failed to save contractor');
+      message.error(err);
     } finally {
       setLoading(false);
     }

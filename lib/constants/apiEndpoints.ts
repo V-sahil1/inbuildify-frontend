@@ -21,6 +21,7 @@ class API_ENDPOINTS {
   // users
   public static INVITE_USER = `${this.AUTH_BASE}/invite-user`;
   public static GET_USERS = `${this.AUTH_BASE}/users`;
+  public static INVITED_USERS = `${this.AUTH_BASE}/invited-user`;
 
  // contractors
  public static CONTRACTOR_BASE = "/contractor";
