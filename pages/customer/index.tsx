@@ -4,6 +4,7 @@ import type { TableColumnsType } from 'antd'
 import { useAppDispatch } from '@hooks/redux'
 import { createCustomerThunk, deleteCustomerThunk, getCustomerByIdThunk, getCustomersThunk, updateCustomerThunk } from "@redux/feature/customer/customerThunk";
 import { DetailModal } from "@/components/common/DetailModal";
+import ConfirmationModal from "@/components/common/ConfirmationModal";
 
 type Customer = {
   key: string
@@ -19,7 +20,8 @@ const CustomerPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingKey, setEditingKey] = useState<string | null>(null);
-
+const [isDeleteModalOpen, setIsDeleteModalOpen] = useState({open:false, recordId: null});
+  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const [form] = Form.useForm<Customer>();
   const [customers, setCustomers] = useState<Customer[]>(initialData);
   const [loading, setLoading] = useState(false);
@@ -71,19 +73,21 @@ const CustomerPage = () => {
     setEditingKey(null);
   };
 
- const handleDelete = async (record: Customer) => {
+ const handleDelete = async (key: string) => {
   try {
-    const customerId = record.key;
-
-    const res = await dispatch(deleteCustomerThunk(customerId)).unwrap();
+    setIsDeleteLoading(true);
+    const res = await dispatch(deleteCustomerThunk(key)).unwrap();
 
     if (res) {
       message.success(res.message);
-      setCustomers(prev => prev.filter(c => c.key !== record.key));
+      setIsDeleteModalOpen({open:false, recordId: null});
+      setCustomers(prev => prev.filter(c => c.key !== key));
     }
   } catch (err) {
     console.error("Failed to delete the Contractor", err);
     message.error(err);
+  } finally {
+    setIsDeleteLoading(false);
   }
 };
 
@@ -215,7 +219,8 @@ const CustomerPage = () => {
               danger
               onClick={(e) => {
                 e.stopPropagation();
-                handleDelete(record);
+                setIsDeleteModalOpen({open:true, recordId: record.key});
+
               }}
             >
               Delete
@@ -386,7 +391,21 @@ const CustomerPage = () => {
             { label: "Address", key: "address" },
           ]}
         />
-
+{
+          isDeleteModalOpen.open &&
+          <ConfirmationModal
+            open={isDeleteModalOpen.open}
+            onClose={() => setIsDeleteModalOpen({open:false, recordId: null})}
+            onConfirm={() => handleDelete(isDeleteModalOpen.recordId)}
+            title="Delete"
+            message="Are you sure you want to delete this contractor?"
+            type="danger"
+            confirmText="Delete"
+            cancelText="Cancel"
+            loading={isDeleteLoading}
+            maxWidth="sm"
+          />
+        }
       </div>
     </div>
   );

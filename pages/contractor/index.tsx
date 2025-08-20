@@ -5,6 +5,7 @@ import { useAppDispatch } from '@hooks/redux'
 import { createContractorThunk, deleteContractorThunk, getContractorByIdThunk, getContractorsThunk, updateContractorThunk } from '@redux/feature/contractor/contractorThunk'
 import { ContractorResponse } from "@redux/feature/contractor/IContractorState";
 import { DetailModal } from "@/components/common/DetailModal";
+import ConfirmationModal from "@/components/common/ConfirmationModal";
 
 type Contractor = {
   key: string
@@ -18,6 +19,8 @@ const initialData: Contractor[] = []
 
 const ContractorPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState({open:false, recordId: null});
+  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [form] = Form.useForm<Contractor>();
@@ -71,19 +74,21 @@ const ContractorPage = () => {
     setEditingKey(null);
   };
 
- const handleDelete = async (record: Contractor) => {
+ const handleDelete = async (key: string) => {
   try {
-    const contractorId = record.key;
-
-    const res = await dispatch(deleteContractorThunk(contractorId)).unwrap();
+    setIsDeleteLoading(true);
+    const res = await dispatch(deleteContractorThunk(key)).unwrap();
 
     if (res) {
       message.success(res.message);
-      setContractors(prev => prev.filter(c => c.key !== record.key));
+      setIsDeleteModalOpen({open:false, recordId: null});
+      setContractors(prev => prev.filter(c => c.key !== key));
     }
   } catch (err) {
     console.error("Failed to delete the Contractor", err);
     message.error(err);
+  } finally {
+    setIsDeleteLoading(false);
   }
 };
 
@@ -201,27 +206,28 @@ const ContractorPage = () => {
         key: "actions",
         render: (_, record) => (
           <div className="flex gap-2">
-            <Button
-              type="link"
-              onClick={(e) => {
-                e.stopPropagation(); // ✅ prevent row click
-                handleEdit(record);
-              }}
-            >
-              Edit
-            </Button>
-            <Button
-              type="link"
-              danger
-              onClick={(e) => {
-                e.stopPropagation(); // ✅ prevent row click
-                handleDelete(record);
-              }}
-            >
-              Delete
-            </Button>
-          </div>
-        ),
+            	<Button
+              	type="link"
+              	onClick={(e) => {
+                	e.stopPropagation(); // ✅ prevent row click
+                	handleEdit(record);
+              	}}
+            	>
+              	Edit
+            	</Button>
+            	<Button
+              	type="link"
+              	danger
+              	onClick={(e) => {
+                	console.log("🚀 ~ ContractorPage ~ e:", record)
+                	e.stopPropagation(); // ✅ prevent row click
+                setIsDeleteModalOpen({open:true, recordId: record.key});
+              	}}
+            	>
+              	Delete
+            	</Button>
+          	</div>
+        	),
       },
     ],
     []
@@ -325,6 +331,21 @@ const ContractorPage = () => {
             { label: "Address", key: "address" },
           ]}
         />
+        {
+          isDeleteModalOpen.open &&
+          <ConfirmationModal
+            open={isDeleteModalOpen.open}
+            onClose={() => setIsDeleteModalOpen({open:false, recordId: null})}
+            onConfirm={() => handleDelete(isDeleteModalOpen.recordId)}
+            title="Delete"
+            message="Are you sure you want to delete this contractor?"
+            type="danger"
+            confirmText="Delete"
+            cancelText="Cancel"
+            loading={isDeleteLoading}
+            maxWidth="sm"
+          />
+        }
 
       </div>
     </div>
