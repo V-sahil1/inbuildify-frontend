@@ -56,6 +56,7 @@ import { logoutThunk } from "@redux/feature/auth/authThunk";
 import { message } from "antd";
 import { useRouter } from "next/navigation";
 import SystemRoutes from "@lib/constants/Routes";
+import ConfirmationModal from "../common/ConfirmationModal";
 type ColorPickerOption = {
   color: string;
   label: string;
@@ -86,6 +87,8 @@ export default function Header({
 }) {
   // mini sidebar
   const [miniSidebar, setMiniSidebar] = useState<boolean>(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState<boolean>(false);
+  const [isLogoutLoading, setIsLogoutLoading] = useState<boolean>(false);
   const toggleMiniSidebar = () => {
     setMiniSidebar((prev) => !prev);
   };
@@ -307,11 +310,15 @@ export default function Header({
 
   const handleSignOut = async () => {
     try {
+      setIsLogoutLoading(true);
       const response = await dispatch(logoutThunk()).unwrap();
       message.success(response);
+      setIsLogoutModalOpen(false);
       router.push(SystemRoutes.LOGIN);
     } catch (e) {
       message.error(e);
+    } finally {
+      setIsLogoutLoading(false);
     }
   };
   const colorItem = [
@@ -849,7 +856,7 @@ export default function Header({
                   </Link>
                 </div>
                 <button
-                  onClick={handleSignOut}
+                  onClick={() => setIsLogoutModalOpen(true)}
                   className="bg-secondary uppercase text-[14px]/[20px] text-white py-5 px-10 text-center w-full inline-block"
                 >
                   Sign Out
@@ -1187,6 +1194,21 @@ export default function Header({
             : "opacity-0 invisible overflow-hidden"
         }`}
       ></div>
+      {
+        isLogoutModalOpen &&
+        <ConfirmationModal
+          open={isLogoutModalOpen}
+          onClose={() => setIsLogoutModalOpen(false)}
+          onConfirm={handleSignOut}
+          title="Logout"
+          message="Are you sure you want to logout?"
+          type="warning"
+          confirmText="Logout"
+          cancelText="Cancel"
+          loading={isLogoutLoading}
+          maxWidth="sm"
+        />
+      }
     </>
   );
 }

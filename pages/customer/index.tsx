@@ -33,12 +33,12 @@ const CustomerPage = () => {
     dispatch(getCustomersThunk())
       .unwrap()
       .then((res: any) => {
-        const mappedCustomer: Customer[] = res.map(customer => ({
-          key: customer.customerId,
-          fullName: customer.name,
-          email: customer.email,
-          phone: customer.phone,
-          address: customer.address,
+        const mappedCustomer: Customer[] = res?.data?.map((customer: any) => ({
+          key: customer?.customerId,
+          fullName: customer?.name,
+          email: customer?.email,
+          phone: customer?.phone,
+          address: customer?.address,
         }));
         setCustomers(mappedCustomer);
       })
@@ -226,7 +226,6 @@ const CustomerPage = () => {
     ],
     []
   );
-        console.log("List",customers);
   return (
     <div className="p-4">
       <div className="w-full">

@@ -20,7 +20,6 @@ const ContractorPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingKey, setEditingKey] = useState<string | null>(null);
-
   const [form] = Form.useForm<Contractor>();
   const [contractors, setContractors] = useState<Contractor[]>(initialData);
   const [loading, setLoading] = useState(false);
@@ -236,7 +235,7 @@ const ContractorPage = () => {
             Contractors
           </Typography.Title>
           <button className="btn large bg-[#4c3575] cursor-pointer text-white" onClick={handleOpenModal}>
-            Create Contractor
+            Create 
           </button>
         </div>
 
@@ -255,7 +254,7 @@ const ContractorPage = () => {
         </Spin>
 
         <Modal
-          title={isEditing ? "Edit Contractor" : "Create Contractor"}
+          title={isEditing ? "Edit " : "Create "}
           open={isModalOpen}
           onOk={handleSubmit}
           onCancel={handleCancel}

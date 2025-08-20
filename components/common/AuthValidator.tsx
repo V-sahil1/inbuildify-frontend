@@ -47,9 +47,9 @@ export default function AuthValidator({ children }) {
     }
   }, [loading, isAuthenticated, router]);
 
-  if (!isClient || loading || (!loading && !isAuthenticated)) {
-    return null;
-  }
+  // if (!isClient || loading || (!loading && !isAuthenticated)) {
+  //   return null;
+  // }
 
   return children;
 }

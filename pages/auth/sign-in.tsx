@@ -105,9 +105,9 @@ export default function Signin() {
 
         {/* Remember + Forgot password */}
         <div className="flex items-center justify-between mb-6">
-          <Form.Item name="remember" valuePropName="checked" noStyle>
+          {/* <Form.Item name="remember" valuePropName="checked" noStyle>
             <Checkbox>Remember me</Checkbox>
-          </Form.Item>
+          </Form.Item> */}
           <Link
             href={SystemRoutes.FORGOT_PASSWORD}
             className="text-primary sm:text-[16px]/[24px] text-[14px]/[20px]"
