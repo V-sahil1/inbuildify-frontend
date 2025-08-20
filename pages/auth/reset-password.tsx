@@ -7,10 +7,10 @@ import { auth_two_step } from "/public/images";
 import { useEffect, useState } from "react";
 import { IconEye, IconEyeOff, IconLoader } from "@tabler/icons-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { passwordRules } from "./sign-up";
 import Image from "next/image";
 import { ResetPasswordThunk } from "@redux/feature/auth/authThunk";
 import { useAppDispatch } from "@hooks/redux";
+import { passwordRules } from "@lib/constants/formInputValidations";
 
 export async function getStaticProps() {
     return {

@@ -7,13 +7,16 @@ import {
     IconMailFilled,
     IconShare,
 } from '@tabler/icons-react'
+import { useAppSelector } from '@hooks/redux'
 
 export default function WelcomeHeader({ report, income }: { report?: boolean, income?: boolean }) {
+      const { user } = useAppSelector((state) => state.auth);
+    
     return (
         <div className='flex md:items-center md:justify-between md:flex-row flex-col gap-15 md:mb-12 mb-6'>
             <div>
                 <p className='text-[20px]/[24px] font-medium mb-1'>
-                    Welcome back, Allie!
+                    Welcome back, {user?.name}!
                 </p>
                 <p className='text-[14px]/[20px] text-font-color-100'>
                     You have 12 new messages and 7 new notifications.

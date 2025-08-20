@@ -5,9 +5,9 @@ import { IconLoader } from "@tabler/icons-react";
 import Link from "next/link";
 import { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { passwordRules } from "./sign-up";
 import { useAppDispatch } from "@hooks/redux";
 import { AcceptInviteThunk } from "@redux/feature/user/userThunk";
+import { nameRules, passwordRules } from "@lib/constants/formInputValidations";
 
 export async function getStaticProps() {
     return {
@@ -23,9 +23,6 @@ export default function AcceptInvite() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const dispatch = useAppDispatch();
-
-
-   
     const onFinish = async (values: any) => {
         try {
             setLoading(true);
@@ -33,11 +30,10 @@ export default function AcceptInvite() {
                 ...values,
                 token: searchParams.get('token')
             })).unwrap();
-
             message.success(response.message || 'Invitation accepted successfully!');
-            // router.push("/");
+            router.push("/");
         } catch (error: any) {
-            message.error(error );
+            message.error(error || 'Failed to accept invitation');
         } finally {
             setLoading(false);
         }
@@ -64,7 +60,7 @@ export default function AcceptInvite() {
                     label="Full Name"
                     name="name"
                     className="form-control mb-15"
-                    rules={[{ required: true, message: "Full name is required" }]}
+                    rules={nameRules}
                 >
                     <Input placeholder="John Doe" className="form-input" />
                 </Form.Item>

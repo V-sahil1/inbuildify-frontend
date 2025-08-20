@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Breadcrumb from "@/components/common/Breadcrumb";
 import WelcomeHeader from "@/components/common/WelcomeHeader";
 import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
@@ -18,12 +18,23 @@ import Campaign from "./Campaign";
 import Activity from "./Activity";
 import Image from "next/image";
 import Group from "./Group";
+import { useAppDispatch, useAppSelector } from "@hooks/redux";
+import { getUserThunk } from "@redux/feature/auth/authThunk";
 
 export default function MyProfile() {
   const [editProfileSidebar, setEditProfileSidebar] = useState<boolean>(false);
   const toggleEditProfile = () => {
     setEditProfileSidebar(!editProfileSidebar);
   };
+  const dispatch = useAppDispatch();
+  const { user } = useAppSelector((state) => state.auth);
+  useEffect(() => {
+    async function getUser() {
+       await dispatch(getUserThunk()).unwrap();
+    }
+    getUser();
+  }, []);
+
 
   const [editUser, setEditUser] = useState<string | null>(null);
 
@@ -65,7 +76,7 @@ export default function MyProfile() {
                 />
                 <div className="md:text-start text-center">
                   <p className="mb-1 text-[24px]/[30px] font-light flex gap-2 items-center md:justify-start justify-center">
-                    Allie Grater
+                    {user?.name}
                     <button
                       onClick={toggleEditProfile}
                       className={`text-primary transition-all duration-300 hover:text-secondary after:fixed after:z-[4] after:w-full after:h-full after:left-0 after:top-0 after:bg-black-50 after:backdrop-blur-[2px] after:transition-all after:duration-500 after:ease-in-out ${
@@ -77,7 +88,7 @@ export default function MyProfile() {
                       <IconEdit className="w-[20px] h-[20px]" />
                     </button>
                   </p>
-                  <p className="mb-3">alliegrater@luno.com</p>
+                  <p className="mb-3">{user?.email}</p>
                   <p className="md:mb-3 mb-4 text-font-color-100 max-w-[550px]">
                     It is a long established fact that a reader will be
                     distracted by the readable content of a page when looking at
