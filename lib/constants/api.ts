@@ -197,7 +197,7 @@ const apiMethods = {
     api<T>("get", url, options),
   post: <T>(
     url: string,
-    options?: { data?: ApiVariables; headers?: ApiVariables }
+    options?: { data?: ApiVariables; headers?: ApiVariables;params?: ApiVariables }
   ): Promise<T> => api<T>("post", url, options),
   put: <T>(url: string, options?: { data?: ApiVariables }): Promise<T> =>
     api<T>("put", url, options),

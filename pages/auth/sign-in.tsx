@@ -40,7 +40,7 @@ export default function Signin() {
       message.success(response.message);
       router.push("/");
     } catch (error: any) {
-      message.error(error?.message);
+      message.error(error);
     } finally {
       setLoading(false);
     }

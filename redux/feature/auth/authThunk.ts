@@ -6,14 +6,14 @@ import { storeAuthToken, storeRefreshToken } from "@lib/constants/authToken";
 
 export const SignInThunk = createAsyncThunk(
   "auth/signIn",
-  async (payload: { email: string; password: string }, thunkAPI) => {
+  async (payload: { email: string; password: string }, {rejectWithValue}) => {
     try {
       const response: ApiResponse<LoginResponse> = await api.post(API_ENDPOINTS.LOGIN, { data: payload });
       storeAuthToken(response.data.accessToken);
       storeRefreshToken(response.data.refreshToken);
       return response;
     } catch (err: any) {
-      return thunkAPI.rejectWithValue(err.message);
+      return rejectWithValue(err.message);
     }
   }
 );
