@@ -7,7 +7,6 @@ class API_ENDPOINTS {
   //auth
   public static AUTH_BASE = "/auth";
   public static LOGIN = `${this.AUTH_BASE}/login`;
-  public static PROFILE = `${this.AUTH_BASE}/profile`;
   public static REFRESH_TOKEN = `${this.AUTH_BASE}/refresh-token`;
   public static REGISTER_BASE = `${this.AUTH_BASE}/register`;
   public static VERIFY_EMAIL = `${this.AUTH_BASE}/verify-email-otp`;
@@ -17,11 +16,14 @@ class API_ENDPOINTS {
   public static UPDATE_PASSWORD = `${this.AUTH_BASE}/update-password`;
   public static ACCEPT_INVITE = `${this.AUTH_BASE}/accept-invite`;
   public static LOGOUT = `${this.AUTH_BASE}/logout`;
-
+  
+  // user 
+  public static USER_BASE = "/user";
+  public static PROFILE = `${this.USER_BASE}/profile`;
+  public static GET_USERS = `${this.USER_BASE}/users`;
+  public static INVITE_USER = `${this.USER_BASE}/invite-user`;
+  public static INVITED_USERS = `${this.USER_BASE}/invited-user`;
   // users
-  public static INVITE_USER = `${this.AUTH_BASE}/invite-user`;
-  public static GET_USERS = `${this.AUTH_BASE}/users`;
-  public static INVITED_USERS = `${this.AUTH_BASE}/invited-user`;
 
  // contractors
  public static CONTRACTOR_BASE = "/contractor";

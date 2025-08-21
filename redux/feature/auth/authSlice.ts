@@ -1,7 +1,7 @@
 // src/store/auth/authSlice.ts
 import { createSlice } from "@reduxjs/toolkit";
 import { AuthState, Status } from "./IAuthState";
-import { getUserThunk } from "./authThunk";
+import { getUserThunk, logoutThunk } from "./authThunk";
 
 const initialState: AuthState = {
   isAuthenticated: false,
@@ -29,6 +29,20 @@ const authSlice = createSlice({
       state.status = Status.SUCCEEDED;
     });
     builder.addCase(getUserThunk.rejected, (state, action) => {
+      state.status = Status.FAILED;
+      state.error = action.payload as string;
+    });
+    // logout
+    builder.addCase(logoutThunk.pending, (state) => {
+      state.status = Status.PENDING;
+    });
+    builder.addCase(logoutThunk.fulfilled, (state) => {
+      state.isAuthenticated = false;
+      state.role = null;
+      state.user = null;
+      state.status = Status.SUCCEEDED;
+    });
+    builder.addCase(logoutThunk.rejected, (state, action) => {
       state.status = Status.FAILED;
       state.error = action.payload as string;
     });

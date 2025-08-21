@@ -313,8 +313,8 @@ export default function Header({
       setIsLogoutLoading(true);
       const response = await dispatch(logoutThunk()).unwrap();
       message.success(response);
-      setIsLogoutModalOpen(false);
       router.push(SystemRoutes.LOGIN);
+      setIsLogoutModalOpen(false);
     } catch (e) {
       message.error(e);
     } finally {
@@ -830,7 +830,7 @@ export default function Header({
                   </div>
                 </div>
                 <div className="p-1 m-1 custom-scrollbar overflow-auto max-h-[calc(80svh-163px)]">
-                  <Link href="#" className="py-2 px-4 flex items-center gap-3">
+                  <Link href={SystemRoutes.MY_PROFILE} className="py-2 px-4 flex items-center gap-3">
                     <IconUser className="w-[16px] h-[16px]" />
                     My Profile
                   </Link>

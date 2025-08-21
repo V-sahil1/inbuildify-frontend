@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { Form, Input, Checkbox, Divider, message } from "antd";
+import { Form, Input, Divider, message } from "antd";
 import {
   IconBrandGoogleFilled,
   IconEye,
@@ -11,7 +11,7 @@ import Link from "next/link";
 import SystemRoutes from "@lib/constants/Routes";
 import { useAppDispatch } from "@hooks/redux";
 import { getUserThunk, SignInThunk } from "@redux/feature/auth/authThunk";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export async function getStaticProps() {
   return {
@@ -27,6 +27,9 @@ export default function Signin() {
   const [loading, setLoading] = useState<boolean>(false);
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const redirectTo = searchParams.get("redirectTo") || "/";
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
@@ -38,7 +41,7 @@ export default function Signin() {
       const response = await dispatch(SignInThunk(values)).unwrap();
       await dispatch(getUserThunk()).unwrap();
       message.success(response.message);
-      router.push("/");
+      router.push(redirectTo);
     } catch (error: any) {
       message.error(error);
     } finally {

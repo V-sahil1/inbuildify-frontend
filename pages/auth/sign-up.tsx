@@ -141,12 +141,12 @@ export default function Signup() {
         </Form.Item>
       </Form>
 
-      <div className="text-center sm:mt-30 mt-6 text-font-color-100">
+      {/* <div className="text-center sm:mt-30 mt-6 text-font-color-100">
         <p>Already have an account?</p>
         <Link href={SystemRoutes.LOGIN} className="text-primary">
           Sign in here
         </Link>
-      </div>
+      </div> */}
     </>
   );
 }

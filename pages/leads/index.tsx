@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { useAppDispatch } from "@hooks/redux";
+import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import {  createLeadThunk, getLeadByIdThunk, getLeadThunk } from "@redux/feature/lead/leadThunk";
-import { Typography } from "antd";
+import { message, Typography } from "antd";
 import { DetailModal } from "@/components/common/DetailModal";
 import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
 import { LeadSource } from "@lib/constants/enum";
 import { emailRules, leadSourceRules, nameRules, phoneRules } from "@lib/constants/formInputValidations";
 
 const Leads = () => {
-    const [leads, setLeads] = useState([]);
+    const { leads } = useAppSelector((state) => state.lead);
     const dispatch = useAppDispatch();
     const [openLeadModal, setOpenLeadModal] = useState(false);
     const [loadingLead, setLoadingLead] = useState(false);
@@ -17,22 +17,20 @@ const Leads = () => {
 
     useEffect(() => {
         async function fetchData() {
-            const response = await dispatch(getLeadThunk()).unwrap();
-            setLeads(response);
+          await dispatch(getLeadThunk()).unwrap();
         }
         fetchData();
     }, [dispatch]);
 
     const handleSubmit = async (values: any) => {
-        console.log(values);
         try {
             setLoadingLead(true);
-            const response = await dispatch(createLeadThunk(values)).unwrap();
-            setLeads((prevLeads: any[]) => [...prevLeads, response]);
+            await dispatch(createLeadThunk(values)).unwrap();
+            message.success("Lead created successfully");
             setOpenLeadModal(false);
             setOpenLeadCreateModal(false);
         } catch (error) {
-            console.error("Failed to create lead:", error);
+            message.error("Failed to create lead");
         } finally {
             setLoadingLead(false);
         }
