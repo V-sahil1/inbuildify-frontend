@@ -3,6 +3,7 @@ import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import { authReducer } from "./auth/authSlice";
 import { leadReducer } from "./lead/leadSlice";
+import masterPriceListReducer from "./masterPriceList/masterPriceListSlice";
 
 const authPersistConfig = {
   key: "auth",
@@ -12,13 +13,14 @@ const authPersistConfig = {
 
 const rootReducer = combineReducers({
   auth: persistReducer(authPersistConfig, authReducer),
-  lead: persistReducer(authPersistConfig, leadReducer),
+  lead: leadReducer,
+  masterPriceList: masterPriceListReducer,
 });
 
 const persistConfig = {
   key: "root",
   storage,
-  blacklist: [],
+  blacklist: ["lead", "masterPriceList"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

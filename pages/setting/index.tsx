@@ -11,7 +11,7 @@ import {
 } from "@tabler/icons-react";
 
 // Dynamically import components with no SSR
-const AllProject = dynamic(() => import('./AllProject'), { ssr: false });
+const MasterPriceList = dynamic(() => import('./components/MasterPriceList'), { ssr: false });
 const FloorPlan = dynamic(() => import('./components/FloorPlan'), { ssr: false });
 const Facade = dynamic(() => import('./components/Facade'), { ssr: false });
 const Package = dynamic(() => import('./components/Package'), { ssr: false });
@@ -19,23 +19,23 @@ const Package = dynamic(() => import('./components/Package'), { ssr: false });
 const TABS = [
   {
     id: 'items',
-    label: 'Add Items',
+    label: 'Master Pricing',
     icon: IconServer2,
-    breadcrumb: 'Add Items',
-    component: AllProject
+    breadcrumb: 'Master Pricing',
+    component: MasterPriceList
   },
   {
     id: 'floor-plan',
-    label: 'Add Floor Plan',
+    label: 'Floor Plan',
     icon: IconProgress,
-    breadcrumb: 'Add Floor Plan',
+    breadcrumb: 'Floor Plan',
     component: FloorPlan
   },
   {
     id: 'facade',
-    label: 'Add Facade',
+    label: 'Facade',
     icon: IconClockHour3,
-    breadcrumb: 'Add Facade',
+    breadcrumb: 'Facade',
     component: Facade
   },
   {
@@ -152,7 +152,9 @@ export default function ProjectList() {
             const TabComponent = tab.component;
             return (
               <TabPanel key={tab.id}>
-                <TabComponent />
+                {selectedIndex === index && (
+                  <TabComponent />
+                )}
               </TabPanel>
             );
           })}
