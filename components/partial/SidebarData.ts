@@ -200,6 +200,12 @@ export const menuList = [
     ],
   },
   {
+    icon: IconBuildingSkyscraper,
+    link: "Setting",
+    url: "/setting",
+    roles: ["builder"],
+  },
+  {
     devider: "RESOURCES",
   },
   {
