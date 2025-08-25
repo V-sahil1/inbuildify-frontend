@@ -6,10 +6,12 @@ import { createContractorThunk, deleteContractorThunk, getContractorByIdThunk, g
 import { ContractorResponse } from "@redux/feature/contractor/IContractorState";
 import { DetailModal } from "@/components/common/DetailModal";
 import ConfirmationModal from "@/components/common/ConfirmationModal";
+import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
+import { addressRules, emailRules, nameRules, phoneRules } from "@lib/constants/formInputValidations";
 
 type Contractor = {
-  key: string
-  fullName: string
+  contractorId: string
+  name: string
   email: string
   phone: string
   address: string
@@ -19,9 +21,10 @@ const initialData: Contractor[] = []
 
 const ContractorPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState({open:false, recordId: null});
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState({ open: false, recordId: null });
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [editingUser, setEditingUser] = useState<Contractor | null>(null);
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [form] = Form.useForm<Contractor>();
   const [contractors, setContractors] = useState<Contractor[]>(initialData);
@@ -36,14 +39,14 @@ const ContractorPage = () => {
     dispatch(getContractorsThunk())
       .unwrap()
       .then((res: ContractorResponse) => {
-        const mappedContractors: Contractor[] = res.map(contractor => ({
-          key: contractor.contractorId,
-          fullName: contractor.name,
-          email: contractor.email,
-          phone: contractor.phone,
-          address: contractor.address,
-        }));
-        setContractors(mappedContractors);
+        // const mappedContractors: Contractor[] = res.map(contractor => ({
+        //   key: contractor.contractorId,
+        //   fullName: contractor.name,
+        //   email: contractor.email,
+        //   phone: contractor.phone,
+        //   address: contractor.address,
+        // }));
+        setContractors(res);
       })
       .catch((err) => {
         console.log('GET contractors failed:', err);
@@ -63,8 +66,8 @@ const ContractorPage = () => {
 
   const handleEdit = (record: Contractor) => {
     setIsEditing(true);
-    setEditingKey(record.key);
-    form.setFieldsValue(record);
+    setEditingKey(record.contractorId);
+    setEditingUser(record);
     setIsModalOpen(true);
   };
 
@@ -74,69 +77,69 @@ const ContractorPage = () => {
     setEditingKey(null);
   };
 
- const handleDelete = async (key: string) => {
-  try {
-    setIsDeleteLoading(true);
-    const res = await dispatch(deleteContractorThunk(key)).unwrap();
+  const handleDelete = async (key: string) => {
+    try {
+      setIsDeleteLoading(true);
+      const res = await dispatch(deleteContractorThunk(key)).unwrap();
 
-    if (res) {
-      message.success(res.message);
-      setIsDeleteModalOpen({open:false, recordId: null});
-      setContractors(prev => prev.filter(c => c.key !== key));
+      if (res) {
+        message.success(res.message);
+        setIsDeleteModalOpen({ open: false, recordId: null });
+        setContractors(prev => prev.filter(c => c.contractorId !== key));
+      }
+    } catch (err) {
+      console.error("Failed to delete the Contractor", err);
+      message.error(err);
+    } finally {
+      setIsDeleteLoading(false);
     }
-  } catch (err) {
-    console.error("Failed to delete the Contractor", err);
-    message.error(err);
-  } finally {
-    setIsDeleteLoading(false);
-  }
-};
+  };
 
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (values: any) => {
     try {
       setLoading(true);
-      const values = await form.validateFields();
+     await form.validateFields();
 
       if (isEditing && editingKey) {
         // Update existing contractor 
         const payload = {
-          name: values.fullName,
+          name: values.name,
           phone: values.phone,
           address: values.address,
         };
         const res = await dispatch(updateContractorThunk({ contractorId: editingKey, payload })).unwrap();
 
-        if(res){
-        setContractors(prev =>
-          prev.map(c =>
-            c.key === editingKey ? { ...c, ...values } : c
-          )
-        );
-        message.success(res.message);
+        if (res) {
+          setContractors(prev =>
+            prev.map(c =>
+              c.contractorId === editingKey ? { ...c, ...values } : c
+            )
+          );
+          message.success(res.message);
         }
       } else {
         // Create new contractor
-        const res  = await dispatch(
+        const res = await dispatch(
           createContractorThunk({
-            name: values.fullName,
+            name: values.name,
             email: values.email,
             phone: values.phone,
             address: values.address,
           })
         ).unwrap();
-        if(res){
+        if (res) {
           const data = res.data;
-        const newContractor: Contractor = {
-          key:data.contractor_id,
-          fullName: data.name,
-          email: data.email,
-          phone: data.phone,
-          address: data.address,
-        };
-        setContractors(prev => [newContractor, ...prev]);
-        message.success(res.message);
-      }
+          const newContractor: Contractor = {
+            contractorId: data.contractorId,
+            name: data.name,
+            email: data.email,
+            phone: data.phone,
+            address: data.address,
+          };
+          setContractors(prev => [newContractor, ...prev]);
+          message.success(res.message);
+        }
       }
 
       setIsModalOpen(false);
@@ -150,41 +153,39 @@ const ContractorPage = () => {
     }
   };
 
- const handleRowClick = async (record: Contractor) => {
-  try {
-    setLoadingDetails(true);
-    setIsViewModalOpen(true);
+  const handleRowClick = async (record: Contractor) => {
+    try {
+      setLoadingDetails(true);
+      setIsViewModalOpen(true);
 
-    // Call API with contractorId
-    const response = await dispatch(getContractorByIdThunk(record.key)).unwrap();
-    
-    if (response && response.data) {
-      // Transform API response into Contractor type
-      console.log("API Called", response.data);
-        const contractor = {
-        key: response.data.contractorId,
-        fullName: response.data.name,
-        email: response.data.email,
-        phone: response.data.phone,
-        address: response.data.address,
-      };
-       setSelectedContractor(contractor);
+      // Call API with contractorId
+      const response = await dispatch(getContractorByIdThunk(record.contractorId)).unwrap();
+
+      if (response && response.data) {
+        // Transform API response into Contractor type
+        console.log("API Called", response.data);
+        //   const contractor = {
+        //   contractorId: response.data.contractorId,
+        //   name: response.data.name,
+        //   email: response.data.email,
+        //   phone: response.data.phone,
+        //   address: response.data.address,
+        // };
+        setSelectedContractor(response.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch contractor details:", error);
+    } finally {
+      setLoadingDetails(false);
     }
-  } catch (error) {
-    console.error("Failed to fetch contractor details:", error);
-  } finally {
-    setLoadingDetails(false);
-  }
-};
-
-
+  };
 
   const columns: TableColumnsType<Contractor> = useMemo(
     () => [
       {
         title: "Full Name",
-        dataIndex: "fullName",
-        key: "fullName",
+        dataIndex: "name",
+        key: "name",
       },
       {
         title: "Email",
@@ -221,7 +222,7 @@ const ContractorPage = () => {
               	onClick={(e) => {
                 	console.log("🚀 ~ ContractorPage ~ e:", record)
                 	e.stopPropagation(); // ✅ prevent row click
-                setIsDeleteModalOpen({open:true, recordId: record.key});
+                setIsDeleteModalOpen({open:true, recordId: record.contractorId});
               	}}
             	>
               	Delete
@@ -247,76 +248,56 @@ const ContractorPage = () => {
 
         <Spin spinning={loading}>
           <Table
-            rowKey="key"
+            rowKey="contractorId"
             columns={columns}
             dataSource={contractors}
             pagination={{ pageSize: 10 }}
             loading={false}
             scroll={{ x: "max-content" }}
-             onRow={(record) => ({
+            onRow={(record) => ({
               onClick: () => handleRowClick(record),
             })}
           />
         </Spin>
 
-        <Modal
-          title={isEditing ? "Edit " : "Create "}
+        <CreateFormModal
+          title="User"
           open={isModalOpen}
-          onOk={handleSubmit}
+          loading={loading}
+          isEditing={isEditing}
           onCancel={handleCancel}
-          okText={isEditing ? "Update" : "Create"}
-          confirmLoading={loading}
-          cancelButtonProps={{
-            style: { color: "#4c3575", borderColor: "#4c3575" }, 
-          }}
-           okButtonProps={{
-            style: { backgroundColor: "#4c3575", borderColor: "#4c3575" },
-          }}
-        >
-          <Form form={form} layout="vertical">
-            <Form.Item
-              label="Full Name"
-              name="fullName"
-              rules={[{ required: true, message: "Please enter full name" }]}
-            >
-              <Input placeholder="John Doe" />
-            </Form.Item>
+          onSubmit={handleSubmit}
+          initialValues={editingUser}  
+          fields={[
+            {
+              label: "Full Name",
+              name: "name",
+              placeholder: "John Doe",
+              rules: nameRules,
+            },
+            {
+              label: "Email",
+              name: "email",
+              placeholder: "john@example.com",
+              type: "email",
+              rules: emailRules,
+              disabled: isEditing, 
+            },
+            {
+              label: "Phone",
+              name: "phone",
+              placeholder: "+1 555 0100",
+              rules: phoneRules,
+            },
+            {
+              label: "Address",
+              name: "address",
+              placeholder: "123 Main St, Springfield",
+              rules: addressRules,
+            },
+          ]}
+        />
 
-            <Form.Item
-              label="Email"
-              name="email"
-              rules={[
-                { required: true, message: "Please enter email" },
-                { type: "email", message: "Please enter a valid email" },
-              ]}
-            >
-              <Input placeholder="john@example.com"  disabled={isEditing}/>
-            </Form.Item>
-
-            <Form.Item
-              label="Phone"
-              name="phone"
-              rules={[{ required: true, message: "Please enter phone" },
-                 {
-                    pattern: /^\d{10,15}$/,
-                    message: "Phone number must be between 10 to 15 digits",
-                 },
-              ]}
-            >
-              <Input placeholder="+1 555 0100" />
-            </Form.Item>
-
-            <Form.Item
-              label="Address"
-              name="address"
-              rules={[{ required: true, message: "Please enter address" },
-                      { min: 10, message: "Address must be at least 10 characters" },
-                     ]}
-            >
-              <Input placeholder="123 Main St, Springfield" />
-            </Form.Item>
-          </Form>
-        </Modal>
 
         <DetailModal
           title="Contractor Details"
@@ -325,7 +306,7 @@ const ContractorPage = () => {
           onCancel={() => setIsViewModalOpen(false)}
           data={selectedContractor}
           fields={[
-            { label: "Full Name", key: "fullName" },
+            { label: "Full Name", key: "name" },
             { label: "Email", key: "email", isLink: "email" },
             { label: "Phone", key: "phone", isLink: "phone" },
             { label: "Address", key: "address" },

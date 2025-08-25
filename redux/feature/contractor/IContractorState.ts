@@ -23,7 +23,7 @@ export interface Contractor {
 
 // Contractor Request Type (for create/update operations)
 export interface ContractorRequest {
-  contractor_id?:string
+  contractorId?:string
   name: string
   email: string
   phone: string

@@ -1,7 +1,7 @@
 "use client";
 
 import { Modal, Form, Input, Select } from "antd";
-import React from "react";
+import React, { useEffect } from "react";
 
 type CreateFormField = {
   label: string;
@@ -18,6 +18,7 @@ interface CreateFormModalProps {
   open: boolean;
   loading?: boolean;
   isEditing?: boolean;
+  initialValues?: any; // 👈 Pass existing values when editing
   onCancel: () => void;
   onSubmit: (values: any) => void;
   fields: CreateFormField[];
@@ -28,11 +29,23 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
   open,
   loading = false,
   isEditing = false,
+  initialValues = {},
   onCancel,
   onSubmit,
   fields,
 }) => {
   const [form] = Form.useForm();
+
+ 
+  useEffect(() => {
+    if (open) {
+      if (isEditing) {
+        form.setFieldsValue(initialValues);  
+      } else {
+        form.resetFields(); 
+      }
+    }
+  }, [open, isEditing, initialValues, form]);
 
   const handleOk = async () => {
     try {
@@ -45,7 +58,7 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
 
   return (
     <Modal
-      title={title}
+      title={isEditing ? `Edit ${title}` : `Create ${title}`} 
       open={open}
       onOk={handleOk}
       onCancel={onCancel}

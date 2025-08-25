@@ -62,3 +62,9 @@ export const passwordRules = [
   export const leadSourceRules = [
     { required: true, message: "Please enter lead source" },
   ];
+
+  export const addressRules = [
+    { required: true, message: "Please enter address" },
+    { min: 10, message: "Address must be at least 10 characters" },
+  ];
+    
