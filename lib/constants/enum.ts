@@ -1,5 +1,4 @@
-export let LeadSource =
-    [
+export let LeadSource =[
         { value: "ADMIN_PANEL", label: "Admin Panel" },
         { value: "WEBSITE", label: "Website" },
         { value: "INSTAGRAM", label: "Instagram" },
@@ -20,4 +19,11 @@ export let LeadSource =
         { value: "TRADE_SHOW", label: "Trade Show" },
         { value: "PARTNER", label: "Partner" },
         { value: "OTHER", label: "Other" },
-    ]
+]
+
+export const Status = {
+    IDLE: "IDLE",
+    PENDING: "PENDING",
+    SUCCESS: "SUCCESS",
+    ERROR: "ERROR",
+}
