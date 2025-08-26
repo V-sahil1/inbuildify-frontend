@@ -28,18 +28,6 @@ export const fetchFloorPlans = createAsyncThunk(
 //     }
 // );
 
-export const getFloorPlanFilters = createAsyncThunk(
-    "floorPlans/filters",
-    async () => {
-        try {
-            const res = await api.get<ApiResponse<any>>(API_ENDPOINTS.FLOOR_PLAN_FILTERS);
-            return res.data;
-        } catch (error) {
-            return error.message;
-        }
-    }
-);
-
 export const createFloorPlan = createAsyncThunk(
     "floorPlans/create",
     async (payload: IFloorPlanState, { rejectWithValue }) => {
@@ -51,3 +39,27 @@ export const createFloorPlan = createAsyncThunk(
         }
     }
   );
+
+  export const getFloorPlanFilters = createAsyncThunk(
+    "floorPlans/filters",
+    async () => {
+        try {
+            const res = await api.get<ApiResponse<any>>(API_ENDPOINTS.FLOOR_PLAN_FILTERS);
+            return res.data;
+        } catch (error) {
+            return error.message;
+        }
+    }
+);
+
+export const getConditions = createAsyncThunk(
+    "floorPlans/conditions",
+    async () => {
+        try {
+            const res = await api.get<ApiResponse<any>>(API_ENDPOINTS.GET_MASTER_PRICE_LIST_CONDITIONS);
+            return res.data;
+        } catch (error) {
+            return error.message;
+        }
+    }
+);

@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Form, Input, Radio, Checkbox, InputNumber, Select, Modal, message } from "antd";
 import { IconMinus, IconPlus } from "@tabler/icons-react";
 import { createCategoryItem } from "@redux/feature/masterPriceList/masterPriceListThunk";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
+import { getConditions, getFloorPlanFilters } from "@redux/feature/floorPlan/floorPlanThunk";
+import { enumToReadable } from "@lib/utils/enumToRedable";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -15,6 +17,13 @@ const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
     const [costType, setCostType] = useState('INCLUDED');
     const filters = useAppSelector((state) => state.floorPlan?.filters);
     const dispatch = useAppDispatch();
+    useEffect(() => {
+        if (!filters) {
+            dispatch(getFloorPlanFilters()).unwrap().then(() => {
+                dispatch(getConditions()).unwrap();
+            });
+        }
+    }, [dispatch]);
 
     const onFinish = (values: any) => {
         form.validateFields().then((values) => {
@@ -182,7 +191,11 @@ const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
                                         rules={[{ required: true, message: "Please select condition" }]}
                                     >
                                         <Select placeholder="Please select" className="w-full">
-                                            <Option value="SQFT_LIMIT">SQFT_LIMIT</Option>
+                                            {filters?.conditions?.map((condition: { name: string }) => (
+                                                <Option key={condition.name} value={condition.name}>
+                                                    {enumToReadable(condition.name)}
+                                                </Option>
+                                            ))}
                                         </Select>
                                     </Form.Item>
 

@@ -125,8 +125,6 @@ function App() {
         quotationId={quotation.id}
         version={quotation.version}
         status={quotation.status}
-        range={quotation.range}
-        dwellingType={quotation.dwellingType}
         onRangeChange={handleRangeChange}
         onDwellingTypeChange={handleDwellingTypeChange}
       />

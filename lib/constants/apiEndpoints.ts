@@ -44,6 +44,8 @@ class API_ENDPOINTS {
 public static MASTER_PRICE_LIST_CATEGORY= "/category"
 public static CREATE_MASTER_PRICE_LIST_ITEM= "/category-item"
 public static GET_MASTER_PRICE_LIST_ITEM= (id: string) => `/category-item/${id}`
+public static MASTER_PRICE_LIST_CONDITION_BASE= "/condition"
+public static GET_MASTER_PRICE_LIST_CONDITIONS= `${this.MASTER_PRICE_LIST_CONDITION_BASE}/conditions`;
 
 // floor plans
 public static FLOOR_PLAN_BASE = "/floor-plan"

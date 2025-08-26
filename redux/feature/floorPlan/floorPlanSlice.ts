@@ -1,5 +1,5 @@
 import { createSlice,  } from "@reduxjs/toolkit";
-import { createFloorPlan, fetchFloorPlans, getFloorPlanFilters } from "./floorPlanThunk";
+import { createFloorPlan, fetchFloorPlans, getConditions, getFloorPlanFilters } from "./floorPlanThunk";
 import { Status } from "@lib/constants/enum";
 
 
@@ -31,6 +31,9 @@ const floorPlanSlice = createSlice({
       })
       .addCase(createFloorPlan.fulfilled, (state, action) => {
         state.floorPlans.push(action.payload);
+      })
+      .addCase(getConditions.fulfilled, (state, action) => {
+        state.filters = {...state.filters, conditions: action.payload};
       })
     
       // fetch items

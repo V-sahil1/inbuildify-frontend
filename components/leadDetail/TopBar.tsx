@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Select, Tag } from 'antd';
 import { IconListDetails } from '@tabler/icons-react';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import { getFloorPlanFilters } from '@redux/feature/floorPlan/floorPlanThunk';
+import { getConditions, getFloorPlanFilters } from '@redux/feature/floorPlan/floorPlanThunk';
 import { Status } from '@lib/constants/enum';
 import { enumArrayToOptions } from '@lib/utils/enumArrayToOptionsConvert';
 
@@ -25,7 +25,9 @@ const TopBar: React.FC<TopBarProps> = ({
   const dispatch = useAppDispatch();
   useEffect(() => {
     if (floorPlanStatus === Status.IDLE) {
-      dispatch(getFloorPlanFilters());
+      dispatch(getFloorPlanFilters()).then(() => {
+        dispatch(getConditions()).unwrap();
+      });
     }
   }, [floorPlanStatus, dispatch]);
   const rangeOptions = enumArrayToOptions(filters?.ranges);
