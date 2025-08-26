@@ -64,20 +64,6 @@ export interface Package {
   items?: PackageItem[];
 }
   
-  export interface QuotationItem {
-    id: string;
-    name: string;
-    tags: string[];
-    quantity: number;
-    price: number;
-    total: number;
-  }
-  
-  export interface Category {
-    categoryId: string;
-    name: string;
-    items: QuotationItem[];
-  }
 
 
 export interface PropertyDetails {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Menu } from 'antd';
-import { Category } from '@/pages/leads/data/types';
+import { Category } from '@redux/feature/masterPriceList/iMasterPriceListState';
 
 interface CategorySidebarProps {
   categories: Category[];
