@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Form, Input, Radio, Checkbox, InputNumber, Select, Modal } from "antd";
+import { Form, Input, Radio, Checkbox, InputNumber, Select, Modal, message } from "antd";
 import { IconMinus, IconPlus } from "@tabler/icons-react";
 import { createCategoryItem } from "@redux/feature/masterPriceList/masterPriceListThunk";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
@@ -12,14 +12,21 @@ const { Option } = Select;
 
 const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
     const [form] = Form.useForm();
-    const [costType, setCostType] = useState('');
+    const [costType, setCostType] = useState('INCLUDED');
     const filters = useAppSelector((state) => state.floorPlan?.filters);
     const dispatch = useAppDispatch();
 
     const onFinish = (values: any) => {
-        console.log("CategoryId", categoryId)
-        console.log("Form values:", values);
-        dispatch(createCategoryItem({category_id:categoryId, ...values }));
+        form.validateFields().then((values) => {
+            dispatch(createCategoryItem({category_id:categoryId, ...values })).unwrap().then(() => {
+                message.success("Master Pricing Item added successfully");
+                form.resetFields();
+            });
+        }).catch((error) => {
+         message.error(error);
+        }).finally(() => {
+            onClose();
+        });
     };
 
     const onCostTypeChange = (e: any) => {
@@ -70,7 +77,7 @@ const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
                         name="cost_type"
                         className="form-item-responsive flex-1"
                     >
-                        <Radio.Group onChange={onCostTypeChange} style={{ width: '100%' }} defaultValue={"INCLUDED"}>
+                        <Radio.Group onChange={onCostTypeChange} style={{ width: '100%' }} value={costType} defaultValue={"INCLUDED"}>
                             <div className="flex flex-col sm:flex-row gap-4">
                                 <Radio value="INCLUDED">Included</Radio>
                                 <Radio value="FIXED">Fixed</Radio>
@@ -95,10 +102,11 @@ const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
                     </Form.Item>
                 </div>
 
-                {costType === 'variable' && (
+                {costType === 'VARIABLE' && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <Form.Item label="Quantity" name="quantity" className="form-item-responsive">
                             <InputNumber
+                                type="number"
                                 min={1}
                                 style={{ width: '100%' }}
                                 onChange={(value) => console.log(value)}
@@ -106,9 +114,11 @@ const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
                         </Form.Item>
                         <Form.Item label="Unit Price" name="unitPrice" className="form-item-responsive">
                             <InputNumber
+                                type="number"
                                 min={0}
+                                prefix="$"
                                 style={{ width: '100%' }}
-                                formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                                 parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
                                 onChange={(value) => console.log(value)}
                             />
@@ -118,17 +128,17 @@ const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
 
                 {/* Cost */}
                 <Form.Item
-                    label={costType === 'variable' ? 'Total Cost' : 'Cost'}
+                    label={costType === 'VARIABLE' ? 'Total Cost' : 'Cost'}
                     name="cost"
-                    rules={[{ required: costType === 'fixed', message: "Please enter cost" }]}
+                    rules={[{ required: costType === 'FIXED', message: "Please enter cost" }]}
                     className="form-item-responsive"
                 >
                     <InputNumber
                         min={0}
+                        prefix="$"
+                        type="number"
                         style={{ width: '100%' }}
-                        formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-                        parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
-                        disabled={costType === 'included' || costType === 'variable'}
+                        disabled={costType === 'INCLUDED' || costType === 'VARIABLE'}
                     />
                 </Form.Item>
 
@@ -156,7 +166,7 @@ const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
                     </Form.Item>
                 </div>
 
-                <Form.List name="conditionsList" initialValue={[{}]}>
+                <Form.List name="conditions" initialValue={[{}]}>
                     {(fields, { add, remove }) => (
                         <>
                             {fields.map(({ key, name, ...restField }, index) => (
@@ -168,12 +178,11 @@ const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
                                     <Form.Item
                                         {...restField}
                                         label="Conditions"
-                                        name={[name, "condition"]}
+                                        name={[name, "name"]}
                                         rules={[{ required: true, message: "Please select condition" }]}
                                     >
                                         <Select placeholder="Please select" className="w-full">
-                                            <Option value="cond1">Condition 1</Option>
-                                            <Option value="cond2">Condition 2</Option>
+                                            <Option value="SQFT_LIMIT">SQFT_LIMIT</Option>
                                         </Select>
                                     </Form.Item>
 
@@ -184,7 +193,7 @@ const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
                                         name={[name, "range_start"]}
                                         rules={[{ required: true, message: "Please enter start range" }]}
                                     >
-                                        <InputNumber min={0} className="w-full" />
+                                        <InputNumber min={0} className="w-full" type="number" />
                                     </Form.Item>
 
                                     {/* Range End */}
@@ -194,7 +203,7 @@ const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
                                         name={[name, "range_end"]}
                                         rules={[{ required: true, message: "Please enter end range" }]}
                                     >
-                                        <InputNumber min={0} className="w-full" />
+                                        <InputNumber min={0} className="w-full" type="number" />
                                     </Form.Item>
 
                                     {/* Minus Button – hidden if only one row */}

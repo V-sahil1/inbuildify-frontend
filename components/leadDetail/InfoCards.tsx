@@ -97,7 +97,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
                 size={14}
                 className="mr-1 mt-0.5 text-gray-400 flex-shrink-0"
               />
-              <span className="line-clamp-2">{leadDetails.address}</span>
+              <span className="line-clamp-2">{leadDetails.address || "Not provided"}</span>
             </div>
           )}
         </div>

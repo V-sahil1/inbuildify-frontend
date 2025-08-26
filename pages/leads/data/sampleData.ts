@@ -4,8 +4,8 @@ export const quotationData: Quotation = {
   id: 'MYH23070085',
   version: 'V1',
   status: 'Draft',
-  range: 'Premium',
-  dwellingType: 'Single Storey',
+  // range: 'Premium',
+  // dwellingType: 'Single Storey',
   expiryDate: '21-09-2023',
   total: 5000
 };

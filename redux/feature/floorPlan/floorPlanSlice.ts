@@ -1,12 +1,13 @@
 import { createSlice,  } from "@reduxjs/toolkit";
 import { createFloorPlan, fetchFloorPlans, getFloorPlanFilters } from "./floorPlanThunk";
+import { Status } from "@lib/constants/enum";
 
 
 const floorPlanSlice = createSlice({
   name: "floorPlan",
   initialState: {
     floorPlans: [],
-    loading: false,
+    status: Status.IDLE,
     filters: null,
   },
   reducers: {},
@@ -14,18 +15,18 @@ const floorPlanSlice = createSlice({
     builder
       // fetch categories
       .addCase(fetchFloorPlans.pending, state => {
-        state.loading = true;
+        state.status = Status.PENDING;
       })
       .addCase(fetchFloorPlans.fulfilled, (state, action) => {
-        state.loading = false;
+        state.status = Status.SUCCESS;
         state.floorPlans = action.payload.floorPlans;
       })
    
       .addCase(getFloorPlanFilters.pending, state => {
-        state.loading = true;
+        state.status = Status.PENDING;
       })
       .addCase(getFloorPlanFilters.fulfilled, (state, action) => {
-        state.loading = false;
+        state.status = Status.SUCCESS;
         state.filters = action.payload;
       })
       .addCase(createFloorPlan.fulfilled, (state, action) => {

@@ -1,13 +1,12 @@
 import { createSlice,  } from "@reduxjs/toolkit";
-import { fetchCategories, fetchCategoryItems } from "./masterPriceListThunk";
+import { createCategoryItem, fetchCategories, fetchCategoryItems } from "./masterPriceListThunk";
 import { Status } from "@lib/constants/enum";
-
-
+import { Category } from "./iMasterPriceListState";
 const masterPriceListSlice = createSlice({
   name: "masterPriceList",
   initialState: {
     status: Status.IDLE,
-    categories: [],
+    categories: [] as Category[],
     loading: false,
   },
   reducers: {
@@ -28,7 +27,7 @@ const masterPriceListSlice = createSlice({
       .addCase(fetchCategories.fulfilled, (state, action) => {
         state.status = Status.SUCCESS;
         state.loading = false;
-        state.categories = action.payload.categories.map((c: any) => ({
+        state.categories = action.payload?.categories.map((c) => ({
           ...c,
           items: null,
           isExpanded: false,
@@ -48,7 +47,16 @@ const masterPriceListSlice = createSlice({
           category.items = items;   // store only once
           category.loadingItems = false;
         }
-      });
+      })
+
+      // create item
+      .addCase(createCategoryItem.fulfilled, (state, action) => {
+        console.log(action.payload);
+        const category = state.categories.find(c => c.categoryId === action.payload.categoryId);
+        if (category) {
+          category.items = [...category.items, action.payload];
+        }
+      })
   },
 });
 

@@ -2,8 +2,8 @@ export interface Quotation {
     id: string;
     version: string;
     status: 'Draft' | 'Approved' | 'Sent';
-    range: string;
-    dwellingType: string;
+    // range: string;
+    // dwellingType: string;
     expiryDate: string;
     total: number;
   }
