@@ -1,5 +1,6 @@
 import AddMasterPricingItemModal from "@/components/common/Models/AddMasterPricingItemModel";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
+import { Status } from "@lib/constants/enum";
 import { toggleExpand } from "@redux/feature/masterPriceList/masterPriceListSlice";
 import { fetchCategories, fetchCategoryItems } from "@redux/feature/masterPriceList/masterPriceListThunk";
 import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
@@ -7,10 +8,12 @@ import { useEffect, useState } from "react";
 
 export const MasterPriceList = () => {
     const dispatch = useAppDispatch();
-    const { categories } = useAppSelector((state: any) => state.masterPriceList);
+    const { categories ,status} = useAppSelector((state: any) => state.masterPriceList);
     console.log(categories)
     useEffect(() => {
-        dispatch(fetchCategories())
+        if(status === Status.IDLE){
+            dispatch(fetchCategories())
+        }
     }, [dispatch]);
 
     const [addItemModal, setAddItemModal] = useState(false);

@@ -79,7 +79,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
       {/* Items List */}
       <div className="p-4">
         <div className="space-y-4">
-          {category.items.map((item) => (
+          {category?.items?.length > 0 ? category?.items?.map((item) => (
             <div
               key={item.id}
               className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:border-gray-300 transition-colors"
@@ -89,7 +89,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
                   {item.name}
                 </div>
                 <div className="flex gap-1 flex-wrap">
-                  {item.tags.map((tag) => (
+                  {item.tags?.map((tag) => (
                     <Tag key={tag} color={getTagColor(tag)}>
                       {tag}
                     </Tag>
@@ -127,7 +127,9 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
                 />
               </div>
             </div>
-          ))}
+          )): <div className="flex-1 p-6 bg-gray-50 flex items-center justify-center">
+          <div className="text-gray-500">No items found</div>
+          </div>}
         </div>
       </div>
     </div>

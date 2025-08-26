@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
 import Breadcrumb from "@/components/common/Breadcrumb";
 import {
   IconCalendarMonth,
@@ -12,40 +12,44 @@ import {
 import { getFloorPlanFilters } from "@redux/feature/floorPlan/floorPlanThunk";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 // Dynamically import components with no SSR
-const MasterPriceList = dynamic(() => import('./components/MasterPriceList'), { ssr: false });
-const FloorPlan = dynamic(() => import('./components/FloorPlan'), { ssr: false });
-const Facade = dynamic(() => import('./components/Facade'), { ssr: false });
-const Package = dynamic(() => import('./components/Package'), { ssr: false });
+const MasterPriceList = dynamic(() => import("./components/MasterPriceList"), {
+  ssr: false,
+});
+const FloorPlan = dynamic(() => import("./components/FloorPlan"), {
+  ssr: false,
+});
+const Facade = dynamic(() => import("./components/Facade"), { ssr: false });
+const Package = dynamic(() => import("./components/Package"), { ssr: false });
 
 const TABS = [
   {
-    id: 'items',
-    label: 'Master Pricing',
+    id: "items",
+    label: "Master Pricing",
     icon: IconServer2,
-    breadcrumb: 'Master Pricing',
-    component: MasterPriceList
+    breadcrumb: "Master Pricing",
+    component: MasterPriceList,
   },
   {
-    id: 'floor-plan',
-    label: 'Floor Plan',
+    id: "floor-plan",
+    label: "Floor Plan",
     icon: IconProgress,
-    breadcrumb: 'Floor Plan',
-    component: FloorPlan
+    breadcrumb: "Floor Plan",
+    component: FloorPlan,
   },
   {
-    id: 'facade',
-    label: 'Facade',
+    id: "facade",
+    label: "Facade",
     icon: IconClockHour3,
-    breadcrumb: 'Facade',
-    component: Facade
+    breadcrumb: "Facade",
+    component: Facade,
   },
   {
-    id: 'package',
-    label: 'Package',
+    id: "package",
+    label: "Package",
     icon: IconCalendarMonth,
-    breadcrumb: 'Package',
-    component: Package
-  }
+    breadcrumb: "Package",
+    component: Package,
+  },
 ];
 
 export default function ProjectList() {
@@ -56,24 +60,27 @@ export default function ProjectList() {
   const dispatch = useAppDispatch();
   const filters = useAppSelector((state: any) => state.floorPlan.filters);
   useEffect(() => {
-    if(!filters){
-    dispatch(getFloorPlanFilters());
+    if (!filters) {
+      dispatch(getFloorPlanFilters());
     }
-  }, [dispatch,filters]);
+  }, [dispatch, filters]);
   const getActiveTabIndex = useCallback(() => {
-    const tabId = searchParams.get('tab') || TABS[0].id;
-    return Math.max(0, TABS.findIndex(tab => tab.id === tabId));
+    const tabId = searchParams.get("tab") || TABS[0].id;
+    return Math.max(
+      0,
+      TABS.findIndex((tab) => tab.id === tabId)
+    );
   }, [searchParams]);
 
   const [selectedIndex, setSelectedIndex] = useState(getActiveTabIndex());
 
   const handleTabSelect = (index: number) => {
     if (index === selectedIndex) return; // Prevent unnecessary updates
-    
+
     setSelectedIndex(index);
     const tabId = TABS[index].id;
     const params = new URLSearchParams(searchParams.toString());
-    params.set('tab', tabId);
+    params.set("tab", tabId);
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
@@ -99,7 +106,7 @@ export default function ProjectList() {
   ];
 
   return (
-    <Tabs 
+    <Tabs
       className="flex"
       selectedIndex={selectedIndex}
       onSelect={handleTabSelect}
@@ -156,9 +163,7 @@ export default function ProjectList() {
             const TabComponent = tab.component;
             return (
               <TabPanel key={tab.id}>
-                {selectedIndex === index && (
-                  <TabComponent />
-                )}
+                {selectedIndex === index && <TabComponent />}
               </TabPanel>
             );
           })}

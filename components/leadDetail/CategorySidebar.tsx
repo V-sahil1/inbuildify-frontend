@@ -14,7 +14,7 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
   onCategorySelect
 }) => {
   const menuItems = categories.map(category => ({
-    key: category.id,
+    key: category.categoryId,
     label: category.name,
   }));
 

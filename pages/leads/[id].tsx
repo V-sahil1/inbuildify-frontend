@@ -1,14 +1,25 @@
-import React, { useState } from "react";
-import { ConfigProvider } from "antd";
+import React, { useEffect, useMemo, useState } from "react";
+import { ConfigProvider, Spin } from "antd";
 
 import TopBar from "@/components/leadDetail/TopBar";
 import ItemsPanel from "@/components/leadDetail/ItemsPanel";
 import InfoCards from "@/components/leadDetail/InfoCards";
 import FooterActions from "@/components/leadDetail/FooterActions";
 import CategorySidebar from "@/components/leadDetail/CategorySidebar";
-import { quotationData, leadDetails, propertyDetails, availablePlans, availableFacades, availablePackages, categories } from "./data/sampleData";
+import {
+  quotationData,
+  leadDetails,
+  propertyDetails,
+  availablePlans,
+  availableFacades,
+  availablePackages,
+  categories,
+} from "./data/sampleData";
 import { PropertyDetails } from "./data/types";
-
+import { useAppDispatch, useAppSelector } from "@hooks/redux";
+import { RootState } from "@redux/feature/store";
+import { Status } from "@lib/constants/enum";
+import { fetchCategories } from "@redux/feature/masterPriceList/masterPriceListThunk";
 
 export interface Plan {
   id: string;
@@ -33,6 +44,7 @@ export interface Package {
 }
 
 function App() {
+  const dispatch = useAppDispatch();
   const [quotation, setQuotation] = useState(quotationData);
   const [property, setProperty] = useState(propertyDetails);
   const [selectedPlan, setSelectedPlan] = useState<Plan | undefined>(
@@ -44,9 +56,18 @@ function App() {
   const [selectedPackage, setSelectedPackage] = useState<Package | undefined>(
     availablePackages[0]
   );
-  const [selectedCategory, setSelectedCategory] = useState("base-price");
-  const [categoryData, setCategoryData] = useState(categories);
-
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  console.log("🚀 ~ App ~ selectedCategory:", selectedCategory);
+  // const [categoryData, setCategoryData] = useState(categories);
+  const { categories: categoryData, status } = useAppSelector(
+    (state: RootState) => state.masterPriceList
+  );
+  console.log("🚀 ~ App ~ categoryData:", categoryData);
+  useEffect(() => {
+    if (status === Status.IDLE) {
+      dispatch(fetchCategories());
+    }
+  }, [dispatch]);
   const handleRangeChange = (value: string) => {
     setQuotation((prev) => ({ ...prev, range: value }));
   };
@@ -58,32 +79,33 @@ function App() {
     setProperty(updatedProperty);
   };
   const handleItemQuantityChange = (itemId: string, quantity: number) => {
-    setCategoryData((prev) =>
-      prev.map((category) => ({
-        ...category,
-        items: category.items.map((item) =>
-          item.id === itemId
-            ? { ...item, quantity, total: item.price * quantity }
-            : item
-        ),
-      }))
-    );
+    // setCategoryData((prev) =>
+    //   prev.map((category) => ({
+    //     ...category,
+    //     items: category.items.map((item) =>
+    //       item.id === itemId
+    //         ? { ...item, quantity, total: item.price * quantity }
+    //         : item
+    //     ),
+    //   }))
+    // );
   };
 
   const handleItemAdd = (itemId: string) => {
     console.log("Adding item:", itemId);
     // Implement add item logic here
   };
-
-  const getCurrentCategory = () => {
-    return categoryData.find((cat) => cat.id === selectedCategory);
-  };
+  const currentSelectedCategory = useMemo(() => {
+    return categoryData.find((cat) => cat.categoryId === selectedCategory);
+  }, [selectedCategory, categoryData]);
+  console.log("🚀 ~ App ~ currentSelectedCategory:", currentSelectedCategory);
+  
 
   const calculateTotal = () => {
     return categoryData.reduce(
       (total, category) =>
         total +
-        category.items.reduce(
+        category?.items?.reduce(
           (categoryTotal, item) => categoryTotal + item.total,
           0
         ),
@@ -98,66 +120,63 @@ function App() {
   const handleViewOpportunity = () => console.log("View Opportunity clicked");
 
   return (
-    <ConfigProvider
-      theme={{
-        token: {
-          colorPrimary: "#1890ff",
-          borderRadius: 6,
-        },
-      }}
-    >
-      <div className=" bg-gray-100 flex flex-col">
-        <TopBar
-          quotationId={quotation.id}
-          version={quotation.version}
-          status={quotation.status}
-          range={quotation.range}
-          dwellingType={quotation.dwellingType}
-          onRangeChange={handleRangeChange}
-          onDwellingTypeChange={handleDwellingTypeChange}
-        />
+    <div className=" bg-gray-100 flex flex-col">
+      <TopBar
+        quotationId={quotation.id}
+        version={quotation.version}
+        status={quotation.status}
+        range={quotation.range}
+        dwellingType={quotation.dwellingType}
+        onRangeChange={handleRangeChange}
+        onDwellingTypeChange={handleDwellingTypeChange}
+      />
 
-        <InfoCards
-          leadDetails={leadDetails}
-          propertyDetails={property}
-          selectedPlan={selectedPlan}
-          selectedFacade={selectedFacade}
-          selectedPackage={selectedPackage}
-          availableFacades={availableFacades}
-          availablePackages={availablePackages}
-          onPlanSelect={setSelectedPlan}
-          onFacadeSelect={setSelectedFacade}
-          onPackageSelect={setSelectedPackage}
-          onPropertyUpdate={handlePropertyUpdate}
-        />
+      <InfoCards
+        leadDetails={leadDetails}
+        propertyDetails={property}
+        selectedPlan={selectedPlan}
+        selectedFacade={selectedFacade}
+        selectedPackage={selectedPackage}
+        availableFacades={availableFacades}
+        availablePackages={availablePackages}
+        onPlanSelect={setSelectedPlan}
+        onFacadeSelect={setSelectedFacade}
+        onPackageSelect={setSelectedPackage}
+        onPropertyUpdate={handlePropertyUpdate}
+      />
 
-        <div className="flex flex-1">
-          <div className="w-64">
+      <div className="flex flex-1">
+        <div className="w-64">
+          {status === Status.IDLE ? (
+            <div className="flex items-center justify-center flex-1">
+              <Spin />
+            </div>
+          ) : (
             <CategorySidebar
               categories={categoryData}
               selectedCategory={selectedCategory}
               onCategorySelect={setSelectedCategory}
             />
-          </div>
-
-          <ItemsPanel
-            category={getCurrentCategory()}
-            onItemQuantityChange={handleItemQuantityChange}
-            onItemAdd={handleItemAdd}
-          />
+          )}
         </div>
 
-        <FooterActions
-          expiryDate={quotation.expiryDate}
-          total={calculateTotal()}
-          onSaveAs={handleSaveAs}
-          onApprove={handleApprove}
-          onEmail={handleEmail}
-          onPreview={handlePreview}
-          onViewOpportunity={handleViewOpportunity}
+        <ItemsPanel
+          category={currentSelectedCategory}
+          onItemQuantityChange={handleItemQuantityChange}
+          onItemAdd={handleItemAdd}
         />
       </div>
-    </ConfigProvider>
+
+      <FooterActions
+        expiryDate={quotation.expiryDate}
+        total={calculateTotal()}
+        onSaveAs={handleSaveAs}
+        onApprove={handleApprove}
+        onEmail={handleEmail}
+        onPreview={handlePreview}
+        onViewOpportunity={handleViewOpportunity}
+      />
+    </div>
   );
 }
 

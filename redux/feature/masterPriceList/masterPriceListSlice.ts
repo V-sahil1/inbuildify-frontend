@@ -1,10 +1,12 @@
 import { createSlice,  } from "@reduxjs/toolkit";
 import { fetchCategories, fetchCategoryItems } from "./masterPriceListThunk";
+import { Status } from "@lib/constants/enum";
 
 
 const masterPriceListSlice = createSlice({
   name: "masterPriceList",
   initialState: {
+    status: Status.IDLE,
     categories: [],
     loading: false,
   },
@@ -20,9 +22,11 @@ const masterPriceListSlice = createSlice({
     builder
       // fetch categories
       .addCase(fetchCategories.pending, state => {
+        state.status = Status.PENDING;
         state.loading = true;
       })
       .addCase(fetchCategories.fulfilled, (state, action) => {
+        state.status = Status.SUCCESS;
         state.loading = false;
         state.categories = action.payload.categories.map((c: any) => ({
           ...c,

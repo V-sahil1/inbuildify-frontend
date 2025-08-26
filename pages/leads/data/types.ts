@@ -74,7 +74,7 @@ export interface Package {
   }
   
   export interface Category {
-    id: string;
+    categoryId: string;
     name: string;
     items: QuotationItem[];
   }
