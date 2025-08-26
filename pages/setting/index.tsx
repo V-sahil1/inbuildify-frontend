@@ -136,7 +136,10 @@ export default function ProjectList() {
           })}
         </TabList>
       </div>
-      <div className="flex-1 md:p-4 sm:px-3 py-4 xl:h-[calc(100svh-77px)] lg:h-[calc(100svh-73px)] overflow-auto custom-scrollbar">
+      <div
+        className="flex-1 md:p-4 sm:px-3 py-4 xl:h-[calc(100svh-77px)] lg:h-[calc(100svh-73px)] overflow-auto "
+        style={{ scrollbarWidth: "none" }}
+      >
         <div className="container-fluid">
           <div className="flex items-center justify-between gap-4">
             <Breadcrumb breadcrumbItem={breadcrumbItems} />
