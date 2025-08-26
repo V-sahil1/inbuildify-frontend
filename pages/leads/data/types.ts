@@ -31,6 +31,20 @@ export interface Quotation {
     width?: string;
     depth?: string;
     total?: string;
+    country?: string;
+    address1?: string;
+    address2?: string;
+    citySuburb?: string;
+    stateRegion?: string;
+    zipPostalCode?: string;
+    estateName?: string;
+    titleStatus?: string;
+    compactionReport?: string;
+    landType?: string;
+    siteFall?: string;
+    landFill?: string;
+    bushFire?: string;
+    cornerBlock?: string;
   }
   
   export interface Plan {

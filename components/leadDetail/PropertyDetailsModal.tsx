@@ -2,6 +2,8 @@ import React from 'react';
 import { Modal, Form, Input, Select, DatePicker, Radio, Row, Col, Button } from 'antd';
 import dayjs from 'dayjs';
 import { PropertyDetails } from '@/pages/leads/data/types';
+import { updatePropertyDetailsThunk } from '@redux/feature/lead/leadThunk';
+import { useAppDispatch } from '@hooks/redux';
 
 interface PropertyDetailsModalProps {
   visible: boolean;
@@ -17,7 +19,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
   initialValues
 }) => {
   const [form] = Form.useForm();
-
+const dispatch = useAppDispatch();
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
@@ -47,7 +49,11 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
         bushFire: values.bushFire,
         cornerBlock: values.cornerBlock
       };
-      
+            await dispatch(updatePropertyDetailsThunk({
+        leadId: 'your-lead-id',
+        propertyDetails: formattedValues
+      })).unwrap();
+
       onSave(formattedValues);
       onCancel();
     } catch (error) {
