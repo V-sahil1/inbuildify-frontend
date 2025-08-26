@@ -51,7 +51,12 @@ public static GET_MASTER_PRICE_LIST_CONDITIONS= `${this.MASTER_PRICE_LIST_CONDIT
 public static FLOOR_PLAN_BASE = "/floor-plan"
 public static FLOOR_PLAN_FILTERS = `${this.FLOOR_PLAN_BASE}/filters`;
 
-// facade
+//packages
+public static PACKAGE_BASE = "/package"
+public static GET_PACKAGES = `${this.PACKAGE_BASE}`;
+public static GET_PACKAGE_BY_ID = (id:string) => `${this.PACKAGE_BASE}/${id}`;
+public static CREATE_PACKAGE = `${this.PACKAGE_BASE}/create`;
+public static GET_PACKAGE_ITEMS = `${this.PACKAGE_BASE}/category/items`;
 public static FACADE_BASE = "/facade"
 }
 

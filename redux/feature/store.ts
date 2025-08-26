@@ -6,6 +6,7 @@ import { leadReducer } from "./lead/leadSlice";
 import masterPriceListReducer from "./masterPriceList/masterPriceListSlice";
 import floorPlanReducer from "./floorPlan/floorPlanSlice";
 import facadeReducer from "./facade/facadeSlice";
+import packageReducer from "./package/packageSlice";
 
 const authPersistConfig = {
   key: "auth",
@@ -19,6 +20,7 @@ const rootReducer = combineReducers({
   masterPriceList: masterPriceListReducer,
   floorPlan: floorPlanReducer,
   facade: facadeReducer,
+  package: packageReducer,
 });
 
 const persistConfig = {

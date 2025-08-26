@@ -21,9 +21,9 @@ export let LeadSource =[
         { value: "OTHER", label: "Other" },
 ]
 
-export const Status = {
-    IDLE: "IDLE",
-    PENDING: "PENDING",
-    SUCCESS: "SUCCESS",
-    ERROR: "ERROR",
+export enum Status {
+    IDLE = "IDLE",
+    PENDING = "PENDING",
+    SUCCESS = "SUCCESS",
+    ERROR = "ERROR",
 }

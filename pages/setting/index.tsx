@@ -113,7 +113,7 @@ export default function ProjectList() {
       forceRenderTabPanel={true}
     >
       <div
-        className={` test-class bg-card-color min-w-[230px] w-[230px] p-4 ms-[2px] mt-[2px] xl:h-[calc(100svh-148px)]   h-full overflow-auto custom-scrollbar lg:static fixed z-[1]
+        className={` test-class bg-card-color min-w-[230px] w-[230px] p-4  xl:h-[calc(100svh-148px)]   h-full overflow-auto custom-scrollbar lg:static fixed z-[1]
  transition-all duration-300 ${
    projectSide ? "left-0 rtl:right-0 " : "-left-full rtl:-right-full"
  }`}

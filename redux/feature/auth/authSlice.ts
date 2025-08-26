@@ -1,7 +1,17 @@
 // src/store/auth/authSlice.ts
 import { createSlice } from "@reduxjs/toolkit";
-import { AuthState, Status } from "./IAuthState";
 import { getUserThunk, logoutThunk } from "./authThunk";
+import { Status } from "@lib/constants/enum";
+import { Role, User } from "./IAuthState";
+
+interface AuthState {
+  isAuthenticated: boolean;
+  user: User | null;
+  role: Role | null;
+  accessToken: string | null;
+  error: string | null;
+  status: Status;
+}
 
 const initialState: AuthState = {
   isAuthenticated: false,
@@ -26,10 +36,10 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
       state.role = action.payload.role;
       state.user = action.payload;
-      state.status = Status.SUCCEEDED;
+      state.status = Status.SUCCESS;
     });
     builder.addCase(getUserThunk.rejected, (state, action) => {
-      state.status = Status.FAILED;
+      state.status = Status.ERROR;
       state.error = action.payload as string;
     });
     // logout
@@ -40,10 +50,10 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.role = null;
       state.user = null;
-      state.status = Status.SUCCEEDED;
+      state.status = Status.SUCCESS;
     });
     builder.addCase(logoutThunk.rejected, (state, action) => {
-      state.status = Status.FAILED;
+      state.status = Status.ERROR;
       state.error = action.payload as string;
     });
   },
