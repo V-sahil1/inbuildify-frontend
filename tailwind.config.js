@@ -47,6 +47,7 @@ module.exports = {
         "font-color-100": "var(--font-color-100)",
         "font-color-200": "var(--font-color-200)",
         "font-color-400": "var(--font-color-400)",
+        "font-color-600": "var(--font-color-600)",
         "card-color": "var(--card-color)",
         "border-color": "var(--border-color)",
 
