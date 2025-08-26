@@ -69,7 +69,7 @@ export const MasterPriceList = () => {
                   >
                     {isDropdownOpen ? <IconChevronUp /> : <IconChevronDown />}
                   </button>
-                  <h3>{category.name}</h3>
+                  <h3 className="text-[19px]">{category.name}</h3>
                 </div>
 
                 {/* Add Item */}
