@@ -26,6 +26,7 @@
     "antd": "^5.27.0",
     "apexcharts": "^3.53.0",
     "axios": "^1.11.0",
+    "dayjs": "^1.11.13",
     "framer-motion": "^12.23.9",
     "lightbox.js-react": "^1.4.9",
     "lodash": "^4.17.21",

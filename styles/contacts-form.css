@@ -1,0 +1,44 @@
+.contact-form-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.contact-form-container .ant-tabs-nav {
+  margin-bottom: 0;
+}
+
+.contact-form-container .ant-tabs-tab {
+  padding: 12px 16px;
+  margin-right: 8px;
+}
+
+.contact-form-container .ant-tabs-tab-remove {
+  margin-left: 8px;
+  color: #999;
+}
+
+.contact-form-container .ant-tabs-tab-remove:hover {
+  color: #ff4d4f;
+}
+
+.contact-form-container .ant-form-item {
+  margin-bottom: 16px;
+}
+
+.contact-form-container .ant-tabs-extra-content {
+  display: flex;
+  align-items: center;
+}
+
+.contact-form-container .ant-tabs-tab-active {
+  background-color: #f0f7ff;
+  border-radius: 4px 4px 0 0;
+}
+
+.contact-form-container .ant-tabs-tabpane {
+  background: #fff;
+  padding: 16px;
+  border: 1px solid #f0f0f0;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+}

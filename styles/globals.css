@@ -1267,6 +1267,16 @@ color: var(--font-color) !important;
   height: 100%;
 }
 
+.custom-tabs .ant-tabs-content-holder{
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.custom-tabs .ant-tabs-content-holder::-webkit-scrollbar {
+  display: none;
+}
+
+
 @media (max-width: 768px) {
   .ag-paging-row-summary-panel,
   .ag-paging-description {

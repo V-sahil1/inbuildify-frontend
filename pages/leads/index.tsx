@@ -6,10 +6,12 @@ import { DetailModal } from "@/components/common/DetailModal";
 import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
 import { LeadSource } from "@lib/constants/enum";
 import { emailRules, leadSourceRules, nameRules, phoneRules } from "@lib/constants/formInputValidations";
+import { useRouter } from "next/navigation";
 
 const Leads = () => {
     const { leads } = useAppSelector((state) => state.lead);
     const dispatch = useAppDispatch();
+    const router = useRouter();
     const [openLeadModal, setOpenLeadModal] = useState(false);
     const [loadingLead, setLoadingLead] = useState(false);
     const [selectedLead, setSelectedLead] = useState<any>(null);
@@ -48,11 +50,11 @@ const Leads = () => {
             minute: "2-digit",
         });
     };
-    const handleLeadClickModel = async (leadId: string) => {
-        const response = await dispatch(getLeadByIdThunk(leadId)).unwrap();
-        setOpenLeadModal(true);
-        setSelectedLead(response);
-    };
+    // const handleLeadClickModel = async (leadId: string) => {
+    //     const response = await dispatch(getLeadByIdThunk(leadId)).unwrap();
+    //     setOpenLeadModal(true);
+    //     setSelectedLead(response);
+    // };
     return (
         <div className="p-4">
             <div className="flex items-center justify-between mb-4">
@@ -68,7 +70,7 @@ const Leads = () => {
                 {leads.map((lead) => (
                     <div
                         key={lead.lead_id}
-                        onClick={() => handleLeadClickModel(lead.lead_id)}
+                        onClick={() => router.push(`/leads/${lead.lead_id}`)}
                         className="bg-card-color shadow-lg rounded-lg p-10 border border-border-color hover:shadow-xl transition"
                     >
                         <h3 className="text-lg font-bold text-font-color">{lead.name}</h3>
@@ -118,7 +120,7 @@ const Leads = () => {
                 ]}
             />
 
-            <DetailModal
+            {/* <DetailModal
                 title="Lead Details"
                 open={openLeadModal}
                 loading={loadingLead}
@@ -131,7 +133,7 @@ const Leads = () => {
                     { label: "Source", key: "lead_source" },
                     { label: "Created At", key: "created_at" },
                 ]}
-            />
+            /> */}
         </div>
     );
 

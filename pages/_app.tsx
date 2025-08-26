@@ -2,6 +2,7 @@ import Head from 'next/head';
 
 
 import "../styles/globals.css";
+import "../styles/contacts-form.css";
 import "../styles/ag-theme-custom.css";
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';

@@ -41,27 +41,33 @@ export const menuList = [
   },
   {
     icon: IconBuildingSkyscraper,
-    link: "Manage Contractor",
+    link: "Contractor",
     url: "/contractor",
     roles: ["builder", "contractor", "customer"],
   },
     {
     icon: IconUsers,
-    link: "Manage User",
+    link: "User",
     url: "/user",
     roles: ["builder", "contractor", "customer"],
   },
   {
     icon: IconUsers,
-    link: "Manage Customer",
+    link: "Customer",
     url: "/customer",
     roles: ["builder", "contractor", "customer"],
   },
   {
     icon: IconUsers,
-    link: "Manage Leads",
+    link: "Leads",
     url: "/leads",
     roles: ["builder", "contractor", "customer"],
+  },
+  {
+    icon: IconBuildingSkyscraper,
+    link: "Setting",
+    url: "/setting",
+    roles: ["builder"],
   },
   {
     icon: IconApps,
@@ -198,12 +204,6 @@ export const menuList = [
         roles: ["builder", "contractor", "customer"],
       },
     ],
-  },
-  {
-    icon: IconBuildingSkyscraper,
-    link: "Setting",
-    url: "/setting",
-    roles: ["builder"],
   },
   {
     devider: "RESOURCES",
