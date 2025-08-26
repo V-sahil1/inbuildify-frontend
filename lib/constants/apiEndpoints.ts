@@ -42,6 +42,13 @@ class API_ENDPOINTS {
 
 //  Master PricingList 
 public static MASTER_PRICE_LIST_CATEGORY= "/category"
+public static CREATE_MASTER_PRICE_LIST_ITEM= "/category-item"
+public static GET_MASTER_PRICE_LIST_ITEM= (id: string) => `/category-item/${id}`
+
+// floor plans
+public static FLOOR_PLAN_BASE = "/floor-plan"
+public static FLOOR_PLAN_FILTERS = `${this.FLOOR_PLAN_BASE}/filters`;
+
 
 
 }

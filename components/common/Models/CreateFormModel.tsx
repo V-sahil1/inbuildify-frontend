@@ -3,13 +3,13 @@
 import { Modal, Form, Input, Select } from "antd";
 import React, { useEffect } from "react";
 
-type CreateFormField = {
+export type CreateFormField = {
   label: string;
   name: string;
   placeholder?: string;
   rules?: any[];
   disabled?: boolean;
-  type?: "email" | "phone" | "text" | "select";
+  type?: "email" | "phone" | "text" | "select" | "url" | "number";
   options?: { value: string; label: string }[];
 };
 
@@ -18,10 +18,10 @@ interface CreateFormModalProps {
   open: boolean;
   loading?: boolean;
   isEditing?: boolean;
-  initialValues?: any; // 👈 Pass existing values when editing
+  initialValues?: any;  
   onCancel: () => void;
   onSubmit: (values: any) => void;
-  fields: CreateFormField[];
+  fields: readonly CreateFormField[];
 }
 
 export const CreateFormModal: React.FC<CreateFormModalProps> = ({
@@ -61,17 +61,18 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
       title={isEditing ? `Edit ${title}` : `Create ${title}`} 
       open={open}
       onOk={handleOk}
+      centered
       onCancel={onCancel}
       okText={isEditing ? "Update" : "Create"}
       confirmLoading={loading}
       cancelButtonProps={{
-        style: { color: "#4c3575", borderColor: "#4c3575" },
+        style: { color: "#4c3575", borderColor: "#4c3575"},
       }}
       okButtonProps={{
         style: { backgroundColor: "#4c3575", borderColor: "#4c3575" },
       }}
     >
-      <Form form={form} layout="vertical">
+      <Form form={form} layout="vertical" style={{ maxHeight: "70vh", overflowY: "auto",scrollbarWidth:"none" }}>
         {fields.map((field) => (
           <Form.Item
             key={field.name}

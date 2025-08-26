@@ -1,0 +1,53 @@
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import api from "@lib/constants/api";
+import { ApiResponse } from "../auth/IAuthState";
+import API_ENDPOINTS from "@lib/constants/apiEndpoints";
+import { IFloorPlanState } from "./IFloorPlanState";
+
+export const fetchFloorPlans = createAsyncThunk(
+    "floorPlans/fetchAll",
+    async () => {
+        try {
+            const res = await api.get<ApiResponse<any>>(API_ENDPOINTS.FLOOR_PLAN_BASE);
+            return res.data;
+        } catch (error) {
+            return error.message;
+        }
+    }
+  );
+  
+// export const createFloorPlan = createAsyncThunk(
+//     "floorPlans/create",
+//     async (payload: IFloorPlanState, { rejectWithValue }) => {
+//         try {
+//             const res = await api.post<ApiResponse<any>>(API_ENDPOINTS.FLOOR_PLAN_BASE, payload);
+//             return res.data;
+//         } catch (error) {
+//             return rejectWithValue(error.message);
+//         }
+//     }
+// );
+
+export const getFloorPlanFilters = createAsyncThunk(
+    "floorPlans/filters",
+    async () => {
+        try {
+            const res = await api.get<ApiResponse<any>>(API_ENDPOINTS.FLOOR_PLAN_FILTERS);
+            return res.data;
+        } catch (error) {
+            return error.message;
+        }
+    }
+);
+
+export const createFloorPlan = createAsyncThunk(
+    "floorPlans/create",
+    async (payload: IFloorPlanState, { rejectWithValue }) => {
+        try {
+            const res = await api.post<ApiResponse<any>>(API_ENDPOINTS.FLOOR_PLAN_BASE, { data: payload });
+            return res.data;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+  );

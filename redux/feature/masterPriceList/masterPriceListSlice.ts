@@ -1,5 +1,5 @@
 import { createSlice,  } from "@reduxjs/toolkit";
-import { fetchCategories } from "./masterPriceListThunk";
+import { fetchCategories, fetchCategoryItems } from "./masterPriceListThunk";
 
 
 const masterPriceListSlice = createSlice({
@@ -12,7 +12,7 @@ const masterPriceListSlice = createSlice({
     toggleExpand(state, action) {
       const category = state.categories.find(c => c.categoryId === action.payload);
       if (category) {
-        category.isExpanded = !category.isExpanded;
+        category.isExpanded = true;
       }
     },
   },
@@ -33,18 +33,18 @@ const masterPriceListSlice = createSlice({
       })
 
       // fetch items
-    //   .addCase(fetchCategoryItems.pending, (state, action) => {
-    //     const category = state.categories.find(c => c.id === action.meta.arg);
-    //     if (category) category.loadingItems = true;
-    //   })
-    //   .addCase(fetchCategoryItems.fulfilled, (state, action) => {
-    //     const { categoryId, items } = action.payload;
-    //     const category = state.categories.find(c => c.id === categoryId);
-    //     if (category) {
-    //       category.items = items;   // store only once
-    //       category.loadingItems = false;
-    //     }
-    //   });
+      .addCase(fetchCategoryItems.pending, (state, action) => {
+        const category = state.categories.find(c => c.categoryId === action.meta.arg);
+        if (category) category.loadingItems = true;
+      })
+      .addCase(fetchCategoryItems.fulfilled, (state, action) => {
+        const { categoryId, items } = action.payload;
+        const category = state.categories.find(c => c.categoryId === categoryId);
+        if (category) {
+          category.items = items;   // store only once
+          category.loadingItems = false;
+        }
+      });
   },
 });
 

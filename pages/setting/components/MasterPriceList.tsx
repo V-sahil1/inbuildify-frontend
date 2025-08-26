@@ -1,13 +1,13 @@
 import AddMasterPricingItemModal from "@/components/common/Models/AddMasterPricingItemModel";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { toggleExpand } from "@redux/feature/masterPriceList/masterPriceListSlice";
-import { fetchCategories } from "@redux/feature/masterPriceList/masterPriceListThunk";
+import { fetchCategories, fetchCategoryItems } from "@redux/feature/masterPriceList/masterPriceListThunk";
 import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 
 export const MasterPriceList = () => {
     const dispatch = useAppDispatch();
-    const { categories} = useAppSelector((state: any) => state.masterPriceList);
+    const { categories } = useAppSelector((state: any) => state.masterPriceList);
     console.log(categories)
     useEffect(() => {
         dispatch(fetchCategories())
@@ -19,7 +19,12 @@ export const MasterPriceList = () => {
         setAddItemModal(true);
         setCategoryId(categoryId);
     }
-
+    const handleExpand = (categoryId: string, isExpanded: boolean) => {
+        dispatch(toggleExpand(categoryId));
+        if (!isExpanded) {
+            dispatch(fetchCategoryItems(categoryId));
+        }
+    }
     return (
         <div>
             <h2 className="text-[24px]/[30px] font-medium my-2">Master Price List</h2>
@@ -27,7 +32,7 @@ export const MasterPriceList = () => {
                 {categories.map((category: any) => (
                     <div key={category.categoryId} className="mb-4">
                         <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2"><button onClick={() => dispatch(toggleExpand(category.categoryId))}>
+                            <div className="flex items-center gap-2"><button onClick={() => handleExpand(category.categoryId, category.isExpanded)}>
                                 {category.isExpanded ? <IconChevronUp /> : <IconChevronDown />}
                             </button>
                                 <h3>{category.name}</h3>

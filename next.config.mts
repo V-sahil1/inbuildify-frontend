@@ -1,12 +1,12 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
   reactStrictMode: true,
-  // Enable For Static Build Export
-  // images: {
-  //   unoptimized: true,
-  // },
-  // trailingSlash: true,
-  // output: 'export'
+  images: {
+    unoptimized: true, 
+  },
+  trailingSlash: true, 
+  output: "export",  
 };
 
 export default nextConfig;

@@ -26,7 +26,7 @@ export default function AllProject() {
                 href="/app/project/details"
                 className="transition-all hover:text-secondary"
               >
-                School / University
+                School / Universityhh
               </Link>
             </h5>
             <p className="text-font-color-100 mb-6">

@@ -9,7 +9,8 @@ import {
   IconProgress,
   IconServer2,
 } from "@tabler/icons-react";
-
+import { getFloorPlanFilters } from "@redux/feature/floorPlan/floorPlanThunk";
+import { useAppDispatch, useAppSelector } from "@hooks/redux";
 // Dynamically import components with no SSR
 const MasterPriceList = dynamic(() => import('./components/MasterPriceList'), { ssr: false });
 const FloorPlan = dynamic(() => import('./components/FloorPlan'), { ssr: false });
@@ -52,8 +53,13 @@ export default function ProjectList() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [projectSide, setProjectSide] = useState<boolean>(false);
-  
-  // Get active tab from URL or default to first tab
+  const dispatch = useAppDispatch();
+  const filters = useAppSelector((state: any) => state.floorPlan.filters);
+  useEffect(() => {
+    if(!filters){
+    dispatch(getFloorPlanFilters());
+    }
+  }, [dispatch,filters]);
   const getActiveTabIndex = useCallback(() => {
     const tabId = searchParams.get('tab') || TABS[0].id;
     return Math.max(0, TABS.findIndex(tab => tab.id === tabId));
@@ -61,7 +67,6 @@ export default function ProjectList() {
 
   const [selectedIndex, setSelectedIndex] = useState(getActiveTabIndex());
 
-  // Update URL when tab changes
   const handleTabSelect = (index: number) => {
     if (index === selectedIndex) return; // Prevent unnecessary updates
     
@@ -72,7 +77,6 @@ export default function ProjectList() {
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
-  // Sync tab state with URL on back/forward navigation
   useEffect(() => {
     const newIndex = getActiveTabIndex();
     if (newIndex !== selectedIndex) {
