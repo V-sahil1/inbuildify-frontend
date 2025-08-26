@@ -72,7 +72,7 @@ const FloorPlan = () => {
             <p className="text-font-color-100 mb-4 text-center">
               {floorPlan.rangeName}
             </p>
-            <div className="flex  w-full rounded-lg p-4 bg-white  overflow-hidden">
+            <div className="flex  w-full rounded-lg p-4   overflow-hidden">
               {/* Left Section */}
               <div className="flex-1 space-y-2 sm:pr-4">
                 <div className="flex justify-between text-xs sm:text-sm ">
