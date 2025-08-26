@@ -11,20 +11,26 @@ import { Divider } from "antd";
 import { Typography } from "antd";
 import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
 import { floorPlanFields } from "@/components/formFields/floorPlanFields";
+import { Status } from '@lib/constants/enum';
 
 const FloorPlan = () => {
   const dispatch = useAppDispatch();
-  const floorPlans = useAppSelector((state: any) => state.floorPlan.floorPlans);
-  const filters = useAppSelector((state: any) => state.floorPlan.filters);
+  const floorPlans = useAppSelector((state) => state.floorPlan.floorPlans);
+  const status = useAppSelector((state) => state.floorPlan.status);
+  console.log("status", status);
+  const filters = useAppSelector((state) => state.floorPlan.filters);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  
   useEffect(() => {
-    dispatch(fetchFloorPlans()).then(() => {
-      if (!filters) {
-        dispatch(getFloorPlanFilters());
-      }
-    });
-  }, [dispatch]);
-  const handleOpenModal = () => {
+    if (status.floorPlan === Status.IDLE) { 
+      dispatch(fetchFloorPlans()).unwrap()
+    }
+    if (status.filters === Status.IDLE) {
+      dispatch(getFloorPlanFilters()).unwrap()
+    }
+  }, [dispatch, status, filters])  
+
+  const handleOpenModal = () => { 
     setIsModalVisible(true);
   };
   const handleCreateFloorPlan = (values: any) => {

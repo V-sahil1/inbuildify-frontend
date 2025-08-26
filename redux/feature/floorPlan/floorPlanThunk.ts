@@ -56,7 +56,7 @@ export const getConditions = createAsyncThunk(
     "floorPlans/conditions",
     async () => {
         try {
-            const res = await api.get<ApiResponse<any>>(API_ENDPOINTS.GET_MASTER_PRICE_LIST_CONDITIONS);
+            const res = await api.get<ApiResponse<{conditions: {name:string}[]}>>(API_ENDPOINTS.GET_MASTER_PRICE_LIST_CONDITIONS);
             return res.data;
         } catch (error) {
             return error.message;

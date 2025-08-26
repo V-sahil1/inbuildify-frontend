@@ -51,8 +51,8 @@ public static GET_MASTER_PRICE_LIST_CONDITIONS= `${this.MASTER_PRICE_LIST_CONDIT
 public static FLOOR_PLAN_BASE = "/floor-plan"
 public static FLOOR_PLAN_FILTERS = `${this.FLOOR_PLAN_BASE}/filters`;
 
-
-
+// facade
+public static FACADE_BASE = "/facade"
 }
 
 export default API_ENDPOINTS;

@@ -1,32 +1,34 @@
 import { createSlice,  } from "@reduxjs/toolkit";
 import { createFloorPlan, fetchFloorPlans, getConditions, getFloorPlanFilters } from "./floorPlanThunk";
 import { Status } from "@lib/constants/enum";
+import { IFloorPlanState } from "./IFloorPlanState";
 
 
 const floorPlanSlice = createSlice({
   name: "floorPlan",
   initialState: {
-    floorPlans: [],
-    status: Status.IDLE,
+    floorPlans: [] as IFloorPlanState[],
+    status: {floorPlan: Status.IDLE, filters: Status.IDLE},
     filters: null,
   },
   reducers: {},
   extraReducers: builder => {
     builder
-      // fetch categories
-      .addCase(fetchFloorPlans.pending, state => {
-        state.status = Status.PENDING;
+      .addCase(fetchFloorPlans.pending, (state) => {
+        state.status.floorPlan = Status.PENDING;
       })
       .addCase(fetchFloorPlans.fulfilled, (state, action) => {
-        state.status = Status.SUCCESS;
         state.floorPlans = action.payload.floorPlans;
+        state.status.floorPlan = Status.SUCCESS;
       })
-   
+      .addCase(fetchFloorPlans.rejected, (state) => {
+        state.status.floorPlan = Status.ERROR;
+      })
       .addCase(getFloorPlanFilters.pending, state => {
-        state.status = Status.PENDING;
+        state.status.filters = Status.PENDING;
       })
       .addCase(getFloorPlanFilters.fulfilled, (state, action) => {
-        state.status = Status.SUCCESS;
+        state.status.filters = Status.SUCCESS;
         state.filters = action.payload;
       })
       .addCase(createFloorPlan.fulfilled, (state, action) => {
@@ -35,20 +37,6 @@ const floorPlanSlice = createSlice({
       .addCase(getConditions.fulfilled, (state, action) => {
         state.filters = {...state.filters, conditions: action.payload};
       })
-    
-      // fetch items
-    //   .addCase(fetchCategoryItems.pending, (state, action) => {
-    //     const category = state.categories.find(c => c.id === action.meta.arg);
-    //     if (category) category.loadingItems = true;
-    //   })
-    //   .addCase(fetchCategoryItems.fulfilled, (state, action) => {
-    //     const { categoryId, items } = action.payload;
-    //     const category = state.categories.find(c => c.id === categoryId);
-    //     if (category) {
-    //       category.items = items;   // store only once
-    //       category.loadingItems = false;
-    //     }
-    //   });
   },
 });
 

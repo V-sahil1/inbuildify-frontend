@@ -1,6 +1,6 @@
 "use client";
 
-import { Modal, Form, Input, Select } from "antd";
+import { Modal, Form, Input, Select, Radio } from "antd";
 import React, { useEffect } from "react";
 
 export type CreateFormField = {
@@ -9,7 +9,7 @@ export type CreateFormField = {
   placeholder?: string;
   rules?: any[];
   disabled?: boolean;
-  type?: "email" | "phone" | "text" | "select" | "url" | "number";
+  type?: "email" | "phone" | "text" | "select" | "url" | "number" | "checkbox";
   options?: { value: string; label: string }[];
 };
 
@@ -18,7 +18,7 @@ interface CreateFormModalProps {
   open: boolean;
   loading?: boolean;
   isEditing?: boolean;
-  initialValues?: any;  
+  initialValues?: any;
   onCancel: () => void;
   onSubmit: (values: any) => void;
   fields: readonly CreateFormField[];
@@ -36,13 +36,13 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
 }) => {
   const [form] = Form.useForm();
 
- 
+
   useEffect(() => {
     if (open) {
       if (isEditing) {
-        form.setFieldsValue(initialValues);  
+        form.setFieldsValue(initialValues);
       } else {
-        form.resetFields(); 
+        form.resetFields();
       }
     }
   }, [open, isEditing, initialValues, form]);
@@ -58,7 +58,7 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
 
   return (
     <Modal
-      title={isEditing ? `Edit ${title}` : `Create ${title}`} 
+      title={isEditing ? `Edit ${title}` : `Create ${title}`}
       open={open}
       onOk={handleOk}
       centered
@@ -66,13 +66,13 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
       okText={isEditing ? "Update" : "Create"}
       confirmLoading={loading}
       cancelButtonProps={{
-        style: { color: "#4c3575", borderColor: "#4c3575"},
+        style: { color: "#4c3575", borderColor: "#4c3575" },
       }}
       okButtonProps={{
         style: { backgroundColor: "#4c3575", borderColor: "#4c3575" },
       }}
     >
-      <Form form={form} layout="vertical" style={{ maxHeight: "70vh", overflowY: "auto",scrollbarWidth:"none" }}>
+      <Form form={form} layout="vertical" style={{ maxHeight: "70vh", overflowY: "auto", scrollbarWidth: "none" }}>
         {fields.map((field) => (
           <Form.Item
             key={field.name}
@@ -86,6 +86,11 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
                 options={field.options}
                 disabled={field.disabled}
               />
+            ) : field.type === "checkbox" ? (
+              <Radio.Group defaultValue="TRUE">
+                <Radio value="TRUE">Yes</Radio>
+                <Radio value="FALSE">No</Radio>
+              </Radio.Group>
             ) : (
               <Input
                 placeholder={field.placeholder}
