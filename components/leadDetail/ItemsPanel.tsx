@@ -1,7 +1,8 @@
 import React from "react";
-import { Input, Button, Tag, InputNumber, Card } from "antd";
-import { IconPlus, IconSearch } from "@tabler/icons-react";
-import { Category } from "@/pages/leads/data/types";
+import { Input, Button, Tag, InputNumber } from "antd";
+import {IconSearch } from "@tabler/icons-react";
+import { Category } from "@redux/feature/masterPriceList/iMasterPriceListState";
+import { PricingItem } from "../common/PricingItem";
 
 interface ItemsPanelProps {
   category?: Category;
@@ -80,52 +81,56 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
       <div className="p-4">
         <div className="space-y-4">
           {category?.items?.length > 0 ? category?.items?.map((item) => (
-            <div
-              key={item.id}
-              className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:border-gray-300 transition-colors"
-            >
-              <div className="flex-1">
-                <div className="font-medium text-gray-900 mb-2">
-                  {item.name}
-                </div>
-                <div className="flex gap-1 flex-wrap">
-                  {item.tags?.map((tag) => (
-                    <Tag key={tag} color={getTagColor(tag)}>
-                      {tag}
-                    </Tag>
-                  ))}
-                </div>
-              </div>
+             
+            // <div
+            //   key={item.id}
+            //   className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:border-gray-300 transition-colors"
+            // >
+            //   <div className="flex-1">
+            //     <div className="font-medium text-gray-900 mb-2">
+            //       {item.name}
+            //     </div>
+            //     <div className="flex gap-1 flex-wrap">
+            //       {item.tags?.map((tag) => (
+            //         <Tag key={tag} color={getTagColor(tag)}>
+            //           {tag}
+            //         </Tag>
+            //       ))}
+            //     </div>
+            //   </div>
 
-              <div className="w-24 flex justify-center">
-                <InputNumber
-                  min={0}
-                  value={item.quantity}
-                  onChange={(value) =>
-                    onItemQuantityChange(item.id, value || 0)
-                  }
-                  size="small"
-                  className="w-16"
-                />
-              </div>
+            //   <div className="w-24 flex justify-center">
+            //     <InputNumber
+            //       min={0}
+            //       value={item.quantity}
+            //       onChange={(value) =>
+            //         onItemQuantityChange(item.id, value || 0)
+            //       }
+            //       size="small"
+            //       className="w-16"
+            //     />
+            //   </div>
 
-              <div className="w-24 text-center font-medium">
-                {item.price.toLocaleString()}
-              </div>
+            //   <div className="w-24 text-center font-medium">
+            //     {item.price.toLocaleString()}
+            //   </div>
 
-              <div className="w-24 text-center font-bold">
-                {item.total.toLocaleString()}
-              </div>
+            //   <div className="w-24 text-center font-bold">
+            //     {item.total.toLocaleString()}
+            //   </div>
 
-              <div className="w-16 flex justify-center">
-                <Button
-                  type="primary"
-                  size="small"
-                  icon={<IconPlus />}
-                  className="bg-green-500 border-green-500 hover:bg-green-600 hover:border-green-600"
-                  onClick={() => onItemAdd(item.id)}
-                />
-              </div>
+            //   <div className="w-16 flex justify-center">
+            //     <Button
+            //       type="primary"
+            //       size="small"
+            //       icon={<IconPlus />}
+            //       className="bg-green-500 border-green-500 hover:bg-green-600 hover:border-green-600"
+            //       onClick={() => onItemAdd(item.id)}
+            //     />
+            //   </div>
+            // </div>
+            <div>
+                <PricingItem item={item}/>
             </div>
           )): <div className="flex-1 p-6 flex items-center justify-center">
           <div className="text-gray-500">No items found</div>

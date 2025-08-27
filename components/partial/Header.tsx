@@ -50,13 +50,13 @@ import {
 } from "../../public/images";
 import Link from "next/link";
 import Image from "next/image";
-import CompanyLogo from "../common/CompanyLogo";
-import { useAppDispatch } from "@hooks/redux";
+import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { logoutThunk } from "@redux/feature/auth/authThunk";
 import { message } from "antd";
 import { useRouter } from "next/navigation";
 import SystemRoutes from "@lib/constants/Routes";
 import ConfirmationModal from "../common/ConfirmationModal";
+import { RootState } from "@redux/feature/store";
 type ColorPickerOption = {
   color: string;
   label: string;
@@ -86,6 +86,7 @@ export default function Header({
   container: boolean;
 }) {
   // mini sidebar
+  const {user} = useAppSelector((state: RootState) => state.auth);
   const [miniSidebar, setMiniSidebar] = useState<boolean>(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState<boolean>(false);
   const [isLogoutLoading, setIsLogoutLoading] = useState<boolean>(false);
@@ -824,9 +825,9 @@ export default function Header({
               </button>
               <div className="bg-card-color text-font-color rounded-xl overflow-hidden md:w-[240px] w-[calc(100%-30px)] shadow-shadow-lg md:absolute fixed md:right-0 right-15 md:top-full top-[55px] origin-top-right z-[1] opacity-0 invisible scale-0 transition-all duration-300 group-hover:opacity-100 group-hover:visible group-hover:scale-100">
                 <div className="p-4 border-b border-border-color">
-                  <div className="font-semibold">Allie Grater</div>
-                  <div className="text-font-color-100">
-                    alliegrater@luno.com
+                  <div className="font-semibold">{user?.name}</div>
+                  <div className="text-font-color-100 truncate">
+                    {user?.email}
                   </div>
                 </div>
                 <div className="p-1 m-1 custom-scrollbar overflow-auto max-h-[calc(80svh-163px)]">

@@ -89,12 +89,13 @@ export default function MyProfile() {
                     </button>
                   </p>
                   <p className="mb-3">{user?.email}</p>
-                  <p className="md:mb-3 mb-4 text-font-color-100 max-w-[550px]">
+                  <p>Verification: {user?.isVerified ? "Completed" : "Pending"}</p>
+                  {/* <p className="md:mb-3 mb-4 text-font-color-100 max-w-[550px]">
                     It is a long established fact that a reader will be
                     distracted by the readable content of a page when looking at
                     its layout.
-                  </p>
-                  <div className="flex gap-3 flex-wrap md:justify-start justify-center">
+                  </p> */}
+                  {/* <div className="flex gap-3 flex-wrap md:justify-start justify-center">
                     <div className="px-4 py-1 border border-dashed border-border-color rounded-xl">
                       <small className="text-font-color-100">
                         Total Earnings
@@ -121,7 +122,7 @@ export default function MyProfile() {
                         New york
                       </div>
                     </div>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>

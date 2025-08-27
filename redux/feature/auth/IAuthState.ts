@@ -15,7 +15,9 @@ export interface User {
   name: string;
   email: string;
   role: Role;
+  isVerified: boolean;
 }
+
 
 export interface LoginResponse {
  accessToken: string;
