@@ -15,12 +15,13 @@ export default function Footer({ className }: { className?: string }) {
         <p className="text-font-color-100 text-center">
           © {CurrentYear}{" "}
           <Link href="/" className="text-primary">
-            Luno
+          InBuildify
           </Link>
           , All Rights Reserved.
         </p>
         <Link href="/">
-          <CompanyLogo className="w-[53px] h-[18px] text-primary transition-all hover:text-secondary" />
+          {/* <CompanyLogo className="w-[53px] h-[18px] text-primary transition-all hover:text-secondary" /> */}
+          InBuildify
         </Link>
         <ul className="flex items-center gap-x-20 gap-y-5 flex-wrap justify-center">
           <li>

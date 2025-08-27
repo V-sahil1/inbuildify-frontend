@@ -262,7 +262,7 @@ export default function Analysis() {
               Welcome Back, Chris!!
             </h4>
             <p className="mb-8">
-              <strong>Need help?</strong> Check out the documentation of Luno
+              <strong>Need help?</strong> Check out the documentation of 
               Admin. It includes tons of <strong>Widgets</strong>,{" "}
               <strong>Components</strong>, and <strong>Elements</strong> with
               easy-to-follow documentation.
@@ -273,7 +273,7 @@ export default function Analysis() {
           </div>
           <div className="xxl:col-span-6 lg:col-span-8 col-span-12 card rounded-xl bg-card-color border border-dashed border-border-color">
             <div className="flex items-center justify-between gap-15 md:p-6 p-4">
-              <div className="font-semibold">LUNO Revenue</div>
+              <div className="font-semibold">InBuildify Revenue</div>
               <div className="relative">
                 <button
                   onClick={toggleAdminMenu}

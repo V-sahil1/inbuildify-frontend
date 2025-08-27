@@ -452,9 +452,9 @@ export default function Header({
                 }`}
               />
             </button>
-            <Link href="/">
+            {/* <Link href="/">
               <CompanyLogo />
-            </Link>
+]            </Link> */}
           </div>
           <div className="relative px-4 flex-1 md:block hidden">
             {/* <TopMenuBar /> */}
@@ -834,25 +834,9 @@ export default function Header({
                     <IconUser className="w-[16px] h-[16px]" />
                     My Profile
                   </Link>
-                  <Link href="#" className="py-2 px-4 flex items-center gap-3">
+                  <Link href={SystemRoutes.SETTING} className="py-2 px-4 flex items-center gap-3">
                     <IconSettings className="w-[16px] h-[16px]" />
                     Settings
-                  </Link>
-                  <Link href="#" className="py-2 px-4 flex items-center gap-3">
-                    <IconCreditCard className="w-[16px] h-[16px]" />
-                    Billing
-                  </Link>
-                  <Link href="#" className="py-2 px-4 flex items-center gap-3">
-                    <IconUsersGroup className="w-[16px] h-[16px]" />
-                    Manage Team
-                  </Link>
-                  <Link href="#" className="py-2 px-4 flex items-center gap-3">
-                    <IconCalendarFilled className="w-[16px] h-[16px]" />
-                    My Events
-                  </Link>
-                  <Link href="#" className="py-2 px-4 flex items-center gap-3">
-                    <IconTag className="w-[16px] h-[16px]" />
-                    Support Ticket
                   </Link>
                 </div>
                 <button

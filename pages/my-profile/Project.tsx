@@ -11,9 +11,9 @@ import {
     avatar8,
     avatar9,
 } from '/public/images'
-import NewProject from '../../app/project/NewProject'
 import Link from 'next/link'
 import Image from 'next/image'
+import NewProject from '../app/project/NewProject'
 
 export default function Project() {
 

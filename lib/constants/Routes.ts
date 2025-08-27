@@ -8,9 +8,10 @@ class SystemRoutes {
   public static FORGOT_PASSWORD = `${this.AUTH}/forgot-password`;
   public static TWO_FACTOR_AUTH = `${this.AUTH}/two-step`;
   
-  public static MY_PROFILE = `pages/my-profile`;
+  public static MY_PROFILE = `/my-profile`;
   public static QUOTATION = `/quotation`;
   public static QUOTATION_CREATE = `${this.QUOTATION}/create`;
+  public static SETTING = `/setting`;
 }
 
 export default SystemRoutes;
