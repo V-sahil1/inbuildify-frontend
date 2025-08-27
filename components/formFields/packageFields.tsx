@@ -1,8 +1,38 @@
 import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
 import { CreateFormField } from "../common/Models/CreateFormModel";
-import { useAppSelector } from "@hooks/redux";
+import { useAppDispatch, useAppSelector } from "@hooks/redux";
+import { useEffect } from "react";
+import { RootState } from "@redux/feature/store";
+import { Status } from "@lib/constants/enum";
+import { fetchPackageItems } from "@redux/feature/package/packageThunk";
+import { Item } from "@redux/feature/masterPriceList/iMasterPriceListState";
 
 export const packageFields = (): CreateFormField[] => {
+  const itemStatus = useAppSelector(
+    (state: RootState) => state.package.status.items
+  );
+  const items = useAppSelector((state: RootState) => state.package.items);
+  const dispatch = useAppDispatch();
+
+  function mapToAntdOptions(items: Item[]) {
+    return items?.map(item => ({
+      label: item.description,   // what to display
+      value: item.categoryItemId // what to capture
+    }));
+  }
+  const options = mapToAntdOptions(items)
+  useEffect(() => {
+    try {
+      if (itemStatus === Status.IDLE) {
+        dispatch(
+          fetchPackageItems({ range: "PREMIUM", dwellingType: "DOUBLE_STOREY" })
+        ).unwrap();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
+
   return [
     {
       label: "Name",
@@ -13,15 +43,16 @@ export const packageFields = (): CreateFormField[] => {
     },
     {
       label: "Items",
-      name: "items",
+      name: "category_item_ids",
       type: "select",
-      options: [{label:"",value:""}],
+      mode:"tags",
+      options: options,
       placeholder: "Select Items",
       rules: [{ required: true, message: "Please select a range" }],
     },
     {
-      label: "Total Price",
-      name: "total_price",
+      label: "Total Amount",
+      name: "amount",
       type: "number",
       placeholder: "3200",
       rules: [{ required: true, message: "Please enter total price" }],

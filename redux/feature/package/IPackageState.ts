@@ -1,12 +1,10 @@
-import { Item } from "../masterPriceList/iMasterPriceListState";
-
-export interface Package {
-    packageId: string;         
-    name: string;               
-    builderId: string;         
-    Items: Item[];     
-    amount: number;             
-    createdAt: string;          
-    updatedAt: string;          
-}
-  
+export type Package = {
+  packageId: string;
+  name: string;
+  builderId: string;
+  categoryItemIds: string[];
+  amount: string;
+  createdAt: string;
+  updatedAt: string;
+  categoryItemDescriptions: string[];
+};

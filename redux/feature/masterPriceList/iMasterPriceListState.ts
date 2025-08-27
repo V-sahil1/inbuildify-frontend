@@ -1,10 +1,9 @@
 // categoriesSlice.ts
 export interface Item {
-    id: string;
     name: string;
     cost: number;
     type: "Fixed" | "Variable";
-    categoryId: string;
+    categoryItemId: string;
     shortDescription: string;
     description: string;
     createdAt: string;

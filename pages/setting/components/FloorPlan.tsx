@@ -12,13 +12,14 @@ import { Typography } from "antd";
 import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
 import { floorPlanFields } from "@/components/formFields/floorPlanFields";
 import { Status } from '@lib/constants/enum';
+import { RootState } from "@redux/feature/store";
 
 const FloorPlan = () => {
   const dispatch = useAppDispatch();
-  const floorPlans = useAppSelector((state) => state.floorPlan.floorPlans);
-  const status = useAppSelector((state) => state.floorPlan.status);
+  const floorPlans = useAppSelector((state:RootState) => state.floorPlan.floorPlans);
+  const status = useAppSelector((state:RootState) => state.floorPlan.status);
   console.log("status", status);
-  const filters = useAppSelector((state) => state.floorPlan.filters);
+  const filters = useAppSelector((state:RootState) => state.floorPlan.filters);
   const [isModalVisible, setIsModalVisible] = useState(false);
   
   useEffect(() => {

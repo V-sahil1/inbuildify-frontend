@@ -7,7 +7,7 @@ import { Package } from "./IPackageState";
 
 type createPackagePayload = {
   name: string;
-  items: Item[];
+  category_item_ids: string[];
   amount: number;
 };
 
@@ -42,12 +42,12 @@ export const fetchPackageById = createAsyncThunk(
 export const fetchPackageItems = createAsyncThunk(
   "packages/fetchItems",
   async (
-    { range, dwellingType }: { range: string; dwellingType: string },
+    { range, dwellingType }: { range?: string; dwellingType?: string },
     { rejectWithValue }
   ) => {
     try {
       const res = await api.get<ApiResponse<Item[]>>(
-        `${API_ENDPOINTS.GET_PACKAGE_ITEMS}?range=${range}&dwellingType=${dwellingType}`
+        `${API_ENDPOINTS.GET_PACKAGE_ITEMS}?range=${range || ""}&dwelling_type=${dwellingType || ""}`
       );
       return res.data;
     } catch (error) {

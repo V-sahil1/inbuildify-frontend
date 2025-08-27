@@ -11,6 +11,7 @@ export type CreateFormField = {
   disabled?: boolean;
   invite?: boolean;
   type?: "email" | "phone" | "text" | "select" | "url" | "number" | "checkbox";
+  mode?: "tags" | "multiple";
   options?: { value: string; label: string }[];
 };
 
@@ -88,6 +89,7 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
                 placeholder={field.placeholder}
                 options={field.options}
                 disabled={field.disabled}
+                {...field.mode && { mode: field.mode }}
               />
             ) : field.type === "checkbox" ? (
               <Radio.Group defaultValue="TRUE">
