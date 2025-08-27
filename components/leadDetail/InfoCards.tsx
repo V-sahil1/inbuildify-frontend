@@ -68,7 +68,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
   >([]);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 p-6 bg-gray-50">
+    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 p-3">
       {/* Lead Details Card */}
       <Card
         className="shadow-sm hover:shadow-md transition-shadow cursor-pointer"

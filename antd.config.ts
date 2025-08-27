@@ -102,6 +102,33 @@ const theme = {
         headerHeight: 48,                         // Header height
         padding: 16,         
       },
+      Menu: {
+        // Backgrounds
+        colorBgContainer: 'var(--card-color)',
+        colorItemBg: 'var(--card-color)',
+        colorItemBgHover: 'var(--primary-10)',
+        colorItemBgSelected: 'var(--primary-10)',
+        
+        // Text colors
+        colorItemText: 'var(--font-color)',
+        colorItemTextHover: 'var(--primary)',
+        colorItemTextSelected: 'var(--primary)',
+        colorSubItemBg: 'var(--card-color)',
+  
+        // Borders
+        colorBorder: 'var(--border-color)',
+        activeBarBorderWidth: 2,
+        activeBarBorderColor: 'var(--primary)',
+
+  
+        // Font & sizing
+        itemMarginInline: 8,
+        itemMarginBlock: 4,
+        itemBorderRadius: 8,
+        itemHeight: 40,
+        itemPaddingInline: 12,
+        fontSize: 14,
+      },
     },
   };
   

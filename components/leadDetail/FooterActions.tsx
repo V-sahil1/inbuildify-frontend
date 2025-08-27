@@ -28,7 +28,6 @@ const FooterActions: React.FC<FooterActionsProps> = ({
   onViewOpportunity,
 }) => {
   return (
-    <div className="bg-white border-t border-gray-200 p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Space>
@@ -42,14 +41,13 @@ const FooterActions: React.FC<FooterActionsProps> = ({
             <Button
               icon={<IconCheck />}
               onClick={onApprove}
-              className="bg-blue-500 border-blue-500 text-white hover:bg-blue-600 hover:border-blue-600"
             >
               Approve
             </Button>
             <Button icon={<IconMail />} onClick={onEmail}>
               Email
             </Button>
-            <Button icon={<IconEye/>} onClick={onPreview}>
+            <Button icon={<IconEye />} onClick={onPreview}>
               Preview
             </Button>
             <Button icon={<IconFileSearch />} onClick={onViewOpportunity}>
@@ -59,16 +57,15 @@ const FooterActions: React.FC<FooterActionsProps> = ({
         </div>
 
         <div className="flex items-center gap-8">
-          <div className="text-sm text-gray-600">
+          <div className="text-sm">
             Expiry date: <span className="font-medium">{expiryDate}</span>
           </div>
-          <div className="text-2xl font-bold text-gray-900">
+          <div className="text-2xl font-bold">
             Total:{" "}
             <span className="text-green-600">${total.toLocaleString()}</span>
           </div>
         </div>
       </div>
-    </div>
   );
 };
 

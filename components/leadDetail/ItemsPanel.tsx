@@ -1,5 +1,5 @@
 import React from "react";
-import { Input, Button, Tag, InputNumber } from "antd";
+import { Input, Button, Tag, InputNumber, Card } from "antd";
 import { IconPlus, IconSearch } from "@tabler/icons-react";
 import { Category } from "@/pages/leads/data/types";
 
@@ -16,7 +16,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
 }) => {
   if (!category) {
     return (
-      <div className="flex-1 p-6 bg-gray-50 flex items-center justify-center">
+      <div className="flex-1 p-6 flex items-center justify-center">
         <div className="text-gray-500">Select a category to view items</div>
       </div>
     );
@@ -42,12 +42,12 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
   };
 
   return (
-    <div className="flex-1 bg-white">
+    <div className="flex-1 bg-card-color">
       {/* Header */}
       <div className="p-4 border-b border-gray-200">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
-            <span className="text-xs text-gray-500">All</span>
+            <span className="text-xs">All</span>
             <Input
               placeholder="Search Items..."
               prefix={<IconSearch className="text-gray-400" />}
@@ -63,7 +63,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
           </Button>
         </div>
 
-        <div className="flex items-center justify-between text-sm font-medium text-gray-600">
+        <div className="flex items-center justify-between text-sm font-medium">
           <div className="flex-1">Item</div>
           <div className="w-24 text-center">Quantity</div>
           <div className="w-24 text-center">Price</div>
@@ -127,7 +127,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
                 />
               </div>
             </div>
-          )): <div className="flex-1 p-6 bg-gray-50 flex items-center justify-center">
+          )): <div className="flex-1 p-6 flex items-center justify-center">
           <div className="text-gray-500">No items found</div>
           </div>}
         </div>

@@ -19,7 +19,7 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
   }));
 
   return (
-    <div className="bg-white border-r border-gray-200 h-full">
+    <div className="h-full">
       <Menu
         mode="vertical"
         selectedKeys={[selectedCategory]}
