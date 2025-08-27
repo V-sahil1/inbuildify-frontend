@@ -40,7 +40,6 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
 }) => {
   const [form] = Form.useForm();
 
-
   useEffect(() => {
     if (open) {
       if (isEditing) {
@@ -62,7 +61,9 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
 
   return (
     <Modal
-      title={isEditing ? `Edit ${title}` : `${invite ? "Invite" : "Create"} ${title}`}
+      title={
+        isEditing ? `Edit ${title}` : `${invite ? "Invite" : "Create"} ${title}`
+      }
       open={open}
       onOk={handleOk}
       centered
@@ -73,10 +74,17 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
         style: { color: "var(--primary)", borderColor: "var(--primary)" },
       }}
       okButtonProps={{
-        style: { backgroundColor: "var(--primary)", borderColor: "var(--primary)" },
+        style: {
+          backgroundColor: "var(--primary)",
+          borderColor: "var(--primary)",
+        },
       }}
     >
-      <Form form={form} layout="vertical" style={{ maxHeight: "70vh", overflowY: "auto", scrollbarWidth: "none" }}>
+      <Form
+        form={form}
+        layout="vertical"
+        style={{ maxHeight: "70vh", overflowY: "auto", scrollbarWidth: "none" }}
+      >
         {fields.map((field) => (
           <Form.Item
             key={field.name}

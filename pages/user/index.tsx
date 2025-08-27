@@ -1,22 +1,17 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  Button,
-  Form,
-  Input,
-  Modal,
-  Table,
-  Typography,
-  message,
-  Spin,
-  Select,
-  Tabs,
-} from "antd";
+import { Button, Form, Table, Typography, message, Spin, Tabs } from "antd";
 import type { TableColumnsType } from "antd";
 import { useAppDispatch } from "@hooks/redux";
-import { createUserThunk, getInvitedUsersThunk, getUsersThunk } from "@redux/feature/user/userThunk";
-
+import {
+  createUserThunk,
+  getInvitedUsersThunk,
+  getUsersThunk,
+} from "@redux/feature/user/userThunk";
+import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
+import { roleRules, emailRules } from "@lib/constants/formInputValidations";
+import { Roles } from "@lib/constants/enum";
 type User = {
   key: string;
   role: string;
@@ -58,33 +53,30 @@ const UserPage = () => {
       });
   }, [dispatch]);
 
+  const fetchInvitedUsers = async () => {
+    setLoading(true);
+    try {
+      const res: any = await dispatch(getInvitedUsersThunk()).unwrap();
+      const mappedUsers: User[] = res?.data.users.map((user) => ({
+        key: user.userId,
+        role: user.role,
+        email: user.email,
+      }));
+      setInvitedUsers(mappedUsers);
+      setHasFetchedInvites(true);
+    } catch (err) {
+      console.log("GET invited users failed:", err);
+      message.error("Failed to fetch invited users");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const fetchInvitedUsers = async () => {
-        setLoading(true);
-        try {
-            const res: any = await dispatch(getInvitedUsersThunk()).unwrap();
-            const mappedUsers: User[] = res?.data.users.map((user) => ({
-                key: user.userId,
-                role: user.role,
-                email: user.email,
-            }));
-            setInvitedUsers(mappedUsers);
-            setHasFetchedInvites(true);
-        } catch (err) {
-            console.log("GET invited users failed:", err);
-            message.error("Failed to fetch invited users");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-useEffect(() => {
-  if (activeTab === "invites" && !hasFetchedInvites) {
-    fetchInvitedUsers();
-  }
-}, [activeTab, hasFetchedInvites]);
-
-
+  useEffect(() => {
+    if (activeTab === "invites" && !hasFetchedInvites) {
+      fetchInvitedUsers();
+    }
+  }, [activeTab, hasFetchedInvites]);
 
   const handleOpenModal = () => {
     setIsEditing(false);
@@ -93,105 +85,72 @@ useEffect(() => {
     setIsModalOpen(true);
   };
 
-//   const handleEdit = (record: User) => {
-//     setIsEditing(true);
-//     setEditingKey(record.key);
-//     form.setFieldsValue(record);
-//     setIsModalOpen(true);
-//   };
-
   const handleCancel = () => {
     setIsModalOpen(false);
     setIsEditing(false);
     setEditingKey(null);
   };
 
-const handleSubmit = async () => {
-  try {
-    setLoading(true);
-    const values = await form.validateFields();
+  const handleSubmit = async () => {
+    try {
+      setLoading(true);
+      const values = await form.validateFields();
 
-    const res = await dispatch(
-      createUserThunk({
-        email: values.email,
-        role: values.role,
-      })
-    ).unwrap();
+      const res = await dispatch(
+        createUserThunk({
+          email: values.email,
+          role: values.role,
+        })
+      ).unwrap();
 
-    if (res) {
-           const newInvitedUser: User = {
-          key: `${Date.now()}`, 
+      if (res) {
+        const newInvitedUser: User = {
+          key: `${Date.now()}`,
           role: values.role,
           email: values.email,
         };
 
-        setInvitedUsers((prev) => [newInvitedUser, ...prev]); 
-      message.success(res.message);
+        setInvitedUsers((prev) => [newInvitedUser, ...prev]);
+        message.success(res.message);
+      }
+
+      setIsModalOpen(false);
+      form.resetFields();
+      setIsEditing(false);
+      setEditingKey(null);
+    } catch (err) {
+      message.error((err as any)?.message || "Failed to send invitation");
+    } finally {
+      setLoading(false);
     }
+  };
 
-    setIsModalOpen(false);
-    form.resetFields();
-    setIsEditing(false);
-    setEditingKey(null);
-  } catch (err) {
-    message.error((err as any)?.message || "Failed to send invitation");
-  } finally {
-    setLoading(false);
-  }
-};
+  const handleResendInvite = async (record: User) => {
+    try {
+      setLoading(true);
+      const res = await dispatch(
+        createUserThunk({
+          email: record.email,
+          role: record.role,
+        })
+      ).unwrap();
 
-    const handleResendInvite = async (record: User) => {
-        try {
-            setLoading(true);
-            const res = await dispatch(
-                createUserThunk({
-                    email: record.email,
-                    role: record.role,
-                })
-            ).unwrap();
-
-            if (res) {
-                message.success(res.message);
-                // fetchInvitedUsers();
-            }
-        } catch (err) {
-            message.error(err );
-        } finally {
-            setLoading(false);
-        }
-    };
-
-
-  // Delete user (optional, implement API)
-//   const handleDeleteUser = async (record: User) => {
-//     try {
-//       // Example: await dispatch(deleteUserThunk(record.key)).unwrap();
-//       setUsers((prev) => prev.filter((u) => u.key !== record.key));
-//       message.success("User deleted successfully");
-//     } catch (err) {
-//       message.error("Failed to delete user");
-//     }
-//   };
+      if (res) {
+        message.success(res.message);
+        // fetchInvitedUsers();
+      }
+    } catch (err) {
+      message.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Users Table Columns
   const userColumns: TableColumnsType<User> = useMemo(
     () => [
       { title: "Email", dataIndex: "email", key: "email" },
       { title: "Role", dataIndex: "role", key: "role" },
-    //   {
-    //     title: "Actions",
-    //     key: "actions",
-    //     render: (_, record) => (
-    //       <div className="flex gap-2">
-    //         <Button type="link" onClick={() => handleEdit(record)}>
-    //           Edit
-    //         </Button>
-    //         <Button type="link" danger onClick={() => handleDeleteUser(record)}>
-    //           Delete
-    //         </Button>
-    //       </div>
-    //     ),
-    //   },
     ],
     []
   );
@@ -224,23 +183,24 @@ const handleSubmit = async () => {
   return (
     <div className="p-4">
       <div className="w-full">
-              <div className="flex items-center justify-between mb-4">
-                  <Typography.Title
-                      level={4}
-                      style={{ margin: 0, color: "var(--font-color)" }}
-                  >
-                      {activeTab === "users" ? "Users" : "Invited Users"}
-                  </Typography.Title>
+        <div className="flex items-center justify-between mb-4">
+          <Typography.Title
+            level={4}
+            style={{ margin: 0, color: "var(--font-color)" }}
+          >
+            {activeTab === "users" ? "Users" : "Invited Users"}
+          </Typography.Title>
 
-                  {/* 🔹 Always visible now */}
-                {activeTab == "users" && (  <button
-                      className="btn large bg-[var(--primary)] cursor-pointer text-white"
-                      onClick={handleOpenModal}
-                  >
-                      Invite User
-                  </button>) }
-                
-              </div>
+          {/* 🔹 Always visible now */}
+          {activeTab == "users" && (
+            <button
+              className="btn large bg-[var(--primary)] cursor-pointer text-white"
+              onClick={handleOpenModal}
+            >
+              Invite User
+            </button>
+          )}
+        </div>
         <Tabs
           activeKey={activeTab}
           onChange={(key) => setActiveTab(key as "users" | "invites")}
@@ -259,50 +219,32 @@ const handleSubmit = async () => {
             scroll={{ x: "max-content" }}
           />
         </Spin>
-
-        <Modal
+        <CreateFormModal
           title={isEditing ? "Edit User" : "Invite User"}
           open={isModalOpen}
-          onOk={handleSubmit}
+          onSubmit={handleSubmit}
+          invite={true}
           onCancel={handleCancel}
-          okText={isEditing ? "Update" : "Invite"}
-          confirmLoading={loading}
-          cancelButtonProps={{
-            style: { color: "#4c3575", borderColor: "#4c3575" }, 
-          }}
-          okButtonProps={{
-            style: { backgroundColor: "#4c3575", borderColor: "#4c3575" },
-          }}
-        >
-          <Form form={form} layout="vertical">
-            <Form.Item
-              label="Role"
-              name="role"
-              rules={[{ required: true, message: "Please select a role" }]}
-            >
-              <Select placeholder="Select a role" disabled={isEditing}>
-                <Select.Option value="super_admin">Super Admin</Select.Option>
-                <Select.Option value="admin">Admin</Select.Option>
-                <Select.Option value="project_owner">Builder</Select.Option>
-                <Select.Option value="service_provider">
-                  Contractor
-                </Select.Option>
-                <Select.Option value="client">Client</Select.Option>
-              </Select>
-            </Form.Item>
-
-            <Form.Item
-              label="Email"
-              name="email"
-              rules={[
-                { required: true, message: "Please enter email" },
-                { type: "email", message: "Please enter a valid email" },
-              ]}
-            >
-              <Input placeholder="john@example.com" disabled={isEditing} />
-            </Form.Item>
-          </Form>
-        </Modal>
+          loading={loading}
+          fields={[
+            {
+              label: "Role",
+              name: "role",
+              rules: roleRules,
+              type: "select",
+              disabled: isEditing,
+              options: Roles,
+            },
+            {
+              label: "Email",
+              name: "email",
+              type: "email",
+              rules: emailRules,
+              placeholder: "john@example.com",
+              disabled: isEditing,
+            },
+          ]}
+        />
       </div>
     </div>
   );
