@@ -44,6 +44,8 @@
 }
 
 [data-theme="light"] {
+  --primary: #E27D39;
+  --primary-10: #E27D391a;
   --body-color: #f4f7f6;
   --font-color: #363535;
   --font-color-100: #9399a1;
@@ -55,6 +57,8 @@
 }
 
 [data-theme="dark"] {
+  --primary: #4c3575;
+  --primary-10: #4c35751a;
   --body-color: #2d3238;
   --font-color: #e0e0e0;
   --font-color-100: #9399a1;
@@ -65,7 +69,7 @@
   --scrollbar-thumb: #696969;
 }
 
-[data-luno-theme="indigo"] {
+/* [data-luno-theme="indigo"] {
   --primary: #4c3575;
   --primary-10: #4c35751a;
   --secondary: #e05170;
@@ -140,7 +144,7 @@
   --chart-color3: #6e6d6d;
   --chart-color4: #d9c6a5;
   --chart-color5: #99b898;
-}
+} */
 
 @layer utilities {
   .custom-scrollbar::-webkit-scrollbar {

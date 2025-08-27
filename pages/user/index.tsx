@@ -234,7 +234,7 @@ const handleSubmit = async () => {
 
                   {/* 🔹 Always visible now */}
                 {activeTab == "users" && (  <button
-                      className="btn large bg-[#4c3575] cursor-pointer text-white"
+                      className="btn large bg-[var(--primary)] cursor-pointer text-white"
                       onClick={handleOpenModal}
                   >
                       Invite User

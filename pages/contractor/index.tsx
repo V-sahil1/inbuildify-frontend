@@ -241,7 +241,7 @@ const ContractorPage = () => {
           <Typography.Title level={4} style={{ margin: 0, color: "var(--font-color)" }}>
             Contractors
           </Typography.Title>
-          <button className="btn large bg-[#4c3575] cursor-pointer text-white" onClick={handleOpenModal}>
+          <button className="btn large bg-[var(--primary)] cursor-pointer text-white" onClick={handleOpenModal}>
             Create 
           </button>
         </div>

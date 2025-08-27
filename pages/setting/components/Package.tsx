@@ -43,7 +43,7 @@ const Package = () => {
           Package Management
         </Typography.Title>
         <button
-          className="btn large bg-[#4c3575] cursor-pointer text-white"
+          className="btn large bg-[var(--primary)] cursor-pointer text-white"
           onClick={handleOpenModal}
         >
           Create Package

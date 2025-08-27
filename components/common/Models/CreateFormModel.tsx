@@ -9,6 +9,7 @@ export type CreateFormField = {
   placeholder?: string;
   rules?: any[];
   disabled?: boolean;
+  invite?: boolean;
   type?: "email" | "phone" | "text" | "select" | "url" | "number" | "checkbox";
   options?: { value: string; label: string }[];
 };
@@ -20,6 +21,7 @@ interface CreateFormModalProps {
   isEditing?: boolean;
   initialValues?: any;
   onCancel: () => void;
+  invite?: boolean;
   onSubmit: (values: any) => void;
   fields: readonly CreateFormField[];
 }
@@ -31,6 +33,7 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
   isEditing = false,
   initialValues = {},
   onCancel,
+  invite = false,
   onSubmit,
   fields,
 }) => {
@@ -58,18 +61,18 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
 
   return (
     <Modal
-      title={isEditing ? `Edit ${title}` : `Create ${title}`}
+      title={isEditing ? `Edit ${title}` : `${invite ? "Invite" : "Create"} ${title}`}
       open={open}
       onOk={handleOk}
       centered
       onCancel={onCancel}
-      okText={isEditing ? "Update" : "Create"}
+      okText={isEditing ? "Update" : invite ? "Invite" : "Create"}
       confirmLoading={loading}
       cancelButtonProps={{
-        style: { color: "#4c3575", borderColor: "#4c3575" },
+        style: { color: "var(--primary)", borderColor: "var(--primary)" },
       }}
       okButtonProps={{
-        style: { backgroundColor: "#4c3575", borderColor: "#4c3575" },
+        style: { backgroundColor: "var(--primary)", borderColor: "var(--primary)" },
       }}
     >
       <Form form={form} layout="vertical" style={{ maxHeight: "70vh", overflowY: "auto", scrollbarWidth: "none" }}>

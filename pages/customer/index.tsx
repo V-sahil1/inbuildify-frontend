@@ -5,6 +5,9 @@ import { useAppDispatch } from '@hooks/redux'
 import { createCustomerThunk, deleteCustomerThunk, getCustomerByIdThunk, getCustomersThunk, updateCustomerThunk } from "@redux/feature/customer/customerThunk";
 import { DetailModal } from "@/components/common/DetailModal";
 import ConfirmationModal from "@/components/common/ConfirmationModal";
+import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
+import { addressRules, emailRules, nameRules, phoneRules } from "@lib/constants/formInputValidations";
+import { customerCreateFields } from "@/components/formFields/customerCreateFields";
 
 type Customer = {
   key: string
@@ -20,7 +23,7 @@ const CustomerPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingKey, setEditingKey] = useState<string | null>(null);
-const [isDeleteModalOpen, setIsDeleteModalOpen] = useState({open:false, recordId: null});
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState({ open: false, recordId: null });
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const [form] = Form.useForm<Customer>();
   const [customers, setCustomers] = useState<Customer[]>(initialData);
@@ -73,23 +76,23 @@ const [isDeleteModalOpen, setIsDeleteModalOpen] = useState({open:false, recordId
     setEditingKey(null);
   };
 
- const handleDelete = async (key: string) => {
-  try {
-    setIsDeleteLoading(true);
-    const res = await dispatch(deleteCustomerThunk(key)).unwrap();
+  const handleDelete = async (key: string) => {
+    try {
+      setIsDeleteLoading(true);
+      const res = await dispatch(deleteCustomerThunk(key)).unwrap();
 
-    if (res) {
-      message.success(res.message);
-      setIsDeleteModalOpen({open:false, recordId: null});
-      setCustomers(prev => prev.filter(c => c.key !== key));
+      if (res) {
+        message.success(res.message);
+        setIsDeleteModalOpen({ open: false, recordId: null });
+        setCustomers(prev => prev.filter(c => c.key !== key));
+      }
+    } catch (err) {
+      console.error("Failed to delete the Contractor", err);
+      message.error(err);
+    } finally {
+      setIsDeleteLoading(false);
     }
-  } catch (err) {
-    console.error("Failed to delete the Contractor", err);
-    message.error(err);
-  } finally {
-    setIsDeleteLoading(false);
-  }
-};
+  };
 
 
   const handleSubmit = async () => {
@@ -106,13 +109,13 @@ const [isDeleteModalOpen, setIsDeleteModalOpen] = useState({open:false, recordId
         };
         const res = await dispatch(updateCustomerThunk({ customerId: editingKey, payload })).unwrap();
 
-        if(res){
-        setCustomers(prev =>
-          prev.map(c =>
-            c.key === editingKey ? { ...c, ...values } : c
-          )
-        );
-        message.success(res.message);
+        if (res) {
+          setCustomers(prev =>
+            prev.map(c =>
+              c.key === editingKey ? { ...c, ...values } : c
+            )
+          );
+          message.success(res.message);
         }
       } else {
         // Create new contractor
@@ -124,18 +127,18 @@ const [isDeleteModalOpen, setIsDeleteModalOpen] = useState({open:false, recordId
             address: values.address,
           })
         ).unwrap();
-        
-        if(res){
-          const data = res.data        
-        const newContractor: Customer = {
-          key: data.customer_id,
-          fullName: data.name,
-          email: data.email,
-          phone: data.phone,
-          address: data.address,
-        };
-        setCustomers(prev => [newContractor, ...prev]);
-        message.success(res.message);
+
+        if (res) {
+          const data = res.data
+          const newContractor: Customer = {
+            key: data.customer_id,
+            fullName: data.name,
+            email: data.email,
+            phone: data.phone,
+            address: data.address,
+          };
+          setCustomers(prev => [newContractor, ...prev]);
+          message.success(res.message);
         }
       }
 
@@ -144,37 +147,37 @@ const [isDeleteModalOpen, setIsDeleteModalOpen] = useState({open:false, recordId
       setIsEditing(false);
       setEditingKey(null);
     } catch (err) {
-      console.log("Error",err);
+      console.log("Error", err);
       message.error((err as any)?.message || 'Failed to save customer');
     } finally {
       setLoading(false);
     }
   };
 
- const handleRowClick = async (record: Customer) => {
-  try {
-    setLoadingDetails(true);
-    setIsViewModalOpen(true);
+  const handleRowClick = async (record: Customer) => {
+    try {
+      setLoadingDetails(true);
+      setIsViewModalOpen(true);
 
-    const response = await dispatch(getCustomerByIdThunk(record.key)).unwrap();
-    
-    if (response && response.data) {
+      const response = await dispatch(getCustomerByIdThunk(record.key)).unwrap();
+
+      if (response && response.data) {
 
         const customer = {
-        key: response.data.customer_id,
-        fullName: response.data.name,
-        email: response.data.email,
-        phone: response.data.phone,
-        address: response.data.address,
-      };
-       setSelectedCustomer(customer);
+          key: response.data.customer_id,
+          fullName: response.data.name,
+          email: response.data.email,
+          phone: response.data.phone,
+          address: response.data.address,
+        };
+        setSelectedCustomer(customer);
+      }
+    } catch (error) {
+      console.error("Failed to fetch customer details:", error);
+    } finally {
+      setLoadingDetails(false);
     }
-  } catch (error) {
-    console.error("Failed to fetch customer details:", error);
-  } finally {
-    setLoadingDetails(false);
-  }
-};
+  };
 
 
 
@@ -219,7 +222,7 @@ const [isDeleteModalOpen, setIsDeleteModalOpen] = useState({open:false, recordId
               danger
               onClick={(e) => {
                 e.stopPropagation();
-                setIsDeleteModalOpen({open:true, recordId: record.key});
+                setIsDeleteModalOpen({ open: true, recordId: record.key });
 
               }}
             >
@@ -238,7 +241,7 @@ const [isDeleteModalOpen, setIsDeleteModalOpen] = useState({open:false, recordId
           <Typography.Title level={4} style={{ margin: 0, color: "var(--font-color)" }}>
             Customers
           </Typography.Title>
-          <button className="btn large bg-[#4c3575] cursor-pointer text-white" onClick={handleOpenModal}>
+          <button className="btn large bg-[var(--primary)] cursor-pointer text-white" onClick={handleOpenModal}>
             Create Customer
           </button>
         </div>
@@ -251,133 +254,22 @@ const [isDeleteModalOpen, setIsDeleteModalOpen] = useState({open:false, recordId
             pagination={{ pageSize: 10 }}
             loading={false}
             scroll={{ x: "max-content" }}
-             onRow={(record) => ({
+            onRow={(record) => ({
               onClick: () => handleRowClick(record),
             })}
           />
         </Spin>
 
-        <Modal
-          title={isEditing ? "Edit Customer" : "Create Customer"}
+        <CreateFormModal
           open={isModalOpen}
-          onOk={handleSubmit}
+          title="Customer"
           onCancel={handleCancel}
-          okText={isEditing ? "Update" : "Create"}
-          confirmLoading={loading}
-          cancelButtonProps={{
-            style: { color: "#4c3575", borderColor: "#4c3575" }, 
-          }}
-           okButtonProps={{
-            style: { backgroundColor: "#4c3575", borderColor: "#4c3575" },
-          }}
-        >
-          <Form form={form} layout="vertical">
-            <Form.Item
-              label="Full Name"
-              name="fullName"
-              rules={[{ required: true, message: "Please enter full name" }]}
-            >
-              <Input placeholder="John Doe" />
-            </Form.Item>
-
-            <Form.Item
-              label="Email"
-              name="email"
-              rules={[
-                { required: true, message: "Please enter email" },
-                { type: "email", message: "Please enter a valid email" },
-              ]}
-            >
-              <Input placeholder="john@example.com"  disabled={isEditing}/>
-            </Form.Item>
-
-            <Form.Item
-              label="Phone"
-              name="phone"
-              rules={[{ required: true, message: "Please enter phone" },
-                 {
-                    pattern: /^\d{10,15}$/,
-                    message: "Phone number must be between 10 to 15 digits",
-                 },
-              ]}
-            >
-              <Input placeholder="+1 555 0100" />
-            </Form.Item>
-
-            <Form.Item
-              label="Address"
-              name="address"
-              rules={[{ required: true, message: "Please enter address" },
-                      { min: 10, message: "Address must be at least 10 characters" },
-                     ]}
-            >
-              <Input placeholder="123 Main St, Springfield" />
-            </Form.Item>
-          </Form>
-        </Modal>
-
-        {/* <Modal
-          title="Contractor Details"
-          open={isViewModalOpen}
-          footer={null}
-          onCancel={() => setIsViewModalOpen(false)}
-        >
-          {loadingDetails ? (
-            <p>Loading contractor details...</p>
-          ) : selectedContractor ? (
-            <div className="space-y-2">
-              <p><strong>Full Name:</strong> {selectedContractor.fullName}</p>
-              <p><strong>Email:</strong> {selectedContractor.email}</p>
-              <p><strong>Phone:</strong> {selectedContractor.phone}</p>
-              <p><strong>Address:</strong> {selectedContractor.address}</p>
-            </div>
-          ) : (
-            <p>No contractor details found.</p>
-          )}
-        </Modal> */}
-        {/* <Modal
-          title="Customer Details"
-          open={isViewModalOpen}
-          footer={null}
-          onCancel={() => setIsViewModalOpen(false)}
-          centered
-        >
-          {loadingDetails ? (
-            <div className="flex justify-center items-center py-10">
-              <Spin size="large" />
-            </div>
-          ) : selectedContractor ? (
-            <div className="">
-              <Card bordered={false} className="shadow-md mt-3 rounded-xl ">
-                <Descriptions
-                  bordered
-                  column={1}
-                  labelStyle={{ fontWeight: 600, width: "150px" }}
-                  contentStyle={{ backgroundColor: "#fff" }}
-                >
-                  <Descriptions.Item label="Full Name">
-                    {selectedContractor.fullName}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Email">
-                    <a href={`mailto:${selectedContractor.email}`}>
-                      {selectedContractor.email}
-                    </a>
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Phone">
-                    <a href={`tel:${selectedContractor.phone}`}>
-                      {selectedContractor.phone}
-                    </a>
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Address">
-                    {selectedContractor.address}
-                  </Descriptions.Item>
-                </Descriptions>
-              </Card>
-            </div>
-          ) : (
-            <p className="text-center text-gray-500">No contractor details found.</p>
-          )}
-        </Modal> */}
+          onSubmit={handleSubmit}
+          isEditing={editingKey ? true : false}
+          initialValues={editingKey ? customers.find((c) => c.key === editingKey) : {}}
+          fields={customerCreateFields}
+        /> 
+        
         <DetailModal
           title="Customer Details"
           open={isViewModalOpen}
@@ -391,11 +283,11 @@ const [isDeleteModalOpen, setIsDeleteModalOpen] = useState({open:false, recordId
             { label: "Address", key: "address" },
           ]}
         />
-{
+        {
           isDeleteModalOpen.open &&
           <ConfirmationModal
             open={isDeleteModalOpen.open}
-            onClose={() => setIsDeleteModalOpen({open:false, recordId: null})}
+            onClose={() => setIsDeleteModalOpen({ open: false, recordId: null })}
             onConfirm={() => handleDelete(isDeleteModalOpen.recordId)}
             title="Delete"
             message="Are you sure you want to delete this contractor?"

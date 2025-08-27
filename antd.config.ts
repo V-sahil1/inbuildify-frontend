@@ -81,6 +81,15 @@ const theme = {
         colorPrimary: 'var(--primary)',
         colorFillAlter: 'var(--primary-10)',     
       },
+      Pagination: {
+        colorPrimary: "var(--font-color-400)",            
+        colorPrimaryHover: "var(--primary-hover)",
+        itemActiveBg: "var(--primary-100)",           
+        colorText: "var(--font-color-100)",       
+        colorTextDisabled: "var(--disabled-color)",
+        itemBg: "var(--card-color)",              
+        itemInputBg: "var(--card-color)",         
+      },
       Modal: {
         contentBg: "var(--card-color)",       
         headerBg: "var(--card-color)",        
@@ -93,13 +102,11 @@ const theme = {
         borderRadiusLG: 16,                   
       },
       Card: {
-        colorBgContainer: "var(--card-color)",    // Card background
-        colorBorder: "var(--primary)",            // Border color
-        colorTextHeading: "var(--font-color)",    // Title text
-        colorText: "var(--font-color)",           // Content text
-        headerBg: "var(--card-color)",            // Header background
-        headerFontSize: 18,                       // Header font size
-        headerHeight: 48,                         // Header height
+        colorBgContainer: "var(--card-color)",   
+        colorBorder: "var(--primary)",             
+        colorTextHeading: "var(--font-color)",    
+        colorText: "var(--font-color)",           
+        headerBg: "var(--card-color)",            
         padding: 16,         
       },
       Menu: {
