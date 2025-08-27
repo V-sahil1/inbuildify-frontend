@@ -1,3 +1,4 @@
+
 const theme = {
     components: {
       Button: {
@@ -18,17 +19,26 @@ const theme = {
         colorPlaceholder: 'var(--font-color-100)',
         colorTextPlaceholder: 'var(--font-color-100)',
       },
-      Checkbox: {
-        colorPrimary: 'var(--primary)',
-        colorBgContainer: 'var(--card-color)',
-        colorBorder: 'var(--border-color)',
-        colorText: 'var(--font-color)',
-      },
       Form: {
         labelColor: 'var(--font-color-100)',
         labelFontSize: 14,
         labelHeight: 20,
         itemMarginBottom: 16,
+      },
+      InputNumber: {
+        colorBgContainer: "var(--card-bg-primary)", 
+        colorText: "var(--text-primary)",           
+        colorTextPlaceholder: "var(--text-secondary)", 
+        colorBorder: "var(--border-color)",         
+        activeBorderColor: "var(--primary-color)",  
+        hoverBorderColor: "var(--primary-color-hover)", 
+        colorBgContainerDisabled: "var(--bg-disabled)", 
+        colorTextDisabled: "var(--text-disabled)", 
+        handleBg: "var(--card-bg-secondary)",       
+        handleHoverColor: "var(--primary-color)",   
+        handleActiveBg: "var(--primary-color-hover)",
+        handleDisabledBg: "var(--bg-disabled)", 
+        colorTextAddon: "var(--primary)",
       },
       Select: {
         colorBgContainer: 'var(--card-color)',       
@@ -42,6 +52,14 @@ const theme = {
         colorBgElevated: 'var(--card-color)', 
       },
       Radio: {
+        colorPrimary: 'var(--primary)',         
+        colorPrimaryHover: 'var(--primary-100)',
+        colorBorder: 'var(--border-color)',     
+        colorBgContainer: 'var(--card-color)',  
+        colorText: 'var(--font-color)',         
+        controlOutline: 'var(--primary)',       
+      },
+      Checkbox: {
         colorPrimary: 'var(--primary)',         
         colorPrimaryHover: 'var(--primary-100)',
         colorBorder: 'var(--border-color)',     
@@ -73,6 +91,16 @@ const theme = {
         colorIcon: 'var(--font-color)',        
         colorIconHover: 'var(--primary)',      
         borderRadiusLG: 16,                   
+      },
+      Card: {
+        colorBgContainer: "var(--card-color)",    // Card background
+        colorBorder: "var(--primary)",            // Border color
+        colorTextHeading: "var(--font-color)",    // Title text
+        colorText: "var(--font-color)",           // Content text
+        headerBg: "var(--card-color)",            // Header background
+        headerFontSize: 18,                       // Header font size
+        headerHeight: 48,                         // Header height
+        padding: 16,         
       },
     },
   };

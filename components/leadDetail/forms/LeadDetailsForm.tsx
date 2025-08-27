@@ -1,19 +1,13 @@
 import React, { useState } from 'react';
-import { Form, Input, Button, Space, Tabs, Typography, Divider, Card, Row, Col, Select } from 'antd';
+import { Form, Input, Button, Space, Typography, Row, Col, Select } from 'antd';
 import { 
   IconPlus,
   IconUser,
   IconMail,
   IconPhone,
-  IconX,
-  IconMapPin,
-  IconBuilding,
-  IconHome2,
-  IconAddressBook
+  IconX, 
 } from '@tabler/icons-react';
-import type { TabsProps } from 'antd';
 import { LeadDetails } from '@/pages/leads/data/types';
-import dayjs from 'dayjs';
 
 interface Contact {
   id: string;
@@ -92,7 +86,7 @@ const LeadDetailsForm: React.FC<LeadDetailsFormProps> = ({
       layout="vertical"
       initialValues={formValues}
       onValuesChange={handleFormChange}
-      className="space-y-4"
+      className="space-y-4 bg-card-color"
     >
       <Row gutter={16}>
         <Col span={12}>
@@ -242,7 +236,7 @@ const LeadDetailsForm: React.FC<LeadDetailsFormProps> = ({
   );
 
   return (
-    <div className="p-4 bg-white rounded-lg">
+    <div className="p-4 bg-card-color rounded-lg">
       {showContactForm ? renderContactForm() : renderMainForm()}
     </div>
   );

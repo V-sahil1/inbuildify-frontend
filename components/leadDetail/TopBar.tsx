@@ -24,12 +24,12 @@ const TopBar: React.FC<TopBarProps> = ({
   const { filters, status: floorPlanStatus } = useAppSelector((state) => state.floorPlan);
   const dispatch = useAppDispatch();
   useEffect(() => {
-    if (floorPlanStatus === Status.IDLE) {
+    if (floorPlanStatus.filters === Status.IDLE) {
       dispatch(getFloorPlanFilters()).then(() => {
         dispatch(getConditions()).unwrap();
       });
     }
-  }, [floorPlanStatus, dispatch]);
+  }, [floorPlanStatus.filters, dispatch]);
   const rangeOptions = enumArrayToOptions(filters?.ranges);
 
   const dwellingOptions = enumArrayToOptions(filters?.dwellingTypes);

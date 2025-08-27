@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Form, Input, Radio, Checkbox, InputNumber, Select, Modal, message } from "antd";
+import { Form, Input, Radio, Checkbox, Select, Modal, message } from "antd";
 import { IconMinus, IconPlus } from "@tabler/icons-react";
 import { createCategoryItem } from "@redux/feature/masterPriceList/masterPriceListThunk";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
@@ -114,7 +114,7 @@ const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
                 {costType === 'VARIABLE' && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <Form.Item label="Quantity" name="quantity" className="form-item-responsive">
-                            <InputNumber
+                            <Input
                                 type="number"
                                 min={1}
                                 style={{ width: '100%' }}
@@ -122,13 +122,11 @@ const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
                             />
                         </Form.Item>
                         <Form.Item label="Unit Price" name="unitPrice" className="form-item-responsive">
-                            <InputNumber
+                            <Input
                                 type="number"
                                 min={0}
                                 prefix="$"
                                 style={{ width: '100%' }}
-                                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-                                parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
                                 onChange={(value) => console.log(value)}
                             />
                         </Form.Item>
@@ -142,7 +140,7 @@ const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
                     rules={[{ required: costType === 'FIXED', message: "Please enter cost" }]}
                     className="form-item-responsive"
                 >
-                    <InputNumber
+                    <Input
                         min={0}
                         prefix="$"
                         type="number"
@@ -206,7 +204,7 @@ const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
                                         name={[name, "range_start"]}
                                         rules={[{ required: true, message: "Please enter start range" }]}
                                     >
-                                        <InputNumber min={0} className="w-full" type="number" />
+                                        <Input min={0} className="w-full" type="number" />
                                     </Form.Item>
 
                                     {/* Range End */}
@@ -216,7 +214,7 @@ const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
                                         name={[name, "range_end"]}
                                         rules={[{ required: true, message: "Please enter end range" }]}
                                     >
-                                        <InputNumber min={0} className="w-full" type="number" />
+                                        <Input min={0} className="w-full" type="number" />
                                     </Form.Item>
 
                                     {/* Minus Button – hidden if only one row */}

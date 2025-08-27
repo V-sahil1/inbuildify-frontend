@@ -77,25 +77,25 @@ const InfoCards: React.FC<InfoCardsProps> = ({
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <IconUser className="text-blue-500" />
-            <span className="font-medium text-gray-700">Lead Details</span>
+            <span className="font-medium text-font-color">Lead Details</span>
           </div>
           <IconEdit className="text-gray-400 text-sm" />
         </div>
         <div className="space-y-2">
-          <div className="font-semibold text-gray-900">{leadDetails.name}</div>
-          <div className="flex items-center text-sm text-gray-600">
-            <IconPhone size={14} className="mr-1 text-gray-400" />
+          <div className="font-semibold text-font-color">{leadDetails.name}</div>
+          <div className="flex items-center text-sm text-font-color-100">
+            <IconPhone size={14} className="mr-1 text-font-color-100" />
             {leadDetails.phone || "Not provided"}
           </div>
-          <div className="flex items-center text-sm text-gray-600">
-            <IconMail size={14} className="mr-1 text-gray-400" />
+          <div className="flex items-center text-sm text-font-color-100">
+            <IconMail size={14} className="mr-1 text-font-color-100" />
             {leadDetails.email || "Not provided"}
           </div>
           {leadDetails.address && (
-            <div className="flex items-start text-sm text-gray-500">
+            <div className="flex items-start text-sm text-font-color-100">
               <IconMapPin
                 size={14}
-                className="mr-1 mt-0.5 text-gray-400 flex-shrink-0"
+                className="mr-1 mt-0.5 text-font-color-100 flex-shrink-0"
               />
               <span className="line-clamp-2">{leadDetails.address || "Not provided"}</span>
             </div>
@@ -120,14 +120,14 @@ const InfoCards: React.FC<InfoCardsProps> = ({
                     );
                   }}
                 >
-                  <div className="font-medium text-gray-800">
+                  <div className="font-medium text-font-color">
                     {contact.name}
                   </div>
-                  <div className="text-xs text-gray-500">{contact.type}</div>
+                  <div className="text-xs text-font-color-100">{contact.type}</div>
                   {activeContactIndex === index && (
                     <div className="mt-1 text-xs space-y-1">
-                      <div className="text-gray-600">{contact.email}</div>
-                      <div className="text-gray-600">{contact.phone}</div>
+                      <div className="text-font-color-100">{contact.email}</div>
+                      <div className="text-font-color-100">{contact.phone}</div>
                     </div>
                   )}
                 </div>
@@ -165,24 +165,24 @@ const InfoCards: React.FC<InfoCardsProps> = ({
       >
         <div className="flex items-center gap-2 mb-3">
           <IconHome className="text-green-500" />
-          <span className="font-medium text-gray-700">Property Details</span>
+          <span className="font-medium text-font-color">Property Details</span>
           <IconEdit className="text-gray-400 ml-auto" />
         </div>
         <div className="space-y-2">
-          <div className="font-semibold text-gray-900">
+          <div className="font-semibold text-font-color">
             {propertyDetails.lot}
           </div>
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-font-color">
             {propertyDetails.location}
           </div>
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-font-color-100">
             Title: {propertyDetails.titleDate}
           </div>
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-font-color-100">
             Type: {propertyDetails.type}
           </div>
           {propertyDetails.width && propertyDetails.depth && (
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-font-color-100">
               W: {propertyDetails.width} D: {propertyDetails.depth} Total:{" "}
               {propertyDetails.total}
             </div>
@@ -197,12 +197,12 @@ const InfoCards: React.FC<InfoCardsProps> = ({
         >
           <div className="flex items-center gap-2 mb-3">
             <IconFileText className="text-purple-500" />
-            <span className="font-medium text-gray-700">Select Plan</span>
+            <span className="font-medium text-font-color">Select Plan</span>
             <IconEdit className="text-gray-400 ml-auto" />
           </div>
           {selectedPlan ? (
             <div className="space-y-2">
-              <div className="font-semibold text-gray-900">
+              <div className="font-semibold text-font-color">
                 {selectedPlan.name}
               </div>
             </div>
@@ -220,12 +220,12 @@ const InfoCards: React.FC<InfoCardsProps> = ({
         >
           <div className="flex items-center gap-2 mb-3">
             <IconFileText className="text-purple-500" />
-            <span className="font-medium text-gray-700">Select Facade</span>
+            <span className="font-medium text-font-color">Select Facade</span>
             <IconEdit className="text-gray-400 ml-auto" />
           </div>
           {selectedFacade ? (
             <div className="space-y-2">
-              <div className="font-semibold text-gray-900">
+              <div className="font-semibold text-font-color">
                 {selectedFacade.name}
               </div>
             </div>
@@ -246,12 +246,12 @@ const InfoCards: React.FC<InfoCardsProps> = ({
       >
         <div className="flex items-center gap-2 mb-3">
           <IconGift className="text-red-500" />
-          <span className="font-medium text-gray-700">Select Package</span>
+          <span className="font-medium text-font-color">Select Package</span>
           <IconEdit className="text-gray-400 ml-auto" />
         </div>
         {selectedPackage ? (
           <div className="space-y-2">
-            <div className="font-semibold text-gray-900">Package (1)</div>
+            <div className="font-semibold text-font-color">Package (1)</div>
             <div className="font-medium text-blue-600">
               {selectedPackage.name}
             </div>
@@ -282,7 +282,9 @@ const InfoCards: React.FC<InfoCardsProps> = ({
         onCancel={() => setEditModalVisible(false)}
         footer={null}
         width={600}
-        centered      >
+        centered
+        className="bg-card-color"
+        >
         <LeadDetailsForm
           initialValues={leadDetails}
           onSave={(values) => {
@@ -335,11 +337,11 @@ const InfoCards: React.FC<InfoCardsProps> = ({
         width={800}
         className="package-selection-modal"
       >
-        <div className="flex h-[500px] border rounded-lg overflow-hidden">
+        <div className="flex h-[500px] border rounded-lg overflow-hidden ">
           {/* Left side - Package List */}
           <div className="w-1/3 border-r overflow-y-auto bg-gray-50">
             <div className="p-4 border-b bg-white">
-              <h3 className="text-lg font-semibold">Available Packages</h3>
+              <h3 className="text-lg font-semibold text-font-color">Available Packages</h3>
             </div>
             <div className="divide-y">
               {availablePackages.map((pkg) => (
@@ -359,8 +361,8 @@ const InfoCards: React.FC<InfoCardsProps> = ({
                       onClick={(e) => e.stopPropagation()}
                     />
                     <div className="ml-3">
-                      <div className="font-medium text-gray-900">{pkg.name}</div>
-                      <div className="text-sm text-gray-500">
+                      <div className="font-medium text-font-color">{pkg.name}</div>
+                      <div className="text-sm text-font-color-100">
                         ${pkg.price.toLocaleString()}
                       </div>
                     </div>
