@@ -1,12 +1,13 @@
 import React from "react";
-import { Button, Typography } from "antd";
+import { Button, Typography, Spin, Empty } from "antd";
 import FloorPlanCard from "./FloorPlanCard";
+import { IFloorPlanState } from "@redux/feature/floorPlan/IFloorPlanState";
 import PlanDetailsGrid from "./PlanDetailsGrid";
 
 const { Title } = Typography;
 
 interface AvailablePlansTabProps {
-  plans: any[];
+  plans: IFloorPlanState[];
   selectedPlan: any;
   onSelectPlan: (plan: any) => void;
 }
@@ -15,7 +16,15 @@ const AvailablePlansTab: React.FC<AvailablePlansTabProps> = ({
   plans,
   selectedPlan,
   onSelectPlan,
-}) => {
+}) => {  
+  if (!plans || plans.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Empty description="No floor plans available" />
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-96">
       {/* Left side - Floor plan grid */}
@@ -23,9 +32,9 @@ const AvailablePlansTab: React.FC<AvailablePlansTabProps> = ({
         <div className="grid grid-cols-4 gap-3 mb-4">
           {plans.map((plan) => (
             <FloorPlanCard
-              key={plan.id}
+              key={plan.floorPlanId}
               plan={plan}
-              isSelected={selectedPlan?.id === plan.id}
+              isSelected={selectedPlan?.floorPlanId === plan.floorPlanId}
               onClick={() => onSelectPlan(plan)}
             />
           ))}
@@ -43,7 +52,7 @@ const AvailablePlansTab: React.FC<AvailablePlansTabProps> = ({
             <Title level={5} className="text-gray-600 mb-4">
               Floor Plan Details
             </Title>
-            <PlanDetailsGrid details={selectedPlan.details} />
+            <PlanDetailsGrid details={selectedPlan} />
           </div>
         )}
       </div>
@@ -55,10 +64,13 @@ const AvailablePlansTab: React.FC<AvailablePlansTabProps> = ({
             <Title level={4} className="text-gray-700">
               {selectedPlan.name}
             </Title>
+            <div className="text-sm text-gray-500">
+              {selectedPlan.rangeName} • {selectedPlan.dwellingTypeName}
+            </div>
           </div>
           <div className="bg-gray-50 p-4 rounded-lg">
             <img
-              src={selectedPlan.detailImage}
+              src={selectedPlan.image}
               alt={selectedPlan.name}
               className="w-full h-64 object-cover rounded"
             />

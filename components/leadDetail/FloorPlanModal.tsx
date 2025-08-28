@@ -1,9 +1,13 @@
-import React, { useState } from "react";
-import { Modal, Tabs, Button, Typography } from "antd";
+import React, { useState, useEffect } from "react";
+import { Modal, Tabs, Button, Typography, Spin } from "antd";
 import { Plan } from "@/pages/leads/data/types";
-import { floorPlansData } from "./mockFloorPlans";
 import AvailablePlansTab from "./AvailablePlansTab";
 import CustomPlanTab from "./CustomPlanTab";
+import { useAppDispatch, useAppSelector } from "@hooks/redux";
+import { fetchFloorPlans, getFloorPlanFilters } from "@redux/feature/floorPlan/floorPlanThunk";
+import { setQuotationPlan } from "@redux/feature/quotation/quotationSlice";
+import { Status } from '@lib/constants/enum';
+import { RootState } from "@redux/feature/store";
 
 const { Title } = Typography;
 
@@ -20,34 +24,29 @@ const FloorPlanModal: React.FC<FloorPlanModalProps> = ({
   onSave,
   selectedPlan,
 }) => {
-  const [activeTab, setActiveTab] = useState<"available" | "custom">(
-    "available"
-  );
+  const dispatch = useAppDispatch();
+  const {floorPlans, status, filters} = useAppSelector((state: RootState) => state.floorPlan);
+  
+  const [activeTab, setActiveTab] = useState<"available" | "custom">("available");
   const [selectedFloorPlan, setSelectedFloorPlan] = useState<any>(null);
   const [customPlanName, setCustomPlanName] = useState("");
-  const [customPlanImage, setCustomPlanImage] = useState<any>(null);
+
+  useEffect(() => {
+    if (status.floorPlan === Status.IDLE) { 
+      dispatch(fetchFloorPlans()).unwrap()
+    }
+    if (status.filters === Status.IDLE) {
+      dispatch(getFloorPlanFilters()).unwrap()
+    }
+  }, [dispatch, status, filters])
 
   const handleSave = () => {
     if (activeTab === "available" && selectedFloorPlan) {
-      const planToSave: Plan = {
-        id: selectedFloorPlan.id,
-        name: selectedFloorPlan.name,
-        bedrooms: selectedFloorPlan.bedrooms,
-        bathrooms: selectedFloorPlan.bathrooms,
-        garage: selectedFloorPlan.garage,
-        area: `${selectedFloorPlan.area} sqm`,
-      };
-      onSave(planToSave);
+      dispatch(setQuotationPlan(selectedFloorPlan));
+      onSave(selectedFloorPlan);
     } else if (activeTab === "custom" && customPlanName) {
-      const customPlan: Plan = {
-        id: `custom-${Date.now()}`,
-        name: customPlanName,
-        bedrooms: 0,
-        bathrooms: 0,
-        garage: 0,
-        area: "0 sqm",
-      };
-      onSave(customPlan);
+      // dispatch(setQuotationPlan(customPlan));
+      // onSave(customPlan);
     }
     handleCancel();
   };
@@ -55,14 +54,15 @@ const FloorPlanModal: React.FC<FloorPlanModalProps> = ({
   const handleCancel = () => {
     setSelectedFloorPlan(null);
     setCustomPlanName("");
-    setCustomPlanImage(null);
     onCancel();
   };
+
+  const isLoading = status.floorPlan === Status.PENDING;
 
   return (
     <Modal
       title={
-        <div className="bg-blue-500 text-white px-6 py-4 -mx-6 -mt-4 mb-4">
+        <div className="bg-blue-500 text-white">
           <Title level={3} className="text-white mb-0">
             Floor Plan
           </Title>
@@ -79,56 +79,57 @@ const FloorPlanModal: React.FC<FloorPlanModalProps> = ({
       ]}
       className="floor-plan-modal"
     >
-      <Tabs
-        activeKey={activeTab}
-        onChange={(key) => setActiveTab(key as "available" | "custom")}
-        className="custom-tabs"
-        items={[
-          {
-            key: "available",
-            label: (
-              <span
-                className={`px-4 py-2 rounded ${
-                  activeTab === "available"
-                    ? "bg-green-500 text-white"
-                    : "bg-gray-200 text-gray-700"
-                }`}
-              >
-                Available
-              </span>
-            ),
-            children: (
-              <AvailablePlansTab
-                plans={floorPlansData}
-                selectedPlan={selectedFloorPlan}
-                onSelectPlan={setSelectedFloorPlan}
-              />
-            ),
-          },
-          {
-            key: "custom",
-            label: (
-              <span
-                className={`px-4 py-2 rounded ${
-                  activeTab === "custom"
-                    ? "bg-green-500 text-white"
-                    : "bg-gray-200 text-gray-700"
-                }`}
-              >
-                Custom
-              </span>
-            ),
-            children: (
-              <CustomPlanTab
-                customPlanName={customPlanName}
-                setCustomPlanName={setCustomPlanName}
-                customPlanImage={customPlanImage}
-                setCustomPlanImage={setCustomPlanImage}
-              />
-            ),
-          },
-        ]}
-      />
+      {isLoading ? (
+        <div className="flex items-center justify-center h-96">
+          <Spin size="large" />
+        </div>
+      ) : (
+        <Tabs
+          activeKey={activeTab}
+          onChange={(key) => setActiveTab(key as "available" | "custom")}
+          className="custom-tabs"
+          items={[
+            {
+              key: "available",
+              label: (
+                <span
+                  className={`px-4 py-2 rounded ${
+                    activeTab === "available"
+                      ? "bg-green-500 text-white"
+                      : "bg-gray-200 text-gray-700"
+                  }`}
+                >
+                  Available
+                </span>
+              ),
+              children: (
+                <AvailablePlansTab
+                  plans={floorPlans}
+                  selectedPlan={selectedFloorPlan}
+                  onSelectPlan={setSelectedFloorPlan}
+                />
+              ),
+            },
+            {
+              key: "custom",
+              label: (
+                <span
+                  className={`px-4 py-2 rounded ${
+                    activeTab === "custom"
+                      ? "bg-green-500 text-white"
+                      : "bg-gray-200 text-gray-700"
+                  }`}
+                >
+                  Custom
+                </span>
+              ),
+              children: (
+                <CustomPlanTab />
+              ),
+            },
+          ]}
+        />
+      )}
     </Modal>
   );
 };

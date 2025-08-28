@@ -23,6 +23,7 @@ import {
 import PropertyDetailsModal from "./PropertyDetailsModal";
 import FloorPlanModal from "./FloorPlanModal";
 import dayjs from "dayjs";
+import FacadeModal from "./FacadeModal";
 
 interface InfoCardsProps {
   leadDetails: LeadDetails;
@@ -51,9 +52,9 @@ const InfoCards: React.FC<InfoCardsProps> = ({
   onPackageSelect,
   onPropertyUpdate,
 }) => {
-  console.log("🚀 ~ InfoCards ~ propertyDetails:", propertyDetails)
   const [propertyModalVisible, setPropertyModalVisible] = useState(false);
   const [floorPlanModalVisible, setFloorPlanModalVisible] = useState(false);
+  const [facadeModalVisible, setFacadeModalVisible] = useState(false);
   const [packageModalVisible, setPackageModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -228,7 +229,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
         </Card>
         <Card
           className="shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-          onClick={() => setFloorPlanModalVisible(true)}
+          onClick={() => setFacadeModalVisible(true)}
         >
           <div className="flex items-center gap-2 mb-3">
             <IconFileText className="text-purple-500" />
@@ -320,6 +321,12 @@ const InfoCards: React.FC<InfoCardsProps> = ({
         onCancel={() => setFloorPlanModalVisible(false)}
         onSave={onPlanSelect}
         selectedPlan={selectedPlan}
+      />
+      <FacadeModal
+        visible={facadeModalVisible}
+        onCancel={() => setFacadeModalVisible(false)}
+        onSave={onFacadeSelect}
+        selectedFacade={selectedFacade}
       />
       {/* Package Selection Modal */}
       <Modal

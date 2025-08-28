@@ -1,8 +1,9 @@
 import React from "react";
 import { Card } from "antd";
+import { IFloorPlanState } from "@redux/feature/floorPlan/IFloorPlanState";
 
 interface FloorPlanCardProps {
-  plan: any;
+  plan: IFloorPlanState;
   isSelected: boolean;
   onClick: () => void;
 }
@@ -14,7 +15,6 @@ const FloorPlanCard: React.FC<FloorPlanCardProps> = ({
 }) => {
   return (
     <Card
-      key={plan.id}
       className={`cursor-pointer transition-all hover:shadow-md ${
         isSelected
           ? "border-2 border-blue-500 bg-blue-50"

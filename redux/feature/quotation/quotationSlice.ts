@@ -33,9 +33,17 @@ const quotationSlice = createSlice({
             const { builderId, ...propertyWithoutBuilder } = (action.payload || {}) as any;
             state.property = propertyWithoutBuilder as any;
         },
+        setQuotationPlan(state, action: PayloadAction<any>) {
+            state.plan = action.payload;
+        },
     }
 });
 
 export default quotationSlice.reducer;
 
-export const { setQuotationContact, setQuotationProperty, setQuotationPropertyFromResponse } = quotationSlice.actions;
+export const { 
+    setQuotationContact, 
+    setQuotationProperty, 
+    setQuotationPropertyFromResponse,
+    setQuotationPlan 
+} = quotationSlice.actions;
