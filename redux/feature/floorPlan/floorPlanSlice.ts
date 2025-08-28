@@ -8,7 +8,7 @@ const floorPlanSlice = createSlice({
   name: "floorPlan",
   initialState: {
     floorPlans: [] as IFloorPlanState[],
-    status: {floorPlan: Status.IDLE, filters: Status.IDLE},
+    status: {floorPlan: Status.IDLE, filters: Status.IDLE, conditions: Status.IDLE},
     filters: null,
   },
   reducers: {},
@@ -35,6 +35,7 @@ const floorPlanSlice = createSlice({
         state.floorPlans.push(action.payload);
       })
       .addCase(getConditions.fulfilled, (state, action) => {
+        state.status.conditions = Status.SUCCESS;
         state.filters = {...state.filters, conditions: action.payload};
       })
   },

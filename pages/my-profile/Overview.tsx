@@ -92,7 +92,7 @@ export default function Overview() {
   return (
     <>
       <h5 className="text-[20px]/[24px] font-medium mb-4">Profile Overview</h5>
-      <div className="grid grid-cols-12 gap-4">
+      {/* <div className="grid grid-cols-12 gap-4">
         <div className="flex flex-col gap-4 xxl:col-span-3 lg:col-span-4 col-span-12">
           <div className="card bg-card-color rounded-xl md:p-6 p-4 border border-dashed border-border-color">
             <h6 className="font-semibold mb-4">Personal Information</h6>
@@ -772,7 +772,8 @@ export default function Overview() {
             </SlideshowLightbox>
           </div>
         </div>
-      </div>
+      </div> */}
+      
     </>
   );
 }

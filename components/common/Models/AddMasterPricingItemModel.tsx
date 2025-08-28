@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
 import { getConditions, getFloorPlanFilters } from "@redux/feature/floorPlan/floorPlanThunk";
 import { enumToReadable } from "@lib/utils/enumToRedable";
+import { Status } from "@lib/constants/enum";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -15,15 +16,17 @@ const { Option } = Select;
 const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
     const [form] = Form.useForm();
     const [costType, setCostType] = useState('INCLUDED');
-    const filters = useAppSelector((state) => state.floorPlan?.filters);
+    const {filters, status} = useAppSelector((state) => state.floorPlan);
     const dispatch = useAppDispatch();
     useEffect(() => {
         if (!filters) {
             dispatch(getFloorPlanFilters()).unwrap().then(() => {
-                dispatch(getConditions()).unwrap();
             });
         }
-    }, [dispatch]);
+        if(status.conditions === Status.IDLE){
+            dispatch(getConditions()).unwrap();
+        }
+    }, [dispatch]); 
 
     const onFinish = (values: any) => {
         form.validateFields().then((values) => {

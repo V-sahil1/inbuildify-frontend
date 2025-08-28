@@ -1,6 +1,6 @@
 "use client";
 
-import { Modal, Form, Input, Select, Radio } from "antd";
+import { Modal, Form, Input, Select, Radio, message } from "antd";
 import React, { useEffect } from "react";
 
 export type CreateFormField = {
@@ -55,7 +55,7 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
       const values = await form.validateFields();
       onSubmit(values);
     } catch (err) {
-      console.log("Validation failed:", err);
+      message.error("Please fill all the required fields");
     }
   };
 
