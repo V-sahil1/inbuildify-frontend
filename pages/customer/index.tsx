@@ -95,11 +95,10 @@ const CustomerPage = () => {
   };
 
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (values) => {
+   await form.validateFields();
     try {
       setLoading(true);
-      const values = await form.validateFields();
-
       if (isEditing && editingKey) {
         // Update existing contractor 
         const payload = {
@@ -131,7 +130,7 @@ const CustomerPage = () => {
         if (res) {
           const data = res.data
           const newContractor: Customer = {
-            key: data.customer_id,
+            key: data.customerId,
             fullName: data.name,
             email: data.email,
             phone: data.phone,
