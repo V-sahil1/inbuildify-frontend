@@ -13,7 +13,6 @@ class API_ENDPOINTS {
   public static FORGOT_PASSWORD = `${this.AUTH_BASE}/forgot-password`;
   public static RESET_PASSWORD = `${this.AUTH_BASE}/reset-password`;
   public static UPDATE_PASSWORD = `${this.AUTH_BASE}/update-password`;
-  public static ACCEPT_INVITE = `${this.AUTH_BASE}/accept-invite`;
   public static LOGOUT = `${this.AUTH_BASE}/logout`;
   
   // user 
@@ -22,6 +21,7 @@ class API_ENDPOINTS {
   public static GET_USERS = `${this.USER_BASE}/users`;
   public static INVITE_USER = `${this.USER_BASE}/invite-user`;
   public static INVITED_USERS = `${this.USER_BASE}/invited-user`;
+  public static ACCEPT_INVITE = `${this.USER_BASE}/accept-invite`;
   // users
 
  // contractors

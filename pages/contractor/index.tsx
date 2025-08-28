@@ -261,7 +261,7 @@ const ContractorPage = () => {
         </Spin>
 
         <CreateFormModal
-          title="User"
+          title="Contractor"
           open={isModalOpen}
           loading={loading}
           isEditing={isEditing}

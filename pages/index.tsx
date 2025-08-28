@@ -7,6 +7,8 @@ import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { Status } from "@lib/constants/enum";
 import { getDashboardThunk } from "@redux/feature/dashboard/dashboardThunk";
 import NumbersCard from "@/components/dashboard/NumbersCard";
+import { IconUserScan } from "@tabler/icons-react";
+import { Spin } from "antd";
 
 type InputData = {
   contractorCount: string;
@@ -25,21 +27,33 @@ function transformDashboardData(input: InputData) {
       title: "Contractors",
       count: Number(input?.contractorCount),
       description: "Total number of contractors in the system",
+      icon: (
+        <IconUserScan className="stroke-primary stroke-[1.5] w-[32px] h-[32px]" />
+      ),
     },
     {
       title: "Customers",
       count: Number(input?.customerCount),
       description: "Total number of customers in the system",
+      icon: (
+        <IconUserScan className="stroke-primary stroke-[1.5] w-[32px] h-[32px]" />
+      ),
     },
     {
       title: "Users",
       count: Number(input?.usersCount),
       description: "Total number of users in the system",
+      icon: (
+        <IconUserScan className="stroke-primary stroke-[1.5] w-[32px] h-[32px]" />
+      ),
     },
     {
       title: "Leads",
       count: Number(input?.leadCount),
       description: "Total number of leads in the system",
+      icon: (
+        <IconUserScan className="stroke-primary stroke-[1.5] w-[32px] h-[32px]" />
+      ),
     },
   ];
 
@@ -56,6 +70,7 @@ function transformDashboardData(input: InputData) {
 export default function Analysis() {
   const [adminMenu, setAdminMenu] = useState<boolean>(false);
   const { dashboard, status } = useAppSelector((state) => state.dashboard);
+  const useStatus = useAppSelector((state) => state.auth.status);
   const { countData, data } = transformDashboardData(dashboard);
   const dispatch = useAppDispatch();
   const { role } = useAppSelector((state) => state.auth);
@@ -70,13 +85,13 @@ export default function Analysis() {
 
   useEffect(() => {
     try {
-      if (status === Status.IDLE) {
+      if (status === Status.IDLE && useStatus === Status.SUCCESS) {
         dispatch(getDashboardThunk()).unwrap();
       }
     } catch (error) {
       console.log(error);
     }
-  }, []);
+  }, [useStatus]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -94,18 +109,22 @@ export default function Analysis() {
     };
   }, [menuRef]);
 
+  if (status === Status.IDLE) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Spin />
+      </div>
+    );
+  }
   return (
     <div className="md:px-6 sm:px-3 pt-4">
       <div className="container-fluid">
         <Breadcrumb breadcrumbItem={breadcrumbItem} />
-        <WelcomeHeader report />
+        <WelcomeHeader income />
         <div className="grid grid-cols-12 gap-4">
           {countData?.map((item, index) => (
             <div className="lg:col-span-3 sm:col-span-6 col-span-12 card flex flex-col bg-card-color rounded-xl overflow-hidden border border-dashed border-border-color">
-              <NumbersCard
-                key={index}
-                item={item}
-              />
+              <NumbersCard key={index} item={item} />
             </div>
           ))}
         </div>

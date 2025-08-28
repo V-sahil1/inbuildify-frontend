@@ -19,23 +19,13 @@ import Activity from "./Activity";
 import Image from "next/image";
 import Group from "./Group";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import { getUserThunk } from "@redux/feature/auth/authThunk";
 
 export default function MyProfile() {
   const [editProfileSidebar, setEditProfileSidebar] = useState<boolean>(false);
   const toggleEditProfile = () => {
     setEditProfileSidebar(!editProfileSidebar);
   };
-  const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
-  useEffect(() => {
-    async function getUser() {
-       await dispatch(getUserThunk()).unwrap();
-    }
-    getUser();
-  }, []);
-
-
   const [editUser, setEditUser] = useState<string | null>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {

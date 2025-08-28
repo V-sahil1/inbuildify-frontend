@@ -13,6 +13,12 @@ export default function AuthValidator({ children }) {
   const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
+  function normalizePath(path: string) {
+    if (path === "/") return path;
+    return path.replace(/\/+$/, ""); // remove trailing slashes
+  }
+  const normalizedPath = normalizePath(pathname);
+  
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -24,18 +30,18 @@ export default function AuthValidator({ children }) {
         try {
           await dispatch(getUserThunk()).unwrap();
 
-          if (isAuthenticated && publicRoutes.includes(pathname)) {
+          if (isAuthenticated && publicRoutes.includes(normalizedPath)) {
             router.replace("/");
           }
         } catch (error) {
-          router.replace(`${SystemRoutes.LOGIN}?redirectTo=${pathname}`);
+          router.replace(`${SystemRoutes.LOGIN}?redirectTo=${normalizedPath}`);
         } finally {
           setLoading(false);
         }
       } else {
         setLoading(false);
-        if (!publicRoutes.includes(pathname)) {
-          router.replace(`${SystemRoutes.LOGIN}?redirectTo=${pathname}`);
+        if (!publicRoutes.includes(normalizedPath)) {
+          router.replace(`${SystemRoutes.LOGIN}?redirectTo=${normalizedPath}`);
         }
       }
     }
