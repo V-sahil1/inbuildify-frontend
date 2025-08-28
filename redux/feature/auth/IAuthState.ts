@@ -15,7 +15,15 @@ export interface User {
   name: string;
   email: string;
   role: Role;
+  builderId: string;
+  builderName: string;
+  logo: string;
+  slogen: string;
+  firmName: string;
   isVerified: boolean;
+  rootUser: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 

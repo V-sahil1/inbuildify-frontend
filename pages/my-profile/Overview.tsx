@@ -31,9 +31,12 @@ import {
 } from "/public/images";
 import Link from "next/link";
 import Image from "next/image";
+import { useAppSelector } from "@hooks/redux";
 
 export default function Overview() {
   const [adminMenu, setAdminMenu] = useState(false);
+  const { user } = useAppSelector((state) => state.auth);
+  
   const menuRef = useRef(null);
   const buttonRef = useRef(null);
 
@@ -95,7 +98,7 @@ export default function Overview() {
             <h6 className="font-semibold mb-4">Personal Information</h6>
             <p className="text-font-color-100 mb-4">
               Hi I'm Allie Grater, Contrary to popular belief, Lorem Ipsum is
-              not simply random text. It has roots in a piece of classical Latin
+              not simply random text. It has roots in a piece of classical  Latin
               literature.
             </p>
             <ul className="flex flex-col gap-2">
@@ -103,11 +106,11 @@ export default function Overview() {
                 <span className="w-[90px] text-font-color-100">
                   Full Name :
                 </span>
-                Allie Grater
+                {user?.name}
               </li>
               <li className="flex gap-x-2 flex-wrap">
                 <span className="w-[90px] text-font-color-100">E-mail :</span>
-                alliegrater@luno.com
+                {user?.email}
               </li>
               <li className="flex gap-x-2 flex-wrap">
                 <span className="w-[90px] text-font-color-100">Phone :</span>

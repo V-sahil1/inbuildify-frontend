@@ -68,7 +68,7 @@ export default function MyProfile() {
             <div className="md:p-6 p-4 border-b border-border-color">
               <div className="flex md:items-start items-center md:gap-12 gap-4 md:flex-row flex-col">
                 <Image
-                  src={profile_av}
+                  src={user?.logo || profile_av}
                   alt="user profile"
                   width="160"
                   height="160"
@@ -76,7 +76,7 @@ export default function MyProfile() {
                 />
                 <div className="md:text-start text-center">
                   <p className="mb-1 text-[24px]/[30px] font-light flex gap-2 items-center md:justify-start justify-center">
-                    {user?.name}
+                    {user?.firmName}
                     <button
                       onClick={toggleEditProfile}
                       className={`text-primary transition-all duration-300 hover:text-secondary after:fixed after:z-[4] after:w-full after:h-full after:left-0 after:top-0 after:bg-black-50 after:backdrop-blur-[2px] after:transition-all after:duration-500 after:ease-in-out ${
@@ -88,7 +88,7 @@ export default function MyProfile() {
                       <IconEdit className="w-[20px] h-[20px]" />
                     </button>
                   </p>
-                  <p className="mb-3">{user?.email}</p>
+                  <p className="mb-3">{user?.slogen}</p>
                   <p>Verification: {user?.isVerified ? "Completed" : "Pending"}</p>
                   {/* <p className="md:mb-3 mb-4 text-font-color-100 max-w-[550px]">
                     It is a long established fact that a reader will be
