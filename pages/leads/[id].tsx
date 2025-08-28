@@ -1,9 +1,12 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Card, Input } from "antd";
+import { Card, Input, Modal } from "antd";
 import StageProgress from "@/components/common/StageProgress";
 import ConvertLeadModal from "@/components/leadDetail/ConvertLeadModal";
+import PropertyDetailsModal from "@/components/leadDetail/PropertyDetailsModal";
+import LeadDetailsForm from "@/components/leadDetail/forms/LeadDetailsForm";
 import {
+  IconEdit,
   IconMail,
   IconPhone,
   IconPhoneCall,
@@ -11,6 +14,15 @@ import {
 } from "@tabler/icons-react";
 import Link from "next/link";
 import SystemRoutes from "@lib/constants/Routes";
+import { LeadDetails } from "@/pages/leads/data/types";
+import { leadDetails as sampleLeadDetails } from "@/pages/leads/data/sampleData";
+import { useRouter } from "next/router";
+import { useAppDispatch, useAppSelector } from "@hooks/redux";
+import { getLeadByIdThunk } from "@redux/feature/lead/leadThunk";
+import { RootState } from "@redux/feature/store";
+import dayjs from "dayjs";
+import { setQuotationContact, setQuotationProperty } from "@redux/feature/quotation/quotationSlice";
+import { clearLeadDetail } from "@redux/feature/lead/leadSlice";
 
 export interface Plan {
   id: string;
@@ -35,10 +47,44 @@ export interface Package {
 }
 
 function App() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const isQuotation = searchParams.get("type") === "quotation";
   const title = isQuotation ? "Opportunity" : "Lead";
   const [isConvertModalVisible, setIsConvertModalVisible] = useState(false);
+  const [isEditLeadModalVisible, setIsEditLeadModalVisible] = useState(false);
+  const [isPropertyModalVisible, setIsPropertyModalVisible] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [lead, setLead] = useState<LeadDetails>(sampleLeadDetails);
+  const dispatch = useAppDispatch();
+  const { leadDetail } = useAppSelector((state: RootState) => state.lead);
+
+  const contact = (leadDetail as any)?.contact ?? {};
+  const propertyFromSlice = (leadDetail as any)?.property ?? {};
+
+  const latestLeadDetailRef = useRef<any>(null);
+  useEffect(() => {
+    latestLeadDetailRef.current = leadDetail;
+  }, [leadDetail]);
+
+  useEffect(() => {
+    const leadId = router.query.id as string | undefined;
+    if (leadId) {
+      dispatch(getLeadByIdThunk(leadId));
+    }
+  }, [router.query.id, dispatch]);
+
+  // Save to quotation and clear lead detail on unmount only
+  useEffect(() => {
+    return () => {
+      const latest = latestLeadDetailRef.current;
+      const contact = (latest as any)?.contact ?? null;
+      const property = (latest as any)?.property ?? null;
+      dispatch(setQuotationContact(contact));
+      dispatch(setQuotationProperty(property));
+      dispatch(clearLeadDetail());
+    };
+  }, [dispatch]);
 
   const handleConvertClick = () => {
     setIsConvertModalVisible(true);
@@ -56,21 +102,21 @@ function App() {
           label: "Proposal",
           color: "bg-green-500",
           textColor: "text-white",
-          onClick: () => { },
+          onClick: () => {},
         },
         {
           key: "negotiation",
           label: "Negotiation",
           color: "bg-yellow-300",
           textColor: "text-black",
-          onClick: () => { },
+          onClick: () => {},
         },
         {
           key: "close",
           label: "Close",
           color: "bg-gray-200",
           textColor: "text-black",
-          onClick: () => { },
+          onClick: () => {},
         },
       ];
     }
@@ -80,7 +126,7 @@ function App() {
         label: "New",
         color: "bg-green-500",
         textColor: "text-white",
-        onClick: () => { },
+        onClick: () => {},
       },
       {
         key: "working",
@@ -113,19 +159,19 @@ function App() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full p-3">
         <Input
-          value={"Test user"}
+          value={contact.name}
           prefix={<IconUser />}
           readOnly
           className="rounded-md w-full"
         />
         <Input
-          value={"asdasd@sd.asd"}
+          value={contact.email}
           prefix={<IconMail />}
           readOnly
           className="rounded-md w-full"
         />
         <Input
-          value={"Test user"}
+          value={contact.phone}
           readOnly
           prefix={<IconPhone />}
           className="rounded-md w-full"
@@ -135,36 +181,71 @@ function App() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 m-3">
         {/* Contact Card */}
         <Card className="relative">
-          <span className="absolute -top-3 left-3 bg-yellow-100 text-yellow-700 text-xs px-2 py-0.5 rounded">
-            Contact
-          </span>
-          <h2 className="font-semibold text-lg">Yash Murthy</h2>
+          <div className="flex items-center justify-between mb-3">
+            <span className="bg-yellow-100 text-yellow-700 text-xs px-2 py-0.5 rounded">
+              Contact
+            </span>
+            <IconEdit
+              className="text-gray-400 text-sm cursor-pointer hover:text-gray-600"
+              onClick={() => setIsEditLeadModalVisible(true)}
+            />
+          </div>
+          <h2 className="font-semibold text-lg">{contact.name ?? ""}</h2>
           <p className="text-sm text-gray-600">
-            45 Tallis Cct, Truganina, Victoria, 3029
+            {lead.address || "Address not provided"}
           </p>
 
           <div className="flex items-center gap-2 mt-2 text-gray-700">
             <IconPhoneCall className="w-4 h-4" />
-            <span className="text-sm">0406166590</span>
+            <span className="text-sm">{contact.phone ?? ""}</span>
           </div>
 
           <div className="flex items-center gap-2 mt-1 text-gray-700">
             <IconMail className="w-4 h-4" />
-            <span className="text-sm">yashmurthy@insimplify.com.au</span>
+            <span className="text-sm">{contact.email ?? ""}</span>
           </div>
         </Card>
 
         {/* Property Card */}
         <Card className="relative">
-          <span className="absolute -top-3 left-3 bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded">
-            Property
-          </span>
-          <h2 className="font-semibold text-lg">Lot 234</h2>
-          <p className="text-sm text-gray-600">Tarneit, Victoria, 3029</p>
+          <div className="flex items-center justify-between mb-3">
+            <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded">
+              Property
+            </span>
+            <IconEdit
+              className="text-gray-400 text-sm cursor-pointer hover:text-gray-600"
+              onClick={() => setIsPropertyModalVisible(true)}
+            />
+          </div>
+          <h2 className="font-semibold text-lg">
+            {propertyFromSlice.address1 ?? ""}
+          </h2>
+          <p className="text-sm text-gray-600">
+            {[
+              propertyFromSlice.citySuburb,
+              propertyFromSlice.stateRegion,
+              propertyFromSlice.zipPostalCode,
+            ]
+              .filter(Boolean)
+              .join(", ")}
+          </p>
 
           <div className="text-sm text-gray-600 mt-2">
-            <p>Title : 13-07-2023 (Estimated)</p>
-            <p>Type : Regular</p>
+            <p>
+              Title :{" "}
+              {propertyFromSlice?.titleDate
+                ? dayjs(propertyFromSlice.titleDate).format("DD-MM-YYYY")
+                : ""}
+            </p>
+            <p>Type : {propertyFromSlice.landType ?? ""}</p>
+            <p>
+              W: {propertyFromSlice.widthM || ""}
+              {propertyFromSlice.widthM ? "m" : ""} D:{" "}
+              {propertyFromSlice.depthM || ""}
+              {propertyFromSlice.depthM ? "m" : ""} Total:{" "}
+              {propertyFromSlice.totalSizeM2 || ""}
+              {propertyFromSlice.totalSizeM2 ? " m²" : ""}
+            </p>
           </div>
 
           <a href="#" className="text-theme-blue text-sm mt-2 inline-block">
@@ -192,6 +273,39 @@ function App() {
         visible={isConvertModalVisible}
         onCancel={handleConvertCancel}
         leadId="your-lead-id" // Replace with actual lead ID
+      />
+
+      {/* Edit Lead Details Modal */}
+      <Modal
+        title="Edit Lead Details"
+        open={isEditLeadModalVisible}
+        onCancel={() => setIsEditLeadModalVisible(false)}
+        footer={null}
+        width={600}
+        centered
+        className="bg-card-color"
+      >
+        <LeadDetailsForm
+          initialValues={lead}
+          onSave={(values) => {
+            setIsSubmitting(true);
+            setTimeout(() => {
+              setLead(values);
+              setIsSubmitting(false);
+              setIsEditLeadModalVisible(false);
+            }, 300);
+          }}
+          onCancel={() => setIsEditLeadModalVisible(false)}
+          isSubmitting={isSubmitting}
+        />
+      </Modal>
+
+      {/* Property Details Modal */}
+      <PropertyDetailsModal
+        visible={isPropertyModalVisible}
+        onCancel={() => setIsPropertyModalVisible(false)}
+        onSave={() => setIsPropertyModalVisible(false)}
+        initialValues={propertyFromSlice}
       />
     </div>
   );

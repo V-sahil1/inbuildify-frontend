@@ -58,6 +58,9 @@ public static GET_PACKAGE_BY_ID = (id:string) => `${this.PACKAGE_BASE}/${id}`;
 public static CREATE_PACKAGE = `${this.PACKAGE_BASE}`;
 public static GET_PACKAGE_ITEMS = `${this.PACKAGE_BASE}/category/items`;
 public static FACADE_BASE = "/facade"
-}
 
+// Property
+public static PROPERTY_BASE = "/property"
+
+}
 export default API_ENDPOINTS;

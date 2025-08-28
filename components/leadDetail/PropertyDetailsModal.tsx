@@ -1,9 +1,14 @@
-import React from 'react';
-import { Modal, Form, Input, Select, DatePicker, Radio, Row, Col, Button } from 'antd';
+import React, { useEffect } from 'react';
+import { Modal, Form, Input, Select, DatePicker, Radio, Row, Col, Button, message } from 'antd';
 import dayjs from 'dayjs';
 import { PropertyDetails } from '@/pages/leads/data/types';
 import { updatePropertyDetailsThunk } from '@redux/feature/lead/leadThunk';
-import { useAppDispatch } from '@hooks/redux';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { RootState } from '@redux/feature/store';
+import { usePathname } from 'next/navigation';
+import { setQuotationPropertyFromResponse } from '@redux/feature/quotation/quotationSlice';
+import { setLeadProperty } from '@redux/feature/lead/leadSlice';
+import { enumToReadable } from '@lib/utils/enumToRedable';
 
 interface PropertyDetailsModalProps {
   visible: boolean;
@@ -19,12 +24,59 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
   initialValues
 }) => {
   const [form] = Form.useForm();
-const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch();
+  const pathname = usePathname();
+
+  const { leadDetail } = useAppSelector((state: RootState) => state.lead);
+  const quotation = useAppSelector((state: RootState) => (state as any).quotation);
+  const isQuotationRoute = (pathname || '').toLowerCase().includes('quotation');
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
-      
-      // Format the data to match PropertyDetails interface
+
+      const leadId = isQuotationRoute
+        ? ((quotation as any)?.contact?.lead_id ?? '')
+        : ((leadDetail as any)?.contact?.lead_id ?? '');
+      const titleStatusUpper = String(values.titleStatus || '').toUpperCase();
+      const mappedTitleStatus = (titleStatusUpper === 'ACTUAL' || titleStatusUpper === 'CONFIRMED') ? 'ACTUAL' : 'ESTIMATED';
+
+      const compactionUpper = String(values.compactionReport || '').toUpperCase().replace(/\s+/g, '_');
+      const mappedCompaction = (compactionUpper === 'AVAILABLE') ? 'AVAILABLE' : 'NOT_AVAILABLE';
+
+      const mappedBushFire = values.bushFire === true || values.bushFire === 'Yes';
+      const mappedCornerBlock = values.cornerBlock === true || values.cornerBlock === 'Yes';
+      const payload = {
+        lead_id: leadId,
+        country: values.country,
+        address1: values.address1,
+        address2: values.address2,
+        city_suburb: values.citySuburb,
+        state_region: values.stateRegion,
+        zip_postal_code: values.zipPostalCode,
+        estate_name: values.estateName,
+        title_status: mappedTitleStatus,
+        title_date: values.titleDate ? dayjs(values.titleDate).format('YYYY-MM-DD') : '',
+        compaction_report: mappedCompaction,
+        land_type: values.landType?.toUpperCase?.() || 'REGULAR',
+        width_m: values.width ? Number(values.width) : 0,
+        depth_m: values.depth ? Number(values.depth) : 0,
+        total_size_m2: values.totalSize ? Number(values.totalSize) : 0,
+        site_fall_mm: values.siteFall ? Number(values.siteFall) : 0,
+        land_fill_mm: values.landFill ? Number(values.landFill) : 0,
+        bush_fire: mappedBushFire,
+        corner_block: mappedCornerBlock,
+      };
+
+      const response = await dispatch(updatePropertyDetailsThunk(payload)).unwrap();
+      console.log("🚀 ~ handleSave ~ response:", response)
+      message.success('Property updated successfully');
+
+      // if (isQuotationRoute) {
+      dispatch(setQuotationPropertyFromResponse(response));
+      // } else {
+      dispatch(setLeadProperty(response));
+      // }
+
       const formattedValues: PropertyDetails = {
         lot: values.address1 || '',
         location: `${values.citySuburb}, ${values.stateRegion}, ${values.zipPostalCode}`,
@@ -33,26 +85,7 @@ const dispatch = useAppDispatch();
         width: values.width?.toString() || '',
         depth: values.depth?.toString() || '',
         total: values.totalSize?.toString() || '',
-        // Additional fields from the form
-        country: values.country,
-        address1: values.address1,
-        address2: values.address2,
-        citySuburb: values.citySuburb,
-        stateRegion: values.stateRegion,
-        zipPostalCode: values.zipPostalCode,
-        estateName: values.estateName,
-        titleStatus: values.titleStatus,
-        compactionReport: values.compactionReport,
-        landType: values.landType,
-        siteFall: values.siteFall,
-        landFill: values.landFill,
-        bushFire: values.bushFire,
-        cornerBlock: values.cornerBlock
-      };
-            await dispatch(updatePropertyDetailsThunk({
-        leadId: 'your-lead-id',
-        propertyDetails: formattedValues
-      })).unwrap();
+      } as any;
 
       onSave(formattedValues);
       onCancel();
@@ -65,39 +98,39 @@ const dispatch = useAppDispatch();
     form.resetFields();
     onCancel();
   };
-
   // Set initial values when modal opens
-  React.useEffect(() => {
-    if (visible && initialValues) {
+  useEffect(() => {
+    const src = isQuotationRoute ? ((quotation as any)?.property ?? initialValues) : initialValues;
+    if (visible && src) {
       form.setFieldsValue({
-        country: 'Australia',
-        address1: initialValues.lot || 'Lot 234',
-        address2: '',
-        citySuburb: 'Tarneit',
-        stateRegion: 'Victoria',
-        zipPostalCode: '3029',
-        estateName: '',
-        titleStatus: 'Estimated',
-        titleDate: dayjs('2023-07-13'),
-        compactionReport: 'Available',
-        landType: initialValues.type || 'Regular',
-        width: initialValues.width || '',
-        depth: initialValues.depth || '',
-        totalSize: initialValues.total || '',
-        siteFall: '300',
-        landFill: '500',
-        bushFire: 'Yes',
-        cornerBlock: 'No'
+        country: src?.country || '',
+        address1: src?.address1 || '',
+        address2: src?.address2 || '',
+        citySuburb: src?.citySuburb || '',
+        stateRegion: src?.stateRegion || '',
+        zipPostalCode: src?.zipPostalCode || '',
+        estateName: src?.estateName || '',
+        titleStatus: src?.titleStatus || '',
+        titleDate: src?.titleDate ? dayjs(src.titleDate) : null,
+        compactionReport: src?.compactionReport || '',
+        landType: enumToReadable(src?.landType) || '',
+        width: src?.widthM || '',
+        depth: src?.depthM || '',
+        totalSize: src?.totalSizeM2 || '',
+        siteFall: src?.siteFallMm || '',
+        landFill: src?.landFillMm || '',
+        bushFire: src?.bushFire ? 'Yes' : 'No',
+        cornerBlock: src?.cornerBlock ? 'Yes' : 'No',
       });
     }
-  }, [visible, initialValues, form]);
+  }, [visible, initialValues, form, isQuotationRoute, quotation]);
 
   const countryOptions = [
     { label: 'Australia', value: 'Australia' },
-    { label: 'New Zealand', value: 'New Zealand' },
-    { label: 'United States', value: 'United States' },
-    { label: 'Canada', value: 'Canada' },
-    { label: 'United Kingdom', value: 'United Kingdom' }
+    // { label: 'New Zealand', value: 'New Zealand' },
+    // { label: 'United States', value: 'United States' },
+    // { label: 'Canada', value: 'Canada' },
+    // { label: 'United Kingdom', value: 'United Kingdom' }
   ];
 
   const stateOptions = [
@@ -245,7 +278,7 @@ const dispatch = useAppDispatch();
               name="titleDate"
               rules={[{ required: true, message: 'Please select title date' }]}
             >
-              <DatePicker 
+              <DatePicker
                 className="w-full"
                 format="DD-MM-YYYY"
                 placeholder="13-07-2023"

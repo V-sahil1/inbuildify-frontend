@@ -24,13 +24,14 @@ export interface Quotation {
   }
   
   export interface PropertyDetails {
+    lead_id?: string;
     lot: string;
     location: string;
     titleDate: string;
     type: string;
-    width?: string;
-    depth?: string;
-    total?: string;
+    widthM?: string;
+    depthM?: string;
+    totalSizeM2?: string;
     country?: string;
     address1?: string;
     address2?: string;
@@ -41,8 +42,8 @@ export interface Quotation {
     titleStatus?: string;
     compactionReport?: string;
     landType?: string;
-    siteFall?: string;
-    landFill?: string;
+    siteFallMm?: string;
+    landFillMm?: string;
     bushFire?: string;
     cornerBlock?: string;
   }

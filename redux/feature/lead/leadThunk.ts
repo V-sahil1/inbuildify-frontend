@@ -42,11 +42,11 @@ export const getLeadByIdThunk = createAsyncThunk(
 
 export const updatePropertyDetailsThunk = createAsyncThunk(
     "lead/updatePropertyDetails",
-    async ({ leadId, propertyDetails }: { leadId: string; propertyDetails: PropertyDetails }, { rejectWithValue }) => {
+    async (payload: any, { rejectWithValue }) => {
         try {
-            const response: ApiResponse<any> = await api.put(
-                `${API_ENDPOINTS.LEAD_BASE}/${leadId}/property-details`,
-                { data: propertyDetails }
+            const response: ApiResponse<any> = await api.post(
+                `${API_ENDPOINTS.PROPERTY_BASE}`,
+                {data: payload}
             );
             return response.data;
         } catch (err: any) {

@@ -14,8 +14,8 @@ import { Spin } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react'
 
 const index = () => {
-    const [property, setProperty] = useState(propertyDetails);
     const dispatch = useAppDispatch();
+    const { contact, property } = useAppSelector((state: RootState) => state.quotation);
     const [selectedPlan, setSelectedPlan] = useState<Plan | undefined>(availablePlans[0]);
     const [selectedFacade, setSelectedFacade] = useState<Facade | undefined>(availableFacades[0]);
     const [selectedPackage, setSelectedPackage] = useState<Package | undefined>(availablePackages[0]);
@@ -33,10 +33,6 @@ const index = () => {
         }
     }, [dispatch]);
 
-    const handlePropertyUpdate = (updatedProperty: PropertyDetails) => {
-        setProperty(updatedProperty);
-    };
-
     const handleItemQuantityChange = (itemId: string, quantity: number) => { };
     const handleItemAdd = (itemId: string) => { };
     const calculateTotal = () => { return 1000 };
@@ -50,13 +46,13 @@ const index = () => {
             <div className='m-3'>
                 <StageProgress
                     id='MYH00492'
-                    title='Opportunity'
+                    title='Quotation'
                     status='Open'
                     steps={[]}
                 />
             </div>
             <InfoCards
-                leadDetails={leadDetails}
+                leadDetails={contact}
                 propertyDetails={property}
                 selectedPlan={selectedPlan}
                 selectedFacade={selectedFacade}
@@ -66,7 +62,7 @@ const index = () => {
                 onPlanSelect={setSelectedPlan}
                 onFacadeSelect={setSelectedFacade}
                 onPackageSelect={setSelectedPackage}
-                onPropertyUpdate={handlePropertyUpdate}
+                onPropertyUpdate={() => { }}
             />
 
             <div className="flex flex-1 m-3">

@@ -22,10 +22,11 @@ import {
 } from "@/pages/leads/data/types";
 import PropertyDetailsModal from "./PropertyDetailsModal";
 import FloorPlanModal from "./FloorPlanModal";
+import dayjs from "dayjs";
 
 interface InfoCardsProps {
   leadDetails: LeadDetails;
-  propertyDetails: PropertyDetails;
+  propertyDetails: any;
   selectedPlan?: Plan;
   selectedFacade?: Facade;
   selectedPackage?: Package;
@@ -50,6 +51,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
   onPackageSelect,
   onPropertyUpdate,
 }) => {
+  console.log("🚀 ~ InfoCards ~ propertyDetails:", propertyDetails)
   const [propertyModalVisible, setPropertyModalVisible] = useState(false);
   const [floorPlanModalVisible, setFloorPlanModalVisible] = useState(false);
   const [packageModalVisible, setPackageModalVisible] = useState(false);
@@ -82,22 +84,22 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           <IconEdit className="text-gray-400 text-sm" />
         </div>
         <div className="space-y-2">
-          <div className="font-semibold text-font-color">{leadDetails.name}</div>
+          <div className="font-semibold text-font-color">{leadDetails?.name}</div>
           <div className="flex items-center text-sm text-font-color-100">
             <IconPhone size={14} className="mr-1 text-font-color-100" />
-            {leadDetails.phone || "Not provided"}
+            {leadDetails?.phone || "Not provided"}
           </div>
           <div className="flex items-center text-sm text-font-color-100">
             <IconMail size={14} className="mr-1 text-font-color-100" />
-            {leadDetails.email || "Not provided"}
+            {leadDetails?.email || "Not provided"}
           </div>
-          {leadDetails.address && (
+          {leadDetails?.address && (
             <div className="flex items-start text-sm text-font-color-100">
               <IconMapPin
                 size={14}
                 className="mr-1 mt-0.5 text-font-color-100 flex-shrink-0"
               />
-              <span className="line-clamp-2">{leadDetails.address || "Not provided"}</span>
+              <span className="line-clamp-2">{leadDetails?.address || "Not provided"}</span>
             </div>
           )}
         </div>
@@ -110,9 +112,8 @@ const InfoCards: React.FC<InfoCardsProps> = ({
               {contacts.map((contact, index) => (
                 <div
                   key={index}
-                  className={`p-2 rounded hover:bg-gray-50 ${
-                    activeContactIndex === index ? "bg-blue-50" : ""
-                  }`}
+                  className={`p-2 rounded hover:bg-gray-50 ${activeContactIndex === index ? "bg-blue-50" : ""
+                    }`}
                   onClick={(e) => {
                     e.stopPropagation();
                     setActiveContactIndex(
@@ -121,13 +122,13 @@ const InfoCards: React.FC<InfoCardsProps> = ({
                   }}
                 >
                   <div className="font-medium text-font-color">
-                    {contact.name}
+                    {contact?.name}
                   </div>
-                  <div className="text-xs text-font-color-100">{contact.type}</div>
+                  <div className="text-xs text-font-color-100">{contact?.type}</div>
                   {activeContactIndex === index && (
                     <div className="mt-1 text-xs space-y-1">
-                      <div className="text-font-color-100">{contact.email}</div>
-                      <div className="text-font-color-100">{contact.phone}</div>
+                      <div className="text-font-color-100">{contact?.email}</div>
+                      <div className="text-font-color-100">{contact?.phone}</div>
                     </div>
                   )}
                 </div>
@@ -170,21 +171,32 @@ const InfoCards: React.FC<InfoCardsProps> = ({
         </div>
         <div className="space-y-2">
           <div className="font-semibold text-font-color">
-            {propertyDetails.lot}
+            {propertyDetails?.address1}
           </div>
           <div className="text-sm text-font-color">
-            {propertyDetails.location}
+            {[
+              propertyDetails?.citySuburb,
+              propertyDetails?.stateRegion,
+              propertyDetails?.zipPostalCode,
+            ]
+              .filter(Boolean)
+              .join(", ")}
           </div>
           <div className="text-sm text-font-color-100">
-            Title: {propertyDetails.titleDate}
+            Title :{" "}
+            {propertyDetails?.titleDate ? dayjs(propertyDetails?.titleDate).format("DD-MM-YYYY") : ""}
           </div>
           <div className="text-sm text-font-color-100">
-            Type: {propertyDetails.type}
+            Type: {propertyDetails?.landType ?? ""}
           </div>
-          {propertyDetails.width && propertyDetails.depth && (
+          {propertyDetails?.widthM && propertyDetails?.depthM && (
             <div className="text-sm text-font-color-100">
-              W: {propertyDetails.width} D: {propertyDetails.depth} Total:{" "}
-              {propertyDetails.total}
+              W: {propertyDetails?.widthM || ""}
+              {propertyDetails?.widthM ? "m" : ""} D:{" "}x chr
+              {propertyDetails?.depthM || ""}
+              {propertyDetails?.depthM ? "m" : ""} Total:{" "}
+              {propertyDetails?.totalSizeM2 || ""}
+              {propertyDetails?.totalSizeM2 ? " m²" : ""}
             </div>
           )}
         </div>
@@ -214,7 +226,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
             </div>
           )}
         </Card>
-         <Card
+        <Card
           className="shadow-sm hover:shadow-md transition-shadow cursor-pointer"
           onClick={() => setFloorPlanModalVisible(true)}
         >
@@ -284,7 +296,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
         width={600}
         centered
         className="bg-card-color"
-        >
+      >
         <LeadDetailsForm
           initialValues={leadDetails}
           onSave={(values) => {
@@ -319,9 +331,9 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           <Button key="cancel" onClick={() => setPackageModalVisible(false)}>
             Cancel
           </Button>,
-          <Button 
-            key="save" 
-            type="primary" 
+          <Button
+            key="save"
+            type="primary"
             className="bg-blue-600"
             onClick={() => {
               if (selectedPackage) {
@@ -345,11 +357,10 @@ const InfoCards: React.FC<InfoCardsProps> = ({
             </div>
             <div className="divide-y">
               {availablePackages.map((pkg) => (
-                <div 
+                <div
                   key={pkg.id}
-                  className={`p-4 cursor-pointer hover:bg-gray-100 transition-colors ${
-                    selectedPackage?.id === pkg.id ? 'bg-blue-50' : ''
-                  }`}
+                  className={`p-4 cursor-pointer hover:bg-gray-100 transition-colors ${selectedPackage?.id === pkg.id ? 'bg-blue-50' : ''
+                    }`}
                   onClick={() => onPackageSelect(pkg)}
                 >
                   <div className="flex items-center">
@@ -357,7 +368,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
                       type="radio"
                       className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
                       checked={selectedPackage?.id === pkg.id}
-                      onChange={() => {}}
+                      onChange={() => { }}
                       onClick={(e) => e.stopPropagation()}
                     />
                     <div className="ml-3">
@@ -380,7 +391,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
                 <div className="text-3xl font-bold text-green-600 mb-6">
                   ${selectedPackage.price.toLocaleString()}
                 </div>
-                
+
                 {selectedPackage.description && (
                   <div className="mb-6">
                     <h3 className="text-lg font-semibold mb-2">Description</h3>
