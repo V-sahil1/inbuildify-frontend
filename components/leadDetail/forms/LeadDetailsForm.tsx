@@ -34,22 +34,22 @@ const LeadDetailsForm: React.FC<LeadDetailsFormProps> = ({
 }) => {
   const [form] = Form.useForm();
   const [showContactForm, setShowContactForm] = useState(false);
-  const [contacts, setContacts] = useState<Contact[]>(initialValues.contacts || []);
+  const [contacts, setContacts] = useState<Contact[]>(initialValues?.contacts || []);
   
   // Set initial form values
   const [formValues, setFormValues] = useState({
-    name: initialValues.name || '',
-    email: initialValues.email || '',
-    phone: initialValues.phone || '',
-    address: initialValues.address || '',
-    city: initialValues.city || '',
-    state: initialValues.state || '',
-    zipCode: initialValues.zipCode || '',
-    country: initialValues.country || 'Australia',
-    source: initialValues.source || '',
-    status: initialValues.status || 'New',
-    notes: initialValues.notes || '',
-    contacts: initialValues.contacts || []
+    name: initialValues?.name || '',
+    email: initialValues?.email || '',
+    phone: initialValues?.phone || '',
+    address: initialValues?.address || '',
+    city: initialValues?.city || '',
+    state: initialValues?.state || '',
+    zipCode: initialValues?.zipCode || '',
+    country: initialValues?.country || 'Australia',
+    source: initialValues?.source || '',
+    status: initialValues?.status || 'New',
+    notes: initialValues?.notes || '',
+    contacts: initialValues?.contacts || []
   });
 
   const handleAddContact = () => {
