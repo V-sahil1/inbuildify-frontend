@@ -38,6 +38,8 @@ class API_ENDPOINTS {
  public static LEAD_BASE = "/leads"
  public static CREATE_LEAD = `${this.LEAD_BASE}`;
  public static GET_LEAD_BY_ID = (id: string) => `${this.LEAD_BASE}/${id}`;
+ public static CONVERT_LEAD_TO_OPPORTUNITY = '/opportunities';
+
 
 //  Master PricingList 
 public static MASTER_PRICE_LIST_CATEGORY= "/category"

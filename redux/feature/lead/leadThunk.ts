@@ -54,3 +54,15 @@ export const updatePropertyDetailsThunk = createAsyncThunk(
         }
     }
 );
+
+export const convertLeadToOpportunityThunk = createAsyncThunk(
+    "lead/convertLeadToOpportunity",
+    async (leadId: string, {rejectWithValue}) => {
+        try {
+            const response: ApiResponse<any> = await api.post(`${API_ENDPOINTS.CONVERT_LEAD_TO_OPPORTUNITY}/${leadId}`);
+            return response.data;
+        } catch (err: any) {
+            return rejectWithValue(err.message);
+        }
+    }
+);

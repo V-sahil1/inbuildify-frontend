@@ -49,8 +49,8 @@ export interface Package {
 function App() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const isQuotation = searchParams.get("type") === "quotation";
-  const title = isQuotation ? "Opportunity" : "Lead";
+  const isOpportunity = searchParams.get("type") === "opportunity";
+  const title = isOpportunity ? "Opportunity" : "Lead";
   const [isConvertModalVisible, setIsConvertModalVisible] = useState(false);
   const [isEditLeadModalVisible, setIsEditLeadModalVisible] = useState(false);
   const [isPropertyModalVisible, setIsPropertyModalVisible] = useState(false);
@@ -95,7 +95,7 @@ function App() {
   };
 
   const steps = useMemo(() => {
-    if (isQuotation) {
+    if (isOpportunity) {
       return [
         {
           key: "proposal",
@@ -143,7 +143,7 @@ function App() {
         onClick: handleConvertClick,
       },
     ];
-  }, [isQuotation]);
+  }, [isOpportunity]);
 
   return (
     <div className="flex flex-col">
@@ -153,7 +153,7 @@ function App() {
           id="MYH00492"
           status="Open"
           steps={steps}
-          activeStep={isQuotation ? "proposal" : "convert"}
+          activeStep={isOpportunity ? "proposal" : "convert"}
         />
       </div>
 
@@ -254,7 +254,7 @@ function App() {
         </Card>
 
         {/* Actions Card */}
-        <Card>
+       {isOpportunity && <Card>
           <div className="flex flex-col justify-between">
             <Link
               href={SystemRoutes.QUOTATION_CREATE}
@@ -262,17 +262,17 @@ function App() {
             >
               Create Quotation
             </Link>
-            <a href="#" className="text-theme-blue text-sm mt-2">
+            {/* <a href="#" className="text-theme-blue text-sm mt-2">
               Capture Deposit
-            </a>
+            </a> */}
           </div>
-        </Card>
+        </Card>}
       </div>
 
       <ConvertLeadModal
         visible={isConvertModalVisible}
         onCancel={handleConvertCancel}
-        leadId="your-lead-id" // Replace with actual lead ID
+        leadId={router.query.id as string}
       />
 
       {/* Edit Lead Details Modal */}

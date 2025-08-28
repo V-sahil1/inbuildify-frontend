@@ -15,7 +15,7 @@ export default function AuthValidator({ children }) {
 
   function normalizePath(path: string) {
     if (path === "/") return path;
-    return path.replace(/\/+$/, ""); // remove trailing slashes
+    return path?.replace(/\/+$/, ""); // remove trailing slashes
   }
   const normalizedPath = normalizePath(pathname);
   

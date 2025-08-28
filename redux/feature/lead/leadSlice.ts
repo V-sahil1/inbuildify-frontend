@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { createLeadThunk, getLeadThunk } from "./leadThunk";
+import { convertLeadToOpportunityThunk, createLeadThunk, getLeadThunk } from "./leadThunk";
 import { getLeadByIdThunk, updatePropertyDetailsThunk } from "./leadThunk";
 import { ILead } from "./ILeadState";
 import { Status } from "@lib/constants/enum";
@@ -77,6 +77,18 @@ export const leadSlice = createSlice({
         });
         builder.addCase(createLeadThunk.fulfilled, (state, action) => {
             state.leads.push(action.payload);
+        });
+        builder.addCase(convertLeadToOpportunityThunk.fulfilled, (state, action) => {
+          state.leads = state.leads.map((lead) => {
+            if (lead.lead_id === action.payload.leadId) {
+              return {
+                ...lead,
+                status: action.payload.status,
+                updated_at: action.payload.updatedAt,
+              };
+            }
+            return lead;
+          });
         });
     }
 });
