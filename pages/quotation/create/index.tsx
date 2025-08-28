@@ -8,6 +8,7 @@ import { availableFacades, availablePackages, availablePlans, leadDetails, prope
 import { PropertyDetails } from '@/pages/leads/data/types';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { Status } from '@lib/constants/enum';
+import { IFacadeState } from '@redux/feature/facade/IFacadeState';
 import { fetchCategories } from '@redux/feature/masterPriceList/masterPriceListThunk';
 import { RootState } from '@redux/feature/store';
 import { Spin } from 'antd';
@@ -17,7 +18,7 @@ const index = () => {
     const dispatch = useAppDispatch();
     const { contact, property } = useAppSelector((state: RootState) => state.quotation);
     const [selectedPlan, setSelectedPlan] = useState<Plan | undefined>(availablePlans[0]);
-    const [selectedFacade, setSelectedFacade] = useState<Facade | undefined>(availableFacades[0]);
+    const [selectedFacade, setSelectedFacade] = useState<IFacadeState | undefined>();
     const [selectedPackage, setSelectedPackage] = useState<Package | undefined>(availablePackages[0]);
     const [quotation, setQuotation] = useState(quotationData);
     const [selectedCategory, setSelectedCategory] = useState<string>("");

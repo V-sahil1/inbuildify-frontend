@@ -36,14 +36,19 @@ const quotationSlice = createSlice({
         setQuotationPlan(state, action: PayloadAction<any>) {
             state.plan = action.payload;
         },
+        // In quotationSlice.ts, add this to the reducers object:
+        setQuotationFacade(state, action: PayloadAction<any>) {
+            state.facade = action.payload;
+        }
     }
 });
 
 export default quotationSlice.reducer;
 
-export const { 
-    setQuotationContact, 
-    setQuotationProperty, 
+export const {
+    setQuotationContact,
+    setQuotationProperty,
     setQuotationPropertyFromResponse,
-    setQuotationPlan 
+    setQuotationPlan,
+    setQuotationFacade
 } = quotationSlice.actions;

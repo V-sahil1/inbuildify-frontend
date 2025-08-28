@@ -24,17 +24,18 @@ import PropertyDetailsModal from "./PropertyDetailsModal";
 import FloorPlanModal from "./FloorPlanModal";
 import dayjs from "dayjs";
 import FacadeModal from "./FacadeModal";
+import { IFacadeState } from "@redux/feature/facade/IFacadeState";
 
 interface InfoCardsProps {
   leadDetails: LeadDetails;
   propertyDetails: any;
   selectedPlan?: Plan;
-  selectedFacade?: Facade;
+  selectedFacade?: IFacadeState;
   selectedPackage?: Package;
   availableFacades: Facade[];
   availablePackages: Package[];
   onPlanSelect: (plan: Plan) => void;
-  onFacadeSelect: (facade: Facade) => void;
+  onFacadeSelect: (facade: IFacadeState) => void;
   onPackageSelect: (pkg: Package) => void;
   onPropertyUpdate: (property: PropertyDetails) => void;
 }
@@ -215,8 +216,8 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           </div>
           {selectedPlan ? (
             <div className="space-y-2">
-              <div className="font-semibold text-font-color">
-                {selectedPlan.name}
+              <div className="font-semibold text-center text-font-color">
+                {selectedPlan.name || "-"}
               </div>
             </div>
           ) : (
@@ -238,13 +239,14 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           </div>
           {selectedFacade ? (
             <div className="space-y-2">
-              <div className="font-semibold text-font-color">
-                {selectedFacade.name}
+              <div className="font-semibold text-center text-font-color">
+                {/* @ts-ignore */}
+                {selectedFacade?.facade?.name || "-"}
               </div>
             </div>
           ) : (
             <div className="text-center py-4">
-              <Button type="dashed" size="small">
+              <Button type="primary" size="small">
                 Select Facade
               </Button>
             </div>
@@ -303,7 +305,6 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           onSave={(values) => {
             setIsSubmitting(true);
             // Here you would typically make an API call to update the lead
-            console.log("Saving lead details:", values);
             setTimeout(() => {
               setIsSubmitting(false);
               setEditModalVisible(false);
