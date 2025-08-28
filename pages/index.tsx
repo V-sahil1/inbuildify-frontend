@@ -23,31 +23,31 @@ function transformDashboardData(input: InputData) {
   const countData = [
     {
       title: "Contractors",
-      count: Number(input.contractorCount),
+      count: Number(input?.contractorCount),
       description: "Total number of contractors in the system",
     },
     {
       title: "Customers",
-      count: Number(input.customerCount),
+      count: Number(input?.customerCount),
       description: "Total number of customers in the system",
     },
     {
       title: "Users",
-      count: Number(input.usersCount),
+      count: Number(input?.usersCount),
       description: "Total number of users in the system",
     },
     {
       title: "Leads",
-      count: Number(input.leadCount),
+      count: Number(input?.leadCount),
       description: "Total number of leads in the system",
     },
   ];
 
   const data = [
-    input.contractorData,
-    input.customerData,
-    input.usersData,
-    input.leadData,
+    input?.contractorData,
+    input?.customerData,
+    input?.usersData,
+    input?.leadData,
   ];
 
   return { countData, data };
@@ -100,7 +100,7 @@ export default function Analysis() {
         <Breadcrumb breadcrumbItem={breadcrumbItem} />
         <WelcomeHeader report />
         <div className="grid grid-cols-12 gap-4">
-          {countData.map((item, index) => (
+          {countData?.map((item, index) => (
             <div className="lg:col-span-3 sm:col-span-6 col-span-12 card flex flex-col bg-card-color rounded-xl overflow-hidden border border-dashed border-border-color">
               <NumbersCard
                 key={index}
