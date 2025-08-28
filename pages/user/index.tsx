@@ -91,11 +91,10 @@ const UserPage = () => {
     setEditingKey(null);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (values) => {
+    await form.validateFields();
     try {
       setLoading(true);
-      const values = await form.validateFields();
-
       const res = await dispatch(
         createUserThunk({
           email: values.email,
