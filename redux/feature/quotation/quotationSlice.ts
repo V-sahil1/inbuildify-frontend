@@ -1,5 +1,6 @@
 import { LeadDetails, PropertyDetails } from "@/pages/leads/data/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Item } from "../masterPriceList/iMasterPriceListState";
 
 export interface QuotationState {
     contact: LeadDetails;
@@ -7,7 +8,8 @@ export interface QuotationState {
     plan: any;
     facade: any;
     package: any;
-    items: any;
+    items: string[];
+    extraItems: Item[];
 }
 
 const initialState: QuotationState = {
@@ -16,7 +18,8 @@ const initialState: QuotationState = {
     plan: null,
     facade: null,
     package: null,
-    items: null,
+    items: [],
+    extraItems: [],
 };
 
 const quotationSlice = createSlice({
@@ -33,10 +36,19 @@ const quotationSlice = createSlice({
             const { builderId, ...propertyWithoutBuilder } = (action.payload || {}) as any;
             state.property = propertyWithoutBuilder as any;
         },
+        setQuotationExtraItems(state, action: PayloadAction<Item>) {
+            state.extraItems = [action.payload, ...state.extraItems];
+            state.items = [action.payload.categoryItemId, ...state.items];
+        },
+        setQuotationItems(state, action: PayloadAction<string>) {
+            state.items = [action.payload, ...state.items];
+        },
+        removeQuotationItem(state, action: PayloadAction<string>) {
+            state.items = state.items.filter((item) => item !== action.payload);
+        },
         setQuotationPlan(state, action: PayloadAction<any>) {
             state.plan = action.payload;
         },
-        // In quotationSlice.ts, add this to the reducers object:
         setQuotationFacade(state, action: PayloadAction<any>) {
             state.facade = action.payload;
         }
@@ -48,7 +60,8 @@ export default quotationSlice.reducer;
 export const {
     setQuotationContact,
     setQuotationProperty,
-    setQuotationPropertyFromResponse,
+    setQuotationPropertyFromResponse, setQuotationExtraItems, setQuotationItems,
     setQuotationPlan,
-    setQuotationFacade
+    setQuotationFacade,
+    removeQuotationItem
 } = quotationSlice.actions;

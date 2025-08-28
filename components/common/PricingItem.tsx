@@ -14,7 +14,7 @@ export const PricingItem = ({ item }: any) => {
     >
       <div className="flex-1  items-center justify-between">
         <div className="mb-2 font-medium flex gap-10 text-[16px]">
-          {item.shortDescription}
+          {item.shortDescription || item.description}
         </div>
         <div className="flex gap-3">
           {item.costType && (

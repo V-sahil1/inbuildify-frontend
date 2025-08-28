@@ -2,7 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import api from "@lib/constants/api";
 import { ApiResponse } from "../auth/IAuthState";
 import API_ENDPOINTS from "@lib/constants/apiEndpoints";
-import { Category, Item } from "./iMasterPriceListState";
+import { Category, Item, RequestItem } from "./iMasterPriceListState";
 
 export const fetchCategories = createAsyncThunk(
     "categories/fetchAll",
@@ -31,7 +31,7 @@ export const fetchCategories = createAsyncThunk(
 
   export const createCategoryItem = createAsyncThunk(
     "categories/createItem",
-    async (payload: Item,{rejectWithValue}) => {
+    async (payload: RequestItem,{rejectWithValue}) => {
       try {
         const res = await api.post<ApiResponse<Item>>(API_ENDPOINTS.CREATE_MASTER_PRICE_LIST_ITEM
           , {data:payload});

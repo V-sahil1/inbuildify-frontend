@@ -13,6 +13,12 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
   selectedCategory,
   onCategorySelect
 }) => {
+  // useEffect(() => {
+  //   if (categories.length > 0 && !selectedCategory) {
+  //     onCategorySelect(categories[0].categoryId);
+  //   }
+  // }, [categories, selectedCategory, onCategorySelect]);
+
   const menuItems = categories.map(category => ({
     key: category.categoryId,
     label: category.name,

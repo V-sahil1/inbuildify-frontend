@@ -35,3 +35,10 @@ export let Roles = [
   { value: "service_provider", label: "Contractor" },
   { value: "client", label: "Client" },
 ];
+
+export let CostType = [
+   { value: "INCLUDED", label: "Included" },
+   { value: "FIXED", label: "Fixed" },
+   { value: "VARIABLE", label: "Variable" },
+];
+  

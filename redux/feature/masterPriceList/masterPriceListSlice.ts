@@ -54,7 +54,8 @@ const masterPriceListSlice = createSlice({
         console.log(action.payload);
         const category = state.categories.find(c => c.categoryId === action.payload.categoryItemId);
         if (category) {
-          category.items = [...category.items, action.payload];
+          if (!category.items) category.items = [];
+          category.items = [...category?.items, action.payload];
         }
       })
   },
