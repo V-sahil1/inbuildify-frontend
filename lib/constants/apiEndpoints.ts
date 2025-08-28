@@ -1,8 +1,7 @@
 class API_ENDPOINTS {
-  // // user
-  // public static USER_BASE = "/users";
-  // public static CREATE_USER = `${this.USER_BASE}`;
-  // public static GET_USERS = `${this.USER_BASE}`;
+  
+  //dashboard
+  public static DASHBOARD_BASE = "/dashboard";
   
   //auth
   public static AUTH_BASE = "/auth";

@@ -8,6 +8,7 @@ import floorPlanReducer from "./floorPlan/floorPlanSlice";
 import facadeReducer from "./facade/facadeSlice";
 import packageReducer from "./package/packageSlice";
 import quotationReducer from "./quotation/quotationSlice";
+import { dashboardReducer } from "./dashboard/dashboardSlice";
 
 const authPersistConfig = {
   key: "auth",
@@ -23,6 +24,7 @@ const rootReducer = combineReducers({
   facade: facadeReducer,
   package: packageReducer,
   quotation: quotationReducer,
+  dashboard: dashboardReducer,  
 });
 
 const persistConfig = {
