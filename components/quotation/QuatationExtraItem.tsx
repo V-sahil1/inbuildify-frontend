@@ -5,9 +5,9 @@ import { setQuotationExtraItems } from "@redux/feature/quotation/quotationSlice"
 import { RootState } from "@redux/feature/store";
 import { IconPlus, IconX } from "@tabler/icons-react";
 import { InputNumber, Button, Input, Select, message } from "antd";
-import TextArea from "antd/es/input/TextArea";
 import React, { useState, useMemo } from "react";
 import { PricingItem } from "../common/PricingItem";
+const { TextArea } = Input;
 
 const { Option } = Select;
 
