@@ -453,9 +453,9 @@ export default function Header({
                 }`}
               />
             </button>
-            {/* <Link href="/">
-              <CompanyLogo />
-]            </Link> */}
+            <Link href="/"> 
+              <Image src="/company.png" alt="logo" width={100} height={100} />
+         </Link>  
           </div>
           <div className="relative px-4 flex-1 md:block hidden">
             {/* <TopMenuBar /> */}

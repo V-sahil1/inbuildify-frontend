@@ -12,6 +12,7 @@ import { useAppSelector } from "@hooks/redux";
 import { getRefreshToken, getStoredAuthToken } from "@lib/constants/authToken";
 import { useAppDispatch } from "@hooks/redux";
 import { getUserThunk } from "@redux/feature/auth/authThunk";
+import Image from "next/image";
 
 export default function AuthLayout({
   children,
@@ -25,7 +26,7 @@ export default function AuthLayout({
           <div className="items-center justify-center w-full lg:flex hidden">
             <div className="max-w-[400px]">
               <div className="mb-4">
-                {/* <CompanyLogo className="text-primary w-[116px] h-auto" /> */}
+                <Image src="/company.png" alt="logo" width={100} height={100} />
                 <h2 className="text-primary text-[24px]/[30px] text-red-500 font-medium">Builder Pro</h2>
               </div>
               <p className="mb-12 text-[32px]/[40px] font-medium">
