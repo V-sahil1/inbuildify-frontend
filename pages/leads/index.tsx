@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation";
 import { ILead } from "@redux/feature/lead/ILeadState";
 import { IconMail, IconPhone } from "@tabler/icons-react";
 import { timeAgo } from "@lib/utils/timeAgo";
-
+import { enumToReadable } from "@lib/utils/enumToRedable";
 const Leads = () => {
   const { leads, status } = useAppSelector((state) => state.lead);
   const dispatch = useAppDispatch();
@@ -94,7 +94,7 @@ const Leads = () => {
             </p>
             <section className="flex justify-between items-end">
               <Tag color="purple" className="mt-3">
-                {lead.status}
+                {enumToReadable(lead.status)}
               </Tag>
               <p className="text-xs text-font-color-100 mt-2">
                 Created: {timeAgo(lead.created_at)}

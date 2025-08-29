@@ -12,6 +12,7 @@ import {
 import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
 import { roleRules, emailRules } from "@lib/constants/formInputValidations";
 import { Roles } from "@lib/constants/enum";
+import { enumToReadable } from "@lib/utils/enumToRedable";
 type User = {
   key: string;
   role: string;
@@ -38,10 +39,11 @@ const UserPage = () => {
       .unwrap()
       .then((res: any) => {
         const mappedUsers: User[] = res?.data.map((user) => ({
-          key: user.userId,
-          role: user.role,
+          key: user.usersId,
+          role: user.role.map(enumToReadable).join(", "),
           email: user.email,
         }));
+
         setUsers(mappedUsers);
       })
       .catch((err) => {
@@ -59,7 +61,7 @@ const UserPage = () => {
       const res: any = await dispatch(getInvitedUsersThunk()).unwrap();
       const mappedUsers: User[] = res?.data.users.map((user) => ({
         key: user.userId,
-        role: user.role,
+        role: enumToReadable(user.role),
         email: user.email,
       }));
       setInvitedUsers(mappedUsers);
@@ -105,7 +107,7 @@ const UserPage = () => {
       if (res) {
         const newInvitedUser: User = {
           key: `${Date.now()}`,
-          role: values.role,
+          role: enumToReadable(values.role),
           email: values.email,
         };
 
