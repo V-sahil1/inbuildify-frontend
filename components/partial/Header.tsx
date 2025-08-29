@@ -1185,7 +1185,7 @@ export default function Header({
           open={isLogoutModalOpen}
           onClose={() => setIsLogoutModalOpen(false)}
           onConfirm={handleSignOut}
-          title="Logout"
+          // title="Logout"
           message="Are you sure you want to logout?"
           type="warning"
           confirmText="Logout"

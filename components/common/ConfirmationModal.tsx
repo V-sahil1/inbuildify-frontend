@@ -11,7 +11,7 @@ interface ConfirmationModalProps {
   open: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  title: string;
+  title?: string;
   message: string | React.ReactNode;
   type?: "success" | "info" | "warning" | "danger";
   confirmText?: string;
@@ -38,13 +38,15 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         return {
           icon: <IconCheck size={48} className="text-green-500" />,
           btnType: "primary" as const,
-          btnClass: "btn bg-green-500 hover:!bg-green-600 !border-none !text-white",
+          btnClass:
+            "btn bg-green-500 hover:!bg-green-600 !border-none !text-white",
         };
       case "warning":
         return {
           icon: <IconAlertSquare size={48} className="text-yellow-500" />,
           btnType: "primary" as const,
-          btnClass: "btn bg-yellow-500 hover:!bg-yellow-600 !border-none !text-black",
+          btnClass:
+            "btn bg-yellow-500 hover:!bg-yellow-600 !border-none !text-black",
         };
       case "danger":
         return {
@@ -54,9 +56,15 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         };
       case "info":
         return {
-          icon: <IconInfoCircleFilled size={48} className="text-blue-500 hover:!bg-blue-600 !border-none !text-black" />,
+          icon: (
+            <IconInfoCircleFilled
+              size={48}
+              className="text-blue-500 hover:!bg-blue-600 !border-none !text-black"
+            />
+          ),
           btnType: "primary" as const,
-          btnClass: "btn bg-blue-500 hover:bg-blue-600 !border-none !text-white",
+          btnClass:
+            "btn bg-blue-500 hover:bg-blue-600 !border-none !text-white",
         };
     }
   };
@@ -84,10 +92,19 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
       centered
       width={modalWidth}
       footer={[
-        <Button key="cancel" onClick={onClose} disabled={loading} className="btn text-gray-500 border !border-gray-500 hover:!bg-gray-600 hover:!text-white">
+        <div className=" flex  justify-center gap-10">
+          <div>
+  <Button
+          key="cancel"
+          onClick={onClose}
+          disabled={loading}
+          className="btn  text-black border !border-grey-500 hover:!bg-gray-600 hover:!text-white"
+        >
           {cancelText}
-        </Button>,
-        <Button
+        </Button>
+          </div>
+      <div>
+  <Button
           key="confirm"
           type={btnType}
           className={btnClass}
@@ -96,14 +113,18 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           loading={loading}
         >
           {confirmText}
-        </Button>,
+        </Button>
+      </div>
+      
+        </div>
+        
       ]}
       className="confirmation-modal"
     >
       <div className="flex flex-col items-center text-center py-6">
         <div className="mb-4">{icon}</div>
         <h3 className="text-lg font-semibold mb-2">{title}</h3>
-        <div className="text-gray-600 text-sm">
+        <div className=" text-sm">
           {typeof message === "string" ? <p>{message}</p> : message}
         </div>
       </div>

@@ -99,7 +99,7 @@ const ContractorPage = () => {
   const handleSubmit = async (values: any) => {
     try {
       setLoading(true);
-     await form.validateFields();
+      await form.validateFields();
 
       if (isEditing && editingKey) {
         // Update existing contractor 
@@ -207,28 +207,28 @@ const ContractorPage = () => {
         key: "actions",
         render: (_, record) => (
           <div className="flex gap-2">
-            	<Button
-              	type="link"
-              	onClick={(e) => {
-                	e.stopPropagation(); // ✅ prevent row click
-                	handleEdit(record);
-              	}}
-            	>
-              	Edit
-            	</Button>
-            	<Button
-              	type="link"
-              	danger
-              	onClick={(e) => {
-                	console.log("🚀 ~ ContractorPage ~ e:", record)
-                	e.stopPropagation(); // ✅ prevent row click
-                setIsDeleteModalOpen({open:true, recordId: record.contractorId});
-              	}}
-            	>
-              	Delete
-            	</Button>
-          	</div>
-        	),
+            <Button
+              type="link"
+              onClick={(e) => {
+                e.stopPropagation(); // ✅ prevent row click
+                handleEdit(record);
+              }}
+            >
+              Edit
+            </Button>
+            <Button
+              type="link"
+              danger
+              onClick={(e) => {
+                console.log("🚀 ~ ContractorPage ~ e:", record)
+                e.stopPropagation(); // ✅ prevent row click
+                setIsDeleteModalOpen({ open: true, recordId: record.contractorId });
+              }}
+            >
+              Delete
+            </Button>
+          </div>
+        ),
       },
     ],
     []
@@ -242,7 +242,7 @@ const ContractorPage = () => {
             Contractors
           </Typography.Title>
           <button className="btn large bg-[var(--primary)] cursor-pointer text-white" onClick={handleOpenModal}>
-            Create 
+            Create
           </button>
         </div>
 
@@ -267,7 +267,7 @@ const ContractorPage = () => {
           isEditing={isEditing}
           onCancel={handleCancel}
           onSubmit={handleSubmit}
-          initialValues={editingUser}  
+          initialValues={editingUser}
           fields={[
             {
               label: "Full Name",
@@ -281,7 +281,7 @@ const ContractorPage = () => {
               placeholder: "john@example.com",
               type: "email",
               rules: emailRules,
-              disabled: isEditing, 
+              disabled: isEditing,
             },
             {
               label: "Phone",
@@ -316,9 +316,9 @@ const ContractorPage = () => {
           isDeleteModalOpen.open &&
           <ConfirmationModal
             open={isDeleteModalOpen.open}
-            onClose={() => setIsDeleteModalOpen({open:false, recordId: null})}
+            onClose={() => setIsDeleteModalOpen({ open: false, recordId: null })}
             onConfirm={() => handleDelete(isDeleteModalOpen.recordId)}
-            title="Delete"
+            // title="Delete"
             message="Are you sure you want to delete this contractor?"
             type="danger"
             confirmText="Delete"

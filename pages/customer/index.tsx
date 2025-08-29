@@ -96,7 +96,7 @@ const CustomerPage = () => {
 
 
   const handleSubmit = async (values) => {
-   await form.validateFields();
+    await form.validateFields();
     try {
       setLoading(true);
       if (isEditing && editingKey) {
@@ -266,9 +266,15 @@ const CustomerPage = () => {
           onSubmit={handleSubmit}
           isEditing={editingKey ? true : false}
           initialValues={editingKey ? customers.find((c) => c.key === editingKey) : {}}
-          fields={customerCreateFields}
-        /> 
-        
+          fields={[...customerCreateFields, {
+            name: "email",
+            label: "Email",
+            rules: emailRules,
+            disabled: isEditing
+
+          },]}
+        />
+
         <DetailModal
           title="Customer Details"
           open={isViewModalOpen}
@@ -288,7 +294,7 @@ const CustomerPage = () => {
             open={isDeleteModalOpen.open}
             onClose={() => setIsDeleteModalOpen({ open: false, recordId: null })}
             onConfirm={() => handleDelete(isDeleteModalOpen.recordId)}
-            title="Delete"
+            // title="Delete"
             message="Are you sure you want to delete this contractor?"
             type="danger"
             confirmText="Delete"

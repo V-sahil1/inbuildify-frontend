@@ -8,12 +8,7 @@ export const customerCreateFields: CreateFormField[] = [
         rules: nameRules,
 
     },
-    {
-        name: "email",
-        label: "Email",
-        rules: emailRules,
-
-    },
+   
     {
         name: "phone",
         label: "Phone",

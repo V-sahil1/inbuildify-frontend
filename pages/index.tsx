@@ -1,7 +1,6 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
 import WelcomeHeader from "../components/common/WelcomeHeader";
-import Link from "next/link";
 import Breadcrumb from "../components/common/Breadcrumb";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { Status } from "@lib/constants/enum";
@@ -9,7 +8,9 @@ import { getDashboardThunk } from "@redux/feature/dashboard/dashboardThunk";
 import NumbersCard from "@/components/dashboard/NumbersCard";
 import { IconUserScan } from "@tabler/icons-react";
 import { Spin } from "antd";
-
+import { Table, TableColumnsType } from "antd";
+import Link from "next/link";
+import { timeAgo } from "@lib/utils/timeAgo";
 type InputData = {
   contractorCount: string;
   contractorData: any[];
@@ -21,6 +22,13 @@ type InputData = {
   leadData: any[];
 };
 
+type role = {
+  name: string
+  email: string
+  createdAt: string
+}
+
+
 function transformDashboardData(input: InputData) {
   const countData = [
     {
@@ -30,6 +38,7 @@ function transformDashboardData(input: InputData) {
       icon: (
         <IconUserScan className="stroke-primary stroke-[1.5] w-[32px] h-[32px]" />
       ),
+      route: "contractor"
     },
     {
       title: "Customers",
@@ -38,6 +47,7 @@ function transformDashboardData(input: InputData) {
       icon: (
         <IconUserScan className="stroke-primary stroke-[1.5] w-[32px] h-[32px]" />
       ),
+      route: "customer"
     },
     {
       title: "Users",
@@ -46,6 +56,7 @@ function transformDashboardData(input: InputData) {
       icon: (
         <IconUserScan className="stroke-primary stroke-[1.5] w-[32px] h-[32px]" />
       ),
+      route: "user"
     },
     {
       title: "Leads",
@@ -54,6 +65,7 @@ function transformDashboardData(input: InputData) {
       icon: (
         <IconUserScan className="stroke-primary stroke-[1.5] w-[32px] h-[32px]" />
       ),
+      route: "leads"
     },
   ];
 
@@ -109,6 +121,33 @@ export default function Analysis() {
     };
   }, [menuRef]);
 
+  const columns: TableColumnsType<role> = useMemo(() => [
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+      ellipsis: true,
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
+      ellipsis: true,
+
+    },
+    {
+      title: 'CreatedAt',
+      dataIndex: 'CreatedAt',
+      key: 'CreatedAt',
+      ellipsis: true,
+      render: (_, record) => {
+        return (
+          timeAgo(record.createdAt)
+
+        )
+      }
+    }
+  ], [])
   if (status === Status.IDLE) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -127,6 +166,29 @@ export default function Analysis() {
               <NumbersCard key={index} item={item} />
             </div>
           ))}
+        </div>
+        <div className="text-[20px]/[24px] font-black mb-12 mt-6">
+          Recent Activities
+        </div>
+        <div className="grid md:grid-cols-1 md:grid-cols-2 gap-[20px] ">
+          {data?.map((item, index) => (
+            <div className="">
+              <div className="grid grid-cols-2">
+
+                <div className="mb-2 font-bold">{countData[index].title}</div>
+                <div className="flex justify-end text-primary text-sm pr-2"><Link href={countData[index].route}>View All</Link></div>
+              </div>
+
+              <div> <Table
+                columns={columns}
+                dataSource={item}
+                pagination={false}
+              /></div>
+
+
+            </div>
+          ))}
+
         </div>
       </div>
     </div>
