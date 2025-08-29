@@ -17,15 +17,18 @@ import {
 } from "@redux/feature/masterPriceList/masterPriceListThunk";
 import { Package } from "@redux/feature/package/IPackageState";
 import { RootState } from "@redux/feature/store";
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { createQuotation } from "@redux/feature/quotation/quotationThunk";
 import { message, Spin } from "antd";
 import QuotationFilter from '@/components/quotation/QuotationFilter';
 import { updateLeadStatus } from "@redux/feature/lead/leadSlice";
 import { clearQuotation } from "@redux/feature/quotation/quotationSlice";
+import { usePdf } from '@hooks/usePdf';
+import QuatationPdf from '@/components/common/QuatationPdf';
 
 const Index = () => {
   const dispatch = useAppDispatch();
+  const { user } = useAppSelector((state) => state.auth);
   const {
     contact,
     property,
@@ -63,7 +66,8 @@ const Index = () => {
       dispatch(clearQuotation());
     };
   }, []);
-
+  
+  const { previewPdf } = usePdf(QuatationPdf);
   const getCategoryById = useCallback(
     (categoryId: string) =>
       categoryData.find((cat) => cat.categoryId === categoryId),
@@ -111,7 +115,6 @@ const Index = () => {
       ...extraItems.map((item) => normalize(item, true)),
     ];
   };
-  
 
   const createQuotationPayload = () => {
     return {
@@ -137,7 +140,24 @@ const Index = () => {
       message.error("Failed to create quotation");
     }
   };
-  const handlePreview = () => console.log("Preview clicked");
+  const handleEmail = () => console.log("Email clicked");
+  const { floorPlans } = useAppSelector((state: RootState) => state.floorPlan);
+  const handlePreview = () => {
+    const data = createQuotationPayload();
+    const flr = floorPlans?.find(
+      (floor) => floor.floorPlanId === data?.floorPlanId
+    );
+    previewPdf({
+      user: user,
+      leadDetail: contact,
+      propertyDetail: property,
+      quotePackage: selectedPackageFromSlice,
+      floorPlan: flr,
+      facade: facade,
+    });
+  };
+
+const handleViewOpportunity = () => console.log("View Opportunity clicked");
   const handleExtraClick = () => {
     setExtraItem(true);
     setSelectedCategory(null);

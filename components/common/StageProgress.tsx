@@ -44,7 +44,6 @@ const StageProgress: React.FC<StageProgressProps> = ({
     setModalType("LOST");
     setIsModalOpen(true);
   };
-  console.log(lead?.contact?.status)
 
   const handleSubmit = async (values: any) => {
     if (modalType === "WON") {

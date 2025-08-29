@@ -27,12 +27,10 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
   const dispatch = useAppDispatch();
   const pathname = usePathname();
 const leadid = useParams()
-console.log("🚀 ~ PropertyDetailsModal ~ leadid:", leadid)
 
   const { leadDetail } = useAppSelector((state: RootState) => state.lead);
   const quotation = useAppSelector((state: RootState) => (state as any).quotation);
   const isQuotationRoute = (pathname || '').toLowerCase().includes('quotation');
-  console.log("🚀 ~ PropertyDetailsModal ~ isQuotationRoute:", isQuotationRoute)
   const handleSave = async () => {
     try {
       const values = await form.validateFields();

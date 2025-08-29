@@ -6,7 +6,6 @@ import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { RootState } from "@redux/feature/store";
 import { Package } from "@redux/feature/package/IPackageState";
 import { setQuotationPackage } from "@redux/feature/quotation/quotationSlice";
-// import { setQuotationPackage } from "@redux/feature/quotation/quotationSlice";
 
 interface PackageModalProps {
   visible: boolean;
@@ -24,7 +23,6 @@ const PackageModal: React.FC<PackageModalProps> = ({
   }) => {
     const dispatch = useAppDispatch();
     const packages = useAppSelector((state: RootState) => state.package.packages);
-    console.log("🚀 ~ packages:", packages)
     const getAllStatus = useAppSelector(
       (state: RootState) => state.package.status.packages
     );

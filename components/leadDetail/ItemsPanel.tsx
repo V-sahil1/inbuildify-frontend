@@ -101,7 +101,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
             {category?.items?.length > 0 ? (
               category.items.map((item) => (
                 <QuatationItem
-                  key={item.categoryItemId}
+                  key={item?.categoryItemId}
                   item={item}
                   onQuantityChange={handleItemQuantityChange}
                   quantityRef={(el) => quantityRefs.current[item.categoryItemId] = el}

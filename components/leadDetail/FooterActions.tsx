@@ -1,11 +1,11 @@
 import React from "react";
 import { Button, Space } from "antd";
 import {
-  IconDeviceFloppy, // Save
-  IconCheck, // Check
-  IconMail, // Mail
-  IconEye, // Eye / View
-  IconFileSearch, // File Search
+  IconDeviceFloppy,
+  IconCheck,
+  IconMail,
+  IconEye,
+  IconFileSearch,
 } from "@tabler/icons-react";
 
 interface FooterActionsProps {
