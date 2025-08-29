@@ -146,13 +146,14 @@ function App() {
 
   return (
     <div className="flex flex-col">
-      <div className="max-w-sm m-3">
+      <div className="m-3 ">
         <StageProgress
           title={title}
           id="MYH00492"
           status="Open"
           steps={steps}
           activeStep={isOpportunity ? "proposal" : "convert"}
+          lead={leadDetail}
         />
       </div>
 

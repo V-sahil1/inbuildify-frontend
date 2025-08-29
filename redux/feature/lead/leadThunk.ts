@@ -66,3 +66,20 @@ export const convertLeadToOpportunityThunk = createAsyncThunk(
         }
     }
 );
+
+export const convertLeadToJobThunk = createAsyncThunk(
+    "lead/convertLeadToJob",
+    async (payload: { leadId: string, message: string, status: string }, { rejectWithValue }) => {
+        try {
+            const response: ApiResponse<any> = await api.post(`${API_ENDPOINTS.CONVERT_LEAD_TO_JOB}/${payload.leadId}`, {
+                data: {
+                    message: payload.message,
+                    status: payload.status
+                }
+            });
+            return {response , payload};
+        } catch (err: any) {
+            return rejectWithValue(err.message);
+        }
+    }
+);

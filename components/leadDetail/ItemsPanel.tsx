@@ -85,6 +85,13 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
               onToggleAdd={() => onItemAdd("extra-item")}/>
             </div>
           )}
+          {!category && !extraItem &&(
+            <div className="table-row">
+              <div className="table-cell p-6 text-center col-span-7 text-font-color">
+                No items found
+              </div>
+            </div>
+          )}
 
           {/* Table Body */}
           <div className="table-row-group">
