@@ -115,9 +115,9 @@ const QuotationFilter = () => {
   );
 
   return (
-    <div className="flex items-center gap-6 flex-wrap">
-      <div className="flex flex-col">
-        <span className="text-xs text-gray-500 mb-1">Range</span>
+    <div className="flex items-center gap-6 justify-end text-font-color w-[1000px]">
+      <div className="flex items-center gap-4"> 
+        <span className="text-sm">Range</span>
         <Select
           className="w-32"
           placeholder="Select Range"
@@ -131,8 +131,9 @@ const QuotationFilter = () => {
         />
       </div>
 
-      <div className="flex flex-col">
-        <span className="text-xs text-gray-500 mb-1">Dwelling Type</span>
+      
+      <div className="flex items-center gap-4">
+        <span className="text-sm">Dwelling Type</span> 
         <Select
           className="w-36"
           placeholder="Select Dwelling Type"

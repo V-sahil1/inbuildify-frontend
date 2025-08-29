@@ -44,14 +44,12 @@ const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
                     onClose();
                 })
                 .catch((error) => {
-                    message.error(error || "Failed to add item."); // Added a default error message
+                    message.error(error || "Failed to add item."); 
                 })
                 .finally(() => {
-                    // Stop loading state
                     setIsAddingItem(false);
                 });
         }).catch((error) => {
-            // Handle validation errors here
             console.error('Validation failed:', error);
         });
     };

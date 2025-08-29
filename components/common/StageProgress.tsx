@@ -106,7 +106,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
                     : "none",
                 }}
               >
-                {step.label}
+                <span className="whitespace-nowrap px-4">{step.label}</span>
               </div>
             );
           })}
@@ -130,7 +130,6 @@ const StageProgress: React.FC<StageProgressProps> = ({
         centered
         
         onOk={() => {
-          // trigger form submit manually
           document.getElementById("reasonFormSubmit")?.click();
         }}
       >
@@ -150,7 +149,6 @@ const StageProgress: React.FC<StageProgressProps> = ({
             <TextArea rows={4} showCount maxLength={500} />
           </Form.Item>
 
-          {/* Hidden button to trigger programmatically */}
           <button id="reasonFormSubmit" type="submit" hidden />
         </Form>
       </Modal>
