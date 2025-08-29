@@ -31,7 +31,7 @@ const FacadeModal: React.FC<FacadeModalProps> = ({
 
     useEffect(() => {
         if (status === Status.IDLE) {
-            dispatch(getFacades()).unwrap().catch(console.error);
+            dispatch(getFacades(undefined)).unwrap().catch(console.error);
         }
     }, [dispatch, status]);
 

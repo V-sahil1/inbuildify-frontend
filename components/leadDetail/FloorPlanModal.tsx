@@ -33,7 +33,7 @@ const FloorPlanModal: React.FC<FloorPlanModalProps> = ({
 
   useEffect(() => {
     if (status.floorPlan === Status.IDLE) { 
-      dispatch(fetchFloorPlans()).unwrap()
+      dispatch(fetchFloorPlans(undefined)).unwrap()
     }
     if (status.filters === Status.IDLE) {
       dispatch(getFloorPlanFilters()).unwrap()

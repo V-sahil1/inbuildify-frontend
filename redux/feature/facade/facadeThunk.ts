@@ -4,9 +4,18 @@ import api from "@lib/constants/api";
 import { ApiResponse } from "../auth/IAuthState";
 import { CreateFacadeState, IFacadeState } from "./IFacadeState";
 
-export const getFacades = createAsyncThunk("facade/getAll", async (_, { rejectWithValue }) => {
+export const getFacades = createAsyncThunk("facade/getAll", async (filters: { dwelling_type?: string } = {}, { rejectWithValue }) => {
     try {
-        const res = await api.get<ApiResponse<{ facades: IFacadeState[] }>>(API_ENDPOINTS.FACADE_BASE);
+        let url = API_ENDPOINTS.FACADE_BASE;
+        
+        // Add query parameters if dwelling_type filter is provided
+        if (filters && filters.dwelling_type) {
+            const queryParams = new URLSearchParams();
+            queryParams.append('dwelling_type', filters.dwelling_type);
+            url = `${API_ENDPOINTS.FACADE_BASE}?${queryParams.toString()}`;
+        }
+        
+        const res = await api.get<ApiResponse<{ facades: IFacadeState[] }>>(url);
         return res.data;
     } catch (error) {
         return rejectWithValue(error.message);

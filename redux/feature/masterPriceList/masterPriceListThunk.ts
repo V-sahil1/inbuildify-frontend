@@ -19,9 +19,20 @@ export const fetchCategories = createAsyncThunk(
   // Fetch items of a category
   export const fetchCategoryItems = createAsyncThunk(
     "categories/fetchItems",
-    async (categoryId: string,{rejectWithValue}) => {
+    async (
+      args: { categoryId: string; filters?: { range?: string; dwelling_type?: string } },
+      {rejectWithValue}
+    ) => {
       try {
-        const res = await api.get<ApiResponse<Item[]>>(API_ENDPOINTS.GET_MASTER_PRICE_LIST_ITEM(categoryId));
+        const { categoryId, filters } = args;
+        let url = API_ENDPOINTS.GET_MASTER_PRICE_LIST_ITEM(categoryId);
+        if (filters && (filters.range || filters.dwelling_type)) {
+          const query = new URLSearchParams();
+          if (filters.range) query.append("range", filters.range);
+          if (filters.dwelling_type) query.append("dwelling_type", filters.dwelling_type);
+          url = `${url}?${query.toString()}`;
+        }
+        const res = await api.get<ApiResponse<Item[]>>(url);
         return { categoryId, items: res.data };
       } catch (error) {
         return rejectWithValue(error.message);

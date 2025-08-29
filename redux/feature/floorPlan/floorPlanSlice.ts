@@ -10,8 +10,13 @@ const floorPlanSlice = createSlice({
     floorPlans: [] as IFloorPlanState[],
     status: {floorPlan: Status.IDLE, filters: Status.IDLE, conditions: Status.IDLE},
     filters: null,
+    selectedFilters: { range: '', dwelling_type: '' },
   },
-  reducers: {},
+  reducers: {
+    setSelectedFilters: (state, action) => {
+      state.selectedFilters = { ...state.selectedFilters, ...action.payload };
+    },
+  },
   extraReducers: builder => {
     builder
       .addCase(fetchFloorPlans.pending, (state) => {
@@ -41,5 +46,5 @@ const floorPlanSlice = createSlice({
   },
 });
 
-export const {  } = floorPlanSlice.actions;
+export const { setSelectedFilters } = floorPlanSlice.actions;
 export default floorPlanSlice.reducer;

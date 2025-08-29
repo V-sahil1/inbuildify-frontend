@@ -6,9 +6,19 @@ import { IFloorPlanState } from "./IFloorPlanState";
 
 export const fetchFloorPlans = createAsyncThunk(
     "floorPlans/fetchAll",
-    async () => {
+    async (filters?: { range?: string; dwelling_type?: string }) => {
         try {
-            const res = await api.get<ApiResponse<any>>(API_ENDPOINTS.FLOOR_PLAN_BASE);
+            let url = API_ENDPOINTS.FLOOR_PLAN_BASE;
+            
+            // Add query parameters if filters are provided
+            if (filters && (filters.range || filters.dwelling_type)) {
+                const queryParams = new URLSearchParams();
+                if (filters.range) queryParams.append('range', filters.range);
+                if (filters.dwelling_type) queryParams.append('dwelling_type', filters.dwelling_type);
+                url = `${API_ENDPOINTS.FLOOR_PLAN_BASE}?${queryParams.toString()}`;
+            }
+            
+            const res = await api.get<ApiResponse<any>>(url);
             return res.data;
         } catch (error) {
             return error.message;

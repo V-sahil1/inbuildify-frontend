@@ -16,16 +16,15 @@ import { useEffect, useState } from "react";
 import { Spin } from "antd";
 
 export const MasterPriceList = () => {
-  const dispatch = useAppDispatch();
-  const { categories, status } = useAppSelector(
-    (state: any) => state.masterPriceList
-  );
-  console.log(categories);
-  useEffect(() => {
-    if (status === Status.IDLE) {
-      dispatch(fetchCategories());
-    }
-  }, [dispatch]);
+    const dispatch = useAppDispatch();
+    const { categories ,status} = useAppSelector((state: any) => state.masterPriceList);
+    const { selectedFilters: mplFilters } = useAppSelector((state: any) => state.masterPriceList);
+    console.log(categories)
+    useEffect(() => {
+        if(status === Status.IDLE){
+            dispatch(fetchCategories())
+        }
+    }, [dispatch]);
 
   const [addItemModal, setAddItemModal] = useState(false);
   const [categoryId, setCategoryId] = useState("");
@@ -47,7 +46,7 @@ export const MasterPriceList = () => {
     if (!isExpanded) {
       setLoadingItems((prev) => ({ ...prev, [categoryId]: true }));
       dispatch(toggleExpand(categoryId));
-      dispatch(fetchCategoryItems(categoryId))
+      dispatch(fetchCategoryItems({ categoryId, filters: { range: mplFilters?.range || undefined, dwelling_type: mplFilters?.dwelling_type || undefined } }))
         .unwrap()
         .then((response) => {
           console.log(response);

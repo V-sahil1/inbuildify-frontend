@@ -13,11 +13,19 @@ type createPackagePayload = {
 
 export const fetchPackages = createAsyncThunk(
   "packages/fetchAll",
-  async (_, { rejectWithValue }) => {
+  async (filters: { range?: string; dwelling_type?: string } = {}, { rejectWithValue }) => {
     try {
-      const res = await api.get<ApiResponse<Package[]>>(
-        API_ENDPOINTS.GET_PACKAGES
-      );
+      let url = API_ENDPOINTS.GET_PACKAGES;
+      
+      // Add query parameters if filters are provided
+      if (filters && (filters.range || filters.dwelling_type)) {
+        const queryParams = new URLSearchParams();
+        if (filters.range) queryParams.append('range', filters.range);
+        if (filters.dwelling_type) queryParams.append('dwelling_type', filters.dwelling_type);
+        url = `${API_ENDPOINTS.GET_PACKAGES}?${queryParams.toString()}`;
+      }
+      
+      const res = await api.get<ApiResponse<Package[]>>(url);
       return res.data;
     } catch (error) {
       return rejectWithValue(error.message);

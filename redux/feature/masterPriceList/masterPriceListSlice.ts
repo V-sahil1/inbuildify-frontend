@@ -8,6 +8,7 @@ const masterPriceListSlice = createSlice({
     status: Status.IDLE,
     categories: [] as Category[],
     loading: false,
+    selectedFilters: { range: '', dwelling_type: '' },
   },
   reducers: {
     toggleExpand(state, action) {
@@ -15,6 +16,12 @@ const masterPriceListSlice = createSlice({
       if (category) {
         category.isExpanded = true;
       }
+    },
+    setSelectedFilters(state, action) {
+      state.selectedFilters = { ...state.selectedFilters, ...action.payload };
+    },
+    clearFilters(state) {
+      state.selectedFilters = { range: '', dwelling_type: '' };
     },
   },
   extraReducers: builder => {
@@ -37,7 +44,7 @@ const masterPriceListSlice = createSlice({
 
       // fetch items
       .addCase(fetchCategoryItems.pending, (state, action) => {
-        const category = state.categories.find(c => c.categoryId === action.meta.arg);
+        const category = state.categories.find(c => c.categoryId === action.meta.arg.categoryId);
         if (category) category.loadingItems = true;
       })
       .addCase(fetchCategoryItems.fulfilled, (state, action) => {
@@ -61,5 +68,5 @@ const masterPriceListSlice = createSlice({
   },
 });
 
-export const { toggleExpand } = masterPriceListSlice.actions;
+export const { toggleExpand, setSelectedFilters, clearFilters } = masterPriceListSlice.actions;
 export default masterPriceListSlice.reducer;

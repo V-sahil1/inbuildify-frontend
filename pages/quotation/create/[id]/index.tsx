@@ -16,6 +16,7 @@ import { RootState } from '@redux/feature/store';
 // import { Spin } from 'antd';
 import React, { useEffect, useState, useCallback } from 'react';
 import { removeQuotationItem, setQuotationItems } from '@redux/feature/quotation/quotationSlice';
+import QuotationFilter from '@/components/quotation/QuotationFilter';
 
 const Index = () => {
   const dispatch = useAppDispatch();
@@ -27,6 +28,7 @@ const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [extraItem, setExtraItem] = useState(false);
   const { categories: categoryData, status } = useAppSelector((state: RootState) => state.masterPriceList);
+  const { selectedFilters: mplFilters } = useAppSelector((state: RootState) => state.masterPriceList);
   const {items} = useAppSelector((state: RootState) => state.quotation);
   useEffect(() => {
     if (status === Status.IDLE) {
@@ -49,7 +51,7 @@ const Index = () => {
 
     if (!currentCategory?.isExpanded) {
       dispatch(toggleExpand(categoryId));
-      dispatch(fetchCategoryItems(categoryId))
+      dispatch(fetchCategoryItems({ categoryId, filters: { range: mplFilters.range || undefined, dwelling_type: mplFilters.dwelling_type || undefined } }))
         .unwrap()
        
     }
@@ -76,13 +78,14 @@ const Index = () => {
   };
   return (
     <>
-      <div className='m-3'>
+      <div className='m-3 flex justify-between items-center'>
         <StageProgress
           id='MYH00492'
           title='Quotation'
           status='Open'
           steps={[]}
         />
+      <QuotationFilter />
       </div>
 
       <InfoCards

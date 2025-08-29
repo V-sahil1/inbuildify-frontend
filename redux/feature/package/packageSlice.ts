@@ -12,18 +12,27 @@ interface PackageState {
   packages: Package[] | null;
   items: Item[] | null;
   status: { packages: Status; items: Status;create: Status };
+  selectedFilters: { range: string; dwelling_type: string };
 }
 
 const initialState: PackageState = {
   packages: null,
   items: null,
   status: { packages: Status.IDLE, items: Status.IDLE,create: Status.IDLE },
+  selectedFilters: { range: '', dwelling_type: '' },
 };
 
 const packageSlice = createSlice({
   name: "package",
   initialState,
-  reducers: {},
+  reducers: {
+    setSelectedFilters: (state, action) => {
+      state.selectedFilters = { ...state.selectedFilters, ...action.payload };
+    },
+    clearFilters: (state) => {
+      state.selectedFilters = { range: '', dwelling_type: '' };
+    },
+  },
   extraReducers: (builder) => {
     //get
     builder.addCase(fetchPackages.pending, (state) => {
@@ -61,4 +70,5 @@ const packageSlice = createSlice({
   },
 });
 
+export const { setSelectedFilters, clearFilters } = packageSlice.actions;
 export default packageSlice.reducer;

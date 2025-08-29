@@ -8,8 +8,16 @@ export const facadeSlice = createSlice({
     initialState: {
         facades: [] as IFacadeState[],
         status: Status.IDLE,
+        selectedFilters: { dwelling_type: '' },
     },
-    reducers: {},
+    reducers: {
+        setSelectedFilters: (state, action) => {
+            state.selectedFilters = { ...state.selectedFilters, ...action.payload };
+        },
+        clearFilters: (state) => {
+            state.selectedFilters = { dwelling_type: '' };
+        },
+    },
     extraReducers: (builder) => {
         builder.addCase(getFacades.pending, (state) => {
             state.status = Status.PENDING;
@@ -26,5 +34,6 @@ export const facadeSlice = createSlice({
         });
     }
 })
- 
+
+export const { setSelectedFilters, clearFilters } = facadeSlice.actions;
 export default facadeSlice.reducer

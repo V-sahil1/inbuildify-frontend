@@ -18,11 +18,7 @@ const Facade = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   useEffect(() => {
     if (status === Status.IDLE) {
-      try {
-        dispatch(getFacades()).unwrap();
-      } catch (error) {
-        console.log(error);
-      }
+      dispatch(getFacades(undefined)).unwrap();
     }
 
     if (!filters) {

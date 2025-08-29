@@ -17,7 +17,7 @@ const Package = () => {
 
   useEffect(() => {
     if (getAllStatus === Status.IDLE) {
-      dispatch(fetchPackages()).unwrap();
+      dispatch(fetchPackages(undefined)).unwrap();
     }
   }, [dispatch, getAllStatus]);
   
