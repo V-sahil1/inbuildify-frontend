@@ -462,11 +462,11 @@ export default function Header({
           </div>
           <div className="flex items-center ms-auto">
             <div className="relative group">
-              <button className="md:py-2 md:px-3 p-2 hover:bg-primary-10 transition-all duration-300">
+              {/* <button className="md:py-2 md:px-3 p-2 hover:bg-primary-10 transition-all duration-300">
                 <span className="xl:block hidden">Notification</span>
                 <IconBellRinging className="stroke-[1.5] xl:hidden w-[20px] h-[20px]" />
-              </button>
-              <div className="bg-card-color text-font-color rounded-xl overflow-hidden md:w-[380px] w-[calc(100%-30px)] shadow-shadow-lg md:absolute fixed md:end-0 end-15 md:top-full top-[55px] origin-top-right rtl:origin-top-left z-[1] opacity-0 invisible scale-0 transition-all duration-300 group-hover:opacity-100 group-hover:visible group-hover:scale-100">
+              </button> */}
+              {/* <div className="bg-card-color text-font-color rounded-xl overflow-hidden md:w-[380px] w-[calc(100%-30px)] shadow-shadow-lg md:absolute fixed md:end-0 end-15 md:top-full top-[55px] origin-top-right rtl:origin-top-left z-[1] opacity-0 invisible scale-0 transition-all duration-300 group-hover:opacity-100 group-hover:visible group-hover:scale-100">
                 <div className="flex items-center justify-between gap-10 p-4">
                   <div className="font-semibold">Notifications Center</div>
                   <span className="inline-block bg-danger text-white rounded-md text-[14px]/[1] py-1 px-2 font-semibold">
@@ -718,21 +718,21 @@ export default function Header({
                 >
                   View all notifications
                 </Link>
-              </div>
+              </div> */}
             </div>
-            <button
+            {/* <button
               onClick={toggleFullScreen}
               className="xl:block hidden md:py-2 md:px-3 p-2 hover:bg-primary-10 transition-all duration-300"
             >
               <IconArrowsMaximize className="stroke-[1.5]" />
-            </button>
-            <button
+            </button> */}
+            {/* <button
               onClick={toggleNote}
               className="xl:hidden sm:block hidden md:py-2 md:px-3 p-2 hover:bg-primary-10 transition-all duration-300"
             >
               <IconNote className="stroke-[1.5] w-[20px] h-[20px]" />
-            </button>
-            <div className="relative group">
+            </button> */}
+            {/* <div className="relative group">
               <button className="xl:block hidden md:py-2 md:px-3 p-2 hover:bg-primary-10 transition-all duration-300">
                 <IconWorld className="stroke-[1.5]" />
               </button>
@@ -800,13 +800,13 @@ export default function Header({
                   </li>
                 </ul>
               </div>
-            </div>
-            <button
+            </div> */}
+            {/* <button
               onClick={toggleChat}
               className="xl:hidden sm:block hidden md:py-2 md:px-3 p-2 hover:bg-primary-10 transition-all duration-300"
             >
               <IconMessage className="stroke-[1.5] w-[20px] h-[20px]" />
-            </button>
+            </button> */}
             <button
               onClick={toggleDarkMode}
               className="md:py-2 md:px-3 p-2 hover:bg-primary-10 transition-all duration-300"
@@ -835,10 +835,10 @@ export default function Header({
                     <IconUser className="w-[16px] h-[16px]" />
                     My Profile
                   </Link>
-                  <Link href={SystemRoutes.SETTING} className="py-2 px-4 flex items-center gap-3">
+                  {/* <Link href={SystemRoutes.SETTING} className="py-2 px-4 flex items-center gap-3">
                     <IconSettings className="w-[16px] h-[16px]" />
                     Settings
-                  </Link>
+                  </Link> */}
                 </div>
                 <button
                   onClick={() => setIsLogoutModalOpen(true)}
@@ -848,12 +848,12 @@ export default function Header({
                 </button>
               </div>
             </div>
-            <button
+            {/* <button
               onClick={toggleThemeSetting}
               className="md:py-2 md:px-3 p-2 hover:bg-primary-10 transition-all duration-300"
             >
               <IconSettings className="stroke-[1.5] xl:w-[24px] xl:h-[24px] w-[20px] h-[20px]" />
-            </button>
+            </button> */}
             <button
               className={`md:py-2 md:px-3 p-2 hover:bg-primary-10 transition-all duration-300 xl:hidden hamburger-menu ${
                 mobileNav ? "opened" : ""
@@ -875,7 +875,7 @@ export default function Header({
           </div>
         </div>
       </div>
-      <div
+      {/* <div
         className={`fixed top-0 bg-card-color z-[5] h-svh w-full max-w-[500px] transition-all duration-200 ${
           themeSetting
             ? "ltr:right-0 rtl:left-0"
@@ -1170,15 +1170,15 @@ export default function Header({
             Close
           </button>
         </div>
-      </div>
-      <div
+      </div> */}
+      {/* <div
         onClick={toggleThemeSetting}
         className={`fixed z-[4] w-full h-full left-0 top-0 bg-black-50 backdrop-blur-[2px] transition-all duration-500 ease-in-out ${
           themeSetting
             ? "opacity-1 visible overflow-auto"
             : "opacity-0 invisible overflow-hidden"
         }`}
-      ></div>
+      ></div> */}
       {
         isLogoutModalOpen &&
         <ConfirmationModal

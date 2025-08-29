@@ -67,7 +67,6 @@ const leadid = useParams()
       };
 
       const response = await dispatch(updatePropertyDetailsThunk(payload)).unwrap();
-      console.log("🚀 ~ handleSave ~ response:", response)
       message.success('Property updated successfully');
 
       // if (isQuotationRoute) {
@@ -90,6 +89,7 @@ const leadid = useParams()
       onCancel();
     } catch (error) {
       console.error('Validation failed:', error);
+      message.error(error);
     }
   };
 
@@ -238,7 +238,7 @@ const leadid = useParams()
             <Form.Item
               label={<span>Zip / Postal Code <span className="text-red-500">*</span></span>}
               name="zipPostalCode"
-              rules={[{ required: true, message: 'Please enter postal code' }]}
+              rules={[{ required: true, message: 'Please enter postal code' },{max:4,message:'Postal code must be at most 4 characters'}]}
             >
               <Input placeholder="3029" />
             </Form.Item>

@@ -2,13 +2,12 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { message } from "antd";
+import { Form, Input, message } from "antd";
 import { IconLoader } from "@tabler/icons-react";
 import { auth_forgot_password } from "/public/images";
 import { ForgetPasswordThunk } from "@redux/feature/auth/authThunk";
 import { useAppDispatch } from "@hooks/redux";
 import SystemRoutes from "@lib/constants/Routes";
-
 
 export async function getStaticProps() {
   return {
@@ -19,22 +18,24 @@ export async function getStaticProps() {
 }
 
 export default function ForgotPassword() {
-  const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const [form] = Form.useForm();
+
   const handleForgetPassword = async () => {
-    setLoading(true)
     try {
-      const response = await dispatch(ForgetPasswordThunk({ email })).unwrap();
+      const values = await form.validateFields();
+      setLoading(true);
+      const response = await dispatch(ForgetPasswordThunk(values)).unwrap();
       message.success(response.message);
       router.push(SystemRoutes.LOGIN);
-    } catch (error) {
+    } catch (error: any) {
       message.error(error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
   return (
     <>
       <div className="flex justify-center sm:mb-6 mb-4">
@@ -52,26 +53,38 @@ export default function ForgotPassword() {
         Enter the email address you used when you joined and we'll send you
         instructions to reset your password.
       </p>
-      <div className="form-control mb-20">
-        <label htmlFor="email" className="form-label">
-          Email
-        </label>
-        <input
-          type="email"
-          id="email"
-          placeholder="name@example.com"
-          className="form-input"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-      </div>
-      <button
-        disabled={loading}
-        onClick={() => handleForgetPassword()}
-        className="btn btn-secondary large w-full uppercase"
+      <Form
+        layout="vertical"
+        name="signin"
+        form={form}
+        onFinish={handleForgetPassword}
+        className="w-full"
+        requiredMark={false}
       >
-        {loading ? <IconLoader /> : "Submit"}
-      </button>
+        {/* Email */}
+        <Form.Item
+          label="Email"
+          name="email"
+          rules={[
+            { required: true, message: "Please enter your email!" },
+            { type: "email", message: "Enter a valid email!" },
+          ]}
+        >
+          <Input placeholder="name@example.com" />
+        </Form.Item>
+
+        {/* Submit button */}
+        <Form.Item>
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn btn-secondary large w-full uppercase"
+          >
+            {loading ? <IconLoader /> : ""}
+            Submit
+          </button>
+        </Form.Item>
+      </Form>
       <div className="text-center sm:mt-30 mt-6">
         <Link href="/auth/sign-in" className="text-primary">
           Back to Sign in

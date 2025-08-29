@@ -22,11 +22,10 @@ type InputData = {
 };
 
 type role = {
-  name: string
-  email: string
-  createdAt: string
-}
-
+  name: string;
+  email: string;
+  createdAt: string;
+};
 
 function transformDashboardData(input: InputData) {
   const countData = [
@@ -37,7 +36,7 @@ function transformDashboardData(input: InputData) {
       icon: (
         <IconUserScan className="stroke-primary stroke-[1.5] w-[32px] h-[32px]" />
       ),
-      route: "contractor"
+      route: "contractor",
     },
     {
       title: "Customers",
@@ -46,7 +45,7 @@ function transformDashboardData(input: InputData) {
       icon: (
         <IconUserScan className="stroke-primary stroke-[1.5] w-[32px] h-[32px]" />
       ),
-      route: "customer"
+      route: "customer",
     },
     {
       title: "Users",
@@ -55,7 +54,7 @@ function transformDashboardData(input: InputData) {
       icon: (
         <IconUserScan className="stroke-primary stroke-[1.5] w-[32px] h-[32px]" />
       ),
-      route: "user"
+      route: "user",
     },
     {
       title: "Leads",
@@ -64,7 +63,7 @@ function transformDashboardData(input: InputData) {
       icon: (
         <IconUserScan className="stroke-primary stroke-[1.5] w-[32px] h-[32px]" />
       ),
-      route: "leads"
+      route: "leads",
     },
   ];
 
@@ -120,33 +119,33 @@ export default function Analysis() {
     };
   }, [menuRef]);
 
-  const columns: TableColumnsType<role> = useMemo(() => [
-    {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
-      ellipsis: true,
-    },
-    {
-      title: "Email",
-      dataIndex: "email",
-      key: "email",
-      ellipsis: true,
+  const columns: TableColumnsType<role> = useMemo(
+    () => [
+      {
+        title: "Name",
+        dataIndex: "name",
+        key: "name",
+        ellipsis: true,
+      },
+      {
+        title: "Email",
+        dataIndex: "email",
+        key: "email",
+        ellipsis: true,
+      },
+      {
+        title: "CreatedAt",
+        dataIndex: "CreatedAt",
+        key: "CreatedAt",
+        ellipsis: true,
+        render: (_, record) => {
+          return timeAgo(record.createdAt);
+        },
+      },
+    ],
+    []
+  );
 
-    },
-    {
-      title: 'CreatedAt',
-      dataIndex: 'CreatedAt',
-      key: 'CreatedAt',
-      ellipsis: true,
-      render: (_, record) => {
-        return (
-          timeAgo(record.createdAt)
-
-        )
-      }
-    }
-  ], [])
   if (status === Status.IDLE) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -158,7 +157,7 @@ export default function Analysis() {
     <div className="md:px-6 sm:px-3 pt-4">
       <div className="container-fluid">
         <Breadcrumb breadcrumbItem={breadcrumbItem} />
-        <WelcomeHeader income />
+        <WelcomeHeader  />
         <div className="grid grid-cols-12 gap-4">
           {countData?.map((item, index) => (
             <div className="lg:col-span-3 sm:col-span-6 col-span-12 card flex flex-col bg-card-color rounded-xl overflow-hidden border border-dashed border-border-color">
@@ -169,25 +168,22 @@ export default function Analysis() {
         <div className="text-[20px]/[24px] font-black mb-12 mt-6">
           Recent Activities
         </div>
-        <div className="grid md:grid-cols-1 md:grid-cols-2 gap-[20px] ">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-[20px] ">
           {data?.map((item, index) => (
             <div className="">
               <div className="grid grid-cols-2">
-
                 <div className="mb-2 font-bold">{countData[index].title}</div>
-                <div className="flex justify-end text-primary text-sm pr-2"><Link href={countData[index].route}>View All</Link></div>
+                <div className="flex justify-end text-primary text-sm pr-2">
+                  <Link href={countData[index].route}>View All</Link>
+                </div>
               </div>
 
-              <div> <Table
-                columns={columns}
-                dataSource={item}
-                pagination={false}
-              /></div>
-
-
+              <div className="min-h-[250px]">
+                {" "}
+                <Table columns={columns} dataSource={item} pagination={false} className="flex-1"/>
+              </div>
             </div>
           ))}
-
         </div>
       </div>
     </div>

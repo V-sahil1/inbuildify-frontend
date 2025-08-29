@@ -92,16 +92,16 @@ export default function Overview() {
   return (
     <>
       <h5 className="text-[20px]/[24px] font-medium mb-4">Profile Overview</h5>
-      {/* <div className="grid grid-cols-12 gap-4">
-        <div className="flex flex-col gap-4 xxl:col-span-3 lg:col-span-4 col-span-12">
+      <div className="grid grid-cols-12 gap-4">
+        <div className="flex flex-col gap-4 col-span-12">
           <div className="card bg-card-color rounded-xl md:p-6 p-4 border border-dashed border-border-color">
             <h6 className="font-semibold mb-4">Personal Information</h6>
-            <p className="text-font-color-100 mb-4">
-              Hi I'm Allie Grater, Contrary to popular belief, Lorem Ipsum is
+            {/* <p className="text-font-color-100 mb-4">
+              Hi I'm {user?.name}, Contrary to popular belief, Lorem Ipsum is
               not simply random text. It has roots in a piece of classical  Latin
               literature.
-            </p>
-            <ul className="flex flex-col gap-2">
+            </p> */}
+            <ul className="flex flex-col gap-2 w-full">
               <li className="flex gap-x-2 flex-wrap">
                 <span className="w-[90px] text-font-color-100">
                   Full Name :
@@ -112,7 +112,7 @@ export default function Overview() {
                 <span className="w-[90px] text-font-color-100">E-mail :</span>
                 {user?.email}
               </li>
-              <li className="flex gap-x-2 flex-wrap">
+              {/* <li className="flex gap-x-2 flex-wrap">
                 <span className="w-[90px] text-font-color-100">Phone :</span>
                 +01 (741) 852 123
               </li>
@@ -140,10 +140,10 @@ export default function Overview() {
                     <IconBrandLinkedin className="w-[20px] h-[20px]" />
                   </Link>
                 </div>
-              </li>
+              </li> */}
             </ul>
           </div>
-          <div className="card bg-card-color rounded-xl md:p-6 p-4 border border-dashed border-border-color">
+          {/* <div className="card bg-card-color rounded-xl md:p-6 p-4 border border-dashed border-border-color">
             <h6 className="font-semibold mb-4">Skills Information</h6>
             <p className="text-font-color-100 mb-4">
               Augue mauris dignissim arcu, ut venenatis metus ante eu orci.
@@ -211,9 +211,9 @@ export default function Overview() {
                 </div>
               </li>
             </ul>
-          </div>
+          </div> */}
         </div>
-        <div className="flex flex-col gap-4 xxl:col-span-6 lg:col-span-8 col-span-12">
+        {/* <div className="flex flex-col gap-4 xxl:col-span-6 lg:col-span-8 col-span-12">
           <div className="card bg-card-color rounded-xl md:p-6 p-4 border border-dashed border-border-color">
             <div className="form-control mb-15 flex flex-col">
               <textarea
@@ -771,8 +771,8 @@ export default function Overview() {
               ))}
             </SlideshowLightbox>
           </div>
-        </div>
-      </div> */}
+        </div> */}
+      </div>
       
     </>
   );

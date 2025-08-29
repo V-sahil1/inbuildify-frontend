@@ -55,7 +55,6 @@ const FacadeModal: React.FC<FacadeModalProps> = ({
                 onSave({ type: "new", facade: formValues });
                 onCancel();
             } catch (error) {
-                console.log("🚀 ~ handleSave ~ error:", error)
                 message.error(`Failed to create facade ${error}`);
             }
         }

@@ -50,7 +50,6 @@ const ResetPassword = () => {
             message.error("Passwords do not match");
             return;
         }
-
         setLoading(true);
         try {
             const response = await dispatch(ResetPasswordThunk({ resetPasswordToken: token.resetPasswordToken, password: values.password, email: token.email })).unwrap();

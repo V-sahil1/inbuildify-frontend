@@ -43,7 +43,6 @@ const CustomPlanTab: React.FC = () => {
 
 
   const onFinishFailed = (errorInfo: any) => {
-    console.log('Failed:', errorInfo);
     message.error('Please fill in all required fields');
   };
 

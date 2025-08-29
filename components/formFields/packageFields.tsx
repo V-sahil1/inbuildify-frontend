@@ -29,7 +29,6 @@ export const packageFields = (): CreateFormField[] => {
         ).unwrap();
       }
     } catch (error) {
-      console.log(error);
     }
   }, []);
 

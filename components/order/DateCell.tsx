@@ -13,7 +13,6 @@ export default function DateCell({ value, onChange }: DateCellProps) {
   const [position, setPosition] = useState({ top: 0, left: 0 });
 
   const handleClick = () => {
-    console.log("clicked"); 
     const rect = cellRef.current?.getBoundingClientRect();
     if (rect) {
       setPosition({
@@ -26,7 +25,6 @@ export default function DateCell({ value, onChange }: DateCellProps) {
 
   const handleClose = () => {
     setShowCalendar(false);
-    console.log("closed");
   };
 
   const handleSelect = (date: Date) => {
