@@ -134,10 +134,10 @@ export default function Signin() {
 
       {/* Footer */}
       <div className="text-center sm:mt-30 mt-6 text-font-color-100">
-        <p>Don't have an account?</p>
-        <Link href={SystemRoutes.SIGNUP} className="text-primary">
+        {/* <p>Don't have an account?</p> */}
+        {/* <Link href={SystemRoutes.SIGNUP} className="text-primary">
           Sign up here
-        </Link>
+        </Link> */}
       </div>
     </>
   );

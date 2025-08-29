@@ -6,6 +6,7 @@ import {
   IconChevronsDown,
 } from "@tabler/icons-react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface MenuDivider {
   devider?: string;
@@ -114,8 +115,9 @@ export default function Sidebar({
     <>
       <div className="sidebar-header px-3 mb-6 flex items-center justify-between gap-2">
         <h4 className="sidebar-title text-[24px]/[30px] font-medium mb-0">
-          <span className="sm-txt">I</span>
-          <span>nBuildify</span>
+          {/* <span className="sm-txt">I</span>
+          <span>nBuildify</span> */}
+          <Image src="/company.png" alt="logo" width={200} height={100} />
         </h4>
       </div>
       {/* <Search /> */}
