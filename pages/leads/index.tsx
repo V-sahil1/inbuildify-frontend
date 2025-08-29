@@ -73,7 +73,7 @@ const Leads = () => {
           <div
             key={lead.lead_id}
             onClick={() =>
-              lead.status === "IN_PROGRESS"
+              (lead.status === "IN_PROGRESS" || lead.status === "COMPLETED")
                 ? router.push(`/leads/${lead.lead_id}?type=opportunity`)
                 : router.push(`/leads/${lead.lead_id}`)
             }

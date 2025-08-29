@@ -21,6 +21,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { createQuotation } from "@redux/feature/quotation/quotationThunk";
 import { message, Spin } from "antd";
 import QuotationFilter from '@/components/quotation/QuotationFilter';
+import { updateLeadStatus } from "@redux/feature/lead/leadSlice";
 
 const Index = () => {
   const dispatch = useAppDispatch();
@@ -108,20 +109,18 @@ const Index = () => {
     };
   };
 
-  const handleSaveAs = () => console.log("Save As clicked");
   const handleApprove = async () => {
     try{
         const payload = createQuotationPayload();
-        await dispatch(createQuotation(payload)).unwrap();
+        const response = await dispatch(createQuotation(payload)).unwrap();
+        dispatch(updateLeadStatus({leadId: response.leadId, status: "COMPLETED", updatedAt: response.updatedAt}));
         message.success("Quotation created successfully");
     }catch(error){
         console.log(error);
         message.error("Failed to create quotation");
     }
   };
-  const handleEmail = () => console.log("Email clicked");
   const handlePreview = () => console.log("Preview clicked");
-  const handleViewOpportunity = () => console.log("View Opportunity clicked");
   const handleExtraClick = () => {
     setExtraItem(true);
     setSelectedCategory(null);
@@ -177,11 +176,8 @@ const Index = () => {
         <FooterActions
           expiryDate={quotation.expiryDate}
           total={calculateTotal()}
-          onSaveAs={handleSaveAs}
           onApprove={handleApprove}
-          onEmail={handleEmail}
           onPreview={handlePreview}
-          onViewOpportunity={handleViewOpportunity}
         />
       </div>
     </>

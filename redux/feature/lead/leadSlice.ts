@@ -19,7 +19,17 @@ export const leadSlice = createSlice({
             const { builderId, ...propertyWithoutBuilder } = (action.payload || {}) as any;
             state.leadDetail = state.leadDetail ?? ({} as any);
             (state.leadDetail as any).property = propertyWithoutBuilder;
-        }
+        },
+        updateLeadStatus: (state, action) => {
+          const { leadId, status, updatedAt } = action.payload;
+    
+          // update leads array
+          state.leads = state.leads.map((lead) =>
+            lead.lead_id === leadId
+              ? { ...lead, status, updated_at: updatedAt ?? lead.updated_at }
+              : lead
+          );
+        },
     },
     extraReducers: (builder) => {
         builder.addCase(getLeadThunk.pending, (state) => {
@@ -105,5 +115,5 @@ export const leadSlice = createSlice({
     }
 });
 
-export const { clearLeadDetail, setLeadProperty } = leadSlice.actions;
+export const { clearLeadDetail, setLeadProperty, updateLeadStatus } = leadSlice.actions;
 export const leadReducer = leadSlice.reducer;
