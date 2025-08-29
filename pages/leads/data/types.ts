@@ -25,6 +25,8 @@ export interface Quotation {
   
   export interface PropertyDetails {
     lead_id?: string;
+    leadId?: string;
+    propertyId?: string;
     lot: string;
     location: string;
     titleDate: string;

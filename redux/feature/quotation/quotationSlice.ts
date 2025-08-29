@@ -1,18 +1,22 @@
 import { LeadDetails, PropertyDetails } from "@/pages/leads/data/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Item } from "../masterPriceList/iMasterPriceListState";
+import { Status } from "@lib/constants/enum";
+import { createQuotation } from "./quotationThunk";
 
 export interface QuotationState {
+    status: Status;
     contact: LeadDetails;
     property: PropertyDetails;
     plan: any;
     facade: any;
     package: any;
-    items: string[];
-    extraItems: Item[];
+    items: { itemId: string; quantity: number; price: number;}[];
+    extraItems: (Item & { quantity: number })[];
 }
 
 const initialState: QuotationState = {
+    status: Status.IDLE,
     contact: null,
     property: null,
     plan: null,
@@ -26,6 +30,16 @@ const quotationSlice = createSlice({
     name: "quotation",
     initialState,
     reducers: {
+        clearQuotation(state) {
+            console.log("🚀 ~ clearQuotation ~ state:", )
+            state.items = [];
+            state.extraItems = [];
+            state.contact = null;
+            state.property = null;
+            state.plan = null;
+            state.facade = null;
+            state.package = null;
+        },
         setQuotationContact(state, action: PayloadAction<LeadDetails | null>) {
             state.contact = action.payload as any;
         },
@@ -37,14 +51,14 @@ const quotationSlice = createSlice({
             state.property = propertyWithoutBuilder as any;
         },
         setQuotationExtraItems(state, action: PayloadAction<Item>) {
-            state.extraItems = [action.payload, ...state.extraItems];
-            state.items = [action.payload.categoryItemId, ...state.items];
+            state.extraItems = [{ ...action.payload, quantity: 1 }, ...state.extraItems];
+            state.items = [{ itemId: action.payload.categoryItemId, quantity: 1, price: action.payload.cost }, ...state.items];
         },
-        setQuotationItems(state, action: PayloadAction<string>) {
-            state.items = [action.payload, ...state.items];
+        setQuotationItems(state, action: PayloadAction<{itemId:string,quantity:number,price:number}>) {
+            state.items = [{ itemId: action.payload.itemId, quantity: action.payload.quantity, price: action.payload.price }, ...state.items];
         },
         removeQuotationItem(state, action: PayloadAction<string>) {
-            state.items = state.items.filter((item) => item !== action.payload);
+            state.items = state.items.filter((item) => item.itemId !== action.payload);
         },
         setQuotationPlan(state, action: PayloadAction<any>) {
             state.plan = action.payload;
@@ -55,6 +69,18 @@ const quotationSlice = createSlice({
         setQuotationPackage(state, action: PayloadAction<any>) {
             state.package = action.payload;
         }
+    },
+    extraReducers: (builder) => {
+        builder
+            .addCase(createQuotation.pending, (state) => {
+                state.status = Status.PENDING;
+            })
+            .addCase(createQuotation.fulfilled, (state) => {
+                state.status = Status.SUCCESS;
+            })
+            .addCase(createQuotation.rejected, (state) => {
+                state.status = Status.ERROR;
+            })
     }
 });
 
@@ -67,5 +93,6 @@ export const {
     setQuotationPlan,
     setQuotationFacade,
     removeQuotationItem,
-    setQuotationPackage
+    setQuotationPackage,
+    clearQuotation
 } = quotationSlice.actions;

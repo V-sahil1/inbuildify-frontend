@@ -6,23 +6,17 @@ import React, { useState } from "react";
 interface QuatationItemProps {
   item: any;
   onQuantityChange: (value: number) => void;
-  onToggleAdd: () => void;
+  onToggleAdd: (itemId:string,price:number) => void;
   isSelected: boolean;
+  quantityRef: any;
 }
 
 export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
-  ({ item, onQuantityChange, onToggleAdd,isSelected}) => {
-    const [added, setAdded] = useState(false);
-    const [quantity, setQuantity] = useState<number>(1);
-    const handleToggle = () => {
-      setAdded((prev) => !prev);
-      onToggleAdd();
-    };
-
-    const handleQuantityChange = (value: number | null) => {
-      const qty = value ?? 0;
-      setQuantity(qty);
-      onQuantityChange(qty);
+  ({ item, onToggleAdd,isSelected,quantityRef}) => {
+    console.log("🚀 ~ quantityRef:", quantityRef)
+    
+    const handleToggle = (itemId:string,price:number) => {
+      onToggleAdd(itemId,price);
     };
 
     return (
@@ -59,8 +53,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
         <div className="table-cell text-center p-3 align-middle">
           <InputNumber
             min={1}
-            value={quantity}
-            onChange={handleQuantityChange}
+            ref={quantityRef}
             type="number" 
             size="small"
             className="w-full text-center"
@@ -69,12 +62,12 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
 
         {/* Price */}
         <div className="table-cell text-center p-3 align-middle">
-          ${item.price ?? 0}
+          ${item.cost  ?? 0}
         </div>
 
         {/* Total */}
         <div className="table-cell text-center p-3 align-middle">
-          ${(item.price ?? 0) * quantity}
+          ${(item.cost ?? 0) * quantityRef.current?.value}
         </div>
 
         {/* Action */}
@@ -84,7 +77,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
             shape="circle"
             size="small"
             icon={isSelected ? <IconX size={16} /> : <IconPlus size={16} />}
-            onClick={handleToggle}
+            onClick={()=>handleToggle(item.categoryItemId,item.cost)}
           />
         </div>
       </div>

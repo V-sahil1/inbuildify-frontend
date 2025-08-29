@@ -24,6 +24,7 @@ const PackageModal: React.FC<PackageModalProps> = ({
   }) => {
     const dispatch = useAppDispatch();
     const packages = useAppSelector((state: RootState) => state.package.packages);
+    console.log("🚀 ~ packages:", packages)
     const getAllStatus = useAppSelector(
       (state: RootState) => state.package.status.packages
     );

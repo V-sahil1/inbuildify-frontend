@@ -64,5 +64,9 @@ public static FACADE_BASE = "/facade"
 // Property
 public static PROPERTY_BASE = "/property"
 
+//quotation
+public static QUOTATION_BASE = "/quotation"
+
+
 }
 export default API_ENDPOINTS;

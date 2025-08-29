@@ -1,35 +1,39 @@
-import React from "react";
+import React, { useRef } from "react";
 import { Input, Button } from "antd";
 import { IconSearch } from "@tabler/icons-react";
 import { Category } from "@redux/feature/masterPriceList/iMasterPriceListState";
 import { QuatationItem } from "../quotation/QuatationItem";
 import { QuatationExtraItem } from "../quotation/QuatationExtraItem";
-import { useAppSelector } from "@hooks/redux";
+import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { RootState } from "@redux/feature/store";
+import { removeQuotationItem, setQuotationItems } from "@redux/feature/quotation/quotationSlice";
 
 interface ItemsPanelProps {
   category?: Category;
   onItemQuantityChange: (itemId: string, quantity: number) => void;
-  onItemAdd: (itemId: string) => void;
   onExtraClick: () => void;
   extraItem: boolean;
 }
 
 const ItemsPanel: React.FC<ItemsPanelProps> = ({
   category,
-  onItemQuantityChange,
-  onItemAdd,
   onExtraClick,
   extraItem,
 }) => {
+  const dispatch = useAppDispatch();
   const {extraItems, items} = useAppSelector((state: RootState) => state.quotation);
-  // if (!category) {
-  //   return (
-  //     <div className="flex-1 p-6 flex items-center justify-center">
-  //       <div className="text-gray-500">Select a category to view items</div>
-  //     </div>
-  //   );
-  // }
+  const quantityRefs = useRef<{[key: string]: HTMLInputElement | null}>({});
+  
+  const handleItemAdd = (itemId: string, price: number) => {
+    const quantity = quantityRefs.current[itemId]?.value || '1';
+    console.log("🚀 ~ handleItemAdd ~ quantity:", quantity, "for item:", itemId);
+    
+    if (items.some((item) => item.itemId === itemId)) {
+      dispatch(removeQuotationItem(itemId));
+    } else {
+      dispatch(setQuotationItems({itemId, quantity: Number(quantity), price}));
+    }
+  };
 
   return (
     <div className="flex-1 bg-card-color flex flex-col overflow-hidden">
@@ -75,16 +79,13 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
               </div>
             </div>
           </div>
-          {extraItem && (
+      {/* {extraItem && (
             <div className="table-row-group">
-             <QuatationExtraItem 
+             <QuatationExtraItem
               key={"extra-item"}
-              onQuantityChange={(qty) =>
-                onItemQuantityChange("extra-item", qty)
-              }
-              onToggleAdd={() => onItemAdd("extra-item")}/>
+              onToggleAdd={() => handleItemAdd("extra-item")}/>
             </div>
-          )}
+          )} */}
           {!category && !extraItem &&(
             <div className="table-row">
               <div className="table-cell p-6 text-center col-span-7 text-font-color">
@@ -100,11 +101,10 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
                 <QuatationItem
                   key={item.categoryItemId}
                   item={item}
-                  isSelected={items?.some((itemData) => itemData === item.categoryItemId)}
-                  onQuantityChange={(qty) =>
-                    onItemQuantityChange(item.categoryItemId, qty)
-                  }
-                  onToggleAdd={() => onItemAdd(item.categoryItemId)}
+                  onQuantityChange={(value) => {}}
+                  quantityRef={(el) => quantityRefs.current[item.categoryItemId] = el}
+                  isSelected={items?.some((itemData) => itemData.itemId === item.categoryItemId)}
+                  onToggleAdd={handleItemAdd}
                 />
               ))
             ) : (
