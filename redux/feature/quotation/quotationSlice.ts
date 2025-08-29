@@ -1,4 +1,4 @@
-import { LeadDetails, PropertyDetails } from "@/pages/leads/data/types";
+import { LeadDetails, PropertyDetails } from "data/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Item } from "../masterPriceList/iMasterPriceListState";
 import { Status } from "@lib/constants/enum";

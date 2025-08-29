@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Modal, Form, Input, Select, DatePicker, Radio, Row, Col, Button, message } from 'antd';
 import dayjs from 'dayjs';
-import { PropertyDetails } from '@/pages/leads/data/types';
+import { PropertyDetails } from 'data/types';
 import { updatePropertyDetailsThunk } from '@redux/feature/lead/leadThunk';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { RootState } from '@redux/feature/store';

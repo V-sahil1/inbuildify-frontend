@@ -7,7 +7,7 @@ import {
   IconPhone,
   IconX, 
 } from '@tabler/icons-react';
-import { LeadDetails } from '@/pages/leads/data/types';
+import { LeadDetails } from 'data/types';
 
 interface Contact {
   id: string;

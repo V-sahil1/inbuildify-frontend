@@ -16,8 +16,7 @@ import {
   LeadDetails,
   PropertyDetails,
   Plan,
-  Facade,
-} from "@/pages/leads/data/types";
+} from "data/types";
 import PropertyDetailsModal from "./PropertyDetailsModal";
 import FloorPlanModal from "./FloorPlanModal";
 import dayjs from "dayjs";

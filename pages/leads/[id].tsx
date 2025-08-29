@@ -14,8 +14,8 @@ import {
 } from "@tabler/icons-react";
 import Link from "next/link";
 import SystemRoutes from "@lib/constants/Routes";
-import { LeadDetails } from "@/pages/leads/data/types";
-import { leadDetails as sampleLeadDetails } from "@/pages/leads/data/sampleData";
+import { LeadDetails } from "data/types";
+import { leadDetails as sampleLeadDetails } from "data/sampleData";
 import { useRouter } from "next/router";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { getLeadByIdThunk } from "@redux/feature/lead/leadThunk";

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Tabs, Button, Typography, Spin } from "antd";
-import { Plan } from "@/pages/leads/data/types";
+import { Plan } from "data/types";
 import AvailablePlansTab from "./AvailablePlansTab";
 import CustomPlanTab from "./CustomPlanTab";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";

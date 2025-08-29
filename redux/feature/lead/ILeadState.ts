@@ -1,4 +1,4 @@
-import { LeadDetails, PropertyDetails } from "@/pages/leads/data/types";
+import { LeadDetails, PropertyDetails } from "data/types";
 
 export interface ILead {
     lead_id: string;

@@ -2,7 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import api from "@lib/constants/api";
 import API_ENDPOINTS from "@lib/constants/apiEndpoints";
 import { ApiResponse } from "../auth/IAuthState";
-import { PropertyDetails } from "@/pages/leads/data/types";
+import { PropertyDetails } from "data/types";
 
 export const getLeadThunk = createAsyncThunk(
     "lead/getLead",
