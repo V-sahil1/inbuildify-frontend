@@ -19,11 +19,8 @@ export const PackageItem = ({ pkg }: { pkg: Package }) => {
           </p>
         </div>
         <div className="flex items-center">
-          <span className="text-sm text-gray-500 mr-2">
-            {new Date(pkg?.createdAt).toLocaleDateString()}
-          </span>
           <IconChevronDown
-            className={`w-5 h-5 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} 
+            className={`w-[20px] h-[20px] text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} 
           />
         </div>
       </div>

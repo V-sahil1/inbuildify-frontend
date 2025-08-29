@@ -1,6 +1,7 @@
 "use client";
 
-import { Modal, Form, Input, Select, Radio, message } from "antd";
+import { Modal, Form, Input, Select, Radio, message, Upload, Button } from "antd";
+import { UploadChangeParam } from "antd/es/upload";
 import React, { useEffect } from "react";
 
 export type CreateFormField = {
@@ -10,9 +11,10 @@ export type CreateFormField = {
   rules?: any[];
   disabled?: boolean;
   invite?: boolean;
-  type?: "email" | "phone" | "text" | "select" | "url" | "number" | "checkbox";
+  type?: "email" | "phone" | "text" | "select" | "url" | "number" | "checkbox" | "image";
   mode?: "tags" | "multiple";
   options?: { value: string; label: string }[];
+  handleChange?: (info: UploadChangeParam) => void;
 };
 
 interface CreateFormModalProps {
@@ -55,7 +57,7 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
       const values = await form.validateFields();
       onSubmit(values);
     } catch (err) {
-      message.error("Please fill all the required fields");
+      // message.error("Please fill all the required fields");
     }
   };
 
@@ -95,6 +97,16 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
                 <Radio value="TRUE">Yes</Radio>
                 <Radio value="FALSE">No</Radio>
               </Radio.Group>
+            ) : field.type === "image" ? (
+              <Upload
+                name="image"
+                listType="picture"
+                multiple={false}
+              >
+                <Button>
+                  Click to Upload
+                </Button>
+              </Upload>
             ) : (
               <Input
                 placeholder={field.placeholder}

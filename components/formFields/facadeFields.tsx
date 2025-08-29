@@ -16,11 +16,9 @@ export const facadeFields = (): CreateFormField[] => {
       rules: [{ required: true, message: "Please enter the property name" }],
     },
     {
-      label: "Image URL",
+      label: "Image",
       name: "image",
-      type: "text",
-      placeholder: "https://example.com/floorplans/villa.png",
-      rules: [{ required: true, message: "Please provide an image URL" }],
+      type: "image",
     },
     {
       label: "Dwelling Type",

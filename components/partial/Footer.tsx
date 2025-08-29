@@ -1,27 +1,26 @@
 import React from "react";
 import Link from "next/link";
 import CompanyLogo from "../common/CompanyLogo";
+import Image from "next/image";
 
 export default function Footer({ className }: { className?: string }) {
   const CurrentYear = new Date().getFullYear();
 
   return (
     <div
-      className={`${
-        className ? className : ""
-      } footer md:p-6 sm:p-3 py-3 mt-auto`}
+      className={`${className ? className : ""
+        } footer md:p-6 sm:p-3 py-3 mt-auto`}
     >
       <div className="container-fluid flex items-center justify-between gap-15 md:flex-row flex-col md:text-[16px]/[24px] text-[14px]/[20px]">
         <p className="text-font-color-100 text-center">
           © {CurrentYear}{" "}
           <Link href="/" className="text-primary">
-          InBuildify
+            InBuildify
           </Link>
           , All Rights Reserved.
         </p>
         <Link href="/">
-          {/* <CompanyLogo className="w-[53px] h-[18px] text-primary transition-all hover:text-secondary" /> */}
-          InBuildify
+          <Image src="/company.png" alt="logo" width={100} height={100} />
         </Link>
         <ul className="flex items-center gap-x-20 gap-y-5 flex-wrap justify-center">
           <li>

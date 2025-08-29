@@ -3,6 +3,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Item } from "../masterPriceList/iMasterPriceListState";
 import { Status } from "@lib/constants/enum";
 import { createQuotation } from "./quotationThunk";
+import { updateLeadStatus } from "../lead/leadSlice";
 
 export interface QuotationState {
     status: Status;
@@ -31,7 +32,6 @@ const quotationSlice = createSlice({
     initialState,
     reducers: {
         clearQuotation(state) {
-            console.log("🚀 ~ clearQuotation ~ state:", )
             state.items = [];
             state.extraItems = [];
             state.contact = null;
@@ -68,7 +68,15 @@ const quotationSlice = createSlice({
         },
         setQuotationPackage(state, action: PayloadAction<any>) {
             state.package = action.payload;
-        }
+        },
+        updateQuotationItem: (state, action) => {
+            const { itemId, quantity } = action.payload;
+            const item = state.items.find((i) => i.itemId === itemId);
+            if (item) {
+              item.quantity = quantity;
+            }
+          },
+          
     },
     extraReducers: (builder) => {
         builder
@@ -94,5 +102,6 @@ export const {
     setQuotationFacade,
     removeQuotationItem,
     setQuotationPackage,
-    clearQuotation
+    clearQuotation,
+    updateQuotationItem
 } = quotationSlice.actions;

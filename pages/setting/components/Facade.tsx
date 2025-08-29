@@ -1,20 +1,22 @@
-import { useAppDispatch } from '@hooks/redux';
-import { createFacade, getFacades } from '@redux/feature/facade/facadeThunk';
-import React, { useEffect, useState } from 'react';
-import { useAppSelector } from '@hooks/redux';
-import { IFacadeState } from '@redux/feature/facade/IFacadeState';
-import Image from 'next/image';
-import { CreateFormModal } from '@/components/common/Models/CreateFormModel';
-import { getFloorPlanFilters } from '@redux/feature/floorPlan/floorPlanThunk';
-import { facadeFields } from '@/components/formFields/facadeFields';
-import { Status } from '@lib/constants/enum';
-import { enumToReadable } from '@lib/utils/enumToRedable';
+import { useAppDispatch } from "@hooks/redux";
+import { createFacade, getFacades } from "@redux/feature/facade/facadeThunk";
+import React, { useEffect, useState } from "react";
+import { useAppSelector } from "@hooks/redux";
+import { IFacadeState } from "@redux/feature/facade/IFacadeState";
+import Image from "next/image";
+import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
+import { getFloorPlanFilters } from "@redux/feature/floorPlan/floorPlanThunk";
+import { facadeFields } from "@/components/formFields/facadeFields";
+import { Status } from "@lib/constants/enum";
+import { enumToReadable } from "@lib/utils/enumToRedable";
+import { message } from "antd";
 
 const Facade = () => {
   const dispatch = useAppDispatch();
   const facades = useAppSelector((state) => state.facade.facades);
   const status = useAppSelector((state) => state.facade.status);
   const filters = useAppSelector((state) => state.floorPlan.filters);
+  const [loading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   useEffect(() => {
     if (status === Status.IDLE) {
@@ -25,19 +27,40 @@ const Facade = () => {
       dispatch(getFloorPlanFilters()).unwrap();
     }
   }, [dispatch, status, filters]);
-  
+
   const handleOpenModal = () => {
     setIsModalVisible(true);
   };
-  const handleCreateFloorPlan = (values: any) => {
-    setIsModalVisible(false);
-    dispatch(createFacade(values)).unwrap();
+
+  const handleCreateFloorPlan = async (values: any) => {
+    try {
+      setLoading(true);
+      const formData = new FormData();
+      formData.append("name", values.name);
+      formData.append("dwelling_type", values.dwelling_type);
+      formData.append("image", values.image.file.originFileObj);
+      formData.append("standard", values.standard || true);
+      formData.append("upgrade", values.upgrade || true);
+      await dispatch(createFacade(formData)).unwrap();
+      setIsModalVisible(false);
+      message.success("Facade created successfully");
+    } catch (error) {
+      console.error(error);
+      message.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <div className="mt-4">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-[24px]/[30px] font-bold text-var(--font-color)">Facade Management</h2>
-        <button className="btn large bg-primary cursor-pointer text-white" onClick={handleOpenModal}>
+        <h2 className="text-[24px]/[30px] font-bold text-var(--font-color)">
+          Facade Management
+        </h2>
+        <button
+          className="btn large bg-primary cursor-pointer text-white"
+          onClick={handleOpenModal}
+        >
           Create Facade
         </button>
       </div>
@@ -52,7 +75,7 @@ const Facade = () => {
               width={200}
               height={200}
             />
-            
+
             <div className="flex  w-full rounded-lg p-4 overflow-hidden shadow-sm bg-body-color">
               {/* Left Section */}
               <div className="flex-1 space-y-2 pr-4">
@@ -61,7 +84,9 @@ const Facade = () => {
                 </h5>
                 <div className="flex justify-between">
                   <span className="font-medium">Dwelling Type :</span>
-                  <span>{enumToReadable(facade?.dwellingTypeName || "N/A")}</span>
+                  <span>
+                    {enumToReadable(facade?.dwellingTypeName || "N/A")}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="font-medium">Upgradable :</span>
@@ -73,7 +98,7 @@ const Facade = () => {
                 </div>
                 <div className="flex justify-between gap-5">
                   <span className="font-medium">Created At :</span>
-                  <span>{facade?.createdAt?.split('T')[0]}</span>
+                  <span>{facade?.createdAt?.split("T")[0]}</span>
                 </div>
               </div>
             </div>
@@ -85,6 +110,7 @@ const Facade = () => {
           onCancel={() => setIsModalVisible(false)}
           onSubmit={handleCreateFloorPlan}
           fields={facadeFields()}
+          loading={loading}
         />
       </div>
     </div>

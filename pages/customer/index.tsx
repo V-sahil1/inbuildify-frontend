@@ -295,7 +295,7 @@ const CustomerPage = () => {
             onClose={() => setIsDeleteModalOpen({ open: false, recordId: null })}
             onConfirm={() => handleDelete(isDeleteModalOpen.recordId)}
             // title="Delete"
-            message="Are you sure you want to delete this contractor?"
+            message="Are you sure you want to delete this customer?"
             type="danger"
             confirmText="Delete"
             cancelText="Cancel"

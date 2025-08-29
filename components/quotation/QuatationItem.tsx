@@ -1,5 +1,6 @@
-import { useAppSelector } from "@hooks/redux";
+import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { enumToReadable } from "@lib/utils/enumToRedable";
+import { clearQuotation } from "@redux/feature/quotation/quotationSlice";
 import { RootState } from "@redux/feature/store";
 import { IconPlus, IconX } from "@tabler/icons-react";
 import { Tag, InputNumber, Button } from "antd";
@@ -7,7 +8,7 @@ import React, { useState, useEffect } from "react";
 
 interface QuatationItemProps {
   item: any;
-  onQuantityChange: (itemId: string, qty: number, total: number) => void;
+  onQuantityChange: (itemId: string, qty: number) => void;
   onToggleAdd: (itemId: string, price: number) => void;
   isSelected: boolean;
   quantityRef: any;
@@ -27,10 +28,9 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
     }, [reduxQuantity]);
 
     useEffect(() => {
-      const total = (item.cost ?? 0) * quantity;
-      onQuantityChange(item.categoryItemId, quantity, total);
+      onQuantityChange(item.categoryItemId, quantity);
     }, [quantity, item.cost, item.categoryItemId, onQuantityChange]);
-
+      
     const handleToggle = (itemId: string, price: number) => {
       onToggleAdd(itemId, price);
     };

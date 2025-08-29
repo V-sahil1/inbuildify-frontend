@@ -2,6 +2,7 @@
 import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
 import { CreateFormField } from "../common/Models/CreateFormModel";
 import { useAppSelector } from "@hooks/redux";
+import { UploadChangeParam } from "antd/es/upload";
 
 
 export const floorPlanFields = (): CreateFormField[] => {
@@ -16,11 +17,9 @@ export const floorPlanFields = (): CreateFormField[] => {
       rules: [{ required: true, message: "Please enter the property name" }],
     },
     {
-      label: "Image URL",
+      label: "Image",
       name: "image",
-      type: "text",
-      placeholder: "https://example.com/floorplans/villa.png",
-      rules: [{ required: true, message: "Please provide an image URL" }],
+      type: "image",
     },
     {
       label: "Range",

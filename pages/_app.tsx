@@ -33,7 +33,7 @@ export default function App({ Component, pageProps }) {
     <ConfigProvider theme={theme}>
       <Head>
         <link rel="icon" href="/favicon.ico" />
-        <title>:: Luno Next Tailwind ::</title>
+        <title>InBuildify</title>
       </Head>
       <AuthValidator>
       {

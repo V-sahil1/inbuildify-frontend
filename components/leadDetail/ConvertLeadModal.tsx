@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Modal, Button, Input, Form, Typography } from "antd";
+import { Modal, Button, Input, Form, Typography, message } from "antd";
 import { useRouter } from "next/router";
 import { useAppDispatch } from "@hooks/redux";
 import { convertLeadToOpportunityThunk } from "@redux/feature/lead/leadThunk";
@@ -25,7 +25,10 @@ const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
   const handleConvert = async () => {
     try {
       setLoading(true);
-      await dispatch(convertLeadToOpportunityThunk(leadId)).unwrap();
+      const res = await dispatch(convertLeadToOpportunityThunk(leadId)).unwrap();
+      if (res.leadId) {
+        message.success("Lead converted to opportunity successfully");
+      }
       const currentQuery = { ...router.query };
       currentQuery.type = "opportunity";
       await router.replace(
@@ -35,6 +38,7 @@ const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
       );
       onCancel();
     } catch (error) {
+      message.error(`Failed to convert lead to opportunity ${error}`);
       console.error("Error converting lead:", error);
     } finally {
       setLoading(false);
@@ -45,6 +49,7 @@ const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
     <Modal
       title="Convert to Opportunity"
       open={visible}
+      centered
       onCancel={onCancel}
       footer={[
         <Button key="cancel" onClick={onCancel} disabled={loading}>

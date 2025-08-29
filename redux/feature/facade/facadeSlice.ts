@@ -30,7 +30,7 @@ export const facadeSlice = createSlice({
             state.status = Status.ERROR;
         });
         builder.addCase(createFacade.fulfilled, (state, action) => {
-            state.facades.push(action.payload);
+            state.facades.unshift(action.payload);
         });
     }
 })

@@ -1,8 +1,8 @@
 import API_ENDPOINTS from "@lib/constants/apiEndpoints";
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import api from "@lib/constants/api";
+import api, { apiWithFormDataMethods } from "@lib/constants/api";
 import { ApiResponse } from "../auth/IAuthState";
-import { CreateFacadeState, IFacadeState } from "./IFacadeState";
+import { IFacadeState } from "./IFacadeState";
 
 export const getFacades = createAsyncThunk("facade/getAll", async (filters: { dwelling_type?: string } = {}, { rejectWithValue }) => {
     try {
@@ -22,9 +22,9 @@ export const getFacades = createAsyncThunk("facade/getAll", async (filters: { dw
     }
 })
 
-export const createFacade = createAsyncThunk("facade/create", async (payload: CreateFacadeState, { rejectWithValue }) => {
+export const createFacade = createAsyncThunk("facade/create", async (payload: FormData, { rejectWithValue }) => {
     try {
-        const res = await api.post<ApiResponse<IFacadeState>>(API_ENDPOINTS.FACADE_BASE, { data: payload });
+        const res = await apiWithFormDataMethods.post<ApiResponse<IFacadeState>>(API_ENDPOINTS.FACADE_BASE, payload);
         return res.data;
     } catch (error) {
         return rejectWithValue(error.message);

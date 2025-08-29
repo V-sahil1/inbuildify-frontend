@@ -37,7 +37,7 @@ const floorPlanSlice = createSlice({
         state.filters = action.payload;
       })
       .addCase(createFloorPlan.fulfilled, (state, action) => {
-        state.floorPlans.push(action.payload);
+        state.floorPlans.unshift(action.payload);
       })
       .addCase(getConditions.fulfilled, (state, action) => {
         state.status.conditions = Status.SUCCESS;

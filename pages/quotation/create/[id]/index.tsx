@@ -17,13 +17,18 @@ import {
 } from "@redux/feature/masterPriceList/masterPriceListThunk";
 import { Package } from "@redux/feature/package/IPackageState";
 import { RootState } from "@redux/feature/store";
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { createQuotation } from "@redux/feature/quotation/quotationThunk";
 import { message, Spin } from "antd";
 import QuotationFilter from '@/components/quotation/QuotationFilter';
+import { updateLeadStatus } from "@redux/feature/lead/leadSlice";
+import { clearQuotation } from "@redux/feature/quotation/quotationSlice";
+import { usePdf } from '@hooks/usePdf';
+import QuatationPdf from '@/components/common/QuatationPdf';
 
 const Index = () => {
   const dispatch = useAppDispatch();
+  const { user } = useAppSelector((state) => state.auth);
   const {
     contact,
     property,
@@ -48,6 +53,7 @@ const Index = () => {
     (state: RootState) => state.masterPriceList
   );
   const { selectedFilters: mplFilters } = useAppSelector((state: RootState) => state.masterPriceList);
+  const { package: packageFromSlice, items: itemsFromSlice } = useAppSelector((state) => state.quotation);
 
   useEffect(() => {
     if (status === Status.IDLE) {
@@ -55,6 +61,13 @@ const Index = () => {
     }
   }, [dispatch, status]);
 
+  useEffect(() => {
+    return () => {
+      dispatch(clearQuotation());
+    };
+  }, []);
+  
+  const { previewPdf } = usePdf(QuatationPdf);
   const getCategoryById = useCallback(
     (categoryId: string) =>
       categoryData.find((cat) => cat.categoryId === categoryId),
@@ -72,13 +85,22 @@ const Index = () => {
       dispatch(toggleExpand(categoryId));
       dispatch(fetchCategoryItems({ categoryId, filters: { range: mplFilters.range || undefined, dwelling_type: mplFilters.dwelling_type || undefined } }))
         .unwrap()
-       
     }
   };
 
-  const handleItemQuantityChange = (itemId: string, quantity: number) => {};
-  
-  const calculateTotal = () => 1000;
+  const handleItemQuantityChange = (itemId: string, quantity: number) => { };
+
+  const calculateTotal = () => {
+    let total = Number(packageFromSlice?.amount) || 0;
+
+    itemsFromSlice.forEach((item) => {
+      const qty = Number(item.quantity) || 0;
+      const price = Number(item.price) || 0;
+      total += qty * price;
+    });
+
+    return Number(total.toFixed(2));
+  };
 
   const getQuotationItems = () => {
     const normalize = (item: any, isExtra = false) => ({
@@ -93,14 +115,13 @@ const Index = () => {
       ...extraItems.map((item) => normalize(item, true)),
     ];
   };
-  
 
   const createQuotationPayload = () => {
     return {
       range: "PREMIUM", // can be a union of possible values
       dwellingType: "DOUBLE_STOREY", // extend with more if needed
-      leadId:property?.leadId,
-      propertyId:property?.propertyId,
+      leadId: property?.leadId,
+      propertyId: property?.propertyId,
       floorPlanId: plan?.floorPlanId,
       facadeId: facade?.facadeId,
       packageId: selectedPackageFromSlice?.packageId,
@@ -108,20 +129,35 @@ const Index = () => {
     };
   };
 
-  const handleSaveAs = () => console.log("Save As clicked");
   const handleApprove = async () => {
-    try{
-        const payload = createQuotationPayload();
-        await dispatch(createQuotation(payload)).unwrap();
-        message.success("Quotation created successfully");
-    }catch(error){
-        console.log(error);
-        message.error("Failed to create quotation");
+    try {
+      const payload = createQuotationPayload();
+      const response = await dispatch(createQuotation(payload)).unwrap();
+      dispatch(updateLeadStatus({ leadId: response.leadId, status: "COMPLETED", updatedAt: response.updatedAt }));
+      message.success("Quotation created successfully");
+    } catch (error) {
+      console.log(error);
+      message.error("Failed to create quotation");
     }
   };
   const handleEmail = () => console.log("Email clicked");
-  const handlePreview = () => console.log("Preview clicked");
-  const handleViewOpportunity = () => console.log("View Opportunity clicked");
+  const { floorPlans } = useAppSelector((state: RootState) => state.floorPlan);
+  const handlePreview = () => {
+    const data = createQuotationPayload();
+    const flr = floorPlans?.find(
+      (floor) => floor.floorPlanId === data?.floorPlanId
+    );
+    previewPdf({
+      user: user,
+      leadDetail: contact,
+      propertyDetail: property,
+      quotePackage: selectedPackageFromSlice,
+      floorPlan: flr,
+      facade: facade,
+    });
+  };
+
+const handleViewOpportunity = () => console.log("View Opportunity clicked");
   const handleExtraClick = () => {
     setExtraItem(true);
     setSelectedCategory(null);
@@ -147,7 +183,7 @@ const Index = () => {
         onPlanSelect={setSelectedPlan}
         onFacadeSelect={setSelectedFacade}
         onPackageSelect={setSelectedPackage}
-        onPropertyUpdate={() => {}}
+        onPropertyUpdate={() => { }}
       />
 
       <div className="flex flex-1 m-3">
@@ -177,11 +213,8 @@ const Index = () => {
         <FooterActions
           expiryDate={quotation.expiryDate}
           total={calculateTotal()}
-          onSaveAs={handleSaveAs}
           onApprove={handleApprove}
-          onEmail={handleEmail}
           onPreview={handlePreview}
-          onViewOpportunity={handleViewOpportunity}
         />
       </div>
     </>

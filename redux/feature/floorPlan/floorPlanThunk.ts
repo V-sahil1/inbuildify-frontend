@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import api from "@lib/constants/api";
+import api, { apiWithFormDataMethods } from "@lib/constants/api";
 import { ApiResponse } from "../auth/IAuthState";
 import API_ENDPOINTS from "@lib/constants/apiEndpoints";
 import { IFloorPlanState } from "./IFloorPlanState";
@@ -40,9 +40,9 @@ export const fetchFloorPlans = createAsyncThunk(
 
 export const createFloorPlan = createAsyncThunk(
     "floorPlans/create",
-    async (payload: IFloorPlanState, { rejectWithValue }) => {
+    async (payload: FormData, { rejectWithValue }) => {
         try {
-            const res = await api.post<ApiResponse<any>>(API_ENDPOINTS.FLOOR_PLAN_BASE, { data: payload });
+            const res = await apiWithFormDataMethods.post<ApiResponse<any>>(API_ENDPOINTS.FLOOR_PLAN_BASE, payload);
             return res.data;
         } catch (error) {
             return rejectWithValue(error.message);

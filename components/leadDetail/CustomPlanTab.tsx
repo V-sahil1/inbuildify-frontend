@@ -7,15 +7,10 @@ import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
 import { Status } from "@lib/constants/enum";
 import { createFloorPlan, getFloorPlanFilters } from "@redux/feature/floorPlan/floorPlanThunk";
-import MyProfile from "@/pages/my-profile";
-import { getExpectedRequestStore } from "next/dist/client/components/request-async-storage.external";
-
-
 
 const CustomPlanTab: React.FC = () => {
   const [form] = Form.useForm<IFloorPlanState>();
   const dispatch = useAppDispatch();
-  const [fileList, setFileList] = useState<UploadFile[]>([]);
   const { filters, status } = useAppSelector((state: any) => state.floorPlan);
 
   useEffect(() => {
@@ -24,30 +19,32 @@ const CustomPlanTab: React.FC = () => {
     }
   }, [dispatch, status, filters])
 
-  const onFinish = async (values: IFloorPlanState) => {
-     await dispatch(createFloorPlan(values)).unwrap();
-    message.success('Floor Plan successfully Created!');
+  const handleCreateFloorPlan = (values: any) => {
+    const formData = new FormData();
+    formData.append("name", values.name);
+    formData.append("range", values.range);
+    formData.append("dwelling_type", values.dwelling_type);
+    formData.append("beds", values.beds);
+    formData.append("bath", values.bath);
+    formData.append("car_park", values.car_park);
+    formData.append("width_meter", values.width_meter);
+    formData.append("depth_meter", values.depth_meter);
+    formData.append("dwelling", values.dwelling);
+    formData.append("garage", values.garage);
+    formData.append("porch", values.porch);
+    formData.append("alfresco", values.alfresco);
+    formData.append("total_sqft", values.total_sqft);
+    formData.append("image", values.image.file.originFileObj);
+
+    dispatch(createFloorPlan(formData)).unwrap()
+
+    message.success("Floor Plan successfully Created!");
   };
+
 
   const onFinishFailed = (errorInfo: any) => {
     console.log('Failed:', errorInfo);
     message.error('Please fill in all required fields');
-  };
-
-  const uploadProps = {
-    onRemove: (file: UploadFile) => {
-      const index = fileList.indexOf(file);
-      const newFileList = fileList.slice();
-      newFileList.splice(index, 1);
-      setFileList(newFileList);
-      form.setFieldValue('image', '');
-    },
-    beforeUpload: (file: File) => {
-      // setFileList([...fileList, file]);
-      form.setFieldValue('image', file.name);
-      return false;
-    },
-    fileList,
   };
 
   return (
@@ -55,7 +52,7 @@ const CustomPlanTab: React.FC = () => {
       <Form
         form={form}
         layout="vertical"
-        onFinish={onFinish}
+        onFinish={handleCreateFloorPlan}
         onFinishFailed={onFinishFailed}
         autoComplete="off"
         className="flex-1 flex flex-col"
@@ -95,14 +92,21 @@ const CustomPlanTab: React.FC = () => {
               />
             </Form.Item>
             <Form.Item
-              label="Floor Plan Image"
+              key="image"
               name="image"
-              rules={[
-                { required: true, message: "Please enter an image URL" },
-                { type: "url", message: "Please enter a valid URL" },
-              ]}
+              label="Upload Image"
+              valuePropName="file"
+              rules={[{ required: true, message: "Please upload an image" }]}
             >
-              <Input placeholder="https://example.com/floorplan.jpg" />
+              <Upload
+                name="image"
+                listType="picture"
+                multiple={false}
+              >
+                <Button>
+                  Click to Upload
+                </Button>
+              </Upload>
             </Form.Item>
           </div>
 
@@ -191,7 +195,7 @@ const CustomPlanTab: React.FC = () => {
               </Form.Item>
             </div>
           </div>
-          </div>
+        </div>
 
         <div className="mt-4 flex justify-end space-x-4">
           <Button onClick={() => form.resetFields()} className="mt-4">
@@ -207,42 +211,3 @@ const CustomPlanTab: React.FC = () => {
 };
 
 export default CustomPlanTab;
-
-
-// My
-
-// {
-//   "name": "asdasd",
-//   "image": "http://localhost:3000/quotation/create",
-//   "range": "PREMIUM",
-//   "dwelling_type": "DOUBLE_STOREY",
-//   "beds": 12,
-//   "bath": 2,
-//   "car_park": 33,
-//   "width_meter": "3",
-//   "depth_meter": "3",
-//   "dwelling": 2,
-//   "garage": 2,
-//   "porch": 2,
-//   "alfresco": 2,
-//   "totalSqft": "2",
-//   "floorPlanId": "20250828141511"
-// }
-
-// getExpectedRequestStore
-// {
-//   "name": "The Haven 24",
-//   "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
-//   "range": "PREMIUM",
-//   "dwelling_type": "DOUBLE_STOREY",
-//   "beds": "4",
-//   "bath": "3",
-//   "car_park": "2",
-//   "width_meter": "15",
-//   "depth_meter": "20",
-//   "dwelling": "1",
-//   "garage": "1",
-//   "porch": "1",
-//   "alfresco": "1",
-//   "total_sqft": "3200"
-// }
