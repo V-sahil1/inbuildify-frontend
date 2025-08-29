@@ -2,7 +2,10 @@ import AddMasterPricingItemModal from "@/components/common/Models/AddMasterPrici
 import { PricingItem } from "@/components/common/PricingItem";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { Status } from "@lib/constants/enum";
-import { Category } from "@redux/feature/masterPriceList/iMasterPriceListState";
+import {
+  Category,
+  Item,
+} from "@redux/feature/masterPriceList/iMasterPriceListState";
 import { toggleExpand } from "@redux/feature/masterPriceList/masterPriceListSlice";
 import {
   fetchCategories,
@@ -10,22 +13,25 @@ import {
 } from "@redux/feature/masterPriceList/masterPriceListThunk";
 import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
+import { Spin } from "antd";
 
 export const MasterPriceList = () => {
-    const dispatch = useAppDispatch();
-    const { categories ,status} = useAppSelector((state: any) => state.masterPriceList);
-    console.log(categories)
-    useEffect(() => {
-        if(status === Status.IDLE){
-            dispatch(fetchCategories())
-        }
-    }, [dispatch]);
+  const dispatch = useAppDispatch();
+  const { categories, status } = useAppSelector(
+    (state: any) => state.masterPriceList
+  );
+  console.log(categories);
+  useEffect(() => {
+    if (status === Status.IDLE) {
+      dispatch(fetchCategories());
+    }
+  }, [dispatch]);
 
   const [addItemModal, setAddItemModal] = useState(false);
   const [categoryId, setCategoryId] = useState("");
 
-  // independent dropdown state per category
   const [dropDowns, setDropDowns] = useState<Record<string, boolean>>({});
+  const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({}); // State to track loading for each category
 
   const openAddItemModal = (categoryId: string) => {
     setAddItemModal(true);
@@ -33,29 +39,34 @@ export const MasterPriceList = () => {
   };
 
   const handleExpand = (categoryId: string, isExpanded: boolean) => {
-    // toggle UI dropdown
     setDropDowns((prev) => ({
       ...prev,
       [categoryId]: !prev[categoryId],
     }));
 
-    // API fetch logic (only first time if not expanded)
     if (!isExpanded) {
+      setLoadingItems((prev) => ({ ...prev, [categoryId]: true }));
       dispatch(toggleExpand(categoryId));
       dispatch(fetchCategoryItems(categoryId))
         .unwrap()
         .then((response) => {
           console.log(response);
+        })
+        .finally(() => {
+          setLoadingItems((prev) => ({ ...prev, [categoryId]: false }));
         });
     }
   };
 
   return (
     <div>
-      <h2 className="text-[24px]/[30px] font-medium my-2">Master Price List</h2>
+      <h2 className="text-[24px]/[30px] font-black my-4 text-var(--font-color-bl)">
+        Master Price List
+      </h2>
       <div>
         {categories.map((category: Category) => {
           const isDropdownOpen = dropDowns[category.categoryId] || false;
+          const isLoading = loadingItems[category.categoryId] || false; // Check if the category is loading
 
           return (
             <div key={category.categoryId} className="mb-4">
@@ -69,7 +80,7 @@ export const MasterPriceList = () => {
                   >
                     {isDropdownOpen ? <IconChevronUp /> : <IconChevronDown />}
                   </button>
-                  <h3 className="text-[19px]">{category.name}</h3>
+                  <h3 className="text-[19px] font-bold">{category.name}</h3>
                 </div>
 
                 {/* Add Item */}
@@ -81,12 +92,33 @@ export const MasterPriceList = () => {
                 </button>
               </div>
 
-              {/* Items Dropdown */}
               {isDropdownOpen && (
-                <div className="mt-2 flex gap-2 flex-col" id={category.categoryId}>
-                  {category?.items?.map((item: any) => (
-                    <PricingItem key={item.categoryItemId} item={item} />
-                  ))}
+                <div
+                  className="mt-2 flex gap-2 flex-col"
+                  id={category.categoryId}
+                >
+                  {isLoading ? (
+                    <div 
+                    className="flex justify-center items-center py-10 gap-4 p-4 border border-gray-200 rounded-lg bg-card-color text-font-color h-[85px]"
+                    >
+                      <Spin size="large" />
+                    </div>
+                  ) : category?.items?.length > 0 ? (
+                    category.items.map((item: Item) => (
+                      <PricingItem key={item.categoryItemId} item={item} />
+                    ))
+                  ) : (
+                    <div 
+                    className="text-center items-center gap-4 p-4 border border-gray-200 rounded-lg bg-card-color text-font-color h-[85px]"
+                    >
+                      <p className="text-lg font-medium text-font-color">
+                        No items here yet.
+                      </p>
+                      <p className="text-sm text-font-color-400">
+                        To add item click on Add item button.
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

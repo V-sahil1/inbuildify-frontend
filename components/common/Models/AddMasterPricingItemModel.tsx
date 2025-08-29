@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Form, Input, Radio, Checkbox, Select, Modal, message } from "antd";
+import { Form, Input, Radio, Checkbox, Select, Modal, message ,Spin} from "antd";
 import { IconMinus, IconPlus } from "@tabler/icons-react";
 import { createCategoryItem } from "@redux/feature/masterPriceList/masterPriceListThunk";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
@@ -18,6 +18,10 @@ const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
     const [costType, setCostType] = useState('INCLUDED');
     const {filters, status} = useAppSelector((state) => state.floorPlan);
     const dispatch = useAppDispatch();
+    
+    // New state for button loading
+    const [isAddingItem, setIsAddingItem] = useState(false);
+
     useEffect(() => {
         if (!filters) {
             dispatch(getFloorPlanFilters()).unwrap().then(() => {
@@ -26,18 +30,29 @@ const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
         if(status.conditions === Status.IDLE){
             dispatch(getConditions()).unwrap();
         }
-    }, [dispatch]); 
+    }, [dispatch, filters, status.conditions]); 
 
     const onFinish = (values: any) => {
         form.validateFields().then((values) => {
-            dispatch(createCategoryItem({category_id:categoryId, ...values })).unwrap().then(() => {
-                message.success("Master Pricing Item added successfully");
-                form.resetFields();
-            });
+            // Start loading state
+            setIsAddingItem(true);
+            dispatch(createCategoryItem({ category_id: categoryId, ...values }))
+                .unwrap()
+                .then(() => {
+                    message.success("Master Pricing Item added successfully");
+                    form.resetFields();
+                    onClose();
+                })
+                .catch((error) => {
+                    message.error(error || "Failed to add item."); // Added a default error message
+                })
+                .finally(() => {
+                    // Stop loading state
+                    setIsAddingItem(false);
+                });
         }).catch((error) => {
-         message.error(error);
-        }).finally(() => {
-            onClose();
+            // Handle validation errors here
+            console.error('Validation failed:', error);
         });
     };
 
@@ -60,7 +75,7 @@ const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
                 form={form}
                 layout="vertical"
                 onFinish={onFinish}
-                style={{ maxWidth: '100%', maxHeight: '70vh', overflowY: 'auto',scrollbarWidth:"none" }}
+                style={{ maxWidth: '100%', maxHeight: '70vh', overflowY: 'auto', scrollbarWidth: "none" }}
                 className="responsive-form"
             >
                 {/* Item Description */}
@@ -88,8 +103,9 @@ const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
                         label="Cost Type"
                         name="cost_type"
                         className="form-item-responsive flex-1"
+                        initialValue="INCLUDED" // Set initial value here
                     >
-                        <Radio.Group onChange={onCostTypeChange} style={{ width: '100%' }} value={costType} defaultValue={"INCLUDED"}>
+                        <Radio.Group onChange={onCostTypeChange} style={{ width: '100%' }}>
                             <div className="flex flex-col sm:flex-row gap-4">
                                 <Radio value="INCLUDED">Included</Radio>
                                 <Radio value="FIXED">Fixed</Radio>
@@ -103,6 +119,7 @@ const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
                         label="Cost Options"
                         name="cost_option"
                         className="form-item-responsive flex-1"
+                        initialValue="NONE" // Set initial value here
                     >
                         <Radio.Group style={{ width: '100%' }}>
                             <div className="flex flex-col sm:flex-row gap-4">
@@ -225,7 +242,7 @@ const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
                                         {fields.length > 1 && (
                                             <button
                                                 type="button"
-                                                className="btn-danger flex flex-1 items-center justify-center  h-full rounded hover:bg-gray-300"
+                                                className="btn-danger flex flex-1 items-center justify-center h-full rounded hover:bg-gray-300"
                                                 onClick={() => remove(name)}
                                             >
                                                 <IconMinus />
@@ -274,9 +291,17 @@ const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
                 <Form.Item className="mb-0">
                     <button
                         type="submit"
-                        className="btn btn-primary w-full md:w-auto px-8 py-2 text-base"
+                        className={`btn btn-primary w-full md:w-auto px-8 py-2 text-base ${isAddingItem ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        disabled={isAddingItem}
                     >
-                        Save Item
+                        {isAddingItem ? (
+                            <div className="flex items-center justify-center">
+                                    <Spin size="small" />
+                                <span className="ml-2">Adding...</span>
+                            </div>
+                        ) : (
+                            "Add Item"
+                        )}
                     </button>
                 </Form.Item>
             </Form>

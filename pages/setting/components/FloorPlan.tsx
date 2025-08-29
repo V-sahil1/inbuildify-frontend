@@ -43,12 +43,7 @@ const FloorPlan = () => {
   return (
     <div className="mt-4 ">
       <div className="flex items-center justify-between mb-4 ">
-        <Typography.Title
-          level={4}
-          style={{ margin: 0, color: "var(--font-color)" }}
-        >
-          Floor Plan Management
-        </Typography.Title>
+        <h2 className="text-[24px]/[30px] font-bold text-var(--font-color)">Floor Plan Management</h2>
         <button
           className="btn large bg-[var(--primary)] cursor-pointer text-white"
           onClick={handleOpenModal}
@@ -67,33 +62,33 @@ const FloorPlan = () => {
               width={200}
               height={200}
             />
-            <h5 className="text-[20px]/[24px] font-medium mb-2 text-center">
+            <h5 className="text-[20px]/[24px] font-bold mb-2 text-center">
               {floorPlan.name}
             </h5>
             <p className="text-font-color-100 mb-4 text-center">
               {floorPlan.rangeName}
             </p>
-            <div className="flex  w-full rounded-lg p-4   overflow-hidden">
+            <div className="flex  w-full rounded-lg p-4 overflow- bg-body-color">
               {/* Left Section */}
               <div className="flex-1 space-y-2 sm:pr-4">
                 <div className="flex justify-between text-xs sm:text-sm ">
-                  <span className="font-medium">Beds:</span>
+                  <span className="font-medium">Beds :</span>
                   <span>{floorPlan?.beds || "N/A"}</span>
                 </div>
                 <div className="flex justify-between  text-xs sm:text-sm">
-                  <span className="font-medium">Bath:</span>
+                  <span className="font-medium">Bath :</span>
                   <span>{floorPlan?.bath || "N/A"}</span>
                 </div>
                 <div className="flex justify-between text-xs sm:text-sm ">
-                  <span className="font-medium">Car Park:</span>
+                  <span className="font-medium">Car Park :</span>
                   <span>{floorPlan?.carPark || "N/A"}</span>
                 </div>
                 <div className="flex justify-between  text-xs sm:text-sm">
-                  <span className="font-medium">Width M:</span>
+                  <span className="font-medium">Width M :</span>
                   <span>{floorPlan?.widthMeter || "N/A"}</span>
                 </div>
                 <div className="flex justify-between  text-xs sm:text-sm ">
-                  <span className="font-medium">Depth M:</span>
+                  <span className="font-medium">Depth M :</span>
                   <span>{floorPlan?.depthMeter || "N/A"}</span>
                 </div>
               </div>
@@ -104,31 +99,31 @@ const FloorPlan = () => {
               {/* Right Section */}
               <div className="flex-1 space-y-2 sm:pl-4 ">
                 <div className="flex justify-between  text-xs sm:text-sm">
-                  <span className="font-medium break-words">Dwelling:</span>
+                  <span className="font-medium break-words">Dwelling :</span>
                   <span className="break-words">
                     {floorPlan?.dwelling || "N/A"}
                   </span>
                 </div>
                 <div className="flex justify-between  text-xs sm:text-sm">
-                  <span className="font-medium break-words">Garage:</span>
+                  <span className="font-medium break-words">Garage :</span>
                   <span className="break-words">
                     {floorPlan?.garage || "N/A"}
                   </span>
                 </div>
                 <div className="flex justify-between  text-xs sm:text-sm">
-                  <span className="font-medium break-words">Porch:</span>
+                  <span className="font-medium break-words">Porch :</span>
                   <span className="break-words">
                     {floorPlan?.porch || "N/A"}
                   </span>
                 </div>
                 <div className="flex justify-between  text-xs sm:text-sm">
-                  <span className="font-medium break-words">Alfresco:</span>
+                  <span className="font-medium break-words">Alfresco :</span>
                   <span className="break-words">
                     {floorPlan?.alfresco || "N/A"}
                   </span>
                 </div>
                 <div className="flex justify-between  text-xs sm:text-sm">
-                  <span className="font-medium break-words">SQFT:</span>
+                  <span className="font-medium break-words">SQFT :</span>
                   <span className="break-words">
                     {floorPlan?.totalSqft || "N/A"}
                   </span>

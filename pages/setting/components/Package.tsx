@@ -65,14 +65,9 @@ const Package = () => {
   };
 
   return (
-    <div className="p-4">
-      <div className="flex justify-between items-center mb-6">
-        <Typography.Title
-          level={3}
-          style={{ margin: 0, color: "var(--font-color)" }}
-        >
-          Package Management
-        </Typography.Title>
+    <div className="mt-4">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-[24px]/[30px] font-bold text-var(--font-color)">Package Management</h2>
         <button
           className="btn large bg-[var(--primary)] cursor-pointer text-white"
           onClick={handleOpenModal}

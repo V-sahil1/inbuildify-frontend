@@ -3,7 +3,6 @@ import { createFacade, getFacades } from '@redux/feature/facade/facadeThunk';
 import React, { useEffect, useState } from 'react';
 import { useAppSelector } from '@hooks/redux';
 import { IFacadeState } from '@redux/feature/facade/IFacadeState';
-import { Typography } from 'antd';
 import Image from 'next/image';
 import { CreateFormModal } from '@/components/common/Models/CreateFormModel';
 import { getFloorPlanFilters } from '@redux/feature/floorPlan/floorPlanThunk';
@@ -41,10 +40,8 @@ const Facade = () => {
   return (
     <div className="mt-4">
       <div className="flex items-center justify-between mb-4">
-        <Typography.Title level={4} style={{ margin: 0, color: "var(--font-color)" }}>
-          Facade Management
-        </Typography.Title>
-        <button className="btn large bg-[var(--primary)] cursor-pointer text-white" onClick={handleOpenModal}>
+        <h2 className="text-[24px]/[30px] font-bold text-var(--font-color)">Facade Management</h2>
+        <button className="btn large bg-primary cursor-pointer text-white" onClick={handleOpenModal}>
           Create Facade
         </button>
       </div>
@@ -54,32 +51,33 @@ const Facade = () => {
             <Image
               src={facade.image}
               alt={facade.name}
-              className="mb-6 w-[200px] h-[200px]"
+              className="mb-4 w-[200px] h-[200px]"
               unoptimized
               width={200}
               height={200}
             />
-            <h5 className="text-[20px]/[24px] font-medium mb-2 text-center">
-              {facade.name}
-            </h5>
-            <div className="flex w-full rounded-lg p-4 bg-white shadow-sm">
+            
+            <div className="flex  w-full rounded-lg p-4 overflow-hidden shadow-sm bg-body-color">
               {/* Left Section */}
               <div className="flex-1 space-y-2 pr-4">
+                <h5 className="text-[20px]/[24px] font-bold mb-4 text-center">
+                  {facade.name}
+                </h5>
                 <div className="flex justify-between">
-                  <span className="font-medium">Dwelling Type:</span>
+                  <span className="font-medium">Dwelling Type :</span>
                   <span>{enumToReadable(facade?.dwellingTypeName || "N/A")}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="font-medium">Upgradable:</span>
+                  <span className="font-medium">Upgradable :</span>
                   <span>{facade?.upgrade ? "yes" : "no"}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="font-medium">Standard:</span>
+                  <span className="font-medium">Standard :</span>
                   <span>{facade?.standard ? "yes" : "no"}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="font-medium">Created At:</span>
-                  <span>{facade?.createdAt}</span>
+                <div className="flex justify-between gap-5">
+                  <span className="font-medium">Created At :</span>
+                  <span>{facade?.createdAt?.split('T')[0]}</span>
                 </div>
               </div>
             </div>

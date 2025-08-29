@@ -25,7 +25,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
 }) => {
   return (
     <Modal
-      title={title}
+      title={<div className="text-xl">{title}</div>}
       open={open}
       footer={null}
       onCancel={onCancel}
@@ -36,12 +36,12 @@ export const DetailModal: React.FC<DetailModalProps> = ({
           <Spin size="large" />
         </div>
       ) : data ? (
-        <Card bordered={false} className="shadow-md mt-3 rounded-xl">
+        <Card  className="shadow-md mt-3 border-none ">
           <Descriptions
             bordered
             column={1}
             labelStyle={{ fontWeight: 600, width: "150px" }}
-            contentStyle={{ backgroundColor: "#fff" }}
+            style={{ borderRadius: '12px', overflow: 'hidden' }}
           >
             {fields.map((field) => {
               const value = data[field.key];
@@ -55,7 +55,9 @@ export const DetailModal: React.FC<DetailModalProps> = ({
               }
 
               return (
-                <Descriptions.Item key={field.key} label={field.label}>
+                <Descriptions.Item key={field.key} label={field.label} 
+                style={{backgroundColor:'var(--body-color)', color:'var(--font-color)'}}
+                >
                   {content}
                 </Descriptions.Item>
               );
