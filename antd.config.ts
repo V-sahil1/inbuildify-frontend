@@ -1,11 +1,13 @@
 const theme = {
   components: {
     Button: {
-      colorPrimary: "var(--primary)",
-      colorPrimaryHover: "var(--primary-10)",
-      colorText: "var(--white)",
-      colorBorder: "var(--primary)",
-      colorBgBase: "var(--primary-10)",
+      colorPrimary: "var(--primary)",         
+      colorPrimaryHover: "var(--primary-hover)", 
+      colorPrimaryActive: "var(--primary)", 
+      colorText: "var(--primary)",         
+      colorTextHover: "var(--primary-hover)", 
+      colorBorder: "var(--primary)",      
+      colorBorderHover: "var(--primary-hover)",  
     },
     Input: {
       colorBgContainer: "var(--card-color)",

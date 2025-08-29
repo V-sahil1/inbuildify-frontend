@@ -128,15 +128,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
           setModalType(null);
         }}
         centered
-        cancelButtonProps={{
-          style: { color: "var(--primary)", borderColor: "var(--primary)" },
-        }}
-        okButtonProps={{
-          style: {
-            backgroundColor: "var(--primary)",
-            borderColor: "var(--primary)",
-          },
-        }}
+        
         onOk={() => {
           // trigger form submit manually
           document.getElementById("reasonFormSubmit")?.click();

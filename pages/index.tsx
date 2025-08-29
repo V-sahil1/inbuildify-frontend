@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect, useMemo } from "react";
-import dynamic from "next/dynamic";
 import WelcomeHeader from "../components/common/WelcomeHeader";
 import Breadcrumb from "../components/common/Breadcrumb";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";

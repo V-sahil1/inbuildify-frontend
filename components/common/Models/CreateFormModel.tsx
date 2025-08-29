@@ -70,15 +70,6 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
       onCancel={onCancel}
       okText={isEditing ? "Update" : invite ? "Invite" : "Create"}
       confirmLoading={loading}
-      cancelButtonProps={{
-        style: { color: "var(--primary)", borderColor: "var(--primary)" },
-      }}
-      okButtonProps={{
-        style: {
-          backgroundColor: "var(--primary)",
-          borderColor: "var(--primary)",
-        },
-      }}
     >
       <Form
         form={form}

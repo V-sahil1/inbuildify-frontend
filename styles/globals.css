@@ -46,6 +46,7 @@
 [data-theme="light"] {
   --primary: #E27D39;
   --primary-10: #E27D391a;
+  --primary-hover: #db8c58;
   --body-color: #f4f7f6;
   --font-color: #363535;
   --font-color-100: #9399a1;
@@ -59,6 +60,7 @@
 [data-theme="dark"] {
   --primary: #4c3575;
   --primary-10: #4c35751a;
+  --primary-hover: #66469d;
   --body-color: #2d3238;
   --font-color: #e0e0e0;
   --font-color-100: #9399a1;
