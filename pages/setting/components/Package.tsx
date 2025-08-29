@@ -29,7 +29,6 @@ const Package = () => {
     try {
       await dispatch(createPackage(values)).unwrap();
       setIsModalVisible(false);
-     
     } catch (error) {
       console.error("Error creating package:", error);
     }

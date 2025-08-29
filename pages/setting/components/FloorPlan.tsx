@@ -19,6 +19,7 @@ const FloorPlan = () => {
   const floorPlans = useAppSelector(
     (state: RootState) => state.floorPlan.floorPlans
   );
+  const [loading, setLoading] = useState(false);
   const status = useAppSelector((state: RootState) => state.floorPlan.status);
   console.log("status", status);
   const filters = useAppSelector((state: RootState) => state.floorPlan.filters);
@@ -36,27 +37,35 @@ const FloorPlan = () => {
   const handleOpenModal = () => {
     setIsModalVisible(true);
   };
-  const handleCreateFloorPlan = (values: any) => {
-    setIsModalVisible(false);
-    const formData = new FormData();
-    formData.append("name", values.name);
-    formData.append("range", values.range);
-    formData.append("dwelling_type", values.dwelling_type);
-    formData.append("beds", values.beds);
-    formData.append("bath", values.bath);
-    formData.append("car_park", values.car_park);
-    formData.append("width_meter", values.width_meter);
-    formData.append("depth_meter", values.depth_meter);
-    formData.append("dwelling", values.dwelling);
-    formData.append("garage", values.garage);
-    formData.append("porch", values.porch);
-    formData.append("alfresco", values.alfresco);
-    formData.append("total_sqft", values.total_sqft);
-    formData.append("image", values.image.file.originFileObj);
-    dispatch(createFloorPlan(formData))
-      .unwrap()
-      .then((response) => console.log(response))
-      .catch((err) => console.error(err));
+
+  const handleCreateFloorPlan = async (values: any) => {
+    try {
+      setLoading(true);
+      const formData = new FormData();
+      formData.append("name", values.name);
+      formData.append("range", values.range);
+      formData.append("dwelling_type", values.dwelling_type);
+      formData.append("beds", values.beds);
+      formData.append("bath", values.bath);
+      formData.append("car_park", values.car_park);
+      formData.append("width_meter", values.width_meter);
+      formData.append("depth_meter", values.depth_meter);
+      formData.append("dwelling", values.dwelling);
+      formData.append("garage", values.garage);
+      formData.append("porch", values.porch);
+      formData.append("alfresco", values.alfresco);
+      formData.append("total_sqft", values.total_sqft);
+      formData.append("image", values.image.file.originFileObj);
+      await dispatch(createFloorPlan(formData))
+        .unwrap()
+        .then((response) => console.log(response))
+        .catch((err) => console.error(err));
+      setIsModalVisible(false);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <div className="mt-4 ">
@@ -159,6 +168,7 @@ const FloorPlan = () => {
           onCancel={() => setIsModalVisible(false)}
           onSubmit={handleCreateFloorPlan}
           fields={floorPlanFields()}
+          loading={loading}
         />
       </div>
     </div>

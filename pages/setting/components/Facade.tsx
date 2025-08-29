@@ -9,12 +9,14 @@ import { getFloorPlanFilters } from "@redux/feature/floorPlan/floorPlanThunk";
 import { facadeFields } from "@/components/formFields/facadeFields";
 import { Status } from "@lib/constants/enum";
 import { enumToReadable } from "@lib/utils/enumToRedable";
+import { message } from "antd";
 
 const Facade = () => {
   const dispatch = useAppDispatch();
   const facades = useAppSelector((state) => state.facade.facades);
   const status = useAppSelector((state) => state.facade.status);
   const filters = useAppSelector((state) => state.floorPlan.filters);
+  const [loading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   useEffect(() => {
     if (status === Status.IDLE) {
@@ -30,18 +32,24 @@ const Facade = () => {
     setIsModalVisible(true);
   };
 
-  const handleCreateFloorPlan = (values: any) => {
-    setIsModalVisible(false);
-    const formData = new FormData();
-    formData.append("name", values.name);
-    formData.append("dwelling_type", values.dwelling_type);
-    formData.append("image", values.image.file.originFileObj);
-    formData.append("standard", values.standard || true);
-    formData.append("upgrade", values.upgrade || true);
-    dispatch(createFacade(formData))
-      .unwrap()
-      .then((response) => console.log(response))
-      .catch((err) => console.error(err));
+  const handleCreateFloorPlan = async (values: any) => {
+    try {
+      setLoading(true);
+      const formData = new FormData();
+      formData.append("name", values.name);
+      formData.append("dwelling_type", values.dwelling_type);
+      formData.append("image", values.image.file.originFileObj);
+      formData.append("standard", values.standard || true);
+      formData.append("upgrade", values.upgrade || true);
+      await dispatch(createFacade(formData)).unwrap();
+      setIsModalVisible(false);
+      message.success("Facade created successfully");
+    } catch (error) {
+      console.error(error);
+      message.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <div className="mt-4">
@@ -102,6 +110,7 @@ const Facade = () => {
           onCancel={() => setIsModalVisible(false)}
           onSubmit={handleCreateFloorPlan}
           fields={facadeFields()}
+          loading={loading}
         />
       </div>
     </div>

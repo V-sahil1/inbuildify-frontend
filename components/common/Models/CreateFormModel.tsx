@@ -57,7 +57,7 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
       const values = await form.validateFields();
       onSubmit(values);
     } catch (err) {
-      message.error("Please fill all the required fields");
+      // message.error("Please fill all the required fields");
     }
   };
 

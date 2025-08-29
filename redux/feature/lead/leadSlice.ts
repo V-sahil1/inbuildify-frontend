@@ -86,7 +86,7 @@ export const leadSlice = createSlice({
             state.status = Status.ERROR;
         });
         builder.addCase(createLeadThunk.fulfilled, (state, action) => {
-            state.leads.push(action.payload);
+            state.leads.unshift(action.payload);
         });
         builder.addCase(convertLeadToOpportunityThunk.fulfilled, (state, action) => {
           state.leads = state.leads.map((lead) => {
