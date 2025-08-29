@@ -32,7 +32,6 @@ const quotationSlice = createSlice({
     initialState,
     reducers: {
         clearQuotation(state) {
-            console.log("🚀 ~ clearQuotation ~ state:", )
             state.items = [];
             state.extraItems = [];
             state.contact = null;
@@ -69,7 +68,15 @@ const quotationSlice = createSlice({
         },
         setQuotationPackage(state, action: PayloadAction<any>) {
             state.package = action.payload;
-        }
+        },
+        updateQuotationItem: (state, action) => {
+            const { itemId, quantity } = action.payload;
+            const item = state.items.find((i) => i.itemId === itemId);
+            if (item) {
+              item.quantity = quantity;
+            }
+          },
+          
     },
     extraReducers: (builder) => {
         builder
@@ -95,5 +102,6 @@ export const {
     setQuotationFacade,
     removeQuotationItem,
     setQuotationPackage,
-    clearQuotation
+    clearQuotation,
+    updateQuotationItem
 } = quotationSlice.actions;

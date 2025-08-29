@@ -6,7 +6,7 @@ import { QuatationItem } from "../quotation/QuatationItem";
 import { QuatationExtraItem } from "../quotation/QuatationExtraItem";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { RootState } from "@redux/feature/store";
-import { removeQuotationItem, setQuotationItems } from "@redux/feature/quotation/quotationSlice";
+import { removeQuotationItem, setQuotationItems, updateQuotationItem } from "@redux/feature/quotation/quotationSlice";
 
 interface ItemsPanelProps {
   category?: Category;
@@ -23,10 +23,9 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
   const dispatch = useAppDispatch();
   const {extraItems, items} = useAppSelector((state: RootState) => state.quotation);
   const quantityRefs = useRef<{[key: string]: HTMLInputElement | null}>({});
-  
+
   const handleItemAdd = (itemId: string, price: number) => {
     const quantity = quantityRefs.current[itemId]?.value || '1';
-    console.log("🚀 ~ handleItemAdd ~ quantity:", quantity, "for item:", itemId);
     
     if (items.some((item) => item.itemId === itemId)) {
       dispatch(removeQuotationItem(itemId));
@@ -34,7 +33,10 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
       dispatch(setQuotationItems({itemId, quantity: Number(quantity), price}));
     }
   };
-
+  const handleItemQuantityChange = (itemId: string, quantity: number) => {
+    dispatch(updateQuotationItem({ itemId, quantity }));
+  };
+  
   return (
     <div className="flex-1 bg-card-color flex flex-col overflow-hidden">
       {/* Header (search + actions) */}
@@ -101,7 +103,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
                 <QuatationItem
                   key={item.categoryItemId}
                   item={item}
-                  onQuantityChange={(value) => {}}
+                  onQuantityChange={handleItemQuantityChange}
                   quantityRef={(el) => quantityRefs.current[item.categoryItemId] = el}
                   isSelected={items?.some((itemData) => itemData.itemId === item.categoryItemId)}
                   onToggleAdd={handleItemAdd}

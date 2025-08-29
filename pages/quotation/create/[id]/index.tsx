@@ -22,6 +22,7 @@ import { createQuotation } from "@redux/feature/quotation/quotationThunk";
 import { message, Spin } from "antd";
 import QuotationFilter from '@/components/quotation/QuotationFilter';
 import { updateLeadStatus } from "@redux/feature/lead/leadSlice";
+import { clearQuotation } from "@redux/feature/quotation/quotationSlice";
 
 const Index = () => {
   const dispatch = useAppDispatch();
@@ -49,12 +50,19 @@ const Index = () => {
     (state: RootState) => state.masterPriceList
   );
   const { selectedFilters: mplFilters } = useAppSelector((state: RootState) => state.masterPriceList);
+  const { package: packageFromSlice, items: itemsFromSlice } = useAppSelector((state) => state.quotation);
 
   useEffect(() => {
     if (status === Status.IDLE) {
       dispatch(fetchCategories());
     }
   }, [dispatch, status]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(clearQuotation());
+    };
+  }, []);
 
   const getCategoryById = useCallback(
     (categoryId: string) =>
@@ -73,13 +81,22 @@ const Index = () => {
       dispatch(toggleExpand(categoryId));
       dispatch(fetchCategoryItems({ categoryId, filters: { range: mplFilters.range || undefined, dwelling_type: mplFilters.dwelling_type || undefined } }))
         .unwrap()
-       
     }
   };
 
-  const handleItemQuantityChange = (itemId: string, quantity: number) => {};
-  
-  const calculateTotal = () => 1000;
+  const handleItemQuantityChange = (itemId: string, quantity: number) => { };
+
+  const calculateTotal = () => {
+    let total = Number(packageFromSlice?.amount) || 0;
+
+    itemsFromSlice.forEach((item) => {
+      const qty = Number(item.quantity) || 0;
+      const price = Number(item.price) || 0;
+      total += qty * price;
+    });
+
+    return Number(total.toFixed(2));
+  };
 
   const getQuotationItems = () => {
     const normalize = (item: any, isExtra = false) => ({
@@ -100,8 +117,8 @@ const Index = () => {
     return {
       range: "PREMIUM", // can be a union of possible values
       dwellingType: "DOUBLE_STOREY", // extend with more if needed
-      leadId:property?.leadId,
-      propertyId:property?.propertyId,
+      leadId: property?.leadId,
+      propertyId: property?.propertyId,
       floorPlanId: plan?.floorPlanId,
       facadeId: facade?.facadeId,
       packageId: selectedPackageFromSlice?.packageId,
@@ -110,14 +127,14 @@ const Index = () => {
   };
 
   const handleApprove = async () => {
-    try{
-        const payload = createQuotationPayload();
-        const response = await dispatch(createQuotation(payload)).unwrap();
-        dispatch(updateLeadStatus({leadId: response.leadId, status: "COMPLETED", updatedAt: response.updatedAt}));
-        message.success("Quotation created successfully");
-    }catch(error){
-        console.log(error);
-        message.error("Failed to create quotation");
+    try {
+      const payload = createQuotationPayload();
+      const response = await dispatch(createQuotation(payload)).unwrap();
+      dispatch(updateLeadStatus({ leadId: response.leadId, status: "COMPLETED", updatedAt: response.updatedAt }));
+      message.success("Quotation created successfully");
+    } catch (error) {
+      console.log(error);
+      message.error("Failed to create quotation");
     }
   };
   const handlePreview = () => console.log("Preview clicked");
@@ -146,7 +163,7 @@ const Index = () => {
         onPlanSelect={setSelectedPlan}
         onFacadeSelect={setSelectedFacade}
         onPackageSelect={setSelectedPackage}
-        onPropertyUpdate={() => {}}
+        onPropertyUpdate={() => { }}
       />
 
       <div className="flex flex-1 m-3">

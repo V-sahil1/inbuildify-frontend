@@ -6,6 +6,7 @@ import ConvertLeadModal from "@/components/leadDetail/ConvertLeadModal";
 import PropertyDetailsModal from "@/components/leadDetail/PropertyDetailsModal";
 import LeadDetailsForm from "@/components/leadDetail/forms/LeadDetailsForm";
 import {
+  IconBarrierBlock,
   IconEdit,
   IconMail,
   IconPhone,
@@ -101,21 +102,21 @@ function App() {
           label: "Proposal",
           color: "bg-green-500",
           textColor: "text-white",
-          onClick: () => {},
+          onClick: () => { },
         },
         {
           key: "negotiation",
           label: "Negotiation",
           color: "bg-yellow-300",
           textColor: "text-black",
-          onClick: () => {},
+          onClick: () => { },
         },
         {
           key: "close",
           label: "Close",
           color: "bg-gray-200",
           textColor: "text-black",
-          onClick: () => {},
+          onClick: () => { },
         },
       ];
     }
@@ -125,7 +126,7 @@ function App() {
         label: "New",
         color: "bg-green-500",
         textColor: "text-white",
-        onClick: () => {},
+        onClick: () => { },
       },
       {
         key: "working",
@@ -190,19 +191,19 @@ function App() {
               onClick={() => setIsEditLeadModalVisible(true)}
             />
           </div>
-          <h2 className="font-semibold text-lg">{contact.name ?? ""}</h2>
-          <p className="text-sm text-gray-600">
+          <h2 className="font-semibold text-lg">{contact.name ?? "-"}</h2>
+          <p className="text-sm">
             {lead.address || "Address not provided"}
           </p>
 
-          <div className="flex items-center gap-2 mt-2 text-gray-700">
+          <div className="flex items-center gap-2 mt-2">
             <IconPhoneCall className="w-4 h-4" />
-            <span className="text-sm">{contact.phone ?? ""}</span>
+            <span className="text-sm">{contact.phone ?? "-"}</span>
           </div>
 
-          <div className="flex items-center gap-2 mt-1 text-gray-700">
+          <div className="flex items-center gap-2 mt-1">
             <IconMail className="w-4 h-4" />
-            <span className="text-sm">{contact.email ?? ""}</span>
+            <span className="text-sm">{contact.email ?? "-"}</span>
           </div>
         </Card>
 
@@ -217,44 +218,57 @@ function App() {
               onClick={() => setIsPropertyModalVisible(true)}
             />
           </div>
-          <h2 className="font-semibold text-lg">
-            {propertyFromSlice.address1 ?? ""}
-          </h2>
-          <p className="text-sm text-gray-600">
-            {[
-              propertyFromSlice.citySuburb,
-              propertyFromSlice.stateRegion,
-              propertyFromSlice.zipPostalCode,
-            ]
-              .filter(Boolean)
-              .join(", ")}
-          </p>
+          {
+            (propertyFromSlice.address1 || propertyFromSlice.citySuburb || propertyFromSlice.stateRegion || propertyFromSlice.zipPostalCode) ? (
+              <>
+                <h2 className="font-semibold text-lg">
+                  {propertyFromSlice.address1 ?? ""}
+                </h2>
+                <p className="text-sm text-gray-600">
+                  {[
+                    propertyFromSlice.citySuburb,
+                    propertyFromSlice.stateRegion,
+                    propertyFromSlice.zipPostalCode,
+                  ]
+                    .filter(Boolean)
+                    .join(", ")}
+                </p>
 
-          <div className="text-sm text-gray-600 mt-2">
-            <p>
-              Title :{" "}
-              {propertyFromSlice?.titleDate
-                ? dayjs(propertyFromSlice.titleDate).format("DD-MM-YYYY")
-                : ""}
-            </p>
-            <p>Type : {propertyFromSlice.landType ?? ""}</p>
-            <p>
-              W: {propertyFromSlice.widthM || ""}
-              {propertyFromSlice.widthM ? "m" : ""} D:{" "}
-              {propertyFromSlice.depthM || ""}
-              {propertyFromSlice.depthM ? "m" : ""} Total:{" "}
-              {propertyFromSlice.totalSizeM2 || ""}
-              {propertyFromSlice.totalSizeM2 ? " m²" : ""}
-            </p>
-          </div>
+                <div className="text-sm text-gray-600 mt-2">
+                  <p>
+                    Title :{" "}
+                    {propertyFromSlice?.titleDate
+                      ? dayjs(propertyFromSlice.titleDate).format("DD-MM-YYYY")
+                      : ""}
+                  </p>
+                  <p>Type : {propertyFromSlice.landType ?? ""}</p>
+                  <p>
+                    W: {propertyFromSlice.widthM || ""}
+                    {propertyFromSlice.widthM ? "m" : ""} D:{" "}
+                    {propertyFromSlice.depthM || ""}
+                    {propertyFromSlice.depthM ? "m" : ""} Total:{" "}
+                    {propertyFromSlice.totalSizeM2 || ""}
+                    {propertyFromSlice.totalSizeM2 ? " m²" : ""}
+                  </p>
+                </div>
 
-          <a href="#" className="text-theme-blue text-sm mt-2 inline-block">
-            Additional Fields
-          </a>
+                <a href="#" className="text-theme-blue text-sm mt-2 inline-block">
+                  Additional Fields
+                </a>
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center p-4 rounded-lg">
+               <IconBarrierBlock />
+                <p className="text-sm text-gray-500 text-center">No property details added yet</p>
+                <p className="text-xs text-gray-400 mt-1">Add property information to get started</p>
+              </div>
+            )
+          }
+
         </Card>
 
         {/* Actions Card */}
-       {isOpportunity && <Card>
+        {isOpportunity && <Card>
           <div className="flex flex-col justify-between">
             <Link
               href={SystemRoutes.QUOTATION_CREATE(leadId)}
