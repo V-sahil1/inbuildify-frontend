@@ -1,4 +1,5 @@
-import { Quotation, LeadDetails, PropertyDetails, Plan, Facade, Package, Category } from './types';
+import { Package } from '@redux/feature/package/IPackageState';
+import { Quotation, LeadDetails, PropertyDetails, Plan, Facade, Category } from './types';
 
 export const quotationData: Quotation = {
   id: 'MYH23070085',
@@ -46,41 +47,20 @@ export const availableFacades: Facade[] = [
 
 export const availablePackages: Package[] = [
   { 
-    id: '1', 
+    packageId: '1', 
     name: 'Premium Pack', 
-    price: 5000, 
-    description: 'Includes premium finishes and extras',
-    items: [
-      { id: 'i1', name: 'Premium Flooring', description: 'High-end wooden flooring', quantity: 1, unit: 'sqm' },
-      { id: 'i2', name: 'Designer Tiles', description: 'Premium ceramic tiles for bathroom', quantity: 2, unit: 'box' },
-      { id: 'i3', name: 'Smart Home System', description: 'Complete home automation system', quantity: 1, unit: 'set' },
-      { id: 'i4', name: 'Premium Paint', description: 'High-quality interior paint', quantity: 10, unit: 'liters' },
-    ]
-  },
-  { 
-    id: '2', 
-    name: 'Standard Pack', 
-    price: 3000, 
-    description: 'Standard inclusions and finishes',
-    items: [
-      { id: 'i5', name: 'Standard Flooring', description: 'Laminate flooring', quantity: 1, unit: 'sqm' },
-      { id: 'i6', name: 'Basic Tiles', description: 'Standard ceramic tiles', quantity: 1, unit: 'box' },
-      { id: 'i7', name: 'Standard Paint', description: 'Regular interior paint', quantity: 8, unit: 'liters' },
-    ]
-  },
-  { 
-    id: '3', 
-    name: 'Luxury Pack', 
-    price: 8000, 
-    description: 'Top-tier luxury inclusions',
-    items: [
-      { id: 'i8', name: 'Luxury Marble Flooring', description: 'Imported Italian marble', quantity: 1, unit: 'sqm' },
-      { id: 'i9', name: 'Smart Home Pro', description: 'Advanced home automation with AI', quantity: 1, unit: 'set' },
-      { id: 'i10', name: 'Premium Kitchen Set', description: 'Custom-designed luxury kitchen', quantity: 1, unit: 'set' },
-      { id: 'i11', name: 'Home Theater System', description: 'Dolby Atmos surround system', quantity: 1, unit: 'set' },
-      { id: 'i12', name: 'Luxury Bath Fittings', description: 'Designer bathroom fixtures', quantity: 3, unit: 'set' },
-    ]
-  },
+    amount: "5000", 
+    categoryItemDescriptions: [
+       'High-end wooden flooring',
+       'Premium ceramic tiles for bathroom',
+       'Complete home automation system',
+       'High-quality interior paint',
+    ],
+    builderId: '1',
+    categoryItemIds: ['1', '2', '3', '4'],
+    createdAt: '2023-07-13T00:00:00.000Z',
+    updatedAt: '2023-07-13T00:00:00.000Z'
+  }
 ];
 
 export const categories: Category[] = [

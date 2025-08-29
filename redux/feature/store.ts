@@ -13,7 +13,7 @@ import { dashboardReducer } from "./dashboard/dashboardSlice";
 const authPersistConfig = {
   key: "auth",
   storage,
-  whitelist: ["auth", "lead"],
+  whitelist: ["auth", "lead", "quotation"],
 };
 
 const rootReducer = combineReducers({
@@ -30,7 +30,7 @@ const rootReducer = combineReducers({
 const persistConfig = {
   key: "root",
   storage,
-  blacklist: ["lead", "masterPriceList", "floorPlan", "facade", "quotation"],
+  blacklist: ["lead", "masterPriceList", "floorPlan", "facade"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

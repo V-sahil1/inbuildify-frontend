@@ -5,7 +5,7 @@ import { PropertyDetails } from '@/pages/leads/data/types';
 import { updatePropertyDetailsThunk } from '@redux/feature/lead/leadThunk';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { RootState } from '@redux/feature/store';
-import { usePathname } from 'next/navigation';
+import { useParams, usePathname } from 'next/navigation';
 import { setQuotationPropertyFromResponse } from '@redux/feature/quotation/quotationSlice';
 import { setLeadProperty } from '@redux/feature/lead/leadSlice';
 import { enumToReadable } from '@lib/utils/enumToRedable';
@@ -26,17 +26,18 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
   const [form] = Form.useForm();
   const dispatch = useAppDispatch();
   const pathname = usePathname();
+const leadid = useParams()
+console.log("🚀 ~ PropertyDetailsModal ~ leadid:", leadid)
 
   const { leadDetail } = useAppSelector((state: RootState) => state.lead);
   const quotation = useAppSelector((state: RootState) => (state as any).quotation);
   const isQuotationRoute = (pathname || '').toLowerCase().includes('quotation');
+  console.log("🚀 ~ PropertyDetailsModal ~ isQuotationRoute:", isQuotationRoute)
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
 
-      const leadId = isQuotationRoute
-        ? ((quotation as any)?.contact?.lead_id ?? '')
-        : ((leadDetail as any)?.contact?.lead_id ?? '');
+      const leadId = isQuotationRoute ? (leadid?.id) : ((leadDetail as any)?.contact?.lead_id ?? '');
       const titleStatusUpper = String(values.titleStatus || '').toUpperCase();
       const mappedTitleStatus = (titleStatusUpper === 'ACTUAL' || titleStatusUpper === 'CONFIRMED') ? 'ACTUAL' : 'ESTIMATED';
 

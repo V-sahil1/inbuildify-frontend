@@ -58,9 +58,9 @@ function App() {
   const [lead, setLead] = useState<LeadDetails>(sampleLeadDetails);
   const dispatch = useAppDispatch();
   const { leadDetail } = useAppSelector((state: RootState) => state.lead);
-
   const contact = (leadDetail as any)?.contact ?? {};
   const propertyFromSlice = (leadDetail as any)?.property ?? {};
+  const leadId = router.query.id as string | undefined;
 
   const latestLeadDetailRef = useRef<any>(null);
   useEffect(() => {
@@ -68,7 +68,6 @@ function App() {
   }, [leadDetail]);
 
   useEffect(() => {
-    const leadId = router.query.id as string | undefined;
     if (leadId) {
       dispatch(getLeadByIdThunk(leadId));
     }
@@ -257,7 +256,7 @@ function App() {
        {isOpportunity && <Card>
           <div className="flex flex-col justify-between">
             <Link
-              href={SystemRoutes.QUOTATION_CREATE}
+              href={SystemRoutes.QUOTATION_CREATE(leadId)}
               className="text-theme-blue text-sm"
             >
               Create Quotation

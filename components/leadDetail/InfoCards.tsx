@@ -5,7 +5,6 @@ import {
   IconHome,
   IconFileText,
   IconEdit,
-  IconBuilding,
   IconGift,
   IconPlus,
   IconMail,
@@ -18,13 +17,14 @@ import {
   PropertyDetails,
   Plan,
   Facade,
-  Package,
 } from "@/pages/leads/data/types";
 import PropertyDetailsModal from "./PropertyDetailsModal";
 import FloorPlanModal from "./FloorPlanModal";
 import dayjs from "dayjs";
 import FacadeModal from "./FacadeModal";
 import { IFacadeState } from "@redux/feature/facade/IFacadeState";
+import PackageModal from "./PackageModal";
+import { Package } from "@redux/feature/package/IPackageState";
 
 interface InfoCardsProps {
   leadDetails: LeadDetails;
@@ -32,8 +32,6 @@ interface InfoCardsProps {
   selectedPlan?: Plan;
   selectedFacade?: IFacadeState;
   selectedPackage?: Package;
-  availableFacades: Facade[];
-  availablePackages: Package[];
   onPlanSelect: (plan: Plan) => void;
   onFacadeSelect: (facade: IFacadeState) => void;
   onPackageSelect: (pkg: Package) => void;
@@ -46,8 +44,6 @@ const InfoCards: React.FC<InfoCardsProps> = ({
   selectedPlan,
   selectedFacade,
   selectedPackage,
-  availableFacades,
-  availablePackages,
   onPlanSelect,
   onFacadeSelect,
   onPackageSelect,
@@ -171,37 +167,47 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           <span className="font-medium text-font-color">Property Details</span>
           <IconEdit className="text-gray-400 ml-auto" />
         </div>
-        <div className="space-y-2">
-          <div className="font-semibold text-font-color">
-            {propertyDetails?.address1}
-          </div>
-          <div className="text-sm text-font-color">
-            {[
-              propertyDetails?.citySuburb,
-              propertyDetails?.stateRegion,
-              propertyDetails?.zipPostalCode,
-            ]
-              .filter(Boolean)
-              .join(", ")}
-          </div>
-          <div className="text-sm text-font-color-100">
-            Title :{" "}
-            {propertyDetails?.titleDate ? dayjs(propertyDetails?.titleDate).format("DD-MM-YYYY") : ""}
-          </div>
-          <div className="text-sm text-font-color-100">
-            Type: {propertyDetails?.landType ?? ""}
-          </div>
-          {propertyDetails?.widthM && propertyDetails?.depthM && (
-            <div className="text-sm text-font-color-100">
-              W: {propertyDetails?.widthM || ""}
-              {propertyDetails?.widthM ? "m" : ""} D:{" "}x chr
-              {propertyDetails?.depthM || ""}
-              {propertyDetails?.depthM ? "m" : ""} Total:{" "}
-              {propertyDetails?.totalSizeM2 || ""}
-              {propertyDetails?.totalSizeM2 ? " m²" : ""}
+        {
+          propertyDetails?.address1 && propertyDetails?.citySuburb && propertyDetails?.stateRegion && propertyDetails?.zipPostalCode ? (
+            <div className="space-y-2">
+              <div className="font-semibold text-font-color">
+                {propertyDetails?.address1}
+              </div>
+              <div className="text-sm text-font-color">
+                {[
+                  propertyDetails?.citySuburb,
+                  propertyDetails?.stateRegion,
+                  propertyDetails?.zipPostalCode,
+                ]
+                  .filter(Boolean)
+                  .join(", ")}
+              </div>
+              <div className="text-sm text-font-color-100">
+                Title :{" "}
+                {propertyDetails?.titleDate ? dayjs(propertyDetails?.titleDate).format("DD-MM-YYYY") : ""}
+              </div>
+              <div className="text-sm text-font-color-100">
+                Type: {propertyDetails?.landType ?? ""}
+              </div>
+              {propertyDetails?.widthM && propertyDetails?.depthM && (
+                <div className="text-sm text-font-color-100">
+                  W: {propertyDetails?.widthM || ""}
+                  {propertyDetails?.widthM ? "m" : ""} D:{" "}x chr
+                  {propertyDetails?.depthM || ""}
+                  {propertyDetails?.depthM ? "m" : ""} Total:{" "}
+                  {propertyDetails?.totalSizeM2 || ""}
+                  {propertyDetails?.totalSizeM2 ? " m²" : ""}
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          ) : (
+            <div className="text-center py-4">
+              <Button type="primary" size="middle">
+                Please Fill Property Details
+              </Button>
+            </div>
+          )
+        }
       </Card>
       {/* Select Plan Card */}
       <div className="flex gap-4 flex-col">
@@ -209,20 +215,22 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           className="shadow-sm hover:shadow-md transition-shadow cursor-pointer"
           onClick={() => setFloorPlanModalVisible(true)}
         >
-          <div className="flex items-center gap-2 mb-3">
-            <IconFileText className="text-purple-500" />
-            <span className="font-medium text-font-color">Select Plan</span>
-            <IconEdit className="text-gray-400 ml-auto" />
-          </div>
           {selectedPlan ? (
-            <div className="space-y-2">
-              <div className="font-semibold text-center text-font-color">
-                {selectedPlan.name || "-"}
+            <>
+              <div className="flex items-center gap-2 mb-3">
+                <IconFileText className="text-purple-500" />
+                <span className="font-medium text-font-color">Select Plan</span>
+                <IconEdit className="text-gray-400 ml-auto" />
               </div>
-            </div>
+              <div className="space-y-2">
+                <div className="font-semibold text-center text-font-color">
+                  {selectedPlan.name || "-"}
+                </div>
+              </div>
+            </>
           ) : (
             <div className="text-center py-4">
-              <Button type="dashed" size="small">
+              <Button type="primary" size="middle">
                 Select Plan
               </Button>
             </div>
@@ -232,21 +240,23 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           className="shadow-sm hover:shadow-md transition-shadow cursor-pointer"
           onClick={() => setFacadeModalVisible(true)}
         >
-          <div className="flex items-center gap-2 mb-3">
-            <IconFileText className="text-purple-500" />
-            <span className="font-medium text-font-color">Select Facade</span>
-            <IconEdit className="text-gray-400 ml-auto" />
-          </div>
           {selectedFacade ? (
-            <div className="space-y-2">
-              <div className="font-semibold text-center text-font-color">
-                {/* @ts-ignore */}
-                {selectedFacade?.facade?.name || "-"}
+            <>
+              <div className="flex items-center gap-2 mb-3">
+                <IconFileText className="text-purple-500" />
+                <span className="font-medium text-font-color">Select Facade</span>
+                <IconEdit className="text-gray-400 ml-auto" />
               </div>
-            </div>
+              <div className="space-y-2">
+                <div className="font-semibold text-center text-font-color">
+                  {/* @ts-ignore */}
+                  {selectedFacade?.facade?.name || "-"}
+                </div>
+              </div>
+            </>
           ) : (
             <div className="text-center py-4">
-              <Button type="primary" size="small">
+              <Button type="primary" size="middle">
                 Select Facade
               </Button>
             </div>
@@ -259,24 +269,26 @@ const InfoCards: React.FC<InfoCardsProps> = ({
         className="shadow-sm hover:shadow-md transition-shadow cursor-pointer"
         onClick={() => setPackageModalVisible(true)}
       >
-        <div className="flex items-center gap-2 mb-3">
-          <IconGift className="text-red-500" />
-          <span className="font-medium text-font-color">Select Package</span>
-          <IconEdit className="text-gray-400 ml-auto" />
-        </div>
         {selectedPackage ? (
-          <div className="space-y-2">
-            <div className="font-semibold text-font-color">Package (1)</div>
-            <div className="font-medium text-blue-600">
-              {selectedPackage.name}
+          <>
+            <div className="flex items-center gap-2 mb-3">
+              <IconGift className="text-red-500" />
+              <span className="font-medium text-font-color">Select Package</span>
+              <IconEdit className="text-gray-400 ml-auto" />
             </div>
-            <div className="text-lg font-bold text-green-600">
-              ${selectedPackage.price.toLocaleString()}
+            <div className="space-y-2">
+              <div className="font-semibold text-font-color">Package (1)</div>
+              <div className="font-medium text-blue-600">
+                {selectedPackage.name}
+              </div>
+              <div className="text-lg font-bold text-green-600">
+                ${selectedPackage.amount}
+              </div>
             </div>
-          </div>
+          </>
         ) : (
           <div className="text-center py-4">
-            <Button type="dashed" size="small">
+            <Button type="primary" size="middle">
               Select Package
             </Button>
           </div>
@@ -330,124 +342,13 @@ const InfoCards: React.FC<InfoCardsProps> = ({
         selectedFacade={selectedFacade}
       />
       {/* Package Selection Modal */}
-      <Modal
-        title="Select Package"
-        centered
-        open={packageModalVisible}
+      <PackageModal
+        visible={packageModalVisible}
         onCancel={() => setPackageModalVisible(false)}
-        footer={[
-          <Button key="cancel" onClick={() => setPackageModalVisible(false)}>
-            Cancel
-          </Button>,
-          <Button
-            key="save"
-            type="primary"
-            className="bg-blue-600"
-            onClick={() => {
-              if (selectedPackage) {
-                onPackageSelect(selectedPackage);
-                setPackageModalVisible(false);
-              }
-            }}
-            disabled={!selectedPackage}
-          >
-            Save Changes
-          </Button>
-        ]}
-        width={800}
-        className="package-selection-modal"
-      >
-        <div className="flex h-[500px] border rounded-lg overflow-hidden ">
-          {/* Left side - Package List */}
-          <div className="w-1/3 border-r overflow-y-auto bg-gray-50">
-            <div className="p-4 border-b bg-white">
-              <h3 className="text-lg font-semibold text-font-color">Available Packages</h3>
-            </div>
-            <div className="divide-y">
-              {availablePackages.map((pkg) => (
-                <div
-                  key={pkg.id}
-                  className={`p-4 cursor-pointer hover:bg-gray-100 transition-colors ${selectedPackage?.id === pkg.id ? 'bg-blue-50' : ''
-                    }`}
-                  onClick={() => onPackageSelect(pkg)}
-                >
-                  <div className="flex items-center">
-                    <input
-                      type="radio"
-                      className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                      checked={selectedPackage?.id === pkg.id}
-                      onChange={() => { }}
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                    <div className="ml-3">
-                      <div className="font-medium text-font-color">{pkg.name}</div>
-                      <div className="text-sm text-font-color-100">
-                        ${pkg.price.toLocaleString()}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Right side - Package Details */}
-          <div className="w-2/3 overflow-y-auto p-6">
-            {selectedPackage ? (
-              <div>
-                <h2 className="text-2xl font-bold mb-2">{selectedPackage.name}</h2>
-                <div className="text-3xl font-bold text-green-600 mb-6">
-                  ${selectedPackage.price.toLocaleString()}
-                </div>
-
-                {selectedPackage.description && (
-                  <div className="mb-6">
-                    <h3 className="text-lg font-semibold mb-2">Description</h3>
-                    <p className="text-gray-700 mb-6">{selectedPackage.description}</p>
-                  </div>
-                )}
-
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-3">Included Items</h3>
-                  <div className="space-y-3">
-                    {selectedPackage.items?.length ? (
-                      selectedPackage.items.map((item) => (
-                        <div key={item.id} className="flex items-start p-3 bg-gray-50 rounded-lg">
-                          <div className="flex-1">
-                            <div className="font-medium text-gray-900">{item.name}</div>
-                            {item.description && (
-                              <p className="text-sm text-gray-600">{item.description}</p>
-                            )}
-                          </div>
-                          <div className="ml-4 text-sm text-gray-500 whitespace-nowrap">
-                            {item.quantity && (
-                              <span>
-                                {item.quantity} {item.unit || 'unit'}{item.quantity > 1 ? 's' : ''}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-gray-500 italic">No items included in this package.</p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="mt-6 pt-4 border-t">
-                  <p className="text-sm text-gray-500">
-                    Click 'Save Changes' to select this package or 'Cancel' to close without changes.
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="h-full flex items-center justify-center text-gray-500">
-                <p>Select a package to view details</p>
-              </div>
-            )}
-          </div>
-        </div>
-      </Modal>
+        onSave={onPackageSelect}
+        selectedPackage={selectedPackage}
+        onSelect={onPackageSelect}
+      />
     </div>
   );
 };

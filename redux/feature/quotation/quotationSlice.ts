@@ -51,6 +51,9 @@ const quotationSlice = createSlice({
         },
         setQuotationFacade(state, action: PayloadAction<any>) {
             state.facade = action.payload;
+        },
+        setQuotationPackage(state, action: PayloadAction<any>) {
+            state.package = action.payload;
         }
     }
 });
@@ -63,5 +66,6 @@ export const {
     setQuotationPropertyFromResponse, setQuotationExtraItems, setQuotationItems,
     setQuotationPlan,
     setQuotationFacade,
-    removeQuotationItem
+    removeQuotationItem,
+    setQuotationPackage
 } = quotationSlice.actions;
