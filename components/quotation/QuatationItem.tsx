@@ -1,27 +1,53 @@
+import { useAppSelector } from "@hooks/redux";
 import { enumToReadable } from "@lib/utils/enumToRedable";
+import { RootState } from "@redux/feature/store";
 import { IconPlus, IconX } from "@tabler/icons-react";
-import { Tag, InputNumber, Button, Input } from "antd";
-import React, { useState } from "react";
+import { Tag, InputNumber, Button } from "antd";
+import React, { useState, useEffect } from "react";
 
 interface QuatationItemProps {
   item: any;
-  onQuantityChange: (value: number) => void;
-  onToggleAdd: (itemId:string,price:number) => void;
+  onQuantityChange: (itemId: string, qty: number, total: number) => void;
+  onToggleAdd: (itemId: string, price: number) => void;
   isSelected: boolean;
   quantityRef: any;
 }
 
 export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
-  ({ item, onToggleAdd,isSelected,quantityRef}) => {
-    console.log("🚀 ~ quantityRef:", quantityRef)
-    
-    const handleToggle = (itemId:string,price:number) => {
-      onToggleAdd(itemId,price);
+  ({ item, onToggleAdd, isSelected, onQuantityChange, quantityRef }) => {
+    const { items } = useAppSelector((state: RootState) => state.quotation);
+
+    const reduxQuantity =
+      items.find((i) => i.itemId === item.categoryItemId)?.quantity ?? 1;
+
+    const [quantity, setQuantity] = useState<number>(reduxQuantity);
+
+    useEffect(() => {
+      setQuantity(reduxQuantity);
+    }, [reduxQuantity]);
+
+    useEffect(() => {
+      const total = (item.cost ?? 0) * quantity;
+      onQuantityChange(item.categoryItemId, quantity, total);
+    }, [quantity, item.cost, item.categoryItemId, onQuantityChange]);
+
+    const handleToggle = (itemId: string, price: number) => {
+      onToggleAdd(itemId, price);
+    };
+
+    const handleQuantityChange = (value: number | null) => {
+      setQuantity(value ?? 1);
     };
 
     return (
-      <div className={isSelected ? "table-row  bg-primary-10" : "table-row hover:bg-card-color"}>
-        {/* Item */}
+      <div
+        className={
+          isSelected
+            ? "table-row bg-primary-10"
+            : "table-row hover:bg-card-color"
+        }
+      >
+        {/* Item Info */}
         <div className="table-cell p-3 align-top">
           <div className="font-medium text-[16px]">{item.shortDescription}</div>
           <div className="flex flex-wrap gap-2 mt-1">
@@ -53,8 +79,10 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
         <div className="table-cell text-center p-3 align-middle">
           <InputNumber
             min={1}
+            value={quantity}
             ref={quantityRef}
-            type="number" 
+            onChange={handleQuantityChange}
+            type="number"
             size="small"
             className="w-full text-center"
           />
@@ -62,12 +90,12 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
 
         {/* Price */}
         <div className="table-cell text-center p-3 align-middle">
-          ${item.cost  ?? 0}
+          ${item.cost ?? 0}
         </div>
 
         {/* Total */}
         <div className="table-cell text-center p-3 align-middle">
-          ${(item.cost ?? 0) * quantityRef.current?.value}
+          ${(item.cost ?? 0) * quantity}
         </div>
 
         {/* Action */}
@@ -77,7 +105,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
             shape="circle"
             size="small"
             icon={isSelected ? <IconX size={16} /> : <IconPlus size={16} />}
-            onClick={()=>handleToggle(item.categoryItemId,item.cost)}
+            onClick={() => handleToggle(item.categoryItemId, item.cost)}
           />
         </div>
       </div>
