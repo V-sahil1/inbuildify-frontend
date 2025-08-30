@@ -41,7 +41,7 @@ const FacadeModal: React.FC<FacadeModalProps> = ({
                 message.warning("Please select a facade before saving.");
                 return;
             }
-            onSave({ type: "existing", facade: selected });
+            onSave(selected);
             dispatch(setQuotationFacade(selected));
             onCancel();
         } else {
@@ -98,16 +98,16 @@ const FacadeModal: React.FC<FacadeModalProps> = ({
                             />
                         ),
                     },
-                    {
-                        key: "custom",
-                        label: "Custom",
-                        children: (
-                            <CustomFacadeForm
-                                initialValues={formValues}
-                                onFormChange={setFormValues}
-                            />
-                        ),
-                    },
+                    // {
+                    //     key: "custom",
+                    //     label: "Custom",
+                    //     children: (
+                    //         <CustomFacadeForm
+                    //             initialValues={formValues}
+                    //             onFormChange={setFormValues}
+                    //         />
+                    //     ),
+                    // },
                 ]}
             />
         </Modal>

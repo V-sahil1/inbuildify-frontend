@@ -13,6 +13,7 @@ interface FooterActionsProps {
   total: number;
   onApprove: () => void;
   onPreview: () => void;
+  loading: boolean;
 }
 
 const FooterActions: React.FC<FooterActionsProps> = ({
@@ -20,6 +21,7 @@ const FooterActions: React.FC<FooterActionsProps> = ({
   total,
   onApprove,
   onPreview,
+  loading
 }) => {
   return (
       <div className="flex items-center justify-between">
@@ -28,6 +30,7 @@ const FooterActions: React.FC<FooterActionsProps> = ({
             <Button
               icon={<IconCheck />}
               onClick={onApprove}
+              loading={loading}
             >
               Create Quotation
             </Button>
@@ -38,9 +41,9 @@ const FooterActions: React.FC<FooterActionsProps> = ({
         </div>
 
         <div className="flex items-center gap-8">
-          <div className="text-sm">
+          {/* <div className="text-sm">
             Expiry date: <span className="font-medium">{expiryDate}</span>
-          </div>
+          </div> */}
           <div className="text-2xl font-bold">
             Total:{" "}
             <span className="text-green-600">${total.toLocaleString()}</span>

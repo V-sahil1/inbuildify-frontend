@@ -11,6 +11,7 @@ import { getFacades } from "@redux/feature/facade/facadeThunk";
 import { fetchPackages } from "@redux/feature/package/packageThunk";
 import { setSelectedFilters as setPackageFilters } from "@redux/feature/package/packageSlice";
 import { setSelectedFilters as setMplFilters } from "@redux/feature/masterPriceList/masterPriceListSlice";
+import { setSelectedFilters as setQuotationFilters } from "@redux/feature/quotation/quotationSlice";
 import { Select } from "antd";
 
 const QuotationFilter = () => {
@@ -20,6 +21,9 @@ const QuotationFilter = () => {
   );
   const { selectedFilters: packageFilters } = useAppSelector(
     (state) => state.package
+  );
+  const { selectedFilters: selectedQuotationFilters } = useAppSelector(
+    (state) => state.quotation
   );
   const rangeOptions = enumArrayToOptions(filters?.ranges);
   const dwellingOptions = enumArrayToOptions(filters?.dwellingTypes);
@@ -37,6 +41,8 @@ const QuotationFilter = () => {
       const newFilters = { ...selectedFilters, range: value || "" };
       dispatch(setSelectedFilters(newFilters));
       dispatch(setMplFilters({ range: value || "" }));
+      dispatch(setQuotationFilters(newFilters));
+
 
       // Only make API call if at least one filter is selected
       if (newFilters.range || newFilters.dwelling_type) {
@@ -54,6 +60,7 @@ const QuotationFilter = () => {
       const newFilters = { ...selectedFilters, dwelling_type: value || "" };
       dispatch(setSelectedFilters(newFilters));
       dispatch(setMplFilters({ dwelling_type: value || "" }));
+      dispatch(setQuotationFilters(newFilters));
 
       // Only make API call if at least one filter is selected
       if (newFilters.range || newFilters.dwelling_type) {
@@ -123,7 +130,7 @@ const QuotationFilter = () => {
           placeholder="Select Range"
           size="small"
           allowClear
-          value={selectedFilters?.range || undefined}
+          value={selectedQuotationFilters?.range || undefined}
           onChange={(value) => {
             handleRangeChange(value), handlePackageRangeChange(value);
           }}
@@ -139,7 +146,7 @@ const QuotationFilter = () => {
           placeholder="Select Dwelling Type"
           size="small"
           allowClear
-          value={selectedFilters?.dwelling_type || undefined}
+          value={selectedQuotationFilters?.dwelling_type || undefined}
           onChange={(value) => {
             handleFloorPlanDwellingTypeChange(value),
               handleFacadeDwellingTypeChange(value),

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Card, Button, Tag, Modal, Divider } from "antd";
+import { Card, Button, Tag, Modal, Divider, Tooltip } from "antd";
 import {
   IconUser,
   IconHome,
@@ -24,6 +24,7 @@ import FacadeModal from "./FacadeModal";
 import { IFacadeState } from "@redux/feature/facade/IFacadeState";
 import PackageModal from "./PackageModal";
 import { Package } from "@redux/feature/package/IPackageState";
+import { useAppSelector } from "@hooks/redux";
 
 interface InfoCardsProps {
   leadDetails: LeadDetails;
@@ -48,6 +49,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
   onPackageSelect,
   onPropertyUpdate,
 }) => {
+  console.log("🚀 ~ selectedFacade:", selectedFacade)
   const [propertyModalVisible, setPropertyModalVisible] = useState(false);
   const [floorPlanModalVisible, setFloorPlanModalVisible] = useState(false);
   const [facadeModalVisible, setFacadeModalVisible] = useState(false);
@@ -57,6 +59,14 @@ const InfoCards: React.FC<InfoCardsProps> = ({
   const [activeContactIndex, setActiveContactIndex] = useState<number | null>(
     null
   );
+  const { selectedFilters } = useAppSelector(
+    (state) => state.quotation
+  );
+  
+  const isSelectionDisabled = !selectedFilters?.range || !selectedFilters?.dwelling_type;
+  const disabledMessage = isSelectionDisabled 
+    ? 'Please select both Range and Dwelling Type first' 
+    : '';
   const [contacts, setContacts] = useState<
     Array<{
       name: string;
@@ -134,7 +144,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           </div>
         )}
 
-        <Button
+        {/* <Button
           type="text"
           size="small"
           icon={<IconPlus size={14} />}
@@ -154,7 +164,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           }}
         >
           Add Contact
-        </Button>
+        </Button> */}
       </Card>
 
       <Card
@@ -210,11 +220,12 @@ const InfoCards: React.FC<InfoCardsProps> = ({
       </Card>
       {/* Select Plan Card */}
       <div className="flex gap-4 flex-col">
-        <Card
-          className="shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-          onClick={() => setFloorPlanModalVisible(true)}
-        >
-          {selectedPlan ? (
+        <Tooltip title={disabledMessage}>
+          <Card
+            className={`shadow-sm transition-shadow ${isSelectionDisabled ? 'opacity-70' : 'hover:shadow-md cursor-pointer'}`}
+            onClick={!isSelectionDisabled ? () => setFloorPlanModalVisible(true) : undefined}
+          >
+            {selectedPlan ? (
             <>
               <div className="flex items-center gap-2 mb-3">
                 <IconFileText className="text-purple-500" />
@@ -229,16 +240,22 @@ const InfoCards: React.FC<InfoCardsProps> = ({
             </>
           ) : (
             <div className="text-center py-4">
-              <Button type="primary" size="middle">
+              <Button 
+                type="primary" 
+                size="middle"
+                disabled={isSelectionDisabled}
+              >
                 Select Plan
               </Button>
             </div>
           )}
         </Card>
-        <Card
-          className="shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-          onClick={() => setFacadeModalVisible(true)}
-        >
+        </Tooltip>
+        <Tooltip title={disabledMessage}>
+          <Card
+            className={`shadow-sm transition-shadow ${isSelectionDisabled ? 'opacity-70' : 'hover:shadow-md cursor-pointer'}`}
+            onClick={!isSelectionDisabled ? () => setFacadeModalVisible(true) : undefined}
+          >
           {selectedFacade ? (
             <>
               <div className="flex items-center gap-2 mb-3">
@@ -255,19 +272,25 @@ const InfoCards: React.FC<InfoCardsProps> = ({
             </>
           ) : (
             <div className="text-center py-4">
-              <Button type="primary" size="middle">
+              <Button 
+                type="primary" 
+                size="middle"
+                disabled={isSelectionDisabled}
+              >
                 Select Facade
               </Button>
             </div>
           )}
         </Card>
+        </Tooltip>
       </div>
 
       {/* Select Package Card */}
-      <Card
-        className="shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-        onClick={() => setPackageModalVisible(true)}
-      >
+      <Tooltip title={disabledMessage}>
+        <Card
+          className={`shadow-sm transition-shadow ${isSelectionDisabled ? 'opacity-70' : 'hover:shadow-md cursor-pointer'}`}
+          onClick={!isSelectionDisabled ? () => setPackageModalVisible(true) : undefined}
+        >
         {selectedPackage ? (
           <>
             <div className="flex items-center gap-2 mb-3">
@@ -287,12 +310,17 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           </>
         ) : (
           <div className="text-center py-4">
-            <Button type="primary" size="middle">
+            <Button 
+              type="primary" 
+              size="middle"
+              disabled={isSelectionDisabled}
+            >
               Select Package
             </Button>
           </div>
         )}
       </Card>
+      </Tooltip>
 
       <PropertyDetailsModal
         visible={propertyModalVisible}

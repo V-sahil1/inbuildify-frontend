@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Form, Input, message, Modal, Tag } from "antd";
 import { useAppDispatch } from "@hooks/redux";
 import { convertLeadToJobThunk } from "@redux/feature/lead/leadThunk";
+import { useRouter } from "next/navigation";
 const { TextArea } = Input;
 
 type Step = {
@@ -33,8 +34,10 @@ const StageProgress: React.FC<StageProgressProps> = ({
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState<"WON" | "LOST" | null>(null);
+  const [loading, setLoading]=  useState(false)
   const dispatch = useAppDispatch()
   const [form] = Form.useForm();
+  const router = useRouter();
   const handleWinClick = () => {
     setModalType("WON");
     setIsModalOpen(true);
@@ -48,19 +51,28 @@ const StageProgress: React.FC<StageProgressProps> = ({
   const handleSubmit = async (values: any) => {
     if (modalType === "WON") {
       try {
+        setLoading(true)
         const response = await dispatch(convertLeadToJobThunk({ leadId: lead.contact.lead_id, message: values.message, status: "WON" })).unwrap()
         message.success(response?.response?.message)
         form.resetFields();
+        router.push(`/job`)
       } catch (err) {
         message.error(err)
+      }finally{
+        setLoading(false)
       }
+
     } else if (modalType === "LOST") {
       try {
+        setLoading(true)
         const response = await dispatch(convertLeadToJobThunk({ leadId: lead.contact.lead_id, message: values.message, status: "LOST" })).unwrap()
         form.resetFields();
-        message.success(response?.response?.message)
+        message.success("Lead mark as lost successfully")
+        router.push(`/leads`)
       } catch (err) {
         message.error(err)
+      }finally{
+        setLoading(false)
       }
     }
     setIsModalOpen(false);
@@ -127,7 +139,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
           setModalType(null);
         }}
         centered
-        
+        okButtonProps={{ loading }}
         onOk={() => {
           document.getElementById("reasonFormSubmit")?.click();
         }}

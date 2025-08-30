@@ -25,6 +25,7 @@ import { updateLeadStatus } from "@redux/feature/lead/leadSlice";
 import { clearQuotation } from "@redux/feature/quotation/quotationSlice";
 import { usePdf } from '@hooks/usePdf';
 import QuatationPdf from '@/components/common/QuatationPdf';
+import { useRouter } from "next/navigation";
 
 const Index = () => {
   const dispatch = useAppDispatch();
@@ -43,6 +44,7 @@ const Index = () => {
   const [selectedFacade, setSelectedFacade] = useState<
     IFacadeState | undefined
   >(facade);
+  const router = useRouter();
   const [selectedPackage, setSelectedPackage] = useState<Package | undefined>(
     selectedPackageFromSlice
   );
@@ -61,11 +63,11 @@ const Index = () => {
     }
   }, [dispatch, status]);
 
-  useEffect(() => {
-    return () => {
-      dispatch(clearQuotation());
-    };
-  }, []);
+  // useEffect(() => {
+  //   return () => {
+  //     dispatch(clearQuotation());
+  //   };
+  // }, []);
   
   const { previewPdf } = usePdf(QuatationPdf);
   const getCategoryById = useCallback(
@@ -135,6 +137,7 @@ const Index = () => {
       const response = await dispatch(createQuotation(payload)).unwrap();
       dispatch(updateLeadStatus({ leadId: response.leadId, status: "COMPLETED", updatedAt: response.updatedAt }));
       message.success("Quotation created successfully");
+      router.push(`/job`);
     } catch (error) {
       console.log(error);
       message.error("Failed to create quotation");
@@ -215,6 +218,7 @@ const handleViewOpportunity = () => console.log("View Opportunity clicked");
           total={calculateTotal()}
           onApprove={handleApprove}
           onPreview={handlePreview}
+          loading={quotationStatus === Status.PENDING}
         />
       </div>
     </>

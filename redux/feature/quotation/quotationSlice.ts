@@ -6,7 +6,9 @@ import { createQuotation } from "./quotationThunk";
 import { updateLeadStatus } from "../lead/leadSlice";
 
 export interface QuotationState {
+
     status: Status;
+    selectedFilters: any;
     contact: LeadDetails;
     property: PropertyDetails;
     plan: any;
@@ -18,6 +20,7 @@ export interface QuotationState {
 
 const initialState: QuotationState = {
     status: Status.IDLE,
+    selectedFilters: { range: '', dwelling_type: '' },
     contact: null,
     property: null,
     plan: null,
@@ -75,7 +78,10 @@ const quotationSlice = createSlice({
             if (item) {
               item.quantity = quantity;
             }
-          },
+        },
+        setSelectedFilters(state, action: PayloadAction<any>) {
+            state.selectedFilters = action.payload;
+        },
           
     },
     extraReducers: (builder) => {
@@ -103,5 +109,6 @@ export const {
     removeQuotationItem,
     setQuotationPackage,
     clearQuotation,
-    updateQuotationItem
+    updateQuotationItem,
+    setSelectedFilters
 } = quotationSlice.actions;

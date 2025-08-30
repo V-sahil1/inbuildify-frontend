@@ -193,7 +193,7 @@ const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
                                         {...restField}
                                         label="Conditions"
                                         name={[name, "name"]}
-                                        rules={[{ required: true, message: "Please select condition" }]}
+                                        // rules={[{ required: true, message: "Please select condition" }]}
                                     >
                                         <Select placeholder="Please select" className="w-full">
                                             {filters?.conditions?.map((condition: { name: string }) => (
@@ -209,7 +209,7 @@ const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
                                         {...restField}
                                         label="Range - Start"
                                         name={[name, "range_start"]}
-                                        rules={[{ required: true, message: "Please enter start range" }]}
+                                        // rules={[{ required: true, message: "Please enter start range" }]}
                                     >
                                         <Input min={0} className="w-full" type="number" />
                                     </Form.Item>
@@ -219,7 +219,7 @@ const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
                                         {...restField}
                                         label="Range - End"
                                         name={[name, "range_end"]}
-                                        rules={[{ required: true, message: "Please enter end range" }]}
+                                        // rules={[{ required: true, message: "Please enter end range" }]}
                                     >
                                         <Input min={0} className="w-full" type="number" />
                                     </Form.Item>
