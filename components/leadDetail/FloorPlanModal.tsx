@@ -110,23 +110,23 @@ const FloorPlanModal: React.FC<FloorPlanModalProps> = ({
                 />
               ),
             },
-            {
-              key: "custom",
-              label: (
-                <span
-                  className={`px-4 py-2 rounded ${
-                    activeTab === "custom"
-                      ? "bg-green-500 text-white"
-                      : "bg-gray-200 text-gray-700"
-                  }`}
-                >
-                  Custom
-                </span>
-              ),
-              children: (
-                <CustomPlanTab />
-              ),
-            },
+            // {
+            //   key: "custom",
+            //   label: (
+            //     <span
+            //       className={`px-4 py-2 rounded ${
+            //         activeTab === "custom"
+            //           ? "bg-green-500 text-white"
+            //           : "bg-gray-200 text-gray-700"
+            //       }`}
+            //     >
+            //       Custom
+            //     </span>
+            //   ),
+            //   children: (
+            //     <CustomPlanTab />
+            //   ),
+            // },
           ]}
         />
       )}

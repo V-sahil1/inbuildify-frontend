@@ -41,8 +41,8 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
     <div className="flex-1 bg-card-color flex flex-col overflow-hidden">
       {/* Header (search + actions) */}
       <div className="p-4 border-b border-gray-200">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-4">
+        <div className="flex items-center justify-end w-full ">
+          {/* <div className="flex items-center gap-4">
             <span className="text-xs">All</span>
             <Input
               placeholder="Search Items..."
@@ -50,7 +50,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
               className="w-64"
               size="small"
             />
-          </div>
+          </div> */}
           <Button type="primary" size="small" ghost>
             Selected Items{" "}
             <span className="ml-1 bg-blue-500 text-primary rounded-full px-2 py-0 text-xs">
@@ -74,11 +74,11 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
               <div className="table-cell text-center p-3 w-[100px]">
                 Total ($)
               </div>
-              <div className="table-cell text-center p-3 w-[60px]">
+              {/* <div className="table-cell text-center p-3 w-[60px]">
                 <Button type="primary" size="small" ghost onClick={() => {onExtraClick()}}>
                   Extra <span className="ml-1">{(extraItems.length ?? 0)}</span>
                 </Button>
-              </div>
+              </div> */}
             </div>
           </div>
       {/* {extraItem && (

@@ -252,9 +252,9 @@ function App() {
                   </p>
                 </div>
 
-                <a href="#" className="text-theme-blue text-sm mt-2 inline-block">
+                {/* <a href="#" className="text-theme-blue text-sm mt-2 inline-block">
                   Additional Fields
-                </a>
+                </a> */}
               </>
             ) : (
               <div className="flex flex-col items-center justify-center p-4 rounded-lg">

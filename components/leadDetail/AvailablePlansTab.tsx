@@ -40,11 +40,11 @@ const AvailablePlansTab: React.FC<AvailablePlansTabProps> = ({
           ))}
         </div>
 
-        <div className="text-center">
+        {/* <div className="text-center">
           <Button type="link" className="text-blue-500">
             Click here to add floorplan
           </Button>
-        </div>
+        </div> */}
 
         {/* Floor Plan Details */}
         {selectedPlan && (
