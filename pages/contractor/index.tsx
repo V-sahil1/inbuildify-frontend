@@ -254,6 +254,7 @@ const ContractorPage = () => {
             loading={false}
             scroll={{ x: "max-content" }}
             onRow={(record) => ({
+              style: { cursor: 'pointer' },
               onClick: () => handleRowClick(record),
             })}
           />

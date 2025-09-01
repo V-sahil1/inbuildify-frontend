@@ -16,28 +16,28 @@ export const PricingItem = ({ item }: any) => {
         </div>
         <div className="flex gap-3">
           {item?.costType && (
-            <Tag color="yellow">
+            <Tag color="yellow" className="text-[10px]">
               <p>{item?.costType}</p>
             </Tag>
           )}
           {item?.dwellingTypeName && item?.dwellingTypeName !== "NONE" && (
-            <Tag color="blue">
+            <Tag color="blue" className="text-[10px]">
               <p>{enumToReadable(item?.dwellingTypeName).toUpperCase()}</p>
             </Tag>
           )}
-          {item?.costOption && item?.costOption !== "NONE" &&(
-            <Tag color="red">
+          {item?.costOption && item?.costOption !== "NONE" && (
+            <Tag color="red" className="text-[10px]">
               <p>{enumToReadable(item?.costOption).toUpperCase()}</p>
             </Tag>
           )}
           {item?.status && item?.status !== "NONE" && (
-            <Tag color="purple">
+            <Tag color="purple" className="text-[10px]">
               <p>{enumToReadable(item?.status).toUpperCase()}</p>
             </Tag>
           )}
-          {item?.rangeName && item?.rangeName !== "NONE" &&(
-            <Tag color="orange">
-                <p>{enumToReadable(item?.rangeName).toUpperCase()}</p>
+          {item?.rangeName && item?.rangeName !== "NONE" && (
+            <Tag color="orange" className="text-[10px]">
+              <p>{enumToReadable(item?.rangeName).toUpperCase()}</p>
             </Tag>
           )}
         </div>

@@ -254,6 +254,7 @@ const CustomerPage = () => {
             loading={false}
             scroll={{ x: "max-content" }}
             onRow={(record) => ({
+              style: { cursor: 'pointer' },
               onClick: () => handleRowClick(record),
             })}
           />
@@ -264,6 +265,7 @@ const CustomerPage = () => {
           title="Customer"
           onCancel={handleCancel}
           onSubmit={handleSubmit}
+          loading={loading}
           isEditing={editingKey ? true : false}
           initialValues={editingKey ? customers.find((c) => c.key === editingKey) : {}}
           fields={[...customerCreateFields, {

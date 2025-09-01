@@ -9,7 +9,7 @@ import { getFloorPlanFilters } from "@redux/feature/floorPlan/floorPlanThunk";
 import { facadeFields } from "@/components/formFields/facadeFields";
 import { Status } from "@lib/constants/enum";
 import { enumToReadable } from "@lib/utils/enumToRedable";
-import { message } from "antd";
+import { Empty, message, Spin } from "antd";
 
 const Facade = () => {
   const dispatch = useAppDispatch();
@@ -77,8 +77,16 @@ const Facade = () => {
           Create Facade
         </button>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {facades?.map((facade: IFacadeState) => (
+      
+        {status == Status.PENDING ? 
+         (<div className="flex justify-center items-center pt-[20vh]">
+            <Spin size="large" />
+          </div>) 
+        :
+       facades.length > 0 ? 
+        
+         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {facades?.map((facade: IFacadeState) => (
           <div className="card bg-card-color p-4 rounded-xl flex flex-col items-center border border-dashed border-border-color">
             <Image
               src={facade.image}
@@ -117,6 +125,14 @@ const Facade = () => {
             </div>
           </div>
         ))}
+         </div>
+        :
+        <Empty description={
+            <span className="text-gray-500">No facade found. Create your first facade to get started.</span>
+          }
+          className="py-12"
+        />
+        }
         <CreateFormModal
           title="Floor Plan"
           open={isModalVisible}
@@ -125,7 +141,7 @@ const Facade = () => {
           fields={facadeFields()}
           loading={loading}
         />
-      </div>
+     
     </div>
   );
 };

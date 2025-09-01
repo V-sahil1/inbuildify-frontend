@@ -13,7 +13,7 @@ import {
 } from "@redux/feature/masterPriceList/masterPriceListThunk";
 import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
-import { message, Spin } from "antd";
+import { message, Spin,Empty } from "antd";
 
 export const MasterPriceList = () => {
     const dispatch = useAppDispatch();
@@ -71,6 +71,12 @@ export const MasterPriceList = () => {
       <h2 className="text-[24px]/[30px] font-black my-4 text-var(--font-color-bl)">
         Master Price List
       </h2>
+      {status == Status.PENDING ? 
+       (<div className="flex justify-center items-center pt-[20vh]">
+          <Spin size="large" />
+        </div>) 
+      :
+      categories.length > 0 ? 
       <div>
         {categories.map((category: Category) => {
           const isDropdownOpen = dropDowns[category.categoryId] || false;
@@ -140,6 +146,14 @@ export const MasterPriceList = () => {
           categoryId={categoryId}
         />
       </div>
+        :
+       <Empty description={
+            <span className="text-gray-500">No Master Price found.</span>
+          }
+          className="py-12"
+        />
+      }
+    
     </div>
   );
 };

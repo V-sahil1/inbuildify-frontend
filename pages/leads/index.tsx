@@ -20,6 +20,7 @@ const Leads = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [openLeadCreateModal, setOpenLeadCreateModal] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -32,11 +33,15 @@ const Leads = () => {
 
   const handleSubmit = async (values: any) => {
     try {
+      setLoading(true);
       await dispatch(createLeadThunk(values)).unwrap();
       message.success("Lead created successfully");
       setOpenLeadCreateModal(false);
     } catch (error) {
-      message.error("Failed to create lead");
+      message.error(error || "Failed to create lead");
+    }
+    finally {
+      setLoading(false);
     }
   };
   const handleOpenModal = () => {
@@ -132,8 +137,9 @@ const Leads = () => {
         ))}
       </div>
       <CreateFormModal
-        title="Create Lead"
+        title="Lead"
         open={openLeadCreateModal}
+        loading={loading}
         onCancel={() => setOpenLeadCreateModal(false)}
         onSubmit={handleSubmit}
         fields={[
