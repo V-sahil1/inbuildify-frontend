@@ -11,7 +11,7 @@ import Link from "next/link";
 import SystemRoutes from "@lib/constants/Routes";
 import { useAppDispatch } from "@hooks/redux";
 import { getUserThunk, SignInThunk } from "@redux/feature/auth/authThunk";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export async function getStaticProps() {
   return {
@@ -27,27 +27,25 @@ export default function Signin() {
   const [loading, setLoading] = useState<boolean>(false);
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const redirectTo = searchParams.get("redirectTo") || "/";
+ 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
-  const onFinish = async () => {
+  const onFinish = async (values: any) => {
     try {
-      const values = await form.validateFields();
       setLoading(true);
       const response = await dispatch(SignInThunk(values)).unwrap();
       await dispatch(getUserThunk()).unwrap();
       message.success(response.message);
-      router.push(redirectTo);
+      router.push("/");
     } catch (error: any) {
-      message.error(error);
+      message.error(error || "sign in failed");
     } finally {
       setLoading(false);
     }
   };
+
   return (
     <>
       <div className="sm:mb-8 mb-6 text-center">
