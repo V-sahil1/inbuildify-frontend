@@ -49,7 +49,6 @@ const InfoCards: React.FC<InfoCardsProps> = ({
   onPackageSelect,
   onPropertyUpdate,
 }) => {
-  console.log("🚀 ~ selectedFacade:", selectedFacade)
   const [propertyModalVisible, setPropertyModalVisible] = useState(false);
   const [floorPlanModalVisible, setFloorPlanModalVisible] = useState(false);
   const [facadeModalVisible, setFacadeModalVisible] = useState(false);

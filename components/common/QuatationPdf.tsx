@@ -13,84 +13,13 @@ import { IFacadeState } from "@redux/feature/facade/IFacadeState";
 import { IFloorPlanState } from "@redux/feature/floorPlan/IFloorPlanState";
 import { Package } from "@redux/feature/package/IPackageState";
 
-const styles = StyleSheet.create({
-  page: {
-    flexDirection: "column",
-    backgroundColor: "#fff",
-    fontFamily: "Helvetica",
-    position: "relative",
-  },
-  header: {
-    position: "absolute",
-    top: 20,
-    left: 40,
-    right: 40,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderBottom: "1pt solid #ccc",
-    paddingBottom: 6,
-  },
-  headerLogo: { width: 80, height: 30, objectFit: "contain" },
-  headerTextContainer: { flexDirection: "column", alignItems: "flex-end" },
-  headerTitle: { fontSize: 12, fontWeight: "bold", color: "#000" },
-  headerSlogan: { fontSize: 10, color: "#666" },
-  backgroundImage: {
-    width: "100%",
-    height: "50%",
-    objectFit: "cover",
-  },
-  content: {
-    flex: 1,
-    padding: 40,
-    justifyContent: "center",
-    alignItems: "center",
-    textAlign: "center",
-  },
-  logo: { width: 160, height: 60, marginBottom: 10, objectFit: "contain" },
-  title: { fontSize: 22, fontWeight: "bold", marginBottom: 5, color: "#000" },
-  slogan: { fontSize: 14, marginBottom: 8, color: "#444" },
-  email: { fontSize: 12, color: "#1D4ED8" },
-  section: {
-    marginTop: 20,
-    padding: 20,
-    border: "1pt solid #ddd",
-    borderRadius: 6,
-  },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: "bold",
-    marginBottom: 8,
-    color: "#1D4ED8",
-    textTransform: "uppercase",
-  },
-  row: { flexDirection: "row", marginBottom: 6 },
-  label: {
-    width: "35%",
-    fontSize: 11,
-    fontWeight: "bold",
-    color: "#333",
-  },
-  value: { fontSize: 11, color: "#555", flexShrink: 1 },
-  footer: {
-    position: "absolute",
-    bottom: 20,
-    left: 40,
-    right: 40,
-    fontSize: 9,
-    color: "#444",
-    textAlign: "center",
-    borderTop: "1pt solid #ccc",
-    paddingTop: 6,
-  },
-});
-
 interface QuatationPdfProps {
   user: User;
   leadDetail: any;
   propertyDetail: any;
   facade: IFacadeState;
   quotePackage: Package;
+  quotationAmount: number;
   backgroundImg?: string;
   floorPlan: IFloorPlanState;
 }
@@ -102,6 +31,7 @@ export const QuatationPdf = ({
   propertyDetail,
   floorPlan,
   facade,
+  quotationAmount,
   backgroundImg = "https://i.postimg.cc/KYZDbwxQ/Hexagonal-Facade-Design-2-Large-2.jpg",
 }: QuatationPdfProps) => {
   const Footer = () => {
@@ -248,7 +178,7 @@ export const QuatationPdf = ({
         )}
       </PageLayout>
 
-      {/* Page: Floor Plan */}
+      {/* Page 4: Floor Plan */}
       <PageLayout>
         <TitleOfPage title={`Floor Plan – ${floorPlan?.name}`} />
 
@@ -324,7 +254,7 @@ export const QuatationPdf = ({
         </Text>
       </PageLayout>
 
-      {/* Facade information */}
+      {/* Page 5: Facade information */}
       <PageLayout>
         <TitleOfPage title={`Facade - ${facade?.name}`} />
 
@@ -388,10 +318,63 @@ export const QuatationPdf = ({
         </View>
       </PageLayout>
 
-      {/* Acceptance */}
+      {/* Page 6: Quotation Amount */}
+      <PageLayout>
+        <TitleOfPage title="QUOTATION" />
+        <View style={{ marginTop: 10 }}>
+          <Text style={{ fontSize: 12, marginBottom: 10 }}>
+            Our quotation amount for your project is
+            <Text style={{ fontWeight: "bold" }}> ${quotationAmount} </Text>
+            (Five Hundred Ninety-Eight Thousand Seven Hundred) including GST and
+            site costs for the dwellings.
+          </Text>
+        </View>
+
+        <View style={styles.list}>
+          <View style={styles.listItem}>
+            <Text style={styles.listIndex}>1.</Text>
+            <Text style={styles.listText}>
+              The quotation total represents the full contract price; however,
+              any receipt of deposit paid will be considered when progress
+              payments are made.
+            </Text>
+          </View>
+
+          <View style={styles.listItem}>
+            <Text style={styles.listIndex}>2.</Text>
+            <Text style={styles.listText}>
+              The signing of a building contract to the builder's satisfaction.
+            </Text>
+          </View>
+
+          <View style={styles.listItem}>
+            <Text style={styles.listIndex}>3.</Text>
+            <Text style={styles.listText}>
+              Lending authority construction commencement approval letter is
+              required before construction can commence.
+            </Text>
+          </View>
+
+          <View style={styles.listItem}>
+            <Text style={styles.listIndex}>4.</Text>
+            <Text style={styles.listText}>
+              Land ownership letter is required before application for
+              development approval or construction certificate can be lodged.
+            </Text>
+          </View>
+
+          <View style={styles.listItem}>
+            <Text style={styles.listIndex}>5.</Text>
+            <Text style={styles.listText}>
+              A deposit of 10% to be paid at signing of contract.
+            </Text>
+          </View>
+        </View>
+      </PageLayout>
+
+      {/* Page 7: Acceptance */}
       <PageLayout>
         <TitleOfPage title="ACCEPTANCE" />
-
         <Text style={{ fontSize: 12, marginBottom: 10 }}>
           1. We accept this tender as per the inclusions stated herein.
         </Text>
@@ -425,9 +408,7 @@ export const QuatationPdf = ({
         <Text style={{ fontSize: 12, marginBottom: 8 }}>
           Builder’s Signatures
         </Text>
-        <Text style={{ fontSize: 12, marginBottom: 5 }}>
-          {user?.firmName}
-        </Text>
+        <Text style={{ fontSize: 12, marginBottom: 5 }}>{user?.firmName}</Text>
         <Text style={{ fontSize: 12, marginTop: 10 }}>
           Sign: ................................................ Date:
           ................................................
@@ -438,3 +419,92 @@ export const QuatationPdf = ({
 };
 
 export default QuatationPdf;
+
+const styles = StyleSheet.create({
+  page: {
+    flexDirection: "column",
+    backgroundColor: "#fff",
+    fontFamily: "Helvetica",
+    position: "relative",
+  },
+  header: {
+    position: "absolute",
+    top: 20,
+    left: 40,
+    right: 40,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderBottom: "1pt solid #ccc",
+    paddingBottom: 6,
+  },
+  headerLogo: { width: 80, height: 30, objectFit: "contain" },
+  headerTextContainer: { flexDirection: "column", alignItems: "flex-end" },
+  headerTitle: { fontSize: 12, fontWeight: "bold", color: "#000" },
+  headerSlogan: { fontSize: 10, color: "#666" },
+  backgroundImage: {
+    width: "100%",
+    height: "50%",
+    objectFit: "cover",
+  },
+  content: {
+    flex: 1,
+    padding: 40,
+    justifyContent: "center",
+    alignItems: "center",
+    textAlign: "center",
+  },
+  logo: { width: 160, height: 60, marginBottom: 10, objectFit: "contain" },
+  title: { fontSize: 22, fontWeight: "bold", marginBottom: 5, color: "#000" },
+  slogan: { fontSize: 14, marginBottom: 8, color: "#444" },
+  email: { fontSize: 12, color: "#1D4ED8" },
+  section: {
+    marginTop: 20,
+    padding: 20,
+    border: "1pt solid #ddd",
+    borderRadius: 6,
+  },
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: "bold",
+    marginBottom: 8,
+    color: "#1D4ED8",
+    textTransform: "uppercase",
+  },
+  row: { flexDirection: "row", marginBottom: 6 },
+  label: {
+    width: "35%",
+    fontSize: 11,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  value: { fontSize: 11, color: "#555", flexShrink: 1 },
+  footer: {
+    position: "absolute",
+    bottom: 20,
+    left: 40,
+    right: 40,
+    fontSize: 9,
+    color: "#444",
+    textAlign: "center",
+    borderTop: "1pt solid #ccc",
+    paddingTop: 6,
+  },
+  list: {
+    marginTop: 10,
+    marginLeft: 15,
+  },
+  listItem: {
+    flexDirection: "row",
+    marginBottom: 8,
+    fontSize: 12,
+  },
+  listIndex: {
+    width: 20,
+    fontWeight: "bold",
+  },
+  listText: {
+    flex: 1,
+    textAlign: "justify",
+  },
+});

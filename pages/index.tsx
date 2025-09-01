@@ -27,6 +27,14 @@ type role = {
   createdAt: string;
 };
 
+export async function getStaticProps() {
+  return {
+      props: {
+          isAuthRoute: false,
+      },
+  };
+}
+
 function transformDashboardData(input: InputData) {
   const countData = [
     {

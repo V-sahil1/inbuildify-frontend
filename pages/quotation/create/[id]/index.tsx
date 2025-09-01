@@ -26,6 +26,7 @@ import { clearQuotation } from "@redux/feature/quotation/quotationSlice";
 import { usePdf } from '@hooks/usePdf';
 import QuatationPdf from '@/components/common/QuatationPdf';
 import { useRouter } from "next/navigation";
+import calculateTotalQuotation from "@lib/utils/calculateTotalQuotation";
 
 const Index = () => {
   const dispatch = useAppDispatch();
@@ -92,18 +93,6 @@ const Index = () => {
 
   const handleItemQuantityChange = (itemId: string, quantity: number) => { };
 
-  const calculateTotal = () => {
-    let total = Number(packageFromSlice?.amount) || 0;
-
-    itemsFromSlice.forEach((item) => {
-      const qty = Number(item.quantity) || 0;
-      const price = Number(item.price) || 0;
-      total += qty * price;
-    });
-
-    return Number(total.toFixed(2));
-  };
-
   const getQuotationItems = () => {
     const normalize = (item: any, isExtra = false) => ({
       itemId: isExtra ? item.categoryItemId : item.itemId,
@@ -120,8 +109,8 @@ const Index = () => {
 
   const createQuotationPayload = () => {
     return {
-      range: "PREMIUM", // can be a union of possible values
-      dwellingType: "DOUBLE_STOREY", // extend with more if needed
+      range: "PREMIUM",
+      dwellingType: "DOUBLE_STOREY",
       leadId: property?.leadId,
       propertyId: property?.propertyId,
       floorPlanId: plan?.floorPlanId,
@@ -143,19 +132,14 @@ const Index = () => {
       message.error("Failed to create quotation");
     }
   };
-  const handleEmail = () => console.log("Email clicked");
-  const { floorPlans } = useAppSelector((state: RootState) => state.floorPlan);
   const handlePreview = () => {
-    const data = createQuotationPayload();
-    const flr = floorPlans?.find(
-      (floor) => floor.floorPlanId === data?.floorPlanId
-    );
     previewPdf({
       user: user,
       leadDetail: contact,
       propertyDetail: property,
       quotePackage: selectedPackageFromSlice,
-      floorPlan: flr,
+      quotationAmount: calculateTotalQuotation(selectedPackageFromSlice, itemsFromSlice),
+      floorPlan: plan,
       facade: facade,
     });
   };
@@ -215,7 +199,7 @@ const handleViewOpportunity = () => console.log("View Opportunity clicked");
       <div className="m-3">
         <FooterActions
           expiryDate={quotation.expiryDate}
-          total={calculateTotal()}
+          total={calculateTotalQuotation(packageFromSlice?.amount, itemsFromSlice)}
           onApprove={handleApprove}
           onPreview={handlePreview}
           loading={quotationStatus === Status.PENDING}
