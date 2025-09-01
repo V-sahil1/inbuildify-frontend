@@ -58,11 +58,12 @@ const masterPriceListSlice = createSlice({
 
       // create item
       .addCase(createCategoryItem.fulfilled, (state, action) => {
-        console.log(action.payload);
-        const category = state.categories.find(c => c.categoryId === action.payload.categoryItemId);
+        const category = state.categories.find(c => c.categoryId === action.meta.arg.category_id);
         if (category) {
-          if (!category.items) category.items = [];
-          category.items = [...category?.items, action.payload];
+          if (!category.items) {
+            category.items = [];
+          }
+          category.items = [action.payload, ...(category.items || [])];
         }
       })
   },

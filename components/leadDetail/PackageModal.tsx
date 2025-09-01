@@ -78,8 +78,8 @@ const PackageModal: React.FC<PackageModalProps> = ({
       >
         <div className="flex h-[500px] border rounded-lg overflow-hidden">
           {/* Left side - Package List */}
-          <div className="w-1/3 border-r overflow-y-auto bg-gray-50">
-            <div className="p-4 border-b bg-white">
+          <div className="w-1/3 border-r overflow-y-auto">
+            <div className="p-4 border-b">
               <h3 className="text-lg font-semibold text-font-color">
                 Available Packages
               </h3>
@@ -88,7 +88,7 @@ const PackageModal: React.FC<PackageModalProps> = ({
               {packages?.map((pkg) => (
                 <div
                   key={pkg.packageId}
-                  className={`p-4 cursor-pointer hover:bg-gray-100 transition-colors ${
+                  className={`p-4 cursor-pointer transition-colors ${
                     tempSelectedPackage?.packageId === pkg.packageId
                       ? "bg-blue-50"
                       : ""
@@ -130,10 +130,10 @@ const PackageModal: React.FC<PackageModalProps> = ({
                       tempSelectedPackage.categoryItemDescriptions.map((item, idx) => (
                         <div
                           key={idx}
-                          className="flex items-start p-3 bg-gray-50 rounded-lg"
+                          className="flex items-start p-3 rounded-lg"
                         >
                           <div className="flex-1">
-                            <div className="font-medium text-gray-900">{item}</div>
+                            <div className="font-medium">{item}</div>
                           </div>
                         </div>
                       ))

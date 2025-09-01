@@ -147,7 +147,7 @@ const CustomerPage = () => {
       setEditingKey(null);
     } catch (err) {
       console.log("Error", err);
-      message.error((err as any)?.message || 'Failed to save customer');
+      message.error(err || 'Failed to save customer');
     } finally {
       setLoading(false);
     }
@@ -172,7 +172,7 @@ const CustomerPage = () => {
         setSelectedCustomer(customer);
       }
     } catch (error) {
-      console.error("Failed to fetch customer details:", error);
+      message.error(error || 'Failed to fetch customer details');
     } finally {
       setLoadingDetails(false);
     }
@@ -254,6 +254,7 @@ const CustomerPage = () => {
             loading={false}
             scroll={{ x: "max-content" }}
             onRow={(record) => ({
+              style: { cursor: 'pointer' },
               onClick: () => handleRowClick(record),
             })}
           />
@@ -264,6 +265,7 @@ const CustomerPage = () => {
           title="Customer"
           onCancel={handleCancel}
           onSubmit={handleSubmit}
+          loading={loading}
           isEditing={editingKey ? true : false}
           initialValues={editingKey ? customers.find((c) => c.key === editingKey) : {}}
           fields={[...customerCreateFields, {

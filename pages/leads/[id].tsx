@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Card, Input, Modal } from "antd";
+import { Card, Input, List, message, Space, Tag, Tooltip, Typography } from "antd";
 import StageProgress from "@/components/common/StageProgress";
 import ConvertLeadModal from "@/components/leadDetail/ConvertLeadModal";
 import PropertyDetailsModal from "@/components/leadDetail/PropertyDetailsModal";
-import LeadDetailsForm from "@/components/leadDetail/forms/LeadDetailsForm";
 import {
   IconBarrierBlock,
+  IconCopy,
+  IconCopyCheck,
   IconEdit,
+  IconFileText,
   IconMail,
   IconPhone,
   IconPhoneCall,
@@ -15,16 +17,24 @@ import {
 } from "@tabler/icons-react";
 import Link from "next/link";
 import SystemRoutes from "@lib/constants/Routes";
-import { LeadDetails } from "data/types";
-import { leadDetails as sampleLeadDetails } from "data/sampleData";
 import { useRouter } from "next/router";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import { getLeadByIdThunk } from "@redux/feature/lead/leadThunk";
+import {
+  getLeadByIdThunk,
+  updateLeadThunk,
+} from "@redux/feature/lead/leadThunk";
 import { RootState } from "@redux/feature/store";
 import dayjs from "dayjs";
-import { setQuotationContact, setQuotationProperty } from "@redux/feature/quotation/quotationSlice";
+import {
+  setQuotationContact,
+  setQuotationProperty,
+} from "@redux/feature/quotation/quotationSlice";
 import { clearLeadDetail } from "@redux/feature/lead/leadSlice";
+import { getQuotationsByLeadIdThunk } from "@redux/feature/lead/leadThunk";
+import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
+import leadCreateFields from "@/components/formFields/LeadCreateFields";
 
+const { Text } = Typography;
 export interface Plan {
   id: string;
   name: string;
@@ -55,15 +65,20 @@ function App() {
   const [isConvertModalVisible, setIsConvertModalVisible] = useState(false);
   const [isEditLeadModalVisible, setIsEditLeadModalVisible] = useState(false);
   const [isPropertyModalVisible, setIsPropertyModalVisible] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [lead, setLead] = useState<LeadDetails>(sampleLeadDetails);
+  const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
   const { leadDetail } = useAppSelector((state: RootState) => state.lead);
   const contact = (leadDetail as any)?.contact ?? {};
   const propertyFromSlice = (leadDetail as any)?.property ?? {};
   const leadId = router.query.id as string | undefined;
+  const createdQuotations = (leadDetail as any)?.createdQuotations ?? {};
 
   const latestLeadDetailRef = useRef<any>(null);
+
+  const mappedLeadDetail = {
+    ...leadDetail?.contact,
+    leadSource: leadDetail?.contact?.lead_source,
+  };
   useEffect(() => {
     latestLeadDetailRef.current = leadDetail;
   }, [leadDetail]);
@@ -71,10 +86,10 @@ function App() {
   useEffect(() => {
     if (leadId) {
       dispatch(getLeadByIdThunk(leadId));
+      dispatch(getQuotationsByLeadIdThunk({ leadId, page: 1, limit: 25 }));
     }
   }, [router.query.id, dispatch]);
 
-  // Save to quotation and clear lead detail on unmount only
   useEffect(() => {
     return () => {
       const latest = latestLeadDetailRef.current;
@@ -94,6 +109,23 @@ function App() {
     setIsConvertModalVisible(false);
   };
 
+  const handleEditLeadSubmit = async (values: any) => {
+    const { email, ...details } = values;
+    try {
+      setLoading(true);
+      await dispatch(updateLeadThunk({ id: leadId, details }))
+        .unwrap()
+        .then(() => {
+          setIsEditLeadModalVisible(false);
+        });
+      message.success("Lead updated successfully");
+    } catch (err) {
+      message.error(err || "Failed to update lead");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const steps = useMemo(() => {
     if (isOpportunity) {
       return [
@@ -102,21 +134,21 @@ function App() {
           label: "Proposal",
           color: "bg-green-500",
           textColor: "text-white",
-          onClick: () => { },
+          onClick: () => {},
         },
         {
           key: "negotiation",
           label: "Negotiation",
           color: "bg-yellow-300",
           textColor: "text-black",
-          onClick: () => { },
+          onClick: () => {},
         },
         {
           key: "close",
           label: "Close",
           color: "bg-gray-200",
           textColor: "text-black",
-          onClick: () => { },
+          onClick: () => {},
         },
       ];
     }
@@ -126,7 +158,7 @@ function App() {
         label: "New",
         color: "bg-green-500",
         textColor: "text-white",
-        onClick: () => { },
+        onClick: () => {},
       },
       {
         key: "working",
@@ -193,7 +225,7 @@ function App() {
           </div>
           <h2 className="font-semibold text-lg">{contact.name ?? "-"}</h2>
           <p className="text-sm">
-            {lead.address || "Address not provided"}
+            {contact.lead_source || "Lead Source not provided"}
           </p>
 
           <div className="flex items-center gap-2 mt-2">
@@ -251,23 +283,18 @@ function App() {
                     {propertyFromSlice.totalSizeM2 ? " m²" : ""}
                   </p>
                 </div>
-
-                {/* <a href="#" className="text-theme-blue text-sm mt-2 inline-block">
-                  Additional Fields
-                </a> */}
               </>
             ) : (
-              <div className="flex flex-col items-center justify-center p-4 rounded-lg">
-               <IconBarrierBlock />
+              <div className="flex flex-col items-center justify-center p-6 rounded-lg">
+                <IconBarrierBlock />
                 <p className="text-sm text-gray-500 text-center">No property details added yet</p>
                 <p className="text-xs text-gray-400 mt-1">Add property information to get started</p>
               </div>
             )
           }
-
         </Card>
 
-        {/* Actions Card */}
+        {/* Quotation Card */}
         {isOpportunity && <Card>
           <div className="flex flex-col justify-between">
             <Link
@@ -276,9 +303,31 @@ function App() {
             >
               Create Quotation
             </Link>
-            {/* <a href="#" className="text-theme-blue text-sm mt-2">
-              Capture Deposit
-            </a> */}
+            <div className="max-h-[200px] my-2 overflow-y-auto">
+                <List
+                  dataSource={createdQuotations.quotations}
+                  locale={{
+                    emptyText: (
+                      <div className="flex flex-col items-center justify-center p-6">
+                        <IconFileText />
+                        <p className=" text-sm text-gray-500 text-center">No quotations found</p>
+                        <p className="text-xs text-gray-400 mt-1">Create a quotation to get started</p>
+                      </div>
+                    ),
+                  }}
+                  renderItem={(quotation: any) => (
+                    <List.Item key={quotation.quotation_id}>
+                      <Space size="middle">
+                        <Tooltip title={quotation.quotation_id}>
+                          <Text type="secondary">{quotation.quotation_id.slice(0, 13)}</Text>
+                        </Tooltip>
+                        <Tag color={quotation.lead_status === "Open" ? "blue" : "green"}>{quotation.lead_status}</Tag>
+                        <Text>${quotation.items.reduce((sum: number, item: any) => sum + item.total, 0)}</Text>
+                      </Space>
+                    </List.Item>
+                  )}
+                />
+            </div>
           </div>
         </Card>}
       </div>
@@ -289,30 +338,16 @@ function App() {
         leadId={router.query.id as string}
       />
 
-      {/* Edit Lead Details Modal */}
-      <Modal
-        title="Edit Lead Details"
+      <CreateFormModal
         open={isEditLeadModalVisible}
+        title="Lead"
         onCancel={() => setIsEditLeadModalVisible(false)}
-        footer={null}
-        width={600}
-        centered
-        className="bg-card-color"
-      >
-        <LeadDetailsForm
-          initialValues={lead}
-          onSave={(values) => {
-            setIsSubmitting(true);
-            setTimeout(() => {
-              setLead(values);
-              setIsSubmitting(false);
-              setIsEditLeadModalVisible(false);
-            }, 300);
-          }}
-          onCancel={() => setIsEditLeadModalVisible(false)}
-          isSubmitting={isSubmitting}
-        />
-      </Modal>
+        onSubmit={handleEditLeadSubmit}
+        loading={loading}
+        isEditing={true}
+        initialValues={mappedLeadDetail}
+        fields={leadCreateFields({ isEmailDisable: true })}
+      />
 
       {/* Property Details Modal */}
       <PropertyDetailsModal

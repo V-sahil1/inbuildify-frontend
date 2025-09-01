@@ -18,6 +18,16 @@ export interface QuotationItem {
     items: QuotationItem[];
     createdAt: string;
     updatedAt: string;
+
+    
+    builderName?: string;
+    leadStatus?: string;
+    propertyAddress?: string;
+    floorPlanName?: string;
+    facadeName?: string;
+    packageName?: string;
+    rangeName?: string;
+    dwellingTypeName?: string;
   }
   
   export type QuotationItemPayload = {

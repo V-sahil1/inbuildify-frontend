@@ -81,7 +81,7 @@ export default function ForgotPassword() {
             className="btn btn-secondary large w-full uppercase"
           >
             {loading ? <IconLoader /> : ""}
-            Submit
+            forgot password
           </button>
         </Form.Item>
       </Form>

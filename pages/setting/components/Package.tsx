@@ -1,19 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import { Empty, Spin, Typography } from "antd";
-import { createPackage, fetchPackages } from "@redux/feature/package/packageThunk";
+import { Empty, Spin } from "antd";
+import { createPackage, fetchPackages, updatePackage, deletePackage } from "@redux/feature/package/packageThunk";
 import { Status } from "@lib/constants/enum";
 import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
 import { packageFields } from "@/components/formFields/packageFields";
 import { RootState } from "@redux/feature/store";
 import { PackageItem } from "@/components/package/PackageItem";
+import { Package as IPackage } from "@redux/feature/package/IPackageState";
+import { message } from "antd";
 
 const Package = () => {
   const dispatch = useAppDispatch();
   const packages = useAppSelector((state: RootState) => state.package.packages);
   const getAllStatus = useAppSelector((state: RootState) => state.package.status.packages);
-  const createStatus = useAppSelector((state: RootState) => state.package.status.create);
+  const itemStatus = useAppSelector((state: RootState) => state.package.status.item);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [editingPackage, setEditingPackage] = useState<IPackage | null>(null);
 
   useEffect(() => {
     if (getAllStatus === Status.IDLE) {
@@ -27,10 +30,33 @@ const Package = () => {
 
   const handleCreatePackage = async (values: any) => {
     try {
-      await dispatch(createPackage(values)).unwrap();
+      if (editingPackage) {
+        await dispatch(updatePackage({ id: editingPackage.packageId, ...values })).unwrap();
+        message.success('Package updated successfully');
+      } else {
+        await dispatch(createPackage(values)).unwrap();
+        message.success('Package created successfully');
+      }
       setIsModalVisible(false);
+      setEditingPackage(null);
     } catch (error) {
-      console.error("Error creating package:", error);
+      console.error("Error saving package:", error);
+      message.error(error?.response?.data?.message || 'Failed to save package');
+    }
+  };
+
+  const handleEditPackage = (pkg: IPackage) => {
+    setEditingPackage(pkg);
+    setIsModalVisible(true);
+  };
+
+  const handleDeletePackage = async (packageId: string) => {
+    try {
+      await dispatch(deletePackage(packageId)).unwrap();
+      message.success('Package deleted successfully');
+    } catch (error) {
+      console.error("Error deleting package:", error);
+      message.error(error?.response?.data?.message || 'Failed to delete package');
     }
   };
 
@@ -57,8 +83,14 @@ const Package = () => {
     return (
       <div className="space-y-4">
         {packages?.map((pkg) => (
-          <PackageItem key={pkg.packageId} pkg={pkg} />
-        ))}
+          <PackageItem 
+            key={pkg.packageId} 
+            pkg={pkg} 
+            onEdit={handleEditPackage}
+            onDelete={handleDeletePackage}
+            isDeleting={itemStatus === Status.PENDING}
+          />
+        ))} 
       </div>
     );
   };
@@ -79,12 +111,17 @@ const Package = () => {
       {renderContent()}
       
       <CreateFormModal
-        title="Create New Package"
+        title={editingPackage ? 'Package' : 'New Package'}
         open={isModalVisible}
-        onCancel={() => setIsModalVisible(false)}
+        onCancel={() => {
+          setIsModalVisible(false);
+          setEditingPackage(null);
+        }}
         onSubmit={handleCreatePackage}
         fields={packageFields()}
-        loading={createStatus === Status.PENDING}
+        loading={itemStatus === Status.PENDING}
+        initialValues={editingPackage || {}}
+        isEditing={!!editingPackage}
       />
     </div>
   );

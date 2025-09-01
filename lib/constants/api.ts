@@ -49,7 +49,7 @@ export const refreshAccessToken = async (): Promise<string | null> => {
     return newToken;
   } catch (error) {
     console.error("Failed to refresh token", error);
-    localStorage.clear(); // Clear tokens and force login
+    localStorage.clear(); // Clear tokens
     return null;
   }
 };
@@ -128,9 +128,9 @@ const api = async <T>(
           return retryResponse.data;
         } else {
           localStorage.clear();
-          if (window.location.pathname !== `${SystemRoutes.LOGIN}`) {
-            window.location.href = `${SystemRoutes.LOGIN}`;
-          }
+          // if (window.location.pathname !== `${SystemRoutes.LOGIN}`) {
+          //   window.location.href = `${SystemRoutes.LOGIN}`;
+          // }
 
           throw {
             message: error?.response?.data?.message || "Unauthorized",
@@ -143,9 +143,9 @@ const api = async <T>(
         isRefreshing = false;
         // localStorage.clear();
 
-        if (window.location.pathname !== `${SystemRoutes.LOGIN}`) {
-          window.location.href = `${SystemRoutes.LOGIN}`;
-        }
+        // if (window.location.pathname !== `${SystemRoutes.LOGIN}`) {
+        //   window.location.href = `${SystemRoutes.LOGIN}`;
+        // }
 
         console.error("Token refresh failed:", refreshError);
 
@@ -197,7 +197,11 @@ const apiMethods = {
     api<T>("get", url, options),
   post: <T>(
     url: string,
-    options?: { data?: ApiVariables; headers?: ApiVariables;params?: ApiVariables }
+    options?: {
+      data?: ApiVariables;
+      headers?: ApiVariables;
+      params?: ApiVariables;
+    }
   ): Promise<T> => api<T>("post", url, options),
   put: <T>(url: string, options?: { data?: ApiVariables }): Promise<T> =>
     api<T>("put", url, options),

@@ -1,8 +1,9 @@
 // src/store/auth/authSlice.ts
 import { createSlice } from "@reduxjs/toolkit";
-import { getUserThunk, logoutThunk } from "./authThunk";
+import { getUserThunk, logoutThunk, SignInThunk } from "./authThunk";
 import { Status } from "@lib/constants/enum";
 import { Role, User } from "./IAuthState";
+import { storeAuthToken, storeRefreshToken } from "@lib/constants/authToken";
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -28,6 +29,11 @@ const authSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     // get user
+    builder.addCase(SignInThunk.fulfilled, (state,action) => {
+      storeAuthToken(action.payload.data.accessToken);
+      storeRefreshToken(action.payload.data.refreshToken);
+    });
+    
     builder.addCase(getUserThunk.pending, (state) => {
       state.status = Status.PENDING;
       state.error = null;

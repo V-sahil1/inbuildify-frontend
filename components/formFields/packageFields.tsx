@@ -42,7 +42,7 @@ export const packageFields = (): CreateFormField[] => {
     },
     {
       label: "Items",
-      name: "category_item_ids",
+      name: "categoryItemIds",
       type: "select",
       mode:"tags",
       options: options,

@@ -40,6 +40,21 @@ export const getLeadByIdThunk = createAsyncThunk(
     }
 );
 
+export const updateLeadThunk = createAsyncThunk(
+    "lead/updateLead",
+    async (payload: {id:string, details:{name:string, phone:string, leadSource:string}}, { rejectWithValue }) => {
+        try {
+            const response: ApiResponse<any> = await api.post(
+                `${API_ENDPOINTS.LEAD_BASE}/${payload.id}`,
+                {data: payload.details}
+            );
+            return response.data;
+        } catch (err: any) {
+            return rejectWithValue(err.message);
+        }
+    }
+);
+
 export const updatePropertyDetailsThunk = createAsyncThunk(
     "lead/updatePropertyDetails",
     async (payload: any, { rejectWithValue }) => {
@@ -82,4 +97,21 @@ export const convertLeadToJobThunk = createAsyncThunk(
             return rejectWithValue(err.message);
         }
     }
+);
+
+export const getQuotationsByLeadIdThunk = createAsyncThunk(
+  "lead/getQuotationsByLeadId",
+  async (
+    payload: { leadId: string; page: number; limit: number },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response: ApiResponse<any> = await api.get(
+        API_ENDPOINTS.GET_QUOTATIONS_BY_LEAD_ID(payload.leadId,payload.page,payload.limit)
+      );
+      return response.data;
+    } catch (err: any) {
+      return rejectWithValue(err.message);
+    }
+  }
 );

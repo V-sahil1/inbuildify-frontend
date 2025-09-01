@@ -5,9 +5,9 @@ import {
 } from "@tabler/icons-react";
 
 export const menuList = [
-  {
-    devider: "Main",
-  },
+  // {
+  //   devider: "Main",
+  // },
   {
     icon: IconHome,
     link: "My Dashboard",

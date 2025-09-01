@@ -13,7 +13,7 @@ import {
 } from "@redux/feature/masterPriceList/masterPriceListThunk";
 import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
-import { Spin } from "antd";
+import { message, Spin,Empty } from "antd";
 
 export const MasterPriceList = () => {
     const dispatch = useAppDispatch();
@@ -30,31 +30,40 @@ export const MasterPriceList = () => {
   const [categoryId, setCategoryId] = useState("");
 
   const [dropDowns, setDropDowns] = useState<Record<string, boolean>>({});
-  const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({}); // State to track loading for each category
+  const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({}); 
 
   const openAddItemModal = (categoryId: string) => {
     setAddItemModal(true);
     setCategoryId(categoryId);
   };
 
-  const handleExpand = (categoryId: string, isExpanded: boolean) => {
+  const handleExpand = async (categoryId: string, isExpanded: boolean) => {
     setDropDowns((prev) => ({
       ...prev,
       [categoryId]: !prev[categoryId],
     }));
 
     if (!isExpanded) {
-      setLoadingItems((prev) => ({ ...prev, [categoryId]: true }));
-      dispatch(toggleExpand(categoryId));
-      dispatch(fetchCategoryItems({ categoryId, filters: { range: mplFilters?.range || undefined, dwelling_type: mplFilters?.dwelling_type || undefined } }))
-        .unwrap()
-        .then((response) => {
-          console.log(response);
-        })
-        .finally(() => {
-          setLoadingItems((prev) => ({ ...prev, [categoryId]: false }));
-        });
-    }
+      try {
+        setLoadingItems((prev) => ({ ...prev, [categoryId]: true }));
+    
+        dispatch(toggleExpand(categoryId));
+    
+        await dispatch(
+          fetchCategoryItems({
+            categoryId,
+            filters: {
+              range: mplFilters?.range || undefined,
+              dwelling_type: mplFilters?.dwelling_type || undefined,
+            },
+          })
+        ).unwrap();
+      } catch (error: any) {
+        message.error(error || "Failed to fetch category items");
+      } finally {
+        setLoadingItems((prev) => ({ ...prev, [categoryId]: false }));
+      }
+    }    
   };
 
   return (
@@ -62,10 +71,16 @@ export const MasterPriceList = () => {
       <h2 className="text-[24px]/[30px] font-black my-4 text-var(--font-color-bl)">
         Master Price List
       </h2>
+      {status == Status.PENDING ? 
+       (<div className="flex justify-center items-center pt-[20vh]">
+          <Spin size="large" />
+        </div>) 
+      :
+      categories.length > 0 ? 
       <div>
         {categories.map((category: Category) => {
           const isDropdownOpen = dropDowns[category.categoryId] || false;
-          const isLoading = loadingItems[category.categoryId] || false; // Check if the category is loading
+          const isLoading = loadingItems[category.categoryId] || false; 
 
           return (
             <div key={category.categoryId} className="mb-4">
@@ -131,6 +146,14 @@ export const MasterPriceList = () => {
           categoryId={categoryId}
         />
       </div>
+        :
+       <Empty description={
+            <span className="text-gray-500">No Master Price found.</span>
+          }
+          className="py-12"
+        />
+      }
+    
     </div>
   );
 };

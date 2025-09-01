@@ -11,6 +11,13 @@ type createPackagePayload = {
   amount: number;
 };
 
+type updatePackagePayload = {
+  id: string;
+  name?: string;
+  category_item_ids?: string[];
+  amount?: number;
+};
+
 export const fetchPackages = createAsyncThunk(
   "packages/fetchAll",
   async (filters: { range?: string; dwelling_type?: string } = {}, { rejectWithValue }) => {
@@ -78,3 +85,35 @@ export const createPackage = createAsyncThunk(
     }
   }
 );
+
+export const updatePackage = createAsyncThunk(
+  "packages/update",
+  async (payload: updatePackagePayload, { rejectWithValue }) => {
+    try {
+      const {id, ...rest} = payload;
+      const res = await api.post<ApiResponse<Package>>(
+        API_ENDPOINTS.PACKAGE_BASE + "/" + id,
+        { data: rest }
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+
+export const deletePackage = createAsyncThunk(
+  "packages/delete",
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const res = await api.delete<ApiResponse<Package>>(
+        API_ENDPOINTS.PACKAGE_BASE + "/" + id
+      );
+      return {id};
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+

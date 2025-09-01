@@ -221,7 +221,7 @@ const UserPage = () => {
           />
         </Spin>
         <CreateFormModal
-          title={isEditing ? "Edit User" : "Invite User"}
+          title="User"
           open={isModalOpen}
           onSubmit={handleSubmit}
           invite={true}

@@ -220,7 +220,6 @@ const ContractorPage = () => {
               type="link"
               danger
               onClick={(e) => {
-                console.log("🚀 ~ ContractorPage ~ e:", record)
                 e.stopPropagation(); // ✅ prevent row click
                 setIsDeleteModalOpen({ open: true, recordId: record.contractorId });
               }}
@@ -255,6 +254,7 @@ const ContractorPage = () => {
             loading={false}
             scroll={{ x: "max-content" }}
             onRow={(record) => ({
+              style: { cursor: 'pointer' },
               onClick: () => handleRowClick(record),
             })}
           />
