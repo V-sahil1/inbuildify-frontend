@@ -1,17 +1,19 @@
 import { IconUserScan } from "@tabler/icons-react";
+import { useRouter } from "next/navigation";
 import React from "react";
 
-const NumbersCard = ({item}: {item: {title: string, count: number, description: string,icon: React.ReactNode}}) => {
+const NumbersCard = ({item}: {item: {title: string, count: string, description: string,icon: React.ReactNode, route: string}}) => {
+  const router = useRouter();
   return (
     <>
-      <div className="md:p-6 p-4">
+      <div className="md:p-6 p-4 cursor-pointer" onClick={() => router.push(`/${item.route}`) }>
         <div className="flex items-center justify-between gap-5 mb-2">
           <p>{item.title}</p>
           {item.icon}
         </div>
         <div className="flex items-end gap-1 mb-1">
           <span className="inline-block text-[24px]/[30px] font-medium">
-            {item.count}
+            {item.count || 0}
           </span>
         </div>
         {/* <div className="text-font-color-100 text-[14px]/[20px]">

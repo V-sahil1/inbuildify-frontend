@@ -31,7 +31,7 @@ function transformDashboardData(input: InputData) {
   const countData = [
     {
       title: "Contractors",
-      count: Number(input?.contractorCount),
+      count: input?.contractorCount,
       description: "Total number of contractors in the system",
       icon: (
         <IconUserScan className="stroke-primary stroke-[1.5] w-[32px] h-[32px]" />
@@ -40,7 +40,7 @@ function transformDashboardData(input: InputData) {
     },
     {
       title: "Customers",
-      count: Number(input?.customerCount),
+      count: input?.customerCount,
       description: "Total number of customers in the system",
       icon: (
         <IconUserScan className="stroke-primary stroke-[1.5] w-[32px] h-[32px]" />
@@ -49,7 +49,7 @@ function transformDashboardData(input: InputData) {
     },
     {
       title: "Users",
-      count: Number(input?.usersCount),
+      count: input?.usersCount,
       description: "Total number of users in the system",
       icon: (
         <IconUserScan className="stroke-primary stroke-[1.5] w-[32px] h-[32px]" />
@@ -58,7 +58,7 @@ function transformDashboardData(input: InputData) {
     },
     {
       title: "Leads",
-      count: Number(input?.leadCount),
+      count: input?.leadCount,
       description: "Total number of leads in the system",
       icon: (
         <IconUserScan className="stroke-primary stroke-[1.5] w-[32px] h-[32px]" />
@@ -119,14 +119,8 @@ export default function Analysis() {
     };
   }, [menuRef]);
 
-  const columns: TableColumnsType<role> = useMemo(
-    () => [
-      {
-        title: "Name",
-        dataIndex: "name",
-        key: "name",
-        ellipsis: true,
-      },
+  const getColumns = (tableIndex: number): TableColumnsType<role> => {
+    const baseColumns: TableColumnsType<role> = [
       {
         title: "Email",
         dataIndex: "email",
@@ -142,11 +136,22 @@ export default function Analysis() {
           return timeAgo(record.createdAt);
         },
       },
-    ],
-    []
-  );
+    ];
 
-  if (status === Status.IDLE) {
+    // Add name column for all tables except leads (index 3)
+    if (tableIndex !== 3) {
+      baseColumns.unshift({
+        title: "Name",
+        dataIndex: "name",
+        key: "name",
+        ellipsis: true,
+      });
+    }
+
+    return baseColumns;
+  };
+
+  if (status !== Status.SUCCESS) {
     return (
       <div className="flex items-center justify-center h-screen">
         <Spin />
@@ -180,7 +185,7 @@ export default function Analysis() {
 
               <div className="min-h-[250px]">
                 {" "}
-                <Table columns={columns} dataSource={item} pagination={false} className="flex-1"/>
+                <Table columns={getColumns(index)} dataSource={item} pagination={false} className="flex-1"/>
               </div>
             </div>
           ))}
