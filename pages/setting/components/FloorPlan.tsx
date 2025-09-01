@@ -7,8 +7,7 @@ import {
 } from "@redux/feature/floorPlan/floorPlanThunk";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import Image from "next/image";
-import { Divider } from "antd";
-import { Typography } from "antd";
+import { Divider, message } from "antd";
 import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
 import { floorPlanFields } from "@/components/formFields/floorPlanFields";
 import { Status } from "@lib/constants/enum";
@@ -26,11 +25,25 @@ const FloorPlan = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   useEffect(() => {
+    const fetchFloorPlansData = async () => {
+      try {
+        await dispatch(fetchFloorPlans(undefined)).unwrap();
+      } catch (error) {
+        message.error(error);
+      }
+    };
+    const fetchFiltersData = async () => {
+      try {
+        await dispatch(getFloorPlanFilters()).unwrap();
+      } catch (error) {
+        message.error(error);
+      }
+    };
     if (status?.floorPlan === Status.IDLE) {
-      dispatch(fetchFloorPlans(undefined)).unwrap();
+      fetchFloorPlansData();
     }
     if (status?.filters === Status.IDLE) {
-      dispatch(getFloorPlanFilters()).unwrap();
+      fetchFiltersData();
     }
   }, [dispatch, status, filters]);
 

@@ -19,12 +19,25 @@ const Facade = () => {
   const [loading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   useEffect(() => {
+    const fetchFacadesData = async () => {
+      try {
+        await dispatch(getFacades(undefined)).unwrap();
+      } catch (error) {
+        message.error(error);
+      }
+    };
+    const fetchFiltersData = async () => {
+      try {
+        await dispatch(getFloorPlanFilters()).unwrap();
+      } catch (error) {
+        message.error(error);
+      }
+    };
     if (status === Status.IDLE) {
-      dispatch(getFacades(undefined)).unwrap();
+      fetchFacadesData();
     }
-
     if (!filters) {
-      dispatch(getFloorPlanFilters()).unwrap();
+      fetchFiltersData();
     }
   }, [dispatch, status, filters]);
 

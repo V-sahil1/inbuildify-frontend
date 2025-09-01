@@ -147,7 +147,7 @@ const CustomerPage = () => {
       setEditingKey(null);
     } catch (err) {
       console.log("Error", err);
-      message.error((err as any)?.message || 'Failed to save customer');
+      message.error(err || 'Failed to save customer');
     } finally {
       setLoading(false);
     }
@@ -172,7 +172,7 @@ const CustomerPage = () => {
         setSelectedCustomer(customer);
       }
     } catch (error) {
-      console.error("Failed to fetch customer details:", error);
+      message.error(error || 'Failed to fetch customer details');
     } finally {
       setLoadingDetails(false);
     }

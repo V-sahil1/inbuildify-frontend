@@ -1,8 +1,6 @@
 import { enumToReadable } from "@lib/utils/enumToRedable";
 import {
   IconEdit,
-  IconHttpDelete,
-  IconHttpTraceOff,
   IconTrash,
 } from "@tabler/icons-react";
 import { Tag } from "antd";
@@ -14,32 +12,32 @@ export const PricingItem = ({ item }: any) => {
     >
       <div className="flex-1  items-center justify-between">
         <div className="mb-2 font-medium flex gap-10 text-[16px]">
-          {item.shortDescription || item.description}
+          {item?.shortDescription || item?.description}
         </div>
         <div className="flex gap-3">
-          {item.costType && (
+          {item?.costType && (
             <Tag color="yellow">
-              <p>{item.costType}</p>
+              <p>{item?.costType}</p>
             </Tag>
           )}
-          {item.dwellingTypeName && item.dwellingTypeName !== "NONE" && (
+          {item?.dwellingTypeName && item?.dwellingTypeName !== "NONE" && (
             <Tag color="blue">
-              <p>{enumToReadable(item.dwellingTypeName).toUpperCase()}</p>
+              <p>{enumToReadable(item?.dwellingTypeName).toUpperCase()}</p>
             </Tag>
           )}
-          {item.costOption && item.costOption !== "NONE" &&(
+          {item?.costOption && item?.costOption !== "NONE" &&(
             <Tag color="red">
-              <p>{enumToReadable(item.costOption).toUpperCase()}</p>
+              <p>{enumToReadable(item?.costOption).toUpperCase()}</p>
             </Tag>
           )}
-          {item.status && item.status !== "NONE" && (
+          {item?.status && item?.status !== "NONE" && (
             <Tag color="purple">
-              <p>{enumToReadable(item.status).toUpperCase()}</p>
+              <p>{enumToReadable(item?.status).toUpperCase()}</p>
             </Tag>
           )}
-          {item.rangeName && item.rangeName !== "NONE" &&(
+          {item?.rangeName && item?.rangeName !== "NONE" &&(
             <Tag color="orange">
-                <p>{enumToReadable(item.rangeName).toUpperCase()}</p>
+                <p>{enumToReadable(item?.rangeName).toUpperCase()}</p>
             </Tag>
           )}
         </div>
