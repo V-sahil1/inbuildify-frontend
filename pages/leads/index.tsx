@@ -1,20 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { createLeadThunk, getLeadThunk } from "@redux/feature/lead/leadThunk";
-import { message, Tag, Typography } from "antd";
+import { message, Typography } from "antd";
 import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
-import { LeadSource, Status } from "@lib/constants/enum";
-import {
-  emailRules,
-  leadSourceRules,
-  nameRules,
-  phoneRules,
-} from "@lib/constants/formInputValidations";
+import { Status } from "@lib/constants/enum"; 
 import { useRouter } from "next/navigation";
 import { ILead } from "@redux/feature/lead/ILeadState";
 import { IconMail, IconPhone } from "@tabler/icons-react";
 import { timeAgo } from "@lib/utils/timeAgo";
 import { enumToReadable } from "@lib/utils/enumToRedable";
+import leadCreateFields from "@/components/formFields/LeadCreateFields";
 const Leads = () => {
   const { leads, status } = useAppSelector((state) => state.lead);
   const dispatch = useAppDispatch();
@@ -46,17 +41,7 @@ const Leads = () => {
   };
   const handleOpenModal = () => {
     setOpenLeadCreateModal(true);
-  };
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+  }; 
   return (
     <div className="p-4">
       <div className="flex items-center justify-between mb-4">
@@ -142,36 +127,8 @@ const Leads = () => {
         loading={loading}
         onCancel={() => setOpenLeadCreateModal(false)}
         onSubmit={handleSubmit}
-        fields={[
-          {
-            label: "Full Name",
-            name: "name",
-            placeholder: "John Doe",
-            rules: nameRules,
-          },
-          {
-            label: "Email",
-            name: "email",
-            placeholder: "john@example.com",
-            type: "email",
-            rules: emailRules,
-          },
-          {
-            label: "Phone",
-            name: "phone",
-            placeholder: "+1 555 0100",
-            type: "phone",
-            rules: phoneRules,
-          },
-          {
-            label: "Lead Source",
-            name: "leadSource",
-            placeholder: "e.g. Social Media, Referral, etc.",
-            type: "select",
-            options: LeadSource,
-            rules: leadSourceRules,
-          },
-        ]}
+        fields={leadCreateFields({isEmailDisable: false})}
+       
       />
     </div>
   );

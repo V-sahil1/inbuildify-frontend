@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Card, Input, List, Modal, Space, Tag, Tooltip, Typography } from "antd";
+import { Card, Input, List, message, Space, Tag, Tooltip, Typography } from "antd";
 import StageProgress from "@/components/common/StageProgress";
 import ConvertLeadModal from "@/components/leadDetail/ConvertLeadModal";
 import PropertyDetailsModal from "@/components/leadDetail/PropertyDetailsModal";
-import LeadDetailsForm from "@/components/leadDetail/forms/LeadDetailsForm";
 import {
   IconBarrierBlock,
   IconCopy,
@@ -18,16 +17,22 @@ import {
 } from "@tabler/icons-react";
 import Link from "next/link";
 import SystemRoutes from "@lib/constants/Routes";
-import { LeadDetails } from "data/types";
-import { leadDetails as sampleLeadDetails } from "data/sampleData";
 import { useRouter } from "next/router";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import { getLeadByIdThunk } from "@redux/feature/lead/leadThunk";
+import {
+  getLeadByIdThunk,
+  updateLeadThunk,
+} from "@redux/feature/lead/leadThunk";
 import { RootState } from "@redux/feature/store";
 import dayjs from "dayjs";
-import { setQuotationContact, setQuotationProperty } from "@redux/feature/quotation/quotationSlice";
+import {
+  setQuotationContact,
+  setQuotationProperty,
+} from "@redux/feature/quotation/quotationSlice";
 import { clearLeadDetail } from "@redux/feature/lead/leadSlice";
 import { getQuotationsByLeadIdThunk } from "@redux/feature/lead/leadThunk";
+import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
+import leadCreateFields from "@/components/formFields/LeadCreateFields";
 
 const { Text } = Typography;
 export interface Plan {
@@ -60,8 +65,7 @@ function App() {
   const [isConvertModalVisible, setIsConvertModalVisible] = useState(false);
   const [isEditLeadModalVisible, setIsEditLeadModalVisible] = useState(false);
   const [isPropertyModalVisible, setIsPropertyModalVisible] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [lead, setLead] = useState<LeadDetails>(sampleLeadDetails);
+  const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
   const { leadDetail } = useAppSelector((state: RootState) => state.lead);
   const contact = (leadDetail as any)?.contact ?? {};
@@ -70,6 +74,11 @@ function App() {
   const createdQuotations = (leadDetail as any)?.createdQuotations ?? {};
 
   const latestLeadDetailRef = useRef<any>(null);
+
+  const mappedLeadDetail = {
+    ...leadDetail?.contact,
+    leadSource: leadDetail?.contact?.lead_source,
+  };
   useEffect(() => {
     latestLeadDetailRef.current = leadDetail;
   }, [leadDetail]);
@@ -100,6 +109,23 @@ function App() {
     setIsConvertModalVisible(false);
   };
 
+  const handleEditLeadSubmit = async (values: any) => {
+    const { email, ...details } = values;
+    try {
+      setLoading(true);
+      await dispatch(updateLeadThunk({ id: leadId, details }))
+        .unwrap()
+        .then(() => {
+          setIsEditLeadModalVisible(false);
+        });
+      message.success("Lead updated successfully");
+    } catch (err) {
+      message.error(err || "Failed to update lead");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const steps = useMemo(() => {
     if (isOpportunity) {
       return [
@@ -108,21 +134,21 @@ function App() {
           label: "Proposal",
           color: "bg-green-500",
           textColor: "text-white",
-          onClick: () => { },
+          onClick: () => {},
         },
         {
           key: "negotiation",
           label: "Negotiation",
           color: "bg-yellow-300",
           textColor: "text-black",
-          onClick: () => { },
+          onClick: () => {},
         },
         {
           key: "close",
           label: "Close",
           color: "bg-gray-200",
           textColor: "text-black",
-          onClick: () => { },
+          onClick: () => {},
         },
       ];
     }
@@ -132,7 +158,7 @@ function App() {
         label: "New",
         color: "bg-green-500",
         textColor: "text-white",
-        onClick: () => { },
+        onClick: () => {},
       },
       {
         key: "working",
@@ -199,7 +225,7 @@ function App() {
           </div>
           <h2 className="font-semibold text-lg">{contact.name ?? "-"}</h2>
           <p className="text-sm">
-            {lead.address || "Address not provided"}
+            {contact.lead_source || "Lead Source not provided"}
           </p>
 
           <div className="flex items-center gap-2 mt-2">
@@ -312,30 +338,16 @@ function App() {
         leadId={router.query.id as string}
       />
 
-      {/* Edit Lead Details Modal */}
-      <Modal
-        title="Edit Lead Details"
+      <CreateFormModal
         open={isEditLeadModalVisible}
+        title="Lead"
         onCancel={() => setIsEditLeadModalVisible(false)}
-        footer={null}
-        width={600}
-        centered
-        className="bg-card-color"
-      >
-        <LeadDetailsForm
-          initialValues={lead}
-          onSave={(values) => {
-            setIsSubmitting(true);
-            setTimeout(() => {
-              setLead(values);
-              setIsSubmitting(false);
-              setIsEditLeadModalVisible(false);
-            }, 300);
-          }}
-          onCancel={() => setIsEditLeadModalVisible(false)}
-          isSubmitting={isSubmitting}
-        />
-      </Modal>
+        onSubmit={handleEditLeadSubmit}
+        loading={loading}
+        isEditing={true}
+        initialValues={mappedLeadDetail}
+        fields={leadCreateFields({ isEmailDisable: true })}
+      />
 
       {/* Property Details Modal */}
       <PropertyDetailsModal

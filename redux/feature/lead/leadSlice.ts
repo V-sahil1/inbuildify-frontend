@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { convertLeadToJobThunk, convertLeadToOpportunityThunk, createLeadThunk, getLeadThunk, getQuotationsByLeadIdThunk } from "./leadThunk";
-import { getLeadByIdThunk, updatePropertyDetailsThunk } from "./leadThunk";
+import { convertLeadToJobThunk, convertLeadToOpportunityThunk, createLeadThunk, getLeadThunk, getQuotationsByLeadIdThunk, updateLeadThunk } from "./leadThunk";
+import { getLeadByIdThunk } from "./leadThunk";
 import { ILead } from "./ILeadState";
 import { Status } from "@lib/constants/enum";
 import { QuotationResponse } from "../quotation/IQuotationState";
@@ -126,6 +126,23 @@ export const leadSlice = createSlice({
               return {
                 ...lead,
                 status: action.payload.payload.status,
+              };
+            }
+            return lead;
+          });
+        });
+        builder.addCase(updateLeadThunk.fulfilled, (state, action) => {
+          const {lead_id,name,phone,lead_source} = action.payload;
+          state.leadDetail.contact.name = name;
+          state.leadDetail.contact.phone = phone;
+          state.leadDetail.contact.lead_source = lead_source;
+          state.leads = state.leads.map((lead) => {
+            if (lead.lead_id === lead_id) {
+              return {
+                ...lead,
+                name,
+                phone,
+                lead_source,
               };
             }
             return lead;

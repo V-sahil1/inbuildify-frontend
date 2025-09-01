@@ -49,7 +49,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
       >
         {/* Item Info */}
         <div className="table-cell p-3 align-top">
-          <div className="font-medium text-[16px]">{item.shortDescription}</div>
+          <div className="font-medium text-[16px]">{item.shortDescription ? item.shortDescription : item.description}</div>
           <div className="flex flex-wrap gap-2 mt-1">
             {item.costType && <Tag color="yellow">{item.costType}</Tag>}
             {item.dwellingTypeName && item.dwellingTypeName !== "NONE" && (

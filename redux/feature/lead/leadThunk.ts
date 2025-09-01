@@ -40,6 +40,21 @@ export const getLeadByIdThunk = createAsyncThunk(
     }
 );
 
+export const updateLeadThunk = createAsyncThunk(
+    "lead/updateLead",
+    async (payload: {id:string, details:{name:string, phone:string, leadSource:string}}, { rejectWithValue }) => {
+        try {
+            const response: ApiResponse<any> = await api.post(
+                `${API_ENDPOINTS.LEAD_BASE}/${payload.id}`,
+                {data: payload.details}
+            );
+            return response.data;
+        } catch (err: any) {
+            return rejectWithValue(err.message);
+        }
+    }
+);
+
 export const updatePropertyDetailsThunk = createAsyncThunk(
     "lead/updatePropertyDetails",
     async (payload: any, { rejectWithValue }) => {
