@@ -1,19 +1,28 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { convertLeadToJobThunk, convertLeadToOpportunityThunk, createLeadThunk, getLeadThunk } from "./leadThunk";
+import { convertLeadToJobThunk, convertLeadToOpportunityThunk, createLeadThunk, getLeadThunk, getQuotationsByLeadIdThunk } from "./leadThunk";
 import { getLeadByIdThunk, updatePropertyDetailsThunk } from "./leadThunk";
 import { ILead } from "./ILeadState";
 import { Status } from "@lib/constants/enum";
+import { QuotationResponse } from "../quotation/IQuotationState";
 
 export const leadSlice = createSlice({
     name: "lead",
     initialState: {
         leads:[] as ILead[],
         status: Status.IDLE,
-        leadDetail: null as any,
+        leadDetail: {
+          contact: null,
+          property: null,
+          createdQuotations: [] as QuotationResponse[],
+        },
     },
     reducers: {
-        clearLeadDetail: (state) => {
-            state.leadDetail = null;
+      clearLeadDetail: (state) => {
+        state.leadDetail = {
+          contact: null,
+          property: null,
+          createdQuotations: [],
+        };
         },
         setLeadProperty: (state, action) => {
             const { builderId, ...propertyWithoutBuilder } = (action.payload || {}) as any;
@@ -87,6 +96,16 @@ export const leadSlice = createSlice({
         });
         builder.addCase(createLeadThunk.fulfilled, (state, action) => {
             state.leads.unshift(action.payload);
+        });
+        builder.addCase(getQuotationsByLeadIdThunk.pending, (state) => {
+          state.status = Status.PENDING;
+        });
+        builder.addCase(getQuotationsByLeadIdThunk.fulfilled, (state, action) => {
+          state.leadDetail.createdQuotations = action.payload;
+          state.status = Status.SUCCESS;
+        });
+        builder.addCase(getQuotationsByLeadIdThunk.rejected, (state) => {
+          state.status = Status.ERROR;
         });
         builder.addCase(convertLeadToOpportunityThunk.fulfilled, (state, action) => {
           state.leads = state.leads.map((lead) => {

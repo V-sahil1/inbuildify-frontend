@@ -66,7 +66,7 @@ public static PROPERTY_BASE = "/property"
 
 //quotation
 public static QUOTATION_BASE = "/quotation"
-
+  public static GET_QUOTATIONS_BY_LEAD_ID = (leadId: string, page: number, limit: number) => `${this.QUOTATION_BASE}?leadId=${leadId}&page=${page}&limit=${limit}`;
 
 }
 export default API_ENDPOINTS;

@@ -1,13 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Card, Input, Modal } from "antd";
+import { Card, Input, List, Modal, Space, Tag, Tooltip, Typography } from "antd";
 import StageProgress from "@/components/common/StageProgress";
 import ConvertLeadModal from "@/components/leadDetail/ConvertLeadModal";
 import PropertyDetailsModal from "@/components/leadDetail/PropertyDetailsModal";
 import LeadDetailsForm from "@/components/leadDetail/forms/LeadDetailsForm";
 import {
   IconBarrierBlock,
+  IconCopy,
+  IconCopyCheck,
   IconEdit,
+  IconFileText,
   IconMail,
   IconPhone,
   IconPhoneCall,
@@ -24,7 +27,9 @@ import { RootState } from "@redux/feature/store";
 import dayjs from "dayjs";
 import { setQuotationContact, setQuotationProperty } from "@redux/feature/quotation/quotationSlice";
 import { clearLeadDetail } from "@redux/feature/lead/leadSlice";
+import { getQuotationsByLeadIdThunk } from "@redux/feature/lead/leadThunk";
 
+const { Text } = Typography;
 export interface Plan {
   id: string;
   name: string;
@@ -62,6 +67,7 @@ function App() {
   const contact = (leadDetail as any)?.contact ?? {};
   const propertyFromSlice = (leadDetail as any)?.property ?? {};
   const leadId = router.query.id as string | undefined;
+  const createdQuotations = (leadDetail as any)?.createdQuotations ?? {};
 
   const latestLeadDetailRef = useRef<any>(null);
   useEffect(() => {
@@ -71,10 +77,10 @@ function App() {
   useEffect(() => {
     if (leadId) {
       dispatch(getLeadByIdThunk(leadId));
+      dispatch(getQuotationsByLeadIdThunk({ leadId, page: 1, limit: 25 }));
     }
   }, [router.query.id, dispatch]);
 
-  // Save to quotation and clear lead detail on unmount only
   useEffect(() => {
     return () => {
       const latest = latestLeadDetailRef.current;
@@ -251,23 +257,18 @@ function App() {
                     {propertyFromSlice.totalSizeM2 ? " m²" : ""}
                   </p>
                 </div>
-
-                {/* <a href="#" className="text-theme-blue text-sm mt-2 inline-block">
-                  Additional Fields
-                </a> */}
               </>
             ) : (
-              <div className="flex flex-col items-center justify-center p-4 rounded-lg">
-               <IconBarrierBlock />
+              <div className="flex flex-col items-center justify-center p-6 rounded-lg">
+                <IconBarrierBlock />
                 <p className="text-sm text-gray-500 text-center">No property details added yet</p>
                 <p className="text-xs text-gray-400 mt-1">Add property information to get started</p>
               </div>
             )
           }
-
         </Card>
 
-        {/* Actions Card */}
+        {/* Quotation Card */}
         {isOpportunity && <Card>
           <div className="flex flex-col justify-between">
             <Link
@@ -276,9 +277,31 @@ function App() {
             >
               Create Quotation
             </Link>
-            {/* <a href="#" className="text-theme-blue text-sm mt-2">
-              Capture Deposit
-            </a> */}
+            <div className="max-h-[200px] my-2 overflow-y-auto">
+                <List
+                  dataSource={createdQuotations.quotations}
+                  locale={{
+                    emptyText: (
+                      <div className="flex flex-col items-center justify-center p-6">
+                        <IconFileText />
+                        <p className=" text-sm text-gray-500 text-center">No quotations found</p>
+                        <p className="text-xs text-gray-400 mt-1">Create a quotation to get started</p>
+                      </div>
+                    ),
+                  }}
+                  renderItem={(quotation: any) => (
+                    <List.Item key={quotation.quotation_id}>
+                      <Space size="middle">
+                        <Tooltip title={quotation.quotation_id}>
+                          <Text type="secondary">{quotation.quotation_id.slice(0, 13)}</Text>
+                        </Tooltip>
+                        <Tag color={quotation.lead_status === "Open" ? "blue" : "green"}>{quotation.lead_status}</Tag>
+                        <Text>${quotation.items.reduce((sum: number, item: any) => sum + item.total, 0)}</Text>
+                      </Space>
+                    </List.Item>
+                  )}
+                />
+            </div>
           </div>
         </Card>}
       </div>

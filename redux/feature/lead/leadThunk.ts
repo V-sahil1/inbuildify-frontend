@@ -83,3 +83,20 @@ export const convertLeadToJobThunk = createAsyncThunk(
         }
     }
 );
+
+export const getQuotationsByLeadIdThunk = createAsyncThunk(
+  "lead/getQuotationsByLeadId",
+  async (
+    payload: { leadId: string; page: number; limit: number },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response: ApiResponse<any> = await api.get(
+        API_ENDPOINTS.GET_QUOTATIONS_BY_LEAD_ID(payload.leadId,payload.page,payload.limit)
+      );
+      return response.data;
+    } catch (err: any) {
+      return rejectWithValue(err.message);
+    }
+  }
+);

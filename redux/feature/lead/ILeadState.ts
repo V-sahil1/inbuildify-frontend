@@ -1,4 +1,5 @@
 import { LeadDetails, PropertyDetails } from "data/types";
+import { QuotationResponse } from "../quotation/IQuotationState";
 
 export interface ILead {
     lead_id: string;
@@ -14,4 +15,5 @@ export interface ILead {
 export interface leadDetail {
     contact: LeadDetails;
     property: PropertyDetails;
+    createdQuotations: QuotationResponse[];
 }
