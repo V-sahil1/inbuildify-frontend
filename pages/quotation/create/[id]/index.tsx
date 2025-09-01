@@ -42,9 +42,19 @@ const Index = () => {
     status: quotationStatus,
   } = useAppSelector((state: RootState) => state.quotation);
   const [selectedPlan, setSelectedPlan] = useState<Plan | undefined>(plan);
+  
+  // Sync local state with Redux store
+  useEffect(() => {
+    setSelectedPlan(plan);
+  }, [plan]);
   const [selectedFacade, setSelectedFacade] = useState<
     IFacadeState | undefined
   >(facade);
+  
+  // Sync local state with Redux store
+  useEffect(() => {
+    setSelectedFacade(facade);
+  }, [facade]);
   const router = useRouter();
   const [selectedPackage, setSelectedPackage] = useState<Package | undefined>(
     selectedPackageFromSlice

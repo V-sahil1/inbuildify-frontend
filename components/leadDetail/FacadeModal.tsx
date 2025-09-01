@@ -28,6 +28,8 @@ const FacadeModal: React.FC<FacadeModalProps> = ({
     const [activeTab, setActiveTab] = useState<"available" | "custom">("available");
     const [selected, setSelected] = useState<any>(selectedFacade || null);
     const [formValues, setFormValues] = useState<any>(null);
+    console.log("🚀 ~ FacadeModal ~ formValues:", formValues)
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (status === Status.IDLE) {
@@ -50,12 +52,23 @@ const FacadeModal: React.FC<FacadeModalProps> = ({
                 return;
             }
             try {
-                await dispatch(createFacade(formValues)).unwrap();
+                const formData = new FormData();
+                formData.append("name", formValues.name);
+                formData.append("dwelling_type", formValues.dwelling_type);
+                formData.append("image", formValues.image.file.originFileObj);
+                formData.append("standard", formValues.standard || true);
+                formData.append("upgrade", formValues.upgrade || true);
+                setLoading(true);
+                const response = await dispatch(createFacade(formData)).unwrap();
+                dispatch(setQuotationFacade(response));
+                setFormValues(null);
                 message.success("Facade created successfully");
                 onSave({ type: "new", facade: formValues });
                 onCancel();
             } catch (error) {
                 message.error(`Failed to create facade ${error}`);
+            } finally {
+                setLoading(false);
             }
         }
     };
@@ -77,7 +90,7 @@ const FacadeModal: React.FC<FacadeModalProps> = ({
                 <Button key="cancel" onClick={onCancel}>
                     Cancel
                 </Button>,
-                <Button key="save" type="primary" onClick={handleSave}>
+                <Button key="save" type="primary" onClick={handleSave} loading={loading}>
                     Save
                 </Button>,
             ]}
@@ -98,16 +111,16 @@ const FacadeModal: React.FC<FacadeModalProps> = ({
                             />
                         ),
                     },
-                    // {
-                    //     key: "custom",
-                    //     label: "Custom",
-                    //     children: (
-                    //         <CustomFacadeForm
-                    //             initialValues={formValues}
-                    //             onFormChange={setFormValues}
-                    //         />
-                    //     ),
-                    // },
+                    {
+                        key: "custom",
+                        label: "Custom",
+                        children: (
+                            <CustomFacadeForm
+                                initialValues={formValues}
+                                onFormChange={setFormValues}
+                            />
+                        ),
+                    },
                 ]}
             />
         </Modal>

@@ -28,8 +28,12 @@ const FloorPlanModal: React.FC<FloorPlanModalProps> = ({
   const {floorPlans, status, filters} = useAppSelector((state: RootState) => state.floorPlan);
   
   const [activeTab, setActiveTab] = useState<"available" | "custom">("available");
-  const [selectedFloorPlan, setSelectedFloorPlan] = useState<any>(null);
-  const [customPlanName, setCustomPlanName] = useState("");
+  const [selectedFloorPlan, setSelectedFloorPlan] = useState<Plan | null>(selectedPlan || null);
+
+  // Update local state when selectedPlan prop changes
+  useEffect(() => {
+    setSelectedFloorPlan(selectedPlan || null);
+  }, [selectedPlan]);
 
   useEffect(() => {
     if (status.floorPlan === Status.IDLE) { 
@@ -41,19 +45,15 @@ const FloorPlanModal: React.FC<FloorPlanModalProps> = ({
   }, [dispatch, status, filters])
 
   const handleSave = () => {
-    if (activeTab === "available" && selectedFloorPlan) {
+    if (selectedFloorPlan) {
       dispatch(setQuotationPlan(selectedFloorPlan));
       onSave(selectedFloorPlan);
-    } else if (activeTab === "custom" && customPlanName) {
-      // dispatch(setQuotationPlan(customPlan));
-      // onSave(customPlan);
     }
     handleCancel();
   };
 
   const handleCancel = () => {
     setSelectedFloorPlan(null);
-    setCustomPlanName("");
     onCancel();
   };
 
@@ -72,11 +72,13 @@ const FloorPlanModal: React.FC<FloorPlanModalProps> = ({
       open={visible}
       onCancel={handleCancel}
       width={1000}
-      footer={[
-        <Button key="save" type="primary" onClick={handleSave}>
-          Save
-        </Button>,
-      ]}
+      footer={
+        <>
+          <Button key="save" type="primary" hidden={activeTab === "custom"} onClick={handleSave}>
+            Save
+          </Button>
+        </>
+      }
       className="floor-plan-modal"
     >
       {isLoading ? (
@@ -110,23 +112,23 @@ const FloorPlanModal: React.FC<FloorPlanModalProps> = ({
                 />
               ),
             },
-            // {
-            //   key: "custom",
-            //   label: (
-            //     <span
-            //       className={`px-4 py-2 rounded ${
-            //         activeTab === "custom"
-            //           ? "bg-green-500 text-white"
-            //           : "bg-gray-200 text-gray-700"
-            //       }`}
-            //     >
-            //       Custom
-            //     </span>
-            //   ),
-            //   children: (
-            //     <CustomPlanTab />
-            //   ),
-            // },
+            {
+              key: "custom",
+              label: (
+                <span
+                  className={`px-4 py-2 rounded ${
+                    activeTab === "custom"
+                      ? "bg-green-500 text-white"
+                      : "bg-gray-200 text-gray-700"
+                  }`}
+                >
+                  Custom
+                </span>
+              ),
+              children: (
+                <CustomPlanTab onCancel={handleCancel}/>
+              ),
+            },
           ]}
         />
       )}

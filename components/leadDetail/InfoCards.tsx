@@ -265,7 +265,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
               <div className="space-y-2">
                 <div className="font-semibold text-center text-font-color">
                   {/* @ts-ignore */}
-                  {selectedFacade?.name || "-"}
+                  {selectedFacade?.name || selectedFacade?.facade?.name || "-"}
                 </div>
               </div>
             </>

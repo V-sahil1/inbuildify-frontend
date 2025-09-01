@@ -32,7 +32,7 @@ const Facade = () => {
     setIsModalVisible(true);
   };
 
-  const handleCreateFloorPlan = async (values: any) => {
+  const handleCreateFacade = async (values: any) => {
     try {
       setLoading(true);
       const formData = new FormData();
@@ -108,7 +108,7 @@ const Facade = () => {
           title="Floor Plan"
           open={isModalVisible}
           onCancel={() => setIsModalVisible(false)}
-          onSubmit={handleCreateFloorPlan}
+          onSubmit={handleCreateFacade}
           fields={facadeFields()}
           loading={loading}
         />

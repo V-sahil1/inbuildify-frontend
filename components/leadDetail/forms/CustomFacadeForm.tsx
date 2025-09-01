@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Form, Input, Select, Checkbox } from "antd";
+import { Form, Input, Select, Checkbox, Upload, Button } from "antd";
 import { facadeFields } from "@/components/formFields/facadeFields";
 
 interface CustomFacadeFormProps {
@@ -51,6 +51,26 @@ const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
               rules={field.rules}
             >
               <Select options={field.options} placeholder={field.placeholder} />
+            </Form.Item>
+          );
+        }
+        if (field.type === "image") {
+          return (
+            <Form.Item
+              key={field.name}
+              name={field.name}
+              label={field.label}
+              rules={field.rules}
+            >
+              <Upload
+                name="image"
+                listType="picture"
+                multiple={false}
+              >
+                <Button>
+                  Click to Upload
+                </Button>
+              </Upload>
             </Form.Item>
           );
         }

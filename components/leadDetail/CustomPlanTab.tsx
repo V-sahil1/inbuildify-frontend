@@ -7,11 +7,13 @@ import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
 import { Status } from "@lib/constants/enum";
 import { createFloorPlan, getFloorPlanFilters } from "@redux/feature/floorPlan/floorPlanThunk";
+import { setQuotationPlan } from "@redux/feature/quotation/quotationSlice";
 
-const CustomPlanTab: React.FC = () => {
+const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
   const [form] = Form.useForm<IFloorPlanState>();
   const dispatch = useAppDispatch();
   const { filters, status } = useAppSelector((state: any) => state.floorPlan);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (status.filters === Status.IDLE) {
@@ -19,26 +21,36 @@ const CustomPlanTab: React.FC = () => {
     }
   }, [dispatch, status, filters])
 
-  const handleCreateFloorPlan = (values: any) => {
-    const formData = new FormData();
-    formData.append("name", values.name);
-    formData.append("range", values.range);
-    formData.append("dwelling_type", values.dwelling_type);
-    formData.append("beds", values.beds);
-    formData.append("bath", values.bath);
-    formData.append("car_park", values.car_park);
-    formData.append("width_meter", values.width_meter);
-    formData.append("depth_meter", values.depth_meter);
-    formData.append("dwelling", values.dwelling);
-    formData.append("garage", values.garage);
-    formData.append("porch", values.porch);
-    formData.append("alfresco", values.alfresco);
-    formData.append("total_sqft", values.total_sqft);
-    formData.append("image", values.image.file.originFileObj);
+  const handleCreateFloorPlan = async (values: any) => {
+    try {
+      setLoading(true)
+      const formData = new FormData();
+      formData.append("name", values.name);
+      formData.append("range", values.range);
+      formData.append("dwelling_type", values.dwelling_type);
+      formData.append("beds", values.beds);
+      formData.append("bath", values.bath);
+      formData.append("car_park", values.car_park);
+      formData.append("width_meter", values.width_meter);
+      formData.append("depth_meter", values.depth_meter);
+      formData.append("dwelling", values.dwelling);
+      formData.append("garage", values.garage);
+      formData.append("porch", values.porch);
+      formData.append("alfresco", values.alfresco);
+      formData.append("total_sqft", values.total_sqft);
+      formData.append("image", values.image.file.originFileObj);
 
-    dispatch(createFloorPlan(formData)).unwrap()
-
-    message.success("Floor Plan successfully Created!");
+      const response = await dispatch(createFloorPlan(formData)).unwrap()
+      dispatch(setQuotationPlan(response))
+      message.success("Floor Plan successfully Created!");
+      onCancel()
+      form.resetFields();
+      setLoading(false)
+    } catch (error) {
+      message.error(error)
+    } finally {
+      setLoading(false)
+    }
   };
 
 
@@ -200,7 +212,7 @@ const CustomPlanTab: React.FC = () => {
           <Button onClick={() => form.resetFields()} className="mt-4">
             Reset Form
           </Button>
-          <Button type="primary" htmlType="submit" className="mt-4 bg-blue-500 hover:bg-blue-600 text-white">
+          <Button type="primary" htmlType="submit" className="mt-4 bg-blue-500 hover:bg-blue-600 text-white" loading={loading}>
             Save Floor Plan
           </Button>
         </div>
