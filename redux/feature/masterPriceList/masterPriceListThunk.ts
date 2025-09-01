@@ -29,7 +29,7 @@ export const fetchCategories = createAsyncThunk(
         if (filters && (filters.range || filters.dwelling_type)) {
           const query = new URLSearchParams();
           if (filters.range) query.append("range", filters.range);
-          if (filters.dwelling_type) query.append("dwelling_type", filters.dwelling_type);
+          if (filters.dwelling_type) query.append("dwellingType", filters.dwelling_type);
           url = `${url}?${query.toString()}`;
         }
         const res = await api.get<ApiResponse<Item[]>>(url);

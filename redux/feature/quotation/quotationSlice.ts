@@ -42,6 +42,7 @@ const quotationSlice = createSlice({
             state.plan = null;
             state.facade = null;
             state.package = null;
+            state.selectedFilters = { range: '', dwelling_type: '' };
         },
         setQuotationContact(state, action: PayloadAction<LeadDetails | null>) {
             state.contact = action.payload as any;

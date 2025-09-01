@@ -1,11 +1,8 @@
 import { enumToReadable } from "@lib/utils/enumToRedable";
-import {
-  IconEdit,
-  IconTrash,
-} from "@tabler/icons-react";
+import { IconEdit, IconTrash } from "@tabler/icons-react";
 import { Tag } from "antd";
 export const PricingItem = ({ item }: any) => {
-  return    (
+  return (
     <div
       key={item.categoryItemId}
       className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:border-gray-300 bg-card-color text-font-color"
@@ -35,11 +32,13 @@ export const PricingItem = ({ item }: any) => {
               <p>{enumToReadable(item?.status).toUpperCase()}</p>
             </Tag>
           )}
-          {item?.rangeName && item?.rangeName !== "NONE" && (
-            <Tag color="orange" className="text-[10px]">
-              <p>{enumToReadable(item?.rangeName).toUpperCase()}</p>
-            </Tag>
-          )}
+          {item.showInHlPackage &&
+            item?.rangeName &&
+            item?.rangeName !== "NONE" && (
+              <Tag color="orange" className="text-[10px]">
+                <p>{enumToReadable(item?.rangeName).toUpperCase()}</p>
+              </Tag>
+            )}
         </div>
       </div>
 

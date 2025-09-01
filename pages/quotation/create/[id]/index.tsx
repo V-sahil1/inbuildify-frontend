@@ -4,9 +4,7 @@ import FooterActions from "@/components/leadDetail/FooterActions";
 import InfoCards from "@/components/leadDetail/InfoCards";
 import ItemsPanel from "@/components/leadDetail/ItemsPanel";
 import { Plan } from "@/pages/leads/[id]";
-import {
-  quotationData,
-} from "data/sampleData";
+import { quotationData } from "data/sampleData";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { Status } from "@lib/constants/enum";
 import { toggleExpand } from "@redux/feature/masterPriceList/masterPriceListSlice";
@@ -20,11 +18,11 @@ import { RootState } from "@redux/feature/store";
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { createQuotation } from "@redux/feature/quotation/quotationThunk";
 import { message, Spin } from "antd";
-import QuotationFilter from '@/components/quotation/QuotationFilter';
+import QuotationFilter from "@/components/quotation/QuotationFilter";
 import { updateLeadStatus } from "@redux/feature/lead/leadSlice";
 import { clearQuotation } from "@redux/feature/quotation/quotationSlice";
-import { usePdf } from '@hooks/usePdf';
-import QuatationPdf from '@/components/common/QuatationPdf';
+import { usePdf } from "@hooks/usePdf";
+import QuatationPdf from "@/components/common/QuatationPdf";
 import { useRouter } from "next/navigation";
 import calculateTotalQuotation from "@lib/utils/calculateTotalQuotation";
 
@@ -39,10 +37,11 @@ const Index = () => {
     package: selectedPackageFromSlice,
     extraItems,
     items,
+    selectedFilters: quotationFilters,
     status: quotationStatus,
   } = useAppSelector((state: RootState) => state.quotation);
   const [selectedPlan, setSelectedPlan] = useState<Plan | undefined>(plan);
-  
+
   // Sync local state with Redux store
   useEffect(() => {
     setSelectedPlan(plan);
@@ -50,7 +49,7 @@ const Index = () => {
   const [selectedFacade, setSelectedFacade] = useState<
     IFacadeState | undefined
   >(facade);
-  
+
   // Sync local state with Redux store
   useEffect(() => {
     setSelectedFacade(facade);
@@ -65,8 +64,12 @@ const Index = () => {
   const { categories: categoryData, status } = useAppSelector(
     (state: RootState) => state.masterPriceList
   );
-  const { selectedFilters: mplFilters } = useAppSelector((state: RootState) => state.masterPriceList);
-  const { package: packageFromSlice, items: itemsFromSlice } = useAppSelector((state) => state.quotation);
+  const { selectedFilters: mplFilters } = useAppSelector(
+    (state: RootState) => state.masterPriceList
+  );
+  const { package: packageFromSlice, items: itemsFromSlice } = useAppSelector(
+    (state) => state.quotation
+  );
 
   useEffect(() => {
     if (status === Status.IDLE) {
@@ -74,12 +77,12 @@ const Index = () => {
     }
   }, [dispatch, status]);
 
-  // useEffect(() => {
-  //   return () => {
-  //     dispatch(clearQuotation());
-  //   };
-  // }, []);
-  
+  useEffect(() => {
+    return () => {
+      dispatch(clearQuotation());
+    };
+  }, []);
+
   const { previewPdf } = usePdf(QuatationPdf);
   const getCategoryById = useCallback(
     (categoryId: string) =>
@@ -96,21 +99,30 @@ const Index = () => {
 
     if (!currentCategory?.isExpanded) {
       dispatch(toggleExpand(categoryId));
-      dispatch(fetchCategoryItems({ categoryId, filters: { range: mplFilters.range || undefined, dwelling_type: mplFilters.dwelling_type || undefined } }))
-        .unwrap()
+      dispatch(
+        fetchCategoryItems({
+          categoryId,
+          filters: {
+            range: quotationFilters?.range || undefined,
+            dwelling_type: quotationFilters?.dwelling_type || undefined,
+          },
+        })
+      ).unwrap();
     }
   };
 
-  const handleItemQuantityChange = (itemId: string, quantity: number) => { };
+  const handleItemQuantityChange = (itemId: string, quantity: number) => {};
 
   const getQuotationItems = () => {
     const normalize = (item: any, isExtra = false) => ({
       itemId: isExtra ? item.categoryItemId : item.itemId,
       quantity: Number(item.quantity),
       price: isExtra ? Number(item.cost) : Number(item.price),
-      total: Number(item.quantity) * (isExtra ? Number(item.cost) : Number(item.price)),
+      total:
+        Number(item.quantity) *
+        (isExtra ? Number(item.cost) : Number(item.price)),
     });
-  
+
     return [
       ...items.map((item) => normalize(item)),
       ...extraItems.map((item) => normalize(item, true)),
@@ -134,7 +146,13 @@ const Index = () => {
     try {
       const payload = createQuotationPayload();
       const response = await dispatch(createQuotation(payload)).unwrap();
-      dispatch(updateLeadStatus({ leadId: response.leadId, status: "COMPLETED", updatedAt: response.updatedAt }));
+      dispatch(
+        updateLeadStatus({
+          leadId: response.leadId,
+          status: "COMPLETED",
+          updatedAt: response.updatedAt,
+        })
+      );
       message.success("Quotation created successfully");
       router.push(`/job`);
     } catch (error) {
@@ -148,27 +166,30 @@ const Index = () => {
       leadDetail: contact,
       propertyDetail: property,
       quotePackage: selectedPackageFromSlice,
-      quotationAmount: calculateTotalQuotation(selectedPackageFromSlice, itemsFromSlice),
+      quotationAmount: calculateTotalQuotation(
+        selectedPackageFromSlice,
+        itemsFromSlice
+      ),
       floorPlan: plan,
       facade: facade,
     });
   };
 
-const handleViewOpportunity = () => console.log("View Opportunity clicked");
+  const handleViewOpportunity = () => console.log("View Opportunity clicked");
   const handleExtraClick = () => {
     setExtraItem(true);
     setSelectedCategory(null);
   };
   return (
     <>
-      <div className='m-3 flex justify-between items-center'>
+      <div className="m-3 flex justify-between items-center">
         <StageProgress
           id="MYH00492"
           title="Quotation"
           status="Open"
           steps={[]}
         />
-      <QuotationFilter />
+        <QuotationFilter />
       </div>
 
       <InfoCards
@@ -180,7 +201,7 @@ const handleViewOpportunity = () => console.log("View Opportunity clicked");
         onPlanSelect={setSelectedPlan}
         onFacadeSelect={setSelectedFacade}
         onPackageSelect={setSelectedPackage}
-        onPropertyUpdate={() => { }}
+        onPropertyUpdate={() => {}}
       />
 
       <div className="flex flex-1 m-3">
@@ -209,7 +230,10 @@ const handleViewOpportunity = () => console.log("View Opportunity clicked");
       <div className="m-3">
         <FooterActions
           expiryDate={quotation.expiryDate}
-          total={calculateTotalQuotation(packageFromSlice?.amount, itemsFromSlice)}
+          total={calculateTotalQuotation(
+            packageFromSlice?.amount,
+            itemsFromSlice
+          )}
           onApprove={handleApprove}
           onPreview={handlePreview}
           loading={quotationStatus === Status.PENDING}
