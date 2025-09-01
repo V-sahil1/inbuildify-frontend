@@ -41,7 +41,7 @@ const Package = () => {
       setEditingPackage(null);
     } catch (error) {
       console.error("Error saving package:", error);
-      message.error(error?.response?.data?.message || 'Failed to save package');
+      message.error(error || 'Failed to save package');
     }
   };
 
