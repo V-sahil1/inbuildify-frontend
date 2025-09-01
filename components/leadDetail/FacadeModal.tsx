@@ -28,7 +28,6 @@ const FacadeModal: React.FC<FacadeModalProps> = ({
     const [activeTab, setActiveTab] = useState<"available" | "custom">("available");
     const [selected, setSelected] = useState<any>(selectedFacade || null);
     const [formValues, setFormValues] = useState<any>(null);
-    console.log("🚀 ~ FacadeModal ~ formValues:", formValues)
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -66,7 +65,7 @@ const FacadeModal: React.FC<FacadeModalProps> = ({
                 onSave({ type: "new", facade: formValues });
                 onCancel();
             } catch (error) {
-                message.error(`Failed to create facade ${error}`);
+                message.error(`${error}` || "Failed to create facade");
             } finally {
                 setLoading(false);
             }

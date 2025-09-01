@@ -66,6 +66,7 @@ const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
                 name="image"
                 listType="picture"
                 multiple={false}
+                maxCount={1}
               >
                 <Button>
                   Click to Upload

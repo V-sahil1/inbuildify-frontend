@@ -54,9 +54,7 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
   };
 
 
-  const onFinishFailed = (errorInfo: any) => {
-    message.error('Please fill in all required fields');
-  };
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto h-[70vh] flex flex-col">
@@ -64,7 +62,6 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
         form={form}
         layout="vertical"
         onFinish={handleCreateFloorPlan}
-        onFinishFailed={onFinishFailed}
         autoComplete="off"
         className="flex-1 flex flex-col"
       >
@@ -113,6 +110,7 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
                 name="image"
                 listType="picture"
                 multiple={false}
+                maxCount={1}
               >
                 <Button>
                   Click to Upload
@@ -128,7 +126,10 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
               <Form.Item
                 label="Beds"
                 name="beds"
-                rules={[{ required: true, message: 'Please input number of beds' }]}
+                rules={[
+                  { required: true, message: 'Please input number of beds' },
+                  { pattern: /^[0-9]+(\.[0-9]{1,2})?$/, message: 'Only numbers allowed' }
+                ]}
               >
                 <InputNumber min={0} className="w-full" />
               </Form.Item>

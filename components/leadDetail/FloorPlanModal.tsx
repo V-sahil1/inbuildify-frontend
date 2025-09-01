@@ -93,17 +93,7 @@ const FloorPlanModal: React.FC<FloorPlanModalProps> = ({
           items={[
             {
               key: "available",
-              label: (
-                <span
-                  className={`px-4 py-2 rounded ${
-                    activeTab === "available"
-                      ? "bg-green-500 text-white"
-                      : "bg-gray-200 text-gray-700"
-                  }`}
-                >
-                  Available
-                </span>
-              ),
+              label: "Available",
               children: (
                 <AvailablePlansTab
                   plans={floorPlans}
@@ -114,17 +104,7 @@ const FloorPlanModal: React.FC<FloorPlanModalProps> = ({
             },
             {
               key: "custom",
-              label: (
-                <span
-                  className={`px-4 py-2 rounded ${
-                    activeTab === "custom"
-                      ? "bg-green-500 text-white"
-                      : "bg-gray-200 text-gray-700"
-                  }`}
-                >
-                  Custom
-                </span>
-              ),
+              label: "Custom",
               children: (
                 <CustomPlanTab onCancel={handleCancel}/>
               ),
