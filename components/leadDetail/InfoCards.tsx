@@ -233,21 +233,29 @@ const InfoCards: React.FC<InfoCardsProps> = ({
               </div>
 
               <div className="flex justify-between w-full gap-2">
-                <div className="flex items-center gap-2">
-                  <IconBedFlat />
-                  {selectedPlan?.beds || 0}
+                <div className="flex flex-col items-center text-gray-400 w-full">
+                  <div className="w-6 h-6 flex items-center justify-center">
+                    <IconBedFlat size={20} />
+                  </div>
+                  <span className="text-sm">{selectedPlan?.beds || 0}</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <IconBath />
-                  {selectedPlan?.bath || 0}
+                <div className="flex flex-col items-center text-gray-400 w-full">
+                  <div className="w-6 h-6 flex items-center justify-center">
+                    <IconBath size={20} />
+                  </div>
+                  <span className="text-sm">{selectedPlan?.bath || 0}</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <IconCar />
-                  {selectedPlan?.carPark || 0}
+                <div className="flex flex-col items-center text-gray-400 w-full">
+                  <div className="w-6 h-6 flex items-center justify-center">
+                    <IconCar size={20} />
+                  </div>
+                  <span className="text-sm">{selectedPlan?.carPark || 0}</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <IconForklift />
-                  {selectedPlan?.garage || 0}
+                <div className="flex flex-col items-center text-gray-400 w-full">
+                  <div className="w-6 h-6 flex items-center justify-center">
+                    <IconForklift size={20} />
+                  </div>
+                  <span className="text-sm">{selectedPlan?.garage || 0}</span>
                 </div>
               </div>
             </>
