@@ -1,5 +1,6 @@
 "use client";
 
+import { UploadFileStatus } from 'antd/es/upload/interface';
 import {
   Modal,
   Form,
@@ -86,7 +87,7 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
       {
         uid: "-1",
         name,
-        status: "done",
+        status: "done" as UploadFileStatus,
         url,
       },
     ];

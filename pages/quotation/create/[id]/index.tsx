@@ -188,7 +188,7 @@ const Index = () => {
       message.success("Quotation created successfully");
       router.push(`/${SystemRoutes.JOB}`);
     } catch (error) {
-      message.error("Failed to create quotation");
+      message.error(error);
     }
   };
   const handlePreview = () => {
