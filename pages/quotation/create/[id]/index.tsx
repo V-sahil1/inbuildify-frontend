@@ -208,7 +208,7 @@ const Index = () => {
   const canPlan = plan && Object.keys(plan).length > 0;
   const canFacade = !!facade;
   const canSelectedPackageFromSlice = !!selectedPackageFromSlice;
-  const canPreview = canContact && canProperty && canPlan && canFacade && canSelectedPackageFromSlice;
+  const canAction = canContact && canProperty && canPlan && canFacade && canSelectedPackageFromSlice;
   return (
     <>
       <div className="m-3 flex justify-between items-center">
@@ -279,7 +279,7 @@ const Index = () => {
           )}
           onApprove={handleApprove}
           onPreview={handlePreview}
-          disablePreview={!canPreview}
+          disableAction={!canAction}
           loading={quotationStatus === Status.PENDING}
         />
       </div>

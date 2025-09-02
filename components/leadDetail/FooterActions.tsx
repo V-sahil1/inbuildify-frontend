@@ -14,7 +14,7 @@ interface FooterActionsProps {
   onApprove: () => void;
   onPreview: () => void;
   loading: boolean;
-  disablePreview: boolean;
+  disableAction: boolean;
 }
 
 const FooterActions: React.FC<FooterActionsProps> = ({
@@ -23,7 +23,7 @@ const FooterActions: React.FC<FooterActionsProps> = ({
   onApprove,
   onPreview,
   loading,
-  disablePreview
+  disableAction
 }) => {
   return (
       <div className="flex items-center justify-between">
@@ -33,10 +33,11 @@ const FooterActions: React.FC<FooterActionsProps> = ({
               icon={<IconCheck />}
               onClick={onApprove}
               loading={loading}
+              disabled={disableAction}
             >
               Create Quotation
             </Button>
-            <Button icon={<IconEye />} onClick={onPreview} disabled={disablePreview}>
+            <Button icon={<IconEye />} onClick={onPreview} disabled={disableAction}>
               Preview
             </Button>
           </Space>

@@ -59,7 +59,7 @@ const UserPage = () => {
     setLoading(true);
     try {
       const res: any = await dispatch(getInvitedUsersThunk()).unwrap();
-      const mappedUsers: User[] = res?.data.users.map((user) => ({
+      const mappedUsers: User[] = res?.data.users?.map((user) => ({
         key: user.userId,
         role: enumToReadable(user.role),
         email: user.email,
@@ -68,7 +68,7 @@ const UserPage = () => {
       setHasFetchedInvites(true);
     } catch (err) {
       console.log("GET invited users failed:", err);
-      message.error("Failed to fetch invited users");
+      message.error(err || "Failed to fetch invited users");
     } finally {
       setLoading(false);
     }
@@ -111,16 +111,16 @@ const UserPage = () => {
           email: values.email,
         };
 
-        setInvitedUsers((prev) => [newInvitedUser, ...prev]);
+        setInvitedUsers((prev) => prev?.length ? [newInvitedUser, ...prev] : [newInvitedUser]);
         message.success(res.message);
       }
 
-      setIsModalOpen(false);
       form.resetFields();
+      setIsModalOpen(false);
       setIsEditing(false);
       setEditingKey(null);
     } catch (err) {
-      message.error((err as any)?.message || "Failed to send invitation");
+      message.error(err || "Failed to send invitation");
     } finally {
       setLoading(false);
     }
