@@ -10,6 +10,7 @@ import { IconMail, IconPhone } from "@tabler/icons-react";
 import { timeAgo } from "@lib/utils/timeAgo";
 import { enumToReadable } from "@lib/utils/enumToRedable";
 import leadCreateFields from "@/components/formFields/LeadCreateFields";
+import SystemRoutes from "@lib/constants/Routes";
 const Leads = () => {
   const { leads, status } = useAppSelector((state) => state.lead);
   const dispatch = useAppDispatch();
@@ -64,8 +65,9 @@ const Leads = () => {
           key={lead.lead_id}
           onClick={() =>
             (lead.status === "IN_PROGRESS" || lead.status === "COMPLETED")
-              ? router.push(`/leads/${lead.lead_id}?type=opportunity`)
-              : router.push(`/leads/${lead.lead_id}`)
+              ? router.push(`${SystemRoutes.LEADS}/${lead.lead_id}?type=opportunity`)
+              : lead.status === "JOB" ? router.push(SystemRoutes.JOB) 
+              : router.push(`${SystemRoutes.LEADS}/${lead.lead_id}`)
           }
           className=" rounded-2xl border border-gray-200 shadow-sm p-6 cursor-pointer 
                      transition-all duration-200 hover:shadow-xl hover:scale-[1.02]"
