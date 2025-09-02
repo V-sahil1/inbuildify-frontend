@@ -6,6 +6,7 @@ import { RootState } from "@redux/feature/store";
 import { Status } from "@lib/constants/enum";
 import { fetchPackageItems } from "@redux/feature/package/packageThunk";
 import { Item } from "@redux/feature/masterPriceList/iMasterPriceListState";
+import { setAddInstItemModal } from "@redux/feature/package/packageSlice";
 
 export const packageFields = (): CreateFormField[] => {
   const itemStatus = useAppSelector(
@@ -32,6 +33,10 @@ export const packageFields = (): CreateFormField[] => {
     }
   }, []);
 
+  const handleAddItem = () => {
+    dispatch(setAddInstItemModal(true));
+  }
+
   return [
     {
       label: "Name",
@@ -48,6 +53,8 @@ export const packageFields = (): CreateFormField[] => {
       options: options,
       placeholder: "Select Items",
       rules: [{ required: true, message: "Please select a range" }],
+      button:"Add Item",
+      onClick: handleAddItem,
     },
     {
       label: "Total Amount",

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Form, Input, Radio, Checkbox, Select, Modal, message ,Spin} from "antd";
 import { IconMinus, IconPlus } from "@tabler/icons-react";
-import { createCategoryItem } from "@redux/feature/masterPriceList/masterPriceListThunk";
+import { createCategoryItem, fetchCategories } from "@redux/feature/masterPriceList/masterPriceListThunk";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
 import { getConditions, getFloorPlanFilters } from "@redux/feature/floorPlan/floorPlanThunk";
@@ -14,11 +14,28 @@ import { addPackageItems } from "@redux/feature/package/packageSlice";
 const { TextArea } = Input;
 const { Option } = Select;
 
-const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
+interface AddMasterPricingItemModalProps {
+  open: boolean;
+  onClose: any;
+  categoryId?: string;
+}
+
+const AddMasterPricingItemModal = ({
+    open,
+    onClose,
+    categoryId,
+  }: AddMasterPricingItemModalProps) => {    
     const [form] = Form.useForm();
     const [costType, setCostType] = useState("INCLUDED");
     const {filters, status} = useAppSelector((state) => state.floorPlan);
+    const { categories , status: mplStatus } = useAppSelector((state) => state.masterPriceList);
     const dispatch = useAppDispatch();
+
+    useEffect(() => {
+      if (mplStatus === Status.IDLE) {
+        dispatch(fetchCategories());
+      }
+    }, [dispatch]);
 
     // New state for button loading
     const [isAddingItem, setIsAddingItem] = useState(false);
@@ -46,15 +63,18 @@ const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
     }
   }, [dispatch, filters, status.conditions]);
 
-
-
   const onFinish = async (values: any) => {
     await form.validateFields();
     try {
       setIsAddingItem(true);
+
+      const payload = {
+        ...(categoryId && { category_id: categoryId }),
+        ...values,
+      };
       
       const response = await dispatch(
-        createCategoryItem({ category_id: categoryId, ...values })
+        createCategoryItem(payload)
       ).unwrap();
       
       message.success("Master Pricing Item added successfully");
@@ -103,6 +123,24 @@ const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
         }}
         className="responsive-form"
       >
+        {/* New Item Category */}
+        {!categoryId && (
+          <Form.Item
+            label="Item Category"
+            name="category_id"
+            className="form-item-responsive flex-1"
+            rules={[{ required: true, message: "Please Select Category" }]}
+          >
+            <Select placeholder="Please select" style={{ width: "100%" }}>
+              {categories?.map((option) => (
+                <Option key={option.categoryId} value={option.categoryId}>
+                  {option?.name}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+        )}
+
         {/* Item Description */}
         <Form.Item
           label="Item Description"
@@ -317,7 +355,7 @@ const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
             initialValue="ACTIVE"
             className="form-item-responsive"
           >
-            <Radio.Group style={{ width: "100%" }}>
+            <Radio.Group style={{ width: "100%" }} disabled={!categoryId}>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Radio value="ACTIVE">Active</Radio>
                 <Radio value="INACTIVE">Inactive</Radio>
@@ -329,9 +367,9 @@ const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
               name="package_only"
               valuePropName="checked"
               className="form-item-responsive"
-              initialValue={false}
+              initialValue={!categoryId}
             >
-              <Checkbox> Package Only </Checkbox>
+              <Checkbox disabled={!categoryId}> Package Only </Checkbox>
             </Form.Item>
           )}
         </div>
