@@ -190,7 +190,7 @@ function App() {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full p-3">
+      {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full p-3">
         <Input
           value={contact.name}
           prefix={<IconUser />}
@@ -209,7 +209,20 @@ function App() {
           prefix={<IconPhone />}
           className="rounded-md w-full"
         />
-      </div>
+        
+        <div className="flex items-center gap-2">
+          <Text ><IconPhone /></Text>
+          <Text>{contact.name}</Text>
+        </div>
+        <div className="flex items-center gap-2">
+          <Text ><IconMail /></Text>
+          <Text>{contact.email}</Text>
+        </div>
+        <div className="flex items-center gap-2">
+          <Text ><IconPhone /></Text>
+          <Text>{contact.phone}</Text>
+        </div>
+      </div> */}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 m-3">
         {/* Contact Card */}

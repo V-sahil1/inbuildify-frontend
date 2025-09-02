@@ -15,7 +15,7 @@ import {
 } from "@redux/feature/masterPriceList/masterPriceListThunk";
 import { Package } from "@redux/feature/package/IPackageState";
 import { RootState } from "@redux/feature/store";
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { createQuotation } from "@redux/feature/quotation/quotationThunk";
 import { message, Spin } from "antd";
 import QuotationFilter from "@/components/quotation/QuotationFilter";
@@ -64,6 +64,9 @@ const Index = () => {
   const { categories: categoryData, status } = useAppSelector(
     (state: RootState) => state.masterPriceList
   );
+  // const { categories: mplCategories } = useAppSelector(
+  //   (state: RootState) => state.masterPriceList
+  // );
   const { selectedFilters: mplFilters } = useAppSelector(
     (state: RootState) => state.masterPriceList
   );
@@ -71,6 +74,8 @@ const Index = () => {
     (state) => state.quotation
   );
 
+  // const BaseCategory = useMemo(() => mplCategories.find((cat) => cat.name === "base price"), [mplCategories]);
+ 
   useEffect(() => {
     const fetchCategoriesData = async () => {
       try {
@@ -97,7 +102,7 @@ const Index = () => {
     [categoryData]
   );
 
-  const handleFetchCategoryItems = (categoryId: string) => {
+  const handleFetchCategoryItems = async (categoryId: string) => {
     setSelectedCategory(categoryId);
     const currentCategory = getCategoryById(categoryId);
     if (currentCategory) {
@@ -106,15 +111,27 @@ const Index = () => {
 
     if (!currentCategory?.isExpanded) {
       dispatch(toggleExpand(categoryId));
-      dispatch(
-        fetchCategoryItems({
-          categoryId,
-          filters: {
-            range: quotationFilters?.range || undefined,
-            dwelling_type: quotationFilters?.dwelling_type || undefined,
-          },
-        })
-      ).unwrap();
+      try {
+       const response = await dispatch(
+          fetchCategoryItems({
+            categoryId,
+            filters: {
+              range: quotationFilters?.range || undefined,
+              dwelling_type: quotationFilters?.dwelling_type || undefined,
+            },
+          })
+        ).unwrap();
+        // if(response.categoryId === BaseCategory?.categoryId){
+        //   const mappedItems = response.items.map((item) => ({
+        //     itemId: item.categoryItemId,
+        //     quantity: 1,
+        //     price: Number(item.cost),
+        //   }));
+        //   dispatch(setQuotationBaseItems(mappedItems));
+        // }
+      } catch (error) {
+        message.error(error || "Failed to fetch category items");
+      }
     }
   };
 
@@ -252,7 +269,7 @@ const Index = () => {
         <FooterActions
           expiryDate={quotation.expiryDate}
           total={calculateTotalQuotation(
-            packageFromSlice?.amount,
+            Number(packageFromSlice?.amount),
             itemsFromSlice
           )}
           onApprove={handleApprove}
