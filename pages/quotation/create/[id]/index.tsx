@@ -72,8 +72,15 @@ const Index = () => {
   );
 
   useEffect(() => {
+    const fetchCategoriesData = async () => {
+      try {
+        await dispatch(fetchCategories()).unwrap();
+      } catch (e) {
+        message.error(e || "Failed to fetch categories");
+      }
+    };
     if (status === Status.IDLE) {
-      dispatch(fetchCategories());
+      fetchCategoriesData();
     }
   }, [dispatch, status]);
 
@@ -205,26 +212,40 @@ const Index = () => {
       />
 
       <div className="flex flex-1 m-3">
-        <div className="w-64">
-          {status === Status.IDLE ? (
-            <div className="flex items-center justify-center flex-1">
-              <Spin />
+        {quotationFilters.range && quotationFilters.dwelling_type ? (
+          <>
+            <div className="w-64">
+              {status === Status.IDLE ? (
+                <div className="flex items-center justify-center flex-1">
+                  <Spin />
+                </div>
+              ) : (
+                <CategorySidebar
+                  categories={categoryData}
+                  selectedCategory={selectedCategory}
+                  onCategorySelect={handleFetchCategoryItems}
+                />
+              )}
             </div>
-          ) : (
-            <CategorySidebar
-              categories={categoryData}
-              selectedCategory={selectedCategory}
-              onCategorySelect={handleFetchCategoryItems}
-            />
-          )}
-        </div>
 
-        <ItemsPanel
-          category={getCategoryById(selectedCategory)}
-          onItemQuantityChange={handleItemQuantityChange}
-          extraItem={extraItem}
-          onExtraClick={handleExtraClick}
-        />
+            <ItemsPanel
+              category={getCategoryById(selectedCategory)}
+              onItemQuantityChange={handleItemQuantityChange}
+              extraItem={extraItem}
+              onExtraClick={handleExtraClick}
+            />
+          </>
+        ) : (
+          <div className="flex items-center justify-center flex-1">
+            <p>
+              {quotationFilters.range
+                ? "Please select Dwelling Type"
+                : quotationFilters.dwelling_type
+                ? "Please select Range"
+                : "Please select Range and Dwelling Type"}
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="m-3">
