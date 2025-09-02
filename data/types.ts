@@ -9,6 +9,7 @@ export interface Quotation {
   }
   
   export interface LeadDetails {
+    lead_id?: string;
     name: string;
     phone: string;
     email: string;
@@ -21,6 +22,7 @@ export interface Quotation {
     source: string;
     status: string;
     notes: string;
+    lead_source?: string;
   }
   
   export interface PropertyDetails {

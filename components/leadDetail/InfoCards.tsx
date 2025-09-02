@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Card, Button, Tag, Modal, Divider, Tooltip } from "antd";
+import { Card, Button, Tag, Modal, Divider, Tooltip, message } from "antd";
 import {
   IconUser,
   IconHome,
@@ -23,7 +23,11 @@ import FacadeModal from "./FacadeModal";
 import { IFacadeState } from "@redux/feature/facade/IFacadeState";
 import PackageModal from "./PackageModal";
 import { Package } from "@redux/feature/package/IPackageState";
-import { useAppSelector } from "@hooks/redux";
+import { useAppDispatch, useAppSelector } from "@hooks/redux";
+import leadCreateFields from "../formFields/LeadCreateFields";
+import { CreateFormModal } from "../common/Models/CreateFormModel";
+import { updateLeadThunk } from "@redux/feature/lead/leadThunk";
+import { updateQuotationContact } from "@redux/feature/quotation/quotationSlice";
 
 interface InfoCardsProps {
   leadDetails: LeadDetails;
@@ -53,18 +57,40 @@ const InfoCards: React.FC<InfoCardsProps> = ({
   const [facadeModalVisible, setFacadeModalVisible] = useState(false);
   const [packageModalVisible, setPackageModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const dispatch = useAppDispatch();
   const [activeContactIndex, setActiveContactIndex] = useState<number | null>(
     null
   );
-  const { selectedFilters } = useAppSelector(
-    (state) => state.quotation
-  );
+  const { selectedFilters } = useAppSelector((state) => state.quotation);
+  const mappedLeadDetail = {
+    ...leadDetails,
+    leadSource: leadDetails?.lead_source,
+  };
   
-  const isSelectionDisabled = !selectedFilters?.range || !selectedFilters?.dwelling_type;
-  const disabledMessage = isSelectionDisabled 
-    ? 'Please select both Range and Dwelling Type first' 
-    : '';
+  const handleEditLeadSubmit = async (values: any) => {
+    const { email, ...details } = values;
+    try {
+      setLoading(true);
+      const response = await dispatch(
+        updateLeadThunk({ id: leadDetails.lead_id, details })
+      ).unwrap();
+
+      dispatch(updateQuotationContact(response));
+      message.success("Lead updated successfully");
+      setEditModalVisible(false);
+    } catch (err) {
+      message.error(err || "Failed to update lead");
+    } finally {
+      setLoading(false);
+    }
+  };
+  const isSelectionDisabled =
+    !selectedFilters?.range || !selectedFilters?.dwelling_type;
+  const disabledMessage = isSelectionDisabled
+    ? "Please select both Range and Dwelling Type first"
+    : "";
   const [contacts, setContacts] = useState<
     Array<{
       name: string;
@@ -355,7 +381,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
       />
 
       {/* Edit Lead Details Modal */}
-      <Modal
+      {/* <Modal
         title="Edit Lead Details"
         open={editModalVisible}
         onCancel={() => setEditModalVisible(false)}
@@ -379,7 +405,18 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           onCancel={() => setEditModalVisible(false)}
           isSubmitting={isSubmitting}
         />
-      </Modal>
+      </Modal> */}
+
+      <CreateFormModal
+        open={editModalVisible}
+        title="Lead"
+        onCancel={() => setEditModalVisible(false)}
+        onSubmit={handleEditLeadSubmit}
+        loading={loading}
+        isEditing={true}
+        initialValues={mappedLeadDetail}
+        fields={leadCreateFields({ isEmailDisable: true })}
+      />
 
       <FloorPlanModal
         visible={floorPlanModalVisible}
