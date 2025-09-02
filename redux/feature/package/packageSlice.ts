@@ -34,6 +34,9 @@ const packageSlice = createSlice({
     clearFilters: (state) => {
       state.selectedFilters = { range: '', dwelling_type: '' };
     },
+    addPackageItems: (state, action) => {
+      state.items = [action.payload, ...state.items];
+    },
   },
   extraReducers: (builder) => {
     //get
@@ -99,5 +102,5 @@ const packageSlice = createSlice({
   },
 });
 
-export const { setSelectedFilters, clearFilters } = packageSlice.actions;
+export const { setSelectedFilters, clearFilters, addPackageItems } = packageSlice.actions;
 export default packageSlice.reducer;

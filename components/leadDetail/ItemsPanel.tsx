@@ -27,7 +27,6 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
     package: selectedPackageFromSlice,
   } = useAppSelector((state: RootState) => state.quotation);
   const quantityRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-  console.log("slice items", items);
   const handleItemAdd = (itemId: string, price: number) => {
     const quantity = quantityRefs.current[itemId]?.value || '1';
     

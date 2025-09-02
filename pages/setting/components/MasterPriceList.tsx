@@ -13,16 +13,20 @@ import {
 } from "@redux/feature/masterPriceList/masterPriceListThunk";
 import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
-import { message, Spin,Empty } from "antd";
+import { message, Spin, Empty } from "antd";
 
 export const MasterPriceList = () => {
-    const dispatch = useAppDispatch();
-    const { categories ,status} = useAppSelector((state: any) => state.masterPriceList);
-    const { selectedFilters: mplFilters } = useAppSelector((state: any) => state.masterPriceList);
-    console.log(categories)
+  const dispatch = useAppDispatch();
+  const { categories, status } = useAppSelector(
+    (state: any) => state.masterPriceList
+  );
+  const { selectedFilters: mplFilters } = useAppSelector(
+    (state: any) => state.masterPriceList
+  );
+  // console.log(categories);
     useEffect(() => {
         if(status === Status.IDLE){
-            dispatch(fetchCategories())
+          dispatch(fetchCategories());
         }
     }, [dispatch]);
 
@@ -30,7 +34,7 @@ export const MasterPriceList = () => {
   const [categoryId, setCategoryId] = useState("");
 
   const [dropDowns, setDropDowns] = useState<Record<string, boolean>>({});
-  const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({}); 
+  const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({});
 
   const openAddItemModal = (categoryId: string) => {
     setAddItemModal(true);
@@ -74,9 +78,8 @@ export const MasterPriceList = () => {
       {status == Status.PENDING ? 
        (<div className="flex justify-center items-center pt-[20vh]">
           <Spin size="large" />
-        </div>) 
-      :
-      categories.length > 0 ? 
+        </div>
+      ) : categories.length > 0 ? (
       <div>
         {categories.map((category: Category) => {
           const isDropdownOpen = dropDowns[category.categoryId] || false;
@@ -84,14 +87,15 @@ export const MasterPriceList = () => {
 
           return (
             <div key={category.categoryId} className="mb-4">
-              <div className="flex items-center justify-between">
+              <div
+                className="flex items-center justify-between cursor-pointer"
+                  onClick={() =>
+                    handleExpand(category.categoryId, category.isExpanded)
+                  }
+                >
                 {/* Expand/Collapse Button */}
                 <div className="flex items-center gap-2">
-                  <button
-                    onClick={() =>
-                      handleExpand(category.categoryId, category.isExpanded)
-                    }
-                  >
+                  <button>
                     {isDropdownOpen ? <IconChevronUp /> : <IconChevronDown />}
                   </button>
                   <h3 className="text-[19px] font-bold">{category.name}</h3>
@@ -112,9 +116,7 @@ export const MasterPriceList = () => {
                   id={category.categoryId}
                 >
                   {isLoading ? (
-                    <div 
-                    className="flex justify-center items-center py-10 gap-4 p-4 border border-gray-200 rounded-lg bg-card-color text-font-color h-[85px]"
-                    >
+                    <div className="flex justify-center items-center py-10 gap-4 p-4 border border-gray-200 rounded-lg bg-card-color text-font-color h-[85px]">
                       <Spin size="large" />
                     </div>
                   ) : category?.items?.length > 0 ? (
@@ -122,9 +124,7 @@ export const MasterPriceList = () => {
                       <PricingItem key={item.categoryItemId} item={item} />
                     ))
                   ) : (
-                    <div 
-                    className="text-center items-center gap-4 p-4 border border-gray-200 rounded-lg bg-card-color text-font-color h-[85px]"
-                    >
+                    <div className="text-center items-center gap-4 p-4 border border-gray-200 rounded-lg bg-card-color text-font-color h-[85px]">
                       <p className="text-lg font-medium text-font-color">
                         No items here yet.
                       </p>
@@ -146,13 +146,14 @@ export const MasterPriceList = () => {
           categoryId={categoryId}
         />
       </div>
-        :
-       <Empty description={
+      ) : (
+        <Empty
+          description={
             <span className="text-gray-500">No Master Price found.</span>
           }
           className="py-12"
         />
-      }
+      )}
     
     </div>
   );

@@ -180,7 +180,6 @@ const Index = () => {
       message.success("Quotation created successfully");
       router.push(`/job`);
     } catch (error) {
-      console.log(error);
       message.error("Failed to create quotation");
     }
   };

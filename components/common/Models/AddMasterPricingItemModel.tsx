@@ -9,16 +9,17 @@ import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
 import { getConditions, getFloorPlanFilters } from "@redux/feature/floorPlan/floorPlanThunk";
 import { enumToReadable } from "@lib/utils/enumToRedable";
 import { Status } from "@lib/constants/enum";
+import { addPackageItems } from "@redux/feature/package/packageSlice";
 
 const { TextArea } = Input;
 const { Option } = Select;
 
 const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
     const [form] = Form.useForm();
-    const [costType, setCostType] = useState('INCLUDED');
+    const [costType, setCostType] = useState("INCLUDED");
     const {filters, status} = useAppSelector((state) => state.floorPlan);
     const dispatch = useAppDispatch();
-    
+
     // New state for button loading
     const [isAddingItem, setIsAddingItem] = useState(false);
 
@@ -58,6 +59,9 @@ const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
       
       message.success("Master Pricing Item added successfully");
       form.resetFields();
+      if (values.package_only) {
+        dispatch(addPackageItems(response));
+      }
       onClose();
     } catch (error) {
       setIsAddingItem(false);
@@ -320,16 +324,16 @@ const AddMasterPricingItemModal = ({ open, onClose, categoryId }: any) => {
               </div>
             </Radio.Group>
           </Form.Item>
-        {costType !== "VARIABLE" && (
-          <Form.Item
-            name="package_only"
-            valuePropName="checked"
-            className="form-item-responsive"
-            initialValue={false}
-          >
-            <Checkbox> Package Only </Checkbox>
-          </Form.Item>
-        )}
+          {costType !== "VARIABLE" && (
+            <Form.Item
+              name="package_only"
+              valuePropName="checked"
+              className="form-item-responsive"
+              initialValue={false}
+            >
+              <Checkbox> Package Only </Checkbox>
+            </Form.Item>
+          )}
         </div>
 
         {/* Show in HL Package */}
