@@ -25,6 +25,8 @@ export interface User {
   rootUser: boolean;
   createdAt: string;
   updatedAt: string;
+  licenseNumber: string;
+  abnNumber: string;
 }
 
 
