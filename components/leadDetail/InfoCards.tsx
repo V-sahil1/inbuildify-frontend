@@ -6,17 +6,16 @@ import {
   IconFileText,
   IconEdit,
   IconGift,
-  IconPlus,
   IconMail,
   IconPhone,
   IconMapPin,
+  IconBedFlat,
+  IconBath,
+  IconCar,
+  IconForklift,
 } from "@tabler/icons-react";
 import LeadDetailsForm from "./forms/LeadDetailsForm";
-import {
-  LeadDetails,
-  PropertyDetails,
-  Plan,
-} from "data/types";
+import { LeadDetails, PropertyDetails, Plan } from "data/types";
 import PropertyDetailsModal from "./PropertyDetailsModal";
 import FloorPlanModal from "./FloorPlanModal";
 import dayjs from "dayjs";
@@ -176,7 +175,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           <IconEdit className="text-gray-400 ml-auto" />
         </div>
         {
-          propertyDetails?.address1 && propertyDetails?.citySuburb && propertyDetails?.stateRegion && propertyDetails?.zipPostalCode ? (
+        propertyDetails?.address1 &&propertyDetails?.citySuburb && propertyDetails?.stateRegion && propertyDetails?.zipPostalCode ? (
             <div className="space-y-2">
               <div className="font-semibold text-font-color">
                 {propertyDetails?.address1}
@@ -214,8 +213,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
                 Please Fill Property Details
               </Button>
             </div>
-          )
-        }
+          )}
       </Card>
       {/* Select Plan Card */}
       <div className="flex gap-4 flex-col">
@@ -226,21 +224,45 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           >
             {selectedPlan ? (
             <>
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-2 mb-6">
                 <IconFileText className="text-purple-500" />
-                <span className="font-medium text-font-color">Select Plan</span>
+                <span className="font-medium text-font-color">
+                  {selectedPlan.name}
+                </span>
                 <IconEdit className="text-gray-400 ml-auto" />
               </div>
-              <div className="space-y-2">
-                <div className="font-semibold text-center text-font-color">
-                  {selectedPlan.name || "-"}
+
+              <div className="flex justify-between w-full gap-2">
+                <div className="flex flex-col items-center text-gray-400 w-full">
+                  <div className="w-6 h-6 flex items-center justify-center">
+                    <IconBedFlat size={20} />
+                  </div>
+                  <span className="text-sm">{selectedPlan?.beds || 0}</span>
+                </div>
+                <div className="flex flex-col items-center text-gray-400 w-full">
+                  <div className="w-6 h-6 flex items-center justify-center">
+                    <IconBath size={20} />
+                  </div>
+                  <span className="text-sm">{selectedPlan?.bath || 0}</span>
+                </div>
+                <div className="flex flex-col items-center text-gray-400 w-full">
+                  <div className="w-6 h-6 flex items-center justify-center">
+                    <IconCar size={20} />
+                  </div>
+                  <span className="text-sm">{selectedPlan?.carPark || 0}</span>
+                </div>
+                <div className="flex flex-col items-center text-gray-400 w-full">
+                  <div className="w-6 h-6 flex items-center justify-center">
+                    <IconForklift size={20} />
+                  </div>
+                  <span className="text-sm">{selectedPlan?.garage || 0}</span>
                 </div>
               </div>
             </>
           ) : (
             <div className="text-center py-4">
-              <Button 
-                type="primary" 
+              <Button
+                type="primary"
                 size="middle"
                 disabled={isSelectionDisabled}
               >
@@ -259,20 +281,22 @@ const InfoCards: React.FC<InfoCardsProps> = ({
             <>
               <div className="flex items-center gap-2 mb-3">
                 <IconFileText className="text-purple-500" />
-                <span className="font-medium text-font-color">Select Facade</span>
+                <span className="font-medium text-font-color">
+                  {selectedFacade?.name}
+                </span>
                 <IconEdit className="text-gray-400 ml-auto" />
               </div>
               <div className="space-y-2">
-                <div className="font-semibold text-center text-font-color">
+                  {/* <div className="font-semibold text-center text-font-color"> */}
                   {/* @ts-ignore */}
-                  {selectedFacade?.name || selectedFacade?.facade?.name || "-"}
-                </div>
+                  {/* {selectedFacade?.name || selectedFacade?.facade?.name || "-"}
+                </div> */}
               </div>
             </>
           ) : (
             <div className="text-center py-4">
-              <Button 
-                type="primary" 
+              <Button
+                type="primary"
                 size="middle"
                 disabled={isSelectionDisabled}
               >
@@ -294,23 +318,25 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           <>
             <div className="flex items-center gap-2 mb-3">
               <IconGift className="text-red-500" />
-              <span className="font-medium text-font-color">Select Package</span>
+              <span className="font-medium text-font-color">
+                {selectedPackage?.name}
+              </span>
               <IconEdit className="text-gray-400 ml-auto" />
             </div>
             <div className="space-y-2">
-              <div className="font-semibold text-font-color">Package (1)</div>
-              <div className="font-medium text-blue-600">
-                {selectedPackage.name}
-              </div>
+                {/* <div className="font-semibold text-font-color">Package (1)</div> */}
+                {/* <div className="font-medium text-blue-600">
+                {selectedPackage?.name}
+              </div> */}
               <div className="text-lg font-bold text-green-600">
-                ${selectedPackage.amount}
+                ${selectedPackage?.amount}
               </div>
             </div>
           </>
         ) : (
           <div className="text-center py-4">
-            <Button 
-              type="primary" 
+            <Button
+              type="primary"
               size="middle"
               disabled={isSelectionDisabled}
             >

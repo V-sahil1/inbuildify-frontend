@@ -28,14 +28,14 @@ const FloorPlan = () => {
       try {
         await dispatch(fetchFloorPlans(undefined)).unwrap();
       } catch (error) {
-        message.error(error);
+        message.error(error || 'Failed to fetch Floor Plans');
       }
     };
     const fetchFiltersData = async () => {
       try {
         await dispatch(getFloorPlanFilters()).unwrap();
       } catch (error) {
-        message.error(error);
+        message.error(error || 'Failed to fetch Floor Plan Filters');
       }
     };
     if (status?.floorPlan === Status.IDLE) {
@@ -74,7 +74,7 @@ const FloorPlan = () => {
         .catch((err) => console.error(err));
       setIsModalVisible(false);
     } catch (error) {
-      console.error(error);
+      message.error(error || 'Failed to create Floor Plan')
     } finally {
       setLoading(false);
     }
@@ -100,7 +100,7 @@ const FloorPlan = () => {
          floorPlans.length > 0 ? 
          <div className="grid grid-cols-1 md:grid-cols-2  gap-4 ">
         {floorPlans?.map((floorPlan: IFloorPlanState) => (
-          <div className="card bg-card-color p-4 rounded-xl flex flex-col items-center border border-dashed border-border-color">
+          <div className="card bg-card-color p-4 rounded-xl flex flex-col items-center border border-border-color">
             <Image
               src={floorPlan?.image || "/placeholder.png"} // make sure placeholder.png exists in /public
               alt={floorPlan?.name || "Floor Plan"}

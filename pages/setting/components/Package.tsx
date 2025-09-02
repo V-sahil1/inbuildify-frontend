@@ -9,12 +9,15 @@ import { RootState } from "@redux/feature/store";
 import { PackageItem } from "@/components/package/PackageItem";
 import { Package as IPackage } from "@redux/feature/package/IPackageState";
 import { message } from "antd";
+import AddMasterPricingItemModal from "@/components/common/Models/AddMasterPricingItemModel";
+import { setAddInstItemModal } from "@redux/feature/package/packageSlice";
 
 const Package = () => {
   const dispatch = useAppDispatch();
   const packages = useAppSelector((state: RootState) => state.package.packages);
   const getAllStatus = useAppSelector((state: RootState) => state.package.status.packages);
   const itemStatus = useAppSelector((state: RootState) => state.package.status.item);
+  const { addInstItemModal } = useAppSelector((state: RootState) => state.package);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingPackage, setEditingPackage] = useState<IPackage | null>(null);
 
@@ -123,6 +126,11 @@ const Package = () => {
         initialValues={editingPackage || {}}
         isEditing={!!editingPackage}
       />
+
+      {addInstItemModal && <AddMasterPricingItemModal
+        open={addInstItemModal}
+        onClose={() => dispatch(setAddInstItemModal(false))}
+      />}
     </div>
   );
 };

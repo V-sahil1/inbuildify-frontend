@@ -35,7 +35,8 @@ const CustomerPage = () => {
 
   useEffect(() => {
     setLoading(true);
-    dispatch(getCustomersThunk())
+   const fetchCustomerData = async () =>{
+    await dispatch(getCustomersThunk())
       .unwrap()
       .then((res: any) => {
         const mappedCustomer: Customer[] = res?.data?.map((customer: any) => ({
@@ -48,12 +49,13 @@ const CustomerPage = () => {
         setCustomers(mappedCustomer);
       })
       .catch((err) => {
-        console.log('GET customer failed:', err);
-        message.error('Failed to fetch customers');
+        message.error(err || 'Failed to fetch customers');
       })
       .finally(() => {
         setLoading(false);
       });
+    }
+    fetchCustomerData();
   }, [dispatch])
 
   const handleOpenModal = () => {
@@ -87,8 +89,7 @@ const CustomerPage = () => {
         setCustomers(prev => prev.filter(c => c.key !== key));
       }
     } catch (err) {
-      console.error("Failed to delete the Contractor", err);
-      message.error(err);
+      message.error(err || "Failed to delete the Contractor" );
     } finally {
       setIsDeleteLoading(false);
     }

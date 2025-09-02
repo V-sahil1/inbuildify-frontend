@@ -7,10 +7,10 @@ interface Item {
 }
 
 const calculateTotalQuotation = (
-  packageFromSlice: Package,
+  packageFromSlice: number,
   itemsFromSlice: Item[]
 ) => {
-  let total = Number(packageFromSlice?.amount) || 0;
+  let total = Number(packageFromSlice) || 0;
 
   itemsFromSlice.forEach((item) => {
     const qty = Number(item.quantity) || 0;

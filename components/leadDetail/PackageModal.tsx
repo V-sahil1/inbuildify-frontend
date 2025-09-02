@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Modal, Button } from "antd";
+import { Modal, Button, message } from "antd";
 import { Status } from "@lib/constants/enum";
 import { fetchPackages } from "@redux/feature/package/packageThunk";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
@@ -26,18 +26,23 @@ const PackageModal: React.FC<PackageModalProps> = ({
     const getAllStatus = useAppSelector(
       (state: RootState) => state.package.status.packages
     );
-  
     // local temp selection
-    const [tempSelectedPackage, setTempSelectedPackage] = React.useState<Package | undefined>(
-      selectedPackage
-    );
-  
+    const [tempSelectedPackage, setTempSelectedPackage] = React.useState<
+      Package | undefined
+    >(selectedPackage);
+
     useEffect(() => {
-      if (getAllStatus === Status.IDLE) {
-        dispatch(fetchPackages(undefined)).unwrap();
+    const fetchPackagesData = async () => {
+      try {
+        await dispatch(fetchPackages(undefined)).unwrap();
+      } catch (e) {
+        message.error(e || "Failed to fetch packages");
       }
-    }, [dispatch, getAllStatus]);
-  
+    };
+    if (getAllStatus === Status.IDLE) {
+      fetchPackagesData();
+    }
+  }, [dispatch, getAllStatus]);
     // Reset temp selection whenever modal opens
     useEffect(() => {
       if (visible) {
@@ -65,7 +70,6 @@ const PackageModal: React.FC<PackageModalProps> = ({
                 dispatch(setQuotationPackage(tempSelectedPackage));
                 // ✅ Inform parent if needed
                 onSave(tempSelectedPackage);
-  
                 onCancel();
               }
             }}
@@ -122,7 +126,6 @@ const PackageModal: React.FC<PackageModalProps> = ({
                 <div className="text-3xl font-bold text-green-600 mb-6">
                   ${tempSelectedPackage.amount}
                 </div>
-  
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold mb-3">Included Items</h3>
                   <div className="space-y-3">

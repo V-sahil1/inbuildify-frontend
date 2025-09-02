@@ -1,6 +1,6 @@
 // src/store/auth/authSlice.ts
 import { createSlice } from "@reduxjs/toolkit";
-import { getUserThunk, logoutThunk, SignInThunk } from "./authThunk";
+import { getUserThunk, logoutThunk, SignInThunk, updateUserThunk } from "./authThunk";
 import { Status } from "@lib/constants/enum";
 import { Role, User } from "./IAuthState";
 import { storeAuthToken, storeRefreshToken } from "@lib/constants/authToken";
@@ -59,6 +59,19 @@ const authSlice = createSlice({
       state.status = Status.SUCCESS;
     });
     builder.addCase(logoutThunk.rejected, (state, action) => {
+      state.status = Status.ERROR;
+      state.error = action.payload as string;
+    });
+    // update user
+    builder.addCase(updateUserThunk.pending, (state) => {
+      state.status = Status.PENDING;
+    });
+    builder.addCase(updateUserThunk.fulfilled, (state, action) => {
+      state.user = action.payload.data;
+      console.log("user",action.payload.data)
+      state.status = Status.SUCCESS;
+    });
+    builder.addCase(updateUserThunk.rejected, (state, action) => {
       state.status = Status.ERROR;
       state.error = action.payload as string;
     });

@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import api from "@lib/constants/api";
+import api, { apiWithFormDataMethods } from "@lib/constants/api";
 import API_ENDPOINTS from "@lib/constants/apiEndpoints";
 import { ApiResponse, LoginResponse, User } from "./IAuthState";
 import { storeAuthToken, storeRefreshToken } from "@lib/constants/authToken";
@@ -77,6 +77,15 @@ export const getUserThunk = createAsyncThunk(
     }
   }
 );
+
+export const updateUserThunk = createAsyncThunk("user/update", async (payload: FormData, { rejectWithValue }) => {
+  try {
+      const res = await apiWithFormDataMethods.put<ApiResponse<any>>(API_ENDPOINTS.BUILDER_BASE, payload);
+      return res.data;
+  } catch (error) {
+      return rejectWithValue(error.message);
+  }
+})
 
 export const logoutThunk = createAsyncThunk(
   "auth/logout",

@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { createLeadThunk, getLeadThunk } from "@redux/feature/lead/leadThunk";
-import { message, Typography } from "antd";
+import { message, Typography, Empty, Spin } from "antd";
 import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
-import { Status } from "@lib/constants/enum"; 
+import { Status } from "@lib/constants/enum";
 import { useRouter } from "next/navigation";
 import { ILead } from "@redux/feature/lead/ILeadState";
 import { IconMail, IconPhone } from "@tabler/icons-react";
 import { timeAgo } from "@lib/utils/timeAgo";
 import { enumToReadable } from "@lib/utils/enumToRedable";
 import leadCreateFields from "@/components/formFields/LeadCreateFields";
+import SystemRoutes from "@lib/constants/Routes";
 const Leads = () => {
   const { leads, status } = useAppSelector((state) => state.lead);
   const dispatch = useAppDispatch();
@@ -58,24 +59,29 @@ const Leads = () => {
           Create Lead
         </button>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {status === Status.PENDING ?
+        (<div className="flex justify-center items-center pt-[20vh]">
+          <Spin size="large" />
+        </div>)
+        : leads.length > 0 ?
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {leads.map((lead: ILead) => (
           <div
           key={lead.lead_id}
           onClick={() =>
             (lead.status === "IN_PROGRESS" || lead.status === "COMPLETED")
-              ? router.push(`/leads/${lead.lead_id}?type=opportunity`)
-              : router.push(`/leads/${lead.lead_id}`)
+              ? router.push(`${SystemRoutes.LEADS}/${lead.lead_id}?type=opportunity`)
+              : lead.status === "JOB" ? router.push(SystemRoutes.JOB) 
+              : router.push(`${SystemRoutes.LEADS}/${lead.lead_id}`)
           }
-          className=" rounded-2xl border border-gray-200 shadow-sm p-6 cursor-pointer 
-                     transition-all duration-200 hover:shadow-xl hover:scale-[1.02]"
+          className=" rounded-2xl border border-border-color  shadow-sm p-6 cursor-pointer 
+                transition-all duration-200 hover:shadow-xl hover:scale-[1.02] bg-card-color"
         >
           {/* Header with Tag on Top Right */}
           <div className="flex justify-between items-start mb-3">
             <h3 className="text-lg font-semibold">{lead.name}</h3>
             <span
-              className={`text-xs px-3 py-1 rounded-full font-medium whitespace-nowrap ${
-                lead.status === "IN_PROGRESS"
+              className={`text-xs px-3 py-1 rounded-full font-medium whitespace-nowrap ${lead.status === "IN_PROGRESS"
                   ? "bg-purple-100 text-purple-700"
                   : lead.status === "COMPLETED"
                   ? "bg-green-100 text-green-700"
@@ -91,11 +97,11 @@ const Leads = () => {
           {/* Contact Info */}
           <div className="space-y-2 mb-4">
             <p className="flex items-center text-sm ">
-              <IconPhone size={16} className="mr-2 text-gray-400" />
-              {lead.phone}
-            </p>
-            <p className="flex items-center text-sm ">
-              <IconMail size={16} className="mr-2 text-gray-400" />
+                    <IconPhone size={16} className="mr-2 text-gray-400" />
+                    {lead.phone}
+                  </p>
+                  <p className="flex items-center text-sm ">
+                    <IconMail size={16} className="mr-2 text-gray-400" />
               {lead.email}
             </p>
             <p className="text-xs ">Source: {lead.lead_source}</p>
@@ -121,6 +127,14 @@ const Leads = () => {
 
         ))}
       </div>
+      :
+      <Empty description={
+        <span className="text-gray-500">No Leads found. Create your first Lead to get started.</span>
+      }
+        className="pt-100"
+      />
+  }
+
       <CreateFormModal
         title="Lead"
         open={openLeadCreateModal}

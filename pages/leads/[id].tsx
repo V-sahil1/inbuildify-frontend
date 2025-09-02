@@ -1,19 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Card, Input, List, message, Space, Tag, Tooltip, Typography } from "antd";
+import { Card, List, message, Space, Tag, Tooltip, Typography } from "antd";
 import StageProgress from "@/components/common/StageProgress";
 import ConvertLeadModal from "@/components/leadDetail/ConvertLeadModal";
 import PropertyDetailsModal from "@/components/leadDetail/PropertyDetailsModal";
 import {
   IconBarrierBlock,
-  IconCopy,
-  IconCopyCheck,
   IconEdit,
   IconFileText,
   IconMail,
-  IconPhone,
   IconPhoneCall,
-  IconUser,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import SystemRoutes from "@lib/constants/Routes";
@@ -190,7 +186,7 @@ function App() {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full p-3">
+      {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full p-3">
         <Input
           value={contact.name}
           prefix={<IconUser />}
@@ -209,7 +205,20 @@ function App() {
           prefix={<IconPhone />}
           className="rounded-md w-full"
         />
-      </div>
+        
+        <div className="flex items-center gap-2">
+          <Text ><IconPhone /></Text>
+          <Text>{contact.name}</Text>
+        </div>
+        <div className="flex items-center gap-2">
+          <Text ><IconMail /></Text>
+          <Text>{contact.email}</Text>
+        </div>
+        <div className="flex items-center gap-2">
+          <Text ><IconPhone /></Text>
+          <Text>{contact.phone}</Text>
+        </div>
+      </div> */}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 m-3">
         {/* Contact Card */}
@@ -319,10 +328,10 @@ function App() {
                     <List.Item key={quotation.quotation_id}>
                       <Space size="middle">
                         <Tooltip title={quotation.quotation_id}>
-                          <Text type="secondary">{quotation.quotation_id.slice(0, 13)}</Text>
+                          <Text type="secondary">{quotation?.quotation_id?.slice(0, 13)}</Text>
                         </Tooltip>
                         <Tag color={quotation.lead_status === "Open" ? "blue" : "green"}>{quotation.lead_status}</Tag>
-                        <Text>${quotation.items.reduce((sum: number, item: any) => sum + item.total, 0)}</Text>
+                        <Text>${quotation?.total_amount}</Text>
                       </Space>
                     </List.Item>
                   )}

@@ -75,3 +75,20 @@ export const addressRules = [
 ];
 
 export const roleRules = [{ required: true, message: "Please select a role" }];
+
+export const abnRules = [
+  { required: true, message: "Please enter your ABN number" },
+  {
+    pattern: /^[0-9]{11}$/,
+    message: "ABN number must be exactly 11 digits",
+  },
+]
+  
+export const licenseRules =  [
+  { required: true, message: "Please enter your license number" },
+  {
+    pattern: /^[0-9]{6,12}$/,
+    message: "License number must be between 6 and 12 digits",
+  },
+]
+  

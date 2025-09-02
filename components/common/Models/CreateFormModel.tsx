@@ -1,6 +1,16 @@
 "use client";
 
-import { Modal, Form, Input, Select, Radio, message, Upload, Button } from "antd";
+import { UploadFileStatus } from 'antd/es/upload/interface';
+import {
+  Modal,
+  Form,
+  Input,
+  Select,
+  Radio,
+  message,
+  Upload,
+  Button,
+} from "antd";
 import { UploadChangeParam } from "antd/es/upload";
 import React, { useEffect } from "react";
 
@@ -11,9 +21,19 @@ export type CreateFormField = {
   rules?: any[];
   disabled?: boolean;
   invite?: boolean;
-  type?: "email" | "phone" | "text" | "select" | "url" | "number" | "checkbox" | "image";
+  type?:
+    | "email"
+    | "phone"
+    | "text"
+    | "select"
+    | "url"
+    | "number"
+    | "checkbox"
+    | "image";
   mode?: "tags" | "multiple";
   options?: { value: string; label: string }[];
+  button?: string;
+  onClick?: () => void;
   handleChange?: (info: UploadChangeParam) => void;
 };
 
@@ -57,8 +77,20 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
       const values = await form.validateFields();
       onSubmit(values);
     } catch (err) {
-      // message.error("Please fill all the required fields");
+      message.error("Please fill all the required fields");
     }
+  };
+
+  const makeFileFromUrl = (url?: string, name: string = "logo") => {
+    if (!url) return [];
+    return [
+      {
+        uid: "-1",
+        name,
+        status: "done" as UploadFileStatus,
+        url,
+      },
+    ];
   };
 
   return (
@@ -81,7 +113,17 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
         {fields.map((field) => (
           <Form.Item
             key={field.name}
-            label={field.label}
+            label={
+              <div className="flex items-center justify-between w-full gap-1">
+                <span className="flex-1">{field.label}</span>
+                {field.button && <button
+                  className="bg-primary text-white rounded py-0.5 px-2 text-[12px]"
+                  onClick={field.onClick}
+                >
+                  {field.button}
+                </button>}
+              </div>
+            }
             name={field.name}
             rules={field.rules}
           >
@@ -90,7 +132,7 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
                 placeholder={field.placeholder}
                 options={field.options}
                 disabled={field.disabled}
-                {...field.mode && { mode: field.mode }}
+                {...(field.mode && { mode: field.mode })}
               />
             ) : field.type === "checkbox" ? (
               <Radio.Group defaultValue="TRUE">
@@ -98,10 +140,12 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
                 <Radio value="FALSE">No</Radio>
               </Radio.Group>
             ) : field.type === "image" ? (
-              <Upload
+               <Upload
                 name="image"
                 listType="picture"
                 multiple={false}
+                maxCount={1}    
+                defaultFileList={makeFileFromUrl(initialValues?.logo)}
               >
                 <Button>
                   Click to Upload
@@ -110,7 +154,7 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
             ) : (
               <Input
                 placeholder={field.placeholder}
-                type={field.type === "email" ? "email" : "text"}
+                type={field.type === "email" ? "email" :field.type === "number" ? "number":  "text"}
                 disabled={field.disabled}
               />
             )}

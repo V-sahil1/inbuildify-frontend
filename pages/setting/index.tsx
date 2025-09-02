@@ -49,7 +49,7 @@ export default function ProjectList() {
   };
 
   const breadcrumbItems = [
-    { link: "Settings", url: "/settings" },
+    { link: "Setting", url: "/setting" },
     { name: TABS[selectedIndex]?.breadcrumb || TABS[0].breadcrumb },
   ];
 

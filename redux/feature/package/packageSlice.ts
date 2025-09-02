@@ -15,6 +15,7 @@ interface PackageState {
   items: Item[] | null;
   status: { packages: Status; items: Status; item: Status };
   selectedFilters: { range: string; dwelling_type: string };
+  addInstItemModal: boolean;
 }
 
 const initialState: PackageState = {
@@ -22,6 +23,7 @@ const initialState: PackageState = {
   items: null,
   status: { packages: Status.IDLE, items: Status.IDLE, item: Status.IDLE },
   selectedFilters: { range: '', dwelling_type: '' },
+  addInstItemModal: false,
 };
 
 const packageSlice = createSlice({
@@ -33,6 +35,12 @@ const packageSlice = createSlice({
     },
     clearFilters: (state) => {
       state.selectedFilters = { range: '', dwelling_type: '' };
+    },
+    setAddInstItemModal: (state, action) => {
+      state.addInstItemModal = action.payload;
+    },
+    addPackageItems: (state, action) => {
+      state.items = [action.payload, ...state.items];
     },
   },
   extraReducers: (builder) => {
@@ -99,5 +107,5 @@ const packageSlice = createSlice({
   },
 });
 
-export const { setSelectedFilters, clearFilters } = packageSlice.actions;
+export const { setSelectedFilters, clearFilters, setAddInstItemModal, addPackageItems } = packageSlice.actions;
 export default packageSlice.reducer;

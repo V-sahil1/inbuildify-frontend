@@ -71,7 +71,8 @@ const quotationSlice = createSlice({
             state.facade = action.payload;
         },
         setQuotationPackage(state, action: PayloadAction<any>) {
-            state.package = action.payload;
+            state.package = action.payload; 
+            state.items = action.payload.categoryItemIds.map((item) => ({ itemId: item, quantity: 1, price: 0 }));
         },
         updateQuotationItem: (state, action) => {
             const { itemId, quantity } = action.payload;
@@ -80,6 +81,9 @@ const quotationSlice = createSlice({
               item.quantity = quantity;
             }
         },
+        // setQuotationBaseItems(state, action: PayloadAction<any>) {
+        //     state.items = [...state.items,...action.payload];
+        // },
         setSelectedFilters(state, action: PayloadAction<any>) {
             state.selectedFilters = action.payload;
         },
@@ -109,7 +113,8 @@ export const {
     setQuotationFacade,
     removeQuotationItem,
     setQuotationPackage,
+    //   setQuotationBaseItems,
     clearQuotation,
     updateQuotationItem,
-    setSelectedFilters
+    setSelectedFilters,
 } = quotationSlice.actions;

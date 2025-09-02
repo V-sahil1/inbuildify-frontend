@@ -36,7 +36,8 @@ const ContractorPage = () => {
 
   useEffect(() => {
     setLoading(true);
-    dispatch(getContractorsThunk())
+    const fetchContractorData = async() => {
+    await dispatch(getContractorsThunk())
       .unwrap()
       .then((res: ContractorResponse) => {
         // const mappedContractors: Contractor[] = res.map(contractor => ({
@@ -49,12 +50,13 @@ const ContractorPage = () => {
         setContractors(res);
       })
       .catch((err) => {
-        console.log('GET contractors failed:', err);
-        message.error('Failed to fetch contractors');
+        message.error(err || 'Failed to fetch contractors');
       })
       .finally(() => {
         setLoading(false);
       });
+    }
+    fetchContractorData(); 
   }, [dispatch])
 
   const handleOpenModal = () => {
@@ -88,8 +90,7 @@ const ContractorPage = () => {
         setContractors(prev => prev.filter(c => c.contractorId !== key));
       }
     } catch (err) {
-      console.error("Failed to delete the Contractor", err);
-      message.error(err);
+      message.error(err || "Failed to delete the Contractor");
     } finally {
       setIsDeleteLoading(false);
     }
@@ -97,10 +98,9 @@ const ContractorPage = () => {
 
 
   const handleSubmit = async (values: any) => {
+    await form.validateFields();
     try {
       setLoading(true);
-      await form.validateFields();
-
       if (isEditing && editingKey) {
         // Update existing contractor 
         const payload = {
@@ -174,7 +174,7 @@ const ContractorPage = () => {
         setSelectedContractor(response.data);
       }
     } catch (error) {
-      console.error("Failed to fetch contractor details:", error);
+      message.error(error || "Failed to fetch contractor details:")
     } finally {
       setLoadingDetails(false);
     }

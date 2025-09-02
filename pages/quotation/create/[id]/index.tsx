@@ -15,7 +15,7 @@ import {
 } from "@redux/feature/masterPriceList/masterPriceListThunk";
 import { Package } from "@redux/feature/package/IPackageState";
 import { RootState } from "@redux/feature/store";
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { createQuotation } from "@redux/feature/quotation/quotationThunk";
 import { message, Spin } from "antd";
 import QuotationFilter from "@/components/quotation/QuotationFilter";
@@ -23,8 +23,9 @@ import { updateLeadStatus } from "@redux/feature/lead/leadSlice";
 import { clearQuotation } from "@redux/feature/quotation/quotationSlice";
 import { usePdf } from "@hooks/usePdf";
 import QuatationPdf from "@/components/common/QuatationPdf";
-import { useRouter } from "next/navigation";
 import calculateTotalQuotation from "@lib/utils/calculateTotalQuotation";
+import SystemRoutes from "@lib/constants/Routes";
+import { useRouter } from "next/router";
 
 const Index = () => {
   const dispatch = useAppDispatch();
@@ -64,6 +65,9 @@ const Index = () => {
   const { categories: categoryData, status } = useAppSelector(
     (state: RootState) => state.masterPriceList
   );
+  // const { categories: mplCategories } = useAppSelector(
+  //   (state: RootState) => state.masterPriceList
+  // );
   const { selectedFilters: mplFilters } = useAppSelector(
     (state: RootState) => state.masterPriceList
   );
@@ -71,17 +75,33 @@ const Index = () => {
     (state) => state.quotation
   );
 
+  // const BaseCategory = useMemo(() => mplCategories.find((cat) => cat.name === "base price"), [mplCategories]);
+ 
   useEffect(() => {
+    const fetchCategoriesData = async () => {
+      try {
+        await dispatch(fetchCategories()).unwrap();
+      } catch (e) {
+        message.error(e || "Failed to fetch categories");
+      }
+    };
     if (status === Status.IDLE) {
-      dispatch(fetchCategories());
+      fetchCategoriesData();
     }
   }, [dispatch, status]);
 
   useEffect(() => {
-    return () => {
-      dispatch(clearQuotation());
+    const handleRouteChange = (url: string) => {
+      if (!url.startsWith(`/${SystemRoutes.QUOTATION}`)) {
+        dispatch(clearQuotation());
+      }
     };
-  }, []);
+    router.events.on("routeChangeStart", handleRouteChange);
+    return () => {
+      router.events.off("routeChangeStart", handleRouteChange);
+    };
+  }, [dispatch, router]);
+  
 
   const { previewPdf } = usePdf(QuatationPdf);
   const getCategoryById = useCallback(
@@ -90,7 +110,7 @@ const Index = () => {
     [categoryData]
   );
 
-  const handleFetchCategoryItems = (categoryId: string) => {
+  const handleFetchCategoryItems = async (categoryId: string) => {
     setSelectedCategory(categoryId);
     const currentCategory = getCategoryById(categoryId);
     if (currentCategory) {
@@ -99,15 +119,27 @@ const Index = () => {
 
     if (!currentCategory?.isExpanded) {
       dispatch(toggleExpand(categoryId));
-      dispatch(
-        fetchCategoryItems({
-          categoryId,
-          filters: {
-            range: quotationFilters?.range || undefined,
-            dwelling_type: quotationFilters?.dwelling_type || undefined,
-          },
-        })
-      ).unwrap();
+      try {
+       const response = await dispatch(
+          fetchCategoryItems({
+            categoryId,
+            filters: {
+              range: quotationFilters?.range || undefined,
+              dwelling_type: quotationFilters?.dwelling_type || undefined,
+            },
+          })
+        ).unwrap();
+        // if(response.categoryId === BaseCategory?.categoryId){
+        //   const mappedItems = response.items.map((item) => ({
+        //     itemId: item.categoryItemId,
+        //     quantity: 1,
+        //     price: Number(item.cost),
+        //   }));
+        //   dispatch(setQuotationBaseItems(mappedItems));
+        // }
+      } catch (error) {
+        message.error(error || "Failed to fetch category items");
+      }
     }
   };
 
@@ -154,10 +186,9 @@ const Index = () => {
         })
       );
       message.success("Quotation created successfully");
-      router.push(`/job`);
+      router.push(`/${SystemRoutes.JOB}`);
     } catch (error) {
-      console.log(error);
-      message.error("Failed to create quotation");
+      message.error(error);
     }
   };
   const handlePreview = () => {
@@ -167,7 +198,7 @@ const Index = () => {
       propertyDetail: property,
       quotePackage: selectedPackageFromSlice,
       quotationAmount: calculateTotalQuotation(
-        selectedPackageFromSlice,
+        Number(packageFromSlice?.amount),
         itemsFromSlice
       ),
       floorPlan: plan,
@@ -175,11 +206,17 @@ const Index = () => {
     });
   };
 
-  const handleViewOpportunity = () => console.log("View Opportunity clicked");
   const handleExtraClick = () => {
     setExtraItem(true);
     setSelectedCategory(null);
   };
+
+  const canContact = !!contact;
+  const canProperty = property && Object.keys(property).length > 0;
+  const canPlan = plan && Object.keys(plan).length > 0;
+  const canFacade = !!facade;
+  const canSelectedPackageFromSlice = !!selectedPackageFromSlice;
+  const canAction = canContact && canProperty && canPlan && canFacade && canSelectedPackageFromSlice;
   return (
     <>
       <div className="m-3 flex justify-between items-center">
@@ -204,38 +241,53 @@ const Index = () => {
         onPropertyUpdate={() => {}}
       />
 
-      <div className="flex flex-1 m-3">
-        <div className="w-64">
-          {status === Status.IDLE ? (
-            <div className="flex items-center justify-center flex-1">
-              <Spin />
+      <div className="flex flex-1 m-3 border rounded-lg ">
+        {quotationFilters.range && quotationFilters.dwelling_type ? (
+          <>
+            <div className="w-64">
+              {status === Status.IDLE ? (
+                <div className="flex items-center justify-center flex-1">
+                  <Spin />
+                </div>
+              ) : (
+                <CategorySidebar
+                  categories={categoryData}
+                  selectedCategory={selectedCategory}
+                  onCategorySelect={handleFetchCategoryItems}
+                />
+              )}
             </div>
-          ) : (
-            <CategorySidebar
-              categories={categoryData}
-              selectedCategory={selectedCategory}
-              onCategorySelect={handleFetchCategoryItems}
-            />
-          )}
-        </div>
 
-        <ItemsPanel
-          category={getCategoryById(selectedCategory)}
-          onItemQuantityChange={handleItemQuantityChange}
-          extraItem={extraItem}
-          onExtraClick={handleExtraClick}
-        />
+            <ItemsPanel
+              category={getCategoryById(selectedCategory)}
+              onItemQuantityChange={handleItemQuantityChange}
+              extraItem={extraItem}
+              onExtraClick={handleExtraClick}
+            />
+          </>
+        ) : (
+          <div className="flex flex-1 bg-card-color text-font-color-100 items-center justify-center border rounded-lg h-[356px]">
+            <p>
+              {quotationFilters.range
+                ? "Please select Dwelling Type"
+                : quotationFilters.dwelling_type
+                ? "Please select Range"
+                : "Please select Range and Dwelling Type"}
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="m-3">
         <FooterActions
           expiryDate={quotation.expiryDate}
           total={calculateTotalQuotation(
-            packageFromSlice?.amount,
+            Number(packageFromSlice?.amount),
             itemsFromSlice
           )}
           onApprove={handleApprove}
           onPreview={handlePreview}
+          disableAction={!canAction}
           loading={quotationStatus === Status.PENDING}
         />
       </div>

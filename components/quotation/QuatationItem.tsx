@@ -1,6 +1,5 @@
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { enumToReadable } from "@lib/utils/enumToRedable";
-import { clearQuotation } from "@redux/feature/quotation/quotationSlice";
 import { RootState } from "@redux/feature/store";
 import { IconPlus, IconX } from "@tabler/icons-react";
 import { Tag, InputNumber, Button } from "antd";
@@ -12,10 +11,11 @@ interface QuatationItemProps {
   onToggleAdd: (itemId: string, price: number) => void;
   isSelected: boolean;
   quantityRef: any;
+  disabled?: boolean;
 }
 
 export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
-  ({ item, onToggleAdd, isSelected, onQuantityChange, quantityRef }) => {
+  ({ item, onToggleAdd, isSelected, onQuantityChange, quantityRef, disabled }) => {
     const { items } = useAppSelector((state: RootState) => state.quotation);
 
     const reduxQuantity =
@@ -101,6 +101,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
         {/* Action */}
         <div className="table-cell text-center p-3 align-middle">
           <Button
+            disabled={disabled}
             type={isSelected ? "primary" : "dashed"}
             shape="circle"
             size="small"

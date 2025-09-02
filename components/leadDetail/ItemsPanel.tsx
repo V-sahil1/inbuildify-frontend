@@ -3,7 +3,7 @@ import { Input, Button } from "antd";
 import { IconSearch } from "@tabler/icons-react";
 import { Category } from "@redux/feature/masterPriceList/iMasterPriceListState";
 import { QuatationItem } from "../quotation/QuatationItem";
-import { QuatationExtraItem } from "../quotation/QuatationExtraItem";
+// import { QuatationExtraItem } from "../quotation/QuatationExtraItem";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { RootState } from "@redux/feature/store";
 import { removeQuotationItem, setQuotationItems, updateQuotationItem } from "@redux/feature/quotation/quotationSlice";
@@ -21,9 +21,12 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
   extraItem,
 }) => {
   const dispatch = useAppDispatch();
-  const {extraItems, items} = useAppSelector((state: RootState) => state.quotation);
-  const quantityRefs = useRef<{[key: string]: HTMLInputElement | null}>({});
-
+  const {
+    extraItems,
+    items,
+    package: selectedPackageFromSlice,
+  } = useAppSelector((state: RootState) => state.quotation);
+  const quantityRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const handleItemAdd = (itemId: string, price: number) => {
     const quantity = quantityRefs.current[itemId]?.value || '1';
     
@@ -103,6 +106,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
                 <QuatationItem
                   key={item?.categoryItemId}
                   item={item}
+                  disabled={selectedPackageFromSlice?.categoryItemIds.some((id) => id === item.categoryItemId)}
                   onQuantityChange={handleItemQuantityChange}
                   quantityRef={(el) => quantityRefs.current[item.categoryItemId] = el}
                   isSelected={items?.some((itemData) => itemData.itemId === item.categoryItemId)}

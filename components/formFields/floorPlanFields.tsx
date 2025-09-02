@@ -2,7 +2,7 @@
 import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
 import { CreateFormField } from "../common/Models/CreateFormModel";
 import { useAppSelector } from "@hooks/redux";
-import { UploadChangeParam } from "antd/es/upload";
+import { message } from "antd";
 
 
 export const floorPlanFields = (): CreateFormField[] => {
@@ -20,6 +20,7 @@ export const floorPlanFields = (): CreateFormField[] => {
       label: "Image",
       name: "image",
       type: "image",
+      rules: [{required : true , message:"Please upload image"}]
     },
     {
       label: "Range",

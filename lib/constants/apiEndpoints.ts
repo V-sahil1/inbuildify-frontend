@@ -1,8 +1,7 @@
 class API_ENDPOINTS {
-  
   //dashboard
   public static DASHBOARD_BASE = "/dashboard";
-  
+
   //auth
   public static AUTH_BASE = "/auth";
   public static LOGIN = `${this.AUTH_BASE}/login`;
@@ -14,8 +13,8 @@ class API_ENDPOINTS {
   public static RESET_PASSWORD = `${this.AUTH_BASE}/reset-password`;
   public static UPDATE_PASSWORD = `${this.AUTH_BASE}/update-password`;
   public static LOGOUT = `${this.AUTH_BASE}/logout`;
-  
-  // user 
+
+  // user
   public static USER_BASE = "/user";
   public static PROFILE = `${this.USER_BASE}/profile`;
   public static GET_USERS = `${this.USER_BASE}/users`;
@@ -24,49 +23,56 @@ class API_ENDPOINTS {
   public static ACCEPT_INVITE = `${this.USER_BASE}/accept-invite`;
   // users
 
- // contractors
- public static CONTRACTOR_BASE = "/contractor";
- public static CREATE_CONTRACTOR = `${this.CONTRACTOR_BASE}`;
- public static GET_CONTRACTORS = `${this.CONTRACTOR_BASE}`;
+  // contractors
+  public static CONTRACTOR_BASE = "/contractor";
+  public static CREATE_CONTRACTOR = `${this.CONTRACTOR_BASE}`;
+  public static GET_CONTRACTORS = `${this.CONTRACTOR_BASE}`;
 
- //customers
- public static CUSTOMER_BASE = "/customer"
+  //customers
+  public static CUSTOMER_BASE = "/customer";
   public static CREATE_CUSTOMER = `${this.CUSTOMER_BASE}`;
- public static GET_CUSTOMERS = `${this.CUSTOMER_BASE}`;
+  public static GET_CUSTOMERS = `${this.CUSTOMER_BASE}`;
 
- //leads
- public static LEAD_BASE = "/leads"
- public static CREATE_LEAD = `${this.LEAD_BASE}`;
- public static GET_LEAD_BY_ID = (id: string) => `${this.LEAD_BASE}/${id}`;
- public static CONVERT_LEAD_TO_OPPORTUNITY = '/opportunities';
- public static CONVERT_LEAD_TO_JOB = `/job`;
+  //leads
+  public static LEAD_BASE = "/leads";
+  public static CREATE_LEAD = `${this.LEAD_BASE}`;
+  public static GET_LEAD_BY_ID = (id: string) => `${this.LEAD_BASE}/${id}`;
+  public static CONVERT_LEAD_TO_OPPORTUNITY = "/opportunities";
+  public static CONVERT_LEAD_TO_JOB = `/job`;
 
+  //  Master PricingList
+  public static MASTER_PRICE_LIST_CATEGORY = "/category";
+  public static CREATE_MASTER_PRICE_LIST_ITEM = "/category-item";
+  public static GET_MASTER_PRICE_LIST_ITEM = (id: string) =>
+    `/category-item/${id}`;
+  public static MASTER_PRICE_LIST_CONDITION_BASE = "/condition";
+  public static GET_MASTER_PRICE_LIST_CONDITIONS = `${this.MASTER_PRICE_LIST_CONDITION_BASE}/conditions`;
 
-//  Master PricingList 
-public static MASTER_PRICE_LIST_CATEGORY= "/category"
-public static CREATE_MASTER_PRICE_LIST_ITEM= "/category-item"
-public static GET_MASTER_PRICE_LIST_ITEM= (id: string) => `/category-item/${id}`
-public static MASTER_PRICE_LIST_CONDITION_BASE= "/condition"
-public static GET_MASTER_PRICE_LIST_CONDITIONS= `${this.MASTER_PRICE_LIST_CONDITION_BASE}/conditions`;
+  // floor plans
+  public static FLOOR_PLAN_BASE = "/floor-plan";
+  public static FLOOR_PLAN_FILTERS = `${this.FLOOR_PLAN_BASE}/filters`;
 
-// floor plans
-public static FLOOR_PLAN_BASE = "/floor-plan"
-public static FLOOR_PLAN_FILTERS = `${this.FLOOR_PLAN_BASE}/filters`;
+  //packages
+  public static PACKAGE_BASE = "/package";
+  public static GET_PACKAGES = `${this.PACKAGE_BASE}`;
+  public static GET_PACKAGE_BY_ID = (id: string) =>
+    `${this.PACKAGE_BASE}/${id}`;
+  public static CREATE_PACKAGE = `${this.PACKAGE_BASE}`;
+  public static GET_PACKAGE_ITEMS = `${this.PACKAGE_BASE}/category/items`;
+  public static FACADE_BASE = "/facade";
 
-//packages
-public static PACKAGE_BASE = "/package"
-public static GET_PACKAGES = `${this.PACKAGE_BASE}`;
-public static GET_PACKAGE_BY_ID = (id:string) => `${this.PACKAGE_BASE}/${id}`;
-public static CREATE_PACKAGE = `${this.PACKAGE_BASE}`;
-public static GET_PACKAGE_ITEMS = `${this.PACKAGE_BASE}/category/items`;
-public static FACADE_BASE = "/facade"
+  // Property
+  public static PROPERTY_BASE = "/property";
 
-// Property
-public static PROPERTY_BASE = "/property"
+  // builder
+  public static BUILDER_BASE = "/builder";
 
-//quotation
-public static QUOTATION_BASE = "/quotation"
-  public static GET_QUOTATIONS_BY_LEAD_ID = (leadId: string, page: number, limit: number) => `${this.QUOTATION_BASE}?leadId=${leadId}&page=${page}&limit=${limit}`;
-
+  //quotation
+  public static QUOTATION_BASE = "/quotation";
+  public static GET_QUOTATIONS_BY_LEAD_ID = (
+    leadId: string,
+    page: number,
+    limit: number
+  ) => `${this.QUOTATION_BASE}?leadId=${leadId}&page=${page}&limit=${limit}`;
 }
 export default API_ENDPOINTS;

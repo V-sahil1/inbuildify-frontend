@@ -5,7 +5,7 @@ export const PricingItem = ({ item }: any) => {
   return (
     <div
       key={item.categoryItemId}
-      className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:border-gray-300 bg-card-color text-font-color"
+      className="flex items-center gap-4 p-4 border border-border-color rounded-lg hover:border-gray-300 bg-card-color text-font-color"
     >
       <div className="flex-1  items-center justify-between">
         <div className="mb-2 font-medium flex gap-10 text-[16px]">
@@ -42,7 +42,7 @@ export const PricingItem = ({ item }: any) => {
         </div>
       </div>
 
-      <div className="flex gap-4">
+      {/* <div className="flex gap-4">
         <button className="rounded-md p-1 group">
           <IconEdit
             size={20}
@@ -55,7 +55,7 @@ export const PricingItem = ({ item }: any) => {
             className="text-font-color group-hover:text-red-500"
           />
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };
