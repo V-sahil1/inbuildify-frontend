@@ -29,7 +29,6 @@ export default function AuthValidator({ children }) {
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
   
   const [authState, setAuthState] = useState<AuthState>('checking');
-  const [redirectTimeout, setRedirectTimeout] = useState<NodeJS.Timeout | null>(null);
 
   function normalizePath(path: string) {
     if (path === "/") return path;
@@ -39,63 +38,53 @@ export default function AuthValidator({ children }) {
   const isPublicRoute = publicRoutes.includes(normalizedPath);
 
   useEffect(() => {
-    // Clear any existing timeout
-    if (redirectTimeout) {
-      clearTimeout(redirectTimeout);
-    }
-
+    let timeoutId: NodeJS.Timeout;
+  
     async function validateAuth() {
-      setAuthState('checking');
-      
+      setAuthState("checking");
+  
       const token = getStoredAuthToken();
       const refreshToken = getRefreshToken();
-
-      // If no tokens and trying to access protected route
+  
       if (!token || !refreshToken) {
         if (!isPublicRoute) {
-          setAuthState('redirecting');
-          // Small delay to show redirecting state
-          const timeout = setTimeout(() => {
+          setAuthState("redirecting");
+          timeoutId = setTimeout(() => {
             router.replace(`${SystemRoutes.LOGIN}?redirectTo=${normalizedPath}`);
           }, 300);
-          setRedirectTimeout(timeout);
         } else {
-          setAuthState('unauthenticated');
+          setAuthState("unauthenticated");
         }
         return;
       }
-
-      // If has tokens, validate them
+  
       try {
-        await dispatch(getUserThunk()).unwrap();
-        
-        if (isAuthenticated && isPublicRoute) {
-          setAuthState('redirecting');
-          const timeout = setTimeout(() => {
-            router.replace("/");
-          }, 300);
-          setRedirectTimeout(timeout);
+        await Promise.race([
+          dispatch(getUserThunk()).unwrap(),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Auth timeout")), 10000)
+          ),
+        ]);
+  
+        if (isPublicRoute && isAuthenticated) {
+          setAuthState("redirecting");
+          timeoutId = setTimeout(() => router.replace("/"), 300);
         } else {
-          setAuthState('authenticated');
+          setAuthState("authenticated");
         }
-      } catch (error) {
-        setAuthState('redirecting');
-        const timeout = setTimeout(() => {
+      } catch {
+        setAuthState("unauthenticated");
+        timeoutId = setTimeout(() => {
           router.replace(`${SystemRoutes.LOGIN}?redirectTo=${normalizedPath}`);
         }, 300);
-        setRedirectTimeout(timeout);
       }
     }
-
+  
     validateAuth();
-
-    // Cleanup timeout on unmount
-    return () => {
-      if (redirectTimeout) {
-        clearTimeout(redirectTimeout);
-      }
-    };
+  
+    return () => clearTimeout(timeoutId);
   }, [dispatch, router, pathname, isAuthenticated, normalizedPath, isPublicRoute]);
+  
 
   // Show loading screens based on auth state
   if (authState === 'checking' || authState === 'redirecting') {
