@@ -15,7 +15,7 @@ import {
 } from "@redux/feature/masterPriceList/masterPriceListThunk";
 import { Package } from "@redux/feature/package/IPackageState";
 import { RootState } from "@redux/feature/store";
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { createQuotation } from "@redux/feature/quotation/quotationThunk";
 import { message, Spin } from "antd";
 import QuotationFilter from "@/components/quotation/QuotationFilter";
@@ -23,8 +23,9 @@ import { updateLeadStatus } from "@redux/feature/lead/leadSlice";
 import { clearQuotation } from "@redux/feature/quotation/quotationSlice";
 import { usePdf } from "@hooks/usePdf";
 import QuatationPdf from "@/components/common/QuatationPdf";
-import { useRouter } from "next/navigation";
 import calculateTotalQuotation from "@lib/utils/calculateTotalQuotation";
+import SystemRoutes from "@lib/constants/Routes";
+import { useRouter } from "next/router";
 
 const Index = () => {
   const dispatch = useAppDispatch();
@@ -90,10 +91,17 @@ const Index = () => {
   }, [dispatch, status]);
 
   useEffect(() => {
-    return () => {
-      dispatch(clearQuotation());
+    const handleRouteChange = (url: string) => {
+      if (!url.startsWith(`/${SystemRoutes.QUOTATION}`)) {
+        dispatch(clearQuotation());
+      }
     };
-  }, []);
+    router.events.on("routeChangeStart", handleRouteChange);
+    return () => {
+      router.events.off("routeChangeStart", handleRouteChange);
+    };
+  }, [dispatch, router]);
+  
 
   const { previewPdf } = usePdf(QuatationPdf);
   const getCategoryById = useCallback(
@@ -178,7 +186,7 @@ const Index = () => {
         })
       );
       message.success("Quotation created successfully");
-      router.push(`/job`);
+      router.push(`/${SystemRoutes.JOB}`);
     } catch (error) {
       message.error("Failed to create quotation");
     }
