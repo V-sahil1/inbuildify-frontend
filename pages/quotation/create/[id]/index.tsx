@@ -241,7 +241,7 @@ const Index = () => {
         onPropertyUpdate={() => {}}
       />
 
-      <div className="flex flex-1 m-3">
+      <div className="flex flex-1 m-3 border rounded-lg ">
         {quotationFilters.range && quotationFilters.dwelling_type ? (
           <>
             <div className="w-64">
@@ -266,7 +266,7 @@ const Index = () => {
             />
           </>
         ) : (
-          <div className="flex items-center justify-center flex-1">
+          <div className="flex flex-1 bg-card-color text-font-color-100 items-center justify-center border rounded-lg h-[356px]">
             <p>
               {quotationFilters.range
                 ? "Please select Dwelling Type"

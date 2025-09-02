@@ -35,7 +35,8 @@ const UserPage = () => {
   // Fetch active users
   useEffect(() => {
     setLoading(true);
-    dispatch(getUsersThunk())
+    const fetchUserData = async()=>{
+    await dispatch(getUsersThunk())
       .unwrap()
       .then((res: any) => {
         const mappedUsers: User[] = res?.data.map((user) => ({
@@ -47,12 +48,13 @@ const UserPage = () => {
         setUsers(mappedUsers);
       })
       .catch((err) => {
-        console.log("GET users failed:", err);
-        message.error("Failed to fetch users");
+        message.error(err || "Failed to fetch users");
       })
       .finally(() => {
         setLoading(false);
       });
+    }
+    fetchUserData();
   }, [dispatch]);
 
   const fetchInvitedUsers = async () => {
@@ -67,7 +69,6 @@ const UserPage = () => {
       setInvitedUsers(mappedUsers);
       setHasFetchedInvites(true);
     } catch (err) {
-      console.log("GET invited users failed:", err);
       message.error(err || "Failed to fetch invited users");
     } finally {
       setLoading(false);
@@ -141,7 +142,7 @@ const UserPage = () => {
         // fetchInvitedUsers();
       }
     } catch (err) {
-      message.error(err);
+      message.error(err || 'Failed to resend invitation');
     } finally {
       setLoading(false);
     }

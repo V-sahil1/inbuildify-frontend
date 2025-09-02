@@ -6,7 +6,7 @@ import { Status } from "@lib/constants/enum";
 import { getDashboardThunk } from "@redux/feature/dashboard/dashboardThunk";
 import NumbersCard from "@/components/dashboard/NumbersCard";
 import { IconUserScan } from "@tabler/icons-react";
-import { Spin } from "antd";
+import { message, Spin } from "antd";
 import { Table, TableColumnsType } from "antd";
 import Link from "next/link";
 import { timeAgo } from "@lib/utils/timeAgo";
@@ -101,13 +101,16 @@ export default function Analysis() {
   ];
 
   useEffect(() => {
+    const fetchDashboardData = async()=>{
     try {
       if (status === Status.IDLE && useStatus === Status.SUCCESS) {
-        dispatch(getDashboardThunk()).unwrap();
+       await dispatch(getDashboardThunk()).unwrap();
       }
     } catch (error) {
-      console.log(error);
+      message.error(error || 'Failed to fetch dashboard data');
     }
+    }
+    fetchDashboardData(); 
   }, [useStatus]);
 
   useEffect(() => {
@@ -172,7 +175,7 @@ export default function Analysis() {
         <WelcomeHeader  />
         <div className="grid grid-cols-12 gap-4">
           {countData?.map((item, index) => (
-            <div className="lg:col-span-3 sm:col-span-6 col-span-12 card flex flex-col bg-card-color rounded-xl overflow-hidden border border-dashed border-border-color">
+            <div className="lg:col-span-3 sm:col-span-6 col-span-12 card flex flex-col bg-card-color rounded-xl overflow-hidden border border-border-color">
               <NumbersCard key={index} item={item} />
             </div>
           ))}

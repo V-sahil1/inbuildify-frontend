@@ -23,14 +23,14 @@ const Facade = () => {
       try {
         await dispatch(getFacades(undefined)).unwrap();
       } catch (error) {
-        message.error(error);
+        message.error(error || 'Failed to fetch Facades');
       }
     };
     const fetchFiltersData = async () => {
       try {
         await dispatch(getFloorPlanFilters()).unwrap();
       } catch (error) {
-        message.error(error);
+        message.error(error || 'Failed to fetch Floor Plans');
       }
     };
     if (status === Status.IDLE) {
@@ -58,8 +58,7 @@ const Facade = () => {
       setIsModalVisible(false);
       message.success("Facade created successfully");
     } catch (error) {
-      console.error(error);
-      message.error(error);
+      message.error(error || 'Failed to create Facade');
     } finally {
       setLoading(false);
     }
@@ -87,7 +86,7 @@ const Facade = () => {
         
          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {facades?.map((facade: IFacadeState) => (
-          <div className="card bg-card-color p-4 rounded-xl flex flex-col items-center border border-dashed border-border-color">
+          <div className="card bg-card-color p-4 rounded-xl flex flex-col items-center border border-border-color">
             <Image
               src={facade.image}
               alt={facade.name}
@@ -134,7 +133,7 @@ const Facade = () => {
         />
         }
         <CreateFormModal
-          title="Floor Plan"
+          title="Facade Plan"
           open={isModalVisible}
           onCancel={() => setIsModalVisible(false)}
           onSubmit={handleCreateFacade}

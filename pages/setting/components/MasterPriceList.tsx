@@ -116,7 +116,7 @@ export const MasterPriceList = () => {
                   id={category.categoryId}
                 >
                   {isLoading ? (
-                    <div className="flex justify-center items-center py-10 gap-4 p-4 border border-gray-200 rounded-lg bg-card-color text-font-color h-[85px]">
+                    <div className="flex justify-center items-center py-10 gap-4 p-4 border border-border-color rounded-lg bg-card-color text-font-color h-[85px]">
                       <Spin size="large" />
                     </div>
                   ) : category?.items?.length > 0 ? (
@@ -124,7 +124,7 @@ export const MasterPriceList = () => {
                       <PricingItem key={item.categoryItemId} item={item} />
                     ))
                   ) : (
-                    <div className="text-center items-center gap-4 p-4 border border-gray-200 rounded-lg bg-card-color text-font-color h-[85px]">
+                    <div className="text-center items-center gap-4 p-4 border border-border-color rounded-lg bg-card-color text-font-color h-[85px]">
                       <p className="text-lg font-medium text-font-color">
                         No items here yet.
                       </p>
