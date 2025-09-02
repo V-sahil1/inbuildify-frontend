@@ -328,10 +328,10 @@ function App() {
                     <List.Item key={quotation.quotation_id}>
                       <Space size="middle">
                         <Tooltip title={quotation.quotation_id}>
-                          <Text type="secondary">{quotation.quotation_id.slice(0, 13)}</Text>
+                          <Text type="secondary">{quotation?.quotation_id?.slice(0, 13)}</Text>
                         </Tooltip>
                         <Tag color={quotation.lead_status === "Open" ? "blue" : "green"}>{quotation.lead_status}</Tag>
-                        <Text>${quotation.items.reduce((sum: number, item: any) => sum + item.total, 0)}</Text>
+                        <Text>${quotation?.total_amount}</Text>
                       </Space>
                     </List.Item>
                   )}
