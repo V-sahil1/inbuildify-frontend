@@ -1,6 +1,5 @@
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { enumToReadable } from "@lib/utils/enumToRedable";
-import { clearQuotation } from "@redux/feature/quotation/quotationSlice";
 import { RootState } from "@redux/feature/store";
 import { IconPlus, IconX } from "@tabler/icons-react";
 import { Tag, InputNumber, Button } from "antd";

@@ -40,6 +40,7 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
   onSubmit,
   fields,
 }) => {
+  console.log("🚀 ~ initialValues:", initialValues)
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -110,7 +111,7 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
             ) : (
               <Input
                 placeholder={field.placeholder}
-                type={field.type === "email" ? "email" : "text"}
+                type={field.type === "email" ? "email" :field.type === "number" ? "number":  "text"}
                 disabled={field.disabled}
               />
             )}

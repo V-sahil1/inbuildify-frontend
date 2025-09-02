@@ -1,4 +1,4 @@
-import api from "@lib/constants/api";
+import api, { apiWithFormDataMethods } from "@lib/constants/api";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import API_ENDPOINTS from "@lib/constants/apiEndpoints";
 import { ApiResponse } from "../auth/IAuthState";
@@ -66,29 +66,14 @@ export const getInvitedUsersThunk = createAsyncThunk(
   }
 )
 
-// export const updateUserThunk = createAsyncThunk(
-//   "user/update",
-//   async (
-//     {
-//       userId,
-//       payload,
-//     }: { userId: string; payload: { name: string; phone: string; address: string } },
-//     thunkAPI
-//   ) => {
-//     try {
-//       const response: ApiResponse<UserRequest> = await api.put(
-//         `${API_ENDPOINTS.CREATE_USER}/${userId}`,
-//         {
-//           data: payload, // ✅ only send object of object
-//         }
-//       );
-
-//       return response;
-//     } catch (err: any) {
-//       return thunkAPI.rejectWithValue(err.message);
-//     }
-//   }
-// );
+export const updateUserThunk = createAsyncThunk("user/update", async (payload: FormData, { rejectWithValue }) => {
+    try {
+        const res = await apiWithFormDataMethods.put<ApiResponse<any>>(API_ENDPOINTS.BUILDER_BASE, payload);
+        return res.data;
+    } catch (error) {
+        return rejectWithValue(error.message);
+    }
+})
 
 
 // export const deleteUserThunk = createAsyncThunk(
