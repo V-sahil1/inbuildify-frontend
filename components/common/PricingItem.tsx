@@ -1,7 +1,13 @@
 import { enumToReadable } from "@lib/utils/enumToRedable";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import { Tag } from "antd";
-export const PricingItem = ({ item }: any) => {
+
+interface PricingItemProps {
+  item: any;
+  handleClick: (action: string, categoryItem: string) => void;
+}
+
+export const PricingItem = ({ item, handleClick }: PricingItemProps) => {
   return (
     <div
       key={item.categoryItemId}
@@ -42,20 +48,20 @@ export const PricingItem = ({ item }: any) => {
         </div>
       </div>
 
-      {/* <div className="flex gap-4">
-        <button className="rounded-md p-1 group">
+      <div className="flex gap-4">
+        <button className="rounded-md p-1 group" onClick={() => handleClick("edit", item)}>
           <IconEdit
             size={20}
             className="text-font-color group-hover:text-blue"
           />
         </button>
-        <button className="rounded-md p-1 group">
+        <button className="rounded-md p-1 group" onClick={() => handleClick("delete", item)}>
           <IconTrash
             size={20}
             className="text-font-color group-hover:text-red-500"
           />
         </button>
-      </div> */}
+      </div>
     </div>
   );
 };
