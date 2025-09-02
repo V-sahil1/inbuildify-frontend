@@ -190,7 +190,7 @@ const Index = () => {
       propertyDetail: property,
       quotePackage: selectedPackageFromSlice,
       quotationAmount: calculateTotalQuotation(
-        selectedPackageFromSlice,
+        Number(packageFromSlice?.amount),
         itemsFromSlice
       ),
       floorPlan: plan,
@@ -198,11 +198,17 @@ const Index = () => {
     });
   };
 
-  const handleViewOpportunity = () => console.log("View Opportunity clicked");
   const handleExtraClick = () => {
     setExtraItem(true);
     setSelectedCategory(null);
   };
+
+  const canContact = !!contact;
+  const canProperty = property && Object.keys(property).length > 0;
+  const canPlan = plan && Object.keys(plan).length > 0;
+  const canFacade = !!facade;
+  const canSelectedPackageFromSlice = !!selectedPackageFromSlice;
+  const canPreview = canContact && canProperty && canPlan && canFacade && canSelectedPackageFromSlice;
   return (
     <>
       <div className="m-3 flex justify-between items-center">
@@ -273,6 +279,7 @@ const Index = () => {
           )}
           onApprove={handleApprove}
           onPreview={handlePreview}
+          disablePreview={!canPreview}
           loading={quotationStatus === Status.PENDING}
         />
       </div>

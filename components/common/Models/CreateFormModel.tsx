@@ -59,7 +59,6 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
   onSubmit,
   fields,
 }) => {
-  console.log("🚀 ~ initialValues:", initialValues)
   const [form] = Form.useForm();
 
   useEffect(() => {

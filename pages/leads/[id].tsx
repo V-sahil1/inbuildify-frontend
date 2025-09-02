@@ -1,19 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Card, Input, List, message, Space, Tag, Tooltip, Typography } from "antd";
+import { Card, List, message, Space, Tag, Tooltip, Typography } from "antd";
 import StageProgress from "@/components/common/StageProgress";
 import ConvertLeadModal from "@/components/leadDetail/ConvertLeadModal";
 import PropertyDetailsModal from "@/components/leadDetail/PropertyDetailsModal";
 import {
   IconBarrierBlock,
-  IconCopy,
-  IconCopyCheck,
   IconEdit,
   IconFileText,
   IconMail,
-  IconPhone,
   IconPhoneCall,
-  IconUser,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import SystemRoutes from "@lib/constants/Routes";
