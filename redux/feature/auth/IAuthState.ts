@@ -19,8 +19,11 @@ export interface User {
   builderId: string;
   builderName: string;
   logo: string;
-  slogen: string;
+  slogan: string;
   firmName: string;
+  abnNumber: string;
+  licenseNumber: string;
+  phoneNumber: string;
   isVerified: boolean;
   rootUser: boolean;
   createdAt: string;

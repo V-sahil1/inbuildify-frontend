@@ -42,7 +42,7 @@ export const PricingItem = ({ item }: any) => {
         </div>
       </div>
 
-      <div className="flex gap-4">
+      {/* <div className="flex gap-4">
         <button className="rounded-md p-1 group">
           <IconEdit
             size={20}
@@ -55,7 +55,7 @@ export const PricingItem = ({ item }: any) => {
             className="text-font-color group-hover:text-red-500"
           />
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };

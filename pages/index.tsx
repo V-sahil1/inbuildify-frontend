@@ -94,7 +94,6 @@ export default function Analysis() {
   const { role } = useAppSelector((state) => state.auth);
   const menuRef = useRef(null);
   const buttonRef = useRef(null);
-  console.log(role);
   const breadcrumbItem = [
     {
       name: "Dashboard",

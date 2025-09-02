@@ -76,8 +76,20 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
       const values = await form.validateFields();
       onSubmit(values);
     } catch (err) {
-      // message.error("Please fill all the required fields");
+      message.error("Please fill all the required fields");
     }
+  };
+
+  const makeFileFromUrl = (url?: string, name: string = "logo") => {
+    if (!url) return [];
+    return [
+      {
+        uid: "-1",
+        name,
+        status: "done",
+        url,
+      },
+    ];
   };
 
   return (
@@ -127,8 +139,16 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
                 <Radio value="FALSE">No</Radio>
               </Radio.Group>
             ) : field.type === "image" ? (
-              <Upload name="image" listType="picture" multiple={false}>
-                <Button>Click to Upload</Button>
+               <Upload
+                name="image"
+                listType="picture"
+                multiple={false}
+                maxCount={1}    
+                defaultFileList={makeFileFromUrl(initialValues?.logo)}
+              >
+                <Button>
+                  Click to Upload
+                </Button>
               </Upload>
             ) : (
               <Input
