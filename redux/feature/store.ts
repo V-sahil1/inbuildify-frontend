@@ -30,7 +30,7 @@ const rootReducer = combineReducers({
 const persistConfig = {
   key: "root",
   storage,
-  blacklist: ["lead", "masterPriceList", "floorPlan", "facade"],
+  blacklist: ["lead", "masterPriceList", "floorPlan", "facade","dashboard"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
