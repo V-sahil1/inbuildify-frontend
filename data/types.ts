@@ -55,6 +55,9 @@ export interface Quotation {
     name: string;
     bedrooms: number;
     bathrooms: number;
+    beds?: number;
+    bath?: number;
+    carPark?: number;
     garage: number;
     area: string;
   }

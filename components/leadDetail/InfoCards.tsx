@@ -6,10 +6,13 @@ import {
   IconFileText,
   IconEdit,
   IconGift,
-  IconPlus,
   IconMail,
   IconPhone,
   IconMapPin,
+  IconBedFlat,
+  IconBath,
+  IconCar,
+  IconForklift,
 } from "@tabler/icons-react";
 import LeadDetailsForm from "./forms/LeadDetailsForm";
 import {
@@ -226,21 +229,37 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           >
             {selectedPlan ? (
             <>
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-2 mb-6">
                 <IconFileText className="text-purple-500" />
-                <span className="font-medium text-font-color">Select Plan</span>
+                <span className="font-medium text-font-color">
+                  {selectedPlan.name}
+                </span>
                 <IconEdit className="text-gray-400 ml-auto" />
               </div>
-              <div className="space-y-2">
-                <div className="font-semibold text-center text-font-color">
-                  {selectedPlan.name || "-"}
+
+              <div className="flex justify-between w-full gap-2">
+                <div className="flex items-center gap-2">
+                  <IconBedFlat />
+                  {selectedPlan?.beds || 0}
+                </div>
+                <div className="flex items-center gap-2">
+                  <IconBath />
+                  {selectedPlan?.bath || 0}
+                </div>
+                <div className="flex items-center gap-2">
+                  <IconCar />
+                  {selectedPlan?.carPark || 0}
+                </div>
+                <div className="flex items-center gap-2">
+                  <IconForklift />
+                  {selectedPlan?.garage || 0}
                 </div>
               </div>
             </>
           ) : (
             <div className="text-center py-4">
-              <Button 
-                type="primary" 
+              <Button
+                type="primary"
                 size="middle"
                 disabled={isSelectionDisabled}
               >
