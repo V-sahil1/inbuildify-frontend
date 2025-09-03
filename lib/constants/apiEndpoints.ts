@@ -27,6 +27,8 @@ class API_ENDPOINTS {
   public static CONTRACTOR_BASE = "/contractor";
   public static CREATE_CONTRACTOR = `${this.CONTRACTOR_BASE}`;
   public static GET_CONTRACTORS = `${this.CONTRACTOR_BASE}`;
+  // services
+  public static SERVICE_BASE = "/service";
 
   //customers
   public static CUSTOMER_BASE = "/customer";

@@ -195,7 +195,7 @@ const leadid = useParams()
           </Col>
           <Col span={8}>
             <Form.Item
-              label={<span>Address1 <span className="text-red-500">*</span></span>}
+              label="Address1"
               name="address1"
               rules={[{ required: true, message: 'Please enter address1' }]}
             >
@@ -215,7 +215,7 @@ const leadid = useParams()
         <Row gutter={16}>
           <Col span={8}>
             <Form.Item
-              label={<span>City / Suburb <span className="text-red-500">*</span></span>}
+              label="City / Suburb"
               name="citySuburb"
               rules={[{ required: true, message: 'Please enter city/suburb' }]}
             >
@@ -236,7 +236,7 @@ const leadid = useParams()
           </Col>
           <Col span={8}>
             <Form.Item
-              label={<span>Zip / Postal Code <span className="text-red-500">*</span></span>}
+              label="Zip / Postal Code"
               name="zipPostalCode"
               rules={[{ required: true, message: 'Please enter postal code' },{max:4,message:'Postal code must be at most 4 characters'}]}
             >
@@ -261,7 +261,7 @@ const leadid = useParams()
           </Col>
           <Col span={8}>
             <Form.Item
-              label={<span>Title Status <span className="text-red-500">*</span></span>}
+              label="Title Status"
               name="titleStatus"
               rules={[{ required: true, message: 'Please select title status' }]}
             >
@@ -273,7 +273,7 @@ const leadid = useParams()
           </Col>
           <Col span={8}>
             <Form.Item
-              label={<span>Title Date <span className="text-red-500">*</span></span>}
+              label="Title Date"
               name="titleDate"
               rules={[{ required: true, message: 'Please select title date' }]}
             >

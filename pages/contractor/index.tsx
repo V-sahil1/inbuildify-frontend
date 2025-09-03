@@ -2,22 +2,23 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Button, Form, Input, Modal, Table, Typography, message, Spin } from 'antd'
 import type { TableColumnsType } from 'antd'
 import { useAppDispatch } from '@hooks/redux'
-import { createContractorThunk, deleteContractorThunk, getContractorByIdThunk, getContractorsThunk, updateContractorThunk } from '@redux/feature/contractor/contractorThunk'
-import { ContractorResponse } from "@redux/feature/contractor/IContractorState";
+import { createContractorThunk, deleteContractorThunk, getContractorByIdThunk, getContractorsThunk, getServicesThunk, updateContractorThunk } from '@redux/feature/contractor/contractorThunk'
+import { ContractorResponse, Service } from "@redux/feature/contractor/IContractorState";
 import { DetailModal } from "@/components/common/DetailModal";
 import ConfirmationModal from "@/components/common/ConfirmationModal";
 import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
-import { addressRules, emailRules, nameRules, phoneRules } from "@lib/constants/formInputValidations";
+import { addressRules,emailRules,leadSourceRules,nameRules, phoneRules,} from "@lib/constants/formInputValidations";
 
 type Contractor = {
-  contractorId: string
-  name: string
-  email: string
-  phone: string
-  address: string
-}
+  contractorId: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  service?: string;
+};
 
-const initialData: Contractor[] = []
+const initialData: Contractor[] = [];
 
 const ContractorPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -33,10 +34,11 @@ const ContractorPage = () => {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedContractor, setSelectedContractor] = useState<Contractor | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
+  const [services, setServices] = useState<{label: string, value: string}[]>([]);
 
   useEffect(() => {
     setLoading(true);
-    const fetchContractorData = async() => {
+    const fetchContractorData = async () => {
     await dispatch(getContractorsThunk())
       .unwrap()
       .then((res: ContractorResponse) => {
@@ -107,6 +109,7 @@ const ContractorPage = () => {
           name: values.name,
           phone: values.phone,
           address: values.address,
+          service: values.service,
         };
         const res = await dispatch(updateContractorThunk({ contractorId: editingKey, payload })).unwrap();
 
@@ -126,6 +129,7 @@ const ContractorPage = () => {
             email: values.email,
             phone: values.phone,
             address: values.address,
+            service: values.service,
           })
         ).unwrap();
         if (res) {
@@ -136,6 +140,7 @@ const ContractorPage = () => {
             email: data.email,
             phone: data.phone,
             address: data.address,
+            service: data.service,
           };
           setContractors(prev => [newContractor, ...prev]);
           message.success(res.message);
@@ -174,11 +179,31 @@ const ContractorPage = () => {
         setSelectedContractor(response.data);
       }
     } catch (error) {
-      message.error(error || "Failed to fetch contractor details:")
+      message.error(error || "Failed to fetch contractor details:");
     } finally {
       setLoadingDetails(false);
     }
-  };
+  }; 
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      setLoading(true);
+      try {
+        const services = await dispatch(getServicesThunk()).unwrap();
+        const mappedServices = services?.map((service: Service) => ({
+          label: service.service,
+          value: service.service,
+        })) || [];
+        setServices(mappedServices);
+      } catch (error) {
+        message.error(error || "Failed to fetch services");
+      }finally{
+        setLoading(false);
+      }
+    };
+    
+    fetchServices();
+  }, [dispatch]);
 
   const columns: TableColumnsType<Contractor> = useMemo(
     () => [
@@ -201,6 +226,11 @@ const ContractorPage = () => {
         title: "Address",
         dataIndex: "address",
         key: "address",
+      },
+      {
+        title: "Service",
+        dataIndex: "service",
+        key: "service",
       },
       {
         title: "Actions",
@@ -295,9 +325,16 @@ const ContractorPage = () => {
               placeholder: "123 Main St, Springfield",
               rules: addressRules,
             },
+            {
+              label: "Services",
+              name: "service",
+              type: "select",
+              options: services,
+              placeholder: "Select services",
+              rules: leadSourceRules,
+            },
           ]}
         />
-
 
         <DetailModal
           title="Contractor Details"

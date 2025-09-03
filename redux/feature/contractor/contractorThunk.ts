@@ -2,12 +2,12 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import api from "@lib/constants/api";
 import API_ENDPOINTS from "@lib/constants/apiEndpoints";
 import { ApiResponse } from "../auth/IAuthState";
-import { ContractorRequest, ContractorResponse } from "./IContractorState";
+import { ContractorRequest, ContractorResponse, Service } from "./IContractorState";
 
 export const createContractorThunk = createAsyncThunk(
   "contractor/create",
   async (
-    payload: { email: string; name: string; phone: string; address: string },
+    payload: { email: string; name: string; phone: string; address: string, service?: string },
     {rejectWithValue}
   ) => {
     try {
@@ -57,7 +57,7 @@ export const updateContractorThunk = createAsyncThunk(
     {
       contractorId,
       payload,
-    }: { contractorId: string; payload: { name: string; phone: string; address: string } },
+    }: { contractorId: string; payload: { name: string; phone: string; address: string,service?: string } },
     {rejectWithValue}
   ) => {
     try {
@@ -91,4 +91,16 @@ export const deleteContractorThunk = createAsyncThunk(
   }
 );
 
-
+export const getServicesThunk = createAsyncThunk(
+  "contractor/getAll",
+  async (_, {rejectWithValue}) => {
+    try {
+      const response: ApiResponse<Service[]> = await api.get(
+        API_ENDPOINTS.SERVICE_BASE
+      );
+      return response.data;
+    } catch (err: any) {
+      return rejectWithValue(err.message);
+    }
+  }
+);

@@ -76,10 +76,10 @@ function transformDashboardData(input: InputData) {
   ];
 
   const data = [
-    input?.contractorData,
-    input?.customerData,
-    input?.usersData,
-    input?.leadData,
+    input?.contractorData.slice(0,0),
+    input?.customerData.slice(0,0),
+    input?.usersData.slice(0,0),
+    input?.leadData.slice(0,0),
   ];
 
   return { countData, data };
@@ -143,7 +143,7 @@ export default function Analysis() {
         key: "CreatedAt",
         ellipsis: true,
         render: (_, record) => {
-          return timeAgo(record.createdAt);
+          return timeAgo(record?.createdAt);
         },
       },
     ];
@@ -180,12 +180,15 @@ export default function Analysis() {
             </div>
           ))}
         </div>
-        <div className="text-[20px]/[24px] font-black mb-12 mt-6">
+        <div className="text-[20px]/[24px] font-black mb-6 mt-6">
           Recent Activities
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-[20px] ">
+        <div>
+          {data.flat().length > 0 ?
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-[20px] ">
           {data?.map((item, index) => (
-            <div className="">
+            item.length > 0 ? 
+            <div>
               <div className="grid grid-cols-2">
                 <div className="mb-2 font-bold">{countData[index].title}</div>
                 <div className="flex justify-end text-primary text-sm pr-2">
@@ -194,12 +197,15 @@ export default function Analysis() {
               </div>
 
               <div className="min-h-[250px]">
-                {" "}
                 <Table columns={getColumns(index)} dataSource={item} pagination={false} className="flex-1"/>
               </div>
-            </div>
-          ))}
+            </div> : <></>)
+          )}
         </div>
+           :
+           <div className="flex flex-1 justify-center items-center h-[215px] bg-card-color text-font-color-100 rounded-xl border border-border-color"><p>No recent data available. Add your first record to get started.</p></div>}
+        </div>
+       
       </div>
     </div>
   );

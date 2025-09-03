@@ -68,14 +68,15 @@ const Leads = () => {
         {leads.map((lead: ILead) => (
           <div
           key={lead.lead_id}
-          onClick={() =>
+          onClick={() => {
+            if (lead.status === "CANCELLED") return;
             (lead.status === "IN_PROGRESS" || lead.status === "COMPLETED")
               ? router.push(`${SystemRoutes.LEADS}/${lead.lead_id}?type=opportunity`)
               : lead.status === "JOB" ? router.push(SystemRoutes.JOB) 
               : router.push(`${SystemRoutes.LEADS}/${lead.lead_id}`)
-          }
-          className=" rounded-2xl border border-border-color  shadow-sm p-6 cursor-pointer 
-                transition-all duration-200 hover:shadow-xl hover:scale-[1.02] bg-card-color"
+          }}
+          className={`rounded-2xl border border-border-color shadow-sm p-6 ${lead.status === "CANCELLED" ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:shadow-xl hover:scale-[1.02]'} 
+                transition-all duration-200 bg-card-color`}
         >
           {/* Header with Tag on Top Right */}
           <div className="flex justify-between items-start mb-3">

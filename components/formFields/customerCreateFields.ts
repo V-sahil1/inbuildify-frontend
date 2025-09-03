@@ -5,6 +5,7 @@ export const customerCreateFields: CreateFormField[] = [
     {
         name: "fullName",
         label: "Full Name",
+        placeholder: "john doe",
         rules: nameRules,
 
     },
@@ -12,12 +13,14 @@ export const customerCreateFields: CreateFormField[] = [
     {
         name: "phone",
         label: "Phone",
+        placeholder: "1234567890",
         rules: phoneRules,
 
     },
     {
         name: "address",
         label: "Address",
+        placeholder: "Australia",
         rules: addressRules,
 
     },

@@ -68,7 +68,7 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Basic Information */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium">Basic Information</h3>
+            <h3 className="text-lg font-medium text-font-color">Basic Information</h3>
 
             <Form.Item
               label="Name"
@@ -121,7 +121,7 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
 
           {/* Measurements */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium">Measurements</h3>
+            <h3 className="text-lg font-medium text-font-color">Measurements</h3>
             <div className="grid grid-cols-2 gap-4">
               <Form.Item
                 label="Beds"
