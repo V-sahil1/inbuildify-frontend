@@ -51,7 +51,7 @@ const Facade = () => {
       const formData = new FormData();
       formData.append("name", values.name);
       formData.append("dwelling_type", values.dwelling_type);
-      formData.append("image", values.image.file.originFileObj);
+      formData.append("image", values.image.fileList[0].originFileObj);
       formData.append("standard", values.standard || true);
       formData.append("upgrade", values.upgrade || true);
       await dispatch(createFacade(formData)).unwrap();
