@@ -188,13 +188,13 @@ export const QuatationExtraItem: React.FC<QuatationItemProps> = React.memo(
                         />
                     </div>
                 </div>
-                {extraItems?.map((item) => (
+                {/* {extraItems?.map((item) => (
                     <PricingItem
                         item={item}
                         onQuantityChange={onQuantityChange}
                         onToggleAdd={onToggleAdd}
                     />
-                ))}
+                ))} */}
             </>
         );
     }

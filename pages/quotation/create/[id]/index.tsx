@@ -61,6 +61,7 @@ const Index = () => {
   );
   const [quotation, setQuotation] = useState(quotationData);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false)
   const [extraItem, setExtraItem] = useState(false);
   const { categories: categoryData, status } = useAppSelector(
     (state: RootState) => state.masterPriceList
@@ -191,7 +192,62 @@ const Index = () => {
       message.error(error);
     }
   };
-  const handlePreview = () => {
+  const handlePreview = async () => {
+    setPreviewLoading(true);
+    try {
+    const responses = await Promise.all(
+      categoryData.map((cat) => {
+        if (!cat.isExpanded) {
+          dispatch(toggleExpand(cat.categoryId));
+          return dispatch(
+            fetchCategoryItems({
+              categoryId: cat.categoryId,
+              filters: {
+                range: quotationFilters?.range || undefined,
+                dwelling_type: quotationFilters?.dwelling_type || undefined,
+              },
+            })
+          ).unwrap();
+        }
+        return Promise.resolve({ categoryId: cat.categoryId, items: cat.items || [] });
+      })
+    );
+
+    // Use the updated categories (from Redux or responses)
+    const allCategories = categoryData.map((cat) => {
+      const fetched = responses.find((res) => res.categoryId === cat.categoryId);
+      return {
+        ...cat,
+        items: fetched?.items || cat.items || [],
+      };
+    });
+
+    // Now build grouped items
+    const groupedItems = allCategories.map((category) => {
+      const matchedItems = (category.items || [])
+        .filter((catItem) =>
+          itemsFromSlice.some((sel) => sel.itemId === catItem.categoryItemId)
+        )
+        .map((catItem) => {
+          const selected = itemsFromSlice.find(
+            (sel) => sel.itemId === catItem.categoryItemId
+          );
+          return {
+            ...catItem,
+            ...selected,
+            total: Number(selected?.quantity) * Number(selected?.price),
+          };
+        });
+
+      return {
+        categoryId: category.categoryId,
+        categoryName: category.name,
+        description: category.description,
+        items: matchedItems,
+        categoryTotal: matchedItems.reduce((sum, i) => sum + i.total, 0),
+      };
+    });
+    const filteredGroupedItems = groupedItems.filter((cat) => cat.items.length > 0);
     previewPdf({
       user: user,
       leadDetail: contact,
@@ -203,7 +259,14 @@ const Index = () => {
       ),
       floorPlan: plan,
       facade: facade,
+      items: filteredGroupedItems
     });
+    } catch (error) {
+      message.error(error || "Failed to preview quotation");
+    }
+    finally {
+      setPreviewLoading(false);
+    }
   };
 
   const handleExtraClick = () => {
@@ -288,6 +351,7 @@ const Index = () => {
           onApprove={handleApprove}
           onPreview={handlePreview}
           disableAction={!canAction}
+          previewLoading={previewLoading}
           loading={quotationStatus === Status.PENDING}
         />
       </div>

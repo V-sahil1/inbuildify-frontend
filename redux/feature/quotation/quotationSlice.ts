@@ -81,6 +81,9 @@ const quotationSlice = createSlice({
               item.quantity = quantity;
             }
         },
+        updateQuotationContact(state, action: PayloadAction<any>) {
+            state.contact = action.payload;
+        },
         // setQuotationBaseItems(state, action: PayloadAction<any>) {
         //     state.items = [...state.items,...action.payload];
         // },
@@ -108,7 +111,7 @@ export default quotationSlice.reducer;
 export const {
     setQuotationContact,
     setQuotationProperty,
-    setQuotationPropertyFromResponse, setQuotationExtraItems, setQuotationItems,
+    setQuotationPropertyFromResponse, setQuotationExtraItems, setQuotationItems,updateQuotationContact,
     setQuotationPlan,
     setQuotationFacade,
     removeQuotationItem,

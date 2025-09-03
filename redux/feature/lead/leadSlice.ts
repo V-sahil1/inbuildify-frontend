@@ -132,21 +132,29 @@ export const leadSlice = createSlice({
           });
         });
         builder.addCase(updateLeadThunk.fulfilled, (state, action) => {
-          const {lead_id,name,phone,lead_source} = action.payload;
-          state.leadDetail.contact.name = name;
-          state.leadDetail.contact.phone = phone;
-          state.leadDetail.contact.lead_source = lead_source;
-          state.leads = state.leads.map((lead) => {
-            if (lead.lead_id === lead_id) {
-              return {
-                ...lead,
-                name,
-                phone,
-                lead_source,
-              };
+          const { payload } = action;
+          if (payload && payload.lead_id) {
+            const { lead_id, name, phone, lead_source } = payload;
+            
+            // Add null check for leadDetail.contact because after the quatation route opens the contact of leads is setting the null (Akshay)
+            if (state.leadDetail && state.leadDetail.contact) {
+              state.leadDetail.contact.name = name || state.leadDetail.contact.name;
+              state.leadDetail.contact.phone = phone || state.leadDetail.contact.phone;
+              state.leadDetail.contact.lead_source = lead_source || state.leadDetail.contact.lead_source;
             }
-            return lead;
-          });
+            
+            state.leads = state.leads.map((lead) => {
+              if (lead.lead_id === lead_id) {
+                return {
+                  ...lead,
+                  name: name || lead.name,
+                  phone: phone || lead.phone,
+                  lead_source: lead_source || lead.lead_source,
+                };
+              }
+              return lead;
+            });
+          }
         });
     }
 });

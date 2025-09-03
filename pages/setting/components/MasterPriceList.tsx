@@ -8,12 +8,14 @@ import {
 } from "@redux/feature/masterPriceList/iMasterPriceListState";
 import { toggleExpand } from "@redux/feature/masterPriceList/masterPriceListSlice";
 import {
+  deleteCategoryItem,
   fetchCategories,
   fetchCategoryItems,
 } from "@redux/feature/masterPriceList/masterPriceListThunk";
 import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { message, Spin, Empty } from "antd";
+import ConfirmationModal from "@/components/common/ConfirmationModal";
 
 export const MasterPriceList = () => {
   const dispatch = useAppDispatch();
@@ -35,13 +37,15 @@ export const MasterPriceList = () => {
 
   const [dropDowns, setDropDowns] = useState<Record<string, boolean>>({});
   const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({});
+  const [categoryItem, setCategoryItem] = useState<any>();
+  const [deleteModal, setDeleteModal] = useState(false);
 
   const openAddItemModal = (categoryId: string) => {
     setAddItemModal(true);
     setCategoryId(categoryId);
   };
 
-  const handleExpand = async (categoryId: string, isExpanded: boolean) => {
+  const handleExpand = async (categoryId: string, isExpanded: boolean) => { 
     setDropDowns((prev) => ({
       ...prev,
       [categoryId]: !prev[categoryId],
@@ -68,6 +72,25 @@ export const MasterPriceList = () => {
         setLoadingItems((prev) => ({ ...prev, [categoryId]: false }));
       }
     }    
+  };
+
+  const handleAction = (action: string, categoryItem: any) => {
+    setCategoryItem(categoryItem);
+    if (action === "edit") {
+      openAddItemModal(categoryItem.categoryItemId);
+    } else if (action === "delete") {
+      setDeleteModal(true);
+    }
+  };
+
+  const handleDelete = async (categoryItemId: any) => {
+    try {
+      await dispatch(deleteCategoryItem(categoryItemId)).unwrap();
+      message.success("Category item deleted successfully");
+      setDeleteModal(false);
+    } catch (error: any) {
+      message.error(error || "Failed to delete category item");
+    }
   };
 
   return (
@@ -104,7 +127,11 @@ export const MasterPriceList = () => {
                 {/* Add Item */}
                 <button
                   className="btn btn-primary"
-                  onClick={() => openAddItemModal(category.categoryId)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openAddItemModal(category.categoryId);
+                  }}
                 >
                   Add Item
                 </button>
@@ -121,7 +148,7 @@ export const MasterPriceList = () => {
                     </div>
                   ) : category?.items?.length > 0 ? (
                     category.items.map((item: Item) => (
-                      <PricingItem key={item.categoryItemId} item={item} />
+                      <PricingItem key={item.categoryItemId} item={item} handleClick={handleAction}/>
                     ))
                   ) : (
                     <div className="text-center items-center gap-4 p-4 border border-border-color rounded-lg bg-card-color text-font-color h-[85px]">
@@ -140,11 +167,28 @@ export const MasterPriceList = () => {
         })}
 
         {/* Modal */}
-        <AddMasterPricingItemModal
-          open={addItemModal}
-          onClose={() => setAddItemModal(false)}
-          categoryId={categoryId}
-        />
+        {addItemModal && 
+          <AddMasterPricingItemModal
+            open={addItemModal}
+            onClose={() => {
+              setCategoryItem(null);
+              setAddItemModal(false)
+            }}
+            categoryId={categoryId}
+            categoryItem={categoryItem}
+          />
+        }
+
+        {deleteModal && 
+          <ConfirmationModal
+            open={deleteModal}
+            onClose={() => setDeleteModal(false)}
+            onConfirm={() => handleDelete(categoryItem?.categoryItemId)}
+            type="danger"
+            message="Are you sure you want to delete this item?"
+          />
+        }
+
       </div>
       ) : (
         <Empty

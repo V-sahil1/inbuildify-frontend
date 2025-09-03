@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import { Form, Input, Radio, Checkbox, Select, Modal, message ,Spin} from "antd";
 import { IconMinus, IconPlus } from "@tabler/icons-react";
-import { createCategoryItem, fetchCategories } from "@redux/feature/masterPriceList/masterPriceListThunk";
+import { createCategoryItem, fetchCategories, updateCategoryItem } from "@redux/feature/masterPriceList/masterPriceListThunk";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
 import { getConditions, getFloorPlanFilters } from "@redux/feature/floorPlan/floorPlanThunk";
@@ -18,12 +18,14 @@ interface AddMasterPricingItemModalProps {
   open: boolean;
   onClose: any;
   categoryId?: string;
+  categoryItem?: any;
 }
 
 const AddMasterPricingItemModal = ({
     open,
     onClose,
     categoryId,
+    categoryItem
   }: AddMasterPricingItemModalProps) => {    
     const [form] = Form.useForm();
     const [costType, setCostType] = useState("INCLUDED");
@@ -39,6 +41,36 @@ const AddMasterPricingItemModal = ({
 
     // New state for button loading
     const [isAddingItem, setIsAddingItem] = useState(false);
+
+    useLayoutEffect(() => {
+      if (categoryItem) {
+        form.setFieldsValue({
+          category_id: categoryItem.categoryId,
+          description: categoryItem.description,
+          short_description: categoryItem.shortDescription,
+          cost_type: categoryItem.costType,
+          cost_type_text: categoryItem.costTypeText,
+          cost: categoryItem.cost,
+          cost_option: categoryItem.costOption,
+          show_in_hl_package: categoryItem.showInHlPackage,
+          package_only: categoryItem.packageOnly,
+          status: categoryItem.status,
+          range: categoryItem.rangeName,
+          dwelling: categoryItem.dwellingTypeName,
+          ...(categoryItem.conditions?.length > 0 && {
+            conditions: categoryItem.conditions.map((condition: any) => ({
+              name: condition.name,
+              range_start: condition.rangeStart,
+              range_end: condition.rangeEnd,
+            }))
+          })
+        });
+        setCostType(categoryItem.costType);
+      } else {
+        form.resetFields();
+        setCostType("INCLUDED");
+      }
+    }, [categoryItem, form]);
 
   useEffect(() => {
     const fetchFiltersData = async () => {
@@ -72,16 +104,22 @@ const AddMasterPricingItemModal = ({
         ...(categoryId && { category_id: categoryId }),
         ...values,
       };
-      
-      const response = await dispatch(
-        createCategoryItem(payload)
-      ).unwrap();
-      
+
+      if (categoryItem) {
+        const res = await dispatch(updateCategoryItem({
+          payload: values,
+          id: categoryItem.categoryItemId
+        })).unwrap();
+      } else {
+        const response = await dispatch(
+          createCategoryItem(payload)
+        ).unwrap();
+      }
       message.success("Master Pricing Item added successfully");
       form.resetFields();
-      if (values.package_only) {
-        dispatch(addPackageItems(response));
-      }
+      // if (values.package_only) {
+      //   dispatch(addPackageItems(response));
+      // }
       onClose();
     } catch (error) {
       setIsAddingItem(false);
@@ -100,15 +138,20 @@ const AddMasterPricingItemModal = ({
     }
   };
 
+  const handleCancel = () => {
+    form.resetFields();
+    onClose();
+  };
+
   return (
     <Modal
-      title="Add Master Pricing Item"
+      title={categoryItem ? "Update Master Pricing Item" : "Add Master Pricing Item"}
       open={open}
-      onCancel={onClose}
+      onCancel={handleCancel}
       footer={null}
       width="90%"
       style={{ maxWidth: 800 }}
-      bodyStyle={{ padding: "16px 8px" }}
+      // bodyStyle={{ padding: "16px 8px" }}
       className="responsive-modal"
     >
       <Form
@@ -362,27 +405,28 @@ const AddMasterPricingItemModal = ({
               </div>
             </Radio.Group>
           </Form.Item>
-          {costType !== "VARIABLE" && (
+          <div>
+            {costType !== "VARIABLE" && (
+              <Form.Item
+                name="package_only"
+                valuePropName="checked"
+                className="form-item-responsive"
+                initialValue={!categoryId}
+              >
+                <Checkbox disabled={!categoryId}> Package Only </Checkbox>
+              </Form.Item>
+            )}
+            {/* Show in HL Package */}
             <Form.Item
-              name="package_only"
+              name="show_in_hl_package"
               valuePropName="checked"
-              className="form-item-responsive"
-              initialValue={!categoryId}
+              className="form-item-responsive mb-6"
+              initialValue={false}
             >
-              <Checkbox disabled={!categoryId}> Package Only </Checkbox>
+              <Checkbox>Show in HL Package</Checkbox>
             </Form.Item>
-          )}
+          </div>
         </div>
-
-        {/* Show in HL Package */}
-        <Form.Item
-          name="show_in_hl_package"
-          valuePropName="checked"
-          className="form-item-responsive mb-6"
-          initialValue={false}
-        >
-          <Checkbox>Show in HL Package</Checkbox>
-        </Form.Item>
 
         <Form.Item className="mb-0">
           <button
@@ -395,10 +439,10 @@ const AddMasterPricingItemModal = ({
             {isAddingItem ? (
               <div className="flex items-center justify-center">
                 <Spin size="small" />
-                <span className="ml-2">Adding...</span>
+                <span className="ml-2">{categoryItem ? "Updating..." : "Adding..."}</span>
               </div>
             ) : (
-              "Add Item"
+              categoryItem ? "Update Item" : "Add Item"
             )}
           </button>
         </Form.Item>

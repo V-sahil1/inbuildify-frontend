@@ -52,4 +52,32 @@ export const fetchCategories = createAsyncThunk(
       }
     }
   );
-    
+
+export const updateCategoryItem = createAsyncThunk(
+  "categories/updateItem",
+  async ({payload, id}: {payload: any, id: string}, { rejectWithValue }) => {
+    try {
+      const res = await api.put<ApiResponse<any>>(
+        API_ENDPOINTS.CREATE_MASTER_PRICE_LIST_ITEM + '/' + id,
+        {data:payload}
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const deleteCategoryItem = createAsyncThunk(
+  "categories/deleteItem",
+  async (payload: string, { rejectWithValue }) => {
+    try {
+      const res = await api.delete<ApiResponse<Item>>(
+        API_ENDPOINTS.CREATE_MASTER_PRICE_LIST_ITEM + '/' + payload
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
