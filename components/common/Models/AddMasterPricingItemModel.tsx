@@ -151,7 +151,7 @@ const AddMasterPricingItemModal = ({
       footer={null}
       width="90%"
       style={{ maxWidth: 800 }}
-      bodyStyle={{ padding: "16px 8px" }}
+      // bodyStyle={{ padding: "16px 8px" }}
       className="responsive-modal"
     >
       <Form
