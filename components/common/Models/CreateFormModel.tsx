@@ -64,13 +64,13 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
 
   useEffect(() => {
     if (open) {
-      if (isEditing) {
+      if (isEditing && initialValues) {
         form.setFieldsValue(initialValues);
-      } else {
+      } else if (!isEditing) {
         form.resetFields();
       }
     }
-  }, [open, isEditing, initialValues, form]);
+  }, [open, isEditing]);
 
   const handleOk = async () => {
     try {
@@ -145,6 +145,7 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
                 listType="picture"
                 multiple={false}
                 maxCount={1}    
+                beforeUpload={() => false}   
                 defaultFileList={makeFileFromUrl(initialValues?.logo)}
               >
                 <Button>

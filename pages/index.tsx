@@ -76,10 +76,10 @@ function transformDashboardData(input: InputData) {
   ];
 
   const data = [
-    input?.contractorData.slice(0,0),
-    input?.customerData.slice(0,0),
-    input?.usersData.slice(0,0),
-    input?.leadData.slice(0,0),
+    input?.contractorData,
+    input?.customerData,
+    input?.usersData,
+    input?.leadData,
   ];
 
   return { countData, data };

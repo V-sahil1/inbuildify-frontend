@@ -2,7 +2,6 @@
 import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
 import { CreateFormField } from "../common/Models/CreateFormModel";
 import { useAppSelector } from "@hooks/redux";
-import { message } from "antd";
 
 
 export const floorPlanFields = (): CreateFormField[] => {
@@ -78,24 +77,28 @@ export const floorPlanFields = (): CreateFormField[] => {
       name: "dwelling", 
       type: "number",
       placeholder: "1",
+      rules: [{ required: true, message: "Please enter dwelling" }],
     },
     {
       label: "Garage",
       name: "garage",
       placeholder: "1",
       type: "number",
+      rules: [{ required: true, message: "Please enter garage" }],
     },
     {
       label: "Porch",
       name: "porch",
       type: "number",
       placeholder: "1",
+      rules: [{ required: true, message: "Please enter porch" }],
     },
     {
       label: "Alfresco",
       name: "alfresco",
       type: "number",
       placeholder: "1",
+      rules: [{ required: true, message: "Please enter alfresco" }],
     },
     {
       label: "Total Sqft",

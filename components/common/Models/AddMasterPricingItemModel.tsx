@@ -114,12 +114,12 @@ const AddMasterPricingItemModal = ({
         const response = await dispatch(
           createCategoryItem(payload)
         ).unwrap();
+         if (values.package_only) {
+           dispatch(addPackageItems(response));
+         }
       }
       message.success("Master Pricing Item added successfully");
       form.resetFields();
-      // if (values.package_only) {
-      //   dispatch(addPackageItems(response));
-      // }
       onClose();
     } catch (error) {
       setIsAddingItem(false);

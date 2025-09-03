@@ -260,16 +260,16 @@ function App() {
             />
           </div>
           {
-            (propertyFromSlice.address1 || propertyFromSlice.citySuburb || propertyFromSlice.stateRegion || propertyFromSlice.zipPostalCode) ? (
+            (propertyFromSlice?.address1 || propertyFromSlice?.citySuburb || propertyFromSlice?.stateRegion || propertyFromSlice?.zipPostalCode) ? (
               <>
                 <h2 className="font-semibold text-lg">
-                  {propertyFromSlice.address1 ?? ""}
+                  {propertyFromSlice?.address1 ?? ""}
                 </h2>
                 <p className="text-sm text-gray-600">
                   {[
-                    propertyFromSlice.citySuburb,
-                    propertyFromSlice.stateRegion,
-                    propertyFromSlice.zipPostalCode,
+                    propertyFromSlice?.citySuburb,
+                    propertyFromSlice?.stateRegion,
+                    propertyFromSlice?.zipPostalCode,
                   ]
                     .filter(Boolean)
                     .join(", ")}
@@ -279,17 +279,17 @@ function App() {
                   <p>
                     Title :{" "}
                     {propertyFromSlice?.titleDate
-                      ? dayjs(propertyFromSlice.titleDate).format("DD-MM-YYYY")
+                      ? dayjs(propertyFromSlice?.titleDate).format("DD-MM-YYYY")
                       : ""}
                   </p>
-                  <p>Type : {propertyFromSlice.landType ?? ""}</p>
+                  <p>Type : {propertyFromSlice?.landType ?? ""}</p>
                   <p>
-                    W: {propertyFromSlice.widthM || ""}
-                    {propertyFromSlice.widthM ? "m" : ""} D:{" "}
-                    {propertyFromSlice.depthM || ""}
-                    {propertyFromSlice.depthM ? "m" : ""} Total:{" "}
-                    {propertyFromSlice.totalSizeM2 || ""}
-                    {propertyFromSlice.totalSizeM2 ? " m²" : ""}
+                    W: {propertyFromSlice?.widthM || ""}
+                    {propertyFromSlice?.widthM ? "m" : ""} D:{" "}
+                    {propertyFromSlice?.depthM || ""}
+                    {propertyFromSlice?.depthM ? "m" : ""} Total:{" "}
+                    {propertyFromSlice?.totalSizeM2 || ""}
+                    {propertyFromSlice?.totalSizeM2 ? " m²" : ""}
                   </p>
                 </div>
               </>
@@ -314,7 +314,7 @@ function App() {
             </Link>
             <div className="max-h-[200px] my-2 overflow-y-auto">
                 <List
-                  dataSource={createdQuotations.quotations}
+                  dataSource={createdQuotations?.quotations}
                   locale={{
                     emptyText: (
                       <div className="flex flex-col items-center justify-center p-6">
@@ -325,12 +325,12 @@ function App() {
                     ),
                   }}
                   renderItem={(quotation: any) => (
-                    <List.Item key={quotation.quotation_id}>
+                    <List.Item key={quotation?.quotation_id}>
                       <Space size="middle">
-                        <Tooltip title={quotation.quotation_id}>
+                        <Tooltip title={quotation?.quotation_id}>
                           <Text type="secondary">{quotation?.quotation_id?.slice(0, 13)}</Text>
                         </Tooltip>
-                        <Tag color={quotation.lead_status === "Open" ? "blue" : "green"}>{quotation.lead_status}</Tag>
+                        <Tag color={quotation?.lead_status === "Open" ? "blue" : "green"}>{quotation?.lead_status}</Tag>
                         <Text>${quotation?.total_amount}</Text>
                       </Space>
                     </List.Item>
