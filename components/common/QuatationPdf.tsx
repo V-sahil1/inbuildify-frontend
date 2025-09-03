@@ -35,6 +35,16 @@ export const QuatationPdf = ({
   quotationAmount,
   items,
 }: QuatationPdfProps) => {
+
+  const nonPackageItems = items?.map(category => ({
+    ...category,
+    items: category.items.filter(item => !quotePackage?.categoryItemIds?.includes(item.categoryItemId))
+  }));
+
+  const packageItems = items?.map(category => ({
+    ...category,
+    items: category.items.filter(item => quotePackage?.categoryItemIds?.includes(item.categoryItemId))
+  }));
   const Footer = () => {
     return (
       <View style={styles.footerWrapper} fixed>
@@ -147,9 +157,6 @@ export const QuatationPdf = ({
       {/* Page 1: Introduction */}
       <PageLayout>
         <View style={Page1styles.page}>
-          {/* Title */}
-          <Text style={Page1styles.title}>Tender</Text>
-
           {/* Date */}
           <View style={Page1styles.row}>
             <Text style={Page1styles.label}>Date</Text>
@@ -352,68 +359,114 @@ export const QuatationPdf = ({
             ]}
           />
 
-          {
-            quotePackage?.categoryItemDescriptions?.length > 0 && (
-              <ListWithTitle
-                title="Package Details"
-                list={
-                  quotePackage?.categoryItemDescriptions?.map((item) => item) || []}
-              />
-            )
-          }
-        </View>
-        <View style={{ marginTop: 10 }}>
-          <Text style={Page3styles.SubHeading}>Items</Text>
-          {items.map((cat: any, catIndex: number) => (
-            <View key={catIndex} style={{ marginBottom: 15 }}>
-              {/* Category Header */}
-              <Text style={Page3styles.SubHeading}>
-                {cat.categoryName}
-              </Text>
-              {cat.description && (
-                <Text style={[Page3styles.description, { marginBottom: 15 }]}>
-                  {cat.description}
-                </Text>
-              )}
+          {quotePackage?.categoryItemIds?.length > 0 && (
+            <View style={{ marginTop: 15 }}>
+              <Text style={Page3styles.SubHeading}>Package Details</Text>
+              {/* Package name is now outside the table */}
+              <Text style={Page3styles.packageTitle}>{quotePackage?.name}</Text>
 
-              {/* Items Table */}
               <View style={ItemTable.table}>
-                {/* Table Header */}
+                {/* Header with two columns */}
                 <View style={[ItemTable.row, ItemTable.headerRow]}>
-                  <Text style={[ItemTable.cell, ItemTable.col40]}>Description</Text>
-                  <Text style={[ItemTable.cell, ItemTable.col15]}>Qty</Text>
-                  <Text style={[ItemTable.cell, ItemTable.col15]}>Price</Text>
-                  <Text style={[ItemTable.cell, ItemTable.col15]}>Total</Text>
+                  <Text style={[ItemTable.cell, ItemTable.col40]}>Item Name</Text>
+                  <Text style={[ItemTable.cell, ItemTable.col15, ItemTable.centerText]}>Quantity</Text>
                 </View>
 
-                {/* Rows */}
-                {cat.items.map((item: any, i: number) => (
-                  <View key={i} style={ItemTable.row}>
-                    <Text style={[ItemTable.cell, ItemTable.col40]}>
-                      {item.description || item.shortDescription || "-"}
-                    </Text>
-                    <Text style={[ItemTable.cell, ItemTable.col15]}>{item.quantity}</Text>
-                    <Text style={[ItemTable.cell, ItemTable.col15]}>
-                      ${Number(item.price).toLocaleString()}
-                    </Text>
-                    <Text style={[ItemTable.cell, ItemTable.col15]}>
-                      ${Number(item.total).toLocaleString()}
-                    </Text>
-                  </View>
-                ))}
+                {/* Rows with two columns */}
+                {packageItems
+                  .map((cat) => cat.items)
+                  .flat()
+                  .map((item, i) => (
+                    <View key={i} style={ItemTable.row}>
+                      <Text style={[ItemTable.cell, ItemTable.col40]}>{item.description}</Text>
+                      <Text style={[ItemTable.cell, ItemTable.col15, ItemTable.centerText]}>{item.quantity}</Text>
+                    </View>
+                  ))}
 
-                {/* Category Total */}
+                {/* Total row with two columns and a span */}
                 <View style={[ItemTable.row, ItemTable.totalRow]}>
-                  <Text style={[ItemTable.cell, ItemTable.col40]}>Subtotal</Text>
-                  <Text style={[ItemTable.cell, ItemTable.col15]} />
-                  <Text style={[ItemTable.cell, ItemTable.col15]} />
-                  <Text style={[ItemTable.cell, ItemTable.col15]}>
-                    ${Number(cat.categoryTotal).toLocaleString()}
+                  <Text
+                    style={[ItemTable.cell, ItemTable.col40, { borderRightWidth: 0 }]}
+                  >
+                    Package Amount
+                  </Text>
+                  {/* The amount will now span across the remaining width */}
+                  <Text
+                    style={[ItemTable.cell, ItemTable.col15, ItemTable.centerText, { borderLeftWidth: 1, borderRightWidth: 1 }]}
+                  >
+                    ${Number(quotePackage?.amount).toLocaleString()}
                   </Text>
                 </View>
               </View>
             </View>
+          )}
+        </View>
+
+
+        <View style={{ marginTop: 10 }}>
+          <Text style={Page3styles.SubHeading}>Quotation Items</Text>
+          {nonPackageItems?.map((cat: any, catIndex: number) => (
+            cat.items.length > 0 && (
+              <View key={catIndex} style={{ marginBottom: 15 }}>
+                <Text style={Page3styles.categoryHeading}>{cat.categoryName}</Text>
+                {cat.description && (
+                  <Text style={[Page3styles.description, { marginBottom: 15 }]}>
+                    {cat.description}
+                  </Text>
+                )}
+                <View style={ItemTable.table}>
+                  <View style={[ItemTable.row, ItemTable.headerRow]}>
+                    <Text style={[ItemTable.cell, ItemTable.col40]}>Description</Text>
+                    <Text style={[ItemTable.cell, ItemTable.col15]}>Qty</Text>
+                    <Text style={[ItemTable.cell, ItemTable.col15]}>Price</Text>
+                    <Text style={[ItemTable.cell, ItemTable.col15]}>Total</Text>
+                  </View>
+                  {cat.items.map((item: any, i: number) => (
+                    <View key={i} style={ItemTable.row}>
+                      <Text style={[ItemTable.cell, ItemTable.col40]}>
+                        {item.description || item.shortDescription || "-"}
+                      </Text>
+                      <Text style={[ItemTable.cell, ItemTable.col15]}>{item.quantity}</Text>
+                      <Text style={[ItemTable.cell, ItemTable.col15]}>
+                        ${Number(item.price).toLocaleString()}
+                      </Text>
+                      <Text style={[ItemTable.cell, ItemTable.col15]}>
+                        ${Number(item.price * item.quantity).toLocaleString()}
+                      </Text>
+                    </View>
+                  ))}
+                  <View style={[ItemTable.row, ItemTable.totalRow]}>
+                    <Text style={[ItemTable.cell, ItemTable.col40]}>Subtotal</Text>
+                    <Text style={[ItemTable.cell, ItemTable.col15]} />
+                    <Text style={[ItemTable.cell, ItemTable.col15]} />
+                    <Text style={[ItemTable.cell, ItemTable.col15]}>
+                      ${
+                        Number(cat.items.reduce((sum, item) => sum + item.price * item.quantity, 0))
+                      }
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            )
           ))}
+        </View>
+
+        {/* Final Total Section */}
+        <View style={finalTotalStyles.container}>
+          <Text style={finalTotalStyles.title}>Final Total Amount</Text>
+          <View style={finalTotalStyles.row}>
+            <Text style={finalTotalStyles.label}>Package Total:</Text>
+            <Text style={finalTotalStyles.value}>${Number(quotePackage?.amount).toLocaleString()}</Text>
+          </View>
+          <View style={finalTotalStyles.row}>
+            <Text style={finalTotalStyles.label}>Quotation Items Subtotal:</Text>
+            <Text style={finalTotalStyles.value}>${Number(nonPackageItems.reduce((sum, cat) => sum + cat.items.reduce((itemSum, item) => itemSum + item.price * item.quantity, 0), 0)).toLocaleString()}</Text>
+          </View>
+          <View style={finalTotalStyles.divider} />
+          <View style={finalTotalStyles.row}>
+            <Text style={finalTotalStyles.label}>Grand Total:</Text>
+            <Text style={finalTotalStyles.value}>${Number(quotationAmount).toLocaleString()}</Text>
+          </View>
         </View>
       </PageLayout>
 
@@ -1036,6 +1089,11 @@ const Page3styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 10,
   },
+  categoryHeading: {
+    fontSize: 12,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
   listItem: {
     flexDirection: "row",
     alignItems: "flex-start",
@@ -1055,6 +1113,13 @@ const Page3styles = StyleSheet.create({
     flex: 1,
     fontSize: 10,
     lineHeight: 1.5,
+  },
+  packageTitle: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    textAlign: 'left',
+    marginBottom: 5,
+    marginTop: 5,
   },
 });
 
@@ -1128,6 +1193,43 @@ const ItemTable = StyleSheet.create({
     borderRightWidth: 1,
     borderColor: "#000",
   },
+  centerText: {
+    textAlign: 'center',
+  },
   col40: { flex: 4 },
   col15: { flex: 1.5, textAlign: "right" },
+});
+
+const finalTotalStyles = StyleSheet.create({
+  container: {
+    padding: 3,
+    borderWidth: 1,
+    borderColor: '#000',
+    borderRadius: 5,
+    backgroundColor: '#F7F7F7',
+    fontSize: 12,
+  },
+  title: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    paddingBottom: 5,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 5,
+  },
+  label: {
+    fontWeight: 'bold',
+  },
+  value: {},
+  divider: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#000',
+    marginVertical: 5,
+  },
 });

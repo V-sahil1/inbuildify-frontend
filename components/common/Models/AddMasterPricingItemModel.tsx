@@ -195,6 +195,8 @@ const AddMasterPricingItemModal = ({
             rows={4}
             placeholder="Enter item description"
             style={{ width: "100%" }}
+            maxLength={1000}
+            showCount
           />
         </Form.Item>
 
@@ -207,6 +209,8 @@ const AddMasterPricingItemModal = ({
           <Input
             placeholder="Enter short description"
             style={{ width: "100%" }}
+            maxLength={500}
+            showCount
           />
         </Form.Item>
 
