@@ -92,34 +92,12 @@ const masterPriceListSlice = createSlice({
       //update item
       .addCase(updateCategoryItem.fulfilled, (state, action) => {
         const category = state.categories.find(
-          (c) => c.categoryId === action.payload.category_id
+          (c) => c.categoryId === action.payload.categoryId
         );
-        const updatedCategory = {
-          categoryItemId: action.payload.category_item_id,
-          builderId: action.payload.builder_id,
-          categoryId: action.payload.category_id,
-          description: action.payload.description,
-          shortDescription: action.payload.short_description,
-          costType: action.payload.cost_type,
-          cost: action.payload.cost,
-          costTypeText: action.payload.cost_type_text,
-          costOption: action.payload.cost_option,
-          includeByDefault: action.payload.include_by_default,
-          showInHlPackage: action.payload.show_in_hl_package,
-          packageOnly: action.payload.package_only,
-          uom: action.payload.uom,
-          sortOrder: action.payload.sort_order,
-          status: action.payload.status,
-          rangeName: action.payload.range_name,
-          dwellingTypeName: action.payload.dwelling_type_name,
-          createdAt: action.payload.created_at,
-          updatedAt: action.payload.updated_at,
-          conditions: action.payload.conditions,
-        };
         if (category) {
           category.items = category.items?.map((item) =>
-            item.categoryItemId === action.payload.category_item_id
-              ? updatedCategory
+            item.categoryItemId === action.payload.categoryItemId
+              ? action.payload
               : item
           );
         }

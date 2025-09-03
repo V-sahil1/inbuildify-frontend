@@ -127,7 +127,11 @@ export const MasterPriceList = () => {
                 {/* Add Item */}
                 <button
                   className="btn btn-primary"
-                  onClick={() => openAddItemModal(category.categoryId)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openAddItemModal(category.categoryId);
+                  }}
                 >
                   Add Item
                 </button>
