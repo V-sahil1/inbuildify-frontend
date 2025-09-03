@@ -40,6 +40,9 @@ const packageSlice = createSlice({
       state.addInstItemModal = action.payload;
     },
     addPackageItems: (state, action) => {
+      if(state.items === null){
+        state.items = [];
+      }
       state.items = [action.payload, ...state.items];
     },
   },
@@ -98,8 +101,8 @@ const packageSlice = createSlice({
       state.status.items = Status.PENDING;
     });
     builder.addCase(fetchPackageItems.fulfilled, (state, action) => {
-      state.status.items = Status.SUCCESS;
       state.items = action.payload;
+      state.status.items = Status.SUCCESS;
     });
     builder.addCase(fetchPackageItems.rejected, (state) => {
       state.status.items = Status.ERROR;
