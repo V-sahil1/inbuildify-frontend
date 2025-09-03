@@ -251,8 +251,8 @@ export const QuatationPdf = ({
               </Text>
 
               <Text style={Page2styles.paragraph}>
-                {floorPlan?.dwellingTypeName.replace("_", " ")} home with {floorPlan?.beds} bedrooms, {floorPlan?.bath} bathrooms, and {floorPlan?.carPark} car garage.
-                Total covered area approx. {floorPlan?.dwelling} Sq Mtr.
+                {floorPlan?.dwellingTypeName.replace("_", " ")} home with {floorPlan?.beds} bedrooms, {floorPlan?.bath} bathrooms, {floorPlan?.carPark} car parking and {floorPlan?.garage} garage.
+                Total covered area approx. {floorPlan?.totalSqft} Sq Mtr.
               </Text>
 
               <Text>
