@@ -55,7 +55,6 @@ const FacadeModal: React.FC<FacadeModalProps> = ({
                 formData.append("name", formValues.name);
                 formData.append("dwelling_type", formValues.dwelling_type);
                 formData.append("image", formValues.image.fileList[0].originFileObj);
-                // console.log(formValues.image.fileList[0].originFileObj)
                 formData.append("standard", formValues.standard || true);
                 formData.append("upgrade", formValues.upgrade || true);
                 setLoading(true);

@@ -111,6 +111,7 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
                 listType="picture"
                 multiple={false}
                 maxCount={1}
+                beforeUpload={() => false}
               >
                 <Button>
                   Click to Upload
