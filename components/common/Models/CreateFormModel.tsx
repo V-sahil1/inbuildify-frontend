@@ -67,9 +67,9 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
       if (isEditing) {
         form.setFieldsValue(initialValues);
       }
-      //  else {
-      //   form.resetFields();
-      // }
+       else {
+        form.resetFields();
+      }
     }
   }, [open, isEditing, initialValues, form]);
 
@@ -146,6 +146,7 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
                 listType="picture"
                 multiple={false}
                 maxCount={1}    
+                beforeUpload={() => false}   
                 defaultFileList={makeFileFromUrl(initialValues?.logo)}
               >
                 <Button>

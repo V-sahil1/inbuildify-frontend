@@ -67,7 +67,7 @@ const FloorPlan = () => {
       formData.append("porch", values.porch);
       formData.append("alfresco", values.alfresco);
       formData.append("total_sqft", values.total_sqft);
-      formData.append("image", values.image.file.originFileObj);
+      formData.append("image", values.image.fileList[0].originFileObj);
       await dispatch(createFloorPlan(formData))
         .unwrap()
         .then((response) => console.log(response))
