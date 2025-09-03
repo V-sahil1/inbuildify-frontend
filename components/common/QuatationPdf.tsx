@@ -252,7 +252,9 @@ export const QuatationPdf = ({
 
               <Text style={Page2styles.paragraph}>
                 {floorPlan?.dwellingTypeName.replace("_", " ")} home with {floorPlan?.beds} bedrooms, {floorPlan?.bath} bathrooms, {floorPlan?.carPark} car parking and {floorPlan?.garage} garage.
-                Total covered area approx. {floorPlan?.totalSqft} Sq Mtr.
+              </Text>
+              <Text style={Page2styles.paragraph}>
+                Total covered area approx. {Number(floorPlan?.totalSqft).toFixed(0)} Sq ft.
               </Text>
 
               <Text>
@@ -291,11 +293,11 @@ export const QuatationPdf = ({
           list={[
             `Name: ${leadDetail?.name}`,
             `Email: ${leadDetail?.email}`,
-            `Phone: ${leadDetail?.phone}`,
-            `Status: ${leadDetail?.status?.replace("_", " ")}`,
+            `Phone: +61 ${leadDetail?.phone}`,
+            // `Status: ${leadDetail?.status?.replace("_", " ")}`,
             `Lead Source: ${leadDetail?.lead_source}`,
-            `Created At: ${new Date(leadDetail?.created_at).toLocaleDateString()}`,
-            `Updated At: ${new Date(leadDetail?.updated_at).toLocaleDateString()}`
+            // `Created At: ${new Date(leadDetail?.created_at).toLocaleDateString()}`,
+            // `Updated At: ${new Date(leadDetail?.updated_at).toLocaleDateString()}`
           ]}
         />
 
@@ -331,7 +333,7 @@ export const QuatationPdf = ({
             `Alfresco: ${floorPlan?.alfresco} m²`,
             `Width: ${floorPlan?.widthMeter} m`,
             `Depth: ${floorPlan?.depthMeter} m`,
-            `Dwelling: ${floorPlan?.dwelling} m²`,
+            `Dwelling: ${floorPlan?.dwelling}`,
             `Total Area: ${floorPlan?.totalSqft} Sqft`
           ]}
         />
@@ -345,8 +347,8 @@ export const QuatationPdf = ({
               `Dwelling Type: ${facade?.dwellingTypeName?.replace("_", " ")}`,
               `Standard: ${facade?.standard ? "Yes" : "No"}`,
               `Upgrade: ${facade?.upgrade ? "Yes" : "No"}`,
-              `Created At: ${new Date(facade?.createdAt).toLocaleDateString()}`,
-              `Updated At: ${new Date(facade?.updatedAt).toLocaleDateString()}`
+              // `Created At: ${new Date(facade?.createdAt).toLocaleDateString()}`,
+              // `Updated At: ${new Date(facade?.updatedAt).toLocaleDateString()}`
             ]}
           />
 
@@ -850,7 +852,7 @@ export default QuatationPdf;
 const styles = StyleSheet.create({
   page: {
     paddingTop: 100, // Space for the header
-    paddingBottom: 80, // Space for the footer
+    paddingBottom: 40, // Space for the footer
     paddingHorizontal: 40,
     flexDirection: "column",
     backgroundColor: "#fff",
@@ -859,7 +861,7 @@ const styles = StyleSheet.create({
   header: {
     position: "absolute",
     top: 20,
-    left: 40,
+    left: 0,
     right: 40,
     flexDirection: "row",
     alignItems: "center",
