@@ -7,6 +7,7 @@ export interface ContractorResponse extends Array<{
   email: string
   phone: string
   address: string
+  service?: string
   builderId: string
   createdAt: any
   updatedAt: any
@@ -19,6 +20,7 @@ export interface Contractor {
   email: string
   phone: string
   address: string
+  service?: string
 }
 
 // Contractor Request Type (for create/update operations)
@@ -28,6 +30,7 @@ export interface ContractorRequest {
   email: string
   phone: string
   address: string
+  service?: string
 }
 
 // Contractor State Interface
@@ -42,4 +45,10 @@ export const initialState: IContractorState = {
   contractors: [],
   loading: false,
   error: null
+}
+
+export interface Service {
+  serviceId: string,
+  service: string,
+  builderId: string, 
 }
