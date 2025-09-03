@@ -22,6 +22,7 @@ interface QuatationPdfProps {
   quotePackage: Package;
   quotationAmount: number;
   floorPlan: IFloorPlanState;
+  items: any;
 }
 
 export const QuatationPdf = ({
@@ -32,6 +33,7 @@ export const QuatationPdf = ({
   floorPlan,
   facade,
   quotationAmount,
+  items,
 }: QuatationPdfProps) => {
   const Footer = () => {
     return (
@@ -357,6 +359,59 @@ export const QuatationPdf = ({
               />
             )
           }
+        </View>
+        <View style={{ marginTop: 10 }}>
+          <Text style={Page3styles.SubHeading}>Items</Text>
+          {items.map((cat: any, catIndex: number) => (
+            <View key={catIndex} style={{ marginBottom: 15 }}>
+              {/* Category Header */}
+              <Text style={Page3styles.SubHeading}>
+                {cat.categoryName}
+              </Text>
+              {cat.description && (
+                <Text style={[Page3styles.description, { marginBottom: 15 }]}>
+                  {cat.description}
+                </Text>
+              )}
+
+              {/* Items Table */}
+              <View style={ItemTable.table}>
+                {/* Table Header */}
+                <View style={[ItemTable.row, ItemTable.headerRow]}>
+                  <Text style={[ItemTable.cell, ItemTable.col40]}>Description</Text>
+                  <Text style={[ItemTable.cell, ItemTable.col15]}>Qty</Text>
+                  <Text style={[ItemTable.cell, ItemTable.col15]}>Price</Text>
+                  <Text style={[ItemTable.cell, ItemTable.col15]}>Total</Text>
+                </View>
+
+                {/* Rows */}
+                {cat.items.map((item: any, i: number) => (
+                  <View key={i} style={ItemTable.row}>
+                    <Text style={[ItemTable.cell, ItemTable.col40]}>
+                      {item.description || item.shortDescription || "-"}
+                    </Text>
+                    <Text style={[ItemTable.cell, ItemTable.col15]}>{item.quantity}</Text>
+                    <Text style={[ItemTable.cell, ItemTable.col15]}>
+                      ${Number(item.price).toLocaleString()}
+                    </Text>
+                    <Text style={[ItemTable.cell, ItemTable.col15]}>
+                      ${Number(item.total).toLocaleString()}
+                    </Text>
+                  </View>
+                ))}
+
+                {/* Category Total */}
+                <View style={[ItemTable.row, ItemTable.totalRow]}>
+                  <Text style={[ItemTable.cell, ItemTable.col40]}>Subtotal</Text>
+                  <Text style={[ItemTable.cell, ItemTable.col15]} />
+                  <Text style={[ItemTable.cell, ItemTable.col15]} />
+                  <Text style={[ItemTable.cell, ItemTable.col15]}>
+                    ${Number(cat.categoryTotal).toLocaleString()}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          ))}
         </View>
       </PageLayout>
 
@@ -1046,4 +1101,31 @@ const TenderAcceptanceStyles = StyleSheet.create({
     fontSize: 11,
     marginTop: 5,
   },
+});
+
+const ItemTable = StyleSheet.create({
+  table: {
+    borderWidth: 1,
+    borderColor: "#000",
+    marginBottom: 10,
+  },
+  row: {
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    borderColor: "#000",
+  },
+  headerRow: {
+    backgroundColor: "#f1f1f1",
+  },
+  totalRow: {
+    backgroundColor: "#e6f0ff",
+  },
+  cell: {
+    padding: 4,
+    fontSize: 9,
+    borderRightWidth: 1,
+    borderColor: "#000",
+  },
+  col40: { flex: 4 },
+  col15: { flex: 1.5, textAlign: "right" },
 });

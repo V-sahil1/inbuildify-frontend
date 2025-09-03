@@ -1,11 +1,8 @@
 import React from "react";
 import { Button, Space } from "antd";
 import {
-  IconDeviceFloppy,
   IconCheck,
-  IconMail,
   IconEye,
-  IconFileSearch,
 } from "@tabler/icons-react";
 
 interface FooterActionsProps {
@@ -14,6 +11,7 @@ interface FooterActionsProps {
   onApprove: () => void;
   onPreview: () => void;
   loading: boolean;
+  previewLoading: boolean;
   disableAction: boolean;
 }
 
@@ -23,6 +21,7 @@ const FooterActions: React.FC<FooterActionsProps> = ({
   onApprove,
   onPreview,
   loading,
+  previewLoading,
   disableAction
 }) => {
   return (
@@ -37,7 +36,7 @@ const FooterActions: React.FC<FooterActionsProps> = ({
             >
               Create Quotation
             </Button>
-            <Button icon={<IconEye />} onClick={onPreview} disabled={disableAction}>
+            <Button icon={<IconEye />} onClick={onPreview} disabled={disableAction || previewLoading} loading={previewLoading}>
               Preview
             </Button>
           </Space>
