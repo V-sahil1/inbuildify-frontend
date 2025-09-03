@@ -19,7 +19,7 @@ export default function WelcomeHeader({
   const { user } = useAppSelector((state) => state.auth);
 
   return (
-    <div className="flex md:items-center md:justify-between md:flex-row flex-col gap-15 md:mb-12 mb-6">
+    <div className="flex md:items-center md:justify-between md:flex-row flex-col gap-15 mb-6">
       <div>
         <p className="text-[20px]/[24px] font-black mb-1">
           Welcome back, {user?.name}!

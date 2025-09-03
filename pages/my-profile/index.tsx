@@ -101,9 +101,9 @@ export default function MyProfile() {
                 <h2 className="text-[24px]/[30px] font-light flex gap-2 items-center md:justify-start justify-center">
                   Personal Details
                 </h2>
-                <p>Name: {user.name}</p>
-                <p>Email: {user.email}</p>
-                <p>Phone Number: {user.phoneNumber}</p>
+                <p>Name: {user?.name}</p>
+                <p>Email: {user?.email}</p>
+                <p>Phone Number: {user?.phoneNumber}</p>
               </div>
             </div>
           </div>

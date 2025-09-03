@@ -76,10 +76,10 @@ function transformDashboardData(input: InputData) {
   ];
 
   const data = [
-    input?.contractorData,
-    input?.customerData,
-    input?.usersData,
-    input?.leadData,
+    input?.contractorData.slice(0,0),
+    input?.customerData.slice(0,0),
+    input?.usersData.slice(0,0),
+    input?.leadData.slice(0,0),
   ];
 
   return { countData, data };
@@ -180,7 +180,7 @@ export default function Analysis() {
             </div>
           ))}
         </div>
-        <div className="text-[20px]/[24px] font-black mb-12 mt-6">
+        <div className="text-[20px]/[24px] font-black mb-6 mt-6">
           Recent Activities
         </div>
         <div>

@@ -125,7 +125,8 @@ export const leadSlice = createSlice({
             if (lead.lead_id === action.payload.payload.leadId) {
               return {
                 ...lead,
-                status: action.payload.payload.status,
+                status: action.payload.payload.status === "WON" ? "JOB" : "CANCELLED",
+                updated_at: new Date().toISOString(),
               };
             }
             return lead;
