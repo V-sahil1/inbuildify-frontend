@@ -76,7 +76,7 @@ const FacadeModal: React.FC<FacadeModalProps> = ({
         <Modal
             title={
                 <div className="bg-blue-500 text-white p-2 rounded">
-                    <Title level={4} className="text-white mb-0">
+                    <Title level={4}>
                         Facade
                     </Title>
                 </div>
@@ -88,7 +88,7 @@ const FacadeModal: React.FC<FacadeModalProps> = ({
             footer={[
                 <Button key="cancel" onClick={onCancel}>
                     Cancel
-                </Button>,
+                </Button>, 
                 <Button key="save" type="primary" onClick={handleSave} loading={loading}>
                     Save
                 </Button>,

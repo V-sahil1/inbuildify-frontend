@@ -29,7 +29,7 @@ const theme = {
     },
     InputNumber: {
       colorBgContainer: "var(--card-bg-primary)",
-      colorText: "var(--text-primary)",
+      colorText: "var(--font-color)",
       colorTextPlaceholder: "var(--text-secondary)",
       colorBorder: "var(--border-color)",
       activeBorderColor: "var(--primary-color)",
@@ -98,6 +98,7 @@ const theme = {
       headerColor: "var(--font-color)",
       footerBg: "var(--card-color)",
       titleColor: "var(--font-color)",
+      titleFontSize: 24,
       colorText: "var(--font-color)",
       colorIcon: "var(--font-color)",
       colorIconHover: "var(--primary)",
@@ -136,6 +137,16 @@ const theme = {
       itemHeight: 40,
       itemPaddingInline: 12,
       fontSize: 14,
+    },
+    Tabs: {
+      colorText: "var(--font-color)",
+      inkBarColor: "var(--primary)",
+      itemHoverColor: "var(--primary)",
+      itemSelectedColor: "var(--primary)",
+      itemActiveColor: "var(--primary)",
+    },
+    Typography: {
+      colorTextHeading: "var(--font-color)",
     },
   },
 };

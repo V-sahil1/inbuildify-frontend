@@ -49,7 +49,7 @@ const AvailablePlansTab: React.FC<AvailablePlansTabProps> = ({
         {/* Floor Plan Details */}
         {selectedPlan && (
           <div className="mt-6">
-            <Title level={5} className="text-gray-600 mb-4">
+            <Title level={5}>
               Floor Plan Details
             </Title>
             <PlanDetailsGrid details={selectedPlan} />
@@ -59,9 +59,9 @@ const AvailablePlansTab: React.FC<AvailablePlansTabProps> = ({
 
       {/* Right side - Selected floor plan image */}
       {selectedPlan && (
-        <div className="pl-4 border-l border-gray-200">
+        <div className="pl-4 border-l border-gray-200 w-2/4">
           <div className="text-center mb-4">
-            <Title level={4} className="text-gray-700">
+            <Title level={4}>
               {selectedPlan.name}
             </Title>
             <div className="text-sm text-gray-500">
@@ -72,7 +72,7 @@ const AvailablePlansTab: React.FC<AvailablePlansTabProps> = ({
             <img
               src={selectedPlan.image}
               alt={selectedPlan.name}
-              className="w-full h-64 object-cover rounded"
+              className="size-full rounded"
             />
           </div>
         </div>

@@ -92,7 +92,7 @@ const PackageModal: React.FC<PackageModalProps> = ({
               {packages?.map((pkg) => (
                 <div
                   key={pkg.packageId}
-                  className={`p-4 cursor-pointer transition-colors ${
+                  className={`p-4 cursor-pointer transition-colors hover:bg-body-color ${
                     tempSelectedPackage?.packageId === pkg.packageId
                       ? "bg-blue-50"
                       : ""

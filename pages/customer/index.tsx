@@ -272,6 +272,7 @@ const CustomerPage = () => {
           fields={[...customerCreateFields, {
             name: "email",
             label: "Email",
+            placeholder:"jon@example.com",
             rules: emailRules,
             disabled: isEditing
 

@@ -26,11 +26,11 @@ export const MasterPriceList = () => {
     (state: any) => state.masterPriceList
   );
   // console.log(categories);
-    useEffect(() => {
+  useEffect(() => {
         if(status === Status.IDLE){
-          dispatch(fetchCategories());
-        }
-    }, [dispatch]);
+      dispatch(fetchCategories());
+    }
+  }, [dispatch]);
 
   const [addItemModal, setAddItemModal] = useState(false);
   const [categoryId, setCategoryId] = useState("");
@@ -54,9 +54,9 @@ export const MasterPriceList = () => {
     if (!isExpanded) {
       try {
         setLoadingItems((prev) => ({ ...prev, [categoryId]: true }));
-    
+
         dispatch(toggleExpand(categoryId));
-    
+
         await dispatch(
           fetchCategoryItems({
             categoryId,
@@ -103,26 +103,26 @@ export const MasterPriceList = () => {
           <Spin size="large" />
         </div>
       ) : categories.length > 0 ? (
-      <div>
-        {categories.map((category: Category) => {
-          const isDropdownOpen = dropDowns[category.categoryId] || false;
-          const isLoading = loadingItems[category.categoryId] || false; 
+        <div>
+          {categories.map((category: Category) => {
+            const isDropdownOpen = dropDowns[category.categoryId] || false;
+            const isLoading = loadingItems[category.categoryId] || false;
 
-          return (
-            <div key={category.categoryId} className="mb-4">
-              <div
-                className="flex items-center justify-between cursor-pointer"
+            return (
+              <div key={category.categoryId} className="mb-4">
+                <div
+                  className="flex items-center justify-between cursor-pointer"
                   onClick={() =>
                     handleExpand(category.categoryId, category.isExpanded)
                   }
                 >
-                {/* Expand/Collapse Button */}
-                <div className="flex items-center gap-2">
-                  <button>
-                    {isDropdownOpen ? <IconChevronUp /> : <IconChevronDown />}
-                  </button>
-                  <h3 className="text-[19px] font-bold">{category.name}</h3>
-                </div>
+                  {/* Expand/Collapse Button */}
+                  <div className="flex items-center gap-2">
+                    <button>
+                      {isDropdownOpen ? <IconChevronUp /> : <IconChevronDown />}
+                    </button>
+                    <h3 className="text-[19px] font-bold">{category.name}</h3>
+                  </div>
 
                 {/* Add Item */}
                 <button

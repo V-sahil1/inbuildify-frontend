@@ -234,6 +234,7 @@ const UserPage = () => {
               name: "role",
               rules: roleRules,
               type: "select",
+              placeholder: "Select Role",
               disabled: isEditing,
               options: Roles,
             },

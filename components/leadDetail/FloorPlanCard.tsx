@@ -29,7 +29,7 @@ const FloorPlanCard: React.FC<FloorPlanCardProps> = ({
           alt={plan.name}
           className="w-full h-16 object-cover rounded mb-2"
         />
-        <div className="text-xs font-medium text-gray-700">{plan.name}</div>
+        <div className="text-xs font-medium text-font-color-100">{plan.name}</div>
       </div>
     </Card>
   );
