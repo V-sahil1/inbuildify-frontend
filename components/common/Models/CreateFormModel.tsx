@@ -66,9 +66,10 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
     if (open) {
       if (isEditing) {
         form.setFieldsValue(initialValues);
-      } else {
-        form.resetFields();
       }
+      //  else {
+      //   form.resetFields();
+      // }
     }
   }, [open, isEditing, initialValues, form]);
 
