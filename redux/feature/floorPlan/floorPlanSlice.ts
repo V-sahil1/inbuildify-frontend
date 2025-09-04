@@ -1,5 +1,5 @@
 import { createSlice,  } from "@reduxjs/toolkit";
-import { createFloorPlan, fetchFloorPlans, getConditions, getFloorPlanFilters } from "./floorPlanThunk";
+import { createFloorPlan, deleteFloorPlan, fetchFloorPlans, getConditions, getFloorPlanFilters, updateFloorPlan } from "./floorPlanThunk";
 import { Status } from "@lib/constants/enum";
 import { IFloorPlanState } from "./IFloorPlanState";
 
@@ -42,6 +42,16 @@ const floorPlanSlice = createSlice({
       .addCase(getConditions.fulfilled, (state, action) => {
         state.status.conditions = Status.SUCCESS;
         state.filters = {...state.filters, conditions: action.payload};
+      })
+      .addCase(updateFloorPlan.fulfilled, (state, action) => {
+        state.floorPlans = state.floorPlans.map((floorPlan) =>
+          floorPlan.floorPlanId === action.payload.floorPlanId ? action.payload : floorPlan
+        );
+      })
+      .addCase(deleteFloorPlan.fulfilled, (state, action) => {
+        state.floorPlans = state.floorPlans.filter(
+          (floorPlan) => floorPlan.floorPlanId !== action.payload
+        );
       })
   },
 });

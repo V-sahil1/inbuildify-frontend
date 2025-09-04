@@ -50,6 +50,30 @@ export const createFloorPlan = createAsyncThunk(
     }
   );
 
+  export const updateFloorPlan = createAsyncThunk(
+    "floorPlans/update",
+    async (payload: {data: FormData, floorPlanId: string}, { rejectWithValue }) => {
+        try {
+            const res = await apiWithFormDataMethods.put<ApiResponse<any>>(`${API_ENDPOINTS.FLOOR_PLAN_BASE}/${payload.floorPlanId}`, payload.data);
+            return res.data;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+  );
+
+  export const deleteFloorPlan = createAsyncThunk(
+    "floorPlans/delete",
+    async (payload: string, { rejectWithValue }) => {
+        try {
+            const res = await api.delete<ApiResponse<any>>(`${API_ENDPOINTS.FLOOR_PLAN_BASE}/${payload}`);
+            return payload;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+  );
+
   export const getFloorPlanFilters = createAsyncThunk(
     "floorPlans/filters",
     async () => {
@@ -73,3 +97,4 @@ export const getConditions = createAsyncThunk(
         }
     }
 );
+

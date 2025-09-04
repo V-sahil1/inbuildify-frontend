@@ -19,6 +19,7 @@ export const facadeFields = (): CreateFormField[] => {
       label: "Image",
       name: "image",
       type: "image",
+      rules: [{ required: true, message: "Please upload image" }],
     },
     {
       label: "Dwelling Type",
@@ -33,12 +34,14 @@ export const facadeFields = (): CreateFormField[] => {
       name: "standard",
       type: "checkbox",
       placeholder: "1",
+      rules: [{ required: true, message: "Please select a dwelling type" }],
     },
     {
       label: "Upgrade",
       name: "upgrade",
       type: "checkbox",
       placeholder: "1",
+      rules: [{ required: true, message: "Please select a dwelling type" }],
     },
   ];
 }

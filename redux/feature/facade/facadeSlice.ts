@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { IFacadeState } from "./IFacadeState";
 import { Status } from "@lib/constants/enum";
-import { createFacade, getFacades } from "./facadeThunk";
+import { createFacade, deleteFacade, getFacades, updateFacade } from "./facadeThunk";
 
 export const facadeSlice = createSlice({
     name: "facade",
@@ -32,6 +32,17 @@ export const facadeSlice = createSlice({
         builder.addCase(createFacade.fulfilled, (state, action) => {
             state.facades.unshift(action.payload);
         });
+        builder.addCase(updateFacade.fulfilled, (state, action) => {
+            state.facades = state.facades.map((facade) =>
+                facade.facadeId === action.payload.facadeId ? action.payload : facade
+            );
+        })
+        builder.addCase(deleteFacade.fulfilled, (state, action) => {
+            console.log(action.payload)
+            state.facades = state.facades.filter(
+                (facade) => facade.facadeId !== action.payload
+            );
+        })
     }
 })
 

@@ -30,3 +30,22 @@ export const createFacade = createAsyncThunk("facade/create", async (payload: Fo
         return rejectWithValue(error.message);
     }
 })
+
+export const updateFacade = createAsyncThunk("facade/update", async (payload: {data: FormData, facadeId: string}, { rejectWithValue }) => {
+    try {
+        const res = await apiWithFormDataMethods.put<ApiResponse<IFacadeState>>(`${API_ENDPOINTS.FACADE_BASE}/${payload.facadeId}`, payload.data);
+        return res.data;
+    } catch (error) {
+        return rejectWithValue(error.message);
+    }
+})
+
+export const deleteFacade = createAsyncThunk("facade/delete", async (payload: string, { rejectWithValue }) => {
+    try {
+        const res = await api.delete<ApiResponse<IFacadeState>>(`${API_ENDPOINTS.FACADE_BASE}/${payload}`);
+        return payload;
+    } catch (error) {
+        return rejectWithValue(error.message);
+    }
+})
+

@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import { IFloorPlanState } from "@redux/feature/floorPlan/IFloorPlanState";
 import {
   createFloorPlan,
+  deleteFloorPlan,
   fetchFloorPlans,
   getFloorPlanFilters,
+  updateFloorPlan,
 } from "@redux/feature/floorPlan/floorPlanThunk";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import Image from "next/image";
@@ -12,30 +14,37 @@ import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
 import { floorPlanFields } from "@/components/formFields/floorPlanFields";
 import { Status } from "@lib/constants/enum";
 import { RootState } from "@redux/feature/store";
+import { IconEdit, IconTrash } from "@tabler/icons-react";
+import ConfirmationModal from "@/components/common/ConfirmationModal";
 
 const FloorPlan = () => {
   const dispatch = useAppDispatch();
   const floorPlans = useAppSelector(
     (state: RootState) => state.floorPlan.floorPlans
   );
+  const [editingFloorPlan, setEditingFloorPlan] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const status = useAppSelector((state: RootState) => state.floorPlan.status);
   const filters = useAppSelector((state: RootState) => state.floorPlan.filters);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [floorPlanId, setFloorPlanId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchFloorPlansData = async () => {
       try {
         await dispatch(fetchFloorPlans(undefined)).unwrap();
       } catch (error) {
-        message.error(error || 'Failed to fetch Floor Plans');
+        message.error(error || "Failed to fetch Floor Plans");
       }
     };
     const fetchFiltersData = async () => {
       try {
         await dispatch(getFloorPlanFilters()).unwrap();
       } catch (error) {
-        message.error(error || 'Failed to fetch Floor Plan Filters');
+        message.error(error || "Failed to fetch Floor Plan Filters");
       }
     };
     if (status?.floorPlan === Status.IDLE) {
@@ -67,17 +76,69 @@ const FloorPlan = () => {
       formData.append("porch", values.porch);
       formData.append("alfresco", values.alfresco);
       formData.append("total_sqft", values.total_sqft);
+      if (values.image && typeof values.image === "object") {
       formData.append("image", values.image.fileList[0].originFileObj);
+      }
+      if (isEditing) {
+        const response = await dispatch(
+          updateFloorPlan({
+            data: formData,
+            floorPlanId: editingFloorPlan.floorPlanId,
+          })
+        ).unwrap();
+        console.log(response);
+        setIsModalVisible(false);
+        message.success("Floor Plan updated successfully");
+      } else {
       await dispatch(createFloorPlan(formData))
-        .unwrap()
+        .unwrap();
       setIsModalVisible(false);
       message.success("Floor Plan created successfully");
+    }
     } catch (error) {
-      message.error(error || 'Failed to create Floor Plan')
+      message.error(error || "Failed to create Floor Plan");
     } finally {
       setLoading(false);
     }
   };
+
+  const handleEdit = (floorPlan: IFloorPlanState) => {
+    console.log(floorPlan);
+    setIsEditing(true);
+    const mappedFloorPlan = {
+      floorPlanId: floorPlan.floorPlanId,
+      name: floorPlan.name,
+      logo: floorPlan.image,
+      range: floorPlan.rangeName,
+      dwelling_type: floorPlan.dwellingTypeName,
+      beds: floorPlan.beds,
+      bath: floorPlan.bath,
+      car_park: floorPlan.carPark,
+      width_meter: floorPlan.widthMeter,
+      depth_meter: floorPlan.depthMeter,
+      dwelling: floorPlan.dwelling,
+      garage: floorPlan.garage,
+      porch: floorPlan.porch,
+      alfresco: floorPlan.alfresco,
+      total_sqft: floorPlan.totalSqft,
+    };
+    setEditingFloorPlan(mappedFloorPlan);
+    setIsModalVisible(true);
+  };
+
+  const handleDelete = async (floorPlanId: string) => {
+    try {
+      setIsDeleting(true);
+      await dispatch(deleteFloorPlan(floorPlanId)).unwrap();
+      message.success("Floor Plan deleted successfully");
+    } catch (error) {
+      message.error(error || "Failed to delete Floor Plan");
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteConfirm(false);
+    }
+  };
+
   return (
     <div className="mt-4 ">
       <div className="flex items-center justify-between mb-4 ">
@@ -91,15 +152,39 @@ const FloorPlan = () => {
           Create Floor Plan
         </button>
       </div>
-      {status.floorPlan == Status.PENDING ? 
-        (<div className="flex justify-center items-center pt-[20vh]">
-                  <Spin size="large" />
-       </div>) 
-        :
-         floorPlans.length > 0 ? 
+      {status.floorPlan == Status.PENDING ? (
+        <div className="flex justify-center items-center pt-[20vh]">
+          <Spin size="large" />
+        </div>
+      ) : floorPlans.length > 0 ? (
          <div className="grid grid-cols-1 md:grid-cols-2  gap-4 ">
         {floorPlans?.map((floorPlan: IFloorPlanState) => (
-          <div className="card bg-card-color p-4 rounded-xl flex flex-col items-center border border-border-color">
+          <div
+            key={floorPlan.floorPlanId}
+            className="card bg-card-color p-4 rounded-xl flex flex-col items-center border border-border-color relative group"
+          >
+            {/* Hover overlay with blur effect */}
+            <div className="absolute inset-0 bg-black-50 bg-opacity-50 backdrop-blur-sm rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4 z-10">
+              <button
+                className="p-2 bg-white bg-opacity-80 text-black rounded-full hover:bg-opacity-100 transition-all duration-200"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleEdit(floorPlan);
+                }}
+              >
+                <IconEdit />
+              </button>
+              <button
+                className="p-2 bg-white bg-opacity-80 rounded-full hover:bg-opacity-100 transition-all duration-200"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowDeleteConfirm(true);
+                  setFloorPlanId(floorPlan.floorPlanId);
+                }}
+              >
+                <IconTrash className="text-red-600" />
+              </button>
+            </div>
             <Image
               src={floorPlan?.image || "/placeholder.png"} // make sure placeholder.png exists in /public
               alt={floorPlan?.name || "Floor Plan"}
@@ -179,24 +264,43 @@ const FloorPlan = () => {
             </div>
           </div>
         ))}
-      
       </div>
-        :
-         <Empty description={
-            <span className="text-gray-500">No floor plan found. Create your first floor plan to get started.</span>
+      ) : (
+        <Empty
+          description={
+            <span className="text-gray-500">
+              No floor plan found. Create your first floor plan to get started.
+            </span>
           }
           className="py-12"
         />
-      }
+      )}
         <CreateFormModal
           title="Floor Plan"
           open={isModalVisible}
-          onCancel={() => setIsModalVisible(false)}
-          onSubmit={handleCreateFloorPlan}
-          fields={floorPlanFields()}
-          loading={loading}
-        />
-      
+        isEditing={isEditing}
+        initialValues={editingFloorPlan}
+        onCancel={() => {
+          setIsModalVisible(false);
+          setIsEditing(false);
+          setEditingFloorPlan(null);
+        }}
+        onSubmit={handleCreateFloorPlan}
+        fields={floorPlanFields()}
+        loading={loading}
+      />
+
+      <ConfirmationModal
+        open={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={() => handleDelete(floorPlanId)}
+        message="Are you sure you want to delete this facade?"
+        type="danger"
+        confirmText="Delete"
+        cancelText="Cancel"
+        loading={isDeleting}
+        maxWidth="sm"
+      />
     </div>
   );
 };
