@@ -1,5 +1,5 @@
-import React from "react";
-import { Card } from "antd";
+import React, { useState } from "react";
+import { Card, Pagination } from "antd";
 import Image from "next/image";
 
 interface AvailableFacadesTabProps {
@@ -7,12 +7,14 @@ interface AvailableFacadesTabProps {
   selectedFacade: any;
   onSelect: (facade: any) => void;
 }
+const PAGE_SIZE = 6;
 
 const AvailableFacadesTab: React.FC<AvailableFacadesTabProps> = ({
   facades,
   selectedFacade,
   onSelect,
 }) => {
+  const [currentPage, setCurrentPage] = useState(1);
   if (!facades?.length) {
     return (
       <div className="text-gray-500 text-center py-8">
@@ -20,40 +22,62 @@ const AvailableFacadesTab: React.FC<AvailableFacadesTabProps> = ({
       </div>
     );
   }
+  const startIndex = (currentPage - 1) * PAGE_SIZE;
+  const endIndex = startIndex + PAGE_SIZE;
+  const currentFacades = facades.slice(startIndex, endIndex);
 
   return (
     <div className="flex flex-col md:flex-row gap-6 h-full">
       {/* Left side: Facade list */}
-      <div className="w-full md:w-2/3">
+      <div className="w-full md:w-2/3 flex flex-col">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[calc(100vh-300px)] overflow-y-auto pr-2">
-          {facades?.map((facade) => (
+          {currentFacades.map((facade) => (
             <div key={facade.id} className="h-full">
               <Card
                 hoverable
                 onClick={() => onSelect(facade)}
-                className={`h-full flex flex-col cursor-pointer transition-all ${
-                  selectedFacade?.id === facade.id 
-                    ? "border-blue-500 border-2 shadow-lg" 
-                    : "hover:shadow-md"
-                }`}
+                className={`h-full flex flex-col cursor-pointer transition-all ${selectedFacade?.id === facade.id
+                  ? "border-blue-500 border-2 shadow-lg"
+                  : "hover:shadow-md"
+                  }`}
                 cover={
                   <div className="relative h-40 w-full">
-                    <img
-                      src={facade.image || './images/no_image_found.png'}
-                      alt={facade.name}
-                      className="h-full w-full object-cover rounded-t"
+                    <Image
+                      src={facade.image || "/images/no_image_found.png"}
+                      alt={facade.name || "Facade"}
+                      fill
+                      loading="lazy"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="object-cover rounded-t"
+                      placeholder="blur"
+                      blurDataURL="/images/blur-placeholder.png"
                     />
                   </div>
                 }
               >
-                <Card.Meta 
-                  title={facade.name} 
+                <Card.Meta
+                  title={facade.name}
                   className="flex-grow"
                 />
               </Card>
             </div>
           ))}
         </div>
+
+        {
+          facades.length > PAGE_SIZE && (
+            <div className="flex justify-center mt-4">
+              <Pagination
+                current={currentPage}
+                pageSize={PAGE_SIZE}
+                size="small"
+                total={facades.length}
+                onChange={(page) => setCurrentPage(page)}
+                showSizeChanger={false}
+              />
+            </div>
+          )
+        }
       </div>
 
       {/* Right side: Selected preview */}
@@ -65,11 +89,14 @@ const AvailableFacadesTab: React.FC<AvailableFacadesTabProps> = ({
               cover={
                 <div className="relative w-full pt-[100%]">
                   <Image
-                    src={selectedFacade.image || './images/no_image_found.png'}
-                    alt={selectedFacade.name}
+                    src={selectedFacade.image || "/images/no_image_found.png"}
+                    alt={selectedFacade.name || "Facade"}
                     fill
+                    loading="lazy"
                     className="object-cover rounded-t"
                     sizes="(max-width: 768px) 100vw, 33vw"
+                    placeholder="blur"
+                    blurDataURL="/images/blur-placeholder.png"
                   />
                 </div>
               }
