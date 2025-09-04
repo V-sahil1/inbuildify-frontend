@@ -61,12 +61,17 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
   fields,
 }) => {
   const [form] = Form.useForm();
+  const [logo, setLogo] = React.useState<boolean>(true);
 
   useEffect(() => {
     if (open) {
       if (isEditing && initialValues) {
-        form.resetFields();
-        form.setFieldsValue(initialValues);
+        const values = { ...initialValues };
+        // Set initial file list if logo exists
+        if (initialValues.logo) {
+          values[fields.find(f => f.type === 'image')?.name || 'logo'] = makeFileFromUrl(initialValues.logo);
+        }
+        form.setFieldsValue(values);
       } else if (!isEditing) {
         form.resetFields();
       }
@@ -76,9 +81,19 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
   const handleOk = async () => {
     try {
       const values = await form.validateFields();
+      
+      // Clean up image value if it's just the preview
+      if (values.image && values.image.length > 0) {
+        const imageField = values.image[0];
+        if (imageField.status === 'done' && imageField.url && !imageField.originFileObj) {
+          // This is just a preview, not a new upload
+          delete values.image;
+        }
+      }
+      
       onSubmit(values);
     } catch (err) {
-      message.error("Please fill all the required fields");
+      // console.error('Validation failed:', err);
     }
   };
 
@@ -141,18 +156,32 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
                 <Radio value="FALSE">No</Radio>
               </Radio.Group>
             ) : field.type === "image" ? (
-               <Upload
+              <Form.Item
+                name={field.name}
+                valuePropName="fileList"
+                getValueFromEvent={({ fileList }) => fileList}
+                rules={[
+                  {
+                    validator: (_, value) => {
+                      if (field.rules?.some(r => 'required' in r && r.required) && (!value || value.length === 0)) {
+                        // return Promise.reject(new Error('Image is required'));
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
+                noStyle
+              >
+              <Upload
                 name="image"
                 listType="picture"
                 multiple={false}
-                maxCount={1}    
-                beforeUpload={() => false}   
-                defaultFileList={makeFileFromUrl(initialValues?.logo)}
+                maxCount={1}
+                beforeUpload={() => false}
               >
-                <Button>
-                  Click to Upload
-                </Button>
-              </Upload>
+                <Button>Click to Upload</Button>
+                </Upload>
+              </Form.Item>
             ) : (
               <Input
                 placeholder={field.placeholder}

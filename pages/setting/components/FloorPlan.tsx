@@ -76,8 +76,8 @@ const FloorPlan = () => {
       formData.append("porch", values.porch);
       formData.append("alfresco", values.alfresco);
       formData.append("total_sqft", values.total_sqft);
-      if (values.image && typeof values.image === "object") {
-      formData.append("image", values.image.fileList[0].originFileObj);
+    if (values?.image?.length > 0) {
+      formData.append("image", values?.image[0]?.originFileObj);
       }
       if (isEditing) {
         const response = await dispatch(
@@ -86,12 +86,10 @@ const FloorPlan = () => {
             floorPlanId: editingFloorPlan.floorPlanId,
           })
         ).unwrap();
-        console.log(response);
         setIsModalVisible(false);
         message.success("Floor Plan updated successfully");
       } else {
-      await dispatch(createFloorPlan(formData))
-        .unwrap();
+      await dispatch(createFloorPlan(formData)).unwrap();
       setIsModalVisible(false);
       message.success("Floor Plan created successfully");
     }
@@ -103,7 +101,6 @@ const FloorPlan = () => {
   };
 
   const handleEdit = (floorPlan: IFloorPlanState) => {
-    console.log(floorPlan);
     setIsEditing(true);
     const mappedFloorPlan = {
       floorPlanId: floorPlan.floorPlanId,
@@ -157,7 +154,7 @@ const FloorPlan = () => {
           <Spin size="large" />
         </div>
       ) : floorPlans.length > 0 ? (
-         <div className="grid grid-cols-1 md:grid-cols-2  gap-4 ">
+        <div className="grid grid-cols-1 md:grid-cols-2  gap-4 ">
         {floorPlans?.map((floorPlan: IFloorPlanState) => (
           <div
             key={floorPlan.floorPlanId}

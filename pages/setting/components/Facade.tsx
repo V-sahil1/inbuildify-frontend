@@ -58,16 +58,16 @@ const Facade = () => {
       const formData = new FormData();
       formData.append("name", values.name);
       formData.append("dwelling_type", values.dwelling_type);
-    if (values.image && typeof values.image === "object") {
-      formData.append("image", values.image.fileList[0].originFileObj);
+
+      if (values?.image?.length > 0 && values.image[0]?.originFileObj) {
+        formData.append("image", values.image[0].originFileObj);
     }
+      
       formData.append("standard", values.standard || true);
       formData.append("upgrade", values.upgrade || true);
    
     if (isEditing) {
-      await dispatch(
-        updateFacade({ data: formData, facadeId: editingFacade.facadeId })
-      ).unwrap();
+        await dispatch(updateFacade({ data: formData, facadeId: editingFacade.facadeId })).unwrap();
       setIsModalVisible(false);
       message.success("Facade updated successfully");
     } else {
