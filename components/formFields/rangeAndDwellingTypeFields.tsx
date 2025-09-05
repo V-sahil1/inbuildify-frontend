@@ -1,17 +1,16 @@
-import React from "react";
+import { CreateFormField } from "@/components/common/Models/CreateFormModel";
 
-const rangeAndDwellingTypeFields = (activeTab: string) => {
+const rangeAndDwellingTypeFields = (): CreateFormField[] => {
   return [
     {
-      label: activeTab === "range" ? "Range Name" : "Dwelling Type Name",
+      label: "Name",
       name: "name",
-      type: "text" as const, // Use 'as const' to ensure type literal
+      type: "text",
+      placeholder: "Enter name",
       rules: [
         {
           required: true,
-          message: `Please enter ${
-            activeTab === "range" ? "range" : "dwelling type"
-          } name`,
+          message: "Please enter name",
         },
       ],
     },

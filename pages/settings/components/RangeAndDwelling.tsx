@@ -7,77 +7,73 @@ import {
   createRange,
   deleteDwellingType,
   deleteRange,
-  getFloorPlanFilters,
+  getDwellingTypes,
+  getRanges,
   updateDwellingType,
   updateRange,
-} from "@redux/feature/floorPlan/floorPlanThunk";
+} from "@redux/feature/types/typesThunk";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import ConfirmationModal from "@/components/common/ConfirmationModal";
 import rangeAndDwellingTypeFields from "@/components/formFields/rangeAndDwellingTypeFields";
-
-type ItemType = {
-  id: string;
-  name: string;
-};
+import { Status } from "@lib/constants/enum";
 
 const RangeAndDwelling = () => {
   const dispatch = useAppDispatch();
-  const { filters } = useAppSelector((state) => state.floorPlan);
+  const { range, dwellingType, status } = useAppSelector(
+    (state) => state.types
+  );
   const [activeTab, setActiveTab] = useState("range");
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingItem, setEditingItem] = useState<ItemType | null>(null);
-  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState<ItemType | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
+  const [deleteModalVisible, setDeleteModalVisible] = useState({
+    id: null,
+    open: false,
+  });
+  const [formLoading, setFormLoading] = useState(false);
 
   useEffect(() => {
-    if (!filters) {
-      dispatch(getFloorPlanFilters());
+    if (activeTab === "range") {
+      if (status.range === Status.IDLE) {
+        dispatch(getRanges());
+      }
+    } else {
+      if (status.dwellingType === Status.IDLE) {
+        dispatch(getDwellingTypes());
+      }
     }
-  }, [dispatch]);
+  }, [dispatch, activeTab, status.range, status.dwellingType]);
 
-  const handleCreate = () => {
-    setEditingItem(null);
-    setIsModalVisible(true);
-  };
-
-  const handleEdit = (item: ItemType) => {
+  const handleEdit = (item) => {
     setEditingItem(item);
     setIsModalVisible(true);
   };
 
-  const handleDelete = (item: ItemType) => {
-    setItemToDelete(item);
-    setDeleteModalVisible(true);
-  };
-
   const confirmDelete = async () => {
-    if (!itemToDelete) return;
+    if (!deleteModalVisible.id) return;
 
     try {
-      setLoading(true);
+      setFormLoading(true);
       if (activeTab === "range") {
-        await dispatch(deleteRange({ id: itemToDelete.id })).unwrap();
+        await dispatch(deleteRange({ id: deleteModalVisible.id })).unwrap();
         message.success("Range deleted successfully");
       } else {
-        await dispatch(deleteDwellingType({ id: itemToDelete.id })).unwrap();
+        await dispatch(
+          deleteDwellingType({ id: deleteModalVisible.id })
+        ).unwrap();
         message.success("Dwelling type deleted successfully");
       }
-      setDeleteModalVisible(false);
-      setItemToDelete(null);
-    } catch (error) {
-      message.error(
-        `Failed to delete ${activeTab === "range" ? "range" : "dwelling type"}`
-      );
+      setDeleteModalVisible({ id: null, open: false });
+    } catch (error: any) {
+      message.error(error);
     } finally {
-      setLoading(false);
+      setFormLoading(false);
     }
   };
 
   const handleSubmit = async (values: { name: string }) => {
     try {
-      setLoading(true);
+      setFormLoading(true);
       if (activeTab === "range") {
         if (editingItem) {
           await dispatch(
@@ -100,14 +96,11 @@ const RangeAndDwelling = () => {
         }
       }
       setIsModalVisible(false);
-    } catch (error) {
-      message.error(
-        `Failed to ${editingItem ? "update" : "create"} ${
-          activeTab === "range" ? "range" : "dwelling type"
-        }`
-      );
+      setEditingItem(null);
+    } catch (error: any) {
+      message.error(error);
     } finally {
-      setLoading(false);
+      setFormLoading(false);
     }
   };
 
@@ -121,7 +114,7 @@ const RangeAndDwelling = () => {
       title: "Actions",
       key: "actions",
       width: 120,
-      render: (_: any, record: ItemType) => (
+      render: (_: any, record) => (
         <div className="flex gap-2">
           <Button
             type="text"
@@ -133,7 +126,7 @@ const RangeAndDwelling = () => {
             type="text"
             danger
             icon={<IconTrash />}
-            onClick={() => handleDelete(record)}
+            onClick={() => setDeleteModalVisible({ id: record.id, open: true })}
             aria-label="Delete"
           />
         </div>
@@ -141,18 +134,18 @@ const RangeAndDwelling = () => {
     },
   ];
 
-  //   const dataSource =
-  //     activeTab === "range"
-  //       ? filters?.range?.map((item: any) => ({
-  //           id: item.rangeId,
-  //           name: item.name,
-  //           key: item.rangeId,
-  //         })) || []
-  //       : filters?.dwelling_type?.map((item: any) => ({
-  //           id: item.dwellingTypeId,
-  //           name: item.name,
-  //           key: item.dwellingTypeId,
-  //         })) || [];
+  const dataSource =
+    activeTab === "range"
+      ? range?.map((item: any) => ({
+          id: item.rangeId,
+          name: item.name,
+          key: item.rangeId,
+        })) || []
+      : dwellingType?.map((item: any) => ({
+          id: item.dwellingTypeId,
+          name: item.name,
+          key: item.dwellingTypeId,
+        })) || [];
 
   return (
     <div className="p-4 bg-white rounded-lg shadow">
@@ -160,7 +153,7 @@ const RangeAndDwelling = () => {
         <h2 className="text-lg font-semibold">
           Manage {activeTab === "range" ? "Ranges" : "Dwelling Types"}
         </h2>
-        <Button type="primary" onClick={handleCreate}>
+        <Button type="primary" onClick={() => setIsModalVisible(true)}>
           Add
         </Button>
       </div>
@@ -175,9 +168,9 @@ const RangeAndDwelling = () => {
             children: (
               <Table
                 columns={columns}
-                dataSource={[{ id: "123456", name: "abcd" }]}
+                dataSource={dataSource}
                 pagination={false}
-                loading={!filters}
+                loading={status.range === Status.PENDING}
                 rowKey="id"
               />
             ),
@@ -188,40 +181,40 @@ const RangeAndDwelling = () => {
             children: (
               <Table
                 columns={columns}
-                dataSource={[{ id: "123456", name: "abcd" }]}
+                dataSource={dataSource}
                 pagination={false}
-                loading={!filters}
+                loading={status.dwellingType === Status.PENDING}
                 rowKey="id"
               />
             ),
           },
         ]}
       />
- 
+
       <CreateFormModal
         title={`${activeTab === "range" ? "Range" : "Dwelling Type"}`}
         open={isModalVisible}
+        initialValues={editingItem ? { name: editingItem?.name } : {}}
+        fields={rangeAndDwellingTypeFields()}
         onCancel={() => {
           setIsModalVisible(false);
           setEditingItem(null);
         }}
-        onSubmit={handleSubmit}
-        fields={rangeAndDwellingTypeFields(activeTab)}
-        initialValues={editingItem ? { name: editingItem.name } : {}}
         isEditing={!!editingItem}
-        loading={loading}
+        onSubmit={handleSubmit}
+        loading={formLoading}
       />
 
-      {deleteModalVisible && (
+      {deleteModalVisible.open && (
         <ConfirmationModal
-          open={deleteModalVisible}
-          onClose={() => setDeleteModalVisible(false)}
-          onConfirm={() => confirmDelete}
+          open={deleteModalVisible.open}
+          onClose={() => setDeleteModalVisible({ id: null, open: false })}
+          onConfirm={() => confirmDelete()}
           message="Are you sure you want to delete this package?"
           type="danger"
           confirmText="Delete"
           cancelText="Cancel"
-          //   loading={loading}
+          loading={formLoading}
           maxWidth="sm"
         />
       )}
