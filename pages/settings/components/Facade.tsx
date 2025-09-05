@@ -1,5 +1,10 @@
 import { useAppDispatch } from "@hooks/redux";
-import { createFacade,deleteFacade,getFacades,updateFacade,} from "@redux/feature/facade/facadeThunk";
+import {
+  createFacade,
+  deleteFacade,
+  getFacades,
+  updateFacade,
+} from "@redux/feature/facade/facadeThunk";
 import React, { useEffect, useState } from "react";
 import { useAppSelector } from "@hooks/redux";
 import { IFacadeState } from "@redux/feature/facade/IFacadeState";
@@ -51,7 +56,7 @@ const Facade = () => {
   const handleOpenModal = () => {
     setIsModalVisible(true);
   };
-  
+
   const handleCreateFacade = async (values: any) => {
     try {
       setLoading(true);
@@ -61,16 +66,18 @@ const Facade = () => {
 
       if (values?.image?.length > 0 && values.image[0]?.originFileObj) {
         formData.append("image", values.image[0].originFileObj);
-    }
-      
+      }
+
       formData.append("standard", values.standard || true);
       formData.append("upgrade", values.upgrade || true);
-   
-    if (isEditing) {
-        await dispatch(updateFacade({ data: formData, facadeId: editingFacade.facadeId })).unwrap();
-      setIsModalVisible(false);
-      message.success("Facade updated successfully");
-    } else {
+
+      if (isEditing) {
+        await dispatch(
+          updateFacade({ data: formData, facadeId: editingFacade.facadeId })
+        ).unwrap();
+        setIsModalVisible(false);
+        message.success("Facade updated successfully");
+      } else {
         await dispatch(createFacade(formData)).unwrap();
         setIsModalVisible(false);
         message.success("Facade created successfully");
@@ -125,7 +132,7 @@ const Facade = () => {
           Create Facade
         </button>
       </div>
-      
+
       {status == Status.PENDING ? (
         <div className="flex justify-center items-center pt-[20vh]">
           <Spin size="large" />
@@ -133,74 +140,77 @@ const Facade = () => {
       ) : facades.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {facades?.map((facade: IFacadeState) => (
-          <div className="card bg-card-color p-4 rounded-xl flex flex-col items-center border border-border-color relative group">
-            {/* Hover overlay with blur effect */}
-            <div className="absolute inset-0 bg-black-50 bg-opacity-50 backdrop-blur-sm rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4 z-10">
-              <button
-                className="p-2 bg-white bg-opacity-80 text-black rounded-full hover:bg-opacity-100 transition-all duration-200"
-                onClick={() => handleEdit(facade)}
-              >
-                <IconEdit />
-              </button>
-              <button
-                className="p-2 bg-white bg-opacity-80 rounded-full hover:bg-opacity-100 transition-all duration-200"
-                onClick={() => {
-                  setShowDeleteConfirm(true);
-                  setFacadeId(facade.facadeId);
-                }}
-              >
-                <IconTrash className="text-red-600" />
-              </button>
-            </div>
+            <div className="card bg-card-color p-4 rounded-xl flex flex-col items-center border border-border-color relative group">
+              {/* Hover overlay with blur effect */}
+              <div className="absolute inset-0 bg-black-50 bg-opacity-50 backdrop-blur-sm rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4 z-10">
+                <button
+                  className="p-2 bg-white bg-opacity-80 text-black rounded-full hover:bg-opacity-100 transition-all duration-200"
+                  onClick={() => handleEdit(facade)}
+                >
+                  <IconEdit />
+                </button>
+                <button
+                  className="p-2 bg-white bg-opacity-80 rounded-full hover:bg-opacity-100 transition-all duration-200"
+                  onClick={() => {
+                    setShowDeleteConfirm(true);
+                    setFacadeId(facade.facadeId);
+                  }}
+                >
+                  <IconTrash className="text-red-600" />
+                </button>
+              </div>
 
-            <Image
-              src={facade.image}
-              alt={facade.name}
-              className="mb-4 w-[200px] h-[200px]"
-              unoptimized
-              width={200}
-              height={200}
-            />
+              <Image
+                src={facade.image}
+                alt={facade.name}
+                className="mb-4 w-[200px] h-[200px]"
+                unoptimized
+                width={200}
+                height={200}
+              />
 
-            <div className="flex  w-full rounded-lg p-4 overflow-hidden shadow-sm bg-body-color">
-              {/* Left Section */}
-              <div className="flex-1 space-y-2 pr-4">
-                <h5 className="text-[20px]/[24px] font-bold mb-4 text-center">
-                  {facade.name}
-                </h5>
-                <div className="flex justify-between">
-                  <span className="font-medium">Dwelling Type :</span>
-                  <span>
-                    {enumToReadable(facade?.dwellingTypeName || "N/A")}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium">Upgradable :</span>
-                  <span>{facade?.upgrade ? "yes" : "no"}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium">Standard :</span>
-                  <span>{facade?.standard ? "yes" : "no"}</span>
-                </div>
-                <div className="flex justify-between gap-5">
-                  <span className="font-medium">Created At :</span>
-                  <span>{facade?.createdAt?.split("T")[0]}</span>
+              <div className="flex  w-full rounded-lg p-4 overflow-hidden shadow-sm bg-body-color">
+                {/* Left Section */}
+                <div className="flex-1 space-y-2 pr-4">
+                  <h5 className="text-[20px]/[24px] font-bold mb-4 text-center">
+                    {facade.name}
+                  </h5>
+                  <div className="flex justify-between">
+                    <span className="font-medium">Dwelling Type :</span>
+                    <span>
+                      {enumToReadable(facade?.dwellingTypeName || "N/A")}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium">Upgradable :</span>
+                    <span>{facade?.upgrade ? "yes" : "no"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium">Standard :</span>
+                    <span>{facade?.standard ? "yes" : "no"}</span>
+                  </div>
+                  <div className="flex justify-between gap-5">
+                    <span className="font-medium">Created At :</span>
+                    <span>{facade?.createdAt?.split("T")[0]}</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
         </div>
       ) : (
-        <Empty description={
-            <span className="text-gray-500">No facade found. Create your first facade to get started.</span>
+        <Empty
+          description={
+            <span className="text-gray-500">
+              No facade found. Create your first facade to get started.
+            </span>
           }
           className="py-12"
         />
       )}
-        <CreateFormModal
-          title="Facade Plan"
-          open={isModalVisible}
+      <CreateFormModal
+        title="Facade Plan"
+        open={isModalVisible}
         isEditing={isEditing}
         initialValues={editingFacade}
         onCancel={() => {
@@ -208,10 +218,10 @@ const Facade = () => {
           setIsEditing(false);
           setEditingFacade(null);
         }}
-          onSubmit={handleCreateFacade}
-          fields={facadeFields()}
-          loading={loading}
-        />
+        onSubmit={handleCreateFacade}
+        fields={facadeFields()}
+        loading={loading}
+      />
       <ConfirmationModal
         open={showDeleteConfirm}
         onClose={() => setShowDeleteConfirm(false)}
