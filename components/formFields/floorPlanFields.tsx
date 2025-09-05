@@ -2,11 +2,13 @@
 import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
 import { CreateFormField } from "../common/Models/CreateFormModel";
 import { useAppSelector } from "@hooks/redux";
+import { mapToOptions } from "@lib/utils/rangeAndDwellingObjToOptions";
 
 
 export const floorPlanFields = (): CreateFormField[] => {
-  const filters = useAppSelector((state: any) => state.floorPlan.filters);
-
+const {range , dwellingType} = useAppSelector((state) => state.types);
+const rangeOptions = mapToOptions(range);
+const dwellingTypeOptions = mapToOptions(dwellingType);
   return [
     {
       label: "Name",
@@ -25,7 +27,7 @@ export const floorPlanFields = (): CreateFormField[] => {
       label: "Range",
       name: "range",
       type: "select",
-      options: enumArrayToOptions(filters?.ranges),
+      options: rangeOptions,
       placeholder: "Select range",
       rules: [{ required: true, message: "Please select a range" }],
     },
@@ -33,7 +35,7 @@ export const floorPlanFields = (): CreateFormField[] => {
       label: "Dwelling Type",
       name: "dwelling_type",
       type: "select",
-      options: enumArrayToOptions(filters?.dwellingTypes),
+      options: dwellingTypeOptions,
       placeholder: "Select dwelling type",
       rules: [{ required: true, message: "Please select a dwelling type" }],
     },

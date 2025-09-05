@@ -25,6 +25,7 @@ import QuatationPdf from "@/components/common/QuatationPdf";
 import calculateTotalQuotation from "@lib/utils/calculateTotalQuotation";
 import SystemRoutes from "@lib/constants/Routes";
 import { useRouter } from "next/router";
+import { getDwellingTypes, getRanges } from "@redux/feature/types/typesThunk";
 
 const Index = () => {
   const dispatch = useAppDispatch();
@@ -59,8 +60,11 @@ const Index = () => {
     selectedPackageFromSlice
   );
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [previewLoading, setPreviewLoading] = useState(false)
+  const [previewLoading, setPreviewLoading] = useState(false);
   const [extraItem, setExtraItem] = useState(false);
+  const { status: typesStatus } = useAppSelector(
+    (state: RootState) => state.types
+  );
   const { categories: categoryData, status } = useAppSelector(
     (state: RootState) => state.masterPriceList
   );
@@ -75,7 +79,7 @@ const Index = () => {
   );
 
   // const BaseCategory = useMemo(() => mplCategories.find((cat) => cat.name === "base price"), [mplCategories]);
- 
+
   useEffect(() => {
     const fetchCategoriesData = async () => {
       try {
@@ -90,6 +94,22 @@ const Index = () => {
   }, [dispatch, status]);
 
   useEffect(() => {
+    const fetchTypesData = async () => {
+      try {
+        if (typesStatus?.range === Status.IDLE) {
+          await dispatch(getRanges()).unwrap();
+        }
+        if (typesStatus?.dwellingType === Status.IDLE) {
+          await dispatch(getDwellingTypes()).unwrap();
+        }
+      } catch (error) {
+        message.error(error);
+      }
+    };
+    fetchTypesData();
+  }, [dispatch]);
+
+  useEffect(() => {
     const handleRouteChange = (url: string) => {
       if (!url.startsWith(`/${SystemRoutes.QUOTATION}`)) {
         dispatch(clearQuotation());
@@ -100,7 +120,6 @@ const Index = () => {
       router.events.off("routeChangeStart", handleRouteChange);
     };
   }, [dispatch, router]);
-  
 
   const { previewPdf } = usePdf(QuatationPdf);
   const getCategoryById = useCallback(
@@ -119,7 +138,7 @@ const Index = () => {
     if (!currentCategory?.isExpanded) {
       dispatch(toggleExpand(categoryId));
       try {
-       const response = await dispatch(
+        const response = await dispatch(
           fetchCategoryItems({
             categoryId,
             filters: {
@@ -193,76 +212,82 @@ const Index = () => {
   const handlePreview = async () => {
     setPreviewLoading(true);
     try {
-    const responses = await Promise.all(
-      categoryData.map((cat) => {
-        if (!cat.isExpanded) {
-          dispatch(toggleExpand(cat.categoryId));
-          return dispatch(
-            fetchCategoryItems({
-              categoryId: cat.categoryId,
-              filters: {
-                range: quotationFilters?.range || undefined,
-                dwelling_type: quotationFilters?.dwelling_type || undefined,
-              },
-            })
-          ).unwrap();
-        }
-        return Promise.resolve({ categoryId: cat.categoryId, items: cat.items || [] });
-      })
-    );
+      const responses = await Promise.all(
+        categoryData.map((cat) => {
+          if (!cat.isExpanded) {
+            dispatch(toggleExpand(cat.categoryId));
+            return dispatch(
+              fetchCategoryItems({
+                categoryId: cat.categoryId,
+                filters: {
+                  range: quotationFilters?.range || undefined,
+                  dwelling_type: quotationFilters?.dwelling_type || undefined,
+                },
+              })
+            ).unwrap();
+          }
+          return Promise.resolve({
+            categoryId: cat.categoryId,
+            items: cat.items || [],
+          });
+        })
+      );
 
-    // Use the updated categories (from Redux or responses)
-    const allCategories = categoryData.map((cat) => {
-      const fetched = responses.find((res) => res.categoryId === cat.categoryId);
-      return {
-        ...cat,
-        items: fetched?.items || cat.items || [],
-      };
-    });
+      // Use the updated categories (from Redux or responses)
+      const allCategories = categoryData.map((cat) => {
+        const fetched = responses.find(
+          (res) => res.categoryId === cat.categoryId
+        );
+        return {
+          ...cat,
+          items: fetched?.items || cat.items || [],
+        };
+      });
 
-    // Now build grouped items
-    const groupedItems = allCategories.map((category) => {
-      const matchedItems = (category.items || [])
-        .filter((catItem) =>
-          itemsFromSlice.some((sel) => sel.itemId === catItem.categoryItemId)
-        )
-        .map((catItem) => {
-          const selected = itemsFromSlice.find(
-            (sel) => sel.itemId === catItem.categoryItemId
-          );
-          return {
-            ...catItem,
-            ...selected,
-            total: Number(selected?.quantity) * Number(selected?.price),
-          };
-        });
+      // Now build grouped items
+      const groupedItems = allCategories.map((category) => {
+        const matchedItems = (category.items || [])
+          .filter((catItem) =>
+            itemsFromSlice.some((sel) => sel.itemId === catItem.categoryItemId)
+          )
+          .map((catItem) => {
+            const selected = itemsFromSlice.find(
+              (sel) => sel.itemId === catItem.categoryItemId
+            );
+            return {
+              ...catItem,
+              ...selected,
+              total: Number(selected?.quantity) * Number(selected?.price),
+            };
+          });
 
-      return {
-        categoryId: category.categoryId,
-        categoryName: category.name,
-        description: category.description,
-        items: matchedItems,
-        categoryTotal: matchedItems.reduce((sum, i) => sum + i.total, 0),
-      };
-    });
-    const filteredGroupedItems = groupedItems.filter((cat) => cat.items.length > 0);
-    previewPdf({
-      user: user,
-      leadDetail: contact,
-      propertyDetail: property,
-      quotePackage: selectedPackageFromSlice,
-      quotationAmount: calculateTotalQuotation(
-        Number(packageFromSlice?.amount),
-        itemsFromSlice
-      ),
-      floorPlan: plan,
-      facade: facade,
-      items: filteredGroupedItems
-    });
+        return {
+          categoryId: category.categoryId,
+          categoryName: category.name,
+          description: category.description,
+          items: matchedItems,
+          categoryTotal: matchedItems.reduce((sum, i) => sum + i.total, 0),
+        };
+      });
+      const filteredGroupedItems = groupedItems.filter(
+        (cat) => cat.items.length > 0
+      );
+      previewPdf({
+        user: user,
+        leadDetail: contact,
+        propertyDetail: property,
+        quotePackage: selectedPackageFromSlice,
+        quotationAmount: calculateTotalQuotation(
+          Number(packageFromSlice?.amount),
+          itemsFromSlice
+        ),
+        floorPlan: plan,
+        facade: facade,
+        items: filteredGroupedItems,
+      });
     } catch (error) {
       message.error(error || "Failed to preview quotation");
-    }
-    finally {
+    } finally {
       setPreviewLoading(false);
     }
   };
@@ -277,7 +302,12 @@ const Index = () => {
   const canPlan = plan && Object.keys(plan).length > 0;
   const canFacade = !!facade;
   const canSelectedPackageFromSlice = !!selectedPackageFromSlice;
-  const canAction = canContact && canProperty && canPlan && canFacade && canSelectedPackageFromSlice;
+  const canAction =
+    canContact &&
+    canProperty &&
+    canPlan &&
+    canFacade &&
+    canSelectedPackageFromSlice;
   return (
     <>
       <div className="m-3 flex justify-between items-center">

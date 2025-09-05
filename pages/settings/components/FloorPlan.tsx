@@ -4,7 +4,6 @@ import {
   createFloorPlan,
   deleteFloorPlan,
   fetchFloorPlans,
-  getFloorPlanFilters,
   updateFloorPlan,
 } from "@redux/feature/floorPlan/floorPlanThunk";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
@@ -40,18 +39,8 @@ const FloorPlan = () => {
         message.error(error || "Failed to fetch Floor Plans");
       }
     };
-    const fetchFiltersData = async () => {
-      try {
-        await dispatch(getFloorPlanFilters()).unwrap();
-      } catch (error) {
-        message.error(error || "Failed to fetch Floor Plan Filters");
-      }
-    };
     if (status?.floorPlan === Status.IDLE) {
       fetchFloorPlansData();
-    }
-    if (status?.filters === Status.IDLE) {
-      fetchFiltersData();
     }
   }, [dispatch, status, filters]);
 
@@ -154,7 +143,7 @@ const FloorPlan = () => {
         <div className="flex justify-center items-center pt-[20vh]">
           <Spin size="large" />
         </div>
-      ) : floorPlans.length > 0 ? (
+      ) : floorPlans?.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2  gap-4 ">
           {floorPlans?.map((floorPlan: IFloorPlanState) => (
             <div

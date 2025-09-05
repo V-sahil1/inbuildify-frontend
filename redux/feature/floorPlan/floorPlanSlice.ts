@@ -1,5 +1,5 @@
 import { createSlice,  } from "@reduxjs/toolkit";
-import { createFloorPlan, deleteFloorPlan, fetchFloorPlans, getConditions, getFloorPlanFilters, updateFloorPlan } from "./floorPlanThunk";
+import { createFloorPlan, deleteFloorPlan, fetchFloorPlans, getConditions, updateFloorPlan } from "./floorPlanThunk";
 import { Status } from "@lib/constants/enum";
 import { IFloorPlanState } from "./IFloorPlanState";
 
@@ -28,13 +28,6 @@ const floorPlanSlice = createSlice({
       })
       .addCase(fetchFloorPlans.rejected, (state) => {
         state.status.floorPlan = Status.ERROR;
-      })
-      .addCase(getFloorPlanFilters.pending, state => {
-        state.status.filters = Status.PENDING;
-      })
-      .addCase(getFloorPlanFilters.fulfilled, (state, action) => {
-        state.status.filters = Status.SUCCESS;
-        state.filters = action.payload;
       })
       .addCase(createFloorPlan.fulfilled, (state, action) => {
         state.floorPlans.unshift(action.payload);

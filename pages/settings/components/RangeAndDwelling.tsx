@@ -32,17 +32,17 @@ const RangeAndDwelling = () => {
   });
   const [formLoading, setFormLoading] = useState(false);
 
-  useEffect(() => {
-    if (activeTab === "range") {
-      if (status.range === Status.IDLE) {
-        dispatch(getRanges());
-      }
-    } else {
-      if (status.dwellingType === Status.IDLE) {
-        dispatch(getDwellingTypes());
-      }
-    }
-  }, [dispatch, activeTab, status.range, status.dwellingType]);
+  // useEffect(() => {
+  //   if (activeTab === "range") {
+  //     if (status.range === Status.IDLE) {
+  //       dispatch(getRanges());
+  //     }
+  //   } else {
+  //     if (status.dwellingType === Status.IDLE) {
+  //       dispatch(getDwellingTypes());
+  //     }
+  //   }
+  // }, [dispatch, activeTab, status.range, status.dwellingType]);
 
   const handleEdit = (item) => {
     setEditingItem(item);

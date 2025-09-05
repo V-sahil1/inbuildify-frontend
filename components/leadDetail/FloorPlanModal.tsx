@@ -4,7 +4,7 @@ import { Plan } from "data/types";
 import AvailablePlansTab from "./AvailablePlansTab";
 import CustomPlanTab from "./CustomPlanTab";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import { fetchFloorPlans, getFloorPlanFilters } from "@redux/feature/floorPlan/floorPlanThunk";
+import { fetchFloorPlans } from "@redux/feature/floorPlan/floorPlanThunk";
 import { setQuotationPlan } from "@redux/feature/quotation/quotationSlice";
 import { Status } from '@lib/constants/enum';
 import { RootState } from "@redux/feature/store";
@@ -38,9 +38,6 @@ const FloorPlanModal: React.FC<FloorPlanModalProps> = ({
   useEffect(() => {
     if (status.floorPlan === Status.IDLE) { 
       dispatch(fetchFloorPlans(undefined)).unwrap()
-    }
-    if (status.filters === Status.IDLE) {
-      dispatch(getFloorPlanFilters()).unwrap()
     }
   }, [dispatch, status, filters])
 

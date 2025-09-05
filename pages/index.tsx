@@ -187,7 +187,7 @@ export default function Analysis() {
           {data.flat().length > 0 ?
            <div className="grid grid-cols-1 md:grid-cols-2 gap-[20px] ">
           {data?.map((item, index) => (
-            item.length > 0 ? 
+            item?.length > 0 ? 
             <div>
               <div className="grid grid-cols-2">
                 <div className="mb-2 font-bold">{countData[index].title}</div>

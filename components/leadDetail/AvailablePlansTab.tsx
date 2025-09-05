@@ -20,7 +20,7 @@ const AvailablePlansTab: React.FC<AvailablePlansTabProps> = ({
 }) => {
   const [page, setPage] = useState(1);
   const start = (page - 1) * PAGE_SIZE;
-  const currentPlans = plans.slice(start, start + PAGE_SIZE);
+  const currentPlans = plans?.slice(start, start + PAGE_SIZE);
   if (!plans || plans.length === 0) {
     return (
       <div className="flex items-center justify-center h-96">

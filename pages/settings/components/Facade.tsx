@@ -10,7 +10,6 @@ import { useAppSelector } from "@hooks/redux";
 import { IFacadeState } from "@redux/feature/facade/IFacadeState";
 import Image from "next/image";
 import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
-import { getFloorPlanFilters } from "@redux/feature/floorPlan/floorPlanThunk";
 import { facadeFields } from "@/components/formFields/facadeFields";
 import { Status } from "@lib/constants/enum";
 import { enumToReadable } from "@lib/utils/enumToRedable";
@@ -38,18 +37,8 @@ const Facade = () => {
         message.error(error || "Failed to fetch Facades");
       }
     };
-    const fetchFiltersData = async () => {
-      try {
-        await dispatch(getFloorPlanFilters()).unwrap();
-      } catch (error) {
-        message.error(error || "Failed to fetch Floor Plans");
-      }
-    };
     if (status === Status.IDLE) {
       fetchFacadesData();
-    }
-    if (!filters) {
-      fetchFiltersData();
     }
   }, [dispatch, status, filters]);
 

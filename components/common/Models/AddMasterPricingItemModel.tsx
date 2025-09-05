@@ -6,10 +6,11 @@ import { IconMinus, IconPlus } from "@tabler/icons-react";
 import { createCategoryItem, fetchCategories, updateCategoryItem } from "@redux/feature/masterPriceList/masterPriceListThunk";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
-import { getConditions, getFloorPlanFilters } from "@redux/feature/floorPlan/floorPlanThunk";
+import { getConditions } from "@redux/feature/floorPlan/floorPlanThunk";
 import { enumToReadable } from "@lib/utils/enumToRedable";
 import { Status } from "@lib/constants/enum";
 import { addPackageItems } from "@redux/feature/package/packageSlice";
+import { mapToOptions } from "@lib/utils/rangeAndDwellingObjToOptions";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -30,6 +31,9 @@ const AddMasterPricingItemModal = ({
     const [form] = Form.useForm();
     const [costType, setCostType] = useState("INCLUDED");
     const {filters, status} = useAppSelector((state) => state.floorPlan);
+    const {range , dwellingType } = useAppSelector((state) => state.types);
+    const rangeOptions = mapToOptions(range);
+    const dwellingTypeOptions = mapToOptions(dwellingType);
     const { categories , status: mplStatus } = useAppSelector((state) => state.masterPriceList);
     const dispatch = useAppDispatch();
 
@@ -73,16 +77,6 @@ const AddMasterPricingItemModal = ({
     }, [categoryItem, form]);
 
   useEffect(() => {
-    const fetchFiltersData = async () => {
-      try {
-        await dispatch(getFloorPlanFilters()).unwrap();
-      } catch (error) {
-        message.error(error);
-      }
-    };
-    if (!filters) {
-      fetchFiltersData();
-    }
     if (status.conditions === Status.IDLE) {
       const fetchConditionsData = async () => {
         try {
@@ -96,6 +90,7 @@ const AddMasterPricingItemModal = ({
   }, [dispatch, filters, status.conditions]);
 
   const onFinish = async (values: any) => {
+    console.log("🚀 ~ onFinish ~ values:", values)
     await form.validateFields();
     try {
       setIsAddingItem(true);
@@ -291,13 +286,7 @@ const AddMasterPricingItemModal = ({
             className="form-item-responsive"
             rules={[{ required: true, message: "Please select range" }]}
           >
-            <Select placeholder="Please select" style={{ width: "100%" }}>
-              {enumArrayToOptions(filters?.ranges).map((option) => (
-                <Option key={option.value} value={option.value}>
-                  {option.label}
-                </Option>
-              ))}
-            </Select>
+            <Select placeholder="Please select" style={{ width: "100%" }} options={rangeOptions}/>
           </Form.Item>
 
           {/* Dwelling Type */}
@@ -307,13 +296,7 @@ const AddMasterPricingItemModal = ({
             className="form-item-responsive"
             rules={[{ required: true, message: "Please select dwelling type" }]}
           >
-            <Select placeholder="Please select" style={{ width: "100%" }}>
-              {enumArrayToOptions(filters?.dwellingTypes).map((option) => (
-                <Option key={option.value} value={option.value}>
-                  {option.label}
-                </Option>
-              ))}
-            </Select>
+            <Select placeholder="Please select" style={{ width: "100%" }} options={dwellingTypeOptions}/>
           </Form.Item>
         </div>
 

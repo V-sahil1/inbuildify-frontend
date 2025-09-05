@@ -102,17 +102,4 @@ export const getConditions = createAsyncThunk(
     }
 );
 
-export const getFloorPlanFilters = createAsyncThunk(
-  "floorPlans/filters",
-  async () => {
-    try {
-      const res = await api.get<ApiResponse<any>>(
-        API_ENDPOINTS.FLOOR_PLAN_FILTERS
-      );
-      return res.data;
-    } catch (error) {
-      return error.message;
-    }
-  }
-);
 
