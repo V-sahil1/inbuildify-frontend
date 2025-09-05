@@ -152,7 +152,7 @@ const ContractorPage = () => {
       setIsEditing(false);
       setEditingKey(null);
     } catch (err) {
-      message.error(err);
+      message.error(err || 'Failed to create contractor');
     } finally {
       setLoading(false);
     }

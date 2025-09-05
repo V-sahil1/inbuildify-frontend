@@ -162,15 +162,19 @@ export default function Header({
   // light dark mode
   const [darkMode, setDarkMode] = useState(false);
   const toggleDarkMode = () => {
-    const newDarkMode = !darkMode;
-    setDarkMode(newDarkMode);
-    document.documentElement.setAttribute(
-      "data-theme",
-      newDarkMode ? "dark" : "light"
-    );
+    setDarkMode(!darkMode)
   };
+  
+  useEffect(()=>{
+    let theme = localStorage.getItem('theme') === 'True';
+    if(theme){
+      setDarkMode(theme);
+    }
+  },[])
+
   useEffect(() => {
-    document.documentElement.setAttribute(
+     localStorage.setItem('theme',darkMode === true ? 'True' : 'False');
+     document.documentElement.setAttribute(
       "data-theme",
       darkMode ? "dark" : "light"
     );
