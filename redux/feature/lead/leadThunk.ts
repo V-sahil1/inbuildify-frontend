@@ -4,6 +4,16 @@ import API_ENDPOINTS from "@lib/constants/apiEndpoints";
 import { ApiResponse } from "../auth/IAuthState";
 import { PropertyDetails } from "data/types";
 
+export interface createLeadPayload {
+    lead_source: string;
+    notes: string;
+    contact: {
+        name: string;
+        email?: string;
+        phone?: string;
+    };
+}
+
 export const getLeadThunk = createAsyncThunk(
     "lead/getLead",
     async (_, {rejectWithValue}) => {
@@ -18,7 +28,7 @@ export const getLeadThunk = createAsyncThunk(
 
 export const createLeadThunk = createAsyncThunk(
     "lead/createLead",
-    async (payload: { name: string; email: string; phone: string; leadSource: string }, {rejectWithValue}) => {
+    async (payload: createLeadPayload, {rejectWithValue}) => {
         try {
             const response: ApiResponse<any> = await api.post(API_ENDPOINTS.LEAD_BASE, { data: payload });
             return response.data;

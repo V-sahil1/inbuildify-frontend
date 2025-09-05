@@ -8,7 +8,7 @@ import {
 import { CreateFormField } from "@/components/common/Models/CreateFormModel";
 
 export type LeadFormField = Omit<CreateFormField, 'type'> & {
-  type?: 'email' | 'phone' | 'select';
+  type?: 'email' | 'phone' | 'select' | 'textarea';
 };
 
 const leadCreateFields = ({isEmailDisable}: {isEmailDisable: boolean} = {isEmailDisable: false}): readonly LeadFormField[] => {
@@ -24,7 +24,7 @@ const leadCreateFields = ({isEmailDisable}: {isEmailDisable: boolean} = {isEmail
       name: "email",
       placeholder: "john@example.com",
       type: "email",
-      rules: emailRules,
+      // rules: emailRules,
       disabled: isEmailDisable,
     },
     {
@@ -32,7 +32,7 @@ const leadCreateFields = ({isEmailDisable}: {isEmailDisable: boolean} = {isEmail
       name: "phone",
       placeholder: "+1 555 0100",
       type: "phone",
-      rules: phoneRules,
+      // rules: phoneRules,
     },
     {
       label: "Lead Source",
@@ -41,6 +41,13 @@ const leadCreateFields = ({isEmailDisable}: {isEmailDisable: boolean} = {isEmail
       type: "select",
       options: LeadSource,
       rules: leadSourceRules,
+    },
+    {
+      label: "Notes",
+      name: "notes",
+      placeholder: "e.g. Social Media, Referral, etc.",
+      type: "textarea",
+      // rules: [{required: true, message: "Please enter notes"}],
     },
   ] as const;
 };

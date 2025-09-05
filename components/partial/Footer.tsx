@@ -25,7 +25,7 @@ export default function Footer({ className }: { className?: string }) {
         <ul className="flex items-center gap-x-20 gap-y-5 flex-wrap justify-center">
           <li>
             <Link
-              href="https://www.thememakker.com/portfolio/"
+              href="#"
               className="text-font-color-100 transition-all hover:text-blue"
             >
               Portfolio
@@ -33,7 +33,7 @@ export default function Footer({ className }: { className?: string }) {
           </li>
           <li>
             <Link
-              href="https://themeforest.net/licenses/standard"
+              href="#"
               className="text-font-color-100 transition-all hover:text-blue"
             >
               Licenses
@@ -41,7 +41,7 @@ export default function Footer({ className }: { className?: string }) {
           </li>
           <li>
             <Link
-              href="https://help.market.envato.com/hc/en-us"
+              href="#"
               className="text-font-color-100 transition-all hover:text-blue"
             >
               Support

@@ -75,7 +75,7 @@ function App() {
 
   const mappedLeadDetail = {
     ...leadDetail?.contact,
-    leadSource: leadDetail?.contact?.lead_source,
+    leadSource: leadDetail?.contact?.leadSource,
   };
   useEffect(() => {
     latestLeadDetailRef.current = leadDetail;
@@ -236,7 +236,7 @@ function App() {
           </div>
           <h2 className="font-semibold text-lg">{contact.name ?? "-"}</h2>
           <p className="text-sm">
-            {contact.lead_source || "Lead Source not provided"}
+            {contact.leadSource || "Lead Source not provided"}
           </p>
 
           <div className="flex items-center gap-2 mt-2">

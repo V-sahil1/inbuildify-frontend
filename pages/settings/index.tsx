@@ -16,8 +16,10 @@ const MasterPriceList = dynamic(() => import("./components/MasterPriceList"), { 
 const FloorPlan = dynamic(() => import("./components/FloorPlan"), { ssr: false });
 const Facade = dynamic(() => import("./components/Facade"), { ssr: false });
 const Package = dynamic(() => import("./components/Package"), { ssr: false });
+const RangeAndDwelling = dynamic(() => import("./components/RangeAndDwelling"), { ssr: false });
 
 const TABS = [
+  { id: "range-dwelling", label: "Types", icon: IconServer2, breadcrumb: "Types", component: RangeAndDwelling },
   { id: "items", label: "Master Pricing", icon: IconServer2, breadcrumb: "Master Pricing", component: MasterPriceList },
   { id: "floor-plan", label: "Floor Plan", icon: IconProgress, breadcrumb: "Floor Plan", component: FloorPlan },
   { id: "facade", label: "Facade", icon: IconClockHour3, breadcrumb: "Facade", component: Facade },
@@ -49,7 +51,7 @@ export default function ProjectList() {
   };
 
   const breadcrumbItems = [
-    { link: "Setting", url: "/setting" },
+    { link: "Settings", url: "/settings" },
     { name: TABS[selectedIndex]?.breadcrumb || TABS[0].breadcrumb },
   ];
 

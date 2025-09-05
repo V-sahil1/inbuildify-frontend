@@ -54,6 +54,10 @@ class API_ENDPOINTS {
   public static FLOOR_PLAN_BASE = "/floor-plan";
   public static FLOOR_PLAN_FILTERS = `${this.FLOOR_PLAN_BASE}/filters`;
 
+  //range and dwelling type
+  public static RANGE = `/range`; 
+  public static DWELLING_TYPE = `/dwelling-type`;
+
   //packages
   public static PACKAGE_BASE = "/package";
   public static GET_PACKAGES = `${this.PACKAGE_BASE}`;

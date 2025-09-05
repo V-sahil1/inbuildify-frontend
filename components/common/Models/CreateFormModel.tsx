@@ -1,6 +1,6 @@
 "use client";
 
-import { UploadFileStatus } from 'antd/es/upload/interface';
+import { UploadFileStatus } from "antd/es/upload/interface";
 import {
   Modal,
   Form,
@@ -25,6 +25,7 @@ export type CreateFormField = {
     | "email"
     | "phone"
     | "text"
+    | "textarea"
     | "select"
     | "url"
     | "number"
@@ -60,6 +61,7 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
   onSubmit,
   fields,
 }) => {
+  console.log("🚀 ~ initialValues:", initialValues);
   const [form] = Form.useForm();
   const [logo, setLogo] = React.useState<boolean>(true);
 
@@ -69,7 +71,8 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
         const values = { ...initialValues };
         // Set initial file list if logo exists
         if (initialValues.logo) {
-          values[fields.find(f => f.type === 'image')?.name || 'logo'] = makeFileFromUrl(initialValues.logo);
+          values[fields.find((f) => f.type === "image")?.name || "logo"] =
+            makeFileFromUrl(initialValues.logo);
         }
         form.setFieldsValue(values);
       } else if (!isEditing) {
@@ -81,16 +84,20 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
   const handleOk = async () => {
     try {
       const values = await form.validateFields();
-      
+
       // Clean up image value if it's just the preview
       if (values.image && values.image.length > 0) {
         const imageField = values.image[0];
-        if (imageField.status === 'done' && imageField.url && !imageField.originFileObj) {
+        if (
+          imageField.status === "done" &&
+          imageField.url &&
+          !imageField.originFileObj
+        ) {
           // This is just a preview, not a new upload
           delete values.image;
         }
       }
-      
+
       onSubmit(values);
     } catch (err) {
       // console.error('Validation failed:', err);
@@ -132,12 +139,14 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
             label={
               <div className="flex items-center justify-between w-full gap-1">
                 <span className="flex-1">{field.label}</span>
-                {field.button && <button
-                  className="bg-primary text-white rounded py-0.5 px-2 text-[12px]"
-                  onClick={field.onClick}
-                >
-                  {field.button}
-                </button>}
+                {field.button && (
+                  <button
+                    className="bg-primary text-white rounded py-0.5 px-2 text-[12px]"
+                    onClick={field.onClick}
+                  >
+                    {field.button}
+                  </button>
+                )}
               </div>
             }
             name={field.name}
@@ -163,7 +172,12 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
                 rules={[
                   {
                     validator: (_, value) => {
-                      if (field.rules?.some(r => 'required' in r && r.required) && (!value || value.length === 0)) {
+                      if (
+                        field.rules?.some(
+                          (r) => "required" in r && r.required
+                        ) &&
+                        (!value || value.length === 0)
+                      ) {
                         // return Promise.reject(new Error('Image is required'));
                       }
                       return Promise.resolve();
@@ -172,20 +186,25 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
                 ]}
                 noStyle
               >
-              <Upload
-                name="image"
-                listType="picture"
-                multiple={false}
-                maxCount={1}
-                beforeUpload={() => false}
-              >
-                <Button>Click to Upload</Button>
+                <Upload
+                  name="image"
+                  listType="picture"
+                  multiple={false}
+                  maxCount={1}
+                  beforeUpload={() => false}
+                >
+                  <Button>Click to Upload</Button>
                 </Upload>
               </Form.Item>
+            ) : field.type === "textarea" ? (
+              <Input.TextArea
+                placeholder={field.placeholder}
+                disabled={field.disabled}
+              />
             ) : (
               <Input
                 placeholder={field.placeholder}
-                type={field.type === "email" ? "email" :field.type === "number" ? "number":  "text"}
+                type={field.type}
                 disabled={field.disabled}
               />
             )}

@@ -34,8 +34,8 @@ export const leadSlice = createSlice({
     
           // update leads array
           state.leads = state.leads.map((lead) =>
-            lead.lead_id === leadId
-              ? { ...lead, status, updated_at: updatedAt ?? lead.updated_at }
+            lead.leadId === leadId
+              ? { ...lead, status, updatedAt }
               : lead
           );
         },
@@ -109,7 +109,7 @@ export const leadSlice = createSlice({
         });
         builder.addCase(convertLeadToOpportunityThunk.fulfilled, (state, action) => {
           state.leads = state.leads.map((lead) => {
-            if (lead.lead_id === action.payload.leadId) {
+            if (lead.leadId === action.payload.leadId) {
               return {
                 ...lead,
                 status: action.payload.status,
@@ -122,11 +122,11 @@ export const leadSlice = createSlice({
         builder.addCase(convertLeadToJobThunk.fulfilled, (state, action) => {
           state.leadDetail.contact.status = action.payload.payload.status;
             state.leads = state.leads.map((lead) => {
-            if (lead.lead_id === action.payload.payload.leadId) {
+            if (lead.leadId === action.payload.payload.leadId) {
               return {
                 ...lead,
                 status: action.payload.payload.status === "WON" ? "JOB" : "CANCELLED",
-                updated_at: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
               };
             }
             return lead;
@@ -135,22 +135,22 @@ export const leadSlice = createSlice({
         builder.addCase(updateLeadThunk.fulfilled, (state, action) => {
           const { payload } = action;
           if (payload && payload.lead_id) {
-            const { lead_id, name, phone, lead_source } = payload;
+            const { leadId, name, phone, leadSource } = payload;
             
             // Add null check for leadDetail.contact because after the quatation route opens the contact of leads is setting the null (Akshay)
             if (state.leadDetail && state.leadDetail.contact) {
               state.leadDetail.contact.name = name || state.leadDetail.contact.name;
               state.leadDetail.contact.phone = phone || state.leadDetail.contact.phone;
-              state.leadDetail.contact.lead_source = lead_source || state.leadDetail.contact.lead_source;
+              state.leadDetail.contact.leadSource = leadSource || state.leadDetail.contact.leadSource;
             }
             
             state.leads = state.leads.map((lead) => {
-              if (lead.lead_id === lead_id) {
+              if (lead.leadId === leadId) {
                 return {
                   ...lead,
                   name: name || lead.name,
                   phone: phone || lead.phone,
-                  lead_source: lead_source || lead.lead_source,
+                  leadSource: leadSource || lead.leadSource,
                 };
               }
               return lead;

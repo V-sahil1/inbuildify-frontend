@@ -1,11 +1,13 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, Button } from "antd";
 import {
   IconCheck,
   IconInfoCircleFilled,
   IconAlertSquare,
   IconX,
+  IconAlertCircle,
 } from "@tabler/icons-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ConfirmationModalProps {
   open: boolean;
@@ -24,7 +26,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   open,
   onClose,
   onConfirm,
-  title,
+  title = "Are you sure?",
   message,
   type = "info",
   confirmText = "Confirm",
@@ -32,46 +34,67 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   loading = false,
   maxWidth = "sm",
 }) => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setIsVisible(true);
+    }
+  }, [open]);
+
   const getConfig = () => {
+    const baseClasses = "p-3 rounded-full mb-6 shadow-lg";
     switch (type) {
       case "success":
         return {
-          icon: <IconCheck size={48} className="text-green-500" />,
-          btnType: "primary" as const,
+          icon: (
+            <div className={`${baseClasses} bg-green-100`}>
+              <IconCheck size={40} className="text-green-600" strokeWidth={2.5} />
+            </div>
+          ),
           btnClass:
-            "btn bg-green-500 hover:!bg-green-600 !border-none !text-white",
+            "bg-green-600 hover:bg-green-700 text-white border-none hover:shadow-lg transition-all duration-200",
+          borderColor: "border-green-100",
         };
       case "warning":
         return {
-          icon: <IconAlertSquare size={48} className="text-yellow-500" />,
-          btnType: "primary" as const,
+          icon: (
+            <div className={`${baseClasses} bg-amber-100`}>
+              <IconAlertSquare size={40} className="text-amber-600" strokeWidth={2} />
+            </div>
+          ),
           btnClass:
-            "btn bg-yellow-500 hover:!bg-yellow-600 !border-none !text-black",
+            "bg-amber-500 hover:bg-amber-600 text-white border-none hover:shadow-lg transition-all duration-200",
+          borderColor: "border-amber-100",
         };
       case "danger":
         return {
-          icon: <IconX size={48} className="text-red-500" />,
-          btnType: "primary" as const,
-          btnClass: "btn bg-red-500 hover:bg-red-600 !border-none !text-white",
+          icon: (
+            <div className={`${baseClasses} bg-red-100`}>
+              <IconX size={40} className="text-red-600" strokeWidth={2.5} />
+            </div>
+          ),
+          btnClass:
+            "bg-red-600 hover:bg-red-700 text-white border-none hover:shadow-lg transition-all duration-200",
+          borderColor: "border-red-100",
         };
       case "info":
+      default:
         return {
           icon: (
-            <IconInfoCircleFilled
-              size={48}
-              className="text-blue-500 hover:!bg-blue-600 !border-none !text-black"
-            />
+            <div className={`${baseClasses} bg-blue-100`}>
+              <IconInfoCircleFilled size={40} className="text-blue-600" />
+            </div>
           ),
-          btnType: "primary" as const,
           btnClass:
-            "btn bg-blue-500 hover:bg-blue-600 !border-none !text-white",
+            "bg-blue-600 hover:bg-blue-700 text-white border-none hover:shadow-lg transition-all duration-200",
+          borderColor: "border-blue-100",
         };
     }
   };
 
-  const { icon, btnType, btnClass } = getConfig();
+  const { icon, btnClass, borderColor } = getConfig();
 
-  // Modal maxWidth mapping
   const modalWidth =
     maxWidth === "xs"
       ? 360
@@ -85,49 +108,121 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
       ? 1200
       : 500;
 
+  const handleClose = () => {
+    setIsVisible(false);
+    setTimeout(onClose, 200); // Wait for animation to complete
+  };
+
+  const handleConfirm = () => {
+    setIsVisible(false);
+    onConfirm();
+  };
+
   return (
     <Modal
       open={open}
-      onCancel={onClose}
+      onCancel={handleClose}
       centered
       width={modalWidth}
-      footer={[
-        <div className=" flex  justify-center gap-10">
-          <div>
-  <Button
-          key="cancel"
-          onClick={onClose}
-          disabled={loading}
-          className="btn  text-black border !border-grey-500 hover:!bg-gray-600 hover:!text-white"
-        >
-          {cancelText}
-        </Button>
-          </div>
-      <div>
-  <Button
-          key="confirm"
-          type={btnType}
-          className={btnClass}
-          danger={type === "danger"}
-          onClick={onConfirm}
-          loading={loading}
-        >
-          {confirmText}
-        </Button>
-      </div>
-      
-        </div>
-        
-      ]}
+      footer={null}
+      closeIcon={null}
       className="confirmation-modal"
+      styles={{
+        content: {
+          borderRadius: '16px',
+          overflow: 'hidden',
+          padding: '0',
+        },
+        body: {
+          padding: '0',
+        }
+      }}
     >
-      <div className="flex flex-col items-center text-center py-6">
-        <div className="mb-4">{icon}</div>
-        <h3 className="text-lg font-semibold mb-2">{title}</h3>
-        <div className=" text-sm">
-          {typeof message === "string" ? <p>{message}</p> : message}
-        </div>
-      </div>
+      <AnimatePresence>
+        {isVisible && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.2 }}
+            className="p-8"
+          >
+            <div className="absolute top-4 right-4">
+              <button
+                onClick={handleClose}
+                className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                aria-label="Close"
+              >
+                <IconX size={20} />
+              </button>
+            </div>
+
+            <div className="flex flex-col items-center text-center">
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.1, type: 'spring', stiffness: 500, damping: 20 }}
+              >
+                {icon}
+              </motion.div>
+              
+              <motion.h3 
+                className="text-xl  text-gray-600 mb-3 mt-2"
+                initial={{ y: 10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.15 }}
+              >
+                {typeof message === "string" ? <p>{message}</p> : message}
+                </motion.h3>
+              
+              {/* <motion.div 
+                className="text-gray-600 mb-8 leading-relaxed"
+                initial={{ y: 10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                {typeof message === "string" ? <p>{message}</p> : message}
+              </motion.div> */}
+
+              <div className="flex flex-col sm:flex-row justify-center gap-4 w-full mt-6">
+                <motion.div
+                  className="w-full sm:w-auto"
+                  initial={{ y: 10, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <Button
+                    block
+                    size="large"
+                    onClick={handleClose}
+                    disabled={loading}
+                    className="h-[40px] rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 font-medium text-base"
+                  >
+                    {cancelText}
+                  </Button>
+                </motion.div>
+                
+                <motion.div
+                  className="w-full sm:w-auto"
+                  initial={{ y: 10, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.25 }}
+                >
+                  <Button
+                    block
+                    size="large"
+                    onClick={handleConfirm}
+                    loading={loading}
+                    className={`h-[40px] rounded-lg font-medium text-base ${btnClass}`}
+                  >
+                    {confirmText}
+                  </Button>
+                </motion.div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Modal>
   );
 };
