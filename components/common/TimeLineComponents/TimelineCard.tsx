@@ -75,7 +75,7 @@ const TimelineCard: FC<TimelineCardProps> = ({
             </div>
 
             {/* Card */}
-            <div className="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div className="flex-1 bg-body-color rounded-lg shadow-sm border border-border-color  p-4">
                 {/* Row 1 - Tags + Status */}
                 {(getTags().length > 0 || status) && (
                     <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
@@ -104,7 +104,7 @@ const TimelineCard: FC<TimelineCardProps> = ({
 
                 {/* Row 2 - Title + Avatar */}
                 <div className="flex items-center justify-between gap-3">
-                    <h3 className="font-medium text-gray-800 text-base sm:text-lg">
+                    <h3 className="font-medium text-font-color text-base sm:text-lg">
                         {getTitle()}
                     </h3>
                     {/* Placeholder Avatar */}
@@ -116,12 +116,12 @@ const TimelineCard: FC<TimelineCardProps> = ({
                 {/* Row 3 - Description / Details */}
                 <>
                     {children ?? (
-                        <p className="text-sm text-gray-600 mb-3">
+                        <p className="text-sm text-font-color-100 mb-3">
                             {getDescription()}
                         </p>
                     )}
                     {type === "Notes" && (data as NoteDetails) && (
-                        <div className="text-xs text-gray-500 space-y-1 mt-2">
+                        <div className="text-xs text-font-color-100 space-y-1 mt-2">
                             {(data as NoteDetails).files && (data as NoteDetails).files!.length > 0 && (
                                 <p><strong>Files:</strong> {(data as NoteDetails).files!.map(f => f.name).join(', ')}</p>
                             )}
@@ -134,7 +134,7 @@ const TimelineCard: FC<TimelineCardProps> = ({
                         </div>
                     )}
                     {type === "Appointments" && (data as AppointmentDetails) && (
-                        <div className="text-xs text-gray-500 space-y-1 mt-2">
+                        <div className="text-xs text-font-color-100 space-y-1 mt-2">
                             <p><strong>Date:</strong> {(data as AppointmentDetails).date}</p>
                             <p><strong>Time:</strong> {(data as AppointmentDetails).startTime} - {(data as AppointmentDetails).endTime}</p>
                             <p><strong>Location:</strong> {(data as AppointmentDetails).location}</p>
@@ -143,7 +143,7 @@ const TimelineCard: FC<TimelineCardProps> = ({
                         </div>
                     )}
                     {type === "Tasks" && (data as TaskDetails) && (
-                        <div className="text-xs text-gray-500 space-y-1 mt-2">
+                        <div className="text-xs text-font-color-100 space-y-1 mt-2">
                             <p><strong>Due Date:</strong> {(data as TaskDetails).dueDate}</p>
                             <p><strong>Time:</strong> {(data as TaskDetails).time}</p>
                             <p><strong>Priority:</strong> {(data as TaskDetails).priority}</p>
@@ -154,7 +154,7 @@ const TimelineCard: FC<TimelineCardProps> = ({
 
                 {/* Row 4 - Created info + Actions */}
                 <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-font-color-100">
                         {createdBy} created on {createdAt}
                     </p>
 

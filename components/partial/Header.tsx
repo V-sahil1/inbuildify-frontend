@@ -440,7 +440,7 @@ export default function Header({
     <>
       <div
         className={`md:py-4 md:px-6 sm:p-3 py-3 border-b-4 border-card-color bg-body-color ${
-          headerFix ? "sticky top-0 z-[2] xl:shadow-none shadow-lg" : ""
+          headerFix ? "sticky top-0 z-[11] xl:shadow-none shadow-lg" : ""
         }`}
       >
         <div className="container-fluid flex items-center">
