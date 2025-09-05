@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Card, List, message, Space, Tabs, Tag, Tooltip, Typography } from "antd";
+import { Card, List, message, Result, Space, Tabs, Tag, Tooltip, Typography } from "antd";
 import StageProgress from "@/components/common/StageProgress";
 import ConvertLeadModal from "@/components/leadDetail/ConvertLeadModal";
 import PropertyDetailsModal from "@/components/leadDetail/PropertyDetailsModal";
@@ -10,6 +10,7 @@ import {
   IconFileText,
   IconMail,
   IconPhoneCall,
+  IconTool,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import SystemRoutes from "@lib/constants/Routes";
@@ -29,7 +30,8 @@ import { clearLeadDetail } from "@redux/feature/lead/leadSlice";
 import { getQuotationsByLeadIdThunk } from "@redux/feature/lead/leadThunk";
 import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
 import leadCreateFields from "@/components/formFields/LeadCreateFields";
-import LeadSpecifications from "@/components/leadDetail/LeadSpecifications";
+import LeadQuotations from "@/components/leadDetail/LeadQuotations/LeadQuotations";
+import LeadActions from "@/components/leadDetail/LeadActions";
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -346,17 +348,17 @@ function App() {
       <div className="m-3">
         <Tabs defaultActiveKey="action" type="card" tabBarStyle={{ margin: "0px", marginRight: '10px' }} tabBarGutter={10} size="large">
           {/* Action Tab */}
-          <TabPane tab="Action" key="action" className="border">
-            <LeadSpecifications />
+          <TabPane tab="Action" key="action" className="border border-t-0">
+            <LeadActions />
           </TabPane>
           <TabPane tab="Document" key="Document">
-            <div>Document</div>
+            <div className="bg-card-color"><Result title="Document Functionality comming soon" subTitle="Please check back later" /></div>
           </TabPane>
           <TabPane tab="Quotations" key="quotations">
-            <div>Quotations</div>
+            <LeadQuotations />
           </TabPane>
           <TabPane tab="Activity" key="Activity">
-            <div>Activity</div>
+            <div className="bg-card-color"><Result title="Activity Functionality comming soon" subTitle="Please check back later" /></div>
           </TabPane>
         </Tabs>
       </div>

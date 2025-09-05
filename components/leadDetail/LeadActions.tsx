@@ -69,7 +69,7 @@ const timeLineCardData: TimelineCardProps[] = [
     },
 ];
 
-const LeadSpecifications = () => {
+const LeadActions = () => {
     const [cardsData, setCardsData] = useState<TimelineCardProps[]>(timeLineCardData);
     const [activeTab, setActiveTab] = useState("All");
     const [activeAction, setActiveAction] = useState<ActionType>(null);
@@ -306,7 +306,7 @@ const LeadSpecifications = () => {
     };
 
     return (
-        <div className="relative m-4 mt-0">
+        <div className="relative p-4 mt-0 bg-card-color">
             <div className="p-4">
                 <div className="ml-8">
                     <TimelineActionsBar
@@ -322,7 +322,7 @@ const LeadSpecifications = () => {
                 </div>
             </div>
 
-            <div className="absolute left-[14px] top-0 bottom-0 w-[2px] bg-gray-300" />
+            <div className="absolute left-[29px] top-0 bottom-0 w-[1px] bg-gray-300" />
 
             <div className="space-y-8">
                 {(activeAction || editingItem) && renderActionForm()}
@@ -342,4 +342,4 @@ const LeadSpecifications = () => {
     );
 };
 
-export default LeadSpecifications;
+export default LeadActions;

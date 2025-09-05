@@ -1,12 +1,12 @@
-export interface Quotation {
-    id: string;
-    version: string;
-    status: 'Draft' | 'Approved' | 'Sent';
-    // range: string;
-    // dwellingType: string;
-    expiryDate: string;
-    total: number;
-  }
+// export interface Quotation {
+//     id: string;
+//     version: string;
+//     status: 'Draft' | 'Approved' | 'Sent';
+//     // range: string;
+//     // dwellingType: string;
+//     expiryDate: string;
+//     total: number;
+//   }
   
   export interface LeadDetails {
     lead_id?: string;
@@ -141,3 +141,20 @@ export type TimelineCardProps =
   | (BaseTimelineCardProps & { type: "Appointments"; data: AppointmentDetails })
   | (BaseTimelineCardProps & { type: "Tasks"; data: TaskDetails })
   | (BaseTimelineCardProps & { type: "Sms"; data: SmsDetails });
+
+  // Lead Detail Quotation
+  export type QuotationStatus = "approved" | "pending" | "rejected" | "all";
+  export interface QuotationVersion {
+    id: string;
+    version: string;
+    status: QuotationStatus;
+    totalCost: string;
+    createdBy: string;
+    createdAt: string;
+  }
+
+export interface Quotation {
+  quotationId: string;
+  property: string;
+  versions: QuotationVersion[];
+}

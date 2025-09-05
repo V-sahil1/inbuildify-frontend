@@ -4,7 +4,6 @@ import FooterActions from "@/components/leadDetail/FooterActions";
 import InfoCards from "@/components/leadDetail/InfoCards";
 import ItemsPanel from "@/components/leadDetail/ItemsPanel";
 import { Plan } from "@/pages/leads/[id]";
-import { quotationData } from "data/sampleData";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { Status } from "@lib/constants/enum";
 import { toggleExpand } from "@redux/feature/masterPriceList/masterPriceListSlice";
@@ -59,7 +58,6 @@ const Index = () => {
   const [selectedPackage, setSelectedPackage] = useState<Package | undefined>(
     selectedPackageFromSlice
   );
-  const [quotation, setQuotation] = useState(quotationData);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false)
   const [extraItem, setExtraItem] = useState(false);
@@ -343,7 +341,6 @@ const Index = () => {
 
       <div className="m-3">
         <FooterActions
-          expiryDate={quotation.expiryDate}
           total={calculateTotalQuotation(
             Number(packageFromSlice?.amount),
             itemsFromSlice

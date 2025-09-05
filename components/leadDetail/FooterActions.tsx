@@ -6,7 +6,7 @@ import {
 } from "@tabler/icons-react";
 
 interface FooterActionsProps {
-  expiryDate: string;
+  expiryDate?: string;
   total: number;
   onApprove: () => void;
   onPreview: () => void;
