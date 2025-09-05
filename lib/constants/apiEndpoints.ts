@@ -80,5 +80,9 @@ class API_ENDPOINTS {
     page: number,
     limit: number
   ) => `${this.QUOTATION_BASE}?leadId=${leadId}&page=${page}&limit=${limit}`;
+
+  // location
+  public static COUNTRY_BASE = "/country";
+  public static STATE_BASE = "/state";
 }
 export default API_ENDPOINTS;
