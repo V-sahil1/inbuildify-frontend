@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Card, List, message, Space, Tag, Tooltip, Typography } from "antd";
+import { Card, List, message, Space, Tabs, Tag, Tooltip, Typography } from "antd";
 import StageProgress from "@/components/common/StageProgress";
 import ConvertLeadModal from "@/components/leadDetail/ConvertLeadModal";
 import PropertyDetailsModal from "@/components/leadDetail/PropertyDetailsModal";
@@ -29,8 +29,10 @@ import { clearLeadDetail } from "@redux/feature/lead/leadSlice";
 import { getQuotationsByLeadIdThunk } from "@redux/feature/lead/leadThunk";
 import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
 import leadCreateFields from "@/components/formFields/LeadCreateFields";
+import LeadSpecifications from "@/components/leadDetail/LeadSpecifications";
 
 const { Text } = Typography;
+const { TabPane } = Tabs;
 export interface Plan {
   id: string;
   name: string;
@@ -130,21 +132,21 @@ function App() {
           label: "Proposal",
           color: "bg-green-500",
           textColor: "text-white",
-          onClick: () => {},
+          onClick: () => { },
         },
         {
           key: "negotiation",
           label: "Negotiation",
           color: "bg-yellow-300",
           textColor: "text-black",
-          onClick: () => {},
+          onClick: () => { },
         },
         {
           key: "close",
           label: "Close",
           color: "bg-gray-200",
           textColor: "text-black",
-          onClick: () => {},
+          onClick: () => { },
         },
       ];
     }
@@ -154,7 +156,7 @@ function App() {
         label: "New",
         color: "bg-green-500",
         textColor: "text-white",
-        onClick: () => {},
+        onClick: () => { },
       },
       {
         key: "working",
@@ -313,34 +315,52 @@ function App() {
               Create Quotation
             </Link>
             <div className="max-h-[200px] my-2 overflow-y-auto">
-                <List
-                  dataSource={createdQuotations?.quotations}
-                  locale={{
-                    emptyText: (
-                      <div className="flex flex-col items-center justify-center p-6">
-                        <IconFileText />
-                        <p className=" text-sm text-gray-500 text-center">No quotations found</p>
-                        <p className="text-xs text-gray-400 mt-1">Create a quotation to get started</p>
-                      </div>
-                    ),
-                  }}
-                  renderItem={(quotation: any) => (
-                    <List.Item key={quotation?.quotation_id}>
-                      <Space size="middle">
-                        <Tooltip title={quotation?.quotation_id}>
-                          <Text type="secondary">{quotation?.quotation_id?.slice(0, 13)}</Text>
-                        </Tooltip>
-                        <Tag color={quotation?.lead_status === "Open" ? "blue" : "green"}>{quotation?.lead_status}</Tag>
-                        <Text>${quotation?.total_amount}</Text>
-                      </Space>
-                    </List.Item>
-                  )}
-                />
+              <List
+                dataSource={createdQuotations?.quotations}
+                locale={{
+                  emptyText: (
+                    <div className="flex flex-col items-center justify-center p-6">
+                      <IconFileText />
+                      <p className=" text-sm text-gray-500 text-center">No quotations found</p>
+                      <p className="text-xs text-gray-400 mt-1">Create a quotation to get started</p>
+                    </div>
+                  ),
+                }}
+                renderItem={(quotation: any) => (
+                  <List.Item key={quotation?.quotation_id}>
+                    <Space size="middle">
+                      <Tooltip title={quotation?.quotation_id}>
+                        <Text type="secondary">{quotation?.quotation_id?.slice(0, 13)}</Text>
+                      </Tooltip>
+                      <Tag color={quotation?.lead_status === "Open" ? "blue" : "green"}>{quotation?.lead_status}</Tag>
+                      <Text>${quotation?.total_amount}</Text>
+                    </Space>
+                  </List.Item>
+                )}
+              />
             </div>
           </div>
         </Card>}
       </div>
 
+      <div className="m-3">
+        <Tabs defaultActiveKey="action" type="card" tabBarStyle={{ margin: "0px", marginRight: '10px' }} tabBarGutter={10} size="large">
+          {/* Action Tab */}
+          <TabPane tab="Action" key="action" className="border">
+            <LeadSpecifications />
+          </TabPane>
+          <TabPane tab="Document" key="Document">
+            <div>Document</div>
+          </TabPane>
+          <TabPane tab="Quotations" key="quotations">
+            <div>Quotations</div>
+          </TabPane>
+          <TabPane tab="Activity" key="Activity">
+            <div>Activity</div>
+          </TabPane>
+        </Tabs>
+      </div>
+      {/* <LeadSpecifications /> */}
       <ConvertLeadModal
         visible={isConvertModalVisible}
         onCancel={handleConvertCancel}

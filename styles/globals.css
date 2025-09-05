@@ -49,6 +49,7 @@
   --primary-hover: #db8c58;
   --body-color: #f4f7f6;
   --font-color: #363535;
+  --font-color-contrast: #ffffff;
   --font-color-100: #9399a1;
   --font-color-200: #eeeeee;
   --font-color-400: #bdbdbd;
@@ -63,6 +64,7 @@
   --primary-hover: #66469d;
   --body-color: #2d3238;
   --font-color: #e0e0e0;
+  --font-color-contrast: #000000;
   --font-color-100: #9399a1;
   --font-color-200: #424242;
   --font-color-400: #bdbdbd;

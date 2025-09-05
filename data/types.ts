@@ -85,3 +85,59 @@ export interface Quotation {
 //   description?: string;
 //   items?: PackageItem[];
 // }
+
+// For TimeLine Functionality
+export type ActionType = "addNotes" | "sendSms" | "bookAppointment" | "createTask" | null;
+export type TimelineType = "Tasks" | "Notes" | "Sms" | "Appointments";
+
+export interface NoteDetails {
+  title: string;
+  description: string;
+  tags: string[];
+  sendToCustomer?: boolean;
+  createFollowup?: boolean;
+  dueDate?: string;
+  files?: Array<{ uid: string; name: string; status?: string; url?: string }>;
+}
+
+export interface AppointmentDetails {
+  title: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  location: string;
+  user: string;
+  notes: string;
+  sendToCustomer: boolean;
+}
+
+export interface TaskDetails {
+  name: string;
+  dueDate: string;
+  time: string;
+  priority: "Low" | "Medium" | "High";
+  description: string;
+  assignee: string;
+  files: any[]; // You might want to define a more specific type for files
+}
+
+export interface SmsDetails {
+  message: string;
+  recipient: string;
+}
+
+export interface BaseTimelineCardProps {
+  date: string;
+  createdBy: string;
+  createdAt: string;
+  status?: "completed" | "pending" | "working";
+  onEdit?: (updated: TimelineCardProps) => void; // send updated values to parent
+  onReschedule?: () => void;
+  children?: React.ReactNode;
+}
+
+export type TimelineCardProps =
+  | (BaseTimelineCardProps & { type: "Notes"; data: NoteDetails })
+  | (BaseTimelineCardProps & { type: "Appointments"; data: AppointmentDetails })
+  | (BaseTimelineCardProps & { type: "Tasks"; data: TaskDetails })
+  | (BaseTimelineCardProps & { type: "Sms"; data: SmsDetails });
