@@ -352,13 +352,13 @@ function App() {
             <LeadActions />
           </TabPane>
           <TabPane tab="Document" key="Document">
-            <div className="bg-card-color"><Result title="Document Functionality comming soon" subTitle="Please check back later" /></div>
+            <div className="bg-card-color"><Result title="Document Functionality coming soon" subTitle="Please check back later" /></div>
           </TabPane>
           <TabPane tab="Quotations" key="quotations">
             <LeadQuotations />
           </TabPane>
           <TabPane tab="Activity" key="Activity">
-            <div className="bg-card-color"><Result title="Activity Functionality comming soon" subTitle="Please check back later" /></div>
+            <div className="bg-card-color"><Result title="Activity Functionality coming soon" subTitle="Please check back later" /></div>
           </TabPane>
         </Tabs>
       </div>
