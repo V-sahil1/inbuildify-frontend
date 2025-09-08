@@ -122,19 +122,33 @@ export const QuatationPdf = ({
   };
 
   // Helper component for creating lists with a title
-  const ListWithTitle = ({ title, list, description }: { title?: string; list?: string[], description?: string | string[] }) => (
+  const ListWithTitle = ({ title, list, description, imageSrc }: { title?: string; list?: string[], description?: string | string[], imageSrc?: string }) => (
     <View style={Page3styles.section}>
       {
         title && (
           <Text style={Page3styles.SubHeading}>{title}</Text>
         )
       }
+   {/* Row container for list + image */}
+   <View style={Page3styles.row}>
+      {/* Left column (list + description) */}
+      <View style={Page3styles.leftCol}>
       {list?.map((item, i) => (
         <View key={i} style={Page3styles.listItem}>
           <Text style={Page3styles.bullet}>•</Text>
           <Text style={Page3styles.listText}>{item}</Text>
         </View>
       ))}
+      </View>
+         {/* Right column (image) */}
+        {imageSrc && (
+          <>
+            <View style={Page3styles.rightCol}>
+              <Image src={imageSrc} style={Page3styles.image} />
+            </View>
+          </>
+        )}
+      </View>
 
       {Array.isArray(description) ?
         (
@@ -343,6 +357,7 @@ export const QuatationPdf = ({
             `Dwelling: ${floorPlan?.dwelling}`,
             `Total Area: ${floorPlan?.totalSqft} Sqft`
           ]}
+          imageSrc={floorPlan?.image}
         />
 
         {/* Facade Detail Section */}
@@ -357,6 +372,7 @@ export const QuatationPdf = ({
               // `Created At: ${new Date(facade?.createdAt).toLocaleDateString()}`,
               // `Updated At: ${new Date(facade?.updatedAt).toLocaleDateString()}`
             ]}
+            imageSrc={facade?.image}
           />
 
           {quotePackage?.categoryItemIds?.length > 0 && (
@@ -1120,6 +1136,25 @@ const Page3styles = StyleSheet.create({
     textAlign: 'left',
     marginBottom: 5,
     marginTop: 5,
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
+  leftCol: {
+    flex: 1,
+    marginRight: 10,
+  },
+  rightCol: {
+    width: 300,
+    alignItems: "center",
+  },
+  image: {
+    width: 300,
+    height: 200,
+    borderRadius: "10px",
+    objectFit: "contain",
   },
 });
 
