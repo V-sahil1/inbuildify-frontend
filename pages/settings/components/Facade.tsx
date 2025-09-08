@@ -13,15 +13,16 @@ import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
 import { facadeFields } from "@/components/formFields/facadeFields";
 import { Status } from "@lib/constants/enum";
 import { enumToReadable } from "@lib/utils/enumToRedable";
-import { Empty, message, Spin } from "antd";
+import { Checkbox, Empty, message, Spin } from "antd";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import ConfirmationModal from "@/components/common/ConfirmationModal";
+import { clearStandardFilter, clearUpgradeFilter, setSelectedFilters } from "@redux/feature/facade/facadeSlice";
 
 const Facade = () => {
   const dispatch = useAppDispatch();
   const facades = useAppSelector((state) => state.facade.facades);
   const status = useAppSelector((state) => state.facade.status);
-  const filters = useAppSelector((state) => state.floorPlan.filters);
+  const selectedFilters = useAppSelector((state) => state.facade.selectedFilters);
   const [editingFacade, setEditingFacade] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -29,18 +30,27 @@ const Facade = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [facadeId, setFacadeId] = useState<string | null>(null);
-  useEffect(() => {
-    const fetchFacadesData = async () => {
-      try {
-        await dispatch(getFacades(undefined)).unwrap();
-      } catch (error) {
-        message.error(error || "Failed to fetch Facades");
-      }
-    };
-    if (status === Status.IDLE) {
-      fetchFacadesData();
+
+  const fetchFacadesData = async (filters?: { standard?: boolean; upgrade?: boolean }) => {
+    try {
+      await dispatch(getFacades(filters)).unwrap();
+    } catch (error) {
+      message.error(error || "Failed to fetch Facades");
     }
-  }, [dispatch, status, filters]);
+  };
+
+  useEffect(() => {
+    // if (status === Status.IDLE) {
+    fetchFacadesData(selectedFilters);
+    // }
+  }, [selectedFilters]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(clearStandardFilter());
+      dispatch(clearUpgradeFilter());
+    };
+  }, []); 
 
   const handleOpenModal = () => {
     setIsModalVisible(true);
@@ -116,12 +126,25 @@ const Facade = () => {
         <h2 className="text-[24px]/[30px] font-bold text-var(--font-color)">
           Facade Management
         </h2>
+        <div>
+          <Checkbox
+          checked={!!selectedFilters.standard}
+          onChange={(e) => dispatch(setSelectedFilters({ standard: e.target.checked }))}
+          >
+            Standard
+          </Checkbox>
+          <Checkbox
+          onChange={(e) => dispatch(setSelectedFilters({ upgrade: e.target.checked }))}
+          >
+            Upgrade
+          </Checkbox>
         <button
           className="btn large bg-primary cursor-pointer text-white"
           onClick={handleOpenModal}
         >
           Create Facade
         </button>
+          </div>
       </div>
 
       {status == Status.PENDING ? (

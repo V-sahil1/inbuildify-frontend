@@ -8,14 +8,20 @@ export const facadeSlice = createSlice({
     initialState: {
         facades: [] as IFacadeState[],
         status: Status.IDLE,
-        selectedFilters: { dwelling_type: '' },
+        selectedFilters: { dwelling_type: '', standard: false, upgrade: false },
     },
     reducers: {
         setSelectedFilters: (state, action) => {
             state.selectedFilters = { ...state.selectedFilters, ...action.payload };
         },
         clearFilters: (state) => {
-            state.selectedFilters = { dwelling_type: '' };
+            state.selectedFilters.dwelling_type = '';
+        },
+        clearStandardFilter: (state) => {
+            state.selectedFilters.standard = false;
+        },
+        clearUpgradeFilter: (state) => {
+            state.selectedFilters.upgrade = false;
         },
     },
     extraReducers: (builder) => {
@@ -46,5 +52,5 @@ export const facadeSlice = createSlice({
     }
 })
 
-export const { setSelectedFilters, clearFilters } = facadeSlice.actions;
+export const { setSelectedFilters, clearFilters, clearStandardFilter, clearUpgradeFilter } = facadeSlice.actions;
 export default facadeSlice.reducer

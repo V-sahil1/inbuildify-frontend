@@ -30,6 +30,7 @@ import { createLeadContactThunk, updateLeadContactThunk } from "@redux/feature/l
 import LeadDetailsForm from "./forms/LeadDetailsForm";
 import { ILeadContact } from "@redux/feature/lead/ILeadState";
 import { setQuotationContact } from "@redux/feature/quotation/quotationSlice";
+import { clearStandardFilter, clearUpgradeFilter } from "@redux/feature/facade/facadeSlice";
 
 interface InfoCardsProps {
   leadDetails: ILeadContact;
@@ -406,8 +407,8 @@ const InfoCards: React.FC<InfoCardsProps> = ({
       />
       <FacadeModal
         visible={facadeModalVisible}
-        onCancel={() => setFacadeModalVisible(false)}
-        onSave={onFacadeSelect}
+        onCancel={() => {setFacadeModalVisible(false);dispatch(clearStandardFilter());dispatch(clearUpgradeFilter())}}
+        onSave={(data) => {onFacadeSelect(data);dispatch(clearStandardFilter());dispatch(clearUpgradeFilter())}}
         selectedFacade={selectedFacade}
       />
       {/* Package Selection Modal */}
