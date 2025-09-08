@@ -322,8 +322,8 @@ const LeadActions = () => {
                 </div>
             </div>
 
-            <div className="absolute left-[29px] top-0 bottom-0 w-[1px] bg-gray-300" />
-
+            <div className="relative ">
+                <div className="absolute left-[13px] top-0 bottom-0 w-[1px] bg-gray-300" />
             <div className="space-y-8">
                 {(activeAction || editingItem) && renderActionForm()}
 
@@ -337,6 +337,7 @@ const LeadActions = () => {
                             onEdit={(data) => handleEdit(data, idx)}
                         />
                     ))}
+            </div>
             </div>
         </div>
     );

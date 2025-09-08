@@ -19,14 +19,14 @@ const TimelineActionsBar: FC<TimelineActionsBarProps> = ({
   onActionSelect,
 }) => {
   return (
-    <div className="flex justify-between items-center w-full">
+    <div className="flex justify-between items-center w-full sm:flex-row flex-col">
       {/* Tabs Section */}
-      <div className="flex items-center gap-2 border border-gray-300 rounded-full px-2 py-1">
+      <div className="flex items-center sm:gap-2 border border-gray-300 rounded-full sm:px-2 px-1 py-1">
         {tabs.map((tab) => (
           <button
             key={tab}
             onClick={() => onTabChange(tab)}
-            className={`px-3 py-1 text-sm rounded-full transition 
+            className={`px-2 sm:px-3 py-1 sm:text-sm text-xs rounded-full transition 
               ${activeTab === tab
                 ? "bg-[--primary] text-[--font-color-contrast] font-medium"
                 : "hover:text-[--primary]"
@@ -39,7 +39,7 @@ const TimelineActionsBar: FC<TimelineActionsBarProps> = ({
       </div>
 
       {/* Actions Section */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 sm:mt-0 mt-2">
         <Button
           icon={<IconFilter2 />}
           className="border-gray-300"

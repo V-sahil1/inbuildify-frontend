@@ -155,6 +155,10 @@ const theme = {
       borderRadiusSM: 0,
       borderRadius: 0,
     },
+    Result:{
+      colorTextHeading:'var(--font-color)',
+      colorTextDescription:'var(--font-color-100)'
+    }
   },
 };
 
