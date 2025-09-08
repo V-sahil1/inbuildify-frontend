@@ -2,7 +2,8 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import api from "@lib/constants/api";
 import API_ENDPOINTS from "@lib/constants/apiEndpoints";
 import { ApiResponse } from "../auth/IAuthState";
-import { PropertyDetails } from "data/types";
+// import { PropertyDetails } from "data/types";
+import { ILeadContact } from "./ILeadState";
 
 export interface createLeadPayload {
     lead_source: string;
@@ -50,21 +51,56 @@ export const getLeadByIdThunk = createAsyncThunk(
     }
 );
 
-export const updateLeadThunk = createAsyncThunk(
-    "lead/updateLead",
+export const updateLeadContactThunk = createAsyncThunk(
+  "lead/updateLeadContact",
+  async (
+    payload: {
+      id: string;
+      details: { name: string; phone: string; leadSource: string };
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response: ApiResponse<ILeadContact> = await api.put(
+        `${API_ENDPOINTS.LEAD_CONTACT}/${payload.id}`,
+        { data: payload.details }
+      );
+      return response.data;
+    } catch (err: any) {
+      return rejectWithValue(err?.message);
+    }
+  }
+);
+
+export const createLeadContactThunk = createAsyncThunk(
+    "lead/createLeadContact",
     async (payload: {id:string, details:{name:string, phone:string, leadSource:string}}, { rejectWithValue }) => {
         try {
-            const response: ApiResponse<any> = await api.post(
-                `${API_ENDPOINTS.LEAD_BASE}/${payload.id}`,
+            const response: ApiResponse<ILeadContact> = await api.post(
+                `${API_ENDPOINTS.LEAD_CONTACT}/${payload.id}`,
                 {data: payload.details}
             );
-            // console.log(response.data)
             return response.data;
         } catch (err: any) {
             return rejectWithValue(err?.message);
         }
     }
 );
+// export const updateLeadThunk = createAsyncThunk(
+//     "lead/updateLead",
+//     async (payload: {id:string, details:{name:string, phone:string, leadSource:string}}, { rejectWithValue }) => {
+//         try {
+//             const response: ApiResponse<any> = await api.post(
+//                 `${API_ENDPOINTS.LEAD_BASE}/${payload.id}`,
+//                 {data: payload.details}
+//             );
+//             // console.log(response.data)
+//             return response.data;
+//         } catch (err: any) {
+//             return rejectWithValue(err?.message);
+//         }
+//     }
+// );
 
 export const updatePropertyDetailsThunk = createAsyncThunk(
     "lead/updatePropertyDetails",

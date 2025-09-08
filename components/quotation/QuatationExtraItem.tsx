@@ -14,10 +14,13 @@ const { Option } = Select;
 interface QuatationItemProps {
     onQuantityChange: (value: number) => void;
     onToggleAdd: () => void;
+    onItemQuantityChange: (itemId: string, quantity: number) => void;
+    onItemAdd: (itemId: string, price: number) => void;
 }
 
 export const QuatationExtraItem: React.FC<QuatationItemProps> = React.memo(
-    ({ onQuantityChange, onToggleAdd }) => {
+    ({ onQuantityChange, onToggleAdd ,onItemQuantityChange,
+        onItemAdd,}) => {
         const [added, setAdded] = useState(false);
         const { categories } = useAppSelector(
             (state: RootState) => state.masterPriceList

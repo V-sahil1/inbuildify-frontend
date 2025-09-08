@@ -1,39 +1,52 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Card, List, message, Result, Space, Tabs, Tag, Tooltip, Typography } from "antd";
+import {
+  Card,
+  // List,
+  message, Result,
+  // Space,
+  Tabs,
+  // Tag,
+  // Tooltip,
+  // Typography,
+} from "antd";
 import StageProgress from "@/components/common/StageProgress";
 import ConvertLeadModal from "@/components/leadDetail/ConvertLeadModal";
 import PropertyDetailsModal from "@/components/leadDetail/PropertyDetailsModal";
 import {
   IconBarrierBlock,
   IconEdit,
-  IconFileText,
+  // IconFileText,
   IconMail,
   IconPhoneCall,
-  IconTool,
+  // IconTool,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import SystemRoutes from "@lib/constants/Routes";
 import { useRouter } from "next/router";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import {
+  createLeadContactThunk,
   getLeadByIdThunk,
-  updateLeadThunk,
+  updateLeadContactThunk,
 } from "@redux/feature/lead/leadThunk";
-import { RootState } from "@redux/feature/store";
+// import { RootState } from "@redux/feature/store";
 import dayjs from "dayjs";
 import {
   setQuotationContact,
   setQuotationProperty,
 } from "@redux/feature/quotation/quotationSlice";
-import { clearLeadDetail } from "@redux/feature/lead/leadSlice";
+// import { clearLeadDetail } from "@redux/feature/lead/leadSlice";
 import { getQuotationsByLeadIdThunk } from "@redux/feature/lead/leadThunk";
-import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
-import leadCreateFields from "@/components/formFields/LeadCreateFields";
 import LeadQuotations from "@/components/leadDetail/LeadQuotations/LeadQuotations";
+import LeadDetailsForm from "@/components/leadDetail/forms/LeadDetailsForm";
+import { enumToReadable } from "@lib/utils/enumToRedable";
+import { ILeadContact } from "@redux/feature/lead/ILeadState";
+import { QuotationResponse } from "@redux/feature/quotation/IQuotationState";
 import LeadActions from "@/components/leadDetail/LeadActions";
+import { RootState } from "@redux/feature/store";
 
-const { Text } = Typography;
+// const { Text } = Typography;
 const { TabPane } = Tabs;
 export interface Plan {
   id: string;
@@ -68,38 +81,45 @@ function App() {
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
   const { leadDetail } = useAppSelector((state: RootState) => state.lead);
-  const contact = (leadDetail as any)?.contact ?? {};
-  const propertyFromSlice = (leadDetail as any)?.property ?? {};
+  const contacts: ILeadContact[] = leadDetail?.contacts;
+  const propertyFromSlice = leadDetail?.property;
   const leadId = router.query.id as string | undefined;
-  const createdQuotations = (leadDetail as any)?.createdQuotations ?? {};
-
+  const createdQuotations: QuotationResponse[] = leadDetail?.createdQuotations || [];
   const latestLeadDetailRef = useRef<any>(null);
 
-  const mappedLeadDetail = {
-    ...leadDetail?.contact,
-    leadSource: leadDetail?.contact?.leadSource,
-  };
   useEffect(() => {
     latestLeadDetailRef.current = leadDetail;
   }, [leadDetail]);
 
   useEffect(() => {
     if (leadId) {
-      dispatch(getLeadByIdThunk(leadId));
-      dispatch(getQuotationsByLeadIdThunk({ leadId, page: 1, limit: 25 }));
+      async function fetchData() {
+        await dispatch(getLeadByIdThunk(leadId));
+        await dispatch(
+          getQuotationsByLeadIdThunk({ leadId, page: 1, limit: 25 })
+        );
+      }
+      fetchData();
     }
   }, [router.query.id, dispatch]);
 
+
+  const primaryContact = contacts?.find(
+    (cont: ILeadContact) =>
+      cont.leadsContactId === leadDetail?.lead?.leadContactId
+  );
+  console.log("primary contact",primaryContact)
   useEffect(() => {
     return () => {
+    // Only run cleanup if we have the necessary data
+    if (primaryContact) {
       const latest = latestLeadDetailRef.current;
-      const contact = (latest as any)?.contact ?? null;
       const property = (latest as any)?.property ?? null;
-      dispatch(setQuotationContact(contact));
+      dispatch(setQuotationContact(primaryContact));
       dispatch(setQuotationProperty(property));
-      dispatch(clearLeadDetail());
+      }
     };
-  }, [dispatch]);
+  }, [dispatch, primaryContact]); 
 
   const handleConvertClick = () => {
     setIsConvertModalVisible(true);
@@ -110,18 +130,26 @@ function App() {
   };
 
   const handleEditLeadSubmit = async (values: any) => {
-    const { email, ...details } = values;
+    const { type, hideAddressForm, ...details } = values;
     try {
       setLoading(true);
-      await dispatch(updateLeadThunk({ id: leadId, details }))
-        .unwrap()
-        .then(() => {
-          setIsEditLeadModalVisible(false);
-        });
+      if (type === "update") {
+        await dispatch(
+          updateLeadContactThunk({
+            id: primaryContact?.leadsContactId,
+            details,
+          })
+        ).unwrap();
+      } else {
+        await dispatch(
+          createLeadContactThunk({ id: leadId, details })
+        ).unwrap();
+      }
       message.success("Lead updated successfully");
     } catch (err) {
       message.error(err || "Failed to update lead");
     } finally {
+      setIsEditLeadModalVisible(false);
       setLoading(false);
     }
   };
@@ -134,21 +162,21 @@ function App() {
           label: "Proposal",
           color: "bg-green-500",
           textColor: "text-white",
-          onClick: () => { },
+          onClick: () => {},
         },
         {
           key: "negotiation",
           label: "Negotiation",
           color: "bg-yellow-300",
           textColor: "text-black",
-          onClick: () => { },
+          onClick: () => {},
         },
         {
           key: "close",
           label: "Close",
           color: "bg-gray-200",
           textColor: "text-black",
-          onClick: () => { },
+          onClick: () => {},
         },
       ];
     }
@@ -158,7 +186,7 @@ function App() {
         label: "New",
         color: "bg-green-500",
         textColor: "text-white",
-        onClick: () => { },
+        onClick: () => {},
       },
       {
         key: "working",
@@ -183,46 +211,13 @@ function App() {
         <StageProgress
           title={title}
           id="MYH00492"
-          status="Open"
+          status={enumToReadable(leadDetail?.lead?.status)}
           steps={steps}
           activeStep={isOpportunity ? "proposal" : "convert"}
           lead={leadDetail}
         />
       </div>
-
-      {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full p-3">
-        <Input
-          value={contact.name}
-          prefix={<IconUser />}
-          readOnly
-          className="rounded-md w-full"
-        />
-        <Input
-          value={contact.email}
-          prefix={<IconMail />}
-          readOnly
-          className="rounded-md w-full"
-        />
-        <Input
-          value={contact.phone}
-          readOnly
-          prefix={<IconPhone />}
-          className="rounded-md w-full"
-        />
-        
-        <div className="flex items-center gap-2">
-          <Text ><IconPhone /></Text>
-          <Text>{contact.name}</Text>
-        </div>
-        <div className="flex items-center gap-2">
-          <Text ><IconMail /></Text>
-          <Text>{contact.email}</Text>
-        </div>
-        <div className="flex items-center gap-2">
-          <Text ><IconPhone /></Text>
-          <Text>{contact.phone}</Text>
-        </div>
-      </div> */}
+ 
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 m-3">
         {/* Contact Card */}
@@ -236,19 +231,21 @@ function App() {
               onClick={() => setIsEditLeadModalVisible(true)}
             />
           </div>
-          <h2 className="font-semibold text-lg">{contact.name ?? "-"}</h2>
+          <h2 className="font-semibold text-lg">
+            {primaryContact?.name ?? "-"}
+          </h2>
           <p className="text-sm">
-            {contact.leadSource || "Lead Source not provided"}
+            {leadDetail?.lead?.leadSource || "Lead Source not provided"}
           </p>
 
           <div className="flex items-center gap-2 mt-2">
             <IconPhoneCall className="w-4 h-4" />
-            <span className="text-sm">{contact.phone ?? "-"}</span>
+            <span className="text-sm">{primaryContact?.phone ?? "-"}</span>
           </div>
 
           <div className="flex items-center gap-2 mt-1">
             <IconMail className="w-4 h-4" />
-            <span className="text-sm">{contact.email ?? "-"}</span>
+            <span className="text-sm">{primaryContact?.email ?? "-"}</span>
           </div>
         </Card>
 
@@ -263,8 +260,10 @@ function App() {
               onClick={() => setIsPropertyModalVisible(true)}
             />
           </div>
-          {
-            (propertyFromSlice?.address1 || propertyFromSlice?.citySuburb || propertyFromSlice?.stateRegion || propertyFromSlice?.zipPostalCode) ? (
+          {propertyFromSlice?.address1 ||
+          propertyFromSlice?.citySuburb ||
+          propertyFromSlice?.stateRegion ||
+          propertyFromSlice?.zipPostalCode ? (
               <>
                 <h2 className="font-semibold text-lg">
                   {propertyFromSlice?.address1 ?? ""}
@@ -300,15 +299,19 @@ function App() {
             ) : (
               <div className="flex flex-col items-center justify-center p-6 rounded-lg">
                 <IconBarrierBlock />
-                <p className="text-sm text-gray-500 text-center">No property details added yet</p>
-                <p className="text-xs text-gray-400 mt-1">Add property information to get started</p>
+                <p className="text-sm text-gray-500 text-center">
+                No property details added yet
+              </p>
+              <p className="text-xs text-gray-400 mt-1">
+              Add property information to get started
+              </p>
               </div>
-            )
-          }
+          )}
         </Card>
 
         {/* Quotation Card */}
-        {isOpportunity && <Card>
+        {isOpportunity && (
+        <Card>
           <div className="flex flex-col justify-between">
             <Link
               href={SystemRoutes.QUOTATION_CREATE(leadId)}
@@ -316,15 +319,19 @@ function App() {
             >
               Create Quotation
             </Link>
-            <div className="max-h-[200px] my-2 overflow-y-auto">
+            {/* <div className="max-h-[200px] my-2 overflow-y-auto">
               <List
-                dataSource={createdQuotations?.quotations}
+                dataSource={createdQuotations || []}
                 locale={{
                   emptyText: (
                     <div className="flex flex-col items-center justify-center p-6">
                       <IconFileText />
-                      <p className=" text-sm text-gray-500 text-center">No quotations found</p>
-                      <p className="text-xs text-gray-400 mt-1">Create a quotation to get started</p>
+                      <p className=" text-sm text-gray-500 text-center">
+                          No quotations found
+                        </p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          Create a quotation to get started
+                        </p>
                     </div>
                   ),
                 }}
@@ -332,21 +339,36 @@ function App() {
                   <List.Item key={quotation?.quotation_id}>
                     <Space size="middle">
                       <Tooltip title={quotation?.quotation_id}>
-                        <Text type="secondary">{quotation?.quotation_id?.slice(0, 13)}</Text>
+                        <Text type="secondary">
+                          {quotation?.quotation_id?.slice(0, 13)}
+                        </Text>
                       </Tooltip>
-                      <Tag color={quotation?.lead_status === "Open" ? "blue" : "green"}>{quotation?.lead_status}</Tag>
+                      <Tag
+                        color={
+                          quotation?.lead_status === "Open" ? "blue" : "green"
+                        }
+                      >
+                        {quotation?.lead_status}
+                      </Tag>
                       <Text>${quotation?.total_amount}</Text>
                     </Space>
                   </List.Item>
                 )}
               />
+            </div> */}
             </div>
-          </div>
-        </Card>}
+          </Card>
+        )}
       </div>
 
       <div className="m-3">
-        <Tabs defaultActiveKey="action" type="card" tabBarStyle={{ margin: "0px", marginRight: '10px' }} tabBarGutter={10} size="large">
+        <Tabs
+          defaultActiveKey="action"
+          type="card"
+          tabBarStyle={{ margin: "0px", marginRight: "10px" }}
+          tabBarGutter={10}
+          size="large"
+        >
           {/* Action Tab */}
           <TabPane tab="Action" key="action" className="border border-t-0">
             <LeadActions />
@@ -369,15 +391,16 @@ function App() {
         leadId={router.query.id as string}
       />
 
-      <CreateFormModal
+      <LeadDetailsForm
         open={isEditLeadModalVisible}
-        title="Lead"
         onCancel={() => setIsEditLeadModalVisible(false)}
         onSubmit={handleEditLeadSubmit}
         loading={loading}
         isEditing={true}
-        initialValues={mappedLeadDetail}
-        fields={leadCreateFields({ isEmailDisable: true })}
+        initialValues={{
+          ...primaryContact,
+          secondary_phone: primaryContact?.secondaryPhone,
+        }}
       />
 
       {/* Property Details Modal */}

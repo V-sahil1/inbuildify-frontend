@@ -1,31 +1,42 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { convertLeadToJobThunk, convertLeadToOpportunityThunk, createLeadThunk, getLeadThunk, getQuotationsByLeadIdThunk, updateLeadThunk } from "./leadThunk";
+import {
+  convertLeadToJobThunk,
+  convertLeadToOpportunityThunk,
+  createLeadContactThunk,
+  createLeadThunk,
+  getLeadThunk,
+  getQuotationsByLeadIdThunk,
+  updateLeadContactThunk,
+} from "./leadThunk";
 import { getLeadByIdThunk } from "./leadThunk";
-import { ILead } from "./ILeadState";
+import { InitialState } from "./ILeadState";
 import { Status } from "@lib/constants/enum";
-import { QuotationResponse } from "../quotation/IQuotationState";
 
+const initialState: InitialState = {
+  leads: [],
+  status: Status.IDLE,
+  leadDetail: {
+    lead: null,
+    contacts: null,
+    property: null,
+    createdQuotations: [],
+  },
+};
 export const leadSlice = createSlice({
     name: "lead",
-    initialState: {
-        leads:[] as ILead[],
-        status: Status.IDLE,
-        leadDetail: {
-          contact: null,
-          property: null,
-          createdQuotations: [] as QuotationResponse[],
-        },
-    },
+    initialState,
     reducers: {
       clearLeadDetail: (state) => {
         state.leadDetail = {
-          contact: null,
+        lead: null,
+        contacts: null,
           property: null,
           createdQuotations: [],
         };
         },
         setLeadProperty: (state, action) => {
-            const { builderId, ...propertyWithoutBuilder } = (action.payload || {}) as any;
+          const { builderId, ...propertyWithoutBuilder } = (action.payload ||
+          {}) as any;
             state.leadDetail = state.leadDetail ?? ({} as any);
             (state.leadDetail as any).property = propertyWithoutBuilder;
         },
@@ -34,32 +45,30 @@ export const leadSlice = createSlice({
     
           // update leads array
           state.leads = state.leads.map((lead) =>
-            lead.leadId === leadId
-              ? { ...lead, status, updatedAt }
-              : lead
+          lead.leadId === leadId ? { ...lead, status, updatedAt } : lead
           );
         },
-    },
-    extraReducers: (builder) => {
+      },
+      extraReducers: (builder) => {
         builder.addCase(getLeadThunk.pending, (state) => {
-            state.status = Status.PENDING;
+          state.status = Status.PENDING;
         });
         builder.addCase(getLeadThunk.fulfilled, (state, action) => {
-            state.leads = action.payload;
-            state.status = Status.SUCCESS;
+          state.leads = action.payload;
+          state.status = Status.SUCCESS;
         });
         builder.addCase(getLeadThunk.rejected, (state) => {
-            state.status = Status.ERROR;
+          state.status = Status.ERROR;
         });
         builder.addCase(getLeadByIdThunk.pending, (state) => {
-            state.status = Status.PENDING;
+          state.status = Status.PENDING;
         });
         builder.addCase(getLeadByIdThunk.fulfilled, (state, action) => {
             const payload: any = action.payload;
             const prop = payload?.property;
             let normalizedProperty = prop;
-            if (prop && typeof prop === 'object') {
-                normalizedProperty = {
+            if (prop && typeof prop === "object") {
+                  normalizedProperty = {
                     propertyId: prop.propertyId ?? prop.property_id,
                     builderId: prop.builderId ?? prop.builder_id,
                     leadId: prop.leadId ?? prop.lead_id,
@@ -83,19 +92,19 @@ export const leadSlice = createSlice({
                     cornerBlock: (prop.cornerBlock ?? prop.corner_block) as any,
                     createdAt: prop.createdAt ?? prop.created_at,
                     updatedAt: prop.updatedAt ?? prop.updated_at,
-                };
+                  };
             }
             state.leadDetail = {
-                ...payload,
-                property: normalizedProperty ?? payload?.property,
+              ...payload,
+              property: normalizedProperty ?? payload?.property,
             };
             state.status = Status.SUCCESS;
         });
         builder.addCase(getLeadByIdThunk.rejected, (state) => {
-            state.status = Status.ERROR;
+          state.status = Status.ERROR;
         });
         builder.addCase(createLeadThunk.fulfilled, (state, action) => {
-            state.leads.unshift(action.payload);
+          state.leads.unshift(action.payload);
         });
         builder.addCase(getQuotationsByLeadIdThunk.pending, (state) => {
           state.status = Status.PENDING;
@@ -107,7 +116,9 @@ export const leadSlice = createSlice({
         builder.addCase(getQuotationsByLeadIdThunk.rejected, (state) => {
           state.status = Status.ERROR;
         });
-        builder.addCase(convertLeadToOpportunityThunk.fulfilled, (state, action) => {
+        builder.addCase(
+      convertLeadToOpportunityThunk.fulfilled,
+      (state, action) => {
           state.leads = state.leads.map((lead) => {
             if (lead.leadId === action.payload.leadId) {
               return {
@@ -118,47 +129,47 @@ export const leadSlice = createSlice({
             }
             return lead;
           });
-        });
+        }
+      );
         builder.addCase(convertLeadToJobThunk.fulfilled, (state, action) => {
-          state.leadDetail.contact.status = action.payload.payload.status;
-            state.leads = state.leads.map((lead) => {
+          state.leadDetail.lead.status = action.payload.payload.status;
+          state.leads = state.leads.map((lead) => {
             if (lead.leadId === action.payload.payload.leadId) {
               return {
                 ...lead,
-                status: action.payload.payload.status === "WON" ? "JOB" : "CANCELLED",
+                status:
+                  action.payload.payload.status === "WON" ? "JOB" : "CANCELLED",
                 updatedAt: new Date().toISOString(),
               };
             }
             return lead;
           });
         });
-        builder.addCase(updateLeadThunk.fulfilled, (state, action) => {
+        builder.addCase(updateLeadContactThunk.fulfilled, (state, action) => {
           const { payload } = action;
-          if (payload && payload.lead_id) {
-            const { leadId, name, phone, leadSource } = payload;
-            
-            // Add null check for leadDetail.contact because after the quatation route opens the contact of leads is setting the null (Akshay)
-            if (state.leadDetail && state.leadDetail.contact) {
-              state.leadDetail.contact.name = name || state.leadDetail.contact.name;
-              state.leadDetail.contact.phone = phone || state.leadDetail.contact.phone;
-              state.leadDetail.contact.leadSource = leadSource || state.leadDetail.contact.leadSource;
-            }
-            
-            state.leads = state.leads.map((lead) => {
-              if (lead.leadId === leadId) {
-                return {
-                  ...lead,
-                  name: name || lead.name,
-                  phone: phone || lead.phone,
-                  leadSource: leadSource || lead.leadSource,
-                };
-              }
-              return lead;
-            });
-          }
-        });
-    }
+          if(!state.leadDetail.contacts){
+        state.leadDetail.contacts = [];
+      }
+      state.leadDetail.contacts = state.leadDetail.contacts.map((contact) => {
+        if (contact.leadsContactId === payload.leadsContactId) {
+          return {
+            ...payload,
+          };
+        }
+        return contact;
+      });
+    });
+
+    builder.addCase(createLeadContactThunk.fulfilled, (state, action) => {
+      const { payload } = action;
+      if(!state.leadDetail.contacts){
+        state.leadDetail.contacts = [];
+      }
+      state.leadDetail.contacts.unshift(payload);
+    });
+  },
 });
 
-export const { clearLeadDetail, setLeadProperty, updateLeadStatus } = leadSlice.actions;
+export const { clearLeadDetail, setLeadProperty, updateLeadStatus } =
+  leadSlice.actions;
 export const leadReducer = leadSlice.reducer;

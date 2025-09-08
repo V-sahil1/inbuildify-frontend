@@ -1,15 +1,15 @@
-import { LeadDetails, PropertyDetails } from "data/types";
+import { PropertyDetails } from "data/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Item } from "../masterPriceList/iMasterPriceListState";
 import { Status } from "@lib/constants/enum";
 import { createQuotation } from "./quotationThunk";
-import { updateLeadStatus } from "../lead/leadSlice";
+import { ILeadContact } from "../lead/ILeadState";
 
 export interface QuotationState {
 
     status: Status;
     selectedFilters: any;
-    contact: LeadDetails;
+    contact: ILeadContact;
     property: PropertyDetails;
     plan: any;
     facade: any;
@@ -44,7 +44,7 @@ const quotationSlice = createSlice({
             state.package = null;
             state.selectedFilters = { range: '', dwelling_type: '' };
         },
-        setQuotationContact(state, action: PayloadAction<LeadDetails | null>) {
+        setQuotationContact(state, action: PayloadAction<ILeadContact | null>) {
             state.contact = action.payload as any;
         },
         setQuotationProperty(state, action: PayloadAction<PropertyDetails | null>) {

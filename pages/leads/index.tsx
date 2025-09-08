@@ -86,7 +86,7 @@ const Leads = () => {
                   ? router.push(SystemRoutes.JOB)
                   : router.push(`${SystemRoutes.LEADS}/${lead.leadId}`);
               }}
-              className={`rounded-2xl border flex flex-col border-border-color shadow-sm p-6 ${
+              className={`rounded-2xl border border-border-color shadow-sm p-6 ${
                 lead.status === "CANCELLED"
                   ? "opacity-60 cursor-not-allowed"
                   : "cursor-pointer hover:shadow-xl hover:scale-[1.02]"
@@ -110,31 +110,20 @@ const Leads = () => {
                   {enumToReadable(lead.status)}
                 </span>
               </div>
-
+            
               {/* Contact Info */}
-              <div className="space-y-2 mb-4 flex-1">
-                {lead.address1 ||
-                  (lead.address2 && (
-                    <p className="flex items-center text-sm ">
-                      <IconPhone size={16} className="mr-2 text-gray-400" />
-                      {lead?.address1 + ", " + lead?.address2}
-                    </p>
-                  ))}
-                {lead.phone && (
-                  <p className="flex items-center text-sm ">
+              <div className="space-y-2 mb-4">
+                   <p className="flex items-center text-sm ">
                     <IconPhone size={16} className="mr-2 text-gray-400" />
                     {lead.phone}
                   </p>
-                )}
-                {lead.email && (
                   <p className="flex items-center text-sm ">
                     <IconMail size={16} className="mr-2 text-gray-400" />
                     {lead.email}
                   </p>
-                )}
                 <p className="text-xs ">Source: {lead.leadSource}</p>
               </div>
-
+            
               {/* Footer with dates */}
               <div className="flex border-t border-gray-100 pt-3 gap-4 text-xs text-gray-400">
                 <p
@@ -153,7 +142,7 @@ const Leads = () => {
             </div>
           ))}
         </div>
-      ) : (
+        ) : (
         <Empty
           description={
             <span className="text-gray-500">

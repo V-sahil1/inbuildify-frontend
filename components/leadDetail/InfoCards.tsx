@@ -14,8 +14,7 @@ import {
   IconCar,
   IconForklift,
 } from "@tabler/icons-react";
-import LeadDetailsForm from "./forms/LeadDetailsForm";
-import { LeadDetails, PropertyDetails, Plan } from "data/types";
+import {PropertyDetails, Plan } from "data/types";
 import PropertyDetailsModal from "./PropertyDetailsModal";
 import FloorPlanModal from "./FloorPlanModal";
 import dayjs from "dayjs";
@@ -24,13 +23,16 @@ import { IFacadeState } from "@redux/feature/facade/IFacadeState";
 import PackageModal from "./PackageModal";
 import { Package } from "@redux/feature/package/IPackageState";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import leadCreateFields from "../formFields/LeadCreateFields";
-import { CreateFormModal } from "../common/Models/CreateFormModel";
-import { updateLeadThunk } from "@redux/feature/lead/leadThunk";
-import { updateQuotationContact } from "@redux/feature/quotation/quotationSlice";
+// import leadCreateFields from "../formFields/LeadCreateFields";
+// import { CreateFormModal } from "../common/Models/CreateFormModel";
+import { createLeadContactThunk, updateLeadContactThunk } from "@redux/feature/lead/leadThunk";
+// import { updateQuotationContact } from "@redux/feature/quotation/quotationSlice";
+import LeadDetailsForm from "./forms/LeadDetailsForm";
+import { ILeadContact } from "@redux/feature/lead/ILeadState";
+import { setQuotationContact } from "@redux/feature/quotation/quotationSlice";
 
 interface InfoCardsProps {
-  leadDetails: LeadDetails;
+  leadDetails: ILeadContact;
   propertyDetails: any;
   selectedPlan?: Plan;
   selectedFacade?: IFacadeState;
@@ -63,26 +65,32 @@ const InfoCards: React.FC<InfoCardsProps> = ({
   const [activeContactIndex, setActiveContactIndex] = useState<number | null>(
     null
   );
+  const { leadDetail } = useAppSelector((state) => state.lead);
+    // const sliceContacts: ILeadContact[] = leadDetail?.contacts;
   const { selectedFilters } = useAppSelector((state) => state.quotation);
-  const mappedLeadDetail = {
-    ...leadDetails,
-    leadSource: leadDetails?.lead_source,
-  };
-  
   const handleEditLeadSubmit = async (values: any) => {
-    const { email, ...details } = values;
+    const { type, hideAddressForm, ...details } = values;
     try {
       setLoading(true);
+    if (type === "update") {
       const response = await dispatch(
-        updateLeadThunk({ id: leadDetails.lead_id, details })
+        updateLeadContactThunk({
+          id: leadDetails?.leadsContactId,
+          details,
+        })
       ).unwrap();
-
-      dispatch(updateQuotationContact(response));
+      dispatch(setQuotationContact(response));
+    } else {
+      console.log("create lead contact", leadDetails?.leadId)
+      await dispatch(
+        createLeadContactThunk({ id: leadDetails?.leadId, details })
+      ).unwrap();
+     }
       message.success("Lead updated successfully");
-      setEditModalVisible(false);
     } catch (err) {
       message.error(err || "Failed to update lead");
     } finally {
+      setEditModalVisible(false);
       setLoading(false);
     }
   };
@@ -124,13 +132,13 @@ const InfoCards: React.FC<InfoCardsProps> = ({
             <IconMail size={14} className="mr-1 text-font-color-100" />
             {leadDetails?.email || "Not provided"}
           </div>
-          {leadDetails?.address && (
+          {leadDetails?.address1 && (
             <div className="flex items-start text-sm text-font-color-100">
               <IconMapPin
                 size={14}
                 className="mr-1 mt-0.5 text-font-color-100 flex-shrink-0"
               />
-              <span className="line-clamp-2">{leadDetails?.address || "Not provided"}</span>
+              <span className="line-clamp-2">{leadDetails?.address1 || "Not provided"}</span>
             </div>
           )}
         </div>
@@ -381,41 +389,13 @@ const InfoCards: React.FC<InfoCardsProps> = ({
       />
 
       {/* Edit Lead Details Modal */}
-      {/* <Modal
-        title="Edit Lead Details"
+      <LeadDetailsForm
         open={editModalVisible}
-        onCancel={() => setEditModalVisible(false)}
-        footer={null}
-        width={600}
-        centered
-        className="bg-card-color"
-      >
-        <LeadDetailsForm
-          initialValues={leadDetails}
-          onSave={(values) => {
-            setIsSubmitting(true);
-            // Here you would typically make an API call to update the lead
-            setTimeout(() => {
-              setIsSubmitting(false);
-              setEditModalVisible(false);
-              // Update the lead details in the parent component
-              // onLeadUpdate(values);
-            }, 1000);
-          }}
-          onCancel={() => setEditModalVisible(false)}
-          isSubmitting={isSubmitting}
-        />
-      </Modal> */}
-
-      <CreateFormModal
-        open={editModalVisible}
-        title="Lead"
         onCancel={() => setEditModalVisible(false)}
         onSubmit={handleEditLeadSubmit}
         loading={loading}
         isEditing={true}
-        initialValues={mappedLeadDetail}
-        fields={leadCreateFields({ isEmailDisable: true })}
+        initialValues={{...leadDetails,secondary_phone: leadDetails?.secondaryPhone}}
       />
 
       <FloorPlanModal

@@ -29,6 +29,8 @@ import { getDwellingTypes, getRanges } from "@redux/feature/types/typesThunk";
 
 const Index = () => {
   const dispatch = useAppDispatch();
+  const router = useRouter();
+  const {id} = router.query
   const { user } = useAppSelector((state) => state.auth);
   const {
     contact,
@@ -55,7 +57,6 @@ const Index = () => {
   useEffect(() => {
     setSelectedFacade(facade);
   }, [facade]);
-  const router = useRouter();
   const [selectedPackage, setSelectedPackage] = useState<Package | undefined>(
     selectedPackageFromSlice
   );
@@ -71,9 +72,9 @@ const Index = () => {
   // const { categories: mplCategories } = useAppSelector(
   //   (state: RootState) => state.masterPriceList
   // );
-  const { selectedFilters: mplFilters } = useAppSelector(
-    (state: RootState) => state.masterPriceList
-  );
+  // const { selectedFilters: mplFilters } = useAppSelector(
+  //   (state: RootState) => state.masterPriceList
+  // );
   const { package: packageFromSlice, items: itemsFromSlice } = useAppSelector(
     (state) => state.quotation
   );
@@ -321,7 +322,7 @@ const Index = () => {
       </div>
 
       <InfoCards
-        leadDetails={contact}
+        leadDetails={{...contact,leadId: id as string}}
         propertyDetails={property}
         selectedPlan={selectedPlan}
         selectedFacade={selectedFacade}
