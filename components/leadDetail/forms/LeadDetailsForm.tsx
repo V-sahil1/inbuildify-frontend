@@ -146,13 +146,16 @@ const LeadDetailsForm: React.FC<any> = ({
       if (country) payload.country = country;
       if (state) payload.state = state;
 
-      if (hideAddressForm) {
+      // When contact is clicked, use initialValues for address fields
+      if (showContactForm && initialValues && hideAddressForm) {
         payload = {
           ...payload,
-          address1: initialValues?.address1,
-          address2: initialValues?.address2,
-          city: initialValues?.city,
-          zip: initialValues?.zip,
+          address1: initialValues.address1 || '',
+          address2: initialValues.address2 || '',
+          city: initialValues.city || '',
+          zip: initialValues.zip || '',
+          country: initialValues.countryName || '',
+          state: initialValues.stateName || '',
         };
       }
 
@@ -163,7 +166,6 @@ const LeadDetailsForm: React.FC<any> = ({
       const { countryId, stateId, ...rest } = payload;
       await onSubmit(rest);
 
-      // Only reset form and close modal on successful submission
       setShowContactForm(false);
     } catch (err) {
       if (err.errorFields) {
