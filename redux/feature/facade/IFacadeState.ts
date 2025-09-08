@@ -3,6 +3,7 @@ export interface IFacadeState {
     builderId: string;
     name: string;
     image: string;
+    cost: number;
     dwellingTypeId: string;
     standard: boolean;
     upgrade: boolean;

@@ -106,6 +106,7 @@ const AvailableFacadesTab: React.FC<AvailableFacadesTabProps> = ({
                 {selectedFacade.description && (
                   <p className="text-gray-600 mt-2 text-sm">{selectedFacade.description}</p>
                 )}
+                <p className="text-gray-600 mt-2 text-sm text-center">{selectedFacade.cost}</p>
               </div>
             </Card>
           ) : (

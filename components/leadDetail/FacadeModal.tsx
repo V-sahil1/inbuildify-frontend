@@ -55,8 +55,9 @@ const FacadeModal: React.FC<FacadeModalProps> = ({
                 formData.append("name", formValues.name);
                 formData.append("dwelling_type", formValues.dwelling_type);
                 formData.append("image", formValues.image.fileList[0].originFileObj);
-                formData.append("standard", formValues.standard || true);
-                formData.append("upgrade", formValues.upgrade || true);
+                formData.append("standard", formValues.standard || false);
+                formData.append("upgrade", formValues.upgrade || false);
+                formData.append("cost", formValues.cost);
                 setLoading(true);
                 const response = await dispatch(createFacade(formData)).unwrap();
                 dispatch(setQuotationFacade(response));

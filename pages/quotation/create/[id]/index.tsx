@@ -280,7 +280,8 @@ const Index = () => {
         quotePackage: selectedPackageFromSlice,
         quotationAmount: calculateTotalQuotation(
           Number(packageFromSlice?.amount),
-          itemsFromSlice
+          itemsFromSlice,
+          Number(facade?.cost)
         ),
         floorPlan: plan,
         facade: facade,
@@ -374,7 +375,8 @@ const Index = () => {
         <FooterActions
           total={calculateTotalQuotation(
             Number(packageFromSlice?.amount),
-            itemsFromSlice
+            itemsFromSlice,
+            Number(facade?.cost)
           )}
           onApprove={handleApprove}
           onPreview={handlePreview}

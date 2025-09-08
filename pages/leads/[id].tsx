@@ -140,12 +140,13 @@ function App() {
             details,
           })
         ).unwrap();
+        message.success("Lead updated successfully");
       } else {
         await dispatch(
           createLeadContactThunk({ id: leadId, details })
         ).unwrap();
+        message.success("Lead contact created successfully");
       }
-      message.success("Lead updated successfully");
     } catch (err) {
       message.error(err || "Failed to update lead");
     } finally {

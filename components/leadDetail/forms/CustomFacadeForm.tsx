@@ -30,18 +30,6 @@ const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
       onValuesChange={handleValuesChange}
     >
       {fields.map((field) => {
-        if (field.type === "text") {
-          return (
-            <Form.Item
-              key={field.name}
-              name={field.name}
-              label={field.label}
-              rules={field.rules}
-            >
-              <Input placeholder={field.placeholder} />
-            </Form.Item>
-          );
-        }
         if (field.type === "select") {
           return (
             <Form.Item
@@ -67,11 +55,9 @@ const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
                 listType="picture"
                 multiple={false}
                 maxCount={1}
-                beforeUpload={() => false}   
+                beforeUpload={() => false}
               >
-                <Button>
-                  Click to Upload
-                </Button>
+                <Button>Click to Upload</Button>
               </Upload>
             </Form.Item>
           );
@@ -87,7 +73,16 @@ const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
             </Form.Item>
           );
         }
-        return null;
+        return (
+          <Form.Item
+            key={field.name}
+            name={field.name}
+            label={field.label}
+            rules={field.rules}
+          >
+            <Input placeholder={field.placeholder} type={field.type}/>
+          </Form.Item>
+        );
       })}
     </Form>
   );

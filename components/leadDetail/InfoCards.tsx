@@ -79,14 +79,14 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           details,
         })
       ).unwrap();
+      message.success("Lead updated successfully");
       dispatch(setQuotationContact(response));
     } else {
-      console.log("create lead contact", leadDetails?.leadId)
       await dispatch(
         createLeadContactThunk({ id: leadDetails?.leadId, details })
       ).unwrap();
+      message.success("Lead contact created successfully");
      }
-      message.success("Lead updated successfully");
     } catch (err) {
       message.error(err || "Failed to update lead");
     } finally {

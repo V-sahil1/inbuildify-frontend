@@ -52,6 +52,7 @@ const Facade = () => {
       const formData = new FormData();
       formData.append("name", values.name);
       formData.append("dwelling_type", values.dwelling_type);
+      formData.append("cost", values.cost);
 
       if (values?.image?.length > 0 && values.image[0]?.originFileObj) {
         formData.append("image", values.image[0].originFileObj);
@@ -71,11 +72,12 @@ const Facade = () => {
         setIsModalVisible(false);
         message.success("Facade created successfully");
       }
+      setIsModalVisible(false);
+
     } catch (error) {
       message.error(error || "Failed to create Facade");
     } finally {
       setIsEditing(false);
-      setIsModalVisible(false);
       setLoading(false);
     }
   };
@@ -177,6 +179,10 @@ const Facade = () => {
                   <div className="flex justify-between">
                     <span className="font-medium">Standard :</span>
                     <span>{facade?.standard ? "yes" : "no"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium">Cost :</span>
+                    <span>{facade?.cost}</span>
                   </div>
                   <div className="flex justify-between gap-5">
                     <span className="font-medium">Created At :</span>

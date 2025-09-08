@@ -3,6 +3,7 @@ import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
 import { CreateFormField } from "../common/Models/CreateFormModel";
 import { useAppSelector } from "@hooks/redux";
 import { mapToOptions } from "@lib/utils/rangeAndDwellingObjToOptions";
+import { numberRules } from "@lib/constants/formInputValidations";
 
 
 export const facadeFields = (): CreateFormField[] => {
@@ -30,6 +31,13 @@ const dwellingTypeOptions = mapToOptions(dwellingType);
       options: dwellingTypeOptions,
       placeholder: "Select dwelling type",
       rules: [{ required: true, message: "Please select a dwelling type" }],
+    },
+    {
+      label: "Cost",
+      name: "cost",
+      type: "number",
+      placeholder: "10000",
+      rules: numberRules
     },
     {
       label: "Standard",
