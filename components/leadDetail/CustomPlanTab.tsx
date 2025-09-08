@@ -13,6 +13,7 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
   const [form] = Form.useForm<IFloorPlanState>();
   const dispatch = useAppDispatch();
   const { filters, status } = useAppSelector((state: any) => state.floorPlan);
+  const {dwellingType,range} = useAppSelector((state: any) => state.types);
   const [loading, setLoading] = useState(false);
 
 
@@ -80,7 +81,7 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
             >
               <Select
                 placeholder="Select range"
-                options={enumArrayToOptions(filters?.ranges)}
+                options={range}
               />
             </Form.Item>
 
@@ -91,7 +92,7 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
             >
               <Select
                 placeholder="Select dwelling type"
-                options={enumArrayToOptions(filters?.dwellingTypes)}
+                options={dwellingType}
               />
             </Form.Item>
             <Form.Item

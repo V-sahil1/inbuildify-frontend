@@ -145,12 +145,12 @@ export type TimelineCardProps =
   // Lead Detail Quotation
   export type QuotationStatus = "approved" | "pending" | "rejected" | "all";
   export interface QuotationVersion {
-    id: string;
-    version: string;
-    status: QuotationStatus;
-    totalCost: string;
-    createdBy: string;
+    quotationVersionId: string;
+    versionNumber: number;
+    notes: string;
     createdAt: string;
+    updatedAt: string;
+    totalAmount: number;
   }
 
 export interface Quotation {

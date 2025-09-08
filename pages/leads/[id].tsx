@@ -2,13 +2,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   Card,
-  // List,
+  List, 
   message, Result,
-  // Space,
+  Space, 
   Tabs,
-  // Tag,
-  // Tooltip,
-  // Typography,
+  Tag,
+  Tooltip,
+  Typography, 
 } from "antd";
 import StageProgress from "@/components/common/StageProgress";
 import ConvertLeadModal from "@/components/leadDetail/ConvertLeadModal";
@@ -16,10 +16,9 @@ import PropertyDetailsModal from "@/components/leadDetail/PropertyDetailsModal";
 import {
   IconBarrierBlock,
   IconEdit,
-  // IconFileText,
+  IconFileText, 
   IconMail,
-  IconPhoneCall,
-  // IconTool,
+  IconPhoneCall, 
 } from "@tabler/icons-react";
 import Link from "next/link";
 import SystemRoutes from "@lib/constants/Routes";
@@ -46,7 +45,7 @@ import { QuotationResponse } from "@redux/feature/quotation/IQuotationState";
 import LeadActions from "@/components/leadDetail/LeadActions";
 import { RootState } from "@redux/feature/store";
 
-// const { Text } = Typography;
+const { Text } = Typography;
 const { TabPane } = Tabs;
 export interface Plan {
   id: string;
@@ -84,7 +83,7 @@ function App() {
   const contacts: ILeadContact[] = leadDetail?.contacts;
   const propertyFromSlice = leadDetail?.property;
   const leadId = router.query.id as string | undefined;
-  const createdQuotations: QuotationResponse[] = leadDetail?.createdQuotations || [];
+  const createdQuotations: QuotationResponse[] = leadDetail?.createdQuotations?.quotations || [];
   const latestLeadDetailRef = useRef<any>(null);
 
   useEffect(() => {
@@ -108,7 +107,6 @@ function App() {
     (cont: ILeadContact) =>
       cont.leadsContactId === leadDetail?.lead?.leadContactId
   );
-  console.log("primary contact",primaryContact)
   useEffect(() => {
     return () => {
     // Only run cleanup if we have the necessary data
@@ -211,7 +209,7 @@ function App() {
       <div className="m-3 ">
         <StageProgress
           title={title}
-          id="MYH00492"
+          id={leadDetail?.lead?.slugId}
           status={enumToReadable(leadDetail?.lead?.status)}
           steps={steps}
           activeStep={isOpportunity ? "proposal" : "convert"}
@@ -320,7 +318,7 @@ function App() {
             >
               Create Quotation
             </Link>
-            {/* <div className="max-h-[200px] my-2 overflow-y-auto">
+            <div className="max-h-[200px] my-2 overflow-y-auto">
               <List
                 dataSource={createdQuotations || []}
                 locale={{
@@ -336,27 +334,27 @@ function App() {
                     </div>
                   ),
                 }}
-                renderItem={(quotation: any) => (
-                  <List.Item key={quotation?.quotation_id}>
+                renderItem={(quotation: QuotationResponse) => (
+                  <List.Item key={quotation?.quotationId}>
                     <Space size="middle">
-                      <Tooltip title={quotation?.quotation_id}>
+                      <Tooltip title={quotation?.quotationId}>
                         <Text type="secondary">
-                          {quotation?.quotation_id?.slice(0, 13)}
+                          {quotation?.quotationId?.slice(0, 13)}
                         </Text>
                       </Tooltip>
                       <Tag
                         color={
-                          quotation?.lead_status === "Open" ? "blue" : "green"
+                          quotation?.leadStatus === "Open" ? "blue" : "green"
                         }
                       >
-                        {quotation?.lead_status}
+                        {quotation?.leadStatus}
                       </Tag>
-                      <Text>${quotation?.total_amount}</Text>
+                      <Text>${quotation?.totalAmount}</Text>
                     </Space>
                   </List.Item>
                 )}
               />
-            </div> */}
+            </div>
             </div>
           </Card>
         )}

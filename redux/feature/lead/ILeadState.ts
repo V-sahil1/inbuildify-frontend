@@ -10,10 +10,11 @@ export interface InitialState {
     lead: ILead | null;
     contacts: ILeadContact[] | null;
     property: any | null;
-    createdQuotations: QuotationResponse[];
+    createdQuotations:{quotations:QuotationResponse[]};
   };
 }
 export interface ILead {
+  slugId?: string;
   leadId: string;
   builderId: string;
   status: string;

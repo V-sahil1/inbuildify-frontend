@@ -24,7 +24,7 @@ const initialState: InitialState = {
     lead: null,
     contacts: null,
     property: null,
-    createdQuotations: [],
+    createdQuotations: {quotations:[]},
   },
 };
 export const leadSlice = createSlice({
@@ -36,7 +36,7 @@ export const leadSlice = createSlice({
         lead: null,
         contacts: null,
           property: null,
-          createdQuotations: [],
+          createdQuotations:{quotations:[]},
         };
         },
         setLeadProperty: (state, action) => {
