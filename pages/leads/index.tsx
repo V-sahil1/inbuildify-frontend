@@ -91,7 +91,7 @@ const Leads = () => {
                   ? "opacity-60 cursor-not-allowed"
                   : "cursor-pointer hover:shadow-xl hover:scale-[1.02]"
               } 
-                transition-all duration-200 bg-card-color`}
+                transition-all duration-200 bg-card-color flex flex-col`}
             >
               {/* Header with Tag on Top Right */}
               <div className="flex justify-between items-start mb-3">
@@ -112,16 +112,22 @@ const Leads = () => {
               </div>
             
               {/* Contact Info */}
-              <div className="space-y-2 mb-4">
+              <div className=" flex-1 space-y-2 mb-4">
+                {lead.phone &&
                    <p className="flex items-center text-sm ">
                     <IconPhone size={16} className="mr-2 text-gray-400" />
                     {lead.phone}
                   </p>
+                  }
+                {lead.email && 
                   <p className="flex items-center text-sm ">
                     <IconMail size={16} className="mr-2 text-gray-400" />
                     {lead.email}
                   </p>
+                  }
+                {lead.leadSource && 
                 <p className="text-xs ">Source: {lead.leadSource}</p>
+                 }
               </div>
             
               {/* Footer with dates */}
