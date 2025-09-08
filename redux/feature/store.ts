@@ -53,5 +53,9 @@ export const store = configureStore({
 
 export const persister = persistStore(store);
 
-export type RootState = ReturnType<typeof store.getState>;
+// Infer the root state type from the root reducer
+type RootState = ReturnType<typeof rootReducer>;
+
 export type AppDispatch = typeof store.dispatch;
+
+export type { RootState };

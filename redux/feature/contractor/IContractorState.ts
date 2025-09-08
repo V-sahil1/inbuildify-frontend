@@ -52,7 +52,9 @@ export const initialState: IContractorState = {
 export interface Service {
   serviceId: string,
   service: string,
-  builderId: string, 
+  builderId: string,
+  createdAt: string,
+  updatedAt: string
 }
 
 export interface ServiceRequest {
@@ -69,6 +71,5 @@ export interface ServiceResponse {
 export interface InitialContractorState {
   services: Service[]
   status: Status
-
 }
   

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
 import { Button, Table, message } from "antd";
-import { useAppDispatch } from "@hooks/redux";
+import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import ConfirmationModal from "@/components/common/ConfirmationModal";
 import rangeAndDwellingTypeFields from "@/components/formFields/rangeAndDwellingTypeFields";
@@ -11,10 +11,13 @@ import {
   deleteLeadSourceThunk,
   getLeadSourcesThunk,
   updateLeadSourceThunk,
-} from "@redux/feature/lead/leadThunk";  
+} from "@redux/feature/lead/leadThunk";
+import { Status } from "@lib/constants/enum";
 
 const LeadSource = () => {
   const dispatch = useAppDispatch();
+  const { leadSources } = useAppSelector((state) => state.lead);
+  const status = useAppSelector((state) => state.lead.status.leadSources);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [deleteModalVisible, setDeleteModalVisible] = useState({
@@ -36,7 +39,9 @@ const LeadSource = () => {
         message.error(error || "failed to fetch the Lead sources");
       }
     }
-    getLeadSources();
+    if (status === Status.IDLE) {
+      getLeadSources();
+    }
   }, []);
 
   const confirmDelete = async () => {
@@ -63,15 +68,13 @@ const LeadSource = () => {
       if (editingItem) {
         await dispatch(
           updateLeadSourceThunk({
-            leadSourceId: editingItem.id,
-            payload: {leadSourceName: values.name},
+            leadSourceId: editingItem.leadSourceId,
+            payload: { name: values.name },
           })
         ).unwrap();
         message.success("Range updated successfully");
       } else {
-        await dispatch(
-          createLeadSourceThunk({ leadSourceName: values.name })
-        ).unwrap();
+        await dispatch(createLeadSourceThunk({ name: values.name })).unwrap();
         message.success("Range created successfully");
       }
 
@@ -83,27 +86,6 @@ const LeadSource = () => {
       setFormLoading(false);
     }
   };
-
-  const datasource = [
-    {  name: "Admin Panel" },
-    { name: "WEBSITE" },
-    { name: "INSTAGRAM" },
-    { name: "FACEBOOK" },
-    { name: "YOUTUBE" },
-    { name: "LINKEDIN" },
-    { name: "TWITTER" },
-    { name: "TIKTOK" },
-    { name: "WHATSAPP" },
-    { name: "EMAIL_CAMPAIGN" },
-    { name: "GOOGLE_ADS" },
-    { name: "FACEBOOK_ADS" },
-    { name: "INSTAGRAM_ADS" },
-    { name: "YOUTUBE_ADS" },
-    { name: "LINKEDIN_ADS" },
-    { name: "REFERRAL" },
-    { name: "PHONE_CALL" },
-    { name: "TRADE_SHOW" },
-  ];
 
   const columns = [
     {
@@ -127,7 +109,9 @@ const LeadSource = () => {
             type="text"
             danger
             icon={<IconTrash />}
-            onClick={() => setDeleteModalVisible({ id: record.id, open: true })}
+            onClick={() =>
+              setDeleteModalVisible({ id: record.leadSourceId, open: true })
+            }
             aria-label="Delete"
           />
         </div>
@@ -146,7 +130,7 @@ const LeadSource = () => {
 
       <Table
         columns={columns}
-        dataSource={datasource}
+        dataSource={leadSources}
         pagination={false}
         // loading={}
         rowKey="id"
@@ -166,19 +150,19 @@ const LeadSource = () => {
         loading={formLoading}
       />
 
-      {deleteModalVisible.open && (
-        <ConfirmationModal
-          open={deleteModalVisible.open}
-          onClose={() => setDeleteModalVisible({ id: null, open: false })}
-          onConfirm={() => confirmDelete()}
-          message="Are you sure you want to delete this package?"
-          type="danger"
-          confirmText="Delete"
-          cancelText="Cancel"
-          loading={formLoading}
-          maxWidth="sm"
-        />
-      )}
+      {/* {deleteModalVisible.open && ( */}
+      <ConfirmationModal
+        open={deleteModalVisible.open}
+        onClose={() => setDeleteModalVisible({ id: null, open: false })}
+        onConfirm={() => confirmDelete()}
+        message="Are you sure you want to delete this package?"
+        type="danger"
+        confirmText="Delete"
+        cancelText="Cancel"
+        loading={formLoading}
+        maxWidth="sm"
+      />
+      {/* )} */}
     </div>
   );
 };

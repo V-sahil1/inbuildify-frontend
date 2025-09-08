@@ -12,7 +12,8 @@ import { enumToReadable } from "@lib/utils/enumToRedable";
 import leadCreateFields from "@/components/formFields/LeadCreateFields";
 import SystemRoutes from "@lib/constants/Routes";
 const Leads = () => {
-  const { leads, status } = useAppSelector((state) => state.lead);
+  const { leads } = useAppSelector((state) => state.lead);
+  const status = useAppSelector((state) => state.lead.status.leads); 
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [openLeadCreateModal, setOpenLeadCreateModal] = useState(false);

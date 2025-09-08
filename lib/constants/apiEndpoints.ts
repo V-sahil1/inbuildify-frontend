@@ -42,6 +42,7 @@ class API_ENDPOINTS {
   public static CONVERT_LEAD_TO_OPPORTUNITY = "/opportunities";
   public static CONVERT_LEAD_TO_JOB = `/job`;
   public static LEAD_CONTACT = `/leads-contact`;
+  public static LEAD_SOURCE = `/lead-source`;
 
   //  Master PricingList
   public static MASTER_PRICE_LIST_CATEGORY = "/category";

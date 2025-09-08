@@ -42,7 +42,7 @@ export const contractorSlice = createSlice({
     });
     builder.addCase(deleteServiceThunk.fulfilled, (state, action) => {
       state.services = state.services.filter(
-        (service) => service.serviceId !== action.payload.serviceId
+        (service) => service.serviceId !== action.payload
       );
     });
   },

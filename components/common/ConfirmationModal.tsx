@@ -34,13 +34,6 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   loading = false,
   maxWidth = "sm",
 }) => {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    if (open) {
-      setIsVisible(true);
-    }
-  }, [open]);
 
   const getConfig = () => {
     const baseClasses = "p-3 rounded-full mb-6 shadow-lg";
@@ -109,12 +102,10 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
       : 500;
 
   const handleClose = () => {
-    setIsVisible(false);
     setTimeout(onClose, 200); // Wait for animation to complete
   };
 
   const handleConfirm = () => {
-    setIsVisible(false);
     onConfirm();
   };
 
@@ -139,7 +130,6 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
       }}
     >
       <AnimatePresence>
-        {isVisible && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -221,7 +211,6 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
               </div>
             </div>
           </motion.div>
-        )}
       </AnimatePresence>
     </Modal>
   );

@@ -166,7 +166,7 @@ export const deleteServiceThunk = createAsyncThunk(
       const response: ApiResponse<Service> = await api.delete(
         `${API_ENDPOINTS.SERVICE_BASE}/${serviceId}`
       );
-      return response.data;
+      return serviceId;
     } catch (err: any) {
       return rejectWithValue(err.message);
     }

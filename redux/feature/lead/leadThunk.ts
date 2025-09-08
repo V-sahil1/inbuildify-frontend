@@ -3,7 +3,7 @@ import api from "@lib/constants/api";
 import API_ENDPOINTS from "@lib/constants/apiEndpoints";
 import { ApiResponse } from "../auth/IAuthState";
 // import { PropertyDetails } from "data/types";
-import { ILeadContact, LeadSourceRequest, LeadSourceResponse } from "./ILeadState";
+import { ILeadContact, LeadSourceRequest, LeadSource } from "./ILeadState";
 
 export interface createLeadPayload {
     lead_source: string;
@@ -168,8 +168,8 @@ export const createLeadSourceThunk = createAsyncThunk(
     "leadSource/create",
     async (payload: LeadSourceRequest, { rejectWithValue }) => {
       try {
-        const response: ApiResponse<LeadSourceResponse> = await api.post(
-          API_ENDPOINTS.LEAD_BASE,
+        const response: ApiResponse<LeadSource> = await api.post(
+          API_ENDPOINTS.LEAD_SOURCE,
           { data: payload }
         );
         return response;
@@ -184,8 +184,8 @@ export const createLeadSourceThunk = createAsyncThunk(
     "leadSource/getAll",
     async (_, { rejectWithValue }) => {
       try {
-        const response: ApiResponse<LeadSourceResponse[]> = await api.get(
-          API_ENDPOINTS.LEAD_BASE
+        const response: ApiResponse<LeadSource[]> = await api.get(
+          API_ENDPOINTS.LEAD_SOURCE
         );
         return response.data;
       } catch (err: any) {
@@ -199,8 +199,8 @@ export const createLeadSourceThunk = createAsyncThunk(
     "leadSource/getById",
     async (leadSourceId: string, { rejectWithValue }) => {
       try {
-        const response: ApiResponse<LeadSourceResponse> = await api.get(
-          `${API_ENDPOINTS.LEAD_BASE}/${leadSourceId}`
+        const response: ApiResponse<LeadSource> = await api.get(
+          `${API_ENDPOINTS.LEAD_SOURCE}/${leadSourceId}`
         );
         return response;
       } catch (err: any) {
@@ -217,8 +217,8 @@ export const createLeadSourceThunk = createAsyncThunk(
       { rejectWithValue }
     ) => {
       try {
-        const response: ApiResponse<LeadSourceResponse> = await api.put(
-          `${API_ENDPOINTS.LEAD_BASE}/${leadSourceId}`,
+        const response: ApiResponse<LeadSource> = await api.put(
+          `${API_ENDPOINTS.LEAD_SOURCE}/${leadSourceId}`,
           { data: payload }
         );
         return response.data;
@@ -234,9 +234,9 @@ export const createLeadSourceThunk = createAsyncThunk(
     async (leadSourceId: string, { rejectWithValue }) => {
       try {
         const response: ApiResponse<any> = await api.delete(
-          `${API_ENDPOINTS.LEAD_BASE}/${leadSourceId}`
+          `${API_ENDPOINTS.LEAD_SOURCE}/${leadSourceId}`
         );
-        return response;
+        return leadSourceId;
       } catch (err: any) {
         return rejectWithValue(err.message);
       }

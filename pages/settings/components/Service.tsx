@@ -44,14 +44,10 @@ const Service = () => {
   }, []);
 
   const confirmDelete = async () => {
-    if (!deleteModalVisible.id) return;
-
     try {
       setFormLoading(true);
-
       await dispatch(deleteServiceThunk(deleteModalVisible.id)).unwrap();
       message.success("Range deleted successfully");
-
       setDeleteModalVisible({ id: null, open: false });
     } catch (error: any) {
       message.error(error);
@@ -67,7 +63,7 @@ const Service = () => {
       if (editingItem) {
         await dispatch(
             updateServiceThunk({
-            serviceId: editingItem.id,
+            serviceId: editingItem.serviceId,
             service: values.name,
           })
         ).unwrap();
@@ -108,7 +104,7 @@ const Service = () => {
             type="text"
             danger
             icon={<IconTrash />}
-            onClick={() => setDeleteModalVisible({ id: record.id, open: true })}
+            onClick={() => setDeleteModalVisible({ id: record.serviceId, open: true })}
             aria-label="Delete"
           />
         </div>
@@ -151,7 +147,7 @@ const Service = () => {
         <ConfirmationModal
           open={deleteModalVisible.open}
           onClose={() => setDeleteModalVisible({ id: null, open: false })}
-          onConfirm={() => confirmDelete()}
+          onConfirm={confirmDelete}
           message="Are you sure you want to delete this package?"
           type="danger"
           confirmText="Delete"
