@@ -3,7 +3,7 @@ import api from "@lib/constants/api";
 import API_ENDPOINTS from "@lib/constants/apiEndpoints";
 import { ApiResponse } from "../auth/IAuthState";
 // import { PropertyDetails } from "data/types";
-import { ILeadContact } from "./ILeadState";
+import { ILeadContact, LeadSourceRequest, LeadSourceResponse } from "./ILeadState";
 
 export interface createLeadPayload {
     lead_source: string;
@@ -162,3 +162,83 @@ export const getQuotationsByLeadIdThunk = createAsyncThunk(
     }
   }
 );
+
+// ---- Create ----
+export const createLeadSourceThunk = createAsyncThunk(
+    "leadSource/create",
+    async (payload: LeadSourceRequest, { rejectWithValue }) => {
+      try {
+        const response: ApiResponse<LeadSourceResponse> = await api.post(
+          API_ENDPOINTS.LEAD_BASE,
+          { data: payload }
+        );
+        return response;
+      } catch (err: any) {
+        return rejectWithValue(err.message);
+      }
+    }
+  );
+  
+  // ---- Get All ----
+  export const getLeadSourcesThunk = createAsyncThunk(
+    "leadSource/getAll",
+    async (_, { rejectWithValue }) => {
+      try {
+        const response: ApiResponse<LeadSourceResponse[]> = await api.get(
+          API_ENDPOINTS.LEAD_BASE
+        );
+        return response.data;
+      } catch (err: any) {
+        return rejectWithValue(err.message);
+      }
+    }
+  );
+  
+  // ---- Get By Id ----
+  export const getLeadSourceByIdThunk = createAsyncThunk(
+    "leadSource/getById",
+    async (leadSourceId: string, { rejectWithValue }) => {
+      try {
+        const response: ApiResponse<LeadSourceResponse> = await api.get(
+          `${API_ENDPOINTS.LEAD_BASE}/${leadSourceId}`
+        );
+        return response;
+      } catch (err: any) {
+        return rejectWithValue(err.message);
+      }
+    }
+  );
+  
+  // ---- Update ----
+  export const updateLeadSourceThunk = createAsyncThunk(
+    "leadSource/update",
+    async (
+      { leadSourceId, payload }: { leadSourceId: string; payload: LeadSourceRequest },
+      { rejectWithValue }
+    ) => {
+      try {
+        const response: ApiResponse<LeadSourceResponse> = await api.put(
+          `${API_ENDPOINTS.LEAD_BASE}/${leadSourceId}`,
+          { data: payload }
+        );
+        return response.data;
+      } catch (err: any) {
+        return rejectWithValue(err.message);
+      }
+    }
+  );
+  
+  // ---- Delete ----
+  export const deleteLeadSourceThunk = createAsyncThunk(
+    "leadSource/delete",
+    async (leadSourceId: string, { rejectWithValue }) => {
+      try {
+        const response: ApiResponse<any> = await api.delete(
+          `${API_ENDPOINTS.LEAD_BASE}/${leadSourceId}`
+        );
+        return response;
+      } catch (err: any) {
+        return rejectWithValue(err.message);
+      }
+    }
+  );

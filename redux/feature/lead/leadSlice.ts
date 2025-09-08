@@ -3,10 +3,14 @@ import {
   convertLeadToJobThunk,
   convertLeadToOpportunityThunk,
   createLeadContactThunk,
+  createLeadSourceThunk,
   createLeadThunk,
+  deleteLeadSourceThunk,
+  getLeadSourcesThunk,
   getLeadThunk,
   getQuotationsByLeadIdThunk,
   updateLeadContactThunk,
+  updateLeadSourceThunk,
 } from "./leadThunk";
 import { getLeadByIdThunk } from "./leadThunk";
 import { InitialState } from "./ILeadState";
@@ -15,6 +19,7 @@ import { Status } from "@lib/constants/enum";
 const initialState: InitialState = {
   leads: [],
   status: Status.IDLE,
+  leadSources: [],
   leadDetail: {
     lead: null,
     contacts: null,
@@ -167,6 +172,32 @@ export const leadSlice = createSlice({
       }
       state.leadDetail.contacts.unshift(payload);
     });
+
+     builder.addCase(getLeadSourcesThunk.pending, (state) => {
+                state.status = Status.PENDING;
+            })
+            builder.addCase(getLeadSourcesThunk.fulfilled, (state, action) => {
+                state.leadSources = action.payload;
+                state.status = Status.SUCCESS;
+            })
+            builder.addCase(getLeadSourcesThunk.rejected, (state) => {
+                state.status = Status.ERROR;
+            })
+    
+            builder.addCase(createLeadSourceThunk.fulfilled, (state, action) => {
+                if (action.payload) {
+                    state.leadSources.unshift(action.payload.data);
+                }
+            })
+            builder.addCase(updateLeadSourceThunk.fulfilled, (state, action) => {
+              const index = state.leadSources.findIndex(service => service.leadSourceId === action.payload.leadSourceId);
+              if (index !== -1) {
+                  state.leadSources[index] = action.payload;
+              }
+          })
+            builder.addCase(deleteLeadSourceThunk.fulfilled, (state, action) => {
+              state.leadSources = state.leadSources.filter((service) => service.leadSourceId !== action.payload.leadSourceId)
+            })
   },
 });
 

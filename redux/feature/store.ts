@@ -11,6 +11,7 @@ import quotationReducer from "./quotation/quotationSlice";
 import { dashboardReducer } from "./dashboard/dashboardSlice";
 import typesReducer from "./types/typesSlice";
 import locationReducer from "./location/locationSlice";
+import contractorReducer from "./contractor/contractorSlice"; 
 
 const authPersistConfig = {
   key: "auth",
@@ -29,12 +30,13 @@ const rootReducer = combineReducers({
   dashboard: dashboardReducer,  
   types: typesReducer,
   location: locationReducer,
-});
+  contractor: contractorReducer,
+}); 
 
 const persistConfig = {
   key: "root",
   storage,
-  blacklist: ["lead", "masterPriceList", "floorPlan", "facade","dashboard","package","types","location"],
+  blacklist: ["lead", "masterPriceList", "floorPlan", "facade","dashboard","package","types","location","contractor"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

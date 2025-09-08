@@ -6,13 +6,17 @@ import Breadcrumb from "@/components/common/Breadcrumb";
 import {
   IconCalendarMonth,
   IconClockHour3,
+  IconLabelImportant,
   IconProgress,
   IconServer2,
+  IconTool,
 } from "@tabler/icons-react";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { message } from "antd";
 import { Status } from "@lib/constants/enum";
 import { getDwellingTypes, getRanges } from "@redux/feature/types/typesThunk";
+import Service from "./components/Service";
+import LeadSource from "./components/LeadSource";
 
 const MasterPriceList = dynamic(() => import("./components/MasterPriceList"), {
   ssr: false,
@@ -62,6 +66,20 @@ const TABS = [
     icon: IconCalendarMonth,
     breadcrumb: "Package",
     component: Package,
+  },
+  {
+    id: "service",
+    label: "Service",
+    icon: IconTool,
+    breadcrumb: "Service",
+    component: Service,
+  },
+  {
+    id: "lead-source",
+    label: "Lead Source",
+    icon: IconLabelImportant,
+    breadcrumb: "Lead Source",
+    component: LeadSource,
   },
 ];
 

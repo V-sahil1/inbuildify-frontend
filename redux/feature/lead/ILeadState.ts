@@ -5,6 +5,7 @@ import { Status } from "@lib/constants/enum";
 export interface InitialState {
   leads: ILead[];
   status: Status;
+  leadSources: LeadSourceResponse[];
   leadDetail: {
     lead: ILead | null;
     contacts: ILeadContact[] | null;
@@ -62,4 +63,14 @@ export interface leadDetail {
   contact: ILeadContact;
   property: PropertyDetails;
   createdQuotations: QuotationResponse[];
+}
+
+export interface LeadSourceRequest {
+  leadSourceName: string;
+}
+
+
+export interface LeadSourceResponse {
+  leadSourceId: string;
+  leadSourceName: string;
 }
