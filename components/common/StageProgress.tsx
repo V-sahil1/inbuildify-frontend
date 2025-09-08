@@ -52,7 +52,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
     if (modalType === "WON") {
       try {
         setLoading(true)
-        const response = await dispatch(convertLeadToJobThunk({ leadId: lead.contact.lead_id, message: values.message, status: "WON" })).unwrap()
+        const response = await dispatch(convertLeadToJobThunk({ leadId: lead.lead.leadId, message: values.message, status: "WON" })).unwrap()
         message.success(response?.response?.message)
         form.resetFields();
         router.push(`/job`)
@@ -65,7 +65,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
     } else if (modalType === "LOST") {
       try {
         setLoading(true)
-        const response = await dispatch(convertLeadToJobThunk({ leadId: lead.contact.lead_id, message: values.message, status: "LOST" })).unwrap()
+        const response = await dispatch(convertLeadToJobThunk({ leadId: lead.lead.leadId, message: values.message, status: "LOST" })).unwrap()
         form.resetFields();
         message.success("Lead mark as lost successfully")
         router.push(`/leads`)
@@ -123,7 +123,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
           })}
         </div>
       </div>
-      {lead?.contact?.status === "COMPLETED" && <div className="flex items-center gap-2">
+      {lead?.lead?.status === "COMPLETED" && <div className="flex items-center gap-2">
         <button className="btn btn-success rounded-md p-1" onClick={handleWinClick}>
           Won
         </button>

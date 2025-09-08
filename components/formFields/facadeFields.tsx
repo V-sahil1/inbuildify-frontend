@@ -2,10 +2,13 @@
 import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
 import { CreateFormField } from "../common/Models/CreateFormModel";
 import { useAppSelector } from "@hooks/redux";
+import { mapToOptions } from "@lib/utils/rangeAndDwellingObjToOptions";
+import { numberRules } from "@lib/constants/formInputValidations";
 
 
 export const facadeFields = (): CreateFormField[] => {
-  const filters = useAppSelector((state: any) => state.floorPlan.filters);
+const dwellingType = useAppSelector((state) => state.types.dwellingType);
+const dwellingTypeOptions = mapToOptions(dwellingType);
 
   return [
     {
@@ -19,26 +22,36 @@ export const facadeFields = (): CreateFormField[] => {
       label: "Image",
       name: "image",
       type: "image",
+      rules: [{ required: true, message: "Please upload image" }],
     },
     {
       label: "Dwelling Type",
       name: "dwelling_type",
       type: "select",
-      options: enumArrayToOptions(filters?.dwellingTypes),
+      options: dwellingTypeOptions,
       placeholder: "Select dwelling type",
       rules: [{ required: true, message: "Please select a dwelling type" }],
+    },
+    {
+      label: "Cost",
+      name: "cost",
+      type: "number",
+      placeholder: "10000",
+      rules: numberRules
     },
     {
       label: "Standard",
       name: "standard",
       type: "checkbox",
       placeholder: "1",
+      rules: [{ required: true, message: "Please select a dwelling type" }],
     },
     {
       label: "Upgrade",
       name: "upgrade",
       type: "checkbox",
       placeholder: "1",
+      rules: [{ required: true, message: "Please select a dwelling type" }],
     },
   ];
 }

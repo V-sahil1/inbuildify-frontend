@@ -12,7 +12,8 @@ import { enumToReadable } from "@lib/utils/enumToRedable";
 import leadCreateFields from "@/components/formFields/LeadCreateFields";
 import SystemRoutes from "@lib/constants/Routes";
 const Leads = () => {
-  const { leads, status } = useAppSelector((state) => state.lead);
+  const { leads } = useAppSelector((state) => state.lead);
+  const status = useAppSelector((state) => state.lead.status.leads); 
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [openLeadCreateModal, setOpenLeadCreateModal] = useState(false);
@@ -30,19 +31,27 @@ const Leads = () => {
   const handleSubmit = async (values: any) => {
     try {
       setLoading(true);
-      await dispatch(createLeadThunk(values)).unwrap();
+      const payload = {
+        lead_source: values.leadSource,
+        notes: values.notes,
+        contact: {
+          name: values.name,
+          ...(values.email && { email: values.email }),
+          ...(values.phone && { phone: values.phone }),
+        },
+      };
+      await dispatch(createLeadThunk(payload)).unwrap();
       message.success("Lead created successfully");
       setOpenLeadCreateModal(false);
     } catch (error) {
       message.error(error || "Failed to create lead");
-    }
-    finally {
+    } finally {
       setLoading(false);
     }
   };
   const handleOpenModal = () => {
     setOpenLeadCreateModal(true);
-  }; 
+  };
   return (
     <div className="p-4">
       <div className="flex items-center justify-between mb-4">
@@ -59,82 +68,97 @@ const Leads = () => {
           Create Lead
         </button>
       </div>
-      {status === Status.PENDING ?
-        (<div className="flex justify-center items-center pt-[20vh]">
+      {status === Status.PENDING ? (
+        <div className="flex justify-center items-center pt-[20vh]">
           <Spin size="large" />
-        </div>)
-        : leads.length > 0 ?
+        </div>
+      ) : leads.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {leads.map((lead: ILead) => (
-          <div
-          key={lead.lead_id}
-          onClick={() => {
-            if (lead.status === "CANCELLED") return;
-            (lead.status === "IN_PROGRESS" || lead.status === "COMPLETED")
-              ? router.push(`${SystemRoutes.LEADS}/${lead.lead_id}?type=opportunity`)
-              : lead.status === "JOB" ? router.push(SystemRoutes.JOB) 
-              : router.push(`${SystemRoutes.LEADS}/${lead.lead_id}`)
-          }}
-          className={`rounded-2xl border border-border-color shadow-sm p-6 ${lead.status === "CANCELLED" ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:shadow-xl hover:scale-[1.02]'} 
-                transition-all duration-200 bg-card-color`}
-        >
-          {/* Header with Tag on Top Right */}
-          <div className="flex justify-between items-start mb-3">
-            <h3 className="text-lg font-semibold">{lead.name}</h3>
-            <span
-              className={`text-xs px-3 py-1 rounded-full font-medium whitespace-nowrap ${lead.status === "IN_PROGRESS"
-                  ? "bg-purple-100 text-purple-700"
-                  : lead.status === "COMPLETED"
-                  ? "bg-green-100 text-green-700"
+          {leads.map((lead: ILead) => (
+            <div
+              key={lead.leadId}
+              onClick={() => {
+                if (lead.status === "CANCELLED") return;
+                lead.status === "IN_PROGRESS" || lead.status === "COMPLETED"
+                  ? router.push(
+                      `${SystemRoutes.LEADS}/${lead.leadId}?type=opportunity`
+                    )
                   : lead.status === "JOB"
-                  ? "bg-fuchsia-300 text-fuchsia-700"
-                  : "bg-yellow-100 text-yellow-700"
-              }`}
+                  ? router.push(SystemRoutes.JOB)
+                  : router.push(`${SystemRoutes.LEADS}/${lead.leadId}`);
+              }}
+              className={`rounded-2xl border border-border-color shadow-sm p-6 ${
+                lead.status === "CANCELLED"
+                  ? "opacity-60 cursor-not-allowed"
+                  : "cursor-pointer hover:shadow-xl hover:scale-[1.02]"
+              } 
+                transition-all duration-200 bg-card-color flex flex-col`}
             >
-              {enumToReadable(lead.status)}
-            </span>
-          </div>
-        
-          {/* Contact Info */}
-          <div className="space-y-2 mb-4">
-            <p className="flex items-center text-sm ">
+              {/* Header with Tag on Top Right */}
+              <div className="flex justify-between items-start mb-3">
+                <h3 className="text-lg font-semibold">{lead.name}</h3>
+                <span
+                  className={`text-xs px-3 py-1 rounded-full font-medium whitespace-nowrap ${
+                    lead.status === "IN_PROGRESS"
+                      ? "bg-purple-100 text-purple-700"
+                      : lead.status === "COMPLETED"
+                      ? "bg-green-100 text-green-700"
+                      : lead.status === "JOB"
+                      ? "bg-fuchsia-300 text-fuchsia-700"
+                      : "bg-yellow-100 text-yellow-700"
+                  }`}
+                >
+                  {enumToReadable(lead.status)}
+                </span>
+              </div>
+            
+              {/* Contact Info */}
+              <div className=" flex-1 space-y-2 mb-4">
+                {lead.phone &&
+                   <p className="flex items-center text-sm ">
                     <IconPhone size={16} className="mr-2 text-gray-400" />
                     {lead.phone}
                   </p>
+                  }
+                {lead.email && 
                   <p className="flex items-center text-sm ">
                     <IconMail size={16} className="mr-2 text-gray-400" />
-              {lead.email}
-            </p>
-            <p className="text-xs ">Source: {lead.lead_source}</p>
-          </div>
-        
-          {/* Footer with dates */}
-          <div className="flex border-t border-gray-100 pt-3 gap-4 text-xs text-gray-400">
-            <p
-              className="flex-1 truncate"
-              title={`Created: ${timeAgo(lead.created_at)}`}
-            >
-              Created: {timeAgo(lead.created_at)}
-            </p>
-            <p
-              className="flex-1 truncate"
-              title={`Updated: ${timeAgo(lead.updated_at)}`}
-            >
-              Updated: {timeAgo(lead.updated_at)}
-            </p>
-          </div>
+                    {lead.email}
+                  </p>
+                  }
+                {lead.leadSource && 
+                <p className="text-xs ">Source: {lead.leadSource}</p>
+                 }
+              </div>
+            
+              {/* Footer with dates */}
+              <div className="flex border-t border-gray-100 pt-3 gap-4 text-xs text-gray-400">
+                <p
+                  className="flex-1 truncate"
+                  title={`Created: ${timeAgo(lead.createdAt)}`}
+                >
+                  Created: {timeAgo(lead.createdAt)}
+                </p>
+                <p
+                  className="flex-1 truncate"
+                  title={`Updated: ${timeAgo(lead.updatedAt)}`}
+                >
+                  Updated: {timeAgo(lead.updatedAt)}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
-        
-
-        ))}
-      </div>
-      :
-      <Empty description={
-        <span className="text-gray-500">No Leads found. Create your first Lead to get started.</span>
-      }
-        className="pt-100"
-      />
-  }
+        ) : (
+        <Empty
+          description={
+            <span className="text-gray-500">
+              No Leads found. Create your first Lead to get started.
+            </span>
+          }
+          className="pt-100"
+        />
+      )}
 
       <CreateFormModal
         title="Lead"
@@ -142,8 +166,7 @@ const Leads = () => {
         loading={loading}
         onCancel={() => setOpenLeadCreateModal(false)}
         onSubmit={handleSubmit}
-        fields={leadCreateFields({isEmailDisable: false})}
-       
+        fields={leadCreateFields({ isEmailDisable: false })}
       />
     </div>
   );

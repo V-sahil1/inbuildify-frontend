@@ -35,7 +35,7 @@ const leadid = useParams()
     try {
       const values = await form.validateFields();
 
-      const leadId = isQuotationRoute ? (leadid?.id) : ((leadDetail as any)?.contact?.lead_id ?? '');
+      const leadId = isQuotationRoute ? (leadid?.id) : ((leadDetail as any)?.lead?.leadId ?? '');
       const titleStatusUpper = String(values.titleStatus || '').toUpperCase();
       const mappedTitleStatus = (titleStatusUpper === 'ACTUAL' || titleStatusUpper === 'CONFIRMED') ? 'ACTUAL' : 'ESTIMATED';
 

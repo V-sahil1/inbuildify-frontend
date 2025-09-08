@@ -1,5 +1,5 @@
 import { createSlice,  } from "@reduxjs/toolkit";
-import { createFloorPlan, fetchFloorPlans, getConditions, getFloorPlanFilters } from "./floorPlanThunk";
+import { createFloorPlan, deleteFloorPlan, fetchFloorPlans, getConditions, updateFloorPlan } from "./floorPlanThunk";
 import { Status } from "@lib/constants/enum";
 import { IFloorPlanState } from "./IFloorPlanState";
 
@@ -29,19 +29,22 @@ const floorPlanSlice = createSlice({
       .addCase(fetchFloorPlans.rejected, (state) => {
         state.status.floorPlan = Status.ERROR;
       })
-      .addCase(getFloorPlanFilters.pending, state => {
-        state.status.filters = Status.PENDING;
-      })
-      .addCase(getFloorPlanFilters.fulfilled, (state, action) => {
-        state.status.filters = Status.SUCCESS;
-        state.filters = action.payload;
-      })
       .addCase(createFloorPlan.fulfilled, (state, action) => {
         state.floorPlans.unshift(action.payload);
       })
       .addCase(getConditions.fulfilled, (state, action) => {
         state.status.conditions = Status.SUCCESS;
         state.filters = {...state.filters, conditions: action.payload};
+      })
+      .addCase(updateFloorPlan.fulfilled, (state, action) => {
+        state.floorPlans = state.floorPlans.map((floorPlan) =>
+          floorPlan.floorPlanId === action.payload.floorPlanId ? action.payload : floorPlan
+        );
+      })
+      .addCase(deleteFloorPlan.fulfilled, (state, action) => {
+        state.floorPlans = state.floorPlans.filter(
+          (floorPlan) => floorPlan.floorPlanId !== action.payload
+        );
       })
   },
 });

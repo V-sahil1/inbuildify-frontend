@@ -2,13 +2,24 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import api from "@lib/constants/api";
 import API_ENDPOINTS from "@lib/constants/apiEndpoints";
 import { ApiResponse } from "../auth/IAuthState";
-import { ContractorRequest, ContractorResponse, Service } from "./IContractorState";
+import {
+  ContractorRequest,
+  ContractorResponse,
+  Service,
+  ServiceRequest,
+} from "./IContractorState";
 
 export const createContractorThunk = createAsyncThunk(
   "contractor/create",
   async (
-    payload: { email: string; name: string; phone: string; address: string, service?: string },
-    {rejectWithValue}
+    payload: {
+      email: string;
+      name: string;
+      phone: string;
+      address: string;
+      service?: string;
+    },
+    { rejectWithValue }
   ) => {
     try {
       const response: ApiResponse<ContractorRequest> = await api.post(
@@ -24,7 +35,7 @@ export const createContractorThunk = createAsyncThunk(
 
 export const getContractorsThunk = createAsyncThunk(
   "contractor/getAll",
-  async (_, {rejectWithValue}) => {
+  async (_, { rejectWithValue }) => {
     try {
       const response: ApiResponse<ContractorResponse> = await api.get(
         API_ENDPOINTS.GET_CONTRACTORS
@@ -38,12 +49,12 @@ export const getContractorsThunk = createAsyncThunk(
 
 export const getContractorByIdThunk = createAsyncThunk(
   "contractor/delete",
-  async (contractorId: string, {rejectWithValue}) => {
+  async (contractorId: string, { rejectWithValue }) => {
     try {
       const response: ApiResponse<any> = await api.get(
-        `${API_ENDPOINTS.CREATE_CONTRACTOR}/${contractorId}` 
+        `${API_ENDPOINTS.CREATE_CONTRACTOR}/${contractorId}`
       );
-      console.log("API",response);
+      console.log("API", response);
       return response;
     } catch (err: any) {
       return rejectWithValue(err.message);
@@ -57,11 +68,19 @@ export const updateContractorThunk = createAsyncThunk(
     {
       contractorId,
       payload,
-    }: { contractorId: string; payload: { name: string; phone: string; address: string,service?: string } },
-    {rejectWithValue}
+    }: {
+      contractorId: string;
+      payload: {
+        name: string;
+        phone: string;
+        address: string;
+        service?: string;
+      };
+    },
+    { rejectWithValue }
   ) => {
     try {
-      console.log("abc",contractorId);
+      console.log("abc", contractorId);
       const response: ApiResponse<ContractorRequest> = await api.put(
         `${API_ENDPOINTS.CREATE_CONTRACTOR}/${contractorId}`,
         {
@@ -76,13 +95,12 @@ export const updateContractorThunk = createAsyncThunk(
   }
 );
 
-
 export const deleteContractorThunk = createAsyncThunk(
   "contractor/delete",
-  async (contractorId: string, {rejectWithValue}) => {
+  async (contractorId: string, { rejectWithValue }) => {
     try {
       const response: ApiResponse<ContractorRequest> = await api.delete(
-        `${API_ENDPOINTS.CREATE_CONTRACTOR}/${contractorId}` 
+        `${API_ENDPOINTS.CREATE_CONTRACTOR}/${contractorId}`
       );
       return response;
     } catch (err: any) {
@@ -93,7 +111,7 @@ export const deleteContractorThunk = createAsyncThunk(
 
 export const getServicesThunk = createAsyncThunk(
   "contractor/getAll",
-  async (_, {rejectWithValue}) => {
+  async (_, { rejectWithValue }) => {
     try {
       const response: ApiResponse<Service[]> = await api.get(
         API_ENDPOINTS.SERVICE_BASE
@@ -104,3 +122,68 @@ export const getServicesThunk = createAsyncThunk(
     }
   }
 );
+
+// ---- Create ----
+export const createServiceThunk = createAsyncThunk(
+  "service/create",
+  async (payload: ServiceRequest, { rejectWithValue }) => {
+    try {
+      const response: ApiResponse<Service> = await api.post(
+        API_ENDPOINTS.SERVICE_BASE,
+        { data: payload }
+      );
+      return response.data;
+    } catch (err: any) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+// ---- Update ----
+export const updateServiceThunk = createAsyncThunk(
+  "service/update",
+  async (
+    { serviceId, service }: { serviceId: string; service: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response: ApiResponse<Service> = await api.put(
+        `${API_ENDPOINTS.SERVICE_BASE}/${serviceId}`,
+        { data: {service} }
+      );
+      return response.data;
+    } catch (err: any) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+// ---- Delete ----
+export const deleteServiceThunk = createAsyncThunk(
+  "service/delete",
+  async (serviceId: string, { rejectWithValue }) => {
+    try {
+      const response: ApiResponse<Service> = await api.delete(
+        `${API_ENDPOINTS.SERVICE_BASE}/${serviceId}`
+      );
+      return serviceId;
+    } catch (err: any) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+// ---- Get By Id ----
+// export const getServiceByIdThunk = createAsyncThunk(
+//   "service/getById",
+//   async (serviceId: string, { rejectWithValue }) => {
+//     try {
+//       const response: ApiResponse<Service> = await api.get(
+//         `${API_ENDPOINTS.SERVICE_BASE}/${serviceId}`
+//       );
+//       return response;
+//     } catch (err: any) {
+//       return rejectWithValue(err.message);
+//     }
+//   }
+// );

@@ -7,6 +7,7 @@ export const profileFields = (): CreateFormField[] => {
       label: "Logo",
       name: "logo",
       type: "image",
+      rules: [{ required: true, message: "Please upload image" }],
     },
     {
       label: "Firm Name",

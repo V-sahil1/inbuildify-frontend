@@ -6,22 +6,81 @@ import Breadcrumb from "@/components/common/Breadcrumb";
 import {
   IconCalendarMonth,
   IconClockHour3,
+  IconLabelImportant,
   IconProgress,
   IconServer2,
+  IconTool,
 } from "@tabler/icons-react";
-import { getFloorPlanFilters } from "@redux/feature/floorPlan/floorPlanThunk";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
+import { message } from "antd";
+import { Status } from "@lib/constants/enum";
+import { getDwellingTypes, getRanges } from "@redux/feature/types/typesThunk";
+import Service from "./components/Service";
+import LeadSource from "./components/LeadSource";
 
-const MasterPriceList = dynamic(() => import("./components/MasterPriceList"), { ssr: false });
-const FloorPlan = dynamic(() => import("./components/FloorPlan"), { ssr: false });
+const MasterPriceList = dynamic(() => import("./components/MasterPriceList"), {
+  ssr: false,
+});
+const FloorPlan = dynamic(() => import("./components/FloorPlan"), {
+  ssr: false,
+});
 const Facade = dynamic(() => import("./components/Facade"), { ssr: false });
 const Package = dynamic(() => import("./components/Package"), { ssr: false });
+const RangeAndDwelling = dynamic(
+  () => import("./components/RangeAndDwelling"),
+  { ssr: false }
+);
 
 const TABS = [
-  { id: "items", label: "Master Pricing", icon: IconServer2, breadcrumb: "Master Pricing", component: MasterPriceList },
-  { id: "floor-plan", label: "Floor Plan", icon: IconProgress, breadcrumb: "Floor Plan", component: FloorPlan },
-  { id: "facade", label: "Facade", icon: IconClockHour3, breadcrumb: "Facade", component: Facade },
-  { id: "package", label: "Package", icon: IconCalendarMonth, breadcrumb: "Package", component: Package },
+  {
+    id: "range-dwelling",
+    label: "Types",
+    icon: IconServer2,
+    breadcrumb: "Types",
+    component: RangeAndDwelling,
+  },
+  {
+    id: "items",
+    label: "Master Pricing",
+    icon: IconServer2,
+    breadcrumb: "Master Pricing",
+    component: MasterPriceList,
+  },
+  {
+    id: "floor-plan",
+    label: "Floor Plan",
+    icon: IconProgress,
+    breadcrumb: "Floor Plan",
+    component: FloorPlan,
+  },
+  {
+    id: "facade",
+    label: "Facade",
+    icon: IconClockHour3,
+    breadcrumb: "Facade",
+    component: Facade,
+  },
+  {
+    id: "package",
+    label: "Package",
+    icon: IconCalendarMonth,
+    breadcrumb: "Package",
+    component: Package,
+  },
+  {
+    id: "service",
+    label: "Service",
+    icon: IconTool,
+    breadcrumb: "Service",
+    component: Service,
+  },
+  {
+    id: "lead-source",
+    label: "Lead Source",
+    icon: IconLabelImportant,
+    breadcrumb: "Lead Source",
+    component: LeadSource,
+  },
 ];
 
 export default function ProjectList() {
@@ -29,14 +88,24 @@ export default function ProjectList() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
-  const filters = useAppSelector((state: any) => state.floorPlan.filters);
+  const { status } = useAppSelector((state: any) => state.types);
   const [projectSide, setProjectSide] = React.useState(false);
 
   useEffect(() => {
-    if (!filters) {
-      dispatch(getFloorPlanFilters());
-    }
-  }, [dispatch, filters]);
+    const fetchTypesData = async () => {
+      try {
+        if (status?.range === Status.IDLE) {
+          await dispatch(getRanges()).unwrap();
+        }
+        if (status?.dwellingType === Status.IDLE) {
+          await dispatch(getDwellingTypes()).unwrap();
+        }
+      } catch (error) {
+        message.error(error);
+      }
+    };
+    fetchTypesData();
+  }, [dispatch]);
 
   const tabId = searchParams.get("tab") || TABS[0].id;
   const selectedIndex = TABS.findIndex((tab) => tab.id === tabId);
@@ -49,7 +118,7 @@ export default function ProjectList() {
   };
 
   const breadcrumbItems = [
-    { link: "Setting", url: "/setting" },
+    { link: "Settings", url: "/settings" },
     { name: TABS[selectedIndex]?.breadcrumb || TABS[0].breadcrumb },
   ];
 
@@ -100,9 +169,15 @@ export default function ProjectList() {
             >
               {/* hamburger svg */}
               <svg width="20" height="20" viewBox="0 0 100 100">
-                <path className="line line1" d="M 20,29.000046 H 80.000231 ..." />
+                <path
+                  className="line line1"
+                  d="M 20,29.000046 H 80.000231 ..."
+                />
                 <path className="line line2" d="M 20,50 H 80" />
-                <path className="line line3" d="M 20,70.999954 H 80.000231 ..." />
+                <path
+                  className="line line3"
+                  d="M 20,70.999954 H 80.000231 ..."
+                />
               </svg>
             </button>
           </div>

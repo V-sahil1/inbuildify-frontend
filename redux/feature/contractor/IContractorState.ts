@@ -1,5 +1,7 @@
 // Types for contractors
 
+import { Status } from "@lib/constants/enum"
+
 // API Response Type (what comes from the backend)
 export interface ContractorResponse extends Array<{
   contractorId: string
@@ -50,5 +52,24 @@ export const initialState: IContractorState = {
 export interface Service {
   serviceId: string,
   service: string,
-  builderId: string, 
+  builderId: string,
+  createdAt: string,
+  updatedAt: string
 }
+
+export interface ServiceRequest {
+  serviceId?: string;
+  service: string;
+}
+
+
+export interface ServiceResponse {
+  serviceId: string;
+  service: string;
+}
+
+export interface InitialContractorState {
+  services: Service[]
+  status: Status
+}
+  

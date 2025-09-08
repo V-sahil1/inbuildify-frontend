@@ -1,11 +1,12 @@
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { Status } from "@lib/constants/enum";
 import { createFacade, getFacades } from "@redux/feature/facade/facadeThunk";
-import { Button, Modal, Tabs, Typography, message } from "antd";
+import { Button, Checkbox, Modal, Tabs, Typography, message } from "antd";
 import { useEffect, useState } from "react";
 import AvailableFacadesTab from "./AvailableFacadesTab";
 import CustomFacadeForm from "./forms/CustomFacadeForm";
 import { setQuotationFacade } from "@redux/feature/quotation/quotationSlice";
+import { setSelectedFilters } from "@redux/feature/facade/facadeSlice";
 
 const { Title } = Typography;
 
@@ -23,7 +24,7 @@ const FacadeModal: React.FC<FacadeModalProps> = ({
     selectedFacade,
 }) => {
     const dispatch = useAppDispatch();
-    const { facades, status } = useAppSelector((state) => state.facade);
+    const { facades, selectedFilters } = useAppSelector((state) => state.facade);
 
     const [activeTab, setActiveTab] = useState<"available" | "custom">("available");
     const [selected, setSelected] = useState<any>(selectedFacade || null);
@@ -31,10 +32,12 @@ const FacadeModal: React.FC<FacadeModalProps> = ({
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        if (status === Status.IDLE) {
-            dispatch(getFacades(undefined)).unwrap().catch(console.error);
+        // if (status === Status.IDLE) {
+        if (visible) {
+            dispatch(getFacades(selectedFilters)).unwrap().catch(console.error);
         }
-    }, [dispatch, status]);
+        // }
+    }, [dispatch, visible, selectedFilters]);
 
     const handleSave = async () => {
         if (activeTab === "available") {
@@ -55,9 +58,9 @@ const FacadeModal: React.FC<FacadeModalProps> = ({
                 formData.append("name", formValues.name);
                 formData.append("dwelling_type", formValues.dwelling_type);
                 formData.append("image", formValues.image.fileList[0].originFileObj);
-                // console.log(formValues.image.fileList[0].originFileObj)
-                formData.append("standard", formValues.standard || true);
-                formData.append("upgrade", formValues.upgrade || true);
+                formData.append("standard", formValues.standard || false);
+                formData.append("upgrade", formValues.upgrade || false);
+                formData.append("cost", formValues.cost);
                 setLoading(true);
                 const response = await dispatch(createFacade(formData)).unwrap();
                 dispatch(setQuotationFacade(response));
@@ -99,6 +102,21 @@ const FacadeModal: React.FC<FacadeModalProps> = ({
             <Tabs
                 activeKey={activeTab}
                 onChange={(key) => setActiveTab(key as "available" | "custom")}
+                tabBarExtraContent={
+                    <div className="flex gap-4">
+                        <Checkbox
+                            checked={!!selectedFilters.standard}
+                            onChange={(e) => dispatch(setSelectedFilters({ standard: e.target.checked }))}>
+                            Standard
+                        </Checkbox>
+
+                        <Checkbox
+                            checked={!!selectedFilters.upgrade}
+                            onChange={(e) => dispatch(setSelectedFilters({ upgrade: e.target.checked }))}>
+                            Upgrade
+                        </Checkbox>
+                    </div>
+                }
                 items={[
                     {
                         key: "available",

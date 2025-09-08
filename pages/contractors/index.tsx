@@ -8,6 +8,7 @@ import { DetailModal } from "@/components/common/DetailModal";
 import ConfirmationModal from "@/components/common/ConfirmationModal";
 import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
 import { addressRules,emailRules,leadSourceRules,nameRules, phoneRules,} from "@lib/constants/formInputValidations";
+import contractorFields from "@/components/formFields/contractorFields";
 
 type Contractor = {
   contractorId: string;
@@ -152,7 +153,7 @@ const ContractorPage = () => {
       setIsEditing(false);
       setEditingKey(null);
     } catch (err) {
-      message.error(err);
+      message.error(err || 'Failed to create contractor');
     } finally {
       setLoading(false);
     }
@@ -298,42 +299,7 @@ const ContractorPage = () => {
           onCancel={handleCancel}
           onSubmit={handleSubmit}
           initialValues={editingUser}
-          fields={[
-            {
-              label: "Full Name",
-              name: "name",
-              placeholder: "John Doe",
-              rules: nameRules,
-            },
-            {
-              label: "Email",
-              name: "email",
-              placeholder: "john@example.com",
-              type: "email",
-              rules: emailRules,
-              disabled: isEditing,
-            },
-            {
-              label: "Phone",
-              name: "phone",
-              placeholder: "+1 555 0100",
-              rules: phoneRules,
-            },
-            {
-              label: "Address",
-              name: "address",
-              placeholder: "123 Main St, Springfield",
-              rules: addressRules,
-            },
-            {
-              label: "Services",
-              name: "service",
-              type: "select",
-              options: services,
-              placeholder: "Select services",
-              rules: leadSourceRules,
-            },
-          ]}
+          fields={contractorFields()}
         />
 
         <DetailModal

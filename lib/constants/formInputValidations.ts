@@ -91,4 +91,9 @@ export const licenseRules =  [
     message: "License number must be between 6 and 12 digits",
   },
 ]
+
+export const numberRules = [
+  { required: true, message: "Please enter a number" },
+  { pattern: /^\d+$/, message: "Please enter a valid number" },
+] 
   

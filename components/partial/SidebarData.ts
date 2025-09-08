@@ -33,20 +33,8 @@ export const menuList = [
   },
   {
     icon: IconBuildingSkyscraper,
-    link: "Contractor",
-    url: "/contractor",
-    roles: ["builder", "contractor", "customer"],
-  },
-    {
-    icon: IconUsers,
-    link: "User",
-    url: "/user",
-    roles: ["builder", "contractor", "customer"],
-  },
-  {
-    icon: IconUsers,
-    link: "Customer",
-    url: "/customer",
+    link: "Contractors",
+    url: "/contractors",
     roles: ["builder", "contractor", "customer"],
   },
   {
@@ -56,9 +44,15 @@ export const menuList = [
     roles: ["builder", "contractor", "customer"],
   },
   {
+    icon: IconUsers,
+    link: "Users",
+    url: "/users",
+    roles: ["builder", "contractor", "customer"],
+  },
+  {
     icon: IconBuildingSkyscraper,
-    link: "Setting",
-    url: "/setting",
+    link: "Settings",
+    url: "/settings",
     roles: ["builder"],
   }
 ];

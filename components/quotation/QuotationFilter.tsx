@@ -1,7 +1,6 @@
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
 import {
-  getFloorPlanFilters,
   fetchFloorPlans,
 } from "@redux/feature/floorPlan/floorPlanThunk";
 import { setSelectedFilters } from "@redux/feature/floorPlan/floorPlanSlice";
@@ -12,28 +11,40 @@ import { fetchPackages } from "@redux/feature/package/packageThunk";
 import { setSelectedFilters as setPackageFilters } from "@redux/feature/package/packageSlice";
 import { setSelectedFilters as setMplFilters } from "@redux/feature/masterPriceList/masterPriceListSlice";
 import { setSelectedFilters as setQuotationFilters } from "@redux/feature/quotation/quotationSlice";
-import { Select } from "antd";
+import { message, Select } from "antd";
+import { mapToOptions } from "@lib/utils/rangeAndDwellingObjToOptions";
+import { Status } from "@lib/constants/enum";
+import { getDwellingTypes, getRanges } from "@redux/feature/types/typesThunk";
 
 const QuotationFilter = () => {
   const dispatch = useAppDispatch();
-  const { filters, selectedFilters } = useAppSelector(
+  const { selectedFilters } = useAppSelector(
     (state) => state.floorPlan
   );
+  const {range , dwellingType,status} = useAppSelector((state) => state.types);
+  const rangeOptions = mapToOptions(range);
+  const dwellingOptions = mapToOptions(dwellingType);
   const { selectedFilters: packageFilters } = useAppSelector(
     (state) => state.package
   );
   const { selectedFilters: selectedQuotationFilters } = useAppSelector(
     (state) => state.quotation
   );
-  const rangeOptions = enumArrayToOptions(filters?.ranges);
-  const dwellingOptions = enumArrayToOptions(filters?.dwellingTypes);
 
   useEffect(() => {
-    if (!filters) {
-      dispatch(getFloorPlanFilters())
-        .unwrap()
-        .then(() => {});
+    const fetchTypesData = async () => {  
+      try{
+      if (status?.range === Status.IDLE) {
+       await dispatch(getRanges()).unwrap();
+      }
+      if(status?.dwellingType === Status.IDLE){
+        await dispatch(getDwellingTypes()).unwrap();
+      }
+    }catch(error){
+      message.error(error);
     }
+  }
+  fetchTypesData();
   }, [dispatch]);
 
   const handleRangeChange = useCallback(

@@ -1,3 +1,4 @@
+import { QuotationVersion } from "data/types";
 export interface QuotationItem {
     price: number;
     total: number;
@@ -6,6 +7,7 @@ export interface QuotationItem {
   }
   
   export interface QuotationResponse {
+    slugId: string;
     quotationId: string;
     builderId: string;
     leadId: string;
@@ -15,11 +17,10 @@ export interface QuotationItem {
     packageId: string;
     rangeId: string;
     dwellingTypeId: string;
+    totalAmount: number;
     items: QuotationItem[];
     createdAt: string;
-    updatedAt: string;
-
-    
+    updatedAt: string;    
     builderName?: string;
     leadStatus?: string;
     propertyAddress?: string;
@@ -28,6 +29,7 @@ export interface QuotationItem {
     packageName?: string;
     rangeName?: string;
     dwellingTypeName?: string;
+    versions: QuotationVersion[];
   }
   
   export type QuotationItemPayload = {

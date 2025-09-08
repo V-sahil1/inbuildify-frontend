@@ -8,15 +8,18 @@ interface Item {
 
 const calculateTotalQuotation = (
   packageFromSlice: number,
-  itemsFromSlice: Item[]
+  itemsFromSlice: Item[],
+  facadeCost: number,
 ) => {
   let total = Number(packageFromSlice) || 0;
+  total += Number(facadeCost) || 0;
 
   itemsFromSlice.forEach((item) => {
     const qty = Number(item.quantity) || 0;
     const price = Number(item.price) || 0;
     total += qty * price;
   });
+
 
   return Number(total.toFixed(2));
 };

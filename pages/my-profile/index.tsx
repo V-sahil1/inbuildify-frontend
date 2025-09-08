@@ -42,9 +42,9 @@ export default function MyProfile() {
       formData.append("phone", values.phone);
       formData.append("license_number", values.license_number);
       formData.append("abn_number", values.abn_number);
-      values.logo &&
-        typeof values.logo === "object" &&
-        formData.append("image", values.logo.file.originFileObj);
+      if (values?.logo?.length > 0 && values.logo[0]?.originFileObj) {
+        formData.append("image", values.logo[0].originFileObj);
+      }
       const response = await dispatch(updateUserThunk(formData)).unwrap();
       message.success(response.message);
       setIsEditModalOpen(false);

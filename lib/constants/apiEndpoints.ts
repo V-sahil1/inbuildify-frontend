@@ -41,6 +41,8 @@ class API_ENDPOINTS {
   public static GET_LEAD_BY_ID = (id: string) => `${this.LEAD_BASE}/${id}`;
   public static CONVERT_LEAD_TO_OPPORTUNITY = "/opportunities";
   public static CONVERT_LEAD_TO_JOB = `/job`;
+  public static LEAD_CONTACT = `/leads-contact`;
+  public static LEAD_SOURCE = `/lead-source`;
 
   //  Master PricingList
   public static MASTER_PRICE_LIST_CATEGORY = "/category";
@@ -53,6 +55,10 @@ class API_ENDPOINTS {
   // floor plans
   public static FLOOR_PLAN_BASE = "/floor-plan";
   public static FLOOR_PLAN_FILTERS = `${this.FLOOR_PLAN_BASE}/filters`;
+
+  //range and dwelling type
+  public static RANGE = `/range`; 
+  public static DWELLING_TYPE = `/dwelling-type`;
 
   //packages
   public static PACKAGE_BASE = "/package";
@@ -76,5 +82,9 @@ class API_ENDPOINTS {
     page: number,
     limit: number
   ) => `${this.QUOTATION_BASE}?leadId=${leadId}&page=${page}&limit=${limit}`;
+
+  // location
+  public static COUNTRY_BASE = "/country";
+  public static STATE_BASE = "/state";
 }
 export default API_ENDPOINTS;

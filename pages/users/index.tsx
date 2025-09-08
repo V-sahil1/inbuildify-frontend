@@ -185,33 +185,33 @@ const UserPage = () => {
   return (
     <div className="p-4">
       <div className="w-full">
-        <div className="flex items-center justify-between mb-4">
           <Typography.Title
             level={4}
             style={{ margin: 0, color: "var(--font-color)" }}
           >
             {activeTab === "users" ? "Users" : "Invited Users"}
           </Typography.Title>
-
+        <div className="flex items-center justify-between mb-4">
+          <div className="w-full">
+          <Tabs
+            activeKey={activeTab}
+            onChange={(key) => setActiveTab(key as "users" | "invites")}
+            items={[
+              { key: "users", label: "Users" },
+              { key: "invites", label: "Invited Users" },
+            ]}
+          />
+          </div>
           {/* 🔹 Always visible now */}
           {activeTab == "users" && (
             <button
-              className="btn large bg-[var(--primary)] cursor-pointer text-white"
+              className="btn large bg-[var(--primary)] cursor-pointer text-white w-[9rem] ml-10"
               onClick={handleOpenModal}
             >
               Invite User
             </button>
           )}
         </div>
-        <Tabs
-          activeKey={activeTab}
-          onChange={(key) => setActiveTab(key as "users" | "invites")}
-          items={[
-            { key: "users", label: "Users" },
-            { key: "invites", label: "Invited Users" },
-          ]}
-        />
-
         <Spin spinning={loading}>
           <Table
             rowKey="key"

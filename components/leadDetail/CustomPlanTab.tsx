@@ -6,20 +6,16 @@ import dayjs from "dayjs";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
 import { Status } from "@lib/constants/enum";
-import { createFloorPlan, getFloorPlanFilters } from "@redux/feature/floorPlan/floorPlanThunk";
+import { createFloorPlan } from "@redux/feature/floorPlan/floorPlanThunk";
 import { setQuotationPlan } from "@redux/feature/quotation/quotationSlice";
 
 const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
   const [form] = Form.useForm<IFloorPlanState>();
   const dispatch = useAppDispatch();
   const { filters, status } = useAppSelector((state: any) => state.floorPlan);
+  const {dwellingType,range} = useAppSelector((state: any) => state.types);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (status.filters === Status.IDLE) {
-      dispatch(getFloorPlanFilters()).unwrap()
-    }
-  }, [dispatch, status, filters])
 
   const handleCreateFloorPlan = async (values: any) => {
     try {
@@ -85,7 +81,7 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
             >
               <Select
                 placeholder="Select range"
-                options={enumArrayToOptions(filters?.ranges)}
+                options={range}
               />
             </Form.Item>
 
@@ -96,7 +92,7 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
             >
               <Select
                 placeholder="Select dwelling type"
-                options={enumArrayToOptions(filters?.dwellingTypes)}
+                options={dwellingType}
               />
             </Form.Item>
             <Form.Item
@@ -111,6 +107,7 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
                 listType="picture"
                 multiple={false}
                 maxCount={1}
+                beforeUpload={() => false}
               >
                 <Button>
                   Click to Upload

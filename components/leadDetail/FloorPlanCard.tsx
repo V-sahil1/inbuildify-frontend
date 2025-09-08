@@ -27,6 +27,7 @@ const FloorPlanCard: React.FC<FloorPlanCardProps> = ({
         <img
           src={plan.image}
           alt={plan.name}
+          loading="lazy"
           className="w-full h-16 object-cover rounded mb-2"
         />
         <div className="text-xs font-medium text-font-color-100">{plan.name}</div>

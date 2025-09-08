@@ -148,6 +148,17 @@ const theme = {
     Typography: {
       colorTextHeading: "var(--font-color)",
     },
+    Collapse: {
+      headerPadding: "12px 16px",
+      contentPadding: "12px 16px",
+      borderRadiusLG: 0,
+      borderRadiusSM: 0,
+      borderRadius: 0,
+    },
+    Result:{
+      colorTextHeading:'var(--font-color)',
+      colorTextDescription:'var(--font-color-100)'
+    }
   },
 };
 
