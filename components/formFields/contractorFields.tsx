@@ -9,9 +9,9 @@ import {
 import { CreateFormField } from "@/components/common/Models/CreateFormModel";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { useEffect } from "react";
-import { getLeadSourcesThunk } from "@redux/feature/lead/leadThunk";
 import { message } from "antd";
 import { getServicesThunk } from "@redux/feature/contractor/contractorThunk";
+import { setAddServiceModal } from "@redux/feature/contractor/contractorSlice";
 
 export type ContractorFormField = Omit<CreateFormField, "type"> & {
   type?: "email" | "phone" | "select" | "textarea";
@@ -40,6 +40,10 @@ const contractorFields = (
       getServices();
     }
   }, []);
+
+  const handleAddService = () => {
+    dispatch(setAddServiceModal(true));
+  }
 
   return [
     {
@@ -75,6 +79,8 @@ const contractorFields = (
       options: servicesOptions,
       placeholder: "Select services",
       rules: leadSourceRules,
+      onClick: handleAddService,
+      button: "Add Service",
     },
   ] as const;
 };

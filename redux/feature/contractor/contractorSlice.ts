@@ -11,12 +11,17 @@ import {
 const initialState: InitialContractorState = {
   services: [],
   status: Status.IDLE,
+  addServiceModal: false,
 };
 
 export const contractorSlice = createSlice({
   name: "contractor",
   initialState,
-  reducers: {},
+  reducers: {
+      setAddServiceModal: (state, action) => {
+          state.addServiceModal = action.payload;
+        },
+  },
   extraReducers: (builder) => {
     builder.addCase(getServicesThunk.pending, (state) => {
       state.status = Status.PENDING;
@@ -47,5 +52,5 @@ export const contractorSlice = createSlice({
     });
   },
 });
-
+export const { setAddServiceModal } = contractorSlice.actions;
 export default contractorSlice.reducer;

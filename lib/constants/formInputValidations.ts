@@ -97,3 +97,39 @@ export const numberRules = [
   { pattern: /^\d+$/, message: "Please enter a valid number" },
 ] 
   
+
+export const optionalEmailRule = [
+  {
+    validator: (_: any, value: string) => {
+      if (!value) return Promise.resolve(); // empty is ok
+      const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return regex.test(value)
+        ? Promise.resolve()
+        : Promise.reject(new Error("Please enter a valid email address"));
+    },
+  },
+];
+
+export const optionalPhoneRule = [
+  {
+    validator: (_: any, value: string) => {
+      if (!value) return Promise.resolve(); // empty is ok
+      const regex = /^\+?[0-9]{7,15}$/; // e.g. +15550100
+      return regex.test(value)
+        ? Promise.resolve()
+        : Promise.reject(new Error("Please enter a valid phone number"));
+    },
+  },
+];
+
+export const optionalNotesRule = [
+  {
+    validator: (_: any, value: string) => {
+      if (!value) return Promise.resolve(); // empty is ok
+      if (value.length < 3) {
+        return Promise.reject(new Error("Notes should be at least 3 characters"));
+      }
+      return Promise.resolve();
+    },
+  },
+];

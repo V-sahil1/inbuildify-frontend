@@ -72,10 +72,10 @@ const LeadSource = () => {
             payload: { name: values.name },
           })
         ).unwrap();
-        message.success("Range updated successfully");
+        message.success("Lead source updated successfully");
       } else {
         await dispatch(createLeadSourceThunk({ name: values.name })).unwrap();
-        message.success("Range created successfully");
+        message.success("Lead source created successfully");
       }
 
       setIsModalVisible(false);
