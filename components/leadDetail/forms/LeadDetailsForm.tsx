@@ -119,6 +119,22 @@ const LeadDetailsForm: React.FC<any> = ({
     });
   };
 
+  // useEffect(() => {
+  //   if (!open) {
+  //     setShowContactForm(false);
+  //     setHideAddressForm(true);
+  //   } else if (isEditing && initialValues) {
+  //       form.resetFields();
+  //       form.setFieldsValue(initialValues);
+  //     } else if (!isEditing) {
+  //       form.resetFields();
+  //   }
+  // }, [open, isEditing, initialValues, form]);
+
+
+
+
+  
   useEffect(() => {
     if (open) {
       if (isEditing && initialValues) {

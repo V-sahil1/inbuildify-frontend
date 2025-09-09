@@ -59,9 +59,9 @@ const TimelineCard: FC<TimelineCardProps> = ({
     };
 
     const getTags = () => {
-        // if (type === "Notes" && (data as NoteDetails).tags) {
-        //     return (data as NoteDetails).tags;
-        // }
+        if (type === "Notes" && (data as NoteDetails).tags) {
+            return (data as NoteDetails).tags;
+        }
         if (type === "Tasks" && (data as TaskDetails).priority) {
             return [`Priority: ${(data as TaskDetails).priority}`];
         }

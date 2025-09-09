@@ -130,7 +130,7 @@ export interface BaseTimelineCardProps {
   date: string;
   createdBy: string;
   createdAt: string;
-  status?: "completed" | "pending" | "working";
+  status?: "completed" | "pending" | "working" | "";
   onEdit?: (updated: TimelineCardProps) => void; // send updated values to parent
   onReschedule?: () => void;
   children?: React.ReactNode;

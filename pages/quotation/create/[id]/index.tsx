@@ -182,8 +182,8 @@ const Index = () => {
 
   const createQuotationPayload = () => {
     return {
-      range: "PREMIUM",
-      dwellingType: "DOUBLE_STOREY",
+      range: quotationFilters?.range,
+      dwellingType: quotationFilters?.dwelling_type,
       leadId: property?.leadId,
       propertyId: property?.propertyId,
       floorPlanId: plan?.floorPlanId,

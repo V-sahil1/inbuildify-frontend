@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import TimelineCard from "../common/TimeLineComponents/TimelineCard";
-import TimelineActionsBar from "../common/TimeLineComponents/TimelineActionsBar";
-import { MenuProps } from "antd";
-import { ActionType, TimelineCardProps, NoteDetails, AppointmentDetails, TaskDetails, SmsDetails } from "data/types";
-import { handleSaveTimelineCard } from '../../lib/utils/timelineCardUtils';
-import TimelineActionFormRenderer from "../common/TimelineActionFormRenderer";
+import TimelineActionFormRenderer from '@/components/common/TimelineActionFormRenderer';
+import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineActionsBar';
+import TimelineCard from '@/components/common/TimeLineComponents/TimelineCard';
+import { handleSaveTimelineCard } from '@lib/utils/timelineCardUtils';
+import { MenuProps } from 'antd';
+import { ActionType, AppointmentDetails, NoteDetails, SmsDetails, TaskDetails, TimelineCardProps } from 'data/types';
+import React, { useState } from 'react'
 
 const timeLineCardData: TimelineCardProps[] = [
     {
@@ -74,7 +74,7 @@ const actionItems: MenuProps["items"] = [
     { key: "createTask", label: "Create Task" },
 ];
 
-const LeadActions = () => {
+const JobAction = () => {
     const [cardsData, setCardsData] = useState<TimelineCardProps[]>(timeLineCardData);
     const [activeTab, setActiveTab] = useState("All");
     const [activeAction, setActiveAction] = useState<ActionType>(null);
@@ -114,7 +114,6 @@ const LeadActions = () => {
     const handleSaveSms = (sms: SmsDetails) => {
         handleSaveTimelineCard(editingItem, setCardsData, handleClose, "Sms", sms);
     };
-
     return (
         <div className="relative p-4 mt-0 bg-card-color">
             <div className="p-4">
@@ -160,7 +159,7 @@ const LeadActions = () => {
                 </div>
             </div>
         </div>
-    );
-};
+    )
+}
 
-export default LeadActions;
+export default JobAction

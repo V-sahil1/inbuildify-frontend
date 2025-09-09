@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { Form, Input, message, Modal, Tag } from "antd";
+import { Button, Form, Input, message, Modal, Tag } from "antd";
 import { useAppDispatch } from "@hooks/redux";
 import { convertLeadToJobThunk } from "@redux/feature/lead/leadThunk";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 const { TextArea } = Input;
 
 type Step = {
@@ -18,10 +19,11 @@ type Step = {
 type StageProgressProps = {
   id: string;
   title: string;
-  status: string;
+  status?: string;
   steps: Step[];
   activeStep?: string;
   lead?: any;
+  idClassName?: string;
 };
 
 const StageProgress: React.FC<StageProgressProps> = ({
@@ -31,6 +33,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
   steps,
   activeStep,
   lead,
+  idClassName,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState<"WON" | "LOST" | null>(null);
@@ -84,12 +87,16 @@ const StageProgress: React.FC<StageProgressProps> = ({
         {/* Info */}
         <div className="flex items-center gap-2">
           <span className="font-medium">{title} -</span>
-          <a href="#" className="text-blue-500 hover:underline">
+          <Button type="link" onClick={() => router.push(`#`)} className={`p-0 ${idClassName}`}>
             {id}
-          </a>
-          <Tag color="cyan" className="rounded-md">
-            {status}
-          </Tag>
+          </Button>
+          {
+            status && (
+              <Tag color="cyan" className="rounded-md">
+                {status}
+              </Tag>
+            )
+          }
         </div>
 
         {/* Step Progress */}
