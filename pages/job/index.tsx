@@ -3,6 +3,7 @@
 import StageProgress from "@/components/common/StageProgress";
 import WorkflowSteps from "@/components/common/WorkflowSteps";
 import JobAction from "@/components/job/jobDetail/JobAction";
+import JobVariation from "@/components/job/jobDetail/JobVariation";
 import { Result, Tabs } from "antd";
 import router from "next/router";
 const { TabPane } = Tabs;
@@ -79,6 +80,47 @@ const workFlowSteps = [
   },
 ]
 
+const JobVariationData = [
+  {
+    ReferenceID: 'MYH00486-V1',
+    Amount: 7000.00,
+    RequestedBy: 'Aman',
+    DelayedBy: 'Hiren',
+    DrawingChanges: "Yes",
+    Created: { user: 'MM', date: "1/1/2002" },
+    Approved: { user: 'MM', date: "1/1/2002" },
+    Status: 'Approved',
+    Invoice: 'invoice',
+    Profile: 'MM'
+  },
+  {
+    ReferenceID: 'MYH00486-V2',
+    Amount: 7000.00,
+    RequestedBy: 'Aman',
+    DelayedBy: 'Hiren',
+    DrawingChanges: "No",
+    Created: { user: 'MM', date: "1/1/2002" },
+    Approved: { user: 'MM', date: "1/1/2002" },
+    Status: 'Approved',
+    Invoice: 'invoice',
+    Profile: 'A'
+  },
+  {
+    ReferenceID: 'MYH00486-V3',
+    Amount: 7000.00,
+    RequestedBy: 'Aman',
+    DelayedBy: 'Hiren',
+    DrawingChanges: "Yes",
+    Created: { user: 'MM', date: "1/1/2002" },
+    Approved: { user: 'MM', date: "1/1/2002" },
+    Status: 'Draft',
+    Invoice: 'invoice',
+    Profile: 'A'
+  },
+
+
+]
+
 export default function JobDetail() {
 
 
@@ -109,7 +151,7 @@ export default function JobDetail() {
             <div className="bg-card-color"><Result title="Document Functionality coming soon" subTitle="Please check back later" /></div>
           </TabPane>
           <TabPane tab="Variations" key="Variations">
-            <div className="bg-card-color"><Result title="Variations Functionality coming soon" subTitle="Please check back later" /></div>
+            <JobVariation data={JobVariationData} />
           </TabPane>
           <TabPane tab="Invoices & Payments" key="Invoices & Payments">
             <div className="bg-card-color"><Result title="Invoices & Payments Functionality coming soon" subTitle="Please check back later" /></div>

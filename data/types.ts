@@ -158,3 +158,23 @@ export interface Quotation {
   property: string;
   versions: QuotationVersion[];
 }
+
+export interface JobVariationType {
+    ReferenceID: string;
+    Amount: number;
+    RequestedBy: string;
+    DelayedBy: string;
+    DrawingChanges: string;
+    Created: {
+    user: string,
+    date: string
+  }
+  Approved: {
+    user: string,
+    date: string
+  }
+
+  Status: string;
+  Invoice: string;
+
+}
