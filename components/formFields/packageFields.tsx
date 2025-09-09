@@ -26,7 +26,7 @@ export const packageFields = (): CreateFormField[] => {
     try {
       if (itemStatus === Status.IDLE) {
         dispatch(
-          fetchPackageItems({ range: "PREMIUM", dwellingType: "DOUBLE_STOREY" })
+          fetchPackageItems()
         ).unwrap();
       }
     } catch (error) {

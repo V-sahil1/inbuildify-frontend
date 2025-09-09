@@ -72,14 +72,14 @@ export interface Package {
 function App() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const isOpportunity = searchParams.get("type") === "opportunity";
-  const title = isOpportunity ? "Opportunity" : "Lead";
   const [isConvertModalVisible, setIsConvertModalVisible] = useState(false);
   const [isEditLeadModalVisible, setIsEditLeadModalVisible] = useState(false);
   const [isPropertyModalVisible, setIsPropertyModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
   const { leadDetail } = useAppSelector((state: RootState) => state.lead);
+  const isOpportunity = leadDetail?.lead?.status !== "NEW";
+  const title = isOpportunity ? "Opportunity" : "Lead";
   const contacts: ILeadContact[] = leadDetail?.contacts;
   const propertyFromSlice = leadDetail?.property;
   const leadId = router.query.id as string | undefined;

@@ -57,12 +57,13 @@ export const fetchPackageById = createAsyncThunk(
 export const fetchPackageItems = createAsyncThunk(
   "packages/fetchItems",
   async (
-    { range, dwellingType }: { range?: string; dwellingType?: string },
+    // { range, dwellingType }: { range?: string; dwellingType?: string }
+    _,
     { rejectWithValue }
   ) => {
     try {
       const res = await api.get<ApiResponse<Item[]>>(
-        `${API_ENDPOINTS.GET_PACKAGE_ITEMS}?range=${range || ""}&dwelling_type=${dwellingType || ""}`
+        `${API_ENDPOINTS.GET_PACKAGE_ITEMS}`
       );
       return res.data;
     } catch (error) {

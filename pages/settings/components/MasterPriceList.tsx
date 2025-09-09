@@ -16,6 +16,7 @@ import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { message, Spin, Empty } from "antd";
 import ConfirmationModal from "@/components/common/ConfirmationModal";
+import { removePackageItems } from "@redux/feature/package/packageSlice";
 
 export const MasterPriceList = () => {
   const dispatch = useAppDispatch();
@@ -87,6 +88,7 @@ export const MasterPriceList = () => {
     try {
       await dispatch(deleteCategoryItem(categoryItemId)).unwrap();
       message.success("Category item deleted successfully");
+      dispatch(removePackageItems(categoryItemId));
       setDeleteModal(false);
     } catch (error: any) {
       message.error(error || "Failed to delete category item");

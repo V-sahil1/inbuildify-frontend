@@ -102,13 +102,14 @@ const Leads = () => {
               key={lead.leadId}
               onClick={() => {
                 if (lead.status === "CANCELLED") return;
-                lead.status === "IN_PROGRESS" || lead.status === "COMPLETED"
-                  ? router.push(
-                      `${SystemRoutes.LEADS}/${lead.leadId}?type=opportunity`
-                    )
-                  : lead.status === "JOB"
-                  ? router.push(SystemRoutes.JOB)
-                  : router.push(`${SystemRoutes.LEADS}/${lead.leadId}`);
+                router.push(`${SystemRoutes.LEADS}/${lead.leadId}`);
+                // lead.status === "IN_PROGRESS" || lead.status === "COMPLETED"
+                //   ? router.push(
+                //       `${SystemRoutes.LEADS}/${lead.leadId}?type=opportunity`
+                //     )
+                //   : lead.status === "JOB"
+                //   ? router.push(SystemRoutes.JOB)
+                //   : router.push(`${SystemRoutes.LEADS}/${lead.leadId}`);
               }}
               className={`rounded-2xl border border-border-color shadow-sm p-6 ${
                 lead.status === "CANCELLED"

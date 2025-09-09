@@ -90,7 +90,7 @@ const AddMasterPricingItemModal = ({
   }, [dispatch, filters, status.conditions]);
 
   const onFinish = async (values: any) => {
-    console.log("🚀 ~ onFinish ~ values:", values)
+    // console.log("🚀 ~ onFinish ~ values:", values)
     await form.validateFields();
     try {
       setIsAddingItem(true);

@@ -45,6 +45,9 @@ const packageSlice = createSlice({
       }
       state.items = [action.payload, ...state.items];
     },
+    removePackageItems: (state, action) => {
+      state.items = state.items?.filter(item => item.categoryItemId !== action.payload);
+    }
   },
   extraReducers: (builder) => {
     //get
@@ -101,7 +104,21 @@ const packageSlice = createSlice({
       state.status.items = Status.PENDING;
     });
     builder.addCase(fetchPackageItems.fulfilled, (state, action) => {
-      state.items = action.payload;
+      const currentItems = state.items || [];
+      const newItems = action.payload || [];
+
+      const existingIds = new Set(
+        currentItems.map((item) => item.categoryItemId)
+      );
+      const uniqueNewItems = newItems.filter(
+        (item) => !existingIds.has(item.categoryItemId)
+      );
+      if (uniqueNewItems.length > 0) {
+        state.items = [...currentItems, ...uniqueNewItems];
+      } else if (currentItems.length === 0) {
+        state.items = newItems;
+      }
+
       state.status.items = Status.SUCCESS;
     });
     builder.addCase(fetchPackageItems.rejected, (state) => {
@@ -110,5 +127,5 @@ const packageSlice = createSlice({
   },
 });
 
-export const { setSelectedFilters, clearFilters, setAddInstItemModal, addPackageItems } = packageSlice.actions;
+export const { setSelectedFilters, clearFilters, setAddInstItemModal, addPackageItems,removePackageItems } = packageSlice.actions;
 export default packageSlice.reducer;
