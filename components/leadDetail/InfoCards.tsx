@@ -14,7 +14,7 @@ import {
   IconCar,
   IconForklift,
 } from "@tabler/icons-react";
-import {PropertyDetails, Plan } from "data/types";
+import { PropertyDetails, Plan } from "data/types";
 import PropertyDetailsModal from "./PropertyDetailsModal";
 import FloorPlanModal from "./FloorPlanModal";
 import dayjs from "dayjs";
@@ -25,12 +25,18 @@ import { Package } from "@redux/feature/package/IPackageState";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 // import leadCreateFields from "../formFields/LeadCreateFields";
 // import { CreateFormModal } from "../common/Models/CreateFormModel";
-import { createLeadContactThunk, updateLeadContactThunk } from "@redux/feature/lead/leadThunk";
+import {
+  createLeadContactThunk,
+  updateLeadContactThunk,
+} from "@redux/feature/lead/leadThunk";
 // import { updateQuotationContact } from "@redux/feature/quotation/quotationSlice";
 import LeadDetailsForm from "./forms/LeadDetailsForm";
 import { ILeadContact } from "@redux/feature/lead/ILeadState";
 import { setQuotationContact } from "@redux/feature/quotation/quotationSlice";
-import { clearStandardFilter, clearUpgradeFilter } from "@redux/feature/facade/facadeSlice";
+import {
+  clearStandardFilter,
+  clearUpgradeFilter,
+} from "@redux/feature/facade/facadeSlice";
 
 interface InfoCardsProps {
   leadDetails: ILeadContact;
@@ -67,7 +73,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
     null
   );
   const { leadDetail } = useAppSelector((state) => state.lead);
-    // const sliceContacts: ILeadContact[] = leadDetail?.contacts;
+  // const sliceContacts: ILeadContact[] = leadDetail?.contacts;
   const { selectedFilters } = useAppSelector((state) => state.quotation);
   const handleEditLeadSubmit = async (values: any) => {
     const { type, hideAddressForm, ...details } = values;
@@ -399,19 +405,33 @@ const InfoCards: React.FC<InfoCardsProps> = ({
         initialValues={{...leadDetails,secondary_phone: leadDetails?.secondaryPhone}}
       />
 
+      {floorPlanModalVisible && (
       <FloorPlanModal
         visible={floorPlanModalVisible}
         onCancel={() => setFloorPlanModalVisible(false)}
         onSave={onPlanSelect}
         selectedPlan={selectedPlan}
       />
+      )}
+      
+      {facadeModalVisible && (
       <FacadeModal
         visible={facadeModalVisible}
-        onCancel={() => {setFacadeModalVisible(false);dispatch(clearStandardFilter());dispatch(clearUpgradeFilter())}}
-        onSave={(data) => {onFacadeSelect(data);dispatch(clearStandardFilter());dispatch(clearUpgradeFilter())}}
+        onCancel={() => {
+            setFacadeModalVisible(false);
+            dispatch(clearStandardFilter());
+            dispatch(clearUpgradeFilter());
+          }}
+          onSave={(data) => {
+            onFacadeSelect(data);
+            dispatch(clearStandardFilter());
+            dispatch(clearUpgradeFilter());
+          }}
         selectedFacade={selectedFacade}
       />
+      )}
       {/* Package Selection Modal */}
+      {packageModalVisible && (
       <PackageModal
         visible={packageModalVisible}
         onCancel={() => setPackageModalVisible(false)}
@@ -419,6 +439,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
         selectedPackage={selectedPackage}
         onSelect={onPackageSelect}
       />
+      )}
     </div>
   );
 };

@@ -29,13 +29,13 @@ const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
       if (res.leadId) {
         message.success("Lead converted to opportunity successfully");
       }
-      const currentQuery = { ...router.query };
-      currentQuery.type = "opportunity";
-      await router.replace(
-        { pathname: router.pathname, query: currentQuery },
-        undefined,
-        { shallow: true }
-      );
+      // const currentQuery = { ...router.query };
+      // currentQuery.type = "opportunity";
+      // await router.replace(
+      //   { pathname: router.pathname, query: currentQuery },
+      //   undefined,
+      //   { shallow: true }
+      // );
       onCancel();
     } catch (error) {
       message.error(`Failed to convert lead to opportunity ${error}`);
