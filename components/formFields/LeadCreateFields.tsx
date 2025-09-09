@@ -1,8 +1,10 @@
-import { LeadSource, Status } from "@lib/constants/enum";
+import { Status } from "@lib/constants/enum";
 import {
-  emailRules,
   leadSourceRules,
   nameRules,
+  optionalEmailRule,
+  optionalNotesRule,
+  optionalPhoneRule,
   phoneRules,
 } from "@lib/constants/formInputValidations";
 import { CreateFormField } from "@/components/common/Models/CreateFormModel";
@@ -54,7 +56,7 @@ const leadCreateFields = (
       name: "email",
       placeholder: "john@example.com",
       type: "email",
-      // rules: emailRules,
+      rules: optionalEmailRule,
       disabled: isEmailDisable,
     },
     {
@@ -62,7 +64,7 @@ const leadCreateFields = (
       name: "phone",
       placeholder: "+1 555 0100",
       type: "phone",
-      // rules: phoneRules,
+      rules: optionalPhoneRule,
     },
     {
       label: "Lead Source",
@@ -71,13 +73,15 @@ const leadCreateFields = (
       type: "select",
       options: LeadSourceOptions,
       rules: leadSourceRules,
+      onClick: handleAddSource,
+      button: "Add Source",
     },
     {
       label: "Notes",
       name: "notes",
       placeholder: "e.g. Social Media, Referral, etc.",
       type: "textarea",
-      // rules: [{required: true, message: "Please enter notes"}],
+      rules: optionalNotesRule,
     },
   ] as const;
 };

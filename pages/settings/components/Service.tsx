@@ -67,10 +67,10 @@ const Service = () => {
             service: values.name,
           })
         ).unwrap();
-        message.success("Range updated successfully");
+        message.success("Service updated successfully");
       } else {
         await dispatch(createServiceThunk({ service: values.name })).unwrap();
-        message.success("Range created successfully");
+        message.success("Service created successfully");
       }
 
       setIsModalVisible(false);

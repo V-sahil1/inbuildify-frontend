@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import { createLeadThunk, getLeadThunk } from "@redux/feature/lead/leadThunk";
+import {
+  createLeadSourceThunk,
+  createLeadThunk,
+  getLeadThunk,
+} from "@redux/feature/lead/leadThunk";
 import { message, Typography, Empty, Spin } from "antd";
 import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
 import { Status } from "@lib/constants/enum";
@@ -11,11 +15,16 @@ import { timeAgo } from "@lib/utils/timeAgo";
 import { enumToReadable } from "@lib/utils/enumToRedable";
 import leadCreateFields from "@/components/formFields/LeadCreateFields";
 import SystemRoutes from "@lib/constants/Routes";
+import { setAddInstSourceModal } from "@redux/feature/lead/leadSlice";
+import rangeAndDwellingTypeFields from "@/components/formFields/rangeAndDwellingTypeFields";
 const Leads = () => {
   const { leads } = useAppSelector((state) => state.lead);
-  const status = useAppSelector((state) => state.lead.status.leads); 
+  const status = useAppSelector((state) => state.lead.status.leads);
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const addInstSourceModal = useAppSelector(
+    (state) => state.lead.addInstSourceModal
+  );
   const [openLeadCreateModal, setOpenLeadCreateModal] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -46,6 +55,20 @@ const Leads = () => {
     } catch (error) {
       message.error(error || "Failed to create lead");
     } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddLeadSourceSubmit = async (values: any) => {
+    try {
+      setLoading(true);
+      await dispatch(createLeadSourceThunk({ name: values.name })).unwrap();
+      message.success("Lead source created successfully");
+      setOpenLeadCreateModal(true);
+    } catch (error: any) {
+      message.error(error || "Failed to create lead source");
+    } finally {
+      dispatch(setAddInstSourceModal(false));
       setLoading(false);
     }
   };
@@ -149,7 +172,7 @@ const Leads = () => {
             </div>
           ))}
         </div>
-        ) : (
+      ) : (
         <Empty
           description={
             <span className="text-gray-500">
@@ -166,7 +189,21 @@ const Leads = () => {
         loading={loading}
         onCancel={() => setOpenLeadCreateModal(false)}
         onSubmit={handleSubmit}
-        fields={leadCreateFields({ isEmailDisable: false })}
+        fields={leadCreateFields({
+          isEmailDisable: false,
+        })}
+      />
+
+      <CreateFormModal
+        title="LeadSource"
+        open={addInstSourceModal}
+        loading={loading}
+        onCancel={() => {
+          dispatch(setAddInstSourceModal(false));
+          setOpenLeadCreateModal(true);
+        }}
+        onSubmit={handleAddLeadSourceSubmit}
+        fields={rangeAndDwellingTypeFields()}
       />
     </div>
   );

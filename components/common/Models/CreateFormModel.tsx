@@ -7,7 +7,6 @@ import {
   Input,
   Select,
   Radio,
-  message,
   Upload,
   Button,
 } from "antd";
@@ -142,7 +141,10 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
                 {field.button && (
                   <button
                     className="bg-primary text-white rounded py-0.5 px-2 text-[12px]"
-                    onClick={field.onClick}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      field.onClick();
+                    }}
                   >
                     {field.button}
                   </button>

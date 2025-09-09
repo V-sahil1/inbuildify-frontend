@@ -1,14 +1,33 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Button, Form, Input, Modal, Table, Typography, message, Spin } from 'antd'
-import type { TableColumnsType } from 'antd'
-import { useAppDispatch } from '@hooks/redux'
-import { createContractorThunk, deleteContractorThunk, getContractorByIdThunk, getContractorsThunk, getServicesThunk, updateContractorThunk } from '@redux/feature/contractor/contractorThunk'
-import { ContractorResponse, Service } from "@redux/feature/contractor/IContractorState";
+import {
+  Button,
+  Form,
+  Table,
+  Typography,
+  message,
+  Spin,
+} from "antd";
+import type { TableColumnsType } from "antd";
+import { useAppDispatch, useAppSelector } from "@hooks/redux";
+import {
+  createContractorThunk,
+  createServiceThunk,
+  deleteContractorThunk,
+  getContractorByIdThunk,
+  getContractorsThunk,
+  getServicesThunk,
+  updateContractorThunk,
+} from "@redux/feature/contractor/contractorThunk";
+import {
+  ContractorResponse,
+  Service,
+} from "@redux/feature/contractor/IContractorState";
 import { DetailModal } from "@/components/common/DetailModal";
 import ConfirmationModal from "@/components/common/ConfirmationModal";
 import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
-import { addressRules,emailRules,leadSourceRules,nameRules, phoneRules,} from "@lib/constants/formInputValidations";
 import contractorFields from "@/components/formFields/contractorFields";
+import rangeAndDwellingTypeFields from "@/components/formFields/rangeAndDwellingTypeFields";
+import { setAddServiceModal } from "@redux/feature/contractor/contractorSlice";
 
 type Contractor = {
   contractorId: string;
@@ -23,7 +42,10 @@ const initialData: Contractor[] = [];
 
 const ContractorPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState({ open: false, recordId: null });
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState({
+    open: false,
+    recordId: null,
+  });
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingUser, setEditingUser] = useState<Contractor | null>(null);
@@ -31,11 +53,17 @@ const ContractorPage = () => {
   const [form] = Form.useForm<Contractor>();
   const [contractors, setContractors] = useState<Contractor[]>(initialData);
   const [loading, setLoading] = useState(false);
-  const dispatch = useAppDispatch()
+  const dispatch = useAppDispatch();
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [selectedContractor, setSelectedContractor] = useState<Contractor | null>(null);
+  const [selectedContractor, setSelectedContractor] =
+    useState<Contractor | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
-  const [services, setServices] = useState<{label: string, value: string}[]>([]);
+  const [services, setServices] = useState<{ label: string; value: string }[]>(
+    []
+  );
+  const addServiceModal = useAppSelector(
+    (state) => state.contractor.addServiceModal
+  );
 
   useEffect(() => {
     setLoading(true);
@@ -53,7 +81,7 @@ const ContractorPage = () => {
         setContractors(res);
       })
       .catch((err) => {
-        message.error(err || 'Failed to fetch contractors');
+        message.error(err || "Failed to fetch contractors");
       })
       .finally(() => {
         setLoading(false);
@@ -90,7 +118,7 @@ const ContractorPage = () => {
       if (res) {
         message.success(res.message);
         setIsDeleteModalOpen({ open: false, recordId: null });
-        setContractors(prev => prev.filter(c => c.contractorId !== key));
+        setContractors((prev) => prev.filter((c) => c.contractorId !== key));
       }
     } catch (err) {
       message.error(err || "Failed to delete the Contractor");
@@ -143,7 +171,7 @@ const ContractorPage = () => {
             address: data.address,
             service: data.service,
           };
-          setContractors(prev => [newContractor, ...prev]);
+          setContractors((prev) => [newContractor, ...prev]);
           message.success(res.message);
         }
       }
@@ -153,7 +181,7 @@ const ContractorPage = () => {
       setIsEditing(false);
       setEditingKey(null);
     } catch (err) {
-      message.error(err || 'Failed to create contractor');
+      message.error(err || "Failed to create contractor");
     } finally {
       setLoading(false);
     }
@@ -206,6 +234,21 @@ const ContractorPage = () => {
     fetchServices();
   }, [dispatch]);
 
+  const handleServiceSubmit = async (values: any) => {
+    try {
+      setLoading(true);
+
+      await dispatch(createServiceThunk({ service: values.name })).unwrap();
+      message.success("Service added successfully");
+      setIsModalOpen(true);
+    } catch (error: any) {
+      message.error(error);
+    } finally {
+      dispatch(setAddServiceModal(false));
+      setLoading(false);
+    }
+  };
+
   const columns: TableColumnsType<Contractor> = useMemo(
     () => [
       {
@@ -252,7 +295,10 @@ const ContractorPage = () => {
               danger
               onClick={(e) => {
                 e.stopPropagation(); // ✅ prevent row click
-                setIsDeleteModalOpen({ open: true, recordId: record.contractorId });
+                setIsDeleteModalOpen({
+                  open: true,
+                  recordId: record.contractorId,
+                });
               }}
             >
               Delete
@@ -268,10 +314,16 @@ const ContractorPage = () => {
     <div className="p-4">
       <div className="w-full">
         <div className="flex items-center justify-between mb-4">
-          <Typography.Title level={4} style={{ margin: 0, color: "var(--font-color)" }}>
+          <Typography.Title
+            level={4}
+            style={{ margin: 0, color: "var(--font-color)" }}
+          >
             Contractors
           </Typography.Title>
-          <button className="btn large bg-[var(--primary)] cursor-pointer text-white" onClick={handleOpenModal}>
+          <button
+            className="btn large bg-[var(--primary)] cursor-pointer text-white"
+            onClick={handleOpenModal}
+          >
             Create
           </button>
         </div>
@@ -285,7 +337,7 @@ const ContractorPage = () => {
             loading={false}
             scroll={{ x: "max-content" }}
             onRow={(record) => ({
-              style: { cursor: 'pointer' },
+              style: { cursor: "pointer" },
               onClick: () => handleRowClick(record),
             })}
           />
@@ -302,6 +354,17 @@ const ContractorPage = () => {
           fields={contractorFields()}
         />
 
+        <CreateFormModal
+          title="Sevice"
+          open={addServiceModal}
+          loading={loading}
+          isEditing={isEditing}
+          onCancel={() => dispatch(setAddServiceModal(false))}
+          onSubmit={handleServiceSubmit}
+          initialValues={editingUser}
+          fields={rangeAndDwellingTypeFields()}
+        />
+
         <DetailModal
           title="Contractor Details"
           open={isViewModalOpen}
@@ -315,11 +378,12 @@ const ContractorPage = () => {
             { label: "Address", key: "address" },
           ]}
         />
-        {
-          isDeleteModalOpen.open &&
+        {isDeleteModalOpen.open && (
           <ConfirmationModal
             open={isDeleteModalOpen.open}
-            onClose={() => setIsDeleteModalOpen({ open: false, recordId: null })}
+            onClose={() =>
+              setIsDeleteModalOpen({ open: false, recordId: null })
+            }
             onConfirm={() => handleDelete(isDeleteModalOpen.recordId)}
             // title="Delete"
             message="Are you sure you want to delete this contractor?"
@@ -329,8 +393,7 @@ const ContractorPage = () => {
             loading={isDeleteLoading}
             maxWidth="sm"
           />
-        }
-
+        )}
       </div>
     </div>
   );

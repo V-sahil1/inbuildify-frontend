@@ -71,5 +71,6 @@ export interface ServiceResponse {
 export interface InitialContractorState {
   services: Service[]
   status: Status
+  addServiceModal: boolean
 }
   
