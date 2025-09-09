@@ -91,7 +91,7 @@ export type ActionType = "addNotes" | "sendSms" | "bookAppointment" | "createTas
 export type TimelineType = "Tasks" | "Notes" | "Sms" | "Appointments";
 
 export interface NoteDetails {
-  title: string;
+  // title: string;
   description: string;
   tags: string[];
   sendToCustomer?: boolean;

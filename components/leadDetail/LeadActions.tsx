@@ -14,12 +14,12 @@ const timeLineCardData: TimelineCardProps[] = [
         date: "31-07-2023 6:00PM",
         createdBy: "Murthy Muthuswamy",
         createdAt: "22-07-2023 10:50AM",
-        status: "completed",
+        // status: "completed",
         data: {
-            title: "Follow up - Yash Murthy",
+            // title: "Follow up - Yash Murthy",
             description:
                 "This is a follow-up to your quotation. Please sign the quote and send it back asap.",
-            tags: ["Customer Update", "Tag"],
+            tags: ["Customer Update", "Tag1"],
         } as NoteDetails,
     },
     {
@@ -216,8 +216,7 @@ const LeadActions = () => {
                         date={new Date().toLocaleString()}
                         createdBy="Current User"
                         createdAt={new Date().toLocaleString()}
-                        status="pending"
-                        data={currentData as NoteDetails || { title: "Add a new note", description: "", tags: ["Draft"], sendToCustomer: false, createFollowup: false, files: [] }}
+                        data={currentData as NoteDetails || { description: "", tags: ["Draft"], sendToCustomer: false, createFollowup: false, files: [] }}
                     >
                         <AddNotesCard
                             onSave={handleSaveNote}

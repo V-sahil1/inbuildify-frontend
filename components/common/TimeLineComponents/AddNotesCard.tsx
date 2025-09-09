@@ -1,6 +1,7 @@
 "use client";
 import { FC, useState } from "react";
-import { Button, Switch, Upload, DatePicker, Input } from "antd";
+import { Button, Switch, Upload, DatePicker, Select } from "antd";
+const { Option } = Select;
 import { IconUpload } from "@tabler/icons-react";
 import { NoteDetails } from "data/types";
 import dayjs from "dayjs";
@@ -20,16 +21,28 @@ const AddNotesCard: FC<AddNotesCardProps> = ({ onSave, onCancel, initialData }) 
     const [dueDate, setDueDate] = useState<dayjs.Dayjs | null>(
         initialData?.dueDate ? dayjs(initialData.dueDate) : null
     );
-    const [title, setTitle] = useState(initialData?.title || "Note Added");
+    // const [title, setTitle] = useState(initialData?.title || "Note Added");
     const [fileList, setFileList] = useState<UploadFile[]>(
         initialData?.files ? initialData.files.map(file => ({ ...file, status: file.status as UploadFileStatus })) : []
     );
+    const [tags, setTags] = useState<string[]>(initialData?.tags || ["Note"]);
+    
+    // Common tags that will be shown as options
+    const commonTags = [
+        'Important',
+        'Follow Up',
+        'Customer',
+        'Internal',
+        'Urgent',
+        'Question',
+        'Idea'
+    ];
 
     const handleSave = () => {
         onSave({
-            title: title,
+            // title: title,
             description,
-            tags: ["Note"],
+            tags,
             sendToCustomer,
             createFollowup,
             files: fileList,
@@ -55,14 +68,14 @@ const AddNotesCard: FC<AddNotesCardProps> = ({ onSave, onCancel, initialData }) 
     return (
         <div className="flex flex-col gap-3">
             {/* Title Input */}
-            <div>
+            {/* <div>
                 <label className="block text-sm text-gray-600 mb-1">Title</label>
                 <Input
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="Note Title"
                 />
-            </div>
+            </div> */}
 
             {/* Description */}
             <textarea
@@ -70,8 +83,28 @@ const AddNotesCard: FC<AddNotesCardProps> = ({ onSave, onCancel, initialData }) 
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Type your notes"
                 rows={4}
-                className="w-full border rounded px-2 py-1 text-sm"
+                className="w-full border rounded px-2 py-1 text-sm mb-3"
             />
+
+            {/* Tags */}
+            <div className="mb-3">
+                <label className="block text-sm text-gray-600 mb-1">Tags</label>
+                <Select
+                    mode="tags"
+                    style={{ width: '100%' }}
+                    placeholder="Add tags"
+                    value={tags}
+                    onChange={setTags}
+                    tokenSeparators={[',']}
+                    className="w-full"
+                >
+                    {commonTags.map(tag => (
+                        <Option key={tag} value={tag}>
+                            {tag}
+                        </Option>
+                    ))}
+                </Select>
+            </div>
 
             <div className="flex gap-4">
                 {/* File Upload */}
@@ -111,7 +144,7 @@ const AddNotesCard: FC<AddNotesCardProps> = ({ onSave, onCancel, initialData }) 
             <div className="flex justify-end gap-3">
                 <Button onClick={onCancel}>Cancel</Button>
                 <Button type="primary" onClick={handleSave}>
-                    Save
+                    Send
                 </Button>
             </div>
         </div>
