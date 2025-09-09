@@ -46,8 +46,23 @@ const packageSlice = createSlice({
       state.items = [action.payload, ...state.items];
     },
     removePackageItems: (state, action) => {
-      state.items = state.items?.filter(item => item.categoryItemId !== action.payload);
-    }
+      state.items = state.items?.filter(
+        (item) => item.categoryItemId !== action.payload.categoryItemId
+      );
+      if (state.packages) {
+        state.packages = state.packages.map((pkg) => ({
+          ...pkg,
+          categoryItemIds:
+            pkg.categoryItemIds?.filter(
+              (id) => id !== action.payload.categoryItemId
+            ) || [],
+          categoryItemDescriptions:
+            pkg.categoryItemDescriptions?.filter(
+              (desc) => desc !== action.payload.description
+            ) || [],
+        }));
+      }
+    },
   },
   extraReducers: (builder) => {
     //get
@@ -127,5 +142,11 @@ const packageSlice = createSlice({
   },
 });
 
-export const { setSelectedFilters, clearFilters, setAddInstItemModal, addPackageItems,removePackageItems } = packageSlice.actions;
+export const {
+  setSelectedFilters,
+  clearFilters,
+  setAddInstItemModal,
+  addPackageItems,
+  removePackageItems,
+} = packageSlice.actions;
 export default packageSlice.reducer;

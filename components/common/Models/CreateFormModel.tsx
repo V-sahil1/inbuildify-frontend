@@ -60,7 +60,7 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
   onSubmit,
   fields,
 }) => {
-  console.log("🚀 ~ initialValues:", initialValues);
+  // console.log("🚀 ~ initialValues:", initialValues);
   const [form] = Form.useForm();
   const [logo, setLogo] = React.useState<boolean>(true);
 
@@ -156,6 +156,7 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
           >
             {field.type === "select" ? (
               <Select
+                showSearch
                 placeholder={field.placeholder}
                 options={field.options}
                 disabled={field.disabled}

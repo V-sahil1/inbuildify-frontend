@@ -66,8 +66,8 @@ const AddMasterPricingItemModal = ({
               name: condition.name,
               range_start: condition.rangeStart,
               range_end: condition.rangeEnd,
-            }))
-          })
+            })),
+          }),
         });
         setCostType(categoryItem.costType);
       } else {
@@ -101,17 +101,17 @@ const AddMasterPricingItemModal = ({
       };
 
       if (categoryItem) {
-        const res = await dispatch(updateCategoryItem({
+        const res = await dispatch(
+        updateCategoryItem({
           payload: values,
-          id: categoryItem.categoryItemId
-        })).unwrap();
-      } else {
-        const response = await dispatch(
-          createCategoryItem(payload)
+          id: categoryItem.categoryItemId,
+          })
         ).unwrap();
-         if (values.package_only) {
-           dispatch(addPackageItems(response));
-         }
+      } else {
+        const response = await dispatch(createCategoryItem(payload)).unwrap();
+        if (values.package_only) {
+          dispatch(addPackageItems(response));
+        }
       }
       message.success("Master Pricing Item added successfully");
       form.resetFields();
@@ -426,10 +426,14 @@ const AddMasterPricingItemModal = ({
             {isAddingItem ? (
               <div className="flex items-center justify-center">
                 <Spin size="small" />
-                <span className="ml-2">{categoryItem ? "Updating..." : "Adding..."}</span>
+                <span className="ml-2">
+                  {categoryItem ? "Updating..." : "Adding..."}
+                </span>
               </div>
+            ) : categoryItem ? (
+              "Update Item"
             ) : (
-              categoryItem ? "Update Item" : "Add Item"
+              "Add Item"
             )}
           </button>
         </Form.Item>

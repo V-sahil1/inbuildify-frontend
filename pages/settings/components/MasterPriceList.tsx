@@ -86,9 +86,9 @@ export const MasterPriceList = () => {
 
   const handleDelete = async (categoryItemId: any) => {
     try {
-      await dispatch(deleteCategoryItem(categoryItemId)).unwrap();
+      const response = await dispatch(deleteCategoryItem(categoryItemId)).unwrap();
       message.success("Category item deleted successfully");
-      dispatch(removePackageItems(categoryItemId));
+      dispatch(removePackageItems(response));
       setDeleteModal(false);
     } catch (error: any) {
       message.error(error || "Failed to delete category item");

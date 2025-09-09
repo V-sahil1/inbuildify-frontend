@@ -1,20 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { Form, Input, InputNumber, Upload, Button, message, Select } from "antd";
-import type { UploadFile } from "antd/es/upload/interface";
+// import type { UploadFile } from "antd/es/upload/interface";
 import { IFloorPlanState } from "@redux/feature/floorPlan/IFloorPlanState";
-import dayjs from "dayjs";
+// import dayjs from "dayjs";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
-import { Status } from "@lib/constants/enum";
+// import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
+// import { Status } from "@lib/constants/enum";
 import { createFloorPlan } from "@redux/feature/floorPlan/floorPlanThunk";
 import { setQuotationPlan } from "@redux/feature/quotation/quotationSlice";
+import { mapToOptions } from "@lib/utils/rangeAndDwellingObjToOptions";
 
 const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
   const [form] = Form.useForm<IFloorPlanState>();
   const dispatch = useAppDispatch();
-  const { filters, status } = useAppSelector((state: any) => state.floorPlan);
   const {dwellingType,range} = useAppSelector((state: any) => state.types);
   const [loading, setLoading] = useState(false);
+  const dwellingTypeOptions = mapToOptions(dwellingType);
+  const rangeOptions = mapToOptions(range);
 
 
   const handleCreateFloorPlan = async (values: any) => {
@@ -81,7 +83,7 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
             >
               <Select
                 placeholder="Select range"
-                options={range}
+                options={rangeOptions}
               />
             </Form.Item>
 
@@ -92,7 +94,7 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
             >
               <Select
                 placeholder="Select dwelling type"
-                options={dwellingType}
+                options={dwellingTypeOptions}
               />
             </Form.Item>
             <Form.Item

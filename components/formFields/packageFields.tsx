@@ -49,7 +49,7 @@ export const packageFields = (): CreateFormField[] => {
       label: "Items",
       name: "categoryItemIds",
       type: "select",
-      mode:"tags",
+      mode:"multiple",
       options: options,
       placeholder: "Select Items",
       rules: [{ required: true, message: "Please select a range" }],

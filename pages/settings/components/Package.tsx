@@ -49,7 +49,14 @@ const Package = () => {
   };
 
   const handleEditPackage = (pkg: IPackage) => {
-    setEditingPackage(pkg);
+    const mappedPackage = {
+      ...pkg,
+      categoryItemDescriptions: Array.isArray(pkg.categoryItemDescriptions)
+        ? pkg.categoryItemDescriptions.filter((desc) => desc != null)
+        : [],
+    };
+
+    setEditingPackage(mappedPackage);
     setIsModalVisible(true);
   };
 
