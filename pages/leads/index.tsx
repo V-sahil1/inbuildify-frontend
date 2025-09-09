@@ -88,7 +88,7 @@ const Leads = () => {
           className="btn large bg-[var(--primary)] cursor-pointer text-white"
           onClick={handleOpenModal}
         >
-          Create Lead
+          Create
         </button>
       </div>
       {status === Status.PENDING ? (

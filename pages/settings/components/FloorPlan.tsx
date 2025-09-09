@@ -136,7 +136,7 @@ const FloorPlan = () => {
           className="btn large bg-[var(--primary)] cursor-pointer text-white"
           onClick={handleOpenModal}
         >
-          Create Floor Plan
+          Add
         </button>
       </div>
       {status.floorPlan == Status.PENDING ? (

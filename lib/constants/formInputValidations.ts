@@ -114,10 +114,10 @@ export const optionalPhoneRule = [
   {
     validator: (_: any, value: string) => {
       if (!value) return Promise.resolve(); // empty is ok
-      const regex = /^\+?[0-9]{7,15}$/; // e.g. +15550100
+      const regex = /^\+?[0-9]{10,15}$/; // e.g. +15550100
       return regex.test(value)
         ? Promise.resolve()
-        : Promise.reject(new Error("Please enter a valid phone number"));
+        : Promise.reject(new Error("Phone number must be between 10 to 15 digits"));
     },
   },
 ];

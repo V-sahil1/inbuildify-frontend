@@ -292,11 +292,12 @@ const LeadDetailsForm: React.FC<any> = ({
                 name="zip"
                 rules={[
                   { required: true, message: "Please enter postal code" },
+                  {max: 4, message: "Postal code must be at most 4 characters"}
                 ]}
               >
                 <Input
                   placeholder="Enter zip/postal code"
-                  maxLength={4}
+                  // maxLength={4}
                   type="number"
                 />
               </Form.Item>

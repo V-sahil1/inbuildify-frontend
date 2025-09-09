@@ -133,7 +133,7 @@ export const MasterPriceList = () => {
                     openAddItemModal(category.categoryId);
                   }}
                 >
-                  Add Item
+                  Add
                 </button>
               </div>
 

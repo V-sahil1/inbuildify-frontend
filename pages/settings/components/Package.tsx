@@ -107,7 +107,7 @@ const Package = () => {
           onClick={handleOpenModal}
           disabled={getAllStatus === Status.PENDING}
         >
-          Create Package
+          Add
         </button>
       </div>
       

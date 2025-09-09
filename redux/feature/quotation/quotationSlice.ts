@@ -6,7 +6,6 @@ import { createQuotation } from "./quotationThunk";
 import { ILeadContact } from "../lead/ILeadState";
 
 export interface QuotationState {
-
     status: Status;
     selectedFilters: any;
     contact: ILeadContact;
