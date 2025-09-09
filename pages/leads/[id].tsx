@@ -239,12 +239,12 @@ function App() {
 
           <div className="flex items-center gap-2 mt-2">
             <IconPhoneCall className="w-4 h-4" />
-            <span className="text-sm">{primaryContact?.phone ?? "-"}</span>
+            <span className="text-sm">{primaryContact?.phone ?? "N/A"}</span>
           </div>
 
           <div className="flex items-center gap-2 mt-1">
             <IconMail className="w-4 h-4" />
-            <span className="text-sm">{primaryContact?.email ?? "-"}</span>
+            <span className="text-sm">{primaryContact?.email ?? "N/A"}</span>
           </div>
         </Card>
 

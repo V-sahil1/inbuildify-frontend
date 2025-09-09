@@ -205,7 +205,7 @@ const UserPage = () => {
           {/* 🔹 Always visible now */}
           {activeTab == "users" && (
             <button
-              className="btn large bg-[var(--primary)] cursor-pointer text-white w-[9rem] ml-10"
+              className="btn large bg-primary cursor-pointer text-white w-36 ml-10"
               onClick={handleOpenModal}
             >
               Invite User

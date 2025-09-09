@@ -63,7 +63,7 @@ const theme = {
     },
     Checkbox: {
       colorPrimary: "var(--primary)",
-      colorPrimaryHover: "var(--primary-100)",
+      colorPrimaryHover: "var(--primary-hover)",
       colorBorder: "var(--border-color)",
       colorBgContainer: "var(--card-color)",
       colorText: "var(--font-color)",

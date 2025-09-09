@@ -127,11 +127,11 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           <div className="font-semibold text-font-color">{leadDetails?.name}</div>
           <div className="flex items-center text-sm text-font-color-100">
             <IconPhone size={14} className="mr-1 text-font-color-100" />
-            {leadDetails?.phone || "Not provided"}
+            {leadDetails?.phone || "N/A"}
           </div>
           <div className="flex items-center text-sm text-font-color-100">
             <IconMail size={14} className="mr-1 text-font-color-100" />
-            {leadDetails?.email || "Not provided"}
+            {leadDetails?.email || "N/A"}
           </div>
           {leadDetails?.address1 && (
             <div className="flex items-start text-sm text-font-color-100">

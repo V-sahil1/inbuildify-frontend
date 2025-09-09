@@ -137,21 +137,17 @@ const Leads = () => {
             
               {/* Contact Info */}
               <div className=" flex-1 space-y-2 mb-4">
-                {lead.phone &&
-                   <p className="flex items-center text-sm ">
-                    <IconPhone size={16} className="mr-2 text-gray-400" />
-                    {lead.phone}
-                  </p>
-                  }
-                {lead.email && 
-                  <p className="flex items-center text-sm ">
-                    <IconMail size={16} className="mr-2 text-gray-400" />
-                    {lead.email}
-                  </p>
-                  }
-                {lead.leadSource && 
-                <p className="text-xs ">Source: {lead.leadSource}</p>
-                 }
+                
+                <p className="flex items-center text-sm ">
+                  <IconPhone size={16} className="mr-2 text-gray-400" />
+                  {lead.phone ? lead.phone : 'N/A'}
+                </p>
+                <p className="flex items-center text-sm ">
+                  <IconMail size={16} className="mr-2 text-gray-400" />
+                  {lead.email ? lead.email : 'N/A'}
+                </p>
+                <p className="text-xs">Source: {lead.leadSource ? lead.leadSource : 'N/A'}</p>
+                 
               </div>
             
               {/* Footer with dates */}
