@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { Collapse, Table, Tag, Button, Empty } from "antd";
-import { Quotation, QuotationStatus } from "data/types";
+import { Collapse, Table, Button, Empty } from "antd";
+import { QuotationStatus } from "data/types";
 import {
   IconChevronDown,
   IconChevronUp,
   IconFileTypePdf,
 } from "@tabler/icons-react";
-import dayjs from "dayjs";
+// import dayjs from "dayjs";
 import LeadQuotationComparison from "./LeadQuotationComparison";
 import { useAppSelector } from "@hooks/redux";
 import { QuotationResponse } from "@redux/feature/quotation/IQuotationState";
@@ -35,6 +35,7 @@ const LeadQuotationList = () => {
     setOpenComparison(true);
   };
 
+  console.log("selectedQuotation",selectedQuotation)
   return (
     <>
       {quotations?.length === 0 ? (
@@ -69,7 +70,7 @@ const LeadQuotationList = () => {
                     <span>{quotation.slugId}</span>
                     <Button
                     type="primary"
-                    disabled={quotation.versions.length < 2}
+                    disabled={Array.isArray(quotation.versions) && quotation.versions.length < 2}
                     onClick={() => handleCompareClick(quotation)}
                   >
                       Compare
@@ -79,7 +80,7 @@ const LeadQuotationList = () => {
                 key={quotation.quotationId}
               >
                 <Table
-                  dataSource={quotation.versions}
+                  dataSource={Array.isArray(quotation.versions) ? quotation.versions : []}
                   rowKey="id"
                   pagination={false}
                   size="small"

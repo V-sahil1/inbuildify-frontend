@@ -5,12 +5,14 @@ import { Modal, Checkbox, Button, Table, message } from "antd";
 import { QuotationResponse } from "@redux/feature/quotation/IQuotationState";
 import { getQuotationById } from "@redux/feature/quotation/quotationThunk";
 import { useAppDispatch } from "@hooks/redux";
+import { QuotationVersionBasic, QuotationVersions } from "data/types";
+
 const { Column } = Table;
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  quotation: QuotationResponse;
+  quotation: QuotationResponse
 }
 
 const LeadQuotationComparison: React.FC<Props> = ({
@@ -18,31 +20,31 @@ const LeadQuotationComparison: React.FC<Props> = ({
   onClose,
   quotation,
 }) => {
-  const [selectedVersions, setSelectedVersions] = useState<
-    typeof quotation.versions
-  >([]);
-  const [quotationVersion, setQuotationVersion] = useState<
-    typeof quotation.versions
-  >([]);
+  const [selectedVersions, setSelectedVersions] = useState<QuotationVersionBasic[]>([]);
+  const [quotationVersion, setQuotationVersion] = useState<QuotationVersions>({});
   const [comparisonResult, setComparisonResult] = useState<any[]>([]);
   const [showAll, setShowAll] = useState(false);
   const dispatch = useAppDispatch();
+
   useEffect(() => {
     async function fetchQuotation() {
       try {
         const res = await dispatch(
           getQuotationById(quotation.quotationId)
         ).unwrap();
-        setQuotationVersion(res.versions);
+        setQuotationVersion(res.versions as QuotationVersions);
       } catch (error) {
         message.error(error || "Failed to fetch quotation Version");
       }
     }
     fetchQuotation();
-  }, [quotation.quotationId]);
+  }, [quotation.quotationId, dispatch]);
 
-    const handleCheckboxChange = (versionId: string) => {
-        const version = quotation.versions.find(
+  const handleCheckboxChange = (versionId: string) => {
+    // Make sure we're working with an array of versions
+    if (!Array.isArray(quotation.versions)) return;
+    
+    const version = quotation.versions.find(
       (v) => v.quotationVersionId === versionId
     );
     if (!version) return;
@@ -58,12 +60,11 @@ const LeadQuotationComparison: React.FC<Props> = ({
   };
 
     const handleCancel = () => {
-        onClose(); 
+      onClose();
     setComparisonResult([]);
         setSelectedVersions([]);
         setShowAll(false);
-    };
-
+     };
   const handleCompareClick = () => {
     if (selectedVersions.length !== 2) {
       message.warning("Please select exactly 2 versions");
@@ -74,8 +75,7 @@ const LeadQuotationComparison: React.FC<Props> = ({
     const [leftVersion, rightVersion] = selectedVersions;
 
     const leftItems = quotationVersion[String(leftVersion.versionNumber)] || [];
-    const rightItems =
-      quotationVersion[String(rightVersion.versionNumber)] || [];
+    const rightItems = quotationVersion[String(rightVersion.versionNumber)] || [];
 
     const rows: any[] = [];
     const allItemIds = new Set([
@@ -96,7 +96,6 @@ const LeadQuotationComparison: React.FC<Props> = ({
         });
         return;
       }
-
       if (itemRight && !itemLeft) {
         rows.push({
           key: itemId,
@@ -129,37 +128,37 @@ const LeadQuotationComparison: React.FC<Props> = ({
   };
 
         return (
-            <Modal
+          <Modal
             open={open}
             onCancel={handleCancel}
             footer={null}
             width={900}
             title={`Quotation Version Comparison - ${quotation.slugId}`}
-            >
+          >
             {/* Select versions */}
             <div className="flex items-center gap-4 mb-4 justify-between">
-                <div className="flex gap-2">
+              <div className="flex gap-2">
                 <span>Select two versions:</span>
                 <div className="flex flex-wrap gap-2">
-                    {quotation.versions.map((v) => (
-                        <Checkbox
-                            key={v.quotationVersionId}
-                            checked={selectedVersions.some(
+                  {quotation.versions && Array.isArray(quotation.versions) && quotation.versions.map((v) => (
+                    <Checkbox
+                      key={v.quotationVersionId}
+                      checked={selectedVersions?.some(
                         (sv) => sv.quotationVersionId === v.quotationVersionId
-                        )}
-                        onChange={() => handleCheckboxChange(v.quotationVersionId)}
-                        >
-                            {v.versionNumber}
-                        </Checkbox>
-                    ))}
+                      )}
+                      onChange={() => handleCheckboxChange(v.quotationVersionId)}
+                    >
+                      {v.versionNumber}
+                    </Checkbox>
+                  ))}
                 </div>
         </div>
         <div className="flex gap-2">
           <Button type="primary" onClick={handleCompareClick}>
             Compare
           </Button>
-                <Button>Print</Button>
-                <Checkbox
+          <Button>Print</Button>
+          <Checkbox
             checked={showAll}
             onChange={(e) => setShowAll(e.target.checked)}
           >
@@ -170,15 +169,15 @@ const LeadQuotationComparison: React.FC<Props> = ({
 
             {/* Comparison Table */}
             <div className="mt-4 flex flex-wrap gap-2 mb-3">
-                <span className="font-semibold">Property Address:</span>
-                <span> {quotation.propertyAddress}</span>
+              <span className="font-semibold">Property Address:</span>
+              <span> {quotation.propertyAddress}</span>
             </div>
             <Table
-                dataSource={comparisonResult}
-                pagination={false}
-                bordered
-                size="small"
-                rowKey="key"
+              dataSource={comparisonResult}
+              pagination={false}
+              bordered
+              size="small"
+              rowKey="key"
             >
         <Column
           title="Items"
@@ -186,12 +185,12 @@ const LeadQuotationComparison: React.FC<Props> = ({
           key="description"
           width="60%"
         />
-                    {selectedVersions[0] && (
-                    <Column
-                        title={
-                            <div className="flex flex-col justify-center items-center">
-                                <span>{selectedVersions[0].versionNumber}</span>
-                                <span>
+        {selectedVersions[0] && (
+          <Column
+            title={
+              <div className="flex flex-col justify-center items-center">
+                <span>{selectedVersions[0].versionNumber}</span>
+                <span>
                   ${Number(selectedVersions[0].totalAmount).toFixed(2)}
                 </span>
                         </div>
@@ -205,8 +204,8 @@ const LeadQuotationComparison: React.FC<Props> = ({
                     <Column
                         title={
                         <div className="flex flex-col justify-center items-center">
-                            <span>{selectedVersions[1].versionNumber}</span>
-                            <span>
+                          <span>{selectedVersions[1].versionNumber}</span>
+                          <span>
                   ${Number(selectedVersions[1].totalAmount).toFixed(2)}
                 </span>
                              </div>

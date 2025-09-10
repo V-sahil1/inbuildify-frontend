@@ -21,6 +21,7 @@ export interface Lead {
 }
 export interface QuotationResponse {
   slugId: string;
+  leadId: string;
   quotationId: string;
   createdAt: string;
   updatedAt: string;
@@ -29,6 +30,8 @@ export interface QuotationResponse {
   lead: Lead;
   property: PropertyDetails;
   floorPlan: IFloorPlanState;
+  propertyAddress: string;
+  leadStatus?: string;
   facade: IFacadeState;
   package: Package;
   range: {

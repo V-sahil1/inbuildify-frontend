@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import LeadQuotationActionBar from './LeadQuotationActionBar'
 import LeadQuotationList from './LeadQuotationList'
-import { Quotation, QuotationStatus } from 'data/types';
+import {QuotationStatus } from 'data/types';
 
 
 
