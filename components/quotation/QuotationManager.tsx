@@ -14,7 +14,13 @@ import {
 } from "@redux/feature/masterPriceList/masterPriceListThunk";
 import { Package } from "@redux/feature/package/IPackageState";
 import { RootState } from "@redux/feature/store";
-import React, { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+  useMemo,
+} from "react";
 import {
   createQuotation,
   getQuotationById,
@@ -36,7 +42,10 @@ const QuotationManager = () => {
   const { id } = router.query;
   const { quoteId } = router.query as { quoteId: string };
   const [isEditMode, setIsEditMode] = useState(false);
-  const isReadOnly = useMemo(() => !!quoteId && !isEditMode, [quoteId, isEditMode]);
+  const isReadOnly = useMemo(
+    () => !!quoteId && !isEditMode,
+    [quoteId, isEditMode]
+  );
   const { user } = useAppSelector((state) => state.auth);
   const {
     contact,
@@ -48,7 +57,7 @@ const QuotationManager = () => {
     items,
     selectedFilters: quotationFilters,
     status: quotationStatus,
-    quoteDetails
+    quoteDetails,
   } = useAppSelector((state: RootState) => state.quotation);
   const [selectedPlan, setSelectedPlan] = useState<Plan | undefined>(plan);
   const [selectedPackage, setSelectedPackage] = useState<Package | undefined>(
@@ -210,13 +219,15 @@ const QuotationManager = () => {
     return {
       quoteId: quoteId,
       quotationPayload: {
-        ...(!quoteId && {range: quotationFilters?.range,
-        dwellingType: quotationFilters?.dwelling_type,
-        leadId: property?.leadId,
-        propertyId: property?.propertyId,
-        floorPlanId: plan?.floorPlanId,
-        facadeId: facade?.facadeId,
-        packageId: selectedPackageFromSlice?.packageId}),
+        ...(!quoteId && {
+          range: quotationFilters?.range,
+          dwellingType: quotationFilters?.dwelling_type,
+          leadId: property?.leadId,
+          propertyId: property?.propertyId,
+          floorPlanId: plan?.floorPlanId,
+          facadeId: facade?.facadeId,
+          packageId: selectedPackageFromSlice?.packageId,
+        }),
         items: getQuotationItems(),
       },
     };
@@ -226,14 +237,20 @@ const QuotationManager = () => {
     try {
       const payload = createQuotationPayload();
       const response = await dispatch(createQuotation(payload)).unwrap();
-      dispatch(
-        updateLeadStatus({
-          leadId: response.lead.leadId,
-          status: "COMPLETED",
-          updatedAt: response.updatedAt,
-        })
+      if (!quoteId) {
+        dispatch(
+          updateLeadStatus({
+            leadId: response?.leadId,
+            status: "COMPLETED",
+            updatedAt: response.updatedAt,
+          })
+        );
+      }
+      message.success(
+        quoteId
+          ? "Quotation updated successfully"
+          : "Quotation created successfully"
       );
-      message.success(quoteId ? "Quotation updated successfully" : "Quotation created successfully");
       router.push(`/${SystemRoutes.JOB}`);
     } catch (error) {
       message.error(error);
@@ -357,7 +374,7 @@ const QuotationManager = () => {
           status="Open"
           steps={[]}
         />
-        <QuotationFilter isReadOnly={isReadOnly}/>
+        <QuotationFilter isReadOnly={isReadOnly} />
       </div>
 
       <InfoCards
