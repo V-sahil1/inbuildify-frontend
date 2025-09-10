@@ -1,5 +1,5 @@
 import { ColorCategory, LeadDetails } from './types';
-
+import { ConceptTask } from './types';
 // export const quotationData: Quotation = {
 //   id: 'MYH23070085',
 //   version: 'V1',
@@ -307,3 +307,96 @@ export const ColorItemList: ColorCategory[] = [
     ],
   },
 ];
+
+export const conceptTasks: ConceptTask[] = [
+    {
+      id: 1,
+      task: 'Request for the Sketch',
+      tag: 'Sales Execut.',
+      estimatedDate: '12 Aug 2023',
+      actualDate: '10 Aug 2023',
+      link:'',
+      user: 'MM',
+      status:'inactive',
+    },
+    {
+      id: 2,
+      task: 'Receive Sketch from the Draftperson',
+      tag: 'Sales Execut.',
+      estimatedDate: '12 Aug 2023',
+      actualDate: '10 Aug 2023',
+      link:'https://www.youtube.com/watch?v=2sLVTD_gTUA',
+      user: 'MM',
+      status:'inactive',
+    },
+    {
+      id: 3,
+      task: 'Sketch Signoff from client',
+      tag: 'Sales Execut.',
+      estimatedDate: '11 Aug 2023',
+      actualDate: '10 Aug 2023',
+      link:'',
+      user: 'Madan',
+      status:'active'
+    },
+    {
+      id: 4,
+      task: 'New Task',
+      tag: 'Designer',
+      estimatedDate: '15 Sep 2023',
+      actualDate: '14 Sep 2023',
+      link:'',
+      user: 'AB',
+      status:'active'
+    },
+    {
+      id: 5,
+      task: 'New Task',
+      tag: 'Designer',
+      estimatedDate: '15 Sep 2023',
+      actualDate: '14 Sep 2023',
+      link:'',
+      user: 'AB',
+      status:'inactive'
+    },
+    {
+      id: 6,
+      task: 'New Task',
+      tag: 'Designer',
+      estimatedDate: '15 Sep 2023',
+      actualDate: '14 Sep 2023',
+      link:'',
+      user: 'AB',
+      status:'active'
+    },
+    {
+      id: 7,
+      task: 'New Task',
+      tag: 'Designer',
+      estimatedDate: '15 Sep 2023',
+      actualDate: '14 Sep 2023',
+      link:'',
+      user: 'AB',
+      status:'inactive'
+    },
+    {
+      id: 8,
+      task: 'New Task',
+      tag: 'Designer',
+      estimatedDate: '15 Sep 2023',
+      actualDate: '14 Sep 2023',
+      link:'',
+      user: 'AB',
+      status:'active'
+    },
+    {
+      id: 9,
+      task: 'New Task',
+      tag: 'Designer',
+      estimatedDate: '15 Sep 2023',
+      actualDate: '14 Sep 2023',
+      link:'',
+      user: 'AB',
+      status:'inactive'
+    },
+  ];

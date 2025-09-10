@@ -82,6 +82,7 @@ const theme = {
       colorBgBase: "var(--body-color)",
       colorPrimary: "var(--primary)",
       colorFillAlter: "var(--primary-10)",
+      headerSplitColor: "var(--border-color)",
     },
     Pagination: {
       colorPrimary: "var(--font-color-400)",

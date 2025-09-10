@@ -217,3 +217,15 @@ export interface ColorCategory {
   category: string;
   items: ColorItem[];
 }
+
+
+export interface ConceptTask {
+  id: number;
+  task: string;
+  tag: string;
+  estimatedDate: string;
+  actualDate: string;
+  link:string,
+  user: string,
+  status:string
+}
