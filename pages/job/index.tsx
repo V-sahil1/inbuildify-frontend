@@ -58,7 +58,7 @@ const workFlowSteps = [
     color: 'bg-cyan-500',
     icon: 'MM',
     date: '12/03/2025',
-    onClick: () => { }
+    onClick: () => { router.push(`/job/colour`) }
   },
   {
     key: 'Construction',

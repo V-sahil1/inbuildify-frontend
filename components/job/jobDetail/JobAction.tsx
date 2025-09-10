@@ -87,7 +87,7 @@ const JobAction = () => {
     // Edit existing timeline cards
     const handleEdit = (item: TimelineCardProps, index: number) => {
         setEditingItem({ item, index });
-        setActiveAction(null); // Close any active creation form
+        setActiveAction(null);
     };
 
     const handleClose = () => {

@@ -198,3 +198,22 @@ export interface JobVariationType {
   Invoice: string;
 
 }
+
+// types.ts
+export interface ColorItem {
+  key: string;
+  images: string[];
+  itemName: string;
+  itemCode: string;
+  itemDescription?: string;
+  itemFeatures?: string;
+  itemUnits?: number;
+  itemSupplier?: string;
+  itemCost?: number;
+  isAdded?: boolean;
+}
+
+export interface ColorCategory {
+  category: string;
+  items: ColorItem[];
+}
