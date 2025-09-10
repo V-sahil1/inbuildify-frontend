@@ -144,14 +144,34 @@ export type TimelineCardProps =
 
   // Lead Detail Quotation
   export type QuotationStatus = "approved" | "pending" | "rejected" | "all";
-  export interface QuotationVersion {
-    quotationVersionId: string;
-    versionNumber: number;
+ 
+  export type QuotationVersion = {
+    quotationVersionItemId: string;
     notes: string;
-    createdAt: string;
-    updatedAt: string;
-    totalAmount: number;
-  }
+    categoryId: string;
+    caterogyName: string; // typo in API? should it be `categoryName`?
+    categoryDescription: string;
+    categoryItemId: string;
+    categoryItemDescription: string;
+    categoryItemShortDescription: string;
+    categoryItemQuantity: number | null;
+    categoryItemCostType: "VARIABLE" | "FIXED" | string; // enum?
+    categoryItemCost: string;
+    categoryItemCostTypeText: string | null;
+    categoryItemCostOption: "NONE" | string;
+    categoryItemIncludeByDefault: boolean | null;
+    categoryItemShowInHlPackage: boolean;
+    categoryItemPackageOnly: boolean | null;
+    categoryItemUom: string | null;
+    categoryItemSortOrder: number | null;
+    categoryItemRangeId: string;
+    categoryItemDwellingTypeId: string;
+    categoryItemCreatedAt: string; // ISO date
+    categoryItemUpdatedAt: string; // ISO date
+    createdAt: string; // ISO date
+    updatedAt: string; // ISO date
+  };
+  
 
 export interface Quotation {
   quotationId: string;

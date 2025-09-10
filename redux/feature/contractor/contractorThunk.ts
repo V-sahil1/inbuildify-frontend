@@ -54,7 +54,6 @@ export const getContractorByIdThunk = createAsyncThunk(
       const response: ApiResponse<any> = await api.get(
         `${API_ENDPOINTS.CREATE_CONTRACTOR}/${contractorId}`
       );
-      console.log("API", response);
       return response;
     } catch (err: any) {
       return rejectWithValue(err.message);
@@ -80,7 +79,6 @@ export const updateContractorThunk = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      console.log("abc", contractorId);
       const response: ApiResponse<ContractorRequest> = await api.put(
         `${API_ENDPOINTS.CREATE_CONTRACTOR}/${contractorId}`,
         {

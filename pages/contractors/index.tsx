@@ -197,7 +197,6 @@ const ContractorPage = () => {
 
       if (response && response.data) {
         // Transform API response into Contractor type
-        console.log("API Called", response.data);
         //   const contractor = {
         //   contractorId: response.data.contractorId,
         //   name: response.data.name,

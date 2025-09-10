@@ -125,7 +125,6 @@ const LeadQuotationComparison: React.FC<Props> = ({
         }
       }
     });
-    console.log(rows);
     setComparisonResult(rows);
   };
 

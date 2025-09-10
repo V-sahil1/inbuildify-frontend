@@ -90,7 +90,6 @@ const FloorPlan = () => {
   };
 
   const handleEdit = (floorPlan: IFloorPlanState) => {
-    console.log(floorPlan);
     setIsEditing(true);
     const mappedFloorPlan = {
       floorPlanId: floorPlan.floorPlanId,

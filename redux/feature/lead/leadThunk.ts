@@ -94,7 +94,6 @@ export const createLeadContactThunk = createAsyncThunk(
 //                 `${API_ENDPOINTS.LEAD_BASE}/${payload.id}`,
 //                 {data: payload.details}
 //             );
-//             // console.log(response.data)
 //             return response.data;
 //         } catch (err: any) {
 //             return rejectWithValue(err?.message);

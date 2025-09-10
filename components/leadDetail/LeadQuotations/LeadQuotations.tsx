@@ -45,7 +45,7 @@ const LeadQuotations = () => {
 
     return (
         <div>
-            <LeadQuotationActionBar
+            {/* <LeadQuotationActionBar
                 quotationId={searchId}
                 status={status}
                 sortOrder={sortOrder}
@@ -57,7 +57,7 @@ const LeadQuotations = () => {
                     setStatus("all");
                     setSortOrder("desc");
                 }}
-            />
+            /> */}
             <LeadQuotationList />
         </div>
     )

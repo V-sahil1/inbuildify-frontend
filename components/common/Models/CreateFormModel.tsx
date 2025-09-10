@@ -60,7 +60,6 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
   onSubmit,
   fields,
 }) => {
-  // console.log("🚀 ~ initialValues:", initialValues);
   const [form] = Form.useForm();
   const [logo, setLogo] = React.useState<boolean>(true);
 
@@ -140,6 +139,7 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
                 <span className="flex-1">{field.label}</span>
                 {field.button && (
                   <button
+                    type="button"
                     className="bg-primary text-white rounded py-0.5 px-2 text-[12px]"
                     onClick={(e) => {
                       e.stopPropagation();

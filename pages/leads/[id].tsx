@@ -145,10 +145,11 @@ function App() {
         ).unwrap();
         message.success("Lead contact created successfully");
       }
+      setIsEditLeadModalVisible(false);
+
     } catch (err) {
       message.error(err || "Failed to update lead");
     } finally {
-      setIsEditLeadModalVisible(false);
       setLoading(false);
     }
   };
@@ -335,16 +336,16 @@ function App() {
                   ),
                 }}
                 renderItem={(quotation: QuotationResponse) => (
-                  <List.Item key={quotation?.quotationId}>
+                  <List.Item key={quotation?.quotationId} onClick={() => router.push(`/quotation/${quotation?.quotationId}`)} style={{ cursor: "pointer" }}>
                     <Space size="middle">
-                      <Tooltip title={quotation?.quotationId}>
+                      {/* <Tooltip title={quotation?.slugId}> */}
                         <Text type="secondary">
-                          {quotation?.quotationId?.slice(0, 13)}
+                          {quotation?.slugId?.slice(0, 13)}
                         </Text>
-                      </Tooltip>
+                      {/* </Tooltip> */}
                       <Tag
                         color={
-                          quotation?.leadStatus === "Open" ? "blue" : "green"
+                          quotation?.lead?.status === "Open" ? "blue" : "green"
                         }
                       >
                         {quotation?.leadStatus}

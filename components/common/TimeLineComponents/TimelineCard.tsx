@@ -27,7 +27,6 @@ const TimelineCard: FC<TimelineCardProps> = ({
     children,
     data,
 }) => {
-    console.log("🚀 ~ TimelineCard ~ status:", status)
     const getTitle = () => {
         switch (type) {
             // case "Notes":

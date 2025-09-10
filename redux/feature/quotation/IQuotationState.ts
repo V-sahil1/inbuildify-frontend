@@ -1,50 +1,59 @@
-import { QuotationVersion } from "data/types";
+import { PropertyDetails, QuotationVersion } from "data/types";
+import { ILeadContact } from "../lead/ILeadState";
+import { IFloorPlanState } from "../floorPlan/IFloorPlanState";
+import { IFacadeState } from "../facade/IFacadeState";
+import { Package } from "../package/IPackageState";
 export interface QuotationItem {
-    price: number;
-    total: number;
+  price: number;
+  total: number;
+  itemId: string;
+  quantity: number;
+}
+
+export interface Builder {
+  builderId: string;
+  name: string;
+}
+export interface Lead {
+  leadId: string;
+  status: string;
+  leadContact: ILeadContact;
+}
+export interface QuotationResponse {
+  slugId: string;
+  quotationId: string;
+  createdAt: string;
+  updatedAt: string;
+  totalAmount: number;
+  builder: Builder;
+  lead: Lead;
+  property: PropertyDetails;
+  floorPlan: IFloorPlanState;
+  facade: IFacadeState;
+  package: Package;
+  range: {
+    rangeId: string;
+    name: string;
+  };
+  dwellingType: {
+    dwellingTypeId: string;
+    name: string;
+  };
+  versions: Record<string, QuotationVersion[]>;
+}
+
+export type QuotationItemPayload = {
+  range?: string;
+  dwellingType?: string;
+  leadId?: string;
+  propertyId?: string;
+  floorPlanId?: string;
+  facadeId?: string;
+  packageId?: string;
+  items: {
     itemId: string;
     quantity: number;
-  }
-  
-  export interface QuotationResponse {
-    slugId: string;
-    quotationId: string;
-    builderId: string;
-    leadId: string;
-    propertyId: string;
-    floorPlanId: string;
-    facadeId: string;
-    packageId: string;
-    rangeId: string;
-    dwellingTypeId: string;
-    totalAmount: number;
-    items: QuotationItem[];
-    createdAt: string;
-    updatedAt: string;    
-    builderName?: string;
-    leadStatus?: string;
-    propertyAddress?: string;
-    floorPlanName?: string;
-    facadeName?: string;
-    packageName?: string;
-    rangeName?: string;
-    dwellingTypeName?: string;
-    versions: QuotationVersion[];
-  }
-  
-  export type QuotationItemPayload = {
-    range: string;
-    dwellingType: string;
-    leadId: string;
-    propertyId: string;
-    floorPlanId: string;
-    facadeId: string;
-    packageId: string;
-    items: {
-      itemId: string;
-      quantity: number;
-      price: number;
-      total: number;
-    }[];
-  };
-  
+    price: number;
+    total: number;
+  }[];
+};

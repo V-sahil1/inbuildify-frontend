@@ -26,7 +26,6 @@ export const MasterPriceList = () => {
   const { selectedFilters: mplFilters } = useAppSelector(
     (state: any) => state.masterPriceList
   );
-  // console.log(categories);
   useEffect(() => {
         if(status === Status.IDLE){
       dispatch(fetchCategories());
@@ -183,12 +182,14 @@ export const MasterPriceList = () => {
 
         {deleteModal && 
           <ConfirmationModal
-            open={deleteModal}
-            onClose={() => setDeleteModal(false)}
-            onConfirm={() => handleDelete(categoryItem?.categoryItemId)}
-            type="danger"
-            message="Are you sure you want to delete this item?"
-          />
+          open={deleteModal}
+          onClose={() => setDeleteModal(false)}
+          onConfirm={() => handleDelete(categoryItem?.categoryItemId)}
+          type="danger"
+          title="Confirm Deletion"
+          message="Are you sure you want to delete this item? Deleting it will also remove it from any associated packages."
+        />
+        
         }
 
       </div>

@@ -3,6 +3,7 @@ import { Status } from "@lib/constants/enum";
 import {
   addressRules,
   nameRules,
+  optionalPhoneRule,
   phoneRules,
 } from "@lib/constants/formInputValidations";
 import {
@@ -246,7 +247,7 @@ const LeadDetailsForm: React.FC<any> = ({
             <Input type="number" placeholder="Enter phone number" />
           </Form.Item>
 
-          <Form.Item label="Secondary Phone" name="secondary_phone">
+          <Form.Item label="Secondary Phone" name="secondary_phone" rules={optionalPhoneRule}>
             <Input
               type="number"
               placeholder="Enter secondary phone (optional)"

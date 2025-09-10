@@ -90,7 +90,6 @@ const AddMasterPricingItemModal = ({
   }, [dispatch, filters, status.conditions]);
 
   const onFinish = async (values: any) => {
-    // console.log("🚀 ~ onFinish ~ values:", values)
     await form.validateFields();
     try {
       setIsAddingItem(true);
@@ -239,7 +238,6 @@ const AddMasterPricingItemModal = ({
               <Input
                 type="string"
                 style={{ width: "100%" }}
-                onChange={(value) => console.log(value)}
               />
             </Form.Item>
           ) : (

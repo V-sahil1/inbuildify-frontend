@@ -44,7 +44,6 @@ export const facadeSlice = createSlice({
             );
         })
         builder.addCase(deleteFacade.fulfilled, (state, action) => {
-            console.log(action.payload)
             state.facades = state.facades.filter(
                 (facade) => facade.facadeId !== action.payload
             );

@@ -14,7 +14,11 @@ import { mapToOptions } from "@lib/utils/rangeAndDwellingObjToOptions";
 import { Status } from "@lib/constants/enum";
 import { getDwellingTypes, getRanges } from "@redux/feature/types/typesThunk";
 
-const QuotationFilter = () => {
+interface QuotationFilterProps {
+  isReadOnly?: boolean;
+}
+
+const QuotationFilter: React.FC<QuotationFilterProps> = ({ isReadOnly = false }) => {
   const dispatch = useAppDispatch();
   const { range, dwellingType, status } = useAppSelector(
     (state) => state.types
@@ -104,7 +108,6 @@ const QuotationFilter = () => {
 
   const handleFloorPlanDwellingTypeChange = useCallback(
     (value: string | undefined) => {
-      console.log("floor plan data called");
       const newFilters = {
         ...selectedQuotationFilters,
         dwelling_type: value || "",
@@ -174,6 +177,7 @@ const QuotationFilter = () => {
             handleRangeChange(value)
           }}
           options={rangeOptions}
+          disabled={isReadOnly}
         />
       </div>
 
@@ -191,6 +195,7 @@ const QuotationFilter = () => {
               handleFacadeDwellingTypeChange(value);
           }}
           options={dwellingOptions}
+          disabled={isReadOnly}
         />
       </div>
     </div>

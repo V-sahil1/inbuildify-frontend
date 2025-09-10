@@ -2,11 +2,22 @@ import { PropertyDetails } from "data/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Item } from "../masterPriceList/iMasterPriceListState";
 import { Status } from "@lib/constants/enum";
-import { createQuotation } from "./quotationThunk";
+import { createQuotation, getQuotationById } from "./quotationThunk";
 import { ILeadContact } from "../lead/ILeadState";
 
 export interface QuotationState {
-    status: Status;
+    status: {create: Status, getById: Status};
+    quoteDetails:{
+        slugId: string;
+        quotationId: string;
+        createdAt: string; // ISO date string
+        updatedAt: string; // ISO date string
+        totalAmount: number;
+        builder: {
+          builderId: string;
+          name: string;
+        };
+      } | null;
     selectedFilters: any;
     contact: ILeadContact;
     property: PropertyDetails;
@@ -18,7 +29,8 @@ export interface QuotationState {
 }
 
 const initialState: QuotationState = {
-    status: Status.IDLE,
+    status: {create: Status.IDLE, getById: Status.IDLE},
+    quoteDetails:null,
     selectedFilters: { range: '', dwelling_type: '' },
     contact: null,
     property: null,
@@ -91,17 +103,84 @@ const quotationSlice = createSlice({
         },
           
     },
-    extraReducers: (builder) => {
+    extraReducers(builder) {
         builder
             .addCase(createQuotation.pending, (state) => {
-                state.status = Status.PENDING;
+                state.status.create = Status.PENDING;
             })
             .addCase(createQuotation.fulfilled, (state) => {
-                state.status = Status.SUCCESS;
+                state.status.create = Status.SUCCESS;
             })
             .addCase(createQuotation.rejected, (state) => {
-                state.status = Status.ERROR;
+                state.status.create = Status.ERROR;
             })
+            .addCase(getQuotationById.pending, (state) => {
+                state.status.getById = Status.IDLE;
+            })
+            .addCase(getQuotationById.fulfilled, (state, action) => {
+                const data = action.payload;
+                state.quoteDetails = {
+                    slugId: data.slugId,
+                    quotationId: data.quotationId,
+                    createdAt: data.createdAt,
+                    updatedAt: data.updatedAt,
+                    totalAmount: data.totalAmount,
+                    builder: data.builder,
+                };
+                // Set contact from lead.leadContact
+                if (data.lead?.leadContact) {
+                    state.contact = data.lead.leadContact;
+                }
+                
+                // Set property
+                if (data.property) {
+                    state.property = data.property;
+                }
+                
+                // Set plan from floorPlan
+                if (data.floorPlan) {
+                    state.plan = data.floorPlan;
+                }
+                
+                // Set facade
+                if (data.facade) {
+                    state.facade = data.facade;
+                }
+                
+                // Set package
+                if (data.package) {
+                    state.package = data.package;
+                }
+                
+                // Set selected filters
+                state.selectedFilters = {
+                    range: data.range?.name || '',
+                    dwelling_type: data.dwellingType?.name || ''
+                };
+                
+                // Get latest version and set items
+                const versions = data.versions;
+                if (versions) {
+                    // Get all version numbers and find the latest one
+                    const versionNumbers = Object.keys(versions).map(Number);
+                    const latestVersion = Math.max(...versionNumbers);
+                    const latestItems = versions[latestVersion] || [];
+                    
+                    // Map to the required format for items
+                    state.items = latestItems?.map(item => ({
+                        itemId: item.categoryItemId,
+                        quantity: 1, // Default quantity to 1 if not specified
+                        price: parseFloat(item.categoryItemCost) || 0
+                    }));
+                } else {
+                    state.items = [];
+                }
+                state.status.getById = Status.SUCCESS;
+
+            })
+            .addCase(getQuotationById.rejected, (state) => {
+                state.status.getById = Status.ERROR;
+            });
     }
 });
 

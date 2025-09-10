@@ -10,6 +10,7 @@ import dayjs from "dayjs";
 import LeadQuotationComparison from "./LeadQuotationComparison";
 import { useAppSelector } from "@hooks/redux";
 import { QuotationResponse } from "@redux/feature/quotation/IQuotationState";
+import { timeAgo } from "@lib/utils/timeAgo";
 
 const { Panel } = Collapse;
 const { Column } = Table;
@@ -27,9 +28,8 @@ const LeadQuotationList = () => {
     null
   );
   const quotations = useAppSelector(
-    (state) => state.lead.leadDetail.createdQuotations.quotations
+    (state) => state.lead.leadDetail.createdQuotations?.quotations
   );
-  console.log("quotations ", quotations);
   const handleCompareClick = (quotation: QuotationResponse) => {
     setSelectedQuotation(quotation);
     setOpenComparison(true);
@@ -37,7 +37,7 @@ const LeadQuotationList = () => {
 
   return (
     <>
-      {quotations.length === 0 ? (
+      {quotations?.length === 0 ? (
         <div className="p-6 text-center bg-card-color rounded-md">
           <Empty description="No quotations found" />
         </div>
@@ -86,7 +86,7 @@ const LeadQuotationList = () => {
                   bordered
                   scroll={{ x: "max-content" }}
                 >
-                  <Column title="Version" dataIndex="versionNumber" key="versionNumber" />
+                  <Column title="Version" dataIndex="versionNumber" key="versionNumber" render={(versionNumber: string) => versionNumber ? `v${versionNumber}` : "-"} />
                   {/* <Column
                     title="Status"
                     dataIndex="status"
@@ -101,13 +101,14 @@ const LeadQuotationList = () => {
                     title="Notes"
                     dataIndex="notes"
                     key="notes"
+                    render={(notes: string) => notes ? notes : "-"}
                   />
                   <Column
                     title="Created At"
                     dataIndex="createdAt"
                     key="createdAt"
                     render={(date: string) =>
-                    date ? dayjs(date).format("MM/DD/YYYY hh:mm A") : "-"
+                    date ? timeAgo(date) : "-"
                   }
                   />
                   <Column

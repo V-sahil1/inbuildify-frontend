@@ -13,7 +13,6 @@ export const handleSaveTimelineCard = <T extends "Notes" | "Appointments" | "Tas
     data: D
 ) => {
     if (editingItem && editingItem.item.type === type) {
-        console.log(`🔄 Updated ${type}:`, data);
         setCardsData((prev) =>
             prev.map((card, i) =>
                 i === editingItem.index
@@ -22,7 +21,6 @@ export const handleSaveTimelineCard = <T extends "Notes" | "Appointments" | "Tas
             )
         );
     } else {
-        console.log(`✨ Created New ${type}:`, data);
         const newCard: TimelineCardProps = {
             type: type,
             date: new Date().toLocaleString(),

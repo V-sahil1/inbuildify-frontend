@@ -86,10 +86,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
       <div className="flex flex-col gap-2">
         {/* Info */}
         <div className="flex items-center gap-2">
-          <span className="font-medium">{title} -</span>
-          <Button type="link" onClick={() => router.push(`#`)} className={`p-0 ${idClassName}`}>
-            {id}
-          </Button>
+          <span className="font-medium">{title} {id && `- ${id}`}</span>
           {
             status && (
               <Tag color="cyan" className="rounded-md">
