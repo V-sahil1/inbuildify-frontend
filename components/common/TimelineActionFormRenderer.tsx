@@ -36,7 +36,7 @@ const TimelineActionFormRenderer: React.FC<TimelineActionFormRendererProps> = ({
                     date={new Date().toLocaleString()}
                     createdBy="Current User"
                     createdAt={new Date().toLocaleString()}
-                    data={currentData as NoteDetails || { description: "", tags: ["Draft"], sendToCustomer: false, createFollowup: false, files: [] }}
+                    data={currentData as NoteDetails || { message: "", tags: ["Draft"], sendToCustomer: false, createFollowUpTask: false, attachment: [],task:{dueDate:""} }}
                 >
                     <AddNotesCard
                         onSave={handleSaveNote}
@@ -82,13 +82,15 @@ const TimelineActionFormRenderer: React.FC<TimelineActionFormRendererProps> = ({
                     createdAt={new Date().toLocaleString()}
                     status="pending"
                     data={currentData as TaskDetails || {
+                        task:{
                         name: "New Task",
                         dueDate: new Date().toISOString().split('T')[0],
                         time: "09:00",
-                        priority: "Medium",
+                        priority: "MEDIUM",
                         description: "",
                         assignee: "",
-                        files: [],
+                        },
+                        attachment: [],
                     }}
                 >
                     <CreateTaskCard

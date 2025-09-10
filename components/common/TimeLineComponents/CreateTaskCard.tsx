@@ -12,9 +12,9 @@ interface CreateTaskCardProps {
 }
 
 const priorityOptions = [
-    { label: "Low", value: "Low" },
-    { label: "Medium", value: "Medium" },
-    { label: "High", value: "High" },
+    { label: "Low", value: "LOW" },
+    { label: "Medium", value: "MEDIUM" },
+    { label: "High", value: "HIGH" },
 ];
 
 const assigneeOptions = [
@@ -24,17 +24,25 @@ const assigneeOptions = [
 
 const CreateTaskCard: FC<CreateTaskCardProps> = ({ onSave, onCancel, initialData }) => {
     const [formData, setFormData] = useState<TaskDetails>({
-        name: initialData?.name || "",
-        dueDate: initialData?.dueDate || dayjs().format("YYYY-MM-DD"),
-        time: initialData?.time || dayjs().format("HH:mm"),
-        priority: initialData?.priority || "Medium",
-        description: initialData?.description || "",
-        assignee: initialData?.assignee || "",
-        files: initialData?.files || [],
+        task: {
+            name: initialData?.task?.name || "",
+            dueDate: initialData?.task?.dueDate || dayjs().format("YYYY-MM-DD"),
+            time: initialData?.task?.time || dayjs().format("HH:mm"),
+            priority: initialData?.task?.priority || "MEDIUM",
+            description: initialData?.task?.description || "",
+            assignee: initialData?.task?.assignee || "",
+        },
+        attachment: initialData?.attachment || [],
     });
 
-    const handleChange = (field: keyof TaskDetails, value: any) => {
-        setFormData((prev) => ({ ...prev, [field]: value }));
+    const handleTaskChange = (field: keyof TaskDetails['task'], value: any) => {
+        setFormData(prev => ({
+            ...prev,
+            task: {
+                ...prev.task,
+                [field]: value
+            }
+        }));
     };
 
     const handleSave = () => {
@@ -47,8 +55,8 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({ onSave, onCancel, initialData
             <div>
                 <label className="block text-sm text-gray-600 mb-1">Task Name</label>
                 <Input
-                    value={formData.name}
-                    onChange={(e) => handleChange("name", e.target.value)}
+                    value={formData.task.name}
+                    onChange={(e) => handleTaskChange("name", e.target.value)}
                     placeholder="Task Name"
                 />
             </div>
@@ -58,16 +66,16 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({ onSave, onCancel, initialData
                 <div>
                     <label className="block text-sm text-gray-600 mb-1">Due Date</label>
                     <DatePicker
-                        value={dayjs(formData.dueDate)}
-                        onChange={(date, dateString) => handleChange("dueDate", dateString)}
+                        value={dayjs(formData.task.dueDate)}
+                        onChange={(date) => handleTaskChange("dueDate", date?.format("YYYY-MM-DD") || "")}
                         className="w-full"
                     />
                 </div>
                 <div>
                     <label className="block text-sm text-gray-600 mb-1">Time</label>
                     <TimePicker
-                        value={dayjs(formData.time, "HH:mm")}
-                        onChange={(time, timeString) => handleChange("time", timeString)}
+                        value={dayjs(formData.task.time, "HH:mm")}
+                        onChange={(time) => handleTaskChange("time", time?.format("HH:mm") || "")}
                         format="HH:mm"
                         className="w-full"
                     />
@@ -79,8 +87,8 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({ onSave, onCancel, initialData
                 <label className="block text-sm text-gray-600 mb-1">Priority</label>
                 <Select
                     options={priorityOptions}
-                    value={formData.priority}
-                    onChange={(value) => handleChange("priority", value)}
+                    value={formData.task.priority}
+                    onChange={(value) => handleTaskChange("priority", value)}
                     placeholder="Select Priority"
                     className="w-full"
                 />
@@ -90,8 +98,8 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({ onSave, onCancel, initialData
             <div>
                 <label className="block text-sm text-gray-600 mb-1">Description</label>
                 <Input.TextArea
-                    value={formData.description}
-                    onChange={(e) => handleChange("description", e.target.value)}
+                    value={formData.task.description}
+                    onChange={(e) => handleTaskChange("description", e.target.value)}
                     placeholder="Task Description"
                     rows={3}
                 />
@@ -102,8 +110,8 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({ onSave, onCancel, initialData
                 <label className="block text-sm text-gray-600 mb-1">Assignee</label>
                 <Select
                     options={assigneeOptions}
-                    value={formData.assignee}
-                    onChange={(value) => handleChange("assignee", value)}
+                    value={formData.task.assignee}
+                    onChange={(value) => handleTaskChange("assignee", value)}
                     placeholder="Select Assignee"
                     className="w-full"
                 />

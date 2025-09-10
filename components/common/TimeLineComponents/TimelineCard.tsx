@@ -34,7 +34,7 @@ const TimelineCard: FC<TimelineCardProps> = ({
             case "Appointments":
                 return (data as AppointmentDetails).title;
             case "Tasks":
-                return (data as TaskDetails).name;
+                return (data as TaskDetails).task?.name;
             case "Sms":
                 return `SMS to ${(data as SmsDetails).recipient}`;
             default:
@@ -49,7 +49,7 @@ const TimelineCard: FC<TimelineCardProps> = ({
             case "Appointments":
                 return (data as AppointmentDetails).notes;
             case "Tasks":
-                return (data as TaskDetails).description;
+                return (data as TaskDetails).task?.description;
             case "Sms":
                 return (data as SmsDetails).message;
             default:
@@ -61,8 +61,8 @@ const TimelineCard: FC<TimelineCardProps> = ({
         if (type === "Notes" && (data as NoteDetails).tags) {
             return (data as NoteDetails).tags;
         }
-        if (type === "Tasks" && (data as TaskDetails).priority) {
-            return [`Priority: ${(data as TaskDetails).priority}`];
+        if (type === "Tasks" && (data as TaskDetails).task?.priority) {
+            return [`Priority: ${(data as TaskDetails).task?.priority}`];
         }
         return [];
     };
@@ -111,7 +111,7 @@ const TimelineCard: FC<TimelineCardProps> = ({
                     </h3>
                     {/* Placeholder Avatar */}
                     <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs text-gray-500">
-                        {createdBy.charAt(0)}
+                        {createdBy?.charAt(0)}
                     </div>
                 </div>
 
@@ -122,21 +122,21 @@ const TimelineCard: FC<TimelineCardProps> = ({
                             {getDescription()}
                             {
                                 <div className="font-medium text-font-color text-base sm:text-lg">
-                                    {type === "Notes" ? (data as NoteDetails).description : ""}
+                                    {type === "Notes" ? (data as NoteDetails).message : ""}
                                 </div>
                             }
                         </p>
                     )}
                     {type === "Notes" && (data as NoteDetails) && (
                         <div className="text-xs text-font-color-100 space-y-1 mt-2">
-                            {(data as NoteDetails).files && (data as NoteDetails).files!.length > 0 && (
-                                <p><strong>Files:</strong> {(data as NoteDetails).files!.map(f => f.name).join(', ')}</p>
+                            {(data as NoteDetails).attachment && (data as NoteDetails).attachment!.length > 0 && (
+                                <p><strong>Files:</strong> {(data as NoteDetails).attachment!.map(f => f.name).join(', ')}</p>
                             )}
                             {(data as NoteDetails).sendToCustomer && (
                                 <p><strong>Send to Customer:</strong> Yes</p>
                             )}
-                            {(data as NoteDetails).createFollowup && (
-                                <p><strong>Create Follow-up:</strong> Yes {(data as NoteDetails).dueDate && `(Due: ${(data as NoteDetails).dueDate})`}</p>
+                            {(data as NoteDetails).createFollowUpTask && (
+                                <p><strong>Create Follow-up:</strong> Yes {(data as NoteDetails).task?.dueDate && `(Due: ${(data as NoteDetails).task?.dueDate})`}</p>
                             )}
                         </div>
                     )}
@@ -151,10 +151,10 @@ const TimelineCard: FC<TimelineCardProps> = ({
                     )}
                     {type === "Tasks" && (data as TaskDetails) && (
                         <div className="text-xs text-font-color-100 space-y-1 mt-2">
-                            <p><strong>Due Date:</strong> {(data as TaskDetails).dueDate}</p>
-                            <p><strong>Time:</strong> {(data as TaskDetails).time}</p>
-                            <p><strong>Priority:</strong> {(data as TaskDetails).priority}</p>
-                            <p><strong>Assignee:</strong> {(data as TaskDetails).assignee}</p>
+                            <p><strong>Due Date:</strong> {(data as TaskDetails).task?.dueDate}</p>
+                            <p><strong>Time:</strong> {(data as TaskDetails).task?.time}</p>
+                            <p><strong>Priority:</strong> {(data as TaskDetails).task?.priority}</p>
+                            <p><strong>Assignee:</strong> {(data as TaskDetails).task?.assignee}</p>
                         </div>
                     )}
                 </>

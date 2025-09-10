@@ -92,15 +92,23 @@ export type TimelineType = "Tasks" | "Notes" | "Sms" | "Appointments";
 
 export interface NoteDetails {
   // title: string;
-  description: string;
+  // description: string;
+  type?: string;
+  message: string;
   tags: string[];
   sendToCustomer?: boolean;
-  createFollowup?: boolean;
-  dueDate?: string;
-  files?: Array<{ uid: string; name: string; status?: string; url?: string }>;
+  createFollowUpTask?: boolean;
+  task:{
+    due_date?: string;
+    name?: string;
+    priority?: string;
+    dueDate?: string;
+  }
+  attachment?: Array<{ uid: string; name: string; status?: string; url?: string }>;
 }
 
 export interface AppointmentDetails {
+  type?: string;
   title: string;
   date: string;
   startTime: string;
@@ -108,20 +116,24 @@ export interface AppointmentDetails {
   location: string;
   user: string;
   notes: string;
-  sendToCustomer: boolean;
+  sendToCustomer?: boolean;
 }
 
 export interface TaskDetails {
-  name: string;
-  dueDate: string;
-  time: string;
-  priority: "Low" | "Medium" | "High";
-  description: string;
-  assignee: string;
-  files: any[]; // You might want to define a more specific type for files
+  type?: string;
+  task:{
+    name: string;
+    dueDate: string;
+    time: string;
+    priority: "LOW" | "MEDIUM" | "HIGH";
+    description: string;
+    assignee: string;
+  }
+  attachment?: any[]; // You might want to define a more specific type for files
 }
 
 export interface SmsDetails {
+  type?: string;
   message: string;
   recipient: string;
 }

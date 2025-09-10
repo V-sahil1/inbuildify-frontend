@@ -15,15 +15,15 @@ interface AddNotesCardProps {
 }
 
 const AddNotesCard: FC<AddNotesCardProps> = ({ onSave, onCancel, initialData }) => {
-    const [description, setDescription] = useState(initialData?.description || "");
+    const [description, setDescription] = useState(initialData?.message || "");
     const [sendToCustomer, setSendToCustomer] = useState(initialData?.sendToCustomer || false);
-    const [createFollowup, setCreateFollowup] = useState(initialData?.createFollowup || false);
+    const [createFollowUpTask, setCreateFollowUpTask] = useState(initialData?.createFollowUpTask || false);
     const [dueDate, setDueDate] = useState<dayjs.Dayjs | null>(
-        initialData?.dueDate ? dayjs(initialData.dueDate) : null
+        initialData?.task?.dueDate ? dayjs(initialData.task.dueDate) : null
     );
     // const [title, setTitle] = useState(initialData?.title || "Note Added");
     const [fileList, setFileList] = useState<UploadFile[]>(
-        initialData?.files ? initialData.files.map(file => ({ ...file, status: file.status as UploadFileStatus })) : []
+        initialData?.attachment ? initialData.attachment.map(file => ({ ...file, status: file.status as UploadFileStatus })) : []
     );
     const [tags, setTags] = useState<string[]>(initialData?.tags || ["Note"]);
     
@@ -41,12 +41,12 @@ const AddNotesCard: FC<AddNotesCardProps> = ({ onSave, onCancel, initialData }) 
     const handleSave = () => {
         onSave({
             // title: title,
-            description,
+            message:description,
             tags,
             sendToCustomer,
-            createFollowup,
-            files: fileList,
-            ...(createFollowup && dueDate && { dueDate: dueDate.format("YYYY-MM-DD") }),
+            createFollowUpTask,
+            attachment: fileList,
+            ...(createFollowUpTask && dueDate && { task:{ dueDate: dueDate.format("YYYY-MM-DD") } }),
         });
     };
 
@@ -123,13 +123,14 @@ const AddNotesCard: FC<AddNotesCardProps> = ({ onSave, onCancel, initialData }) 
                         Send this note to customer
                     </label>
                     <label className="flex items-center gap-2 text-sm">
-                        <Switch checked={createFollowup} onChange={setCreateFollowup} />
+                        <Switch checked={createFollowUpTask} onChange={setCreateFollowUpTask} />
                         Create follow-up task
                     </label>
-                    {createFollowup && (
+                    {createFollowUpTask && (
                         <>
                             <label className="flex items-center gap-2 text-sm">Due Date</label>
                             <DatePicker
+                                required
                                 value={dueDate}
                                 onChange={(date) => setDueDate(date)}
                                 className="w-full max-w-52"
