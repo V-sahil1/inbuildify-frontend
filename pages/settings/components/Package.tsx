@@ -20,6 +20,7 @@ const Package = () => {
   const { addInstItemModal } = useAppSelector((state: RootState) => state.package);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingPackage, setEditingPackage] = useState<IPackage | null>(null);
+  const [formValues, setFormValues] = useState({}); // For Diabling Select of items based on range and dwelling type
 
   useEffect(() => {
     if (getAllStatus === Status.IDLE) {
@@ -32,12 +33,13 @@ const Package = () => {
   };
 
   const handleCreatePackage = async (values: any) => {
+    const { range, dwelling, ...payload } = values; //Removed range and dwelling from payload
     try {
       if (editingPackage) {
         await dispatch(updatePackage({ id: editingPackage.packageId, ...values })).unwrap();
         message.success('Package updated successfully');
       } else {
-        await dispatch(createPackage(values)).unwrap();
+        await dispatch(createPackage(payload)).unwrap();
         message.success('Package created successfully');
       }
       setIsModalVisible(false);
@@ -49,7 +51,14 @@ const Package = () => {
   };
 
   const handleEditPackage = (pkg: IPackage) => {
-    setEditingPackage(pkg);
+    const mappedPackage = {
+      ...pkg,
+      categoryItemDescriptions: Array.isArray(pkg.categoryItemDescriptions)
+        ? pkg.categoryItemDescriptions.filter((desc) => desc != null)
+        : [],
+    };
+
+    setEditingPackage(mappedPackage);
     setIsModalVisible(true);
   };
 
@@ -107,7 +116,7 @@ const Package = () => {
           onClick={handleOpenModal}
           disabled={getAllStatus === Status.PENDING}
         >
-          Create Package
+          Add
         </button>
       </div>
       
@@ -121,10 +130,11 @@ const Package = () => {
           setEditingPackage(null);
         }}
         onSubmit={handleCreatePackage}
-        fields={packageFields()}
+        fields={packageFields(formValues)}
         loading={itemStatus === Status.PENDING}
         initialValues={editingPackage || {}}
         isEditing={!!editingPackage}
+        onValuesChange={setFormValues} 
       />
 
       {addInstItemModal && <AddMasterPricingItemModal

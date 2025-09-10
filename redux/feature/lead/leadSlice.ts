@@ -128,6 +128,7 @@ export const leadSlice = createSlice({
     builder.addCase(
       convertLeadToOpportunityThunk.fulfilled,
       (state, action) => {
+        state.leadDetail.lead.status = action.payload.status;
         state.leads = state.leads.map((lead) => {
           if (lead.leadId === action.payload.leadId) {
             return {

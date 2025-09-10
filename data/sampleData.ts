@@ -1,5 +1,5 @@
-import { LeadDetails } from './types';
-
+import { ColorCategory, LeadDetails } from './types';
+import { ConceptTask } from './types';
 // export const quotationData: Quotation = {
 //   id: 'MYH23070085',
 //   version: 'V1',
@@ -216,3 +216,187 @@ export const leadDetails: LeadDetails = {
 //     ]
 //   }
 // ];
+
+export const ColorItemList: ColorCategory[] = [
+  {
+    category: "bricks-access",
+    items: [
+      {
+        key: "br-001",
+        images: ["https://img.freepik.com/free-photo/background-made-from-bricks_23-2148742475.jpg?t=st=1757423430~exp=1757427030~hmac=6fd91972a1d2c7126ce68c51132bd8fdca6a0ceeb29968afbfbda1c3dce77123&w=2000", "https://placehold.co/600x400"],
+        itemName: "Red Sand Brick",
+        itemCode: "BR-001",
+        itemDescription: "Durable red sand brick suitable for exterior walls.",
+        itemFeatures: "High strength, weather resistant, eco-friendly",
+        itemUnits: 100,
+        itemSupplier: "Supplier 1",
+        itemCost: 150,
+        isAdded: false,
+      },
+      {
+        key: "br-002",
+        images: ["https://img.freepik.com/free-photo/effect-view-grungy-construction-vintage-material_1417-1038.jpg?t=st=1757423521~exp=1757427121~hmac=f706a084b106859b448dd937d389c9f6b2910c2e11b152243fdc2733baee51ea&w=2000", "https://placehold.co/600x400"],
+        itemName: "Grey Cement Brick",
+        itemCode: "BR-002",
+        itemDescription: "Grey cement brick with smooth finish.",
+        itemFeatures: "Cost-effective, low maintenance",
+        itemUnits: 80,
+        itemCost: 150,
+        isAdded: true,
+      },
+    ],
+  },
+  {
+    category: "roof-concrete",
+    items: [
+      {
+        key: "rf-001",
+        images: ["https://img.freepik.com/free-photo/roof-tiles_23-2148742475.jpg?t=st=1757423612~exp=1757427212~hmac=2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b"],
+        itemName: "Classic Concrete Tile",
+        itemCode: "RF-001",
+        itemDescription: "Concrete roof tile with natural stone finish.",
+        itemFeatures: "Fire resistant, sound insulation",
+        itemUnits: 200,
+        isAdded: true,
+      },
+    ],
+  },
+  {
+    category: "windows-black",
+    items: [
+      {
+        key: "wd-001",
+        images: ["https://img.freepik.com/free-photo/roof-tiles_23-2148742475.jpg?t=st=1757423612~exp=1757427212~hmac=2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b"],
+        itemName: "Black Aluminium Window",
+        itemCode: "WD-001",
+        itemDescription: "Sleek black frame for modern homes.",
+        itemFeatures: "Powder-coated, double-glazed option",
+        itemUnits: 50,
+        isAdded: true,
+      },
+    ],
+  },
+  {
+    category: "doors-hinged",
+    items: [
+      {
+        key: "dr-001",
+        images: ["https://img.freepik.com/free-photo/roof-tiles_23-2148742475.jpg?t=st=1757423612~exp=1757427212~hmac=2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b"],
+        itemName: "Classic Hinged Door",
+        itemCode: "DR-001",
+        itemDescription: "Traditional wooden hinged door with premium finish.",
+        itemFeatures: "Solid wood, customizable handle",
+        itemUnits: 30,
+        isAdded: false,
+      },
+    ],
+  },
+  {
+    category: "flooring-timber",
+    items: [
+      {
+        key: "fl-001",
+        images: ["https://img.freepik.com/free-photo/roof-tiles_23-2148742475.jpg?t=st=1757423612~exp=1757427212~hmac=2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b"],
+        itemName: "Oak Timber Flooring",
+        itemCode: "FL-001",
+        itemDescription: "Premium oak timber flooring for luxury interiors.",
+        itemFeatures: "Durable, scratch resistant, natural look",
+        itemUnits: 500,
+        isAdded: false,
+      },
+    ],
+  },
+];
+
+export const conceptTasks: ConceptTask[] = [
+    {
+      id: 1,
+      task: 'Request for the Sketch',
+      tag: 'Sales Execut.',
+      estimatedDate: '12 Aug 2023',
+      actualDate: '10 Aug 2023',
+      link:'',
+      user: 'MM',
+      status:'inactive',
+    },
+    {
+      id: 2,
+      task: 'Receive Sketch from the Draftperson',
+      tag: 'Sales Execut.',
+      estimatedDate: '12 Aug 2023',
+      actualDate: '10 Aug 2023',
+      link:'https://www.youtube.com/watch?v=2sLVTD_gTUA',
+      user: 'MM',
+      status:'inactive',
+    },
+    {
+      id: 3,
+      task: 'Sketch Signoff from client',
+      tag: 'Sales Execut.',
+      estimatedDate: '11 Aug 2023',
+      actualDate: '10 Aug 2023',
+      link:'',
+      user: 'Madan',
+      status:'active'
+    },
+    {
+      id: 4,
+      task: 'New Task',
+      tag: 'Designer',
+      estimatedDate: '15 Sep 2023',
+      actualDate: '14 Sep 2023',
+      link:'',
+      user: 'AB',
+      status:'active'
+    },
+    {
+      id: 5,
+      task: 'New Task',
+      tag: 'Designer',
+      estimatedDate: '15 Sep 2023',
+      actualDate: '14 Sep 2023',
+      link:'',
+      user: 'AB',
+      status:'inactive'
+    },
+    {
+      id: 6,
+      task: 'New Task',
+      tag: 'Designer',
+      estimatedDate: '15 Sep 2023',
+      actualDate: '14 Sep 2023',
+      link:'',
+      user: 'AB',
+      status:'active'
+    },
+    {
+      id: 7,
+      task: 'New Task',
+      tag: 'Designer',
+      estimatedDate: '15 Sep 2023',
+      actualDate: '14 Sep 2023',
+      link:'',
+      user: 'AB',
+      status:'inactive'
+    },
+    {
+      id: 8,
+      task: 'New Task',
+      tag: 'Designer',
+      estimatedDate: '15 Sep 2023',
+      actualDate: '14 Sep 2023',
+      link:'',
+      user: 'AB',
+      status:'active'
+    },
+    {
+      id: 9,
+      task: 'New Task',
+      tag: 'Designer',
+      estimatedDate: '15 Sep 2023',
+      actualDate: '14 Sep 2023',
+      link:'',
+      user: 'AB',
+      status:'inactive'
+    },
+  ];

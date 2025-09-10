@@ -13,12 +13,14 @@ interface ItemsPanelProps {
   onItemQuantityChange: (itemId: string, quantity: number) => void;
   onExtraClick: () => void;
   extraItem: boolean;
+  isReadOnly: boolean;
 }
 
 const ItemsPanel: React.FC<ItemsPanelProps> = ({
   category,
   onExtraClick,
   extraItem,
+  isReadOnly
 }) => {
   const dispatch = useAppDispatch();
   const {
@@ -106,7 +108,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
                 <QuatationItem
                   key={item?.categoryItemId}
                   item={item}
-                  disabled={selectedPackageFromSlice?.categoryItemIds.some((id) => id === item.categoryItemId)}
+                  disabled={isReadOnly || selectedPackageFromSlice?.categoryItemIds.some((id) => id === item.categoryItemId)}
                   onQuantityChange={handleItemQuantityChange}
                   quantityRef={(el) => quantityRefs.current[item.categoryItemId] = el}
                   isSelected={items?.some((itemData) => itemData.itemId === item.categoryItemId)}

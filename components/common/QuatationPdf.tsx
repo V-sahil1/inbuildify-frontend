@@ -62,13 +62,13 @@ export const QuatationPdf = ({
         <View style={styles.footerBottom}>
           {/* Phone */}
           {
-            user?.phone && (
+            user?.phoneNumber && (
               <View style={styles.footerItem}>
                 <Image
                   src="https://img.icons8.com/ios-filled/50/e63946/phone.png"
                   style={styles.footerIconImg}
                 />
-                <Text style={styles.footerText}>{user?.phone}</Text>
+                <Text style={styles.footerText}>{user?.phoneNumber}</Text>
               </View>
             )
           }
@@ -217,8 +217,8 @@ export const QuatationPdf = ({
             <Text style={Page1styles.name}>{user?.name || ""}</Text>
             <Text style={Page1styles.position}>Director</Text>
             {
-              user?.phone && (
-                <Text style={Page1styles.phone}>Ph No {user?.phone || ""}</Text>
+              user?.phoneNumber && (
+                <Text style={Page1styles.phone}>Ph No. {user?.phoneNumber || ""}</Text>
               )
             }
           </View>
@@ -369,6 +369,7 @@ export const QuatationPdf = ({
               `Dwelling Type: ${facade?.dwellingTypeName?.replace("_", " ")}`,
               `Standard: ${facade?.standard ? "Yes" : "No"}`,
               `Upgrade: ${facade?.upgrade ? "Yes" : "No"}`,
+              `Cost: ${facade?.cost}`,
               // `Created At: ${new Date(facade?.createdAt).toLocaleDateString()}`,
               // `Updated At: ${new Date(facade?.updatedAt).toLocaleDateString()}`
             ]}
@@ -473,6 +474,10 @@ export const QuatationPdf = ({
           <View style={finalTotalStyles.row}>
             <Text style={finalTotalStyles.label}>Package Total:</Text>
             <Text style={finalTotalStyles.value}>${Number(quotePackage?.amount).toLocaleString()}</Text>
+          </View>
+          <View style={finalTotalStyles.row}>
+            <Text style={finalTotalStyles.label}>Facade Total:</Text>
+            <Text style={finalTotalStyles.value}>${Number(facade?.cost).toLocaleString()}</Text>
           </View>
           <View style={finalTotalStyles.row}>
             <Text style={finalTotalStyles.label}>Quotation Items Subtotal:</Text>

@@ -93,10 +93,10 @@ const api = async <T>(
 
     return response.data;
   } catch (error: any) {
-    console.log("Caught API error:", error);
+    console.error("Caught API error:", error);
 
     if (axios.isAxiosError(error) && error.response?.status === 401) {
-      console.log("401 error — trying token refresh");
+      console.error("401 error — trying token refresh");
 
       if (isRefreshing) {
         throw {

@@ -3,6 +3,7 @@ import { Status } from "@lib/constants/enum";
 import {
   addressRules,
   nameRules,
+  optionalPhoneRule,
   phoneRules,
 } from "@lib/constants/formInputValidations";
 import {
@@ -119,6 +120,22 @@ const LeadDetailsForm: React.FC<any> = ({
     });
   };
 
+  // useEffect(() => {
+  //   if (!open) {
+  //     setShowContactForm(false);
+  //     setHideAddressForm(true);
+  //   } else if (isEditing && initialValues) {
+  //       form.resetFields();
+  //       form.setFieldsValue(initialValues);
+  //     } else if (!isEditing) {
+  //       form.resetFields();
+  //   }
+  // }, [open, isEditing, initialValues, form]);
+
+
+
+
+  
   useEffect(() => {
     if (open) {
       if (isEditing && initialValues) {
@@ -230,7 +247,7 @@ const LeadDetailsForm: React.FC<any> = ({
             <Input type="number" placeholder="Enter phone number" />
           </Form.Item>
 
-          <Form.Item label="Secondary Phone" name="secondary_phone">
+          <Form.Item label="Secondary Phone" name="secondary_phone" rules={optionalPhoneRule}>
             <Input
               type="number"
               placeholder="Enter secondary phone (optional)"
@@ -292,11 +309,12 @@ const LeadDetailsForm: React.FC<any> = ({
                 name="zip"
                 rules={[
                   { required: true, message: "Please enter postal code" },
+                  {max: 4, message: "Postal code must be at most 4 characters"}
                 ]}
               >
                 <Input
                   placeholder="Enter zip/postal code"
-                  maxLength={4}
+                  // maxLength={4}
                   type="number"
                 />
               </Form.Item>

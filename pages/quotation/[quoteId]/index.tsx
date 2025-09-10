@@ -1,5 +1,5 @@
-import QuotationManager from '@/components/quotation/QuotationManager'
 import React from 'react'
+import QuotationManager from '@/components/quotation/QuotationManager'
 
 const index = () => {
   return (

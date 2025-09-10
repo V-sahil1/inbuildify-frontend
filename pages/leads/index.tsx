@@ -88,7 +88,7 @@ const Leads = () => {
           className="btn large bg-[var(--primary)] cursor-pointer text-white"
           onClick={handleOpenModal}
         >
-          Create Lead
+          Create
         </button>
       </div>
       {status === Status.PENDING ? (
@@ -102,13 +102,14 @@ const Leads = () => {
               key={lead.leadId}
               onClick={() => {
                 if (lead.status === "CANCELLED") return;
-                lead.status === "IN_PROGRESS" || lead.status === "COMPLETED"
-                  ? router.push(
-                      `${SystemRoutes.LEADS}/${lead.leadId}?type=opportunity`
-                    )
-                  : lead.status === "JOB"
-                  ? router.push(SystemRoutes.JOB)
-                  : router.push(`${SystemRoutes.LEADS}/${lead.leadId}`);
+                router.push(`${SystemRoutes.LEADS}/${lead.leadId}`);
+                // lead.status === "IN_PROGRESS" || lead.status === "COMPLETED"
+                //   ? router.push(
+                //       `${SystemRoutes.LEADS}/${lead.leadId}?type=opportunity`
+                //     )
+                //   : lead.status === "JOB"
+                //   ? router.push(SystemRoutes.JOB)
+                //   : router.push(`${SystemRoutes.LEADS}/${lead.leadId}`);
               }}
               className={`rounded-2xl border border-border-color shadow-sm p-6 ${
                 lead.status === "CANCELLED"
@@ -137,21 +138,17 @@ const Leads = () => {
             
               {/* Contact Info */}
               <div className=" flex-1 space-y-2 mb-4">
-                {lead.phone &&
-                   <p className="flex items-center text-sm ">
-                    <IconPhone size={16} className="mr-2 text-gray-400" />
-                    {lead.phone}
-                  </p>
-                  }
-                {lead.email && 
-                  <p className="flex items-center text-sm ">
-                    <IconMail size={16} className="mr-2 text-gray-400" />
-                    {lead.email}
-                  </p>
-                  }
-                {lead.leadSource && 
-                <p className="text-xs ">Source: {lead.leadSource}</p>
-                 }
+                
+                <p className="flex items-center text-sm ">
+                  <IconPhone size={16} className="mr-2 text-gray-400" />
+                  {lead.phone ? lead.phone : 'N/A'}
+                </p>
+                <p className="flex items-center text-sm ">
+                  <IconMail size={16} className="mr-2 text-gray-400" />
+                  {lead.email ? lead.email : 'N/A'}
+                </p>
+                <p className="text-xs">Source: {lead.leadSource ? lead.leadSource : 'N/A'}</p>
+                 
               </div>
             
               {/* Footer with dates */}

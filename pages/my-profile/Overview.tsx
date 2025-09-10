@@ -26,7 +26,6 @@ export default function Overview() {
   });
 
   const handleEditSubmit = (values: UserProfile) => {
-    console.log('Profile updated:', values);
     // Here you would typically make an API call to update the profile
     setProfileData(values);
     setIsEditing(false);

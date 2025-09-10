@@ -1,10 +1,8 @@
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
-import {
-  fetchFloorPlans,
-} from "@redux/feature/floorPlan/floorPlanThunk";
+// import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
+import { fetchFloorPlans } from "@redux/feature/floorPlan/floorPlanThunk";
 import { setSelectedFilters } from "@redux/feature/floorPlan/floorPlanSlice";
-import React, { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { setSelectedFilters as setFacadeFilters } from "@redux/feature/facade/facadeSlice";
 import { getFacades } from "@redux/feature/facade/facadeThunk";
 import { fetchPackages } from "@redux/feature/package/packageThunk";
@@ -16,46 +14,88 @@ import { mapToOptions } from "@lib/utils/rangeAndDwellingObjToOptions";
 import { Status } from "@lib/constants/enum";
 import { getDwellingTypes, getRanges } from "@redux/feature/types/typesThunk";
 
-const QuotationFilter = () => {
+interface QuotationFilterProps {
+  isReadOnly?: boolean;
+}
+
+const QuotationFilter: React.FC<QuotationFilterProps> = ({ isReadOnly = false }) => {
   const dispatch = useAppDispatch();
-  const { selectedFilters } = useAppSelector(
-    (state) => state.floorPlan
+  const { range, dwellingType, status } = useAppSelector(
+    (state) => state.types
   );
-  const {range , dwellingType,status} = useAppSelector((state) => state.types);
   const rangeOptions = mapToOptions(range);
   const dwellingOptions = mapToOptions(dwellingType);
-  const { selectedFilters: packageFilters } = useAppSelector(
-    (state) => state.package
-  );
   const { selectedFilters: selectedQuotationFilters } = useAppSelector(
     (state) => state.quotation
   );
+  const { selectedFilters: selectedPackageFilters } = useAppSelector((state) => state.package);
+  const initialLoad = useRef(true);
 
   useEffect(() => {
-    const fetchTypesData = async () => {  
-      try{
+    const fetchTypesData = async () => {
+      try {
       if (status?.range === Status.IDLE) {
-       await dispatch(getRanges()).unwrap();
+        await dispatch(getRanges()).unwrap();
       }
-      if(status?.dwellingType === Status.IDLE){
+      if (status?.dwellingType === Status.IDLE) {
         await dispatch(getDwellingTypes()).unwrap();
       }
-    }catch(error){
+    } catch (error) {
       message.error(error);
     }
-  }
+  };
   fetchTypesData();
   }, [dispatch]);
 
+  useEffect(() => {
+    if (initialLoad.current && selectedQuotationFilters) {
+      initialLoad.current = false;
+
+      if (selectedQuotationFilters.dwelling_type) {
+        handleFloorPlanDwellingTypeChange(
+          selectedQuotationFilters.dwelling_type
+        );
+        handleFacadeDwellingTypeChange(selectedQuotationFilters.dwelling_type);
+      }
+
+      if (selectedQuotationFilters.range) {
+        handleRangeChange(selectedQuotationFilters.range);
+      }
+      handlePackage();
+    }
+  }, [selectedQuotationFilters]);
+
   const handleRangeChange = useCallback(
     (value: string | undefined) => {
-      const newFilters = { ...selectedFilters, range: value || "" };
+      const newFilters = { ...selectedQuotationFilters, range: value || "" };
       dispatch(setSelectedFilters(newFilters));
       dispatch(setMplFilters({ range: value || "" }));
       dispatch(setQuotationFilters(newFilters));
 
+      if (newFilters.range || newFilters.dwelling_type) {
+        dispatch(fetchFloorPlans(newFilters));
+      } else {
+        dispatch(fetchFloorPlans(undefined));
+      }
+    },
+    [dispatch, selectedQuotationFilters]
+  );
 
-      // Only make API call if at least one filter is selected
+  const handleDwellingTypeChange = useCallback(
+    (value: string | undefined) => {
+      const newFilters = {
+        ...selectedQuotationFilters,
+        dwelling_type: value || "",
+      };
+      dispatch(setSelectedFilters(newFilters));
+      dispatch(
+        setMplFilters({
+          ...selectedQuotationFilters,
+          dwelling_type: value || "",
+        })
+      );
+      dispatch(setQuotationFilters(newFilters));
+
       if (newFilters.range || newFilters.dwelling_type) {
         dispatch(fetchFloorPlans(newFilters));
       } else {
@@ -63,12 +103,15 @@ const QuotationFilter = () => {
         dispatch(fetchFloorPlans(undefined));
       }
     },
-    [dispatch, selectedFilters]
+    [dispatch, selectedQuotationFilters]
   );
 
   const handleFloorPlanDwellingTypeChange = useCallback(
     (value: string | undefined) => {
-      const newFilters = { ...selectedFilters, dwelling_type: value || "" };
+      const newFilters = {
+        ...selectedQuotationFilters,
+        dwelling_type: value || "",
+      };
       dispatch(setSelectedFilters(newFilters));
       dispatch(setMplFilters({ dwelling_type: value || "" }));
       dispatch(setQuotationFilters(newFilters));
@@ -81,7 +124,7 @@ const QuotationFilter = () => {
         dispatch(fetchFloorPlans(undefined));
       }
     },
-    [dispatch, selectedFilters]
+    [dispatch, selectedQuotationFilters]
   );
 
   const handleFacadeDwellingTypeChange = useCallback(
@@ -100,41 +143,47 @@ const QuotationFilter = () => {
     [dispatch]
   );
 
-  const handlePackageRangeChange = useCallback(
-    (value: string | undefined) => {
-      const newFilters = { ...packageFilters, range: value || "" };
-      dispatch(setPackageFilters(newFilters));
-
-      // Only make API call if at least one filter is selected
-      if (newFilters.range || newFilters.dwelling_type) {
-        dispatch(fetchPackages(newFilters));
-      } else {
-        // If no filters are selected, fetch all packages
-        dispatch(fetchPackages(undefined));
-      }
-    },
-    [dispatch, packageFilters]
-  );
-
   const handlePackageDwellingTypeChange = useCallback(
     (value: string | undefined) => {
-      const newFilters = { ...packageFilters, dwelling_type: value || "" };
+      const newFilters = {
+        ...selectedPackageFilters,
+        dwelling_type: value || "",
+      };
       dispatch(setPackageFilters(newFilters));
 
-      // Only make API call if at least one filter is selected
       if (newFilters.range || newFilters.dwelling_type) {
         dispatch(fetchPackages(newFilters));
       } else {
-        // If no filters are selected, fetch all packages
         dispatch(fetchPackages(undefined));
       }
     },
-    [dispatch, packageFilters]
+    [dispatch, selectedPackageFilters]
   );
+
+  const handlePackageRangeChange = useCallback(
+    (value: string | undefined) => {
+      const newFilters = {
+        ...selectedPackageFilters,
+        range: value || "",
+      };
+      dispatch(setPackageFilters(newFilters));
+
+      if (newFilters.range || newFilters.dwelling_type) {
+        dispatch(fetchPackages(newFilters));
+      } else {
+        dispatch(fetchPackages(undefined));
+      }
+    },
+    [dispatch, selectedPackageFilters]
+  );
+
+  const handlePackage = useCallback(async () => {
+    await dispatch(fetchPackages(undefined));
+  }, [dispatch]);
 
   return (
     <div className="flex items-center gap-6 justify-end text-font-color w-[1000px]">
-      <div className="flex items-center gap-4"> 
+      <div className="flex items-center gap-4">
         <span className="text-sm">Range</span>
         <Select
           className="w-32"
@@ -143,15 +192,16 @@ const QuotationFilter = () => {
           allowClear
           value={selectedQuotationFilters?.range || undefined}
           onChange={(value) => {
-            handleRangeChange(value), handlePackageRangeChange(value);
+            handleRangeChange(value)
+            handlePackageRangeChange(value)
           }}
           options={rangeOptions}
+          disabled={isReadOnly}
         />
       </div>
 
-      
       <div className="flex items-center gap-4">
-        <span className="text-sm">Dwelling Type</span> 
+        <span className="text-sm">Dwelling Type</span>
         <Select
           className="w-36"
           placeholder="Select Dwelling Type"
@@ -159,11 +209,13 @@ const QuotationFilter = () => {
           allowClear
           value={selectedQuotationFilters?.dwelling_type || undefined}
           onChange={(value) => {
-            handleFloorPlanDwellingTypeChange(value),
-              handleFacadeDwellingTypeChange(value),
-              handlePackageDwellingTypeChange(value);
+              handleDwellingTypeChange(value),
+              handleFloorPlanDwellingTypeChange(value),
+              handleFacadeDwellingTypeChange(value);
+              handlePackageDwellingTypeChange(value)
           }}
           options={dwellingOptions}
+          disabled={isReadOnly}
         />
       </div>
     </div>

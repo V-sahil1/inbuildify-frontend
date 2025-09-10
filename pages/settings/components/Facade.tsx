@@ -142,7 +142,7 @@ const Facade = () => {
           className="btn large bg-primary cursor-pointer text-white"
           onClick={handleOpenModal}
         >
-          Create Facade
+          Add
         </button>
           </div>
       </div>

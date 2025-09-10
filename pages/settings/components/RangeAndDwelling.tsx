@@ -116,19 +116,27 @@ const RangeAndDwelling = () => {
       width: 120,
       render: (_: any, record) => (
         <div className="flex gap-2">
-          <Button
-            type="text"
-            icon={<IconEdit />}
+          <button
+            className="rounded-md p-1 group"
             onClick={() => handleEdit(record)}
             aria-label="Edit"
-          />
-          <Button
-            type="text"
-            danger
-            icon={<IconTrash />}
-            onClick={() => setDeleteModalVisible({ id: record.id, open: true })}
+          >
+            <IconEdit
+              size={20}
+              className="text-font-color group-hover:text-blue"
+            />
+          </button>
+
+          <button
+            className="rounded-md p-1 group"
+            onClick={() => setDeleteModalVisible({ id: record.serviceId, open: true })}
             aria-label="Delete"
-          />
+          >
+            <IconTrash
+              size={20}
+              className="text-font-color group-hover:text-red-500"
+            />
+          </button>
         </div>
       ),
     },

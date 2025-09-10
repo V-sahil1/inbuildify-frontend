@@ -72,14 +72,14 @@ export interface Package {
 function App() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const isOpportunity = searchParams.get("type") === "opportunity";
-  const title = isOpportunity ? "Opportunity" : "Lead";
   const [isConvertModalVisible, setIsConvertModalVisible] = useState(false);
   const [isEditLeadModalVisible, setIsEditLeadModalVisible] = useState(false);
   const [isPropertyModalVisible, setIsPropertyModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
   const { leadDetail } = useAppSelector((state: RootState) => state.lead);
+  const isOpportunity = leadDetail?.lead?.status !== "NEW";
+  const title = isOpportunity ? "Opportunity" : "Lead";
   const contacts: ILeadContact[] = leadDetail?.contacts;
   const propertyFromSlice = leadDetail?.property;
   const leadId = router.query.id as string | undefined;
@@ -145,10 +145,11 @@ function App() {
         ).unwrap();
         message.success("Lead contact created successfully");
       }
+      setIsEditLeadModalVisible(false);
+
     } catch (err) {
       message.error(err || "Failed to update lead");
     } finally {
-      setIsEditLeadModalVisible(false);
       setLoading(false);
     }
   };
@@ -239,12 +240,12 @@ function App() {
 
           <div className="flex items-center gap-2 mt-2">
             <IconPhoneCall className="w-4 h-4" />
-            <span className="text-sm">{primaryContact?.phone ?? "-"}</span>
+            <span className="text-sm">{primaryContact?.phone ?? "N/A"}</span>
           </div>
 
           <div className="flex items-center gap-2 mt-1">
             <IconMail className="w-4 h-4" />
-            <span className="text-sm">{primaryContact?.email ?? "-"}</span>
+            <span className="text-sm">{primaryContact?.email ?? "N/A"}</span>
           </div>
         </Card>
 
@@ -335,16 +336,16 @@ function App() {
                   ),
                 }}
                 renderItem={(quotation: QuotationResponse) => (
-                  <List.Item key={quotation?.quotationId}>
+                  <List.Item key={quotation?.quotationId} onClick={() => router.push(`/quotation/${quotation?.quotationId}`)} style={{ cursor: "pointer" }}>
                     <Space size="middle">
-                      <Tooltip title={quotation?.quotationId}>
+                      {/* <Tooltip title={quotation?.slugId}> */}
                         <Text type="secondary">
-                          {quotation?.quotationId?.slice(0, 13)}
+                          {quotation?.slugId?.slice(0, 13)}
                         </Text>
-                      </Tooltip>
+                      {/* </Tooltip> */}
                       <Tag
                         color={
-                          quotation?.leadStatus === "Open" ? "blue" : "green"
+                          quotation?.lead?.status === "Open" ? "blue" : "green"
                         }
                       >
                         {quotation?.leadStatus}

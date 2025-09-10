@@ -1,0 +1,139 @@
+
+import { IconDotsVertical } from "@tabler/icons-react";
+import { Button, Dropdown, Table, Tag } from "antd";
+import type { TableColumnsType } from "antd";
+import { JobVariationType } from "data/types";
+
+
+type JobVariationProps = {
+    data: JobVariationType[]
+}
+const JobVariation: React.FC<JobVariationProps> = ({ data }) => {
+    const columns: TableColumnsType<JobVariationType> = [
+        {
+            title: "Reference ID",
+            dataIndex: "ReferenceID",
+            key: "ReferenceID",
+        },
+        {
+            title: "Amount",
+            dataIndex: "Amount",
+            key: "Amount",
+        },
+        {
+            title: "Requested By",
+            dataIndex: "RequestedBy",
+            key: "RequestedBy",
+        },
+        {
+            title: "Delayed By",
+            dataIndex: "DelayedBy",
+            key: "DelayedBy",
+        },
+        {
+            title: "Drawing Changes Required",
+            dataIndex: "DrawingChanges",
+            key: "DrawingChanges",
+        }
+        ,
+        {
+            title: "Created",
+            dataIndex: "Created",
+            key: "Created",
+            render: (_, record) => {
+                return (
+                    <div>
+                        <div className="flex justify-center items-center my-2">
+                            <div className="rounded-full w-8 h-8 flex justify-center text-xs items-center bg-gray-200">{record.Created.user}</div>
+                        </div>
+                        <div>{new Date(record.Created.date).toLocaleDateString("en-GB", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric"
+                        })}
+                        </div>
+                    </div>
+                )
+            }
+        }
+        ,
+        {
+            title: "Approved",
+            dataIndex: "Approved",
+            key: "Approved",
+            render: (_, record) => {
+                return (
+                    <div>
+                        <div className="flex justify-center items-center my-2">
+                            <div className="rounded-full w-8 h-8 flex justify-center items-center text-xs bg-gray-200">{record.Approved.user}</div>
+                        </div>
+                        <div>{new Date(record.Approved.date).toLocaleDateString("en-GB", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric"
+                        })}
+                        </div>
+                    </div>
+                )
+            }
+        }
+        ,
+        {
+            title: "Status",
+            dataIndex: "Status",
+            key: "Status",
+            render: (_, record) => (
+                <>
+                    <Tag color={`${record.Status == 'Approved' ? 'green' : 'grey'}`} key={record.Status}>
+                        {record.Status.toUpperCase()}
+                    </Tag>
+                </>
+            ),
+        },
+        {
+            title: "Invoice",
+            dataIndex: "Invoice",
+            key: "Invoice",
+        },
+        {
+            title: "Actions",
+            key: "actions",
+            render: (_, record) => (
+                <>
+                    <Dropdown menu={{
+                        items: [
+                            {
+                                key: 'edit',
+                                label: 'Edit'
+                            },
+                            {
+                                key: 'delete',
+                                label: 'Delete'
+                            }
+                        ],
+                        onClick: (e) => {
+                            console.log("dropdown key", e.key);
+                        }
+                    }}
+                    >
+                        <span><IconDotsVertical /></span></Dropdown>
+                </>
+            ),
+        },
+    ]
+
+    return (
+        <div className="flex flex-col justify-center bg-card-color">
+            <div className="flex justify-end m-3">
+                <Button>New Variation</Button>
+            </div>
+            <Table
+                columns={columns}
+                dataSource={data}
+                rowKey='ReferenceID'
+                pagination={{ pageSize: 5 }}
+            />
+        </div>
+    );
+}
+export default JobVariation;

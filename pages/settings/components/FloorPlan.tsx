@@ -90,7 +90,6 @@ const FloorPlan = () => {
   };
 
   const handleEdit = (floorPlan: IFloorPlanState) => {
-    console.log(floorPlan);
     setIsEditing(true);
     const mappedFloorPlan = {
       floorPlanId: floorPlan.floorPlanId,
@@ -136,7 +135,7 @@ const FloorPlan = () => {
           className="btn large bg-[var(--primary)] cursor-pointer text-white"
           onClick={handleOpenModal}
         >
-          Create Floor Plan
+          Add
         </button>
       </div>
       {status.floorPlan == Status.PENDING ? (

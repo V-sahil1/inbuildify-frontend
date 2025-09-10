@@ -6,11 +6,13 @@ import { QuotationItemPayload, QuotationResponse } from "./IQuotationState";
 
 export const createQuotation = createAsyncThunk(
   "quotation/create",
-  async (payload: QuotationItemPayload, { rejectWithValue }) => {
+  async (payload: {quoteId?: string , quotationPayload: QuotationItemPayload}, { rejectWithValue }) => {
     try {
+      const {quoteId, quotationPayload} = payload;
+      const apiEndpoint = quoteId ? API_ENDPOINTS.QUOTATION_BASE + "/" + quoteId + "/version" : API_ENDPOINTS.QUOTATION_BASE;
       const res = await api.post<ApiResponse<QuotationResponse>>(
-        API_ENDPOINTS.QUOTATION_BASE,
-        { data: payload }
+        apiEndpoint,
+        { data: quotationPayload }
       );
       return res.data;
     } catch (error) {

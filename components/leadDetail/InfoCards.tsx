@@ -14,7 +14,7 @@ import {
   IconCar,
   IconForklift,
 } from "@tabler/icons-react";
-import {PropertyDetails, Plan } from "data/types";
+import { PropertyDetails, Plan } from "data/types";
 import PropertyDetailsModal from "./PropertyDetailsModal";
 import FloorPlanModal from "./FloorPlanModal";
 import dayjs from "dayjs";
@@ -25,12 +25,18 @@ import { Package } from "@redux/feature/package/IPackageState";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 // import leadCreateFields from "../formFields/LeadCreateFields";
 // import { CreateFormModal } from "../common/Models/CreateFormModel";
-import { createLeadContactThunk, updateLeadContactThunk } from "@redux/feature/lead/leadThunk";
+import {
+  createLeadContactThunk,
+  updateLeadContactThunk,
+} from "@redux/feature/lead/leadThunk";
 // import { updateQuotationContact } from "@redux/feature/quotation/quotationSlice";
 import LeadDetailsForm from "./forms/LeadDetailsForm";
 import { ILeadContact } from "@redux/feature/lead/ILeadState";
 import { setQuotationContact } from "@redux/feature/quotation/quotationSlice";
-import { clearStandardFilter, clearUpgradeFilter } from "@redux/feature/facade/facadeSlice";
+import {
+  clearStandardFilter,
+  clearUpgradeFilter,
+} from "@redux/feature/facade/facadeSlice";
 
 interface InfoCardsProps {
   leadDetails: ILeadContact;
@@ -42,6 +48,7 @@ interface InfoCardsProps {
   onFacadeSelect: (facade: IFacadeState) => void;
   onPackageSelect: (pkg: Package) => void;
   onPropertyUpdate: (property: PropertyDetails) => void;
+  isReadOnly?: boolean;
 }
 
 const InfoCards: React.FC<InfoCardsProps> = ({
@@ -54,6 +61,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
   onFacadeSelect,
   onPackageSelect,
   onPropertyUpdate,
+  isReadOnly
 }) => {
   const [propertyModalVisible, setPropertyModalVisible] = useState(false);
   const [floorPlanModalVisible, setFloorPlanModalVisible] = useState(false);
@@ -67,7 +75,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
     null
   );
   const { leadDetail } = useAppSelector((state) => state.lead);
-    // const sliceContacts: ILeadContact[] = leadDetail?.contacts;
+  // const sliceContacts: ILeadContact[] = leadDetail?.contacts;
   const { selectedFilters } = useAppSelector((state) => state.quotation);
   const handleEditLeadSubmit = async (values: any) => {
     const { type, hideAddressForm, ...details } = values;
@@ -114,24 +122,24 @@ const InfoCards: React.FC<InfoCardsProps> = ({
       {/* Lead Details Card */}
       <Card
         className="shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-        onClick={() => setEditModalVisible(true)}
+        onClick={!isReadOnly ? () => setEditModalVisible(true) : undefined}
       >
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <IconUser className="text-blue-500" />
             <span className="font-medium text-font-color">Lead Details</span>
           </div>
-          <IconEdit className="text-gray-400 text-sm" />
+          {!isReadOnly && <IconEdit className="text-gray-400 text-sm" />}
         </div>
         <div className="space-y-2">
           <div className="font-semibold text-font-color">{leadDetails?.name}</div>
           <div className="flex items-center text-sm text-font-color-100">
             <IconPhone size={14} className="mr-1 text-font-color-100" />
-            {leadDetails?.phone || "Not provided"}
+            {leadDetails?.phone || "N/A"}
           </div>
           <div className="flex items-center text-sm text-font-color-100">
             <IconMail size={14} className="mr-1 text-font-color-100" />
-            {leadDetails?.email || "Not provided"}
+            {leadDetails?.email || "N/A"}
           </div>
           {leadDetails?.address1 && (
             <div className="flex items-start text-sm text-font-color-100">
@@ -176,38 +184,16 @@ const InfoCards: React.FC<InfoCardsProps> = ({
             </div>
           </div>
         )}
-
-        {/* <Button
-          type="text"
-          size="small"
-          icon={<IconPlus size={14} />}
-          className="mt-3 text-blue-500 hover:!text-blue-600 flex items-center text-xs"
-          onClick={(e) => {
-            e.stopPropagation();
-            setContacts([
-              ...contacts,
-              {
-                name: "New Contact",
-                email: "",
-                phone: "",
-                type: "Secondary",
-              },
-            ]);
-            setActiveContactIndex(contacts.length);
-          }}
-        >
-          Add Contact
-        </Button> */}
       </Card>
 
       <Card
         className="shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-        onClick={() => setPropertyModalVisible(true)}
+        onClick={!isReadOnly ? () => setPropertyModalVisible(true) : undefined}
       >
         <div className="flex items-center gap-2 mb-3">
           <IconHome className="text-green-500" />
           <span className="font-medium text-font-color">Property Details</span>
-          <IconEdit className="text-gray-400 ml-auto" />
+          {!isReadOnly && <IconEdit className="text-gray-400 ml-auto" />}
         </div>
         {
         propertyDetails?.address1 &&propertyDetails?.citySuburb && propertyDetails?.stateRegion && propertyDetails?.zipPostalCode ? (
@@ -255,7 +241,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
         <Tooltip title={disabledMessage}>
           <Card
             className={`shadow-sm transition-shadow ${isSelectionDisabled ? 'opacity-70' : 'hover:shadow-md cursor-pointer'}`}
-            onClick={!isSelectionDisabled ? () => setFloorPlanModalVisible(true) : undefined}
+            onClick={!isSelectionDisabled && !isReadOnly ? () => setFloorPlanModalVisible(true) : undefined}
           >
             {selectedPlan ? (
             <>
@@ -264,7 +250,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
                 <span className="font-medium text-font-color">
                   {selectedPlan.name}
                 </span>
-                <IconEdit className="text-gray-400 ml-auto" />
+                {!isReadOnly && <IconEdit className="text-gray-400 ml-auto" />}
               </div>
 
               <div className="flex justify-between w-full gap-2">
@@ -310,7 +296,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
         <Tooltip title={disabledMessage}>
           <Card
             className={`shadow-sm transition-shadow ${isSelectionDisabled ? 'opacity-70' : 'hover:shadow-md cursor-pointer'}`}
-            onClick={!isSelectionDisabled ? () => setFacadeModalVisible(true) : undefined}
+            onClick={!isSelectionDisabled && !isReadOnly ? () => setFacadeModalVisible(true) : undefined}
           >
           {selectedFacade ? (
             <>
@@ -319,7 +305,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
                 <span className="font-medium text-font-color">
                   {selectedFacade?.name}
                 </span>
-                <IconEdit className="text-gray-400 ml-auto" />
+                {!isReadOnly && <IconEdit className="text-gray-400 ml-auto" />}
               </div>
               <div className="space-y-2">
                   {/* <div className="font-semibold text-center text-font-color"> */}
@@ -347,7 +333,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
       <Tooltip title={disabledMessage}>
         <Card
           className={`shadow-sm transition-shadow ${isSelectionDisabled ? 'opacity-70' : 'hover:shadow-md cursor-pointer'}`}
-          onClick={!isSelectionDisabled ? () => setPackageModalVisible(true) : undefined}
+          onClick={!isSelectionDisabled && !isReadOnly ? () => setPackageModalVisible(true) : undefined}
         >
         {selectedPackage ? (
           <>
@@ -356,7 +342,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
               <span className="font-medium text-font-color">
                 {selectedPackage?.name}
               </span>
-              <IconEdit className="text-gray-400 ml-auto" />
+             {!isReadOnly && <IconEdit className="text-gray-400 ml-auto" />}
             </div>
             <div className="space-y-2">
                 {/* <div className="font-semibold text-font-color">Package (1)</div> */}
@@ -399,19 +385,33 @@ const InfoCards: React.FC<InfoCardsProps> = ({
         initialValues={{...leadDetails,secondary_phone: leadDetails?.secondaryPhone}}
       />
 
+      {floorPlanModalVisible && (
       <FloorPlanModal
         visible={floorPlanModalVisible}
         onCancel={() => setFloorPlanModalVisible(false)}
         onSave={onPlanSelect}
         selectedPlan={selectedPlan}
       />
+      )}
+      
+      {facadeModalVisible && (
       <FacadeModal
         visible={facadeModalVisible}
-        onCancel={() => {setFacadeModalVisible(false);dispatch(clearStandardFilter());dispatch(clearUpgradeFilter())}}
-        onSave={(data) => {onFacadeSelect(data);dispatch(clearStandardFilter());dispatch(clearUpgradeFilter())}}
+        onCancel={() => {
+            setFacadeModalVisible(false);
+            dispatch(clearStandardFilter());
+            dispatch(clearUpgradeFilter());
+          }}
+          onSave={(data) => {
+            onFacadeSelect(data);
+            dispatch(clearStandardFilter());
+            dispatch(clearUpgradeFilter());
+          }}
         selectedFacade={selectedFacade}
       />
+      )}
       {/* Package Selection Modal */}
+      {packageModalVisible && (
       <PackageModal
         visible={packageModalVisible}
         onCancel={() => setPackageModalVisible(false)}
@@ -419,6 +419,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
         selectedPackage={selectedPackage}
         onSelect={onPackageSelect}
       />
+      )}
     </div>
   );
 };

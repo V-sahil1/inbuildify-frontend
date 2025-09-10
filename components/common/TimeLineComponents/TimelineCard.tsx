@@ -21,7 +21,7 @@ const TimelineCard: FC<TimelineCardProps> = ({
     date,
     createdBy,
     createdAt,
-    status = "completed",
+    status,
     onEdit,
     onReschedule,
     children,
@@ -29,8 +29,8 @@ const TimelineCard: FC<TimelineCardProps> = ({
 }) => {
     const getTitle = () => {
         switch (type) {
-            case "Notes":
-                return (data as NoteDetails).title;
+            // case "Notes":
+            //     return (data as NoteDetails).title;
             case "Appointments":
                 return (data as AppointmentDetails).title;
             case "Tasks":
@@ -44,8 +44,8 @@ const TimelineCard: FC<TimelineCardProps> = ({
 
     const getDescription = () => {
         switch (type) {
-            case "Notes":
-                return (data as NoteDetails).description;
+            // case "Notes":
+            //     return (data as NoteDetails).description;
             case "Appointments":
                 return (data as AppointmentDetails).notes;
             case "Tasks":
@@ -77,30 +77,32 @@ const TimelineCard: FC<TimelineCardProps> = ({
             {/* Card */}
             <div className="flex-1 bg-body-color rounded-lg shadow-sm border border-border-color  p-4">
                 {/* Row 1 - Tags + Status */}
-                {(getTags().length > 0 || status) && (
-                    <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                        {/* Tags */}
-                        <div className="flex flex-wrap gap-2">
-                            {getTags().map((tag, idx) => (
-                                <span
-                                    key={idx}
-                                    className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-md"
-                                >
-                                    {tag}
-                                </span>
-                            ))}
-                        </div>
+                <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                    {(getTags().length > 0) && (
+                        <>
+                            {/* Tags */}
+                            <div className="flex flex-wrap gap-2">
+                                {getTags().map((tag, idx) => (
+                                    <span
+                                        key={idx}
+                                        className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-md"
+                                    >
+                                        {tag}
+                                    </span>
+                                ))}
+                            </div>
+                        </>
+                    )}
 
-                        {/* Status */}
-                        {status && (
-                            <span
-                                className={`text-sm font-medium ${statusColors[status]}`}
-                            >
-                                {status.charAt(0).toUpperCase() + status.slice(1)}
-                            </span>
-                        )}
-                    </div>
-                )}
+                    {/* Status */}
+                    {status && (
+                        <span
+                            className={`text-sm font-medium ${statusColors[status]}`}
+                        >
+                            {status.charAt(0).toUpperCase() + status.slice(1)}
+                        </span>
+                    )}
+                </div>
 
                 {/* Row 2 - Title + Avatar */}
                 <div className="flex items-center justify-between gap-3">
@@ -118,6 +120,11 @@ const TimelineCard: FC<TimelineCardProps> = ({
                     {children ?? (
                         <p className="text-sm text-font-color-100 mb-3">
                             {getDescription()}
+                            {
+                                <div className="font-medium text-font-color text-base sm:text-lg">
+                                    {type === "Notes" ? (data as NoteDetails).description : ""}
+                                </div>
+                            }
                         </p>
                     )}
                     {type === "Notes" && (data as NoteDetails) && (

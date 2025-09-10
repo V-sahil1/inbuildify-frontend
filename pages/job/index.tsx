@@ -1,76 +1,173 @@
-import { IconClock, IconHome, IconTool } from '@tabler/icons-react';
-import { motion } from 'framer-motion';
-import Head from 'next/head';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+"use client";
 
-export default function JobComingSoon() {
-  const router = useRouter();
+import StageProgress from "@/components/common/StageProgress";
+import WorkflowSteps from "@/components/common/WorkflowSteps";
+import JobAction from "@/components/job/jobDetail/JobAction";
+import JobVariation from "@/components/job/jobDetail/JobVariation";
+import { Result, Tabs } from "antd";
+import router from "next/router";
+const { TabPane } = Tabs;
 
-//   useEffect(() => {
-//     // Redirect to home after 10 seconds
-//     const timer = setTimeout(() => {
-//       router.push('/');
-//     }, 10000);
+const steps = [
+  {
+    key: "contact",
+    label: "Contact",
+    onClick: () => { },
+    color: "bg-blue-500",
+    textColor: "text-white",
+  },
+  {
+    key: "property",
+    label: "Property",
+    onClick: () => { },
+    color: "bg-blue-500",
+    textColor: "text-white",
+  },
+  {
+    key: "plan",
+    label: "Plan",
+    onClick: () => { },
+    color: "bg-blue-500",
+    textColor: "text-white",
+  }
+];
 
-//     return () => clearTimeout(timer);
-//   }, [router]);
+const workFlowSteps = [
+  {
+    key: 'Sales',
+    label: 'Sales',
+    status: 'Closed',
+    color: 'bg-green-600',
+    icon: 'MM',
+    date: '12/03/2025',
+    onClick: () => { }
+  },
+  {
+    key: 'WorkFlow',
+    label: 'WorkFlow',
+    status: 'Completed',
+    color: 'bg-green-300',
+    icon: '2',
+    date: '12/03/2025',
+    onClick: () => { router.push(`/job/status`) }
+  },
+  {
+    key: 'Color',
+    label: 'Color',
+    status: 'Started',
+    color: 'bg-cyan-500',
+    icon: 'MM',
+    date: '12/03/2025',
+    onClick: () => { router.push(`/job/colour`) }
+  },
+  {
+    key: 'Construction',
+    label: 'Construction',
+    status: 'Under Construction',
+    color: 'bg-cyan-300',
+    icon: '4',
+    date: '',
+    onClick: () => { }
+  },
+  {
+    key: 'Maintenance',
+    label: 'Maintenance',
+    status: '',
+    color: 'bg-gray-200',
+    icon: '5',
+    date: '',
+    onClick: () => { }
+  },
+]
+
+const JobVariationData = [
+  {
+    ReferenceID: 'MYH00486-V1',
+    Amount: 7000.00,
+    RequestedBy: 'Aman',
+    DelayedBy: 'Hiren',
+    DrawingChanges: "Yes",
+    Created: { user: 'MM', date: "1/1/2002" },
+    Approved: { user: 'MM', date: "1/1/2002" },
+    Status: 'Approved',
+    Invoice: 'invoice',
+    Profile: 'MM'
+  },
+  {
+    ReferenceID: 'MYH00486-V2',
+    Amount: 7000.00,
+    RequestedBy: 'Aman',
+    DelayedBy: 'Hiren',
+    DrawingChanges: "No",
+    Created: { user: 'MM', date: "1/1/2002" },
+    Approved: { user: 'MM', date: "1/1/2002" },
+    Status: 'Approved',
+    Invoice: 'invoice',
+    Profile: 'A'
+  },
+  {
+    ReferenceID: 'MYH00486-V3',
+    Amount: 7000.00,
+    RequestedBy: 'Aman',
+    DelayedBy: 'Hiren',
+    DrawingChanges: "Yes",
+    Created: { user: 'MM', date: "1/1/2002" },
+    Approved: { user: 'MM', date: "1/1/2002" },
+    Status: 'Draft',
+    Invoice: 'invoice',
+    Profile: 'A'
+  },
+
+
+]
+
+export default function JobDetail() {
+
 
   return (
-    <div className=" bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4">
-      <Head>
-        <title>Jobs - Coming Soon | CRMSimplify</title>
-        <meta name="description" content="Our jobs section is coming soon. Stay tuned for exciting opportunities!" />
-      </Head>
+    <>
+      <div className="m-3">
+        <StageProgress
+          id="MH-001"
+          title="Job"
+          status="Pending"
+          steps={[]}
+        />
+        <WorkflowSteps steps={workFlowSteps} />
+      </div>
+      <div className="m-3">
+        <Tabs
+          defaultActiveKey="action"
+          type="card"
+          tabBarStyle={{ margin: "0px", marginRight: "10px" }}
+          tabBarGutter={10}
+          size="large"
+        >
+          {/* Action Tab */}
+          <TabPane tab="Action" key="action" className="border border-t-0">
+            <JobAction />
+          </TabPane>
+          <TabPane tab="Documents" key="Documents">
+            <div className="bg-card-color"><Result title="Document Functionality coming soon" subTitle="Please check back later" /></div>
+          </TabPane>
+          <TabPane tab="Variations" key="Variations">
+            <JobVariation data={JobVariationData} />
+          </TabPane>
+          <TabPane tab="Invoices & Payments" key="Invoices & Payments">
+            <div className="bg-card-color"><Result title="Invoices & Payments Functionality coming soon" subTitle="Please check back later" /></div>
+          </TabPane>
+          <TabPane tab="Commission" key="Commission">
+            <div className="bg-card-color"><Result title="Commission Functionality coming soon" subTitle="Please check back later" /></div>
+          </TabPane>
+          <TabPane tab="Custom Fields" key="Custom Fields">
+            <div className="bg-card-color"><Result title="Custom Fields Functionality coming soon" subTitle="Please check back later" /></div>
+          </TabPane>
+          <TabPane tab="Activity" key="Activity">
+            <div className="bg-card-color"><Result title="Activity Functionality coming soon" subTitle="Please check back later" /></div>
+          </TabPane>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="max-w-2xl w-full bg-white rounded-2xl shadow-2xl overflow-hidden"
-      >
-        <div className="p-8 md:p-12">
-          <div className="flex items-center justify-center mb-8">
-            <div className="p-4 bg-blue-100 rounded-full">
-              <IconTool className="w-12 h-12 text-blue-600" />
-            </div>
-          </div>
-          
-          <h1 className="text-4xl font-bold text-center text-gray-800 mb-4">
-            Job Page Coming Soon
-          </h1>
-          
-          <p className="text-center text-gray-600 mb-8 text-lg">
-            We're working hard to bring you an amazing jobs experience.
-            <br />
-            Stay tuned for exciting opportunities!
-          </p>
-
-          <div className="flex items-center justify-center space-x-4 mb-8">
-            <div className="flex items-center text-gray-600">
-              <IconClock className="mr-2" />
-              <span>Launching Soon</span>
-            </div>
-          </div>
-
-          {/* <div className="w-full bg-gray-100 rounded-full h-2.5 mb-8">
-            <div 
-              className="bg-blue-600 h-2.5 rounded-full animate-pulse" 
-              style={{ width: '75%' }}
-            ></div>
-          </div> */}
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onClick={() => router.push('/')}
-              className="flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              <IconHome className="mr-2" />
-              Back to Home
-            </button>
-          </div>
-        </div>
-      </motion.div>
-    </div>
+        </Tabs>
+      </div>
+    </>
   );
 }

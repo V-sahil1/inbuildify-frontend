@@ -1,15 +1,16 @@
 import React, { useState } from "react";
-import { Collapse, Table, Tag, Button, Empty } from "antd";
-import { Quotation, QuotationStatus } from "data/types";
+import { Collapse, Table, Button, Empty } from "antd";
+import { QuotationStatus } from "data/types";
 import {
   IconChevronDown,
   IconChevronUp,
   IconFileTypePdf,
 } from "@tabler/icons-react";
-import dayjs from "dayjs";
+// import dayjs from "dayjs";
 import LeadQuotationComparison from "./LeadQuotationComparison";
 import { useAppSelector } from "@hooks/redux";
 import { QuotationResponse } from "@redux/feature/quotation/IQuotationState";
+import { timeAgo } from "@lib/utils/timeAgo";
 
 const { Panel } = Collapse;
 const { Column } = Table;
@@ -27,17 +28,17 @@ const LeadQuotationList = () => {
     null
   );
   const quotations = useAppSelector(
-    (state) => state.lead.leadDetail.createdQuotations.quotations
+    (state) => state.lead.leadDetail.createdQuotations?.quotations
   );
-  console.log("quotations ", quotations);
   const handleCompareClick = (quotation: QuotationResponse) => {
     setSelectedQuotation(quotation);
     setOpenComparison(true);
   };
 
+  console.log("selectedQuotation",selectedQuotation)
   return (
     <>
-      {quotations.length === 0 ? (
+      {quotations?.length === 0 ? (
         <div className="p-6 text-center bg-card-color rounded-md">
           <Empty description="No quotations found" />
         </div>
@@ -69,7 +70,7 @@ const LeadQuotationList = () => {
                     <span>{quotation.slugId}</span>
                     <Button
                     type="primary"
-                    disabled={quotation.versions.length < 2}
+                    disabled={Array.isArray(quotation.versions) && quotation.versions.length < 2}
                     onClick={() => handleCompareClick(quotation)}
                   >
                       Compare
@@ -79,14 +80,14 @@ const LeadQuotationList = () => {
                 key={quotation.quotationId}
               >
                 <Table
-                  dataSource={quotation.versions}
+                  dataSource={Array.isArray(quotation.versions) ? quotation.versions : []}
                   rowKey="id"
                   pagination={false}
                   size="small"
                   bordered
                   scroll={{ x: "max-content" }}
                 >
-                  <Column title="Version" dataIndex="versionNumber" key="versionNumber" />
+                  <Column title="Version" dataIndex="versionNumber" key="versionNumber" render={(versionNumber: string) => versionNumber ? `v${versionNumber}` : "-"} />
                   {/* <Column
                     title="Status"
                     dataIndex="status"
@@ -101,13 +102,14 @@ const LeadQuotationList = () => {
                     title="Notes"
                     dataIndex="notes"
                     key="notes"
+                    render={(notes: string) => notes ? notes : "-"}
                   />
                   <Column
                     title="Created At"
                     dataIndex="createdAt"
                     key="createdAt"
                     render={(date: string) =>
-                    date ? dayjs(date).format("MM/DD/YYYY hh:mm A") : "-"
+                    date ? timeAgo(date) : "-"
                   }
                   />
                   <Column

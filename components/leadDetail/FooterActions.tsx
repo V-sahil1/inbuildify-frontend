@@ -1,14 +1,15 @@
 import React from "react";
 import { Button, Space } from "antd";
-import {
-  IconCheck,
-  IconEye,
-} from "@tabler/icons-react";
+import { IconCheck, IconEye, IconPencil, IconX, IconDeviceFloppy } from "@tabler/icons-react";
 
 interface FooterActionsProps {
   expiryDate?: string;
   total: number;
-  onApprove: () => void;
+  quoteId?: string;
+  isEditMode: boolean;
+  onEdit: () => void;
+  onCancel: () => void;
+  onSave: () => void;
   onPreview: () => void;
   loading: boolean;
   previewLoading: boolean;
@@ -18,7 +19,11 @@ interface FooterActionsProps {
 const FooterActions: React.FC<FooterActionsProps> = ({
   expiryDate,
   total,
-  onApprove,
+  quoteId,
+  isEditMode,
+  onEdit,
+  onCancel,
+  onSave,
   onPreview,
   loading,
   previewLoading,
@@ -28,15 +33,53 @@ const FooterActions: React.FC<FooterActionsProps> = ({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Space>
-            <Button
-              icon={<IconCheck />}
-              onClick={onApprove}
-              loading={loading}
-              disabled={disableAction}
+            {quoteId ? (
+              isEditMode ? (
+                <>
+                  <Button
+                    type="primary"
+                    icon={<IconDeviceFloppy size={16} />}
+                    onClick={onSave}
+                    loading={loading}
+                    disabled={disableAction}
+                  >
+                    Save Changes
+                  </Button>
+                  <Button
+                    icon={<IconX size={16} />}
+                    onClick={onCancel}
+                    disabled={loading}
+                  >
+                    Cancel
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  type="primary"
+                  icon={<IconPencil size={16} />}
+                  onClick={onEdit}
+                  disabled={disableAction}
+                >
+                  Modify Quotation
+                </Button>
+              )
+            ) : (
+              <Button
+                type="primary"
+                icon={<IconCheck size={16} />}
+                onClick={onSave}
+                loading={loading}
+                disabled={disableAction}
+              >
+                Create Quotation
+              </Button>
+            )}
+            <Button 
+              icon={<IconEye size={16} />} 
+              onClick={onPreview} 
+              disabled={(disableAction && !isEditMode) || previewLoading} 
+              loading={previewLoading}
             >
-              Create Quotation
-            </Button>
-            <Button icon={<IconEye />} onClick={onPreview} disabled={disableAction || previewLoading} loading={previewLoading}>
               Preview
             </Button>
           </Space>

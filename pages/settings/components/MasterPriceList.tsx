@@ -16,6 +16,7 @@ import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { message, Spin, Empty } from "antd";
 import ConfirmationModal from "@/components/common/ConfirmationModal";
+import { removePackageItems } from "@redux/feature/package/packageSlice";
 
 export const MasterPriceList = () => {
   const dispatch = useAppDispatch();
@@ -25,7 +26,6 @@ export const MasterPriceList = () => {
   const { selectedFilters: mplFilters } = useAppSelector(
     (state: any) => state.masterPriceList
   );
-  // console.log(categories);
   useEffect(() => {
         if(status === Status.IDLE){
       dispatch(fetchCategories());
@@ -85,8 +85,9 @@ export const MasterPriceList = () => {
 
   const handleDelete = async (categoryItemId: any) => {
     try {
-      await dispatch(deleteCategoryItem(categoryItemId)).unwrap();
+      const response = await dispatch(deleteCategoryItem(categoryItemId)).unwrap();
       message.success("Category item deleted successfully");
+      dispatch(removePackageItems(response));
       setDeleteModal(false);
     } catch (error: any) {
       message.error(error || "Failed to delete category item");
@@ -133,7 +134,7 @@ export const MasterPriceList = () => {
                     openAddItemModal(category.categoryId);
                   }}
                 >
-                  Add Item
+                  Add
                 </button>
               </div>
 
@@ -181,12 +182,14 @@ export const MasterPriceList = () => {
 
         {deleteModal && 
           <ConfirmationModal
-            open={deleteModal}
-            onClose={() => setDeleteModal(false)}
-            onConfirm={() => handleDelete(categoryItem?.categoryItemId)}
-            type="danger"
-            message="Are you sure you want to delete this item?"
-          />
+          open={deleteModal}
+          onClose={() => setDeleteModal(false)}
+          onConfirm={() => handleDelete(categoryItem?.categoryItemId)}
+          type="danger"
+          title="Confirm Deletion"
+          message="Are you sure you want to delete this item? Deleting it will also remove it from any associated packages."
+        />
+        
         }
 
       </div>

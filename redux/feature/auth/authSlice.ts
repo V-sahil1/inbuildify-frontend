@@ -68,7 +68,6 @@ const authSlice = createSlice({
     });
     builder.addCase(updateUserThunk.fulfilled, (state, action) => {
       state.user = action.payload.data;
-      console.log("user",action.payload.data)
       state.status = Status.SUCCESS;
     });
     builder.addCase(updateUserThunk.rejected, (state, action) => {
