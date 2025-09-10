@@ -47,6 +47,7 @@ interface CreateFormModalProps {
   invite?: boolean;
   onSubmit: (values: any) => void;
   fields: readonly CreateFormField[];
+  onValuesChange?: (values: any) => void;
 }
 
 export const CreateFormModal: React.FC<CreateFormModalProps> = ({
@@ -59,6 +60,7 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
   invite = false,
   onSubmit,
   fields,
+  onValuesChange
 }) => {
   const [form] = Form.useForm();
   const [logo, setLogo] = React.useState<boolean>(true);
@@ -130,6 +132,7 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
         form={form}
         layout="vertical"
         style={{ maxHeight: "70vh", overflowY: "auto", scrollbarWidth: "none" }}
+        onValuesChange={(_, allValues) => onValuesChange?.(allValues)} // 👈 capture changes
       >
         {fields.map((field) => (
           <Form.Item

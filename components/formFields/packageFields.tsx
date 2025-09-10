@@ -8,10 +8,11 @@ import { fetchPackageItems } from "@redux/feature/package/packageThunk";
 import { Item } from "@redux/feature/masterPriceList/iMasterPriceListState";
 import { setAddInstItemModal } from "@redux/feature/package/packageSlice";
 
-export const packageFields = (): CreateFormField[] => {
+export const packageFields = ( selectedValues?: { range?: string; dwelling?: string }): CreateFormField[] => {
   const itemStatus = useAppSelector(
     (state: RootState) => state.package.status.items
   );
+  const {range , dwellingType} = useAppSelector((state) => state.types);
   const items = useAppSelector((state: RootState) => state.package.items);
   const dispatch = useAppDispatch();
 
@@ -21,7 +22,13 @@ export const packageFields = (): CreateFormField[] => {
       value: item.categoryItemId // what to capture
     }));
   }
-  const options = mapToAntdOptions(items)
+
+  const filteredItems = items?.filter((item) => {
+    return (
+      item?.rangeId === selectedValues?.range && item?.dwellingTypeId === selectedValues?.dwelling
+    )
+  })
+  const options = mapToAntdOptions(filteredItems)
   useEffect(() => {
     try {
       if (itemStatus === Status.IDLE) {
@@ -37,6 +44,15 @@ export const packageFields = (): CreateFormField[] => {
     dispatch(setAddInstItemModal(true));
   }
 
+  const rangeOptions = range?.map((range) => ({
+    label: range?.name,
+    value: range?.rangeId,
+  }));
+  const dwellingTypeOptions = dwellingType?.map((dwellingType) => ({
+    label: dwellingType?.name,
+    value: dwellingType?.dwellingTypeId,
+  }));
+
   return [
     {
       label: "Name",
@@ -44,6 +60,20 @@ export const packageFields = (): CreateFormField[] => {
       type: "text",
       placeholder: "Package Name",
       rules: [{ required: true, message: "Please enter the package name" }],
+    },
+    {
+      label: "Range",
+      name: "range",
+      type: "select",
+      options: rangeOptions,
+      placeholder: "Select Range",
+    },
+    {
+      label: "Dwelling Type",
+      name: "dwelling",
+      type: "select",
+      options: dwellingTypeOptions,
+      placeholder: "Select Dwelling Type",
     },
     {
       label: "Items",
@@ -54,6 +84,7 @@ export const packageFields = (): CreateFormField[] => {
       placeholder: "Select Items",
       rules: [{ required: true, message: "Please select a range" }],
       button:"Add Item",
+      disabled: !selectedValues?.range || !selectedValues?.dwelling,
       onClick: handleAddItem,
     },
     {

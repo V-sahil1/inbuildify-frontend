@@ -28,7 +28,7 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({ isReadOnly = false })
   const { selectedFilters: selectedQuotationFilters } = useAppSelector(
     (state) => state.quotation
   );
-
+  const { selectedFilters: selectedPackageFilters } = useAppSelector((state) => state.package);
   const initialLoad = useRef(true);
 
   useEffect(() => {
@@ -143,21 +143,39 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({ isReadOnly = false })
     [dispatch]
   );
 
-  // const handlePackageRangeChange = useCallback(
-  //   (value: string | undefined) => {
-  //     const newFilters = { ...selectedQuotationFilters, range: value || "" };
-  //     dispatch(setPackageFilters(newFilters));
+  const handlePackageDwellingTypeChange = useCallback(
+    (value: string | undefined) => {
+      const newFilters = {
+        ...selectedPackageFilters,
+        dwelling_type: value || "",
+      };
+      dispatch(setPackageFilters(newFilters));
 
-  //     // Only make API call if at least one filter is selected
-  //     if (newFilters.range || newFilters.dwelling_type) {
-  //       dispatch(fetchPackages(newFilters));
-  //     } else {
-  //       // If no filters are selected, fetch all packages
-  //       dispatch(fetchPackages(undefined));
-  //     }
-  //   },
-  //   [dispatch, selectedQuotationFilters]
-  // );
+      if (newFilters.range || newFilters.dwelling_type) {
+        dispatch(fetchPackages(newFilters));
+      } else {
+        dispatch(fetchPackages(undefined));
+      }
+    },
+    [dispatch, selectedPackageFilters]
+  );
+
+  const handlePackageRangeChange = useCallback(
+    (value: string | undefined) => {
+      const newFilters = {
+        ...selectedPackageFilters,
+        range: value || "",
+      };
+      dispatch(setPackageFilters(newFilters));
+
+      if (newFilters.range || newFilters.dwelling_type) {
+        dispatch(fetchPackages(newFilters));
+      } else {
+        dispatch(fetchPackages(undefined));
+      }
+    },
+    [dispatch, selectedPackageFilters]
+  );
 
   const handlePackage = useCallback(async () => {
     await dispatch(fetchPackages(undefined));
@@ -175,6 +193,7 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({ isReadOnly = false })
           value={selectedQuotationFilters?.range || undefined}
           onChange={(value) => {
             handleRangeChange(value)
+            handlePackageRangeChange(value)
           }}
           options={rangeOptions}
           disabled={isReadOnly}
@@ -193,6 +212,7 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({ isReadOnly = false })
               handleDwellingTypeChange(value),
               handleFloorPlanDwellingTypeChange(value),
               handleFacadeDwellingTypeChange(value);
+              handlePackageDwellingTypeChange(value)
           }}
           options={dwellingOptions}
           disabled={isReadOnly}
