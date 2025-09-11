@@ -1296,3 +1296,9 @@ color: var(--font-color) !important;
     overflow-x: scroll !important;
   }
 }
+
+.white-disabled-select.ant-select-disabled .ant-select-selector {
+  background-color: #fff !important;
+  color: #363535 !important;
+  cursor: default;
+}

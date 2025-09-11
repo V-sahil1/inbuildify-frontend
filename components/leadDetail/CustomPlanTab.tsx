@@ -14,6 +14,7 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
   const [form] = Form.useForm<IFloorPlanState>();
   const dispatch = useAppDispatch();
   const {dwellingType,range} = useAppSelector((state: any) => state.types);
+  const { selectedFilters } = useAppSelector((state: any) => state.quotation);
   const [loading, setLoading] = useState(false);
   const dwellingTypeOptions = mapToOptions(dwellingType);
   const rangeOptions = mapToOptions(range);
@@ -84,6 +85,9 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
               <Select
                 placeholder="Select range"
                 options={rangeOptions}
+                defaultValue={selectedFilters?.range}
+                disabled
+                className="white-disabled-select"
               />
             </Form.Item>
 
@@ -95,6 +99,9 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
               <Select
                 placeholder="Select dwelling type"
                 options={dwellingTypeOptions}
+                defaultValue={selectedFilters?.dwelling_type}
+                disabled
+                className="white-disabled-select"
               />
             </Form.Item>
             <Form.Item

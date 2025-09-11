@@ -38,7 +38,13 @@ const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
               label={field.label}
               rules={field.rules}
             >
-              <Select options={field.options} placeholder={field.placeholder} />
+              <Select
+                options={field.options}
+                placeholder={field.placeholder}
+                disabled
+                defaultValue={field.initialValue}
+                className="white-disabled-select"
+              />
             </Form.Item>
           );
         }
