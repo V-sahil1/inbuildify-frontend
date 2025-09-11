@@ -44,6 +44,7 @@ const dwellingTypeOptions = mapToOptions(dwellingType);
       name: "standard",
       type: "checkbox",
       placeholder: "1",
+      initialValue: "TRUE",
       rules: [{ required: true, message: "Please select a dwelling type" }],
     },
     {
@@ -51,6 +52,7 @@ const dwellingTypeOptions = mapToOptions(dwellingType);
       name: "upgrade",
       type: "checkbox",
       placeholder: "1",
+      initialValue: "TRUE",
       rules: [{ required: true, message: "Please select a dwelling type" }],
     },
   ];

@@ -62,7 +62,7 @@ const leadCreateFields = (
     {
       label: "Phone",
       name: "phone",
-      placeholder: "+1 555 0100",
+      placeholder: "1234567890",
       type: "phone",
       rules: optionalPhoneRule,
     },

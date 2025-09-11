@@ -220,14 +220,14 @@ const QuotationManager = () => {
       quoteId: quoteId,
       quotationPayload: {
         ...(!quoteId && {
-          range: quotationFilters?.range,
-          dwellingType: quotationFilters?.dwelling_type,
           leadId: property?.leadId,
           propertyId: property?.propertyId,
+        }),
+        range: quotationFilters?.range,
+        dwellingType: quotationFilters?.dwelling_type,
           floorPlanId: plan?.floorPlanId,
           facadeId: facade?.facadeId,
           packageId: selectedPackageFromSlice?.packageId,
-        }),
         items: getQuotationItems(),
       },
     };

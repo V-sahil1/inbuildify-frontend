@@ -94,14 +94,14 @@ const Facade = () => {
 
   const handleEdit = (facade: IFacadeState) => {
     setIsEditing(true);
-    const image = facade.image;
+    const image = facade?.image;
     const mappedFacade = {
-      facadeId: facade.facadeId,
-      name: facade.name,
-      dwelling_type: facade.dwellingTypeName,
-      logo: facade.image,
-      standard: facade.standard ? "TRUE" : "FALSE",
-      upgrade: facade.upgrade ? "TRUE" : "FALSE",
+      facadeId: facade?.facadeId,
+      name: facade?.name,
+      dwelling_type: facade?.dwellingTypeName,
+      logo: facade?.image,
+      standard: facade?.standard ? "TRUE" : "FALSE",
+      upgrade: facade?.upgrade ? "TRUE" : "FALSE",
     };
     setEditingFacade(mappedFacade);
     setIsModalVisible(true);
@@ -167,7 +167,7 @@ const Facade = () => {
                   className="p-2 bg-white bg-opacity-80 rounded-full hover:bg-opacity-100 transition-all duration-200"
                   onClick={() => {
                     setShowDeleteConfirm(true);
-                    setFacadeId(facade.facadeId);
+                    setFacadeId(facade?.facadeId);
                   }}
                 >
                   <IconTrash className="text-red-600" />
@@ -175,8 +175,8 @@ const Facade = () => {
               </div>
 
               <Image
-                src={facade.image}
-                alt={facade.name}
+                src={facade?.image ? facade?.image : ""}
+                alt={facade?.name}
                 className="mb-4 w-[200px] h-[200px]"
                 unoptimized
                 width={200}
@@ -187,7 +187,7 @@ const Facade = () => {
                 {/* Left Section */}
                 <div className="flex-1 space-y-2 pr-4">
                   <h5 className="text-[20px]/[24px] font-bold mb-4 text-center">
-                    {facade.name}
+                    {facade?.name}
                   </h5>
                   <div className="flex justify-between">
                     <span className="font-medium">Dwelling Type :</span>

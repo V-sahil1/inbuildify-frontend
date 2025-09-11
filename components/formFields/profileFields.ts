@@ -33,8 +33,8 @@ export const profileFields = (): CreateFormField[] => {
     {
       label: "Phone",
       name: "phone",
-      type: "number",
-      placeholder: "Enter your phone number",
+      type: "phone",
+      placeholder: "1234567890",
       rules:phoneRules,
     },
     {
