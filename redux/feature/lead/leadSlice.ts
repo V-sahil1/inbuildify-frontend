@@ -18,14 +18,19 @@ import { Status } from "@lib/constants/enum";
 
 const initialState: InitialState = {
   leads: [],
-  status: { leads: Status.IDLE, leadSources: Status.IDLE },
+  status: {
+    leads: Status.IDLE,
+    leadSources: Status.IDLE,
+    leadById: Status.IDLE,
+    leadQuotations: Status.IDLE,
+  },
   leadSources: [],
   addInstSourceModal: false,
   leadDetail: {
     lead: null,
     contacts: null,
     property: null,
-    createdQuotations: {quotations:[]},
+    createdQuotations: { quotations: [] },
   },
 };
 export const leadSlice = createSlice({
@@ -70,7 +75,7 @@ export const leadSlice = createSlice({
       state.status.leads = Status.ERROR;
     });
     builder.addCase(getLeadByIdThunk.pending, (state) => {
-      state.status.leads = Status.PENDING;
+      state.status.leadById = Status.PENDING;
     });
     builder.addCase(getLeadByIdThunk.fulfilled, (state, action) => {
       const payload: any = action.payload;
@@ -107,23 +112,23 @@ export const leadSlice = createSlice({
         ...payload,
         property: normalizedProperty ?? payload?.property,
       };
-      state.status.leads = Status.SUCCESS;
+      state.status.leadById = Status.SUCCESS;
     });
     builder.addCase(getLeadByIdThunk.rejected, (state) => {
-      state.status.leads = Status.ERROR;
+      state.status.leadById = Status.ERROR;
     });
     builder.addCase(createLeadThunk.fulfilled, (state, action) => {
       state.leads.unshift(action.payload);
     });
     builder.addCase(getQuotationsByLeadIdThunk.pending, (state) => {
-      state.status.leads = Status.PENDING;
+      state.status.leadQuotations = Status.PENDING;
     });
     builder.addCase(getQuotationsByLeadIdThunk.fulfilled, (state, action) => {
       state.leadDetail.createdQuotations = action.payload;
-      state.status.leads = Status.SUCCESS;
+      state.status.leadQuotations = Status.SUCCESS;
     });
     builder.addCase(getQuotationsByLeadIdThunk.rejected, (state) => {
-      state.status.leads = Status.ERROR;
+      state.status.leadQuotations = Status.ERROR;
     });
     builder.addCase(
       convertLeadToOpportunityThunk.fulfilled,

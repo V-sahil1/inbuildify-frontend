@@ -34,7 +34,9 @@ const Leads = () => {
         await dispatch(getLeadThunk()).unwrap();
       }
     }
-    fetchData();
+    if (status === Status.IDLE || status === Status.ERROR) {
+      fetchData();
+    }
   }, [dispatch, status]);
 
   const handleSubmit = async (values: any) => {
