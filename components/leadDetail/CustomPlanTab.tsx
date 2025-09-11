@@ -19,14 +19,20 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
   const dwellingTypeOptions = mapToOptions(dwellingType);
   const rangeOptions = mapToOptions(range);
 
+  useEffect(()=>{
+    form.setFieldsValue({
+      dwellingTypeId: selectedFilters?.dwelling_type,
+      rangeId: selectedFilters?.range,
+    })
+  },[selectedFilters])
 
   const handleCreateFloorPlan = async (values: any) => {
     try {
       setLoading(true)
       const formData = new FormData();
       formData.append("name", values.name);
-      formData.append("range", values.range);
-      formData.append("dwelling_type", values.dwelling_type);
+      formData.append("range", values.rangeId);
+      formData.append("dwelling_type", values.dwellingTypeId);
       formData.append("beds", values.beds);
       formData.append("bath", values.bath);
       formData.append("car_park", values.car_park);
@@ -79,13 +85,13 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
 
             <Form.Item
               label="Range"
-              name="range"
+              name="rangeId"
               rules={[{ required: true, message: 'Please input range ID' }]}
             >
               <Select
                 placeholder="Select range"
                 options={rangeOptions}
-                defaultValue={selectedFilters?.range}
+                value={selectedFilters?.range}
                 disabled
                 className="white-disabled-select"
               />
@@ -93,13 +99,13 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
 
             <Form.Item
               label="Dwelling Type"
-              name="dwelling_type"
+              name="dwellingTypeId"
               rules={[{ required: true, message: 'Please input dwelling type ID' }]}
             >
               <Select
                 placeholder="Select dwelling type"
                 options={dwellingTypeOptions}
-                defaultValue={selectedFilters?.dwelling_type}
+                value={selectedFilters?.dwelling_type}
                 disabled
                 className="white-disabled-select"
               />

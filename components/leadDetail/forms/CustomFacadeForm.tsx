@@ -18,6 +18,12 @@ const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
     form.setFieldsValue(initialValues || {});
   }, [initialValues, form]);
 
+  useEffect(() => {
+    form.setFieldsValue({
+      dwelling_type: fields.find((field) => field.name === "dwelling_type")?.initialValue,
+    });
+  }, [fields]);
+
   const handleValuesChange = () => {
     onFormChange(form.getFieldsValue());
   };
@@ -42,7 +48,7 @@ const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
                 options={field.options}
                 placeholder={field.placeholder}
                 disabled
-                defaultValue={field.initialValue}
+                value={field.initialValue}
                 className="white-disabled-select"
               />
             </Form.Item>
