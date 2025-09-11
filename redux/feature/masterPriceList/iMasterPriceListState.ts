@@ -9,6 +9,8 @@ export interface Item {
     description?: string;
     createdAt?: string;
     updatedAt?: string;
+    rangeId?: string;
+    dwellingTypeId?: string;
   }
   
   export interface Category {

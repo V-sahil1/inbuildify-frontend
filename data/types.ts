@@ -157,7 +157,46 @@ export type TimelineCardProps =
   // Lead Detail Quotation
   export type QuotationStatus = "approved" | "pending" | "rejected" | "all";
  
-  export type QuotationVersion = {
+  export interface QuotationVersionBasic {
+    quotationVersionId: string;
+    versionNumber: number;
+    notes: string | null;
+    createdAt: string;
+    updatedAt: string;
+    totalAmount: number;
+  }
+
+  export interface QuotationVersionItem {
+    quotationVersionItemId: string;
+    notes: string | null;
+    categoryId: string;
+    caterogyName: string;
+    categoryDescription: string;
+    quantity: number;
+    categoryItemId: string;
+    categoryItemDescription: string;
+    categoryItemShortDescription: string;
+    categoryItemQuantity: number | null;
+    categoryItemCostType: "VARIABLE" | "FIXED" | string;
+    categoryItemCost: string;
+    categoryItemCostTypeText: string | null;
+    categoryItemCostOption: "NONE" | string;
+    categoryItemIncludeByDefault: boolean | null;
+    categoryItemShowInHlPackage: boolean;
+    categoryItemPackageOnly: boolean | null;
+    categoryItemUom: string | null;
+    categoryItemSortOrder: number | null;
+    categoryItemRangeId: string;
+    categoryItemDwellingTypeId: string;
+    categoryItemCreatedAt: string;
+    categoryItemUpdatedAt: string;
+    createdAt: string;
+    updatedAt: string;
+  }
+
+  export type QuotationVersions = Record<string, QuotationVersionItem[]>;
+
+  export interface QuotationVersion {
     quotationVersionItemId: string;
     notes: string;
     categoryId: string;
@@ -173,6 +212,9 @@ export type TimelineCardProps =
     categoryItemCostOption: "NONE" | string;
     categoryItemIncludeByDefault: boolean | null;
     categoryItemShowInHlPackage: boolean;
+    versionNumber: string;
+    quantity?: number;
+    totalAmount?: string;
     categoryItemPackageOnly: boolean | null;
     categoryItemUom: string | null;
     categoryItemSortOrder: number | null;
@@ -185,11 +227,11 @@ export type TimelineCardProps =
   };
   
 
-export interface Quotation {
-  quotationId: string;
-  property: string;
-  versions: QuotationVersion[];
-}
+// export interface Quotation {
+//   quotationId: string;
+//   property: string;
+//   versions: QuotationVersion[];
+// }
 
 export interface JobVariationType {
     ReferenceID: string;
