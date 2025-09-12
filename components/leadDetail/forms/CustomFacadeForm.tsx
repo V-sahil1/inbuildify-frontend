@@ -12,7 +12,7 @@ const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
   onFormChange,
 }) => {
   const [form] = Form.useForm();
-  const fields = facadeFields();
+  const fields = facadeFields({isDwellingDisable: true});
 
   useEffect(() => {
     form.setFieldsValue(initialValues || {});
@@ -49,7 +49,7 @@ const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
                 placeholder={field.placeholder}
                 disabled
                 value={field.initialValue}
-                className="white-disabled-select"
+                // className="white-disabled-select"
               />
             </Form.Item>
           );

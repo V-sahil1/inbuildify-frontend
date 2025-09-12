@@ -6,7 +6,7 @@ import { mapToOptions } from "@lib/utils/rangeAndDwellingObjToOptions";
 import { numberRules } from "@lib/constants/formInputValidations";
 
 
-export const facadeFields = (): CreateFormField[] => {
+export const facadeFields = ({isDwellingDisable = false}: {isDwellingDisable?: boolean}): CreateFormField[] => {
 const dwellingType = useAppSelector((state) => state.types.dwellingType);
 const { selectedFilters } = useAppSelector((state) => state.quotation);
 const dwellingTypeOptions = mapToOptions(dwellingType);
@@ -32,8 +32,8 @@ const dwellingTypeOptions = mapToOptions(dwellingType);
       options: dwellingTypeOptions,
       placeholder: "Select dwelling type",
       rules: [{ required: true, message: "Please select a dwelling type" }],
-      disabled: true,
-      initialValue: selectedFilters?.dwelling_type,
+      disabled: isDwellingDisable,
+      initialValue: isDwellingDisable ? selectedFilters?.dwelling_type : undefined,
     },
     {
       label: "Cost",

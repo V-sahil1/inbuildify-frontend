@@ -93,7 +93,7 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
                 options={rangeOptions}
                 value={selectedFilters?.range}
                 disabled
-                className="white-disabled-select"
+                // className="white-disabled-select"
               />
             </Form.Item>
 
@@ -107,7 +107,7 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
                 options={dwellingTypeOptions}
                 value={selectedFilters?.dwelling_type}
                 disabled
-                className="white-disabled-select"
+                // className="white-disabled-select"
               />
             </Form.Item>
             <Form.Item

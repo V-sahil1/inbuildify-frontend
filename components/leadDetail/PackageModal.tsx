@@ -174,9 +174,9 @@ const PackageModal: React.FC<PackageModalProps> = ({
                     <Empty
                       description="No packages found"
                     >
-                      <Button type="primary" onClick={() => router.push(`${SystemRoutes.SETTINGS}?tab=package`)}>
+                      {/* <Button type="primary" onClick={() => router.push(`${SystemRoutes.SETTINGS}?tab=package`)}>
                         Create Package
-                      </Button>
+                      </Button> */}
                     </Empty>
                   </div>
                 )

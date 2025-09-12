@@ -223,13 +223,11 @@ function App() {
       <div className="flex items-center justify-center h-screen">
         <Result
           status="403"
-          title="Access Restricted"
+          // title="Access Restricted"
           subTitle="This lead has already been converted to a job and is no longer accessible from this page."
           extra={
-            <Link href="/jobs">
-              <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-                Go to Jobs
-              </button>
+            <Link href="/job">
+              Go to Jobs
             </Link>
           }
         />

@@ -421,9 +421,12 @@ export const QuatationPdf = ({
 
 
         <View style={{ marginTop: 10 }}>
-          {
-            nonPackageItems.length > 0 && <Text style={Page3styles.SubHeading}>Quotation Items</Text>
-          }
+        {nonPackageItems.length > 0 &&
+            nonPackageItems
+              ?.map((cat: any) => cat.items.length > 0)
+              .includes(true) && (
+              <Text style={Page3styles.SubHeading}>Quotation Items</Text>
+            )}
           {nonPackageItems?.map((cat: any, catIndex: number) => (
             cat.items.length > 0 && (
               <View key={catIndex} style={{ marginBottom: 15 }}>

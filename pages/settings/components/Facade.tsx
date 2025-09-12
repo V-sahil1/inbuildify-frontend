@@ -237,7 +237,7 @@ const Facade = () => {
           setEditingFacade(null);
         }}
         onSubmit={handleCreateFacade}
-        fields={facadeFields()}
+        fields={facadeFields({isDwellingDisable: false})}
         loading={loading}
       />
       <ConfirmationModal
