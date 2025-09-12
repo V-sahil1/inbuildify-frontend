@@ -129,18 +129,18 @@ export const QuatationPdf = ({
           <Text style={Page3styles.SubHeading}>{title}</Text>
         )
       }
-   {/* Row container for list + image */}
-   <View style={Page3styles.row}>
-      {/* Left column (list + description) */}
-      <View style={Page3styles.leftCol}>
-      {list?.map((item, i) => (
-        <View key={i} style={Page3styles.listItem}>
-          <Text style={Page3styles.bullet}>•</Text>
-          <Text style={Page3styles.listText}>{item}</Text>
+      {/* Row container for list + image */}
+      <View style={Page3styles.row}>
+        {/* Left column (list + description) */}
+        <View style={Page3styles.leftCol}>
+          {list?.map((item, i) => (
+            <View key={i} style={Page3styles.listItem}>
+              <Text style={Page3styles.bullet}>•</Text>
+              <Text style={Page3styles.listText}>{item}</Text>
+            </View>
+          ))}
         </View>
-      ))}
-      </View>
-         {/* Right column (image) */}
+        {/* Right column (image) */}
         {imageSrc && (
           <>
             <View style={Page3styles.rightCol}>
@@ -421,7 +421,9 @@ export const QuatationPdf = ({
 
 
         <View style={{ marginTop: 10 }}>
-          <Text style={Page3styles.SubHeading}>Quotation Items</Text>
+          {
+            nonPackageItems.length > 0 && <Text style={Page3styles.SubHeading}>Quotation Items</Text>
+          }
           {nonPackageItems?.map((cat: any, catIndex: number) => (
             cat.items.length > 0 && (
               <View key={catIndex} style={{ marginBottom: 15 }}>

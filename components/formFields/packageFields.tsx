@@ -1,7 +1,7 @@
 import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
 import { CreateFormField } from "../common/Models/CreateFormModel";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { RootState } from "@redux/feature/store";
 import { Status } from "@lib/constants/enum";
 import { fetchPackageItems } from "@redux/feature/package/packageThunk";
@@ -23,22 +23,17 @@ export const packageFields = ( selectedValues?: { range?: string; dwelling?: str
     }));
   }
 
-  const filteredItems = items?.filter((item) => {
-    return (
-      item?.rangeId === selectedValues?.range && item?.dwellingTypeId === selectedValues?.dwelling
-    )
-  })
-  const options = mapToAntdOptions(filteredItems)
+  const options = mapToAntdOptions(items);
   useEffect(() => {
-    try {
-      if (itemStatus === Status.IDLE) {
-        dispatch(
-          fetchPackageItems()
-        ).unwrap();
+    if (selectedValues?.range && selectedValues?.dwelling) {
+      try {
+        dispatch(fetchPackageItems({range: selectedValues.range,dwellingType: selectedValues.dwelling,})
+        );
+      } catch (error) {
+        console.log("🚀 ~ packageFields ~ error:", error)
       }
-    } catch (error) {
     }
-  }, []);
+  }, [selectedValues?.range, selectedValues?.dwelling, dispatch]);
 
   const handleAddItem = () => {
     dispatch(setAddInstItemModal(true));
@@ -46,11 +41,11 @@ export const packageFields = ( selectedValues?: { range?: string; dwelling?: str
 
   const rangeOptions = range?.map((range) => ({
     label: range?.name,
-    value: range?.rangeId,
+    value: range?.name,
   }));
   const dwellingTypeOptions = dwellingType?.map((dwellingType) => ({
     label: dwellingType?.name,
-    value: dwellingType?.dwellingTypeId,
+    value: dwellingType?.name,
   }));
 
   return [

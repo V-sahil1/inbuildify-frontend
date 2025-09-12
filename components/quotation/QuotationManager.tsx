@@ -371,7 +371,6 @@ const QuotationManager = () => {
         <StageProgress
           id={quoteDetails?.slugId || ""}
           title="Quotation"
-          status="Open"
           steps={[]}
         />
         <QuotationFilter isReadOnly={isReadOnly} />
@@ -413,6 +412,7 @@ const QuotationManager = () => {
               extraItem={extraItem}
               onExtraClick={handleExtraClick}
               isReadOnly={isReadOnly}
+              itemsLoading={ selectedCategory ? getCategoryById(selectedCategory)?.loadingItems ?? false : false}
             />
           </>
         ) : (
