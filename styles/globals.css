@@ -47,6 +47,7 @@
   --primary: #E27D39;
   --primary-10: #E27D391a;
   --primary-hover: #db8c58;
+  --primary-light:#fae6d8;
   --body-color: #f4f7f6;
   --font-color: #363535;
   --font-color-contrast: #ffffff;
@@ -62,6 +63,7 @@
   --primary: #4c3575;
   --primary-10: #4c35751a;
   --primary-hover: #66469d;
+  --primary-light: #eadefe;
   --body-color: #2d3238;
   --font-color: #e0e0e0;
   --font-color-contrast: #000000;
@@ -1301,4 +1303,17 @@ color: var(--font-color) !important;
   background-color: #fff !important;
   color: #363535 !important;
   cursor: default;
+}
+
+.ant-steps-item-wait .ant-steps-item-icon {
+  border-color: #7e7e7e !important;
+}
+
+.ant-steps-item-wait .ant-steps-icon {
+  color: var(--font-color) !important; 
+}
+
+.ant-steps-item-finish .ant-steps-item-icon {
+  background-color: var(--primary-light) !important;
+  border-color: var(--primary-light) !important;
 }

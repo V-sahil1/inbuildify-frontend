@@ -261,7 +261,7 @@ export interface ColorCategory {
 }
 
 
-export interface ConceptTask {
+export interface JobWorkFlowChecklist {
   id: number;
   task: string;
   tag: string;
@@ -270,4 +270,9 @@ export interface ConceptTask {
   link:string,
   user: string,
   status:string
+}
+
+export interface WorkStepsChecklist{
+  title: string,
+  checkList: JobWorkFlowChecklist[]
 }

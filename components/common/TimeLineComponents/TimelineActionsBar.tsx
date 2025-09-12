@@ -9,6 +9,7 @@ export interface TimelineActionsBarProps {
   onTabChange: (tab: string) => void;
   actionItems: MenuProps["items"];
   onActionSelect?: (key: string) => void;
+  isActionShow?: boolean;
 }
 
 const TimelineActionsBar: FC<TimelineActionsBarProps> = ({
@@ -17,6 +18,7 @@ const TimelineActionsBar: FC<TimelineActionsBarProps> = ({
   onTabChange,
   actionItems,
   onActionSelect,
+  isActionShow = true
 }) => {
   return (
     <div className="flex justify-between items-center w-full sm:flex-row flex-col">
@@ -39,7 +41,7 @@ const TimelineActionsBar: FC<TimelineActionsBarProps> = ({
       </div>
 
       {/* Actions Section */}
-      <div className="flex items-center gap-2 sm:mt-0 mt-2">
+      {isActionShow && <div className="flex items-center gap-2 sm:mt-0 mt-2">
         <Button
           icon={<IconFilter2 />}
           className="border-gray-300"
@@ -58,7 +60,7 @@ const TimelineActionsBar: FC<TimelineActionsBarProps> = ({
             Action
           </Button>
         </Dropdown>
-      </div>
+      </div>}
     </div>
   );
 };

@@ -159,6 +159,11 @@ const theme = {
     Result:{
       colorTextHeading:'var(--font-color)',
       colorTextDescription:'var(--font-color-100)'
+    },
+    Steps:{
+      colorPrimary:'var(--primary)',
+      colorTextDescription:'var(--font-color)',
+      colorText:'var(--font-color)',
     }
   },
 };
