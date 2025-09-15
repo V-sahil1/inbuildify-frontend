@@ -149,6 +149,7 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
 
   // Save from CreateTaskCard
   const handleSaveTask = (task: TaskDetails) => {
+    try {
     handleSaveTimelineCard(
       leadId,
       editingItem,
@@ -158,6 +159,11 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
       task,
       dispatch
     );
+  }
+    catch (error) {
+      message.error(error || "Failed to save task");
+      console.error("Error in handleSaveTask:", error);
+    }
   };
 
   // Save from SendSmsCard
@@ -207,11 +213,12 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
 
           {/* Timeline */}
           {actions
-            .filter((item) => item.type === activeTab || activeTab === "All")
+            ?.filter((item) => item.type === activeTab || activeTab === "All")
             .map((item, idx) => (
               <TimelineCard
                 key={idx}
                 {...item}
+                item={item}
                 onEdit={(data) => handleEdit(data, idx)}
               />
             ))}

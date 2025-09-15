@@ -89,5 +89,8 @@ class API_ENDPOINTS {
 
   // action
   public static ACTION_BASE = "/actions";
+  
+  // tags
+  public static TAGS_BASE = "/tags";
 }
 export default API_ENDPOINTS;

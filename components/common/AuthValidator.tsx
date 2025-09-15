@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { getRefreshToken, getStoredAuthToken } from "@lib/constants/authToken";
 import { getUserThunk } from "@redux/feature/auth/authThunk";
 import SystemRoutes from "@lib/constants/Routes";
+import { Status } from "@lib/constants/enum";
 
 const publicRoutes = [
   SystemRoutes.LOGIN,
@@ -26,8 +27,7 @@ export default function AuthValidator({ children }) {
   const router = useRouter();
   const pathname = usePathname();
   const dispatch = useAppDispatch();
-  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
-  
+  const { isAuthenticated, status} = useAppSelector((state) => state.auth);  
   const [authState, setAuthState] = useState<AuthState>('checking');
 
   function normalizePath(path: string) {
@@ -59,12 +59,14 @@ export default function AuthValidator({ children }) {
       }
   
       try {
-        await Promise.race([
-          dispatch(getUserThunk()).unwrap(),
-          new Promise((_, reject) =>
-            setTimeout(() => reject(new Error("Auth timeout")), 10000)
-          ),
-        ]);
+        if (status !== Status.SUCCESS && status !== Status.ERROR) {
+          await Promise.race([
+            dispatch(getUserThunk()).unwrap(),
+            new Promise((_, reject) =>
+              setTimeout(() => reject(new Error("Auth timeout")), 10000)
+            ),
+          ]);
+        }
   
         if (isPublicRoute && isAuthenticated) {
           setAuthState("redirecting");

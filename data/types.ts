@@ -105,6 +105,7 @@ export interface NoteDetails {
     dueDate?: string;
   }
   attachment?: Array<{ uid: string; name: string; status?: string; url?: string }>;
+  // attachment?: { uid: string; name: string; status?: string; url?: string };
 }
 
 export interface AppointmentDetails {
@@ -142,6 +143,7 @@ export interface BaseTimelineCardProps {
   date: string;
   createdBy: string;
   createdAt: string;
+  item: TimelineCardProps;
   status?: "completed" | "pending" | "working" | "";
   onEdit?: (updated: TimelineCardProps) => void; // send updated values to parent
   onReschedule?: () => void;
@@ -149,10 +151,10 @@ export interface BaseTimelineCardProps {
 }
 
 export type TimelineCardProps =
-  | (BaseTimelineCardProps & { type: "Notes"; data: NoteDetails })
-  | (BaseTimelineCardProps & { type: "Appointments"; data: AppointmentDetails })
-  | (BaseTimelineCardProps & { type: "Tasks"; data: TaskDetails })
-  | (BaseTimelineCardProps & { type: "Sms"; data: SmsDetails });
+  | (BaseTimelineCardProps & { type: "NOTES"; data: NoteDetails })
+  | (BaseTimelineCardProps & { type: "APPOINTMENT"; data: AppointmentDetails })
+  | (BaseTimelineCardProps & { type: "TASK"; data: TaskDetails })
+  | (BaseTimelineCardProps & { type: "SMS"; data: SmsDetails });
 
   // Lead Detail Quotation
   export type QuotationStatus = "approved" | "pending" | "rejected" | "all";
@@ -273,7 +275,7 @@ export interface ColorCategory {
 }
 
 
-export interface ConceptTask {
+export interface JobWorkFlowChecklist {
   id: number;
   task: string;
   tag: string;
@@ -282,4 +284,9 @@ export interface ConceptTask {
   link:string,
   user: string,
   status:string
+}
+
+export interface WorkStepsChecklist{
+  title: string,
+  checkList: JobWorkFlowChecklist[]
 }

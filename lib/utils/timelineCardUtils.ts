@@ -8,6 +8,8 @@ import {
   TaskDetails,
   TimelineCardProps,
 } from "data/types";
+import { buildPayload } from "./actionTypePayloadBuilder";
+import { formDataGenerator } from "./formDataGenerator";
 
 interface EditingItem {
   item: TimelineCardProps;
@@ -31,8 +33,8 @@ export const handleSaveTimelineCard = async <
   type: T,
   data: D,
   dispatch: AppDispatch
-) => {
-  if (editingItem && editingItem.item.type === type) {
+): Promise<void> => {
+  if (editingItem && editingItem?.item?.type === type) {
     console.log(`🔄 Updated ${type}:`, data);
     setCardsData((prev) =>
       prev.map((card, i) =>
@@ -42,73 +44,27 @@ export const handleSaveTimelineCard = async <
       )
     );
   } else {
-    console.log(`✨ Created New ${type}:`, data);
-
-    const { sendToCustomer, task, attachment, ...restData } =
-      data as NoteDetails;
-    const NotePayload = {
-      type: "NOTES",
-      ...restData,
-      task: {
-        due_date: task?.dueDate,
-        name: "Follow up call",
-        priority: "HIGH",
-      },
-    };
-
-    const SmsPayload = {
-      type: "SMS",
-      ...data,
-    };
-
-    const { location, notes, user,startTime,endTime, ...appointmentData } =
-      data as AppointmentDetails;
-    const AppointmentPayload = {
-      type: "APPOINTMENT",
-
-      start_time: startTime,
-      end_time: endTime,
-      ...appointmentData,
-    };
-    
-    const TaskPayload = type === "Tasks" ? {
-      type: "TASK",
-      task: {
-        due_date: (data as TaskDetails).task.dueDate,
-        name: (data as TaskDetails).task.name,
-        priority: (data as TaskDetails).task.priority,
-        description: (data as TaskDetails).task.description,
-      },
-    //   attachment: (data as TaskDetails).attachment || []
-    } : null;
-    
-    const payload =
-      type === "Notes"
-        ? NotePayload
-        : type === "Sms"
-        ? SmsPayload
-        : type === "Appointments"
-        ? AppointmentPayload
-        : type === "Tasks"
-        ? TaskPayload
-        : data;
     try {
-      await dispatch(
-        createActionsThunk({ leadId: leadId, data: payload })
+      // const formData = buildPayload(type, data);
+      
+      const response = await dispatch(
+        createActionsThunk({ leadId: leadId, data: formDataGenerator(data) })
       ).unwrap();
+      console.log(response);
       message.success(`${type} created successfully`);
+      handleClose();
     } catch (error) {
-      message.error(error || `Failed to create ${type}`);
+      message.error(error || `Failed to create ${type}`); 
     }
-    const newCard: TimelineCardProps = {
-      type: type,
-      date: new Date().toLocaleString(),
-      createdBy: "Current User",
-      createdAt: new Date().toLocaleString(),
-      status: type === "Notes" ? undefined : "pending",
-      data: payload,
-    } as TimelineCardProps;
+    // const newCard: TimelineCardProps = {
+    //   type: type,
+    //   date: new Date().toLocaleString(),
+    //   createdBy: "Current User",
+    //   createdAt: new Date().toLocaleString(),
+    //   status: type === "Notes" ? undefined : "pending",
+    //   data: data,
+    // } as TimelineCardProps;
     setCardsData((prev) => [newCard, ...prev]);
   }
-  handleClose();
+ 
 };

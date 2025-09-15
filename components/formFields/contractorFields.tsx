@@ -63,7 +63,8 @@ const contractorFields = (
     {
       label: "Phone",
       name: "phone",
-      placeholder: "+1 555 0100",
+      type: "phone",
+      placeholder: "1234567890",
       rules: phoneRules,
     },
     {

@@ -29,6 +29,7 @@ const Package = () => {
   }, [dispatch, getAllStatus]);
   
   const handleOpenModal = () => {
+    setFormValues({});
     setIsModalVisible(true);
   };
 

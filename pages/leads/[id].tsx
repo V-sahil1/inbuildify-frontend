@@ -2,13 +2,15 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   Card,
-  List, 
-  message, Result,
-  Space, 
+  List,
+  message,
+  Result,
+  Space,
+  Spin,
   Tabs,
   Tag,
   Tooltip,
-  Typography, 
+  Typography,
 } from "antd";
 import StageProgress from "@/components/common/StageProgress";
 import ConvertLeadModal from "@/components/leadDetail/ConvertLeadModal";
@@ -16,9 +18,9 @@ import PropertyDetailsModal from "@/components/leadDetail/PropertyDetailsModal";
 import {
   IconBarrierBlock,
   IconEdit,
-  IconFileText, 
+  IconFileText,
   IconMail,
-  IconPhoneCall, 
+  IconPhoneCall,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import SystemRoutes from "@lib/constants/Routes";
@@ -44,6 +46,7 @@ import { ILeadContact } from "@redux/feature/lead/ILeadState";
 import { QuotationResponse } from "@redux/feature/quotation/IQuotationState";
 import LeadActions from "@/components/leadDetail/LeadActions";
 import { RootState } from "@redux/feature/store";
+import { Status } from "@lib/constants/enum";
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -77,14 +80,18 @@ function App() {
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
   const { leadDetail } = useAppSelector((state: RootState) => state.lead);
+  const status = useAppSelector(
+    (state: RootState) => state.lead.status.leadById
+  );
   const isOpportunity = leadDetail?.lead?.status !== "NEW";
   const title = isOpportunity ? "Opportunity" : "Lead";
   const contacts: ILeadContact[] = leadDetail?.contacts;
   const propertyFromSlice = leadDetail?.property;
   const leadId = router.query.id as string | undefined;
-  const createdQuotations: QuotationResponse[] = leadDetail?.createdQuotations?.quotations || [];
+  const createdQuotations: QuotationResponse[] =
+    leadDetail?.createdQuotations?.quotations || [];
   const latestLeadDetailRef = useRef<any>(null);
-
+  const isJob = useMemo(() => leadDetail?.lead?.status === "JOB", [leadDetail]);
   useEffect(() => {
     latestLeadDetailRef.current = leadDetail;
   }, [leadDetail]);
@@ -101,22 +108,21 @@ function App() {
     }
   }, [router.query.id, dispatch]);
 
-
   const primaryContact = contacts?.find(
     (cont: ILeadContact) =>
       cont.leadsContactId === leadDetail?.lead?.leadContactId
   );
   useEffect(() => {
     return () => {
-    // Only run cleanup if we have the necessary data
-    if (primaryContact) {
-      const latest = latestLeadDetailRef.current;
-      const property = (latest as any)?.property ?? null;
-      dispatch(setQuotationContact(primaryContact));
-      dispatch(setQuotationProperty(property));
+      // Only run cleanup if we have the necessary data
+      if (primaryContact) {
+        const latest = latestLeadDetailRef.current;
+        const property = (latest as any)?.property ?? null;
+        dispatch(setQuotationContact(primaryContact));
+        dispatch(setQuotationProperty(property));
       }
     };
-  }, [dispatch, primaryContact]); 
+  }, [dispatch, primaryContact]);
 
   const handleConvertClick = () => {
     setIsConvertModalVisible(true);
@@ -145,7 +151,6 @@ function App() {
         message.success("Lead contact created successfully");
       }
       setIsEditLeadModalVisible(false);
-
     } catch (err) {
       message.error(err || "Failed to update lead");
     } finally {
@@ -203,6 +208,31 @@ function App() {
       },
     ];
   }, [isOpportunity]);
+
+  if (status === Status.PENDING) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Spin />
+      </div>
+    );
+  }
+
+  if (isJob) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Result
+          status="403"
+          // title="Access Restricted"
+          subTitle="This lead has already been converted to a job and is no longer accessible from this page."
+          extra={
+            <Link href="/job">
+              Go to Jobs
+            </Link>
+          }
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col">
@@ -263,98 +293,106 @@ function App() {
           propertyFromSlice?.citySuburb ||
           propertyFromSlice?.stateRegion ||
           propertyFromSlice?.zipPostalCode ? (
-              <>
-                <h2 className="font-semibold text-lg">
-                  {propertyFromSlice?.address1 ?? ""}
-                </h2>
-                <p className="text-sm text-gray-600">
-                  {[
-                    propertyFromSlice?.citySuburb,
-                    propertyFromSlice?.stateRegion,
-                    propertyFromSlice?.zipPostalCode,
-                  ]
-                    .filter(Boolean)
-                    .join(", ")}
-                </p>
+            <>
+              <h2 className="font-semibold text-lg">
+                {propertyFromSlice?.address1 ?? ""}
+              </h2>
+              <p className="text-sm text-gray-600">
+                {[
+                  propertyFromSlice?.citySuburb,
+                  propertyFromSlice?.stateRegion,
+                  propertyFromSlice?.zipPostalCode,
+                ]
+                  .filter(Boolean)
+                  .join(", ")}
+              </p>
 
-                <div className="text-sm text-gray-600 mt-2">
-                  <p>
-                    Title :{" "}
-                    {propertyFromSlice?.titleDate
-                      ? dayjs(propertyFromSlice?.titleDate).format("DD-MM-YYYY")
-                      : ""}
-                  </p>
-                  <p>Type : {propertyFromSlice?.landType ?? ""}</p>
-                  <p>
-                    W: {propertyFromSlice?.widthM || ""}
-                    {propertyFromSlice?.widthM ? "m" : ""} D:{" "}
-                    {propertyFromSlice?.depthM || ""}
-                    {propertyFromSlice?.depthM ? "m" : ""} Total:{" "}
-                    {propertyFromSlice?.totalSizeM2 || ""}
-                    {propertyFromSlice?.totalSizeM2 ? " m²" : ""}
-                  </p>
-                </div>
-              </>
-            ) : (
-              <div className="flex flex-col items-center justify-center p-6 rounded-lg">
-                <IconBarrierBlock />
-                <p className="text-sm text-gray-500 text-center">
+              <div className="text-sm text-gray-600 mt-2">
+                <p>
+                  Title :{" "}
+                  {propertyFromSlice?.titleDate
+                    ? dayjs(propertyFromSlice?.titleDate).format("DD-MM-YYYY")
+                    : ""}
+                </p>
+                <p>Type : {propertyFromSlice?.landType ?? ""}</p>
+                <p>
+                  W: {propertyFromSlice?.widthM || ""}
+                  {propertyFromSlice?.widthM ? "m" : ""} D:{" "}
+                  {propertyFromSlice?.depthM || ""}
+                  {propertyFromSlice?.depthM ? "m" : ""} Total:{" "}
+                  {propertyFromSlice?.totalSizeM2 || ""}
+                  {propertyFromSlice?.totalSizeM2 ? " m²" : ""}
+                </p>
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col items-center justify-center p-6 rounded-lg">
+              <IconBarrierBlock />
+              <p className="text-sm text-gray-500 text-center">
                 No property details added yet
               </p>
               <p className="text-xs text-gray-400 mt-1">
-              Add property information to get started
+                Add property information to get started
               </p>
-              </div>
+            </div>
           )}
         </Card>
 
         {/* Quotation Card */}
         {isOpportunity && (
-        <Card>
-          <div className="flex flex-col justify-between">
-            <Link
-              href={SystemRoutes.QUOTATION_CREATE(leadId)}
-              className="text-theme-blue text-sm"
-            >
-              Create Quotation
-            </Link>
-            <div className="max-h-[200px] my-2 overflow-y-auto">
-              <List
-                dataSource={createdQuotations || []}
-                locale={{
-                  emptyText: (
-                    <div className="flex flex-col items-center justify-center p-6">
-                      <IconFileText />
-                      <p className=" text-sm text-gray-500 text-center">
+          <Card>
+            <div className="flex flex-col justify-between">
+              <Link
+                href={SystemRoutes.QUOTATION_CREATE(leadId)}
+                className="text-theme-blue text-sm"
+              >
+                Create Quotation
+              </Link>
+              <div className="max-h-[200px] my-2 overflow-y-auto">
+                <List
+                  dataSource={createdQuotations || []}
+                  locale={{
+                    emptyText: (
+                      <div className="flex flex-col items-center justify-center p-6">
+                        <IconFileText />
+                        <p className=" text-sm text-gray-500 text-center">
                           No quotations found
                         </p>
                         <p className="text-xs text-gray-400 mt-1">
                           Create a quotation to get started
                         </p>
-                    </div>
-                  ),
-                }}
-                renderItem={(quotation: QuotationResponse) => (
-                  <List.Item key={quotation?.quotationId} onClick={() => router.push(`/quotation/${quotation?.quotationId}`)} style={{ cursor: "pointer" }}>
-                    <Space size="middle">
-                      {/* <Tooltip title={quotation?.slugId}> */}
+                      </div>
+                    ),
+                  }}
+                  renderItem={(quotation: QuotationResponse) => (
+                    <List.Item
+                      key={quotation?.quotationId}
+                      onClick={() =>
+                        router.push(`/quotation/${quotation?.quotationId}`)
+                      }
+                      style={{ cursor: "pointer" }}
+                    >
+                      <Space size="middle">
+                        {/* <Tooltip title={quotation?.slugId}> */}
                         <Text type="secondary">
                           {quotation?.slugId?.slice(0, 13)}
                         </Text>
-                      {/* </Tooltip> */}
-                      <Tag
-                        color={
-                          quotation?.lead?.status === "Open" ? "blue" : "green"
-                        }
-                      >
-                        {quotation?.leadStatus}
-                      </Tag>
-                      <Text>${quotation?.totalAmount}</Text>
-                    </Space>
-                  </List.Item>
-                )}
-              />
-            </div>
+                        {/* </Tooltip> */}
+                        <Tag
+                          color={
+                            quotation?.lead?.status === "Open"
+                              ? "blue"
+                              : "green"
+                          }
+                        >
+                          {quotation?.leadStatus}
+                        </Tag>
+                        <Text>${quotation?.totalAmount}</Text>
+                      </Space>
+                    </List.Item>
+                  )}
+                />
+              </div>
             </div>
           </Card>
         )}
@@ -373,13 +411,23 @@ function App() {
             <LeadActions leadId={leadId}/>
           </TabPane>
           <TabPane tab="Document" key="Document">
-            <div className="bg-card-color"><Result title="Document Functionality coming soon" subTitle="Please check back later" /></div>
+            <div className="bg-card-color">
+              <Result
+                title="Document Functionality coming soon"
+                subTitle="Please check back later"
+              />
+            </div>
           </TabPane>
           <TabPane tab="Quotations" key="quotations">
             <LeadQuotations />
           </TabPane>
           <TabPane tab="Activity" key="Activity">
-            <div className="bg-card-color"><Result title="Activity Functionality coming soon" subTitle="Please check back later" /></div>
+            <div className="bg-card-color">
+              <Result
+                title="Activity Functionality coming soon"
+                subTitle="Please check back later"
+              />
+            </div>
           </TabPane>
         </Tabs>
       </div>

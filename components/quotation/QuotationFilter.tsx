@@ -8,7 +8,7 @@ import { getFacades } from "@redux/feature/facade/facadeThunk";
 import { fetchPackages } from "@redux/feature/package/packageThunk";
 import { setSelectedFilters as setPackageFilters } from "@redux/feature/package/packageSlice";
 import { setSelectedFilters as setMplFilters } from "@redux/feature/masterPriceList/masterPriceListSlice";
-import { setSelectedFilters as setQuotationFilters } from "@redux/feature/quotation/quotationSlice";
+import { clearSelectedFloorplanFacadePackageReducer, setSelectedFilters as setQuotationFilters } from "@redux/feature/quotation/quotationSlice";
 import { message, Select } from "antd";
 import { mapToOptions } from "@lib/utils/rangeAndDwellingObjToOptions";
 import { Status } from "@lib/constants/enum";
@@ -181,6 +181,10 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({ isReadOnly = false })
     await dispatch(fetchPackages(undefined));
   }, [dispatch]);
 
+  const clearSelectedFloorplanFacadePackage = () => {
+    dispatch(clearSelectedFloorplanFacadePackageReducer())
+  }
+
   return (
     <div className="flex items-center gap-6 justify-end text-font-color w-[1000px]">
       <div className="flex items-center gap-4">
@@ -192,6 +196,7 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({ isReadOnly = false })
           allowClear
           value={selectedQuotationFilters?.range || undefined}
           onChange={(value) => {
+            clearSelectedFloorplanFacadePackage()
             handleRangeChange(value)
             handlePackageRangeChange(value)
           }}
@@ -209,6 +214,7 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({ isReadOnly = false })
           allowClear
           value={selectedQuotationFilters?.dwelling_type || undefined}
           onChange={(value) => {
+              clearSelectedFloorplanFacadePackage()
               handleDwellingTypeChange(value),
               handleFloorPlanDwellingTypeChange(value),
               handleFacadeDwellingTypeChange(value);

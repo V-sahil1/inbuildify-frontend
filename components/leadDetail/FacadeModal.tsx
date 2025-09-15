@@ -1,5 +1,4 @@
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import { Status } from "@lib/constants/enum";
 import { createFacade, getFacades } from "@redux/feature/facade/facadeThunk";
 import { Button, Checkbox, Modal, Tabs, Typography, message } from "antd";
 import { useEffect, useState } from "react";
@@ -115,6 +114,32 @@ const FacadeModal: React.FC<FacadeModalProps> = ({
                             onChange={(e) => dispatch(setSelectedFilters({ upgrade: e.target.checked }))}>
                             Upgrade
                         </Checkbox>
+                        {/* Second Variation */}
+                        {/* {
+                            activeTab === "available" && (
+                                <>
+                                    <Segmented
+                                        value={selectedFilters.standard}
+                                        onChange={(val) => dispatch(setSelectedFilters({ standard: val }))}
+                                        options={[
+                                            { label: "All", value: "all" },
+                                            { label: "Standard", value: "true" },
+                                            { label: "Exclude Standard", value: "false" },
+                                        ]}
+                                    />
+
+                                    <Segmented
+                                        value={selectedFilters.upgrade}
+                                        onChange={(val) => dispatch(setSelectedFilters({ upgrade: val }))}
+                                        options={[
+                                            { label: "All", value: "all" },
+                                            { label: "Upgrade", value: "true" },
+                                            { label: "Exclude Upgrade", value: "false" },
+                                        ]}
+                                    />
+                                </>
+                            )
+                        } */}
                     </div>
                 }
                 items={[

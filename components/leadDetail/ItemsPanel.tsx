@@ -1,6 +1,5 @@
 import React, { useRef } from "react";
-import { Input, Button } from "antd";
-import { IconSearch } from "@tabler/icons-react";
+import { Button, Spin } from "antd";
 import { Category } from "@redux/feature/masterPriceList/iMasterPriceListState";
 import { QuatationItem } from "../quotation/QuatationItem";
 // import { QuatationExtraItem } from "../quotation/QuatationExtraItem";
@@ -14,13 +13,15 @@ interface ItemsPanelProps {
   onExtraClick: () => void;
   extraItem: boolean;
   isReadOnly: boolean;
+  itemsLoading: boolean;
 }
 
 const ItemsPanel: React.FC<ItemsPanelProps> = ({
   category,
   onExtraClick,
   extraItem,
-  isReadOnly
+  isReadOnly,
+  itemsLoading
 }) => {
   const dispatch = useAppDispatch();
   const {
@@ -102,6 +103,12 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
           )}
 
           {/* Table Body */}
+          {
+            itemsLoading ? (
+               <div className="table-cell p-6 text-center col-span-7 text-font-color">
+              <Spin />
+              </div>
+            ): (
           <div className="table-row-group">
             {category?.items?.length > 0 ? (
               category.items.map((item) => (
@@ -126,6 +133,8 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
               </div>
             )}
           </div>
+            )
+          }
         </div>
       </div>
     </div>

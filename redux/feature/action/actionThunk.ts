@@ -1,8 +1,8 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import api from "@lib/constants/api";
+import api, { apiWithFormDataMethods } from "@lib/constants/api";
 import API_ENDPOINTS from "@lib/constants/apiEndpoints";
 import { ApiResponse } from "../auth/IAuthState";
-import { AppointmentDetails, NoteDetails, SmsDetails, TaskDetails } from "data/types";
+// import { AppointmentDetails, NoteDetails, SmsDetails, TaskDetails } from "data/types";
 
 export const getActionsThunk = createAsyncThunk(
   "action/getActions",
@@ -20,11 +20,11 @@ export const getActionsThunk = createAsyncThunk(
   
 export const createActionsThunk = createAsyncThunk(
     "action/createActions",
-    async (payload:{leadId: string, data: NoteDetails | AppointmentDetails | TaskDetails | SmsDetails},{rejectWithValue}) => {
+    async (payload:{leadId: string, data: FormData},{rejectWithValue}) => {
       try {
-        const res = await api.post<ApiResponse<any>>(
+        const res = await apiWithFormDataMethods.post<ApiResponse<any>>(
           `${API_ENDPOINTS.ACTION_BASE}/${payload.leadId}`,
-          { data: payload.data }
+          payload.data
         );
         return res.data;
       } catch (error) {
@@ -32,3 +32,14 @@ export const createActionsThunk = createAsyncThunk(
       }
     }
   );
+
+export const getActionTags = createAsyncThunk("action/getActionTags", async (_, {rejectWithValue}) => {
+    try {
+      const res = await api.get<ApiResponse<any>>(
+        API_ENDPOINTS.TAGS_BASE
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  })

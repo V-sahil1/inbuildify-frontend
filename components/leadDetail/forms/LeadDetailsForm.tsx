@@ -244,13 +244,30 @@ const LeadDetailsForm: React.FC<any> = ({
           </Form.Item>
 
           <Form.Item label="Phone" name="phone" rules={phoneRules}>
-            <Input type="number" placeholder="Enter phone number" />
+            <Input
+              type="number"
+              placeholder="1234567890"
+              minLength={10}
+              maxLength={15}
+              onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}
+            />
           </Form.Item>
 
           <Form.Item label="Secondary Phone" name="secondary_phone" rules={optionalPhoneRule}>
             <Input
               type="number"
-              placeholder="Enter secondary phone (optional)"
+              placeholder="1234567890 (optional)"
+              minLength={10}
+              maxLength={15}
+              onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}
             />
           </Form.Item>
 

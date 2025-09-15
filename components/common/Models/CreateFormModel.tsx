@@ -20,6 +20,7 @@ export type CreateFormField = {
   rules?: any[];
   disabled?: boolean;
   invite?: boolean;
+  initialValue?: any;
   type?:
     | "email"
     | "phone"
@@ -156,6 +157,7 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
             }
             name={field.name}
             rules={field.rules}
+            initialValue={field.initialValue}
           >
             {field.type === "select" ? (
               <Select
@@ -166,7 +168,7 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
                 {...(field.mode && { mode: field.mode })}
               />
             ) : field.type === "checkbox" ? (
-              <Radio.Group defaultValue="TRUE">
+              <Radio.Group>
                 <Radio value="TRUE">Yes</Radio>
                 <Radio value="FALSE">No</Radio>
               </Radio.Group>
@@ -206,6 +208,18 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
               <Input.TextArea
                 placeholder={field.placeholder}
                 disabled={field.disabled}
+              />
+            ) : field.type === "phone" ? (
+              <Input
+                placeholder={field.placeholder || "Enter phone number"}
+                disabled={field.disabled}
+                minLength={10}
+                maxLength={15}
+                onKeyPress={(e) => {
+                  if (!/[0-9]/.test(e.key)) {
+                    e.preventDefault();
+                  }
+                }}
               />
             ) : (
               <Input

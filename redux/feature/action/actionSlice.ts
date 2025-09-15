@@ -1,11 +1,13 @@
 import { Status } from "@lib/constants/enum";
 import { createSlice } from "@reduxjs/toolkit";
-import { getActionsThunk } from "./actionThunk";
+import { getActionsThunk, getActionTags } from "./actionThunk";
 
 export const actionSlice = createSlice({
     name: "action",
     initialState:{
         actions: [],
+        tags: [],
+        tagStatus: Status.IDLE,
         status: Status.IDLE,
     },
     reducers: {},
@@ -19,6 +21,17 @@ export const actionSlice = createSlice({
         });
         builder.addCase(getActionsThunk.rejected, (state) => {
             state.status = Status.ERROR;
+        });
+
+        builder.addCase(getActionTags.pending, (state) => {
+            state.tagStatus = Status.PENDING;
+        });
+        builder.addCase(getActionTags.fulfilled, (state, action) => {
+            state.tags = action.payload;
+            state.tagStatus = Status.SUCCESS;
+        });
+        builder.addCase(getActionTags.rejected, (state) => {
+            state.tagStatus = Status.ERROR;
         });
     },
 });

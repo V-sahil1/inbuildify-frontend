@@ -1,12 +1,34 @@
 "use client";
-import { FC, useState } from "react";
-import { Button, DatePicker, TimePicker, Input, Select, Switch, Upload } from "antd";
+import { FC, useEffect, useState } from "react";
+import {
+  Button,
+  DatePicker,
+  TimePicker,
+  Input,
+  Select,
+  Upload,
+  Form,
+  message,
+} from "antd";
 import dayjs from "dayjs";
 import { IconUpload } from "@tabler/icons-react";
 import { TaskDetails } from "data/types";
+import { useAppDispatch, useAppSelector } from "@hooks/redux";
+import { Status } from "@lib/constants/enum";
+import { getUsersThunk } from "@redux/feature/user/userThunk";
+import {
+  descriptionRules,
+  dueDateRules,
+  priorityRules,
+  taskNameRules,
+  timeRules,
+} from "@lib/constants/formInputValidations";
+import {
+  disablePastDates,
+} from "@lib/utils/getDisabledTimeDate";
 
 interface CreateTaskCardProps {
-    onSave: (task: TaskDetails) => void;
+    onSave: (task: TaskDetails) => Promise<void>;
     onCancel: () => void;
     initialData?: TaskDetails;
 }
@@ -17,12 +39,15 @@ const priorityOptions = [
     { label: "High", value: "HIGH" },
 ];
 
-const assigneeOptions = [
-    { label: "John Doe", value: "John Doe" },
-    { label: "Jane Smith", value: "Jane Smith" },
-];
-
-const CreateTaskCard: FC<CreateTaskCardProps> = ({ onSave, onCancel, initialData }) => {
+const CreateTaskCard: FC<CreateTaskCardProps> = ({
+  onSave,
+  onCancel,
+  initialData,
+}) => {
+  const [form] = Form.useForm();
+  const [submitting, setSubmitting] = useState<boolean>(false);
+  const { users, status } = useAppSelector((state) => state.user);
+  const { email } = useAppSelector((state) => state.auth.user);
     const [formData, setFormData] = useState<TaskDetails>({
         task: {
             name: initialData?.task?.name || "",
@@ -35,104 +60,159 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({ onSave, onCancel, initialData
         attachment: initialData?.attachment || [],
     });
 
-    const handleTaskChange = (field: keyof TaskDetails['task'], value: any) => {
-        setFormData(prev => ({
-            ...prev,
-            task: {
-                ...prev.task,
-                [field]: value
-            }
-        }));
-    };
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    if (status === Status.IDLE) {
+      fetchuserData();
+    }
+  }, [status]);
+  const fetchuserData = async () => {
+    try {
+      await dispatch(getUsersThunk()).unwrap();
+    } catch (error) {
+      message.error(error || "failed to fetch the users");
+    }
+  };
+  const assigneeOptions = users.reduce((acc, user) => {
+    if (user.email !== email) {
+      acc.push({ label: user.name, value: user.usersId });
+    }
+    return acc;
+  }, [] as { label: string; value: string }[]);
+  // const attachments = newFileList.map((file: any) => ({
+  //     uid: file.uid,
+  //     name: file.name,
+  //     status: file.status,
+  //     url: file.response?.url || file.url,
+  //     originFileObj: file.originFileObj,
+  // }));
+  // };
+  const handleFinish = async (values: any) => {
+    await form.validateFields();
+    values.type = "TASK";
+    values.task.due_date = values.task?.due_date?.format("YYYY-MM-DD");
+    values.task.time = values.task?.time?.format("HH:mm");
+    values.attachment = values?.attachment?.[0]?.originFileObj || null;
+    try {
+      setSubmitting(true);
+      await onSave(values);
+    } catch (err) {
+      message.error("Failed to save task");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+  return (
+    <Form
+      form={form}
+      layout="vertical"
+      onFinish={handleFinish}
+      // initialValues={{
+      //   task: {
+      //     priority: "MEDIUM",
+      //   },
+      // }}
+    >
+      <Form.Item
+        label="Task Name"
+        name={["task", "name"]}
+        rules={taskNameRules}
+      >
+        <Input placeholder="Task Name" />
+      </Form.Item>
 
-    const handleSave = () => {
-        onSave(formData);
-    };
+      <div className="grid grid-cols-2 gap-3">
+        <Form.Item
+          label="Due Date"
+          name={["task", "due_date"]}
+          rules={dueDateRules}
+        >
+          <DatePicker
+            format="YYYY-MM-DD"
+            className="w-full"
+            inputReadOnly
+            onChange={(date) => {
+              // Reset the time field whenever due_date changes
+              form.setFieldsValue({ task: { ...form.getFieldValue("task"), time: null } });
+            }}
+            disabledDate={disablePastDates}
+          />
+        </Form.Item>
 
-    return (
-        <div className="flex flex-col gap-3">
-            {/* Name */}
-            <div>
-                <label className="block text-sm text-gray-600 mb-1">Task Name</label>
-                <Input
-                    value={formData.task.name}
-                    onChange={(e) => handleTaskChange("name", e.target.value)}
-                    placeholder="Task Name"
-                />
-            </div>
+        <Form.Item label="Time" name={["task", "time"]} rules={timeRules}>
+          <TimePicker
+            format="HH:mm"
+            className="w-full"
+            hideDisabledOptions
+            disabledTime={() => {
+              const selectedDate: dayjs.Dayjs = form.getFieldValue([
+                "task",
+                "due_date",
+              ]);
+              const now = dayjs();
 
-            {/* Due Date and Time */}
-            <div className="grid grid-cols-2 gap-3">
-                <div>
-                    <label className="block text-sm text-gray-600 mb-1">Due Date</label>
-                    <DatePicker
-                        value={dayjs(formData.task.dueDate)}
-                        onChange={(date) => handleTaskChange("dueDate", date?.format("YYYY-MM-DD") || "")}
-                        className="w-full"
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm text-gray-600 mb-1">Time</label>
-                    <TimePicker
-                        value={dayjs(formData.task.time, "HH:mm")}
-                        onChange={(time) => handleTaskChange("time", time?.format("HH:mm") || "")}
-                        format="HH:mm"
-                        className="w-full"
-                    />
-                </div>
-            </div>
+              if (!selectedDate) {
+                return { disabledHours: () => [], disabledMinutes: () => [] };
+              }
 
-            {/* Priority */}
-            <div>
-                <label className="block text-sm text-gray-600 mb-1">Priority</label>
-                <Select
-                    options={priorityOptions}
-                    value={formData.task.priority}
-                    onChange={(value) => handleTaskChange("priority", value)}
-                    placeholder="Select Priority"
-                    className="w-full"
-                />
-            </div>
+              // Only restrict time if selected date is today
+              if (selectedDate.isSame(now, "day")) {
+                return {
+                  disabledHours: () =>
+                    Array.from({ length: now.hour() }, (_, i) => i), // disable past hours
+                  disabledMinutes: (selectedHour: number) =>
+                    selectedHour === now.hour()
+                      ? Array.from({ length: now.minute() }, (_, i) => i) // disable past minutes
+                      : [],
+                };
+              }
 
-            {/* Description */}
-            <div>
-                <label className="block text-sm text-gray-600 mb-1">Description</label>
-                <Input.TextArea
-                    value={formData.task.description}
-                    onChange={(e) => handleTaskChange("description", e.target.value)}
-                    placeholder="Task Description"
-                    rows={3}
-                />
-            </div>
+              return { disabledHours: () => [], disabledMinutes: () => [] };
+            }}
+          />
+        </Form.Item>
+      </div>
 
-            {/* Assignee */}
-            <div>
-                <label className="block text-sm text-gray-600 mb-1">Assignee</label>
-                <Select
-                    options={assigneeOptions}
-                    value={formData.task.assignee}
-                    onChange={(value) => handleTaskChange("assignee", value)}
-                    placeholder="Select Assignee"
-                    className="w-full"
-                />
-            </div>
+      <Form.Item
+        label="Priority"
+        name={["task", "priority"]}
+        rules={priorityRules}
+      >
+        <Select options={priorityOptions} placeholder="Select Priority" />
+      </Form.Item>
 
-            <div className="flex justify-between items-end gap-3">
-                {/* File Upload */}
-                <Upload>
-                    <Button icon={<IconUpload />}>Attach Files</Button>
-                </Upload>
+      <Form.Item
+        label="Description"
+        name={["task", "description"]}
+        rules={descriptionRules}
+      >
+        <Input.TextArea rows={3} placeholder="Task Description" />
+      </Form.Item>
 
-                {/* Actions */}
-                <div className="flex gap-3">
-                    <Button onClick={onCancel}>Cancel</Button>
-                    <Button type="primary" onClick={handleSave}>
-                        Save
-                    </Button>
-                </div>
-            </div>
+      <Form.Item label="Assignee" name={["task", "assignee"]}>
+        <Select options={assigneeOptions} placeholder="Select Assignee" />
+      </Form.Item>
+
+      <div className="flex justify-between items-end gap-3">
+        <Form.Item
+          name="attachment"
+          valuePropName="fileList"
+          getValueFromEvent={(e) => e.fileList}
+        >
+          <Upload beforeUpload={() => false} maxCount={1}>
+            <Button icon={<IconUpload />}>Attach Files</Button>
+          </Upload>
+        </Form.Item>
+
+        <div className="flex gap-3">
+          <Button onClick={onCancel}>Cancel</Button>
+          <Button type="primary" htmlType="submit" loading={submitting}>
+            Save
+          </Button>
         </div>
-    );
+      </div>
+    </Form>
+  );
 };
 
 export default CreateTaskCard;

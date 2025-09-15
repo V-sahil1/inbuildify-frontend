@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from "react";
-import { Avatar, Button, Card, Form, Input, Upload, message } from "antd";
-import type { UploadProps } from 'antd';
+import { useState } from "react";
+import { Avatar, Button, Card, message } from "antd";
+// import type { UploadProps } from 'antd';
 import { useAppSelector } from "@hooks/redux";
 import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
 import { IconBuildingBroadcastTower, IconEdit, IconMail, IconPhone, IconTag, IconUser } from "@tabler/icons-react";
@@ -53,7 +53,7 @@ export default function Overview() {
     {
       label: "Phone",
       name: "phone",
-      type: "text" as const,
+      type: "phone" as const,
       placeholder: "Enter your phone number",
       rules: [{ required: true, message: "Please enter your phone number" }],
     },

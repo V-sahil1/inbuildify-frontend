@@ -6,7 +6,7 @@ import {
     IconCheck,
     IconMessage,
 } from "@tabler/icons-react";
-import { Button } from "antd";
+// import { Button } from "antd";
 import { TimelineCardProps } from "data/types";
 import { AppointmentDetails, TaskDetails, NoteDetails, SmsDetails } from "data/types";
 
@@ -25,44 +25,45 @@ const TimelineCard: FC<TimelineCardProps> = ({
     onEdit,
     onReschedule,
     children,
+    item,
     data,
 }) => {
     const getTitle = () => {
-        switch (type) {
-            // case "Notes":
-            //     return (data as NoteDetails).title;
-            case "Appointments":
-                return (data as AppointmentDetails).title;
-            case "Tasks":
-                return (data as TaskDetails).task?.name;
-            case "Sms":
-                return `SMS to ${(data as SmsDetails).recipient}`;
+        switch (item?.type) {
+            case "NOTES":
+                return (item?.notes[0] as NoteDetails)?.message;
+            case "APPOINTMENT":
+                return (item?.appointment[0] as AppointmentDetails)?.title;
+            case "TASK":
+                return (item?.task[0] as TaskDetails)?.task?.name;
+            case "SMS":
+                return `SMS to ${(item?.sms[0] as SmsDetails)?.message}`;
             default:
                 return "";
         }
     };
 
     const getDescription = () => {
-        switch (type) {
-            // case "Notes":
-            //     return (data as NoteDetails).description;
-            case "Appointments":
-                return (data as AppointmentDetails).notes;
-            case "Tasks":
-                return (data as TaskDetails).task?.description;
-            case "Sms":
-                return (data as SmsDetails).message;
+        switch (item?.type) {
+            case "NOTES":
+                return (item?.notes[0] as NoteDetails)?.message;
+            case "APPOINTMENT":
+                return (item?.appointment[0] as AppointmentDetails)?.notes;
+            case "TASK":
+                return (item?.task[0] as TaskDetails)?.task?.description;
+            case "SMS":
+                return (item?.sms[0] as SmsDetails)?.message;
             default:
                 return "";
         }
     };
 
     const getTags = () => {
-        if (type === "Notes" && (data as NoteDetails).tags) {
-            return (data as NoteDetails).tags;
+        if (type === "NOTES" && (data as NoteDetails)?.tags) {
+            return (data as NoteDetails)?.tags;
         }
-        if (type === "Tasks" && (data as TaskDetails).task?.priority) {
-            return [`Priority: ${(data as TaskDetails).task?.priority}`];
+        if (type === "TASK" && (data as TaskDetails)?.task?.priority) {
+            return [`Priority: ${(data as TaskDetails)?.task?.priority}`];
         }
         return [];
     };
@@ -71,7 +72,7 @@ const TimelineCard: FC<TimelineCardProps> = ({
         <div className="flex items-start gap-4 relative">
             {/* Left Icon */}
             <div className="relative z-10 flex items-center justify-center w-7 h-7 rounded-full bg-gray-100 text-gray-600">
-                {type === "Tasks" ? <IconCheck size={18} /> : <IconMessage size={18} />}
+                {type === "TASK" ? <IconCheck size={18} /> : <IconMessage size={18} />}
             </div>
 
             {/* Card */}
@@ -119,17 +120,17 @@ const TimelineCard: FC<TimelineCardProps> = ({
                 <>
                     {children ?? (
                         <p className="text-sm text-font-color-100 mb-3">
-                            {getDescription()}
+                            {getDescription()}  
                             {
                                 <div className="font-medium text-font-color text-base sm:text-lg">
-                                    {type === "Notes" ? (data as NoteDetails).message : ""}
+                                    {type === "NOTES" ? (data as NoteDetails)?.message : ""}
                                 </div>
                             }
                         </p>
                     )}
-                    {type === "Notes" && (data as NoteDetails) && (
+                    {type === "NOTES" && (data as NoteDetails) && (
                         <div className="text-xs text-font-color-100 space-y-1 mt-2">
-                            {(data as NoteDetails).attachment && (data as NoteDetails).attachment!.length > 0 && (
+                            {(data as NoteDetails)?.attachment && (data as NoteDetails).attachment!.length > 0 && (
                                 <p><strong>Files:</strong> {(data as NoteDetails).attachment!.map(f => f.name).join(', ')}</p>
                             )}
                             {(data as NoteDetails).sendToCustomer && (
@@ -140,7 +141,7 @@ const TimelineCard: FC<TimelineCardProps> = ({
                             )}
                         </div>
                     )}
-                    {type === "Appointments" && (data as AppointmentDetails) && (
+                    {type === "APPOINTMENT" && (data as AppointmentDetails) && (
                         <div className="text-xs text-font-color-100 space-y-1 mt-2">
                             <p><strong>Date:</strong> {(data as AppointmentDetails).date}</p>
                             <p><strong>Time:</strong> {(data as AppointmentDetails).startTime} - {(data as AppointmentDetails).endTime}</p>
@@ -149,7 +150,7 @@ const TimelineCard: FC<TimelineCardProps> = ({
                             <p><strong>Send to Customer:</strong> {(data as AppointmentDetails).sendToCustomer ? "Yes" : "No"}</p>
                         </div>
                     )}
-                    {type === "Tasks" && (data as TaskDetails) && (
+                    {type === "TASK" && (data as TaskDetails) && (
                         <div className="text-xs text-font-color-100 space-y-1 mt-2">
                             <p><strong>Due Date:</strong> {(data as TaskDetails).task?.dueDate}</p>
                             <p><strong>Time:</strong> {(data as TaskDetails).task?.time}</p>

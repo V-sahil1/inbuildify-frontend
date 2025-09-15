@@ -55,6 +55,11 @@ const quotationSlice = createSlice({
             state.package = null;
             state.selectedFilters = { range: '', dwelling_type: '' };
         },
+        clearSelectedFloorplanFacadePackageReducer(state) {
+            state.plan = null;
+            state.facade = null;
+            state.package = null;
+        },
         setQuotationContact(state, action: PayloadAction<ILeadContact | null>) {
             state.contact = action.payload as any;
         },
@@ -198,4 +203,5 @@ export const {
     clearQuotation,
     updateQuotationItem,
     setSelectedFilters,
+    clearSelectedFloorplanFacadePackageReducer
 } = quotationSlice.actions;

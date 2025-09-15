@@ -1,134 +1,252 @@
 "use client";
-import { FC, useState } from "react";
-import { Button, DatePicker, TimePicker, Input, Select, Switch } from "antd";
+import { FC, useEffect, useState } from "react";
+import {
+  Button,
+  DatePicker,
+  TimePicker,
+  Input,
+  Select,
+  Switch,
+  message,
+  Form,
+} from "antd";
 import dayjs from "dayjs";
 import { AppointmentDetails } from "data/types";
+import { useAppDispatch, useAppSelector } from "@hooks/redux";
+import { Status } from "@lib/constants/enum";
+import { getUsersThunk } from "@redux/feature/user/userThunk";
+import {
+  dueDateRules,
+  optionalNotesRule,
+  taskNameRules,
+  timeRules,
+} from "@lib/constants/formInputValidations";
+import {
+  disablePastDates,
+  getDisabledTime,
+  getEndDisabledTime,
+} from "@lib/utils/getDisabledTimeDate";
+const { TextArea } = Input;
 
 interface AddAppointmentCardProps {
-    onSave: (appointment: AppointmentDetails) => void;
-    onCancel: () => void;
-    initialData?: AppointmentDetails;
+  onSave: (appointment: AppointmentDetails) => void;
+  onCancel: () => void;
+  initialData?: AppointmentDetails;
 }
 
-const userOptions = [
-    { label: "John Doe", value: "John Doe" },
-    { label: "Jane Smith", value: "Jane Smith" },
-];
-
-const AddAppointmentCard: FC<AddAppointmentCardProps> = ({ onSave, onCancel, initialData }) => {
-    const [formData, setFormData] = useState<AppointmentDetails>({
-        title: initialData?.title || "",
-        date: initialData?.date || dayjs().format("YYYY-MM-DD"),
-        startTime: initialData?.startTime || dayjs().format("HH:mm"),
-        endTime: initialData?.endTime || dayjs().add(1, "hour").format("HH:mm"),
-        location: initialData?.location || "",
-        user: initialData?.user || "",
-        notes: initialData?.notes || "",
-        sendToCustomer: initialData?.sendToCustomer || false,
-    });
-
-    const handleChange = (field: keyof AppointmentDetails, value: any) => {
-        setFormData((prev) => ({ ...prev, [field]: value }));
+const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
+  onSave,
+  onCancel,
+  initialData,
+}) => {
+  const { users, status } = useAppSelector((state) => state.user);
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    if (status === Status.IDLE) {
+      fetchuserData();
+    }
+  }, [status]);
+  const fetchuserData = async () => {
+    try {
+      await dispatch(getUsersThunk()).unwrap();
+    } catch (error) {
+      message.error(error || "failed to fetch the users");
+    }
+  };
+  const userOptions = users.map((user) => {
+    return {
+      label: user.name,
+      value: user.usersId,
     };
+  });
 
-    const handleSave = () => {
-        onSave(formData);
-    };
+  const [formData, setFormData] = useState<AppointmentDetails>({
+    title: initialData?.title || "",
+    date: initialData?.date || dayjs().format("YYYY-MM-DD"),
+    startTime: initialData?.startTime || dayjs().format("HH:mm"),
+    endTime: initialData?.endTime || dayjs().add(1, "hour").format("HH:mm"),
+    location: initialData?.location || "",
+    user: initialData?.user || "",
+    notes: initialData?.notes || "",
+    sendToCustomer: initialData?.sendToCustomer || false,
+  });
+  const [form] = Form.useForm();
 
-    return (
-        <div className="flex flex-col gap-3">
-            {/* Title */}
-            <div>
-                <label className="block text-sm text-gray-600 mb-1">Title</label>
-                <Input
-                    value={formData.title}
-                    onChange={(e) => handleChange("title", e.target.value)}
-                    placeholder="Appointment Title"
-                />
-            </div>
+  const handleChange = (field: keyof AppointmentDetails, value: any) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
-            {/* Date and Time */}
-            <div className="grid grid-cols-2 gap-3">
+  const handleSave = () => {
+    onSave(formData);
+  };
 
-                <div>
-                    <label className="block text-sm text-gray-600 mb-1">Start Time</label>
-                    <TimePicker
-                        value={dayjs(formData.startTime, "HH:mm")}
-                        onChange={(time, timeString) => handleChange("startTime", timeString)}
-                        format="HH:mm"
-                        className="w-full"
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm text-gray-600 mb-1">End Time</label>
-                    <TimePicker
-                        value={dayjs(formData.endTime, "HH:mm")}
-                        onChange={(time, timeString) => handleChange("endTime", timeString)}
-                        format="HH:mm"
-                        className="w-full"
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm text-gray-600 mb-1">Date</label>
-                    <DatePicker
-                        value={dayjs(formData.date)}
-                        onChange={(date, dateString) => handleChange("date", dateString)}
-                        className="w-full"
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm text-gray-600 mb-1">Location</label>
-                    <Input
-                        value={formData.location}
-                        onChange={(e) => handleChange("location", e.target.value)}
-                        placeholder="Location"
-                    />
-                </div>
-            </div>
+  const handleFinish = (values: any) => {
+    values.type = "APPOINTMENT";
+    values.start_time = values.start_time.format("HH:mm");
+    values.date = values.date?.format("YYYY-MM-DD");
+    values.end_time = values.end_time.format("HH:mm");
+    console.log("payload is bad", values);
+    onSave(values);
+  };
 
-            {/* User */}
-            <div>
-                <label className="block text-sm text-gray-600 mb-1">User</label>
-                <Select
-                    options={userOptions}
-                    value={formData.user}
-                    onChange={(value) => handleChange("user", value)}
-                    placeholder="Select User"
-                    className="w-full"
-                />
-            </div>
+  return (
+    <Form
+      form={form}
+      layout="vertical"
+      onFinish={handleFinish}
+      className="flex flex-col gap-3"
+    >
+      <Form.Item label="Title" name="title" rules={taskNameRules}>
+        <Input placeholder="Appointment Title" />
+      </Form.Item>
 
-            {/* Notes */}
-            <div>
-                <label className="block text-sm text-gray-600 mb-1">Notes</label>
-                <Input.TextArea
-                    value={formData.notes}
-                    onChange={(e) => handleChange("notes", e.target.value)}
-                    placeholder="Additional notes"
-                    rows={3}
-                />
-            </div>
+      <div className="grid grid-cols-2 gap-3">
+        <Form.Item label="Date" name="date" rules={dueDateRules}>
+          <DatePicker
+            className="w-full"
+            disabledDate={disablePastDates}
+            onChange={() => {
+              form.setFieldsValue({
+                start_time: null,
+                end_time: null,
+              });
+            }}
+          />
+        </Form.Item>
 
-            {/* Send to Customer Switch */}
-            <div className="flex items-center justify-between mt-2">
-                <label className="flex items-center gap-2 text-sm">
-                    <Switch
-                        checked={formData.sendToCustomer}
-                        onChange={(checked) => handleChange("sendToCustomer", checked)}
-                    />
-                    Send this appointment to customer
-                </label>
+        <Form.Item
+          label="Location"
+          name="location"
+          rules={[{ required: true, message: "Please enter location" }]}
+        >
+          <Input placeholder="Location" />
+        </Form.Item>
 
-                {/* Actions */}
-                <div className="flex gap-3">
-                    <Button onClick={onCancel}>Cancel</Button>
-                    <Button type="primary" onClick={handleSave}>
-                        Save
-                    </Button>
-                </div>
-            </div>
+        {/* Start Time */}
+        <Form.Item shouldUpdate={(prev, curr) => prev.date !== curr.date}>
+          {({ getFieldValue }) => (
+            <Form.Item
+              label="Start Time"
+              name="start_time"
+              rules={timeRules}
+              noStyle
+            >
+              <TimePicker
+                format="HH:mm"
+                className="w-full"
+                hideDisabledOptions
+                disabled={!getFieldValue("date")} // ✅ now re-checks whenever date changes
+                disabledTime={() => {
+                  const selectedDate: dayjs.Dayjs = getFieldValue("date");
+                  const now = dayjs();
+
+                  if (!selectedDate)
+                    return {
+                      disabledHours: () => [],
+                      disabledMinutes: () => [],
+                    };
+
+                  if (selectedDate.isSame(now, "day")) {
+                    return {
+                      disabledHours: () =>
+                        Array.from({ length: now.hour() }, (_, i) => i),
+                      disabledMinutes: (selectedHour: number) =>
+                        selectedHour === now.hour()
+                          ? Array.from({ length: now.minute() }, (_, i) => i)
+                          : [],
+                    };
+                  }
+
+                  return { disabledHours: () => [], disabledMinutes: () => [] };
+                }}
+              />
+            </Form.Item>
+          )}
+        </Form.Item>
+
+        {/* End Time */}
+        <Form.Item
+          shouldUpdate={(prev, curr) =>
+            prev.date !== curr.date || prev.start_time !== curr.start_time
+          }
+        >
+          {({ getFieldValue }) => (
+            <Form.Item
+              label="End Time"
+              name="end_time"
+              dependencies={["start_time", "date"]}
+              rules={[
+                ...timeRules,
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    const start = getFieldValue("start_time");
+                    if (!value || !start) return Promise.resolve();
+                    return value.isAfter(start)
+                      ? Promise.resolve()
+                      : Promise.reject(
+                          new Error("End time must be later than Start time")
+                        );
+                  },
+                }),
+              ]}
+              noStyle
+            >
+              <TimePicker
+                format="HH:mm"
+                className="w-full"
+                hideDisabledOptions
+                disabled={
+                  !getFieldValue("date") || !getFieldValue("start_time")
+                }
+                disabledTime={() =>
+                  getEndDisabledTime(
+                    getFieldValue("date"),
+                    getFieldValue("start_time")
+                  )
+                }
+              />
+            </Form.Item>
+          )}
+        </Form.Item>
+      </div>
+
+      <Form.Item
+        label="User"
+        name="select_users"
+        rules={[{ required: true, message: "Please select user(s)" }]}
+      >
+        <Select
+          options={userOptions}
+          mode="multiple"
+          placeholder="Select User"
+          className="w-full"
+        />
+      </Form.Item>
+
+      {/* Notes */}
+      <Form.Item label="Notes" name="notes" rules={optionalNotesRule}>
+        <TextArea rows={3} placeholder="Additional notes" />
+      </Form.Item>
+
+      {/* Send to Customer + Actions */}
+      <div className="flex items-center justify-between mt-2">
+        <Form.Item
+          name="sendToCustomer"
+          valuePropName="checked"
+          className="mb-0"
+        >
+          <Switch /> Send this appointment to customer
+        </Form.Item>
+
+        <div className="flex gap-3">
+          <Button onClick={onCancel}>Cancel</Button>
+          <Button type="primary" htmlType="submit">
+            Save
+          </Button>
         </div>
-    );
+      </div>
+    </Form>
+  );
 };
 
 export default AddAppointmentCard;

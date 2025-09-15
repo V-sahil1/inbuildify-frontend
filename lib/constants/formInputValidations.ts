@@ -1,4 +1,4 @@
-import { message } from "antd";
+import dayjs from "dayjs";
 
 export const passwordRules = [
   { required: true, message: "Password is required" },
@@ -61,7 +61,7 @@ export const phoneRules = [
   { required: true, message: "Please enter phone" },
   {
     pattern: /^\d{10,15}$/,
-    message: "Phone number must be between 10 to 15 digits",
+    message: "Phone number must be number and between 10 to 15 digits",
   },
 ];
 
@@ -72,6 +72,58 @@ export const leadSourceRules = [
 export const addressRules = [
   { required: true, message: "Please enter address" },
   { min: 10, message: "Address must be at least 10 characters" },
+];
+
+const noWhitespace = {
+  validator: (_: any, value: string) => {
+    if (value && !value.trim()) {
+      return Promise.reject("Input cannot be only whitespace");
+    }
+    return Promise.resolve();
+  },
+};
+
+export const taskNameRules = [
+  { required: true, message: "Please enter title" },
+  { min: 3, message: "Title must be at least 3 characters" },
+  { max: 80, message: "Title must be at most 80 characters" },
+];
+
+export const descriptionRules = [
+  { required: true, message: "Please enter description" },
+  { min: 5, message: "Description must be at least 5 characters" },
+  { max: 500, message: "Description must be at most 500 characters" },
+  noWhitespace,
+];
+
+export const dueDateRules = [
+  { required: true, message: "Due date is required" },
+  {
+    validator: (_: any, value: any) => {
+      if (!value) return Promise.resolve();
+      const isValid = dayjs(value, "YYYY-MM-DD", true).isValid();
+      return isValid
+        ? Promise.resolve()
+        : Promise.reject("Date must be in format YYYY-MM-DD");
+    },
+  },
+];
+
+export const timeRules = [
+  { required: true, message: "Time is required" },
+  {
+    validator: (_: any, value: any) => {
+      if (!value) return Promise.resolve();
+      const isValid = dayjs(value, "HH:mm", true).isValid();
+      return isValid
+        ? Promise.resolve()
+        : Promise.reject("Time must be in format HH:mm");
+    },
+  },
+];
+
+export const priorityRules = [
+  { required: true, message: "Priority is required" },
 ];
 
 export const roleRules = [{ required: true, message: "Please select a role" }];
@@ -114,10 +166,10 @@ export const optionalPhoneRule = [
   {
     validator: (_: any, value: string) => {
       if (!value) return Promise.resolve(); // empty is ok
-      const regex = /^\+?[0-9]{10,15}$/; // e.g. +15550100
+      const regex = /^\d{10,15}$/; 
       return regex.test(value)
         ? Promise.resolve()
-        : Promise.reject(new Error("Phone number must be between 10 to 15 digits"));
+        : Promise.reject(new Error("Phone number must be number and between 10 to 15 digits"));
     },
   },
 ];
@@ -125,9 +177,13 @@ export const optionalPhoneRule = [
 export const optionalNotesRule = [
   {
     validator: (_: any, value: string) => {
-      if (!value) return Promise.resolve(); // empty is ok
-      if (value.length < 3) {
-        return Promise.reject(new Error("Notes should be at least 3 characters"));
+      if (!value) return Promise.resolve();  
+      const trimmed = value.trim();
+      if (trimmed.length === 0) return Promise.resolve(); 
+      if (trimmed.length < 3) {
+        return Promise.reject(
+          new Error("Notes should be at least 3 characters")
+        );
       }
       return Promise.resolve();
     },

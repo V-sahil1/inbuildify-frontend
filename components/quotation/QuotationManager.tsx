@@ -6,7 +6,9 @@ import ItemsPanel from "@/components/leadDetail/ItemsPanel";
 import { Plan } from "@/pages/leads/[id]";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { Status } from "@lib/constants/enum";
-import { toggleExpand } from "@redux/feature/masterPriceList/masterPriceListSlice";
+import {
+  toggleExpand,
+} from "@redux/feature/masterPriceList/masterPriceListSlice";
 import { IFacadeState } from "@redux/feature/facade/IFacadeState";
 import {
   fetchCategories,
@@ -35,6 +37,7 @@ import calculateTotalQuotation from "@lib/utils/calculateTotalQuotation";
 import SystemRoutes from "@lib/constants/Routes";
 import { useRouter } from "next/router";
 import { getDwellingTypes, getRanges } from "@redux/feature/types/typesThunk";
+import { clearFilters } from "@redux/feature/facade/facadeSlice";
 
 const QuotationManager = () => {
   const dispatch = useAppDispatch();
@@ -71,6 +74,12 @@ const QuotationManager = () => {
   const [selectedFacade, setSelectedFacade] = useState<
     IFacadeState | undefined
   >(facade);
+
+  useEffect(() => {
+    return () => {
+      dispatch(clearFilters());
+    };
+  }, [dispatch]);
 
   useEffect(() => {
     const fetchQuotation = async () => {
@@ -220,14 +229,14 @@ const QuotationManager = () => {
       quoteId: quoteId,
       quotationPayload: {
         ...(!quoteId && {
-          range: quotationFilters?.range,
-          dwellingType: quotationFilters?.dwelling_type,
           leadId: property?.leadId,
           propertyId: property?.propertyId,
-          floorPlanId: plan?.floorPlanId,
-          facadeId: facade?.facadeId,
-          packageId: selectedPackageFromSlice?.packageId,
         }),
+        range: quotationFilters?.range,
+        dwellingType: quotationFilters?.dwelling_type,
+        floorPlanId: plan?.floorPlanId,
+        facadeId: facade?.facadeId,
+        packageId: selectedPackageFromSlice?.packageId,
         items: getQuotationItems(),
       },
     };
@@ -371,7 +380,6 @@ const QuotationManager = () => {
         <StageProgress
           id={quoteDetails?.slugId || ""}
           title="Quotation"
-          status="Open"
           steps={[]}
         />
         <QuotationFilter isReadOnly={isReadOnly} />
@@ -413,6 +421,11 @@ const QuotationManager = () => {
               extraItem={extraItem}
               onExtraClick={handleExtraClick}
               isReadOnly={isReadOnly}
+              itemsLoading={
+                selectedCategory
+                  ? getCategoryById(selectedCategory)?.loadingItems ?? false
+                  : false
+              }
             />
           </>
         ) : (
