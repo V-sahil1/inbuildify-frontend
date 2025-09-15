@@ -1,4 +1,3 @@
-// src/store/auth/authSlice.ts
 import { createSlice } from "@reduxjs/toolkit";
 import { getUserThunk, logoutThunk, SignInThunk, updateUserThunk } from "./authThunk";
 import { Status } from "@lib/constants/enum";
@@ -26,14 +25,17 @@ const initialState: AuthState = {
 const authSlice = createSlice({
   name: "auth",
   initialState,
-  reducers: {},
+  reducers: {
+    logout: () => initialState,
+  },
   extraReducers: (builder) => {
-    // get user
-    builder.addCase(SignInThunk.fulfilled, (state,action) => {
+    // sign in
+    builder.addCase(SignInThunk.fulfilled, (state, action) => {
       storeAuthToken(action.payload.data.accessToken);
       storeRefreshToken(action.payload.data.refreshToken);
     });
-    
+
+    // get user
     builder.addCase(getUserThunk.pending, (state) => {
       state.status = Status.PENDING;
       state.error = null;
@@ -48,7 +50,8 @@ const authSlice = createSlice({
       state.status = Status.ERROR;
       state.error = action.payload as string;
     });
-    // logout
+
+    // logout thunk
     builder.addCase(logoutThunk.pending, (state) => {
       state.status = Status.PENDING;
     });
@@ -62,6 +65,7 @@ const authSlice = createSlice({
       state.status = Status.ERROR;
       state.error = action.payload as string;
     });
+
     // update user
     builder.addCase(updateUserThunk.pending, (state) => {
       state.status = Status.PENDING;
@@ -77,4 +81,6 @@ const authSlice = createSlice({
   },
 });
 
+export const { logout } = authSlice.actions;
 export const authReducer = authSlice.reducer;
+  

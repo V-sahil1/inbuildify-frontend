@@ -102,6 +102,7 @@ const Facade = () => {
       logo: facade?.image,
       standard: facade?.standard ? "TRUE" : "FALSE",
       upgrade: facade?.upgrade ? "TRUE" : "FALSE",
+      cost: facade?.cost?.toString().split(".")[0], 
     };
     setEditingFacade(mappedFacade);
     setIsModalVisible(true);

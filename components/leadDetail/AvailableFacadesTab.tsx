@@ -1,6 +1,8 @@
 import React, { useState } from "react";
-import { Card, Pagination } from "antd";
+import { Card, Pagination, Spin } from "antd";
 import Image from "next/image";
+import { Status } from "@lib/constants/enum";
+import { useAppSelector } from "@hooks/redux";
 
 interface AvailableFacadesTabProps {
   facades: any[];
@@ -14,6 +16,7 @@ const AvailableFacadesTab: React.FC<AvailableFacadesTabProps> = ({
   selectedFacade,
   onSelect,
 }) => {
+  const { status } = useAppSelector((state) => state.facade);
   const [currentPage, setCurrentPage] = useState(1);
   if (!facades?.length) {
     return (
@@ -26,6 +29,13 @@ const AvailableFacadesTab: React.FC<AvailableFacadesTabProps> = ({
   const endIndex = startIndex + PAGE_SIZE;
   const currentFacades = facades.slice(startIndex, endIndex);
 
+  if(status === Status.PENDING){
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Spin size="large" />
+      </div>
+    )
+  }
   return (
     <div className="flex flex-col md:flex-row gap-6 h-full">
       {/* Left side: Facade list */}

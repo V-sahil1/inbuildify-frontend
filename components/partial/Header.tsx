@@ -56,7 +56,8 @@ import { message } from "antd";
 import { useRouter } from "next/navigation";
 import SystemRoutes from "@lib/constants/Routes";
 import ConfirmationModal from "../common/ConfirmationModal";
-import { RootState } from "@redux/feature/store";
+import { persister, RootState } from "@redux/feature/store";
+import { logout } from "@redux/feature/auth/authSlice";
 type ColorPickerOption = {
   color: string;
   label: string;
@@ -313,19 +314,21 @@ export default function Header({
     };
   }, [searchBar]);
 
-  const handleSignOut = async () => {
-    try {
-      setIsLogoutLoading(true);
-      const response = await dispatch(logoutThunk()).unwrap();
-      message.success(response);
-      router.push(SystemRoutes.LOGIN);
-      setIsLogoutModalOpen(false);
-    } catch (e) {
-      message.error(e);
-    } finally {
-      setIsLogoutLoading(false);
-    }
-  };
+const handleSignOut = async () => {
+  try {
+    setIsLogoutLoading(true);
+    const response = await dispatch(logoutThunk()).unwrap();
+    message.success(response);
+    dispatch(logout());
+    persister.purge();
+    router.push(SystemRoutes.LOGIN);
+    setIsLogoutModalOpen(false);
+  } catch (e) {
+    message.error(e);
+  } finally {
+    setIsLogoutLoading(false);
+  }
+};
   const colorItem = [
     {
       name: "indigo",
