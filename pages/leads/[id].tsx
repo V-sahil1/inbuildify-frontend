@@ -365,12 +365,13 @@ function App() {
                       </div>
                     ),
                   }}
-                  renderItem={(quotation: QuotationResponse) => (
+                  renderItem={(quotation: any) => (
                     <List.Item
                       key={quotation?.quotationId}
-                      onClick={() =>
-                        router.push(`/quotation/${quotation?.quotationId}`)
-                      }
+                      onClick={() => {
+                        console.log("🚀 ~ App ~ quotation:", quotation);
+                        return router.push(`/quotation/${quotation?.versions[0]?.quotationVersionId}`);
+                      }}
                       style={{ cursor: "pointer" }}
                     >
                       <Space size="middle">

@@ -77,6 +77,8 @@ class API_ENDPOINTS {
 
   //quotation
   public static QUOTATION_BASE = "/quotation";
+  public static QUOTATION_VERSION = "/quotation/version";
+
   public static GET_QUOTATIONS_BY_LEAD_ID = (
     leadId: string,
     page: number,

@@ -34,3 +34,17 @@ export const getQuotationById = createAsyncThunk(
     }
   }
 );
+
+export const getQuotationVersionById = createAsyncThunk(
+  "quotation/getVersionById",
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const res = await api.get<ApiResponse<QuotationResponse>>(
+        API_ENDPOINTS.QUOTATION_VERSION + "/" + id
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);

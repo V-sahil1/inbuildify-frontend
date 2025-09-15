@@ -42,7 +42,8 @@ export interface QuotationResponse {
     dwellingTypeId: string;
     name: string;
   };
-  versions: Record<string, QuotationVersion[]>;
+  versions?: Record<string, QuotationVersion[]>;
+  items?:QuotationVersion[];
 }
 
 export type QuotationItemPayload = {
