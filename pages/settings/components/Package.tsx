@@ -138,13 +138,31 @@ const Package = () => {
         onCancel={() => {
           setIsModalVisible(false);
           setEditingPackage(null);
+          setFormValues({});
         }}
         onSubmit={handleCreatePackage}
         fields={packageFields(formValues)}
         loading={itemStatus === Status.PENDING}
         initialValues={editingPackage || {}}
         isEditing={!!editingPackage}
-        onValuesChange={setFormValues} 
+        onValuesChange={(allValues, form) => {
+          const changedValues: { range?: string; dwelling?: string } = {};
+          if (formValues.range !== allValues.range) {
+            changedValues.range = allValues.range;
+          }
+          if (formValues.dwelling !== allValues.dwelling) {
+            changedValues.dwelling = allValues.dwelling;
+          }
+
+          if (changedValues.range || changedValues.dwelling) {
+            // Clear the items selection using form.setFieldsValue
+            form.setFieldsValue({ categoryItemIds: [] });
+            // Also update the local formValues state to reflect the change
+            setFormValues({ ...allValues, categoryItemIds: [] });
+          } else {
+            setFormValues(allValues);
+          }
+        }} 
       />
 
       {addInstItemModal && <AddMasterPricingItemModal
