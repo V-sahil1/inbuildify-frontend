@@ -61,7 +61,7 @@ export const phoneRules = [
   { required: true, message: "Please enter phone" },
   {
     pattern: /^\d{10,15}$/,
-    message: "Phone number must be between 10 to 15 digits",
+    message: "Phone number must be number and between 10 to 15 digits",
   },
 ];
 
@@ -114,10 +114,10 @@ export const optionalPhoneRule = [
   {
     validator: (_: any, value: string) => {
       if (!value) return Promise.resolve(); // empty is ok
-      const regex = /^\+?[0-9]{10,15}$/; // e.g. +15550100
+      const regex = /^\d{10,15}$/; 
       return regex.test(value)
         ? Promise.resolve()
-        : Promise.reject(new Error("Phone number must be between 10 to 15 digits"));
+        : Promise.reject(new Error("Phone number must be number and between 10 to 15 digits"));
     },
   },
 ];

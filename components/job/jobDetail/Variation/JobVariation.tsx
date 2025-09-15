@@ -2,14 +2,15 @@
 import { IconDotsVertical } from "@tabler/icons-react";
 import { Button, Dropdown, Table, Tag } from "antd";
 import type { TableColumnsType } from "antd";
-import { JobVariationType } from "data/types";
+import { JobVariationDataType } from "data/types";
 
 
 type JobVariationProps = {
-    data: JobVariationType[]
+    data: JobVariationDataType[]
+    setActiveScreen: (screen: 'list' | 'createVariation') => void
 }
-const JobVariation: React.FC<JobVariationProps> = ({ data }) => {
-    const columns: TableColumnsType<JobVariationType> = [
+const JobVariation: React.FC<JobVariationProps> = ({ data, setActiveScreen }) => {
+    const columns: TableColumnsType<JobVariationDataType> = [
         {
             title: "Reference ID",
             dataIndex: "ReferenceID",
@@ -125,7 +126,7 @@ const JobVariation: React.FC<JobVariationProps> = ({ data }) => {
     return (
         <div className="flex flex-col justify-center bg-card-color">
             <div className="flex justify-end m-3">
-                <Button>New Variation</Button>
+                <Button onClick={() => setActiveScreen('createVariation')}>New Variation</Button>
             </div>
             <Table
                 columns={columns}

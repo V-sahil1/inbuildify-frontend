@@ -77,6 +77,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
   const { leadDetail } = useAppSelector((state) => state.lead);
   // const sliceContacts: ILeadContact[] = leadDetail?.contacts;
   const { selectedFilters } = useAppSelector((state) => state.quotation);
+  
   const handleEditLeadSubmit = async (values: any) => {
     const { type, hideAddressForm, ...details } = values;
     try {

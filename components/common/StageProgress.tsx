@@ -86,7 +86,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
       <div className="flex flex-col gap-2">
         {/* Info */}
         <div className="flex items-center gap-2">
-          <span className="font-medium">{title} {id && `- ${id}`}</span>
+          <span className="font-medium">{title} <span className="text-secondary">{id && `- ${id}`}</span></span>
           {
             status && (
               <Tag color="cyan" className="rounded-md">
@@ -107,7 +107,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
                 key={step.key}
                 onClick={() => step.onClick?.(step.key)}
                 className={`
-                flex-1 text-center py-2 cursor-pointer select-none
+                flex-1 text-center py-2 cursor-pointer select-none text-font-color
                 ${step.color}
                 ${isActive && step.textColor ? step.textColor : "text-gray-700"}
                 transition-colors

@@ -12,11 +12,17 @@ const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
   onFormChange,
 }) => {
   const [form] = Form.useForm();
-  const fields = facadeFields();
+  const fields = facadeFields({isDwellingDisable: true});
 
   useEffect(() => {
     form.setFieldsValue(initialValues || {});
   }, [initialValues, form]);
+
+  useEffect(() => {
+    form.setFieldsValue({
+      dwelling_type: fields.find((field) => field.name === "dwelling_type")?.initialValue,
+    });
+  }, [fields]);
 
   const handleValuesChange = () => {
     onFormChange(form.getFieldsValue());
@@ -38,7 +44,13 @@ const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
               label={field.label}
               rules={field.rules}
             >
-              <Select options={field.options} placeholder={field.placeholder} />
+              <Select
+                options={field.options}
+                placeholder={field.placeholder}
+                disabled
+                value={field.initialValue}
+                // className="white-disabled-select"
+              />
             </Form.Item>
           );
         }

@@ -46,7 +46,7 @@ const LeadQuotationList = () => {
         <Collapse
           className="bg-card-color"
           bordered={false}
-          defaultActiveKey={quotations[0].quotationId}
+          defaultActiveKey={quotations?.[0]?.quotationId}
           expandIcon={({ isActive }) =>
             isActive ? (
               <IconChevronUp
@@ -63,11 +63,11 @@ const LeadQuotationList = () => {
             )
           }
         >
-          {quotations.map((quotation: QuotationResponse) => (
+          {quotations?.map((quotation: QuotationResponse) => (
               <Panel
                 header={
                   <div className="flex justify-between items-center text-[var(--font-color)] w-full">
-                    <span>{quotation.slugId}</span>
+                    <span>{quotation?.slugId}</span>
                     <Button
                     type="primary"
                     disabled={Array.isArray(quotation.versions) && quotation.versions.length < 2}
@@ -77,7 +77,7 @@ const LeadQuotationList = () => {
                     </Button>
                   </div>
                 }
-                key={quotation.quotationId}
+                key={quotation?.quotationId}
               >
                 <Table
                   dataSource={Array.isArray(quotation.versions) ? quotation.versions : []}

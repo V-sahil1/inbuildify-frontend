@@ -11,7 +11,7 @@ class SystemRoutes {
   public static MY_PROFILE = `/my-profile`;
   public static QUOTATION = `/quotation`;
   public static QUOTATION_CREATE = (leadId: string | number) => `${this.QUOTATION}/create/${leadId}`;
-  public static SETTING = `/setting`;
+  public static SETTINGS = `/settings`;
 
   public static LEADS = `/leads`;
   public static JOB = `/job`;

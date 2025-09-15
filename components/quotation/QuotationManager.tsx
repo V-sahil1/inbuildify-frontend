@@ -6,7 +6,9 @@ import ItemsPanel from "@/components/leadDetail/ItemsPanel";
 import { Plan } from "@/pages/leads/[id]";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { Status } from "@lib/constants/enum";
-import { toggleExpand } from "@redux/feature/masterPriceList/masterPriceListSlice";
+import {
+  toggleExpand,
+} from "@redux/feature/masterPriceList/masterPriceListSlice";
 import { IFacadeState } from "@redux/feature/facade/IFacadeState";
 import {
   fetchCategories,
@@ -24,6 +26,7 @@ import React, {
 import {
   createQuotation,
   getQuotationById,
+  getQuotationVersionById,
 } from "@redux/feature/quotation/quotationThunk";
 import { message, Spin } from "antd";
 import QuotationFilter from "@/components/quotation/QuotationFilter";
@@ -35,16 +38,18 @@ import calculateTotalQuotation from "@lib/utils/calculateTotalQuotation";
 import SystemRoutes from "@lib/constants/Routes";
 import { useRouter } from "next/router";
 import { getDwellingTypes, getRanges } from "@redux/feature/types/typesThunk";
+import { clearFilters } from "@redux/feature/facade/facadeSlice";
 
 const QuotationManager = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { id } = router.query;
-  const { quoteId } = router.query as { quoteId: string };
+  const { quoteVersionId } = router.query as { quoteVersionId: string };
+  console.log("🚀 ~ QuotationManager ~ quoteVersionId:", quoteVersionId)
   const [isEditMode, setIsEditMode] = useState(false);
   const isReadOnly = useMemo(
-    () => !!quoteId && !isEditMode,
-    [quoteId, isEditMode]
+    () => !!quoteVersionId && !isEditMode,
+    [quoteVersionId, isEditMode]
   );
   const { user } = useAppSelector((state) => state.auth);
   const {
@@ -73,18 +78,24 @@ const QuotationManager = () => {
   >(facade);
 
   useEffect(() => {
-    const fetchQuotation = async () => {
-      await dispatch(getQuotationById(quoteId as string)).unwrap();
+    return () => {
+      dispatch(clearFilters());
     };
-    if (quoteId) {
+  }, [dispatch]);
+
+  useEffect(() => {
+    const fetchQuotation = async () => {
+      await dispatch(getQuotationVersionById(quoteVersionId as string)).unwrap();
+    };
+    if (quoteVersionId) {
       fetchQuotation();
     }
-  }, [dispatch, quoteId]);
+  }, [dispatch, quoteVersionId]);
 
   // Reset edit mode when quoteId changes
   useEffect(() => {
     setIsEditMode(false);
-  }, [quoteId]);
+  }, [quoteVersionId]);
 
   // Sync local state with Redux store
   useEffect(() => {
@@ -93,7 +104,7 @@ const QuotationManager = () => {
 
   // Function to check if a field should be disabled
   const isFieldDisabled = (fieldName: string) => {
-    return !!quoteId && !isEditMode;
+    return !!quoteVersionId && !isEditMode;
   };
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
@@ -217,17 +228,17 @@ const QuotationManager = () => {
 
   const createQuotationPayload = () => {
     return {
-      quoteId: quoteId,
+      ...(quoteVersionId && {quoteId: quoteDetails?.quotationId}),
       quotationPayload: {
-        ...(!quoteId && {
-          range: quotationFilters?.range,
-          dwellingType: quotationFilters?.dwelling_type,
+        ...(!quoteVersionId && {
           leadId: property?.leadId,
           propertyId: property?.propertyId,
-          floorPlanId: plan?.floorPlanId,
-          facadeId: facade?.facadeId,
-          packageId: selectedPackageFromSlice?.packageId,
         }),
+        range: quotationFilters?.range,
+        dwellingType: quotationFilters?.dwelling_type,
+        floorPlanId: plan?.floorPlanId,
+        facadeId: facade?.facadeId,
+        packageId: selectedPackageFromSlice?.packageId,
         items: getQuotationItems(),
       },
     };
@@ -237,7 +248,7 @@ const QuotationManager = () => {
     try {
       const payload = createQuotationPayload();
       const response = await dispatch(createQuotation(payload)).unwrap();
-      if (!quoteId) {
+      if (!quoteVersionId) {
         dispatch(
           updateLeadStatus({
             leadId: response?.leadId,
@@ -247,7 +258,7 @@ const QuotationManager = () => {
         );
       }
       message.success(
-        quoteId
+        quoteVersionId
           ? "Quotation updated successfully"
           : "Quotation created successfully"
       );
@@ -357,7 +368,7 @@ const QuotationManager = () => {
     canFacade &&
     canSelectedPackageFromSlice;
 
-  if (quoteId && quotationStatus.getById === Status.PENDING) {
+  if (quoteVersionId && quotationStatus.getById === Status.PENDING) {
     return (
       <div className="flex items-center justify-center flex-1">
         <Spin />
@@ -371,7 +382,6 @@ const QuotationManager = () => {
         <StageProgress
           id={quoteDetails?.slugId || ""}
           title="Quotation"
-          status="Open"
           steps={[]}
         />
         <QuotationFilter isReadOnly={isReadOnly} />
@@ -413,6 +423,11 @@ const QuotationManager = () => {
               extraItem={extraItem}
               onExtraClick={handleExtraClick}
               isReadOnly={isReadOnly}
+              itemsLoading={
+                selectedCategory
+                  ? getCategoryById(selectedCategory)?.loadingItems ?? false
+                  : false
+              }
             />
           </>
         ) : (
@@ -435,7 +450,7 @@ const QuotationManager = () => {
             itemsFromSlice,
             Number(facade?.cost)
           )}
-          quoteId={quoteId}
+          quoteVersionId={quoteVersionId}
           isEditMode={isEditMode}
           onEdit={() => setIsEditMode(true)}
           onCancel={() => setIsEditMode(false)}

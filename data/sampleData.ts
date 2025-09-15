@@ -1,5 +1,4 @@
-import { ColorCategory, LeadDetails } from './types';
-import { ConceptTask } from './types';
+import { ColorCategory, JobVariationDataType, JobVariationItems, LeadDetails } from './types';
 // export const quotationData: Quotation = {
 //   id: 'MYH23070085',
 //   version: 'V1',
@@ -308,95 +307,229 @@ export const ColorItemList: ColorCategory[] = [
   },
 ];
 
-export const conceptTasks: ConceptTask[] = [
-    {
-      id: 1,
-      task: 'Request for the Sketch',
-      tag: 'Sales Execut.',
-      estimatedDate: '12 Aug 2023',
-      actualDate: '10 Aug 2023',
-      link:'',
-      user: 'MM',
-      status:'inactive',
-    },
-    {
-      id: 2,
-      task: 'Receive Sketch from the Draftperson',
-      tag: 'Sales Execut.',
-      estimatedDate: '12 Aug 2023',
-      actualDate: '10 Aug 2023',
-      link:'https://www.youtube.com/watch?v=2sLVTD_gTUA',
-      user: 'MM',
-      status:'inactive',
-    },
-    {
-      id: 3,
-      task: 'Sketch Signoff from client',
-      tag: 'Sales Execut.',
-      estimatedDate: '11 Aug 2023',
-      actualDate: '10 Aug 2023',
-      link:'',
-      user: 'Madan',
-      status:'active'
-    },
-    {
-      id: 4,
-      task: 'New Task',
-      tag: 'Designer',
-      estimatedDate: '15 Sep 2023',
-      actualDate: '14 Sep 2023',
-      link:'',
-      user: 'AB',
-      status:'active'
-    },
-    {
-      id: 5,
-      task: 'New Task',
-      tag: 'Designer',
-      estimatedDate: '15 Sep 2023',
-      actualDate: '14 Sep 2023',
-      link:'',
-      user: 'AB',
-      status:'inactive'
-    },
-    {
-      id: 6,
-      task: 'New Task',
-      tag: 'Designer',
-      estimatedDate: '15 Sep 2023',
-      actualDate: '14 Sep 2023',
-      link:'',
-      user: 'AB',
-      status:'active'
-    },
-    {
-      id: 7,
-      task: 'New Task',
-      tag: 'Designer',
-      estimatedDate: '15 Sep 2023',
-      actualDate: '14 Sep 2023',
-      link:'',
-      user: 'AB',
-      status:'inactive'
-    },
-    {
-      id: 8,
-      task: 'New Task',
-      tag: 'Designer',
-      estimatedDate: '15 Sep 2023',
-      actualDate: '14 Sep 2023',
-      link:'',
-      user: 'AB',
-      status:'active'
-    },
-    {
-      id: 9,
-      task: 'New Task',
-      tag: 'Designer',
-      estimatedDate: '15 Sep 2023',
-      actualDate: '14 Sep 2023',
-      link:'',
-      user: 'AB',
-      status:'inactive'
-    },
-  ];
+
+export const WorkStepsChecklist = [
+  {
+    title: 'Deposite',
+    checklist: [
+      {
+        id: 1,
+        task: 'Sketch Signoff from client',
+        tag: 'Sales Execut.',
+        estimatedDate: '11 Aug 2023',
+        actualDate: '10 Aug 2023',
+        link: '#',
+        user: 'Madan',
+        status: 'active',
+      },
+      {
+        id: 2,
+        task: 'New Task',
+        tag: 'Designer',
+        estimatedDate: '15 Sep 2023',
+        actualDate: '14 Sep 2023',
+        link: '',
+        user: 'AB',
+        status: 'inactive',
+      },
+    ],
+  },
+  {
+    title: 'Concept',
+    checklist: [
+      {
+        id: 3,
+        task: 'Sketch Signoff from client',
+        tag: 'Sales Execut.',
+        estimatedDate: '11 Aug 2023',
+        actualDate: '10 Aug 2023',
+        link: '',
+        user: 'Madan',
+        status: 'inactive',
+      },
+      {
+        id: 4,
+        task: 'Client Meeting',
+        tag: 'Project Manager',
+        estimatedDate: '16 Sep 2023',
+        actualDate: '16 Sep 2023',
+        link: '',
+        user: 'Nina',
+        status: 'active',
+      },
+      {
+        id: 13,
+        task: 'Review Color Options with Client',
+        tag: 'Color Consultant',
+        estimatedDate: '22 Sep 2023',
+        actualDate: '22 Sep 2023',
+        link: '',
+        user: 'Michael',
+        status: 'inactive',
+      },
+    ],
+  },
+  {
+    title: 'Colour Selection',
+    checklist: [
+      {
+        id: 5,
+        task: 'Select Interior Colors',
+        tag: 'Interior Designer',
+        estimatedDate: '20 Sep 2023',
+        actualDate: '20 Sep 2023',
+        link: '',
+        user: 'Laura',
+        status: 'active',
+      },
+      {
+        id: 6,
+        task: 'Review Color Options with Client',
+        tag: 'Color Consultant',
+        estimatedDate: '22 Sep 2023',
+        actualDate: '22 Sep 2023',
+        link: '',
+        user: 'Michael',
+        status: 'inactive',
+      },
+    ],
+  },
+  {
+    title: 'Contract Drawing',
+    checklist: [
+      {
+        id: 7,
+        task: 'Prepare Floor Plan',
+        tag: 'Architect',
+        estimatedDate: '25 Sep 2023',
+        actualDate: '25 Sep 2023',
+        link: '',
+        user: 'Emma',
+        status: 'active',
+      },
+      {
+        id: 8,
+        task: 'Client Signoff on Drawing',
+        tag: 'Architect',
+        estimatedDate: '27 Sep 2023',
+        actualDate: '26 Sep 2023',
+        link: '',
+        user: 'Emma',
+        status: 'inactive',
+      },
+    ],
+  },
+  {
+    title: 'Approval & Contract',
+    checklist: [
+      {
+        id: 9,
+        task: 'Submit Documents for Approval',
+        tag: 'Admin',
+        estimatedDate: '29 Sep 2023',
+        actualDate: '29 Sep 2023',
+        link: '',
+        user: 'John',
+        status: 'inactive',
+      },
+      {
+        id: 10,
+        task: 'Sign Contract',
+        tag: 'Client',
+        estimatedDate: '30 Sep 2023',
+        actualDate: '30 Sep 2023',
+        link: '',
+        user: 'Murthy',
+        status: 'active',
+      },
+    ],
+  },
+  {
+    title: 'Permits & Pre Construction',
+    checklist: [
+      {
+        id: 11,
+        task: 'Apply for Building Permit',
+        tag: 'Admin',
+        estimatedDate: '02 Oct 2023',
+        actualDate: '01 Oct 2023',
+        link: '',
+        user: 'Sophie',
+        status: 'active',
+      },
+      {
+        id: 12,
+        task: 'Site Preparation',
+        tag: 'Construction Manager',
+        estimatedDate: '05 Oct 2023',
+        actualDate: '05 Oct 2023',
+        link: '',
+        user: 'Liam',
+        status: 'inactive',
+      },
+    ],
+  },
+];
+
+
+export const JobVariationData: JobVariationDataType[] = [
+  {
+      ReferenceID: 'MYH00486-V1',
+      Amount: 7000.00,
+      RequestedBy: 'Aman',
+      DelayedBy: 'Hiren',
+      DrawingChanges: "Yes",
+      Created: { user: 'MM', date: "1/1/2002" },
+      Approved: { user: 'MM', date: "1/1/2002" },
+      Status: 'Approved',
+      Invoice: 'invoice',
+      Profile: 'MM'
+  },
+  {
+      ReferenceID: 'MYH00486-V2',
+      Amount: 7000.00,
+      RequestedBy: 'Aman',
+      DelayedBy: 'Hiren',
+      DrawingChanges: "No",
+      Created: { user: 'MM', date: "1/1/2002" },
+      Approved: { user: 'MM', date: "1/1/2002" },
+      Status: 'Approved',
+      Invoice: 'invoice',
+      Profile: 'A'
+  },
+  {
+      ReferenceID: 'MYH00486-V3',
+      Amount: 7000.00,
+      RequestedBy: 'Aman',
+      DelayedBy: 'Hiren',
+      DrawingChanges: "Yes",
+      Created: { user: 'MM', date: "1/1/2002" },
+      Approved: { user: 'MM', date: "1/1/2002" },
+      Status: 'Draft',
+      Invoice: 'invoice',
+      Profile: 'A'
+  },
+]
+
+export const JobVariationCreateTableData: JobVariationItems[] = [
+  {
+    key: '1',
+    additional: 'Additional',
+    siteCost: 'Site Cost',
+    cost: 'Cost',
+    drawingChanges: false,
+    quantity: 2,
+    price: 2.10,
+    total: 4.20,
+  },
+  {
+    key: '2',
+    additional: 'Additional',
+    siteCost: 'Site Cost',
+    cost: 'Cost',
+    drawingChanges: false,
+    quantity: 4,
+    price: 4.10,
+    total: 16.40,
+  },
+];

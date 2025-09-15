@@ -119,20 +119,20 @@ const packageSlice = createSlice({
       state.status.items = Status.PENDING;
     });
     builder.addCase(fetchPackageItems.fulfilled, (state, action) => {
-      const currentItems = state.items || [];
-      const newItems = action.payload || [];
+      // const currentItems = state.items || [];
+      state.items = action.payload || [];
 
-      const existingIds = new Set(
-        currentItems.map((item) => item.categoryItemId)
-      );
-      const uniqueNewItems = newItems.filter(
-        (item) => !existingIds.has(item.categoryItemId)
-      );
-      if (uniqueNewItems.length > 0) {
-        state.items = [...currentItems, ...uniqueNewItems];
-      } else if (currentItems.length === 0) {
-        state.items = newItems;
-      }
+      // const existingIds = new Set(
+      //   currentItems.map((item) => item.categoryItemId)
+      // );
+      // const uniqueNewItems = newItems.filter(
+      //   (item) => !existingIds.has(item.categoryItemId)
+      // );
+      // if (uniqueNewItems.length > 0) {
+      //   state.items = [...currentItems, ...uniqueNewItems];
+      // } else if (currentItems.length === 0) {
+      //   state.items = newItems;
+      // }
 
       state.status.items = Status.SUCCESS;
     });
