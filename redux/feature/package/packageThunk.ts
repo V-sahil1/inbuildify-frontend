@@ -9,6 +9,8 @@ type createPackagePayload = {
   name: string;
   category_item_ids: string[];
   amount: number;
+  range?: string;
+  dwelling_type?: string;
 };
 
 type updatePackagePayload = {

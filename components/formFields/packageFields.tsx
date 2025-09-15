@@ -9,9 +9,6 @@ import { Item } from "@redux/feature/masterPriceList/iMasterPriceListState";
 import { setAddInstItemModal } from "@redux/feature/package/packageSlice";
 
 export const packageFields = ( selectedValues?: { range?: string; dwelling?: string }): CreateFormField[] => {
-  const itemStatus = useAppSelector(
-    (state: RootState) => state.package.status.items
-  );
   const {range , dwellingType} = useAppSelector((state) => state.types);
   const items = useAppSelector((state: RootState) => state.package.items);
   const dispatch = useAppDispatch();

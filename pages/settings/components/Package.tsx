@@ -20,7 +20,7 @@ const Package = () => {
   const { addInstItemModal } = useAppSelector((state: RootState) => state.package);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingPackage, setEditingPackage] = useState<IPackage | null>(null);
-  const [formValues, setFormValues] = useState({}); // For Diabling Select of items based on range and dwelling type
+  const [formValues, setFormValues] = useState<{range?: string; dwelling?: string}>({}); // For Diabling Select of items based on range and dwelling type
 
   useEffect(() => {
     if (getAllStatus === Status.IDLE) {
@@ -30,17 +30,18 @@ const Package = () => {
   
   const handleOpenModal = () => {
     setFormValues({});
+    setEditingPackage(null);
     setIsModalVisible(true);
   };
 
   const handleCreatePackage = async (values: any) => {
-    const { range, dwelling, ...payload } = values; //Removed range and dwelling from payload
+    // const { range, dwelling, ...payload } = values; //Removed range and dwelling from payload
     try {
       if (editingPackage) {
         await dispatch(updatePackage({ id: editingPackage.packageId, ...values })).unwrap();
         message.success('Package updated successfully');
       } else {
-        await dispatch(createPackage(payload)).unwrap();
+        await dispatch(createPackage(values)).unwrap();
         message.success('Package created successfully');
       }
       setIsModalVisible(false);
@@ -58,6 +59,14 @@ const Package = () => {
         ? pkg.categoryItemDescriptions.filter((desc) => desc != null)
         : [],
     };
+
+    // Set the selected values for range and dwelling when editing
+    if (pkg.range && pkg.dwelling) {
+      setFormValues({
+        range: pkg.range,
+        dwelling: pkg.dwelling
+      });
+    }
 
     setEditingPackage(mappedPackage);
     setIsModalVisible(true);
