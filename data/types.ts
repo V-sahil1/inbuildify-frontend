@@ -276,3 +276,27 @@ export interface WorkStepsChecklist{
   title: string,
   checkList: JobWorkFlowChecklist[]
 }
+
+export interface JobVariationDataType {
+  ReferenceID: string,
+  Amount: number,
+  RequestedBy: string,
+  DelayedBy: string,
+  DrawingChanges: string,
+  Created: { user: string, date: string },
+  Approved: { user: string, date: string },
+  Status: string,
+  Invoice: string,
+  Profile: string
+}
+
+export interface JobVariationItems {
+  key: string;
+  additional: string;
+  siteCost: string;
+  cost: string;
+  drawingChanges: boolean;
+  quantity: number;
+  price: number;
+  total: number;
+}

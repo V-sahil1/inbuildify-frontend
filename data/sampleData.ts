@@ -1,4 +1,4 @@
-import { ColorCategory, LeadDetails } from './types';
+import { ColorCategory, JobVariationDataType, JobVariationItems, LeadDetails } from './types';
 // export const quotationData: Quotation = {
 //   id: 'MYH23070085',
 //   version: 'V1',
@@ -468,5 +468,68 @@ export const WorkStepsChecklist = [
         status: 'inactive',
       },
     ],
+  },
+];
+
+
+export const JobVariationData: JobVariationDataType[] = [
+  {
+      ReferenceID: 'MYH00486-V1',
+      Amount: 7000.00,
+      RequestedBy: 'Aman',
+      DelayedBy: 'Hiren',
+      DrawingChanges: "Yes",
+      Created: { user: 'MM', date: "1/1/2002" },
+      Approved: { user: 'MM', date: "1/1/2002" },
+      Status: 'Approved',
+      Invoice: 'invoice',
+      Profile: 'MM'
+  },
+  {
+      ReferenceID: 'MYH00486-V2',
+      Amount: 7000.00,
+      RequestedBy: 'Aman',
+      DelayedBy: 'Hiren',
+      DrawingChanges: "No",
+      Created: { user: 'MM', date: "1/1/2002" },
+      Approved: { user: 'MM', date: "1/1/2002" },
+      Status: 'Approved',
+      Invoice: 'invoice',
+      Profile: 'A'
+  },
+  {
+      ReferenceID: 'MYH00486-V3',
+      Amount: 7000.00,
+      RequestedBy: 'Aman',
+      DelayedBy: 'Hiren',
+      DrawingChanges: "Yes",
+      Created: { user: 'MM', date: "1/1/2002" },
+      Approved: { user: 'MM', date: "1/1/2002" },
+      Status: 'Draft',
+      Invoice: 'invoice',
+      Profile: 'A'
+  },
+]
+
+export const JobVariationCreateTableData: JobVariationItems[] = [
+  {
+    key: '1',
+    additional: 'Additional',
+    siteCost: 'Site Cost',
+    cost: 'Cost',
+    drawingChanges: false,
+    quantity: 2,
+    price: 2.10,
+    total: 4.20,
+  },
+  {
+    key: '2',
+    additional: 'Additional',
+    siteCost: 'Site Cost',
+    cost: 'Cost',
+    drawingChanges: false,
+    quantity: 4,
+    price: 4.10,
+    total: 16.40,
   },
 ];

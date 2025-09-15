@@ -3,34 +3,11 @@
 import StageProgress from "@/components/common/StageProgress";
 import WorkflowSteps from "@/components/common/WorkflowSteps";
 import JobAction from "@/components/job/jobDetail/JobAction";
-import JobVariation from "@/components/job/jobDetail/JobVariation";
+import JobVariationManager from "@/components/job/jobDetail/Variation/JobVariationManager";
+import SystemRoutes from "@lib/constants/Routes";
 import { Result, Tabs } from "antd";
 import router from "next/router";
 const { TabPane } = Tabs;
-
-const steps = [
-  {
-    key: "contact",
-    label: "Contact",
-    onClick: () => { },
-    color: "bg-blue-500",
-    textColor: "text-white",
-  },
-  {
-    key: "property",
-    label: "Property",
-    onClick: () => { },
-    color: "bg-blue-500",
-    textColor: "text-white",
-  },
-  {
-    key: "plan",
-    label: "Plan",
-    onClick: () => { },
-    color: "bg-blue-500",
-    textColor: "text-white",
-  }
-];
 
 const workFlowSteps = [
   {
@@ -49,7 +26,7 @@ const workFlowSteps = [
     color: 'bg-green-300',
     icon: '2',
     date: '12/03/2025',
-    onClick: () => { router.push(`/job/status`) }
+    onClick: () => { router.push(`/${SystemRoutes.JOB}/status`) }
   },
   {
     key: 'Color',
@@ -58,7 +35,7 @@ const workFlowSteps = [
     color: 'bg-cyan-500',
     icon: 'MM',
     date: '12/03/2025',
-    onClick: () => { router.push(`/job/colour`) }
+    onClick: () => { router.push(`/${SystemRoutes.JOB}/colour`) }
   },
   {
     key: 'Construction',
@@ -78,47 +55,6 @@ const workFlowSteps = [
     date: '',
     onClick: () => { }
   },
-]
-
-const JobVariationData = [
-  {
-    ReferenceID: 'MYH00486-V1',
-    Amount: 7000.00,
-    RequestedBy: 'Aman',
-    DelayedBy: 'Hiren',
-    DrawingChanges: "Yes",
-    Created: { user: 'MM', date: "1/1/2002" },
-    Approved: { user: 'MM', date: "1/1/2002" },
-    Status: 'Approved',
-    Invoice: 'invoice',
-    Profile: 'MM'
-  },
-  {
-    ReferenceID: 'MYH00486-V2',
-    Amount: 7000.00,
-    RequestedBy: 'Aman',
-    DelayedBy: 'Hiren',
-    DrawingChanges: "No",
-    Created: { user: 'MM', date: "1/1/2002" },
-    Approved: { user: 'MM', date: "1/1/2002" },
-    Status: 'Approved',
-    Invoice: 'invoice',
-    Profile: 'A'
-  },
-  {
-    ReferenceID: 'MYH00486-V3',
-    Amount: 7000.00,
-    RequestedBy: 'Aman',
-    DelayedBy: 'Hiren',
-    DrawingChanges: "Yes",
-    Created: { user: 'MM', date: "1/1/2002" },
-    Approved: { user: 'MM', date: "1/1/2002" },
-    Status: 'Draft',
-    Invoice: 'invoice',
-    Profile: 'A'
-  },
-
-
 ]
 
 export default function JobDetail() {
@@ -151,7 +87,7 @@ export default function JobDetail() {
             <div className="bg-card-color"><Result title="Document Functionality coming soon" subTitle="Please check back later" /></div>
           </TabPane>
           <TabPane tab="Variations" key="Variations">
-            <JobVariation data={JobVariationData} />
+            <JobVariationManager />
           </TabPane>
           <TabPane tab="Invoices & Payments" key="Invoices & Payments">
             <div className="bg-card-color"><Result title="Invoices & Payments Functionality coming soon" subTitle="Please check back later" /></div>

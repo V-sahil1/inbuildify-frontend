@@ -164,6 +164,9 @@ const theme = {
       colorPrimary:'var(--primary)',
       colorTextDescription:'var(--font-color)',
       colorText:'var(--font-color)',
+    },
+    Empty:{
+      colorTextDescription:'var(--font-color-100)',
     }
   },
 };
