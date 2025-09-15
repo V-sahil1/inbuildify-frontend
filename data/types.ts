@@ -90,30 +90,86 @@
 export type ActionType = "addNotes" | "sendSms" | "bookAppointment" | "createTask" | null;
 export type TimelineType = "Tasks" | "Notes" | "Sms" | "Appointments";
 
+// export interface NoteDetails {
+//   // title: string;
+//   // description: string;
+//   type?: string;
+//   message: string;
+//   tags: string[];
+//   sendToCustomer?: boolean;
+//   createFollowUpTask?: boolean;
+//   task:{
+//     due_date?: string;
+//     name?: string;
+//     priority?: string;
+//     dueDate?: string;
+//   }
+//   attachment?: Array<{ uid: string; name: string; status?: string; url?: string }>;
+//   // attachment?: { uid: string; name: string; status?: string; url?: string };
+// }
+
+// export interface AppointmentDetails {
+//   type?: string;
+//   title: string;
+//   date: string;
+//   startTime: string;
+//   endTime: string;
+//   location: string;
+//   user: string;
+//   notes: string;
+//   sendToCustomer?: boolean;
+// }
+
+// export interface TaskDetails {
+//   type?: string;
+//   task:{
+//     name: string;
+//     dueDate: string;
+//     time: string;
+//     priority: "LOW" | "MEDIUM" | "HIGH";
+//     description: string;
+//     assignee: string;
+//   }
+//   attachment?: any[]; // You might want to define a more specific type for files
+// }
+
+// export interface SmsDetails {
+//   type?: string;
+//   message: string;
+//   recipient: string;
+// }
+export interface NoteTag {
+  name: string;
+}
+export interface NoteAttachment {
+  uid: string;
+  name: string;
+  status?: string;
+  url?: string;
+}
+
+export interface NoteTask {
+  due_date?: string; // sometimes API may return this snake_case
+  dueDate?: string;  // sometimes camelCase
+  name?: string;
+  priority?: string;
+}
 export interface NoteDetails {
-  // title: string;
-  // description: string;
   type?: string;
   message: string;
-  tags: string[];
+  tags: NoteTag[]; 
   sendToCustomer?: boolean;
   createFollowUpTask?: boolean;
-  task:{
-    due_date?: string;
-    name?: string;
-    priority?: string;
-    dueDate?: string;
-  }
-  attachment?: Array<{ uid: string; name: string; status?: string; url?: string }>;
-  // attachment?: { uid: string; name: string; status?: string; url?: string };
+  task?: NoteTask;
+  attachment?: NoteAttachment[];
 }
 
 export interface AppointmentDetails {
   type?: string;
   title: string;
-  date: string;
-  startTime: string;
-  endTime: string;
+  date: string; // e.g. "2025-09-15"
+  startTime: string; // e.g. "10:00"
+  endTime: string;   // e.g. "11:00"
   location: string;
   user: string;
   notes: string;
@@ -122,39 +178,50 @@ export interface AppointmentDetails {
 
 export interface TaskDetails {
   type?: string;
-  task:{
-    name: string;
-    dueDate: string;
-    time: string;
-    priority: "LOW" | "MEDIUM" | "HIGH";
-    description: string;
-    assignee: string;
-  }
-  attachment?: any[]; // You might want to define a more specific type for files
+  name: string; // ✅ you directly use task[0].name
+  dueDate: string; // ✅ formatted with dayjs in TimelineCard
+  time: string; // "HH:mm" or "HH:mm:ss"
+  priority: "LOW" | "MEDIUM" | "HIGH";
+  description: string;
+  assignee: string;
+  attachment?: { uid: string; name: string; url?: string }[];
 }
 
 export interface SmsDetails {
   type?: string;
-  message: string;
-  recipient: string;
+  message: string; // ✅ you use this in title & description
+  recipient?: string; // optional, since you wrote `SMS to ${message}`
+}
+
+// New: normalized item shape used by TimelineCard for display
+export interface TimelineItem {
+  type: "NOTES" | "APPOINTMENT" | "TASK" | "SMS";
+  createdByName: string;
+  notes?: NoteDetails[];
+  appointment?: AppointmentDetails[];
+  task?: TaskDetails[];
+  sms?: SmsDetails[];
 }
 
 export interface BaseTimelineCardProps {
   date: string;
-  createdBy: string;
+  createdByName: string;
   createdAt: string;
-  item: TimelineCardProps;
+  item?: TimelineItem; // optional to allow rendering empty form state
   status?: "completed" | "pending" | "working" | "";
   onEdit?: (updated: TimelineCardProps) => void; // send updated values to parent
   onReschedule?: () => void;
   children?: React.ReactNode;
 }
 
-export type TimelineCardProps =
-  | (BaseTimelineCardProps & { type: "NOTES"; data: NoteDetails })
-  | (BaseTimelineCardProps & { type: "APPOINTMENT"; data: AppointmentDetails })
-  | (BaseTimelineCardProps & { type: "TASK"; data: TaskDetails })
-  | (BaseTimelineCardProps & { type: "SMS"; data: SmsDetails });
+// export type TimelineCardProps =
+//   | (BaseTimelineCardProps & { type: "NOTES"; notes: NoteDetails })
+//   | (BaseTimelineCardProps & { type: "APPOINTMENT"; appointment: AppointmentDetails })
+//   | (BaseTimelineCardProps & { type: "TASK"; task: TaskDetails })
+//   | (BaseTimelineCardProps & { type: "SMS"; sms: SmsDetails });
+export interface TimelineCardProps extends BaseTimelineCardProps {
+  type: "NOTES" | "APPOINTMENT" | "TASK" | "SMS";
+}
 
   // Lead Detail Quotation
   export type QuotationStatus = "approved" | "pending" | "rejected" | "all";

@@ -28,7 +28,7 @@ import {
 } from "@lib/utils/getDisabledTimeDate";
 
 interface CreateTaskCardProps {
-    onSave: (task: TaskDetails) => Promise<void>;
+    onSave: (task: any) => void;
     onCancel: () => void;
     initialData?: TaskDetails;
 }
@@ -48,17 +48,17 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
   const [submitting, setSubmitting] = useState<boolean>(false);
   const { users, status } = useAppSelector((state) => state.user);
   const { email } = useAppSelector((state) => state.auth.user);
-    const [formData, setFormData] = useState<TaskDetails>({
-        task: {
-            name: initialData?.task?.name || "",
-            dueDate: initialData?.task?.dueDate || dayjs().format("YYYY-MM-DD"),
-            time: initialData?.task?.time || dayjs().format("HH:mm"),
-            priority: initialData?.task?.priority || "MEDIUM",
-            description: initialData?.task?.description || "",
-            assignee: initialData?.task?.assignee || "",
-        },
-        attachment: initialData?.attachment || [],
-    });
+    // const [formData, setFormData] = useState<any>({
+    //     task: {
+    //         name: initialData?.task?.name || "",
+    //         dueDate: initialData?.task?.dueDate || dayjs().format("YYYY-MM-DD"),
+    //         time: initialData?.task?.time || dayjs().format("HH:mm"),
+    //         priority: initialData?.task?.priority || "MEDIUM",
+    //         description: initialData?.task?.description || "",
+    //         assignee: initialData?.task?.assignee || "",
+    //     },
+    //     attachment: initialData?.attachment || [],
+    // });
 
   const dispatch = useAppDispatch();
   useEffect(() => {

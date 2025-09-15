@@ -29,30 +29,71 @@ export const handleSaveTimelineCard = async <
   editingItem: EditingItem | null,
   setCardsData: React.Dispatch<React.SetStateAction<TimelineCardProps[]>>,
   handleClose: () => void,
-  type: T,
+  activeTab: string,
+  type: "SMS" | "NOTES" | "APPOINTMENT" | "TASK",
   data: D,
   dispatch: AppDispatch
 ): Promise<void> => {
-  if (editingItem && editingItem?.item?.type === type) {
-    console.log(`🔄 Updated ${type}:`, data);
-    setCardsData((prev) =>
-      prev.map((card, i) =>
-        i === editingItem.index
-          ? ({ ...card, data: data, type: type } as TimelineCardProps)
-          : card
-      )
-    );
-  } else {
+  // if (editingItem && editingItem?.item?.type === type) {
+  //   console.log(`🔄 Updated ${type}:`, data);
+  //   setCardsData((prev) =>
+  //     prev.map((card, i) =>
+  //       i === editingItem.index
+  //         ? ({ ...card, data: data, type: type } as TimelineCardProps)
+  //         : card
+  //     )
+  //   );
+  // } else {
     try {
       const response = await dispatch(
         createActionsThunk({ leadId: leadId, data: formDataGenerator(data) })
       ).unwrap();
-      console.log(response)
-      // setCardsData((prev) => [...prev]);
-      message.success(`${type} created successfully`);
+    
+      const baseCard = { ...response };
+      let newCard;
+    
+      // ✅ Case 1: Active tab is "All"
+      if (activeTab === "All") {
+        newCard = {
+          ...baseCard,
+          appointment: response?.appointment ? [response.appointment] : [],
+          task: response?.task ? [response.task] : [],
+          sms: response?.sms ? [response.sms] : [],
+          notes: response?.notes ? [response.notes] : [],
+        };
+        setCardsData((prev) => [newCard, ...prev]);
+        message.success(`${type} created successfully`);
+        handleClose();
+        return;
+      }
+    
+      // ✅ Case 2: Active tab is specific (NOT "All")
+      if (activeTab.toLowerCase() === response.type?.toLowerCase()) {
+        switch (response.type) {
+          case "NOTES":
+            newCard = { ...baseCard, notes: response?.notes ? [response.notes] : [] };
+            break;
+          case "APPOINTMENT":
+            newCard = { ...baseCard, appointment: response?.appointment ? [response.appointment] : [] };
+            break;
+          case "TASK":
+            newCard = { ...baseCard, task: response?.task ? [response.task] : [] };
+            break;
+          case "SMS":
+            newCard = { ...baseCard, sms: response?.sms ? [response.sms] : [] };
+            break;
+        }
+    
+        if (newCard) {
+          setCardsData((prev) => [newCard, ...prev]);
+          message.success(`${type} created successfully`);
+        }
+      }
+    
+      // ✅ Always close modal at the end
       handleClose();
     } catch (error) {
-      message.error(error || `Failed to create ${type}`); 
+      message.error(error?.message || `Failed to create ${type}`); 
     }
     // const newCard: TimelineCardProps = {
     //   type: type,
@@ -63,6 +104,6 @@ export const handleSaveTimelineCard = async <
     //   data: data,
     // } as TimelineCardProps;
    
-  }
+  // }
  
 };

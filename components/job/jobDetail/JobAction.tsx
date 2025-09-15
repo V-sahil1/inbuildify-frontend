@@ -6,66 +6,68 @@ import { MenuProps } from 'antd';
 import { ActionType, AppointmentDetails, NoteDetails, SmsDetails, TaskDetails, TimelineCardProps } from 'data/types';
 import React, { useState } from 'react'
 
-const timeLineCardData: TimelineCardProps[] = [
-    {
-        type: "Notes",
-        date: "31-07-2023 6:00PM",
-        createdBy: "Murthy Muthuswamy",
-        createdAt: "22-07-2023 10:50AM",
-        // status: "completed",
-        data: {
-            // title: "Follow up - Yash Murthy",
-            description:
-                "This is a follow-up to your quotation. Please sign the quote and send it back asap.",
-            tags: ["Customer Update", "Tag1"],
-        } as NoteDetails,
-    },
-    {
-        type: "Sms",
-        date: "31-07-2023 6:00PM",
-        createdBy: "Murthy Muthuswamy",
-        createdAt: "22-07-2023 10:50AM",
-        status: "pending",
-        data: {
-            message: "This is a follow-up to your quotation. Please sign the quote and send it back asap.",
-            recipient: "John Doe",
-        } as SmsDetails,
-    },
-    {
-        type: "Appointments",
-        date: "31-07-2023 6:00PM",
-        createdBy: "Murthy Muthuswamy",
-        createdAt: "22-07-2023 10:50AM",
-        status: "working",
-        data: {
-            title: "Follow up - Yash Murthy",
-            date: "31-07-2023",
-            startTime: "09:00",
-            endTime: "10:00",
-            location: "Client Office",
-            user: "Yash Murthy",
-            notes: "Discuss quotation details.",
-            sendToCustomer: true,
-        } as AppointmentDetails,
-    },
-    {
-        type: "Tasks",
-        date: "31-07-2023 6:00PM",
-        createdBy: "Murthy Muthuswamy",
-        createdAt: "22-07-2023 10:50AM",
-        status: "working",
-        data: {
-            name: "Follow up - Yash Murthy",
-            dueDate: "2023-07-31",
-            time: "18:00",
-            priority: "High",
-            description:
-                "This is a follow-up to your quotation. Please sign the quote and send it back asap.",
-            assignee: "Yash Murthy",
-            files: [],
-        } as TaskDetails,
-    },
-];
+// const timeLineCardData: TimelineCardProps[] = [
+//     {
+//         type: "NOTES",
+//         date: "31-07-2023 6:00PM",
+//         createdByName: "Murthy Muthuswamy",
+//         createdAt: "22-07-2023 10:50AM",
+//         // status: "completed",
+//         notes: [
+//             {
+//                 // title: "Follow up - Yash Murthy",
+//                 message:
+//                     "This is a follow-up to your quotation. Please sign the quote and send it back asap.",
+//                 tags: ["Customer Update", "Tag1"],
+//             } as NoteDetails,
+//         ],
+//     },
+//     {
+//         type: "SMS",
+//         date: "31-07-2023 6:00PM",
+//         createdByName: "Murthy Muthuswamy",
+//         createdAt: "22-07-2023 10:50AM",
+//         status: "pending",
+//         sms: {
+//             message: "This is a follow-up to your quotation. Please sign the quote and send it back asap.",
+//             recipient: "John Doe",
+//         } as SmsDetails,
+//     },
+//     {
+//         type: "APPOINTMENT",
+//         date: "31-07-2023 6:00PM",
+//         createdByName: "Murthy Muthuswamy",
+//         createdAt: "22-07-2023 10:50AM",
+//         status: "working",
+//         appointment: {
+//             title: "Follow up - Yash Murthy",
+//             date: "31-07-2023",
+//             startTime: "09:00",
+//             endTime: "10:00",
+//             location: "Client Office",
+//             user: "Yash Murthy",
+//             notes: "Discuss quotation details.",
+//             sendToCustomer: true,
+//         } as AppointmentDetails,
+//     },
+//     {
+//         type: "TASK",
+//         date: "31-07-2023 6:00PM",
+//         createdByName: "Murthy Muthuswamy",
+//         createdAt: "22-07-2023 10:50AM",
+//         status: "working",
+//         task: {
+//             name: "Follow up - Yash Murthy",
+//             dueDate: "2023-07-31",
+//             time: "18:00",
+//             priority: "High",
+//             description:
+//                 "This is a follow-up to your quotation. Please sign the quote and send it back asap.",
+//             assignee: "Yash Murthy",
+//             files: [],
+//         } as TaskDetails,
+//     },
+// ];
 
 const actionItems: MenuProps["items"] = [
     { key: "addNotes", label: "Add Notes" },
@@ -75,7 +77,7 @@ const actionItems: MenuProps["items"] = [
 ];
 
 const JobAction = () => {
-    const [cardsData, setCardsData] = useState<TimelineCardProps[]>(timeLineCardData);
+    const [cardsData, setCardsData] = useState<TimelineCardProps[]>([]);
     const [activeTab, setActiveTab] = useState("All");
     const [activeAction, setActiveAction] = useState<ActionType>(null);
     const [editingItem, setEditingItem] = useState<{ item: TimelineCardProps; index: number } | null>(null);
@@ -97,22 +99,22 @@ const JobAction = () => {
 
     // Save from AddNotesCard
     const handleSaveNote = (note: NoteDetails) => {
-        handleSaveTimelineCard(editingItem, setCardsData, handleClose, "Notes", note);
+        // handleSaveTimelineCard(editingItem, setCardsData, handleClose, "Notes", note);   
     };
 
     // Save from AddAppointmentCard
     const handleSaveAppointment = (appointment: AppointmentDetails) => {
-        handleSaveTimelineCard(editingItem, setCardsData, handleClose, "Appointments", appointment);
+        // handleSaveTimelineCard(editingItem, setCardsData, handleClose, "Appointments", appointment);
     };
 
     // Save from CreateTaskCard
     const handleSaveTask = (task: TaskDetails) => {
-        handleSaveTimelineCard(editingItem, setCardsData, handleClose, "Tasks", task);
+        // handleSaveTimelineCard(editingItem, setCardsData, handleClose, "Tasks", task);
     };
 
     // Save from SendSmsCard
     const handleSaveSms = (sms: SmsDetails) => {
-        handleSaveTimelineCard(editingItem, setCardsData, handleClose, "Sms", sms);
+        // handleSaveTimelineCard(editingItem, setCardsData, handleClose, "Sms", sms);
     };
     return (
         <div className="relative p-4 mt-0 bg-card-color">

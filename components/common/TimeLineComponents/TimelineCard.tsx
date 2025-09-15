@@ -24,15 +24,15 @@ const statusColors: Record<string, string> = {
 
 const TimelineCard: FC<TimelineCardProps> = ({
   type,
-  date,
-  createdBy,
+  // date,
+  // createdBy,
   createdAt,
   status,
   onEdit,
   onReschedule,
   children,
   item,
-  data,
+  // data,
 }) => {
   const getTitle = () => {
     switch (item?.type) {
@@ -51,8 +51,8 @@ const TimelineCard: FC<TimelineCardProps> = ({
 
   const getDescription = () => {
     switch (item?.type) {
-      case "NOTES":
-        return (item?.notes[0] as NoteDetails)?.message;
+      // case "NOTES":
+      //   return (item?.notes[0] as NoteDetails)?.message;
       case "APPOINTMENT":
         return (item?.appointment[0] as AppointmentDetails)?.notes;
       case "TASK":
@@ -66,17 +66,16 @@ const TimelineCard: FC<TimelineCardProps> = ({
 
   const getTags = () => {
     if (item?.type === "NOTES" && (item?.notes?.[0] as NoteDetails)?.tags) {
-      const tags = [];
-      (item?.notes?.[0] as NoteDetails)?.tags.forEach((tag: string) =>
-        tags.push(tag.name)
-      );
-      return tags;
+      return (item.notes[0] as NoteDetails).tags.map((tag) => tag.name);
     }
+  
     if (item?.type === "TASK" && (item?.task?.[0] as TaskDetails)?.priority) {
-      return [`Priority: ${(item?.task?.[0] as TaskDetails)?.priority}`];
+      return [`Priority: ${(item.task[0] as TaskDetails).priority}`];
     }
+  
     return [];
   };
+  
 
   return (
     <div className="flex items-start gap-4 relative">
@@ -108,7 +107,7 @@ const TimelineCard: FC<TimelineCardProps> = ({
           {/* Status */}
           {status && (
             <span className={`text-sm font-medium ${statusColors[status]}`}>
-              {status.charAt(0).toUpperCase() + status.slice(1)}
+              {status?.charAt(0).toUpperCase() + status?.slice(1)}
             </span>
           )}
         </div>
@@ -130,60 +129,60 @@ const TimelineCard: FC<TimelineCardProps> = ({
             <p className="text-sm text-font-color-100 mb-3">
               {getDescription()}
               {
-                <div className="font-medium text-font-color text-base sm:text-lg">
-                  {item?.type === "NOTES" ? (data as NoteDetails)?.message : ""}
-                </div>
+                // <div className="font-medium text-font-color text-base sm:text-lg">
+                //   {item?.type === "NOTES" && item?.notes?.length > 0 ? (item?.notes[0] as NoteDetails)?.message : ""}
+                // </div>
               }
             </p>
           )}
-          {item?.type === "NOTES" && (data as NoteDetails) && (
+          {item?.type === "NOTES" && item?.notes?.length > 0 && (
             <div className="text-xs text-font-color-100 space-y-1 mt-2">
-              {(item?.notes?.[0] as NoteDetails)?.attachment &&
-                (item?.notes?.[0] as NoteDetails).attachment!.length > 0 && (
+              {/* {(item?.notes?.[0] as NoteDetails)?.attachment &&
+                (item?.notes?.[0] as NoteDetails)?.attachment!.length > 0 && (
                   <p>
                     <strong>Files:</strong>{" "}
                     {(item?.notes?.[0] as NoteDetails)
-                      .attachment!.map((f) => f.name)
+                      ?.attachment!?.map((f) => f?.name)
                       .join(", ")}
                   </p>
-                )}
-              {(item?.notes?.[0] as NoteDetails).sendToCustomer && (
+                )} */}
+              {(item?.notes?.[0] as NoteDetails)?.sendToCustomer && (
                 <p>
                   <strong>Send to Customer:</strong> Yes
                 </p>
               )}
-              {(item?.notes?.[0] as NoteDetails).createFollowUpTask && (
+              {(item?.notes?.[0] as NoteDetails)?.createFollowUpTask && (
                 <p>
                   <strong>Create Follow-up:</strong> Yes{" "}
-                  {(item?.notes?.[0] as NoteDetails).task?.dueDate &&
-                    `(Due: ${(item?.notes?.[0] as NoteDetails).task?.dueDate})`}
+                  {(item?.notes?.[0] as NoteDetails)?.task?.dueDate &&
+                    `(Due: ${(item?.notes?.[0] as NoteDetails)?.task?.dueDate})`}
                 </p>
               )}
             </div>
           )}
           {item?.type === "APPOINTMENT" &&
-            (item.appointment[0] as AppointmentDetails) && (
+            (item?.appointment?.[0] as AppointmentDetails) && (
               <div className="text-xs text-font-color-100 space-y-1 mt-2">
                 <p>
                   <strong>Date:</strong>{" "}
-                  {(item.appointment[0] as AppointmentDetails).date}
+                  {(item?.appointment?.[0] as AppointmentDetails)?.date || "-"}
                 </p>
                 <p>
                   <strong>Time:</strong>{" "}
-                  {(item.appointment[0] as AppointmentDetails).startTime} -{" "}
-                  {(item.appointment[0] as AppointmentDetails).endTime}
+                  {(item?.appointment?.[0] as AppointmentDetails)?.startTime || "-"} 
+                  {(item?.appointment?.[0] as AppointmentDetails)?.endTime || "-"}
                 </p>
                 <p>
                   <strong>Location:</strong>{" "}
-                  {(item.appointment[0] as AppointmentDetails).location}
+                  {(item?.appointment[0] as AppointmentDetails)?.location || "-"}
                 </p>
                 <p>
                   <strong>User:</strong>{" "}
-                  {(item.appointment[0] as AppointmentDetails).user}
+                  {(item?.appointment[0] as AppointmentDetails)?.user || "-"}
                 </p>
                 <p>
                   <strong>Send to Customer:</strong>{" "}
-                  {(item.appointment[0] as AppointmentDetails).sendToCustomer
+                  {(item?.appointment[0] as AppointmentDetails)?.sendToCustomer
                     ? "Yes"
                     : "No"}
                 </p>
@@ -195,18 +194,18 @@ const TimelineCard: FC<TimelineCardProps> = ({
                 <strong>Due Date:</strong>{" "}
                 {item.task[0]?.dueDate
                   ? dayjs(item.task[0].dueDate).format("YYYY-MM-DD")
-                  : "—"}
+                  : "-"}
               </p>
               <p>
-                <strong>Time:</strong> {(item.task[0] as TaskDetails)?.time}
+                <strong>Time:</strong> {(item.task[0] as TaskDetails)?.time || "-"}
               </p>
               <p>
                 <strong>Priority:</strong>{" "}
-                {(item.task[0] as TaskDetails).priority}
+                {(item?.task[0] as TaskDetails)?.priority || "-"}
               </p>
               <p>
                 <strong>Assignee:</strong>{" "}
-                {(item.task[0] as TaskDetails).assignee}
+                {(item?.task[0] as TaskDetails)?.assignee || "-"}
               </p>
             </div>
           )}
@@ -219,22 +218,22 @@ const TimelineCard: FC<TimelineCardProps> = ({
           </p>
 
           <div className="flex gap-3">
-            {onEdit && (
-              <button
-                onClick={() =>
-                  onEdit({
-                    type,
-                    date,
-                    createdBy,
-                    createdAt,
-                    status,
-                    data,
-                  } as TimelineCardProps)
-                }
-              >
-                <IconEdit size={18} />
-              </button>
-            )}
+            {/* {onEdit && (
+              // <button
+              //   onClick={() =>
+              //     onEdit({
+              //       type,
+              //       date,
+              //       createdBy,
+              //       createdAt,
+              //       status,
+              //       data,
+              //     } as TimelineCardProps)
+              //   }
+              // >
+              //   <IconEdit size={18} />
+              // </button>
+            )} */}
             {onReschedule && (
               <button onClick={onReschedule}>
                 <IconCalendar size={18} />

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import TimelineCard from "../common/TimeLineComponents/TimelineCard";
 import TimelineActionsBar from "../common/TimeLineComponents/TimelineActionsBar";
-import { MenuProps, message } from "antd";
+import { Empty, MenuProps, message } from "antd";
 import {
   ActionType,
   TimelineCardProps,
@@ -99,7 +99,9 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
   useEffect(() => {
     async function fetchData() {
       try {
-        const res = await dispatch(getActionsThunk({ leadId, type: activeTab.toLowerCase() })).unwrap();
+        const res = await dispatch(
+          getActionsThunk({ leadId, type: activeTab.toLowerCase() })
+        ).unwrap();
         setCardsData(res);
       } catch (error) {
         message.error(error || "Failed to fetch actions");
@@ -130,7 +132,8 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
       editingItem,
       setCardsData,
       handleClose,
-      "Notes",
+      activeTab,
+      "NOTES",
       note,
       dispatch
     );
@@ -143,7 +146,8 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
       editingItem,
       setCardsData,
       handleClose,
-      "Appointments",
+      activeTab,
+      "APPOINTMENT",
       appointment,
       dispatch
     );
@@ -152,17 +156,17 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
   // Save from CreateTaskCard
   const handleSaveTask = (task: TaskDetails) => {
     try {
-    handleSaveTimelineCard(
-      leadId,
-      editingItem,
-      setCardsData,
-      handleClose,
-      "Tasks",
-      task,
-      dispatch
-    );
-  }
-    catch (error) {
+      handleSaveTimelineCard(
+        leadId,
+        editingItem,
+        setCardsData,
+        handleClose,
+        activeTab,
+        "TASK",
+        task,
+        dispatch
+      );
+    } catch (error) {
       message.error(error || "Failed to save task");
       console.error("Error in handleSaveTask:", error);
     }
@@ -175,7 +179,8 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
       editingItem,
       setCardsData,
       handleClose,
-      "Sms",
+      activeTab,
+      "SMS",
       sms,
       dispatch
     );
@@ -214,15 +219,20 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
           )}
 
           {/* Timeline */}
-          {cardsData?.map((item, idx) => (
+          {cardsData && cardsData.length > 0 ? (
+            cardsData.map((item, idx) => (
               <TimelineCard
                 key={idx}
                 {...item}
                 item={item}
                 onEdit={(data) => handleEdit(data, idx)}
               />
-            ))}
-            {/* {cardsData.length > 0 && cardsData.map((item, idx) => (
+            ))
+          ) : (
+            <Empty description={activeTab === "All" ? "No data available" : `No ${activeTab} available for this tab`} />
+          )}
+
+          {/* {cardsData.length > 0 && cardsData.map((item, idx) => (
               <TimelineCard
                 key={idx}
                 {...item}
