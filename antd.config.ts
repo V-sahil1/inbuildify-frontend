@@ -167,7 +167,23 @@ const theme = {
     },
     Empty:{
       colorTextDescription:'var(--font-color-100)',
-    }
+    },
+    DatePicker: {
+      colorBgContainer: "var(--card-bg-primary)",
+      colorText: "var(--font-color)",
+      colorTextPlaceholder: "var(--text-secondary)",
+      colorTextDisabled: "var(--text-disabled)",
+      colorBorder: "var(--border-color)",
+      activeBorderColor: "var(--primary-color)",
+      hoverBorderColor: "var(--primary-color-hover)",
+      colorPrimary: "var(--primary)",
+      colorPrimaryHover: "var(--primary-color-hover)",
+      colorPrimaryActive: "var(--primary-color)",
+      colorBgElevated: "var(--white)",
+      colorTextHeading: "var(--font-color-100)",
+      colorIcon: "var(--font-color-100)",
+      colorIconHover: "var(--primary)",
+    },
   },
 };
 

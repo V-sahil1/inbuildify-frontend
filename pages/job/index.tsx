@@ -3,6 +3,7 @@
 import StageProgress from "@/components/common/StageProgress";
 import WorkflowSteps from "@/components/common/WorkflowSteps";
 import JobAction from "@/components/job/jobDetail/JobAction";
+import JobInvoicePayment from "@/components/job/jobDetail/Invoice-payment/JobInvoicePayment";
 import JobVariationManager from "@/components/job/jobDetail/Variation/JobVariationManager";
 import SystemRoutes from "@lib/constants/Routes";
 import { Result, Tabs } from "antd";
@@ -57,6 +58,84 @@ const workFlowSteps = [
   },
 ]
 
+const JobVariationData = [
+  {
+    ReferenceID: 'MYH00486-V1',
+    Amount: 7000.00,
+    RequestedBy: 'Aman',
+    DelayedBy: 'Hiren',
+    DrawingChanges: "Yes",
+    Created: { user: 'MM', date: "1/1/2002" },
+    Approved: { user: 'MM', date: "1/1/2002" },
+    Status: 'Approved',
+    Invoice: 'invoice',
+    Profile: 'MM'
+  },
+  {
+    ReferenceID: 'MYH00486-V2',
+    Amount: 7000.00,
+    RequestedBy: 'Aman',
+    DelayedBy: 'Hiren',
+    DrawingChanges: "No",
+    Created: { user: 'MM', date: "1/1/2002" },
+    Approved: { user: 'MM', date: "1/1/2002" },
+    Status: 'Approved',
+    Invoice: 'invoice',
+    Profile: 'A'
+  },
+  {
+    ReferenceID: 'MYH00486-V3',
+    Amount: 7000.00,
+    RequestedBy: 'Aman',
+    DelayedBy: 'Hiren',
+    DrawingChanges: "Yes",
+    Created: { user: 'MM', date: "1/1/2002" },
+    Approved: { user: 'MM', date: "1/1/2002" },
+    Status: 'Draft',
+    Invoice: 'invoice',
+    Profile: 'A'
+  },
+];
+
+const jobInvoicePaymentSummary = [
+  { title: "Total Cost", value: 450280.0 },
+  { title: "Invoice Generated", value: 35600.45 },
+  { title: "Payment Received", value: -45000.0 },
+];
+const jobInvoicePaymentData: any[] = [
+  {
+    id: "MYH00486-I2",
+    desc: "2nd deposit",
+    amount: 35600.45,
+    payment: 0.0,
+    status: "OVERDUE",
+    date: "17-07-2023",
+  },
+  {
+    id: "MYH00486-I4",
+    desc: "base invoice",
+    amount: 45000.0,
+    payment: 0.0,
+    status: "DRAFT",
+    date: "06-08-2023",
+  },
+  {
+    id: "MYH00486-I1",
+    desc: "Initial Deposit",
+    amount: 5000.0,
+    payment: 5000.0,
+    status: "PAID",
+    date: "27-06-2023",
+  },
+  {
+    id: "MYH00486-I3",
+    desc: "Returns",
+    amount: -50000.0,
+    payment: -50000.0,
+    status: "PAID",
+    date: "31-07-2023",
+  },
+];
 export default function JobDetail() {
 
 
@@ -90,7 +169,10 @@ export default function JobDetail() {
             <JobVariationManager />
           </TabPane>
           <TabPane tab="Invoices & Payments" key="Invoices & Payments">
-            <div className="bg-card-color"><Result title="Invoices & Payments Functionality coming soon" subTitle="Please check back later" /></div>
+            <JobInvoicePayment
+              data={jobInvoicePaymentData}
+              dataSummary={jobInvoicePaymentSummary}
+            />
           </TabPane>
           <TabPane tab="Commission" key="Commission">
             <div className="bg-card-color"><Result title="Commission Functionality coming soon" subTitle="Please check back later" /></div>
