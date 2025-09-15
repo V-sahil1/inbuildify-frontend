@@ -6,10 +6,15 @@ import { ApiResponse } from "../auth/IAuthState";
 
 export const getActionsThunk = createAsyncThunk(
   "action/getActions",
-  async (leadId: string,{rejectWithValue}) => {
+  async (payload: { leadId: string; type?: string }, { rejectWithValue }) => {
     try {
       const res = await api.get<ApiResponse<any>>(
-        `${API_ENDPOINTS.ACTION_BASE}/${leadId}`
+        `${API_ENDPOINTS.ACTION_BASE}/${payload.leadId}`,
+        {
+          params: {
+            filter: payload.type,
+          },
+        }
       );
       return res.data;
     } catch (error) {
@@ -20,7 +25,7 @@ export const getActionsThunk = createAsyncThunk(
   
 export const createActionsThunk = createAsyncThunk(
     "action/createActions",
-    async (payload:{leadId: string, data: FormData},{rejectWithValue}) => {
+  async (payload: { leadId: string, data: FormData }, { rejectWithValue }) => {
       try {
         const res = await apiWithFormDataMethods.post<ApiResponse<any>>(
           `${API_ENDPOINTS.ACTION_BASE}/${payload.leadId}`,
@@ -33,7 +38,7 @@ export const createActionsThunk = createAsyncThunk(
     }
   );
 
-export const getActionTags = createAsyncThunk("action/getActionTags", async (_, {rejectWithValue}) => {
+export const getActionTags = createAsyncThunk("action/getActionTags", async (_, { rejectWithValue }) => {
     try {
       const res = await api.get<ApiResponse<any>>(
         API_ENDPOINTS.TAGS_BASE

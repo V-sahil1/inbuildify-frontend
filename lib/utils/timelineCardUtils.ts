@@ -8,7 +8,6 @@ import {
   TaskDetails,
   TimelineCardProps,
 } from "data/types";
-import { buildPayload } from "./actionTypePayloadBuilder";
 import { formDataGenerator } from "./formDataGenerator";
 
 interface EditingItem {
@@ -45,12 +44,11 @@ export const handleSaveTimelineCard = async <
     );
   } else {
     try {
-      // const formData = buildPayload(type, data);
-      
       const response = await dispatch(
         createActionsThunk({ leadId: leadId, data: formDataGenerator(data) })
       ).unwrap();
-      console.log(response);
+      console.log(response)
+      // setCardsData((prev) => [...prev]);
       message.success(`${type} created successfully`);
       handleClose();
     } catch (error) {
@@ -64,7 +62,7 @@ export const handleSaveTimelineCard = async <
     //   status: type === "Notes" ? undefined : "pending",
     //   data: data,
     // } as TimelineCardProps;
-    setCardsData((prev) => [newCard, ...prev]);
+   
   }
  
 };

@@ -86,7 +86,7 @@ const actionItems: MenuProps["items"] = [
 
 const LeadActions = ({ leadId }: { leadId: string }) => {
   const actions = useAppSelector((state) => state.action.actions);
-  const [cardsData, setCardsData] = useState<TimelineCardProps[]>(actions);
+  const [cardsData, setCardsData] = useState<TimelineCardProps[]>([]);
   const [activeTab, setActiveTab] = useState("All");
   const [activeAction, setActiveAction] = useState<ActionType>(null);
   const [editingItem, setEditingItem] = useState<{
@@ -99,13 +99,15 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
   useEffect(() => {
     async function fetchData() {
       try {
-        const res = await dispatch(getActionsThunk(leadId));
+        const res = await dispatch(getActionsThunk({ leadId, type: activeTab.toLowerCase() })).unwrap();
+        setCardsData(res);
       } catch (error) {
         message.error(error || "Failed to fetch actions");
       }
     }
     fetchData();
-  }, []);
+  }, [dispatch, leadId, activeTab]);
+
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
   };
@@ -212,9 +214,7 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
           )}
 
           {/* Timeline */}
-          {actions
-            ?.filter((item) => item.type === activeTab || activeTab === "All")
-            .map((item, idx) => (
+          {cardsData?.map((item, idx) => (
               <TimelineCard
                 key={idx}
                 {...item}
@@ -222,6 +222,14 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
                 onEdit={(data) => handleEdit(data, idx)}
               />
             ))}
+            {/* {cardsData.length > 0 && cardsData.map((item, idx) => (
+              <TimelineCard
+                key={idx}
+                {...item}
+                item={item}
+                onEdit={(data) => handleEdit(data, idx)}
+              />
+            ))} */}
         </div>
       </div>
     </div>
