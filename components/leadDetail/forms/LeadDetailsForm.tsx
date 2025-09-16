@@ -67,21 +67,27 @@ const LeadDetailsForm: React.FC<any> = ({
     [states]
   );
 
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+
   useEffect(() => {
     const loadCountries = async () => {
+      if (!isAuthenticated) return;
+      
       try {
         await dispatch(getCountriesThunk()).unwrap();
       } catch (error) {
-        message.error(error?.message || "Failed to fetch countries");
+          message.error(error?.message || "Failed to fetch countries");
       }
     };
 
-    if (status === Status.IDLE) {
+    if (status === Status.IDLE && isAuthenticated) {
       loadCountries();
     }
-  }, [dispatch, status]);
+  }, [dispatch, status, isAuthenticated]);
 
   const handleCountryChange = async (countryId: string) => {
+    if (!isAuthenticated) return;
+    
     setSelectedCountryId(countryId);
     try {
       await dispatch(getStatesByCountryIdThunk(countryId)).unwrap();

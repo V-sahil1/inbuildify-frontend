@@ -84,8 +84,6 @@ const CardContent = ({ item, isGridView }: { item: ColorItem; isGridView: boolea
 );
 
 export const ColorItemCard: React.FC<Props> = ({ data, isGridView }) => {
-  console.log("🚀 ~ ColorItemCard ~ data:", data)
-  // Conditional rendering for the "No items found" message
   if (data.length === 0) {
     return (
       <div className="flex justify-center items-center p-10 h-96">

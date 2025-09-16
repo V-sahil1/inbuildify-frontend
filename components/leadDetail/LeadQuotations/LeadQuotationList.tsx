@@ -35,7 +35,6 @@ const LeadQuotationList = () => {
     setOpenComparison(true);
   };
 
-  console.log("selectedQuotation",selectedQuotation)
   return (
     <>
       {quotations?.length === 0 ? (

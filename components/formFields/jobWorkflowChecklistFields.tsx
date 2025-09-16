@@ -109,7 +109,6 @@ export const jobWorkflowChecklistFields: ColumnsType<JobWorkFlowChecklist> = [
                   },
                 ],
                 onClick: (e) => {
-                  console.log("dropdown key", e.key);
                 },
               }}
             >

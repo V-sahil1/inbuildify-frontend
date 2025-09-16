@@ -27,7 +27,7 @@ export const packageFields = ( selectedValues?: { range?: string; dwelling?: str
         dispatch(fetchPackageItems({range: selectedValues.range,dwellingType: selectedValues.dwelling,})
         );
       } catch (error) {
-        console.log("🚀 ~ packageFields ~ error:", error)
+        console.error("🚀 ~ packageFields ~ error:", error)
       }
     }
   }, [selectedValues?.range, selectedValues?.dwelling, dispatch]);

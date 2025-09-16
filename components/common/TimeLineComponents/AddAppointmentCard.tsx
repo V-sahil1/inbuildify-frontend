@@ -90,7 +90,6 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
     values.start_time = values.start_time.format("HH:mm");
     values.date = values.date?.format("YYYY-MM-DD");
     values.end_time = values.end_time.format("HH:mm");
-    console.log("payload is bad", values);
     onSave(values);
   };
 

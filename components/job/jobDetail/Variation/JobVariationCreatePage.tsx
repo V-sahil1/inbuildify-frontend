@@ -19,7 +19,6 @@ const JobVariationCreatePage = ({ setActiveScreen }) => {
     };
 
     const handleExtraSelect = (key: string) => {
-        console.log("Extra selected:", key);
         updateFilter("extraCount", filters.extraCount + 1);
     };
 

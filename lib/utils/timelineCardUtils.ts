@@ -35,7 +35,6 @@ export const handleSaveTimelineCard = async <
   dispatch: AppDispatch
 ): Promise<void> => {
   // if (editingItem && editingItem?.item?.type === type) {
-  //   console.log(`🔄 Updated ${type}:`, data);
   //   setCardsData((prev) =>
   //     prev.map((card, i) =>
   //       i === editingItem.index

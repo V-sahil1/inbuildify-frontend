@@ -46,7 +46,7 @@ const AddNotesCard: FC<AddNotesCardProps> = ({
     try {
       await dispatch(getActionTags());
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }
   useEffect(() => {

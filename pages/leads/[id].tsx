@@ -45,7 +45,6 @@ import { enumToReadable } from "@lib/utils/enumToRedable";
 import { ILeadContact } from "@redux/feature/lead/ILeadState";
 import { QuotationResponse } from "@redux/feature/quotation/IQuotationState";
 import LeadActions from "@/components/leadDetail/LeadActions";
-import { RootState } from "@redux/feature/store";
 import { Status } from "@lib/constants/enum";
 
 const { Text } = Typography;
@@ -79,10 +78,12 @@ function App() {
   const [isPropertyModalVisible, setIsPropertyModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
-  const { leadDetail } = useAppSelector((state: RootState) => state.lead);
+  const { leadDetail } = useAppSelector((state) => state.lead);
   const status = useAppSelector(
-    (state: RootState) => state.lead.status.leadById
+    (state) => state.lead.status.leadById
   );
+  const isLoggedIn = useAppSelector((state) => state.auth.isAuthenticated);
+
   const isOpportunity = leadDetail?.lead?.status !== "NEW";
   const title = isOpportunity ? "Opportunity" : "Lead";
   const contacts: ILeadContact[] = leadDetail?.contacts;
@@ -112,17 +113,17 @@ function App() {
     (cont: ILeadContact) =>
       cont.leadsContactId === leadDetail?.lead?.leadContactId
   );
+  
   useEffect(() => {
     return () => {
-      // Only run cleanup if we have the necessary data
-      if (primaryContact) {
+      if (primaryContact && isLoggedIn) {
         const latest = latestLeadDetailRef.current;
         const property = (latest as any)?.property ?? null;
         dispatch(setQuotationContact(primaryContact));
         dispatch(setQuotationProperty(property));
       }
     };
-  }, [dispatch, primaryContact]);
+  }, [dispatch, primaryContact, isLoggedIn]);
 
   const handleConvertClick = () => {
     setIsConvertModalVisible(true);
@@ -368,7 +369,6 @@ function App() {
                     <List.Item
                       key={quotation?.quotationId}
                       onClick={() => {
-                        console.log("🚀 ~ App ~ quotation:", quotation);
                         return router.push(`/quotation/${quotation?.versions[0]?.quotationVersionId}`);
                       }}
                       style={{ cursor: "pointer" }}
