@@ -11,7 +11,8 @@ import { enumToReadable } from "@lib/utils/enumToRedable";
 import { Status } from "@lib/constants/enum";
 import { addPackageItems } from "@redux/feature/package/packageSlice";
 import { mapToOptions } from "@lib/utils/rangeAndDwellingObjToOptions";
-import Link from "next/link";
+import SystemRoutes from "@lib/constants/Routes";
+import NoDataMessage from "../NoDataMessage";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -290,20 +291,10 @@ const AddMasterPricingItemModal = ({
               style={{ width: "100%" }}
               options={rangeOptions}
               notFoundContent={
-                <div
-                  style={{ padding: "8px", color: "#999", textAlign: "center" }}
-                >
-                  <p>No range type found.</p>
-                  <div className="flex gap-1 w-full justify-center items-center">
-                    <Link
-                      href="/settings/?tab=range-dwelling"
-                      className="text-primary hover:underline"
-                    >
-                      Click Here
-                    </Link>
-                    <p>to create range type</p>
-                  </div>
-                </div>
+                <NoDataMessage
+                  label="range type"
+                  link={SystemRoutes.DWELLING_AND_RANGE}
+                />
               }
             />
           </Form.Item>
@@ -320,20 +311,10 @@ const AddMasterPricingItemModal = ({
               style={{ width: "100%" }}
               options={dwellingTypeOptions}
               notFoundContent={
-                <div
-                  style={{ padding: "8px", color: "#999", textAlign: "center" }}
-                >
-                  <p>No dwelling type found.</p>
-                  <div className="flex gap-1 w-full justify-center items-center">
-                    <Link
-                      href="/settings/?tab=range-dwelling"
-                      className="text-primary hover:underline"
-                    >
-                      Click Here
-                    </Link>
-                    <p>to create dwelling type</p>
-                  </div>
-                </div>
+                <NoDataMessage
+                  label="dwelling type"
+                  link={SystemRoutes.DWELLING_AND_RANGE}
+                />
               }
             />
           </Form.Item>

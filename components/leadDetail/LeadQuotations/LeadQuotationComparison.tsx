@@ -81,7 +81,8 @@ const LeadQuotationComparison: React.FC<Props> = ({
     const [leftVersion, rightVersion] = selectedVersions;
 
     const leftItems = quotationVersion[String(leftVersion.versionNumber)] || [];
-    const rightItems = quotationVersion[String(rightVersion.versionNumber)] || [];
+    const rightItems =
+      quotationVersion[String(rightVersion.versionNumber)] || [];
 
     const rows: any[] = [];
     const allItemIds = new Set([
@@ -215,17 +216,17 @@ const LeadQuotationComparison: React.FC<Props> = ({
                           <span>
                   ${Number(selectedVersions[1].totalAmount).toFixed(2)}
                 </span>
-                             </div>
-                        }
-                        dataIndex="right"
-                        key="right"
-                        width="20%"
-                        align="center"
-                    />
-                )}
-            </Table>
+                  </div>
+                }
+                dataIndex="right"
+                key="right"
+                width="20%"
+                align="center"
+              />
+            )}
+          </Table>
         </Modal>
-    );
+      );
 };
 
 export default LeadQuotationComparison;

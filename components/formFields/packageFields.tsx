@@ -7,6 +7,8 @@ import { Status } from "@lib/constants/enum";
 import { fetchPackageItems } from "@redux/feature/package/packageThunk";
 import { Item } from "@redux/feature/masterPriceList/iMasterPriceListState";
 import { setAddInstItemModal } from "@redux/feature/package/packageSlice";
+import NoDataMessage from "../common/NoDataMessage";
+import SystemRoutes from "@lib/constants/Routes";
 
 export const packageFields = ( selectedValues?: { range?: string; dwelling?: string }): CreateFormField[] => {
   const {range , dwellingType} = useAppSelector((state) => state.types);
@@ -58,6 +60,9 @@ export const packageFields = ( selectedValues?: { range?: string; dwelling?: str
       name: "range",
       type: "select",
       options: rangeOptions,
+      notFoundContent: (
+        <NoDataMessage label="range" link={SystemRoutes.DWELLING_AND_RANGE} />
+      ),
       placeholder: "Select Range",
     },
     {
@@ -65,6 +70,9 @@ export const packageFields = ( selectedValues?: { range?: string; dwelling?: str
       name: "dwelling",
       type: "select",
       options: dwellingTypeOptions,
+      notFoundContent: (
+        <NoDataMessage label="dwelling type" link={SystemRoutes.DWELLING_AND_RANGE} />
+      ),
       placeholder: "Select Dwelling Type",
     },
     {

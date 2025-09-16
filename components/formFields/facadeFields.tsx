@@ -1,10 +1,10 @@
-
 import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
 import { CreateFormField } from "../common/Models/CreateFormModel";
 import { useAppSelector } from "@hooks/redux";
 import { mapToOptions } from "@lib/utils/rangeAndDwellingObjToOptions";
 import { numberRules } from "@lib/constants/formInputValidations";
-
+import NoDataMessage from "../common/NoDataMessage";
+import SystemRoutes from "@lib/constants/Routes";
 
 export const facadeFields = ({isDwellingDisable = false}: {isDwellingDisable?: boolean}): CreateFormField[] => {
 const dwellingType = useAppSelector((state) => state.types.dwellingType);
@@ -34,6 +34,12 @@ const dwellingTypeOptions = mapToOptions(dwellingType);
       rules: [{ required: true, message: "Please select a dwelling type" }],
       disabled: isDwellingDisable,
       initialValue: isDwellingDisable ? selectedFilters?.dwelling_type : undefined,
+      notFoundContent: (
+        <NoDataMessage
+          label="dwelling type"
+          link={SystemRoutes.DWELLING_AND_RANGE}
+        />
+      ),
     },
     {
       label: "Cost",

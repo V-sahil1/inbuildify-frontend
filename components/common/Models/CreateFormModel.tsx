@@ -36,6 +36,7 @@ export type CreateFormField = {
   button?: string;
   onClick?: () => void;
   handleChange?: (info: UploadChangeParam) => void;
+  notFoundContent?: React.ReactNode;
 };
 
 interface CreateFormModalProps {
@@ -162,10 +163,11 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
             {field.type === "select" ? (
               <Select
                 showSearch
-                placeholder={field.placeholder}
-                options={field.options}
-                disabled={field.disabled}
-                {...(field.mode && { mode: field.mode })}
+                placeholder={field?.placeholder}
+                options={field?.options}
+                disabled={field?.disabled}
+                notFoundContent={field?.notFoundContent}
+                {...(field?.mode && { mode: field?.mode })}
               />
             ) : field.type === "checkbox" ? (
               <Radio.Group>
