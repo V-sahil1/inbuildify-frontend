@@ -42,10 +42,10 @@ const TimelineActionsBar: FC<TimelineActionsBarProps> = ({
 
       {/* Actions Section */}
       {isActionShow && <div className="flex items-center gap-2 sm:mt-0 mt-2">
-        <Button
+        {/* <Button
           icon={<IconFilter2 />}
           className="border-gray-300"
-        />
+        /> */}
         <Dropdown
           menu={{
             items: actionItems,
