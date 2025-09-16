@@ -119,7 +119,7 @@ const AddNotesCard: FC<AddNotesCardProps> = ({
         <Form.Item
           label="Attach Files"
           name="attachment"
-          className="flex-1"
+          className="flex-1 max-w-[500px]"
           getValueFromEvent={(e) => e.fileList}
         >
           <Upload {...uploadProps} listType="picture" maxCount={1}>

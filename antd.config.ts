@@ -169,7 +169,7 @@ const theme = {
       colorTextDescription:'var(--font-color-100)',
     },
     DatePicker: {
-      colorBgContainer: "var(--card-bg-primary)",
+      colorBgContainer: "var(--card-color)",
       colorText: "var(--font-color)",
       colorTextPlaceholder: "var(--text-secondary)",
       colorTextDisabled: "var(--text-disabled)",
@@ -179,7 +179,7 @@ const theme = {
       colorPrimary: "var(--primary)",
       colorPrimaryHover: "var(--primary-color-hover)",
       colorPrimaryActive: "var(--primary-color)",
-      colorBgElevated: "var(--white)",
+      colorBgElevated: "var(--card-color)",
       colorTextHeading: "var(--font-color-100)",
       colorIcon: "var(--font-color-100)",
       colorIconHover: "var(--primary)",
