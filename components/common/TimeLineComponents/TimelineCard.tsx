@@ -103,7 +103,7 @@ const TimelineCard: FC<TimelineCardProps> = ({
   };
 
 const getIcon = () => {
-  switch (item?.type) {
+  switch (type) {
     case "NOTES":
       return <IconMessage size={18} />;
     case "APPOINTMENT":

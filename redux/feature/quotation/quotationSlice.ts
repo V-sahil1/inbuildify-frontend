@@ -93,7 +93,7 @@ const quotationSlice = createSlice({
         },
         setQuotationPackage(state, action: PayloadAction<any>) {
             state.package = action.payload; 
-            state.items = action.payload.categoryItemIds.map((item) => ({ itemId: item, quantity: 1, price: 0 }));
+            state.items = action.payload?.categoryItemIds?.length > 0 ? action.payload?.categoryItemIds?.map((item) => ({ itemId: item, quantity: 1, price: 0 })) : [];
         },
         updateQuotationItem: (state, action) => {
             const { itemId, quantity } = action.payload;

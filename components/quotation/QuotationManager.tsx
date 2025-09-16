@@ -357,7 +357,7 @@ const QuotationManager = () => {
   };
 
   const canContact = !!contact;
-  const canProperty = property && Object.keys(property).length > 0;
+  const canProperty = property && Object.keys(property).length > 0 && property?.propertyId;
   const canPlan = plan && Object.keys(plan).length > 0;
   const canFacade = !!facade;
   const canSelectedPackageFromSlice = !!selectedPackageFromSlice;
