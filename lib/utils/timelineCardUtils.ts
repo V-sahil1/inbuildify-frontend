@@ -52,7 +52,6 @@ export const handleSaveTimelineCard = async <
       const baseCard = { ...response };
       let newCard;
     
-      // ✅ Case 1: Active tab is "All"
       if (activeTab === "All") {
         newCard = {
           ...baseCard,
@@ -67,7 +66,6 @@ export const handleSaveTimelineCard = async <
         return;
       }
     
-      // ✅ Case 2: Active tab is specific (NOT "All")
       if (activeTab.toLowerCase() === response.type?.toLowerCase()) {
         switch (response.type) {
           case "NOTES":
@@ -85,7 +83,7 @@ export const handleSaveTimelineCard = async <
         }
     
         if (newCard) {
-          setCardsData((prev) => [newCard, ...prev]);
+          setCardsData((prev) => [newCard, ...(prev || [])]);
           message.success(`${type} created successfully`);
         }
       }

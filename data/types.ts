@@ -197,6 +197,7 @@ export interface SmsDetails {
 export interface TimelineItem {
   type: "NOTES" | "APPOINTMENT" | "TASK" | "SMS";
   createdByName: string;
+  createdAt: string;
   notes?: NoteDetails[];
   appointment?: AppointmentDetails[];
   task?: TaskDetails[];

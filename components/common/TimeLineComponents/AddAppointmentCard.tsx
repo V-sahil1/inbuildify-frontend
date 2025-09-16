@@ -134,13 +134,12 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
               label="Start Time"
               name="start_time"
               rules={timeRules}
-              noStyle
             >
               <TimePicker
                 format="HH:mm"
                 className="w-full"
                 hideDisabledOptions
-                disabled={!getFieldValue("date")} // ✅ now re-checks whenever date changes
+                disabled={!getFieldValue("date")}
                 disabledTime={() => {
                   const selectedDate: dayjs.Dayjs = getFieldValue("date");
                   const now = dayjs();

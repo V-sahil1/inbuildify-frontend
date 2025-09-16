@@ -21,3 +21,17 @@ export const timeAgo = (dateString: string) => {
       return `${days} days ago`;
     }
   };
+
+  
+  export function formatApiDate(apiDate: string): string {
+    if (!apiDate) return "";
+  
+    const date = new Date(apiDate);
+  
+    // Use Intl.DateTimeFormat for consistent formatting
+    return new Intl.DateTimeFormat("en-GB", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    }).format(date);
+  }

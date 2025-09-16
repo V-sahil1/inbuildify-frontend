@@ -16,7 +16,7 @@ import {
 } from "data/types";
 import dayjs from "dayjs";
 import { useAppSelector } from "@hooks/redux";
-import { timeAgo } from "@lib/utils/timeAgo";
+import { formatApiDate, timeAgo } from "@lib/utils/timeAgo";
 
 const statusColors: Record<string, string> = {
   completed: "text-blue-600",
@@ -113,29 +113,39 @@ const TimelineCard: FC<TimelineCardProps> = ({
       {/* Card */}
       <div className="flex-1 bg-body-color rounded-lg shadow-sm border border-border-color  p-4">
         {/* Row 1 - Tags + Status */}
-        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-          {getTags().length > 0 && (
-            <>
-              {/* Tags */}
-              <div className="flex flex-wrap gap-2">
-                {getTags().map((tag, idx) => (
-                  <span
-                    key={idx}
-                    className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-md"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </>
-          )}
+        <div className="mb-2 flex items-center justify-between gap-2">
+          {/* Left: Tags (can be empty but keeps spacing) */}
+          <div className="flex flex-wrap gap-2">
+            {getTags().map((tag, idx) => (
+              <span
+                key={idx}
+                className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-md"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
 
-          {/* Status */}
-          {status && (
-            <span className={`text-sm font-medium ${statusColors[status]}`}>
-              {status?.charAt(0).toUpperCase() + status?.slice(1)}
-            </span>
-          )}
+          {/* Right: Avatar + Type */}
+          <div className="flex items-center gap-2 ml-auto">
+            {item?.type && (
+              <span
+                className={`px-2 py-1 text-xs rounded-md ${
+                  {
+                    NOTES: "bg-gray-300 text-blue-700",
+                    TASK: "bg-green-100 text-green-700",
+                    SMS: "bg-yellow-100 text-yellow-700",
+                    APPOINTMENT: "bg-red-100 text-red-700",
+                  }[item?.type] || "bg-gray-100 text-gray-700"
+                }`}
+              >
+                {item?.type}
+              </span>
+            )}
+           {item?.createdByName && (<div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs text-gray-500">
+              <p>{item?.createdByName?.charAt(0)}</p>
+            </div>)}
+          </div>
         </div>
 
         {/* Row 2 - Title + Avatar */}
@@ -143,10 +153,6 @@ const TimelineCard: FC<TimelineCardProps> = ({
           <h3 className="font-medium text-font-color text-base sm:text-lg">
             {getTitle()}
           </h3>
-          {/* Placeholder Avatar */}
-          <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs text-gray-500">
-            {item?.createdByName?.charAt(0)}
-          </div>
         </div>
 
         {/* Row 3 - Description / Details */}
@@ -180,7 +186,9 @@ const TimelineCard: FC<TimelineCardProps> = ({
               {(item?.notes?.[0] as NoteDetails)?.createFollowUpTask && (
                 <p>
                   <strong>Create Follow-up:</strong> Yes{" "}
-                  {(item?.notes?.[0] as NoteDetails)?.task?.dueDate &&
+                  {formatApiDate(
+                    (item?.notes?.[0] as NoteDetails)?.task?.dueDate
+                  ) &&
                     `(Due: ${
                       (item?.notes?.[0] as NoteDetails)?.task?.dueDate
                     })`}
@@ -193,12 +201,15 @@ const TimelineCard: FC<TimelineCardProps> = ({
               <div className="text-xs text-font-color-100 space-y-1 mt-2">
                 <p>
                   <strong>Date:</strong>{" "}
-                  {(item?.appointment?.[0] as AppointmentDetails)?.date || "-"}
+                  {formatApiDate(
+                    (item?.appointment?.[0] as AppointmentDetails)?.date
+                  ) || " "}
                 </p>
                 <p>
                   <strong>Time:</strong>{" "}
                   {(item?.appointment?.[0] as AppointmentDetails)?.startTime ||
                     "-"}
+                  {" - "}
                   {(item?.appointment?.[0] as AppointmentDetails)?.endTime ||
                     "-"}
                 </p>
@@ -269,9 +280,12 @@ const TimelineCard: FC<TimelineCardProps> = ({
 
         {/* Row 4 - Created info + Actions */}
         <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <p className="text-xs text-font-color-100">
-            {item?.createdByName} created {timeAgo(createdAt)}
-          </p>
+          {(createdAt || item?.createdAt) && item?.createdByName && (
+            <p className="text-xs text-font-color-100">
+              {item?.createdByName} created{" "}
+              {timeAgo(createdAt || item?.createdAt)}
+            </p>
+          )}
 
           <div className="flex gap-3">
             {/* {onEdit && (
