@@ -122,10 +122,11 @@ const AddNotesCard: FC<AddNotesCardProps> = ({
           className="flex-1 max-w-[500px]"
           getValueFromEvent={(e) => e.fileList}
         >
-          <Upload {...uploadProps} listType="picture" maxCount={1}>
-            <Button icon={<IconUpload />}>Attach Files</Button>
-          </Upload>
-        </Form.Item>
+           <Upload beforeUpload={() => false} maxCount={1}>
+                      <Button icon={<IconUpload />}>Attach Files</Button>
+                    </Upload>
+                  </Form.Item>
+    
 
         <div className="flex flex-col gap-3 flex-1">
           <div className="flex items-center gap-2 text-sm">
