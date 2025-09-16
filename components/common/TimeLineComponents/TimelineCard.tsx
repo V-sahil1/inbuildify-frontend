@@ -16,6 +16,7 @@ import {
 } from "data/types";
 import dayjs from "dayjs";
 import { useAppSelector } from "@hooks/redux";
+import { timeAgo } from "@lib/utils/timeAgo";
 
 const statusColors: Record<string, string> = {
   completed: "text-blue-600",
@@ -269,7 +270,7 @@ const TimelineCard: FC<TimelineCardProps> = ({
         {/* Row 4 - Created info + Actions */}
         <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <p className="text-xs text-font-color-100">
-            {item?.createdByName} created on {createdAt}
+            {item?.createdByName} created {timeAgo(createdAt)}
           </p>
 
           <div className="flex gap-3">

@@ -94,7 +94,7 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
     values.type = "TASK";
     values.task.due_date = values.task?.due_date?.format("YYYY-MM-DD");
     values.task.time = values.task?.time?.format("HH:mm");
-    values.attachment = values?.attachment?.[0]?.originFileObj || null;
+    values.attachment = values?.attachment ? values?.attachment?.[0]?.originFileObj : null;
     onSave(values);
   };
   return (

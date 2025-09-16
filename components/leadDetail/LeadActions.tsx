@@ -96,7 +96,7 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
     index: number;
   } | null>(null);
   const dispatch = useAppDispatch();
-  console.log("actions data", actions);
+  // console.log("actions data", actions);
 
   useEffect(() => {
     async function fetchData() {

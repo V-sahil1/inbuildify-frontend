@@ -65,7 +65,7 @@ const AddNotesCard: FC<AddNotesCardProps> = ({
         due_date: values.task?.due_date?.format("YYYY-MM-DD"),
       };
     }
-    values.attachment = values?.attachment[0]?.originFileObj || null;
+    values.attachment = values?.attachment ? values?.attachment[0]?.originFileObj : null;
     onSave(values);
   };
 
