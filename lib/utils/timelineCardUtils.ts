@@ -60,7 +60,7 @@ export const handleSaveTimelineCard = async <
           sms: response?.sms ? [response.sms] : [],
           notes: response?.notes ? [response.notes] : [],
         };
-        setCardsData((prev) => [newCard, ...prev]);
+        setCardsData((prev) => [newCard, ...(Array.isArray(prev) ? prev : [])]);
         message.success(`${type} created successfully`);
         handleClose();
         return;
@@ -83,7 +83,7 @@ export const handleSaveTimelineCard = async <
         }
     
         if (newCard) {
-          setCardsData((prev) => [newCard, ...(prev || [])]);
+          setCardsData((prev) => [newCard, ...(Array.isArray(prev) ? prev : [])]);
           message.success(`${type} created successfully`);
         }
       }

@@ -14,7 +14,7 @@ export const formDataGenerator = (obj: any, form: FormData = new FormData(), nam
           });
         } else if (typeof value === "object" && value !== null) {
           formDataGenerator(value, form, formKey);
-        } else if (value !== undefined && value !== null) {
+        } else if (value) {
           form.append(formKey, String(value));
         }
       }

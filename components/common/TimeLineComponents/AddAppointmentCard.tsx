@@ -193,7 +193,6 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
                   },
                 }),
               ]}
-              noStyle
             >
               <TimePicker
                 format="HH:mm"

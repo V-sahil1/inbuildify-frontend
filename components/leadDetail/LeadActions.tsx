@@ -112,7 +112,7 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
         setLoading(false);
       }
     }
-    fetchData();
+    if(leadId) fetchData();
   }, [dispatch, leadId, activeTab]);
 
   const handleTabChange = (tab: string) => {
