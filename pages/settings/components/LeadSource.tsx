@@ -132,7 +132,7 @@ const LeadSource = () => {
         columns={columns}
         dataSource={leadSources}
         pagination={false}
-        // loading={}
+        loading={status === Status.PENDING}
         rowKey="id"
       />
 
