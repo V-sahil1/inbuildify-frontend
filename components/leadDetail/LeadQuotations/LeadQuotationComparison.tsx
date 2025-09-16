@@ -180,7 +180,7 @@ const LeadQuotationComparison: React.FC<Props> = ({
             </div>
             <Table
               dataSource={comparisonResult}
-              pagination={false}
+              pagination={comparisonResult.length > 10 ? { pageSize: 10 } : false}
               bordered
               size="small"
               rowKey="key"

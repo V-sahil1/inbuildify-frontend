@@ -238,7 +238,7 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
           valuePropName="checked"
           className="mb-0"
         >
-          <Switch /> Send this appointment to customer
+          <Switch className="mr-2" /> Send this appointment to customer
         </Form.Item>
 
         <div className="flex gap-3">

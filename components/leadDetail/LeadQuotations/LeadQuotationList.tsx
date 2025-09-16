@@ -98,12 +98,12 @@ const LeadQuotationList = () => {
                     </Tag>
                     )}
                   /> */}
-                  <Column
+                  {/* <Column
                     title="Notes"
                     dataIndex="notes"
                     key="notes"
                     render={(notes: string) => notes ? notes : "-"}
-                  />
+                  /> */}
                   <Column
                     title="Created At"
                     dataIndex="createdAt"
@@ -112,7 +112,7 @@ const LeadQuotationList = () => {
                     date ? timeAgo(date) : "-"
                   }
                   />
-                  <Column
+                  {/* <Column
                     title="Actions"
                     key="actions"
                     render={(_, record) => (
@@ -120,7 +120,7 @@ const LeadQuotationList = () => {
                         PDF
                       </Button>
                     )}
-                  />
+                  /> */}
                 </Table>
               </Panel>
             ))}

@@ -1,12 +1,11 @@
 "use client";
 import { FC } from "react";
 import {
-  IconEdit,
   IconCalendar,
-  IconCheck,
   IconMessage,
+  IconDeviceMobileMessage,
+  IconListCheck,
 } from "@tabler/icons-react";
-// import { Button } from "antd";
 import { TimelineCardProps } from "data/types";
 import {
   AppointmentDetails,
@@ -103,11 +102,26 @@ const TimelineCard: FC<TimelineCardProps> = ({
     return [];
   };
 
+const getIcon = () => {
+  switch (item?.type) {
+    case "NOTES":
+      return <IconMessage size={18} />;
+    case "APPOINTMENT":
+      return <IconCalendar size={18} />;
+    case "TASK":
+      return <IconListCheck size={18} />;
+    case "SMS":
+      return <IconDeviceMobileMessage size={18} />;
+    default:
+      return <IconMessage size={18} />;
+  }
+}
+
   return (
     <div className="flex items-start gap-4 relative">
       {/* Left Icon */}
       <div className="relative z-10 flex items-center justify-center w-7 h-7 rounded-full bg-gray-100 text-gray-600">
-        {type === "TASK" ? <IconCheck size={18} /> : <IconMessage size={18} />}
+        {getIcon()}
       </div>
 
       {/* Card */}
