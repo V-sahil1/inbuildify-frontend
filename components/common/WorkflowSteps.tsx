@@ -1,5 +1,4 @@
 import { Button } from "antd";
-import Link from "next/link";
 
 type Steps = {
     key: string
@@ -26,10 +25,10 @@ const WorkflowSteps: React.FC<WorkflowStepsProps> = ({ steps }) => {
                 const isLast = index === steps.length - 1;
                 return (
 
-                    <Link href='#' className="flex flex-1 " onClick={() => item?.onClick()}>
+                    <div className="flex flex-1 " onClick={(e) => {e.preventDefault(); item?.onClick()}}>
                         <div className={`flex-1 flex-col text-center py-2  cursor-pointer  justify-center ${item.color}
                                           ${index > 0 ? "-ml-40" : ""} z-[${steps.length - index}]
-                                         border ${index == 0 ? 'rounded-tl-lg rounded-bl-lg' : isLast ? 'rounded-tr-lg rounded-br-lg':''} `}
+                                          ${index == 0 ? 'rounded-tl-lg rounded-bl-lg' : isLast ? 'rounded-tr-lg rounded-br-lg':''} `}
                             style={{
                                 clipPath: index == 0 ? "polygon( 0% 0%, 76% 0%,100% 50%,76% 100%, 0% 100%,0% 50%)"
                                     : isLast ? "polygon(0% 0%, 100% 0%, 100% 100%, 100% 100%, 0% 100%, 20% 50%)"
@@ -43,7 +42,7 @@ const WorkflowSteps: React.FC<WorkflowStepsProps> = ({ steps }) => {
                                 <div className="text-xs "><p>{item?.status} {item.date && 'on'} {item?.date}</p></div>
                             </div>
                         </div>
-                    </Link>
+                    </div>
                 )
             })}
         </div>

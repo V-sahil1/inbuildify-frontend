@@ -2,7 +2,7 @@ import { PropertyDetails } from "data/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Item } from "../masterPriceList/iMasterPriceListState";
 import { Status } from "@lib/constants/enum";
-import { createQuotation, getQuotationById } from "./quotationThunk";
+import { createQuotation, getQuotationById, getQuotationVersionById } from "./quotationThunk";
 import { ILeadContact } from "../lead/ILeadState";
 
 export interface QuotationState {
@@ -58,6 +58,11 @@ const quotationSlice = createSlice({
         clearSelectedFloorplanFacadePackageReducer(state) {
             state.plan = null;
             state.facade = null;
+            if (state.package?.categoryItemIds) {
+                state.items = state.items.filter(
+                    item => !state.package.categoryItemIds.includes(item.itemId)
+                );
+            }
             state.package = null;
         },
         setQuotationContact(state, action: PayloadAction<ILeadContact | null>) {
@@ -119,10 +124,10 @@ const quotationSlice = createSlice({
             .addCase(createQuotation.rejected, (state) => {
                 state.status.create = Status.ERROR;
             })
-            .addCase(getQuotationById.pending, (state) => {
+            .addCase(getQuotationVersionById.pending, (state) => {
                 state.status.getById = Status.IDLE;
             })
-            .addCase(getQuotationById.fulfilled, (state, action) => {
+            .addCase(getQuotationVersionById.fulfilled, (state, action) => {
                 const data = action.payload;
                 state.quoteDetails = {
                     slugId: data.slugId,
@@ -163,27 +168,32 @@ const quotationSlice = createSlice({
                     dwelling_type: data.dwellingType?.name || ''
                 };
                 
+                state.items = data.items?.map(item => ({
+                            itemId: item.categoryItemId,
+                            quantity: item.categoryItemQuantity, // Default quantity to 1 if not specified
+                            price: parseFloat(item.categoryItemCost) || 0
+                        }));
                 // Get latest version and set items
-                const versions = data.versions;
-                if (versions) {
-                    // Get all version numbers and find the latest one
-                    const versionNumbers = Object.keys(versions).map(Number);
-                    const latestVersion = Math.max(...versionNumbers);
-                    const latestItems = versions[latestVersion] || [];
+                // const versions = data.versions;
+                // if (versions) {
+                //     // Get all version numbers and find the latest one
+                //     const versionNumbers = Object.keys(versions).map(Number);
+                //     const latestVersion = Math.max(...versionNumbers);
+                //     const latestItems = versions[latestVersion] || [];
                     
-                    // Map to the required format for items
-                    state.items = latestItems?.map(item => ({
-                        itemId: item.categoryItemId,
-                        quantity: 1, // Default quantity to 1 if not specified
-                        price: parseFloat(item.categoryItemCost) || 0
-                    }));
-                } else {
-                    state.items = [];
-                }
+                //     // Map to the required format for items
+                //     state.items = latestItems?.map(item => ({
+                //         itemId: item.categoryItemId,
+                //         quantity: 1, // Default quantity to 1 if not specified
+                //         price: parseFloat(item.categoryItemCost) || 0
+                //     }));
+                // } else {
+                //     state.items = [];
+                // }
                 state.status.getById = Status.SUCCESS;
 
             })
-            .addCase(getQuotationById.rejected, (state) => {
+            .addCase(getQuotationVersionById.rejected, (state) => {
                 state.status.getById = Status.ERROR;
             });
     }

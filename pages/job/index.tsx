@@ -3,34 +3,12 @@
 import StageProgress from "@/components/common/StageProgress";
 import WorkflowSteps from "@/components/common/WorkflowSteps";
 import JobAction from "@/components/job/jobDetail/JobAction";
-import JobVariation from "@/components/job/jobDetail/JobVariation";
+import JobInvoicePayment from "@/components/job/jobDetail/Invoice-payment/JobInvoicePayment";
+import JobVariationManager from "@/components/job/jobDetail/Variation/JobVariationManager";
+import SystemRoutes from "@lib/constants/Routes";
 import { Result, Tabs } from "antd";
 import router from "next/router";
 const { TabPane } = Tabs;
-
-const steps = [
-  {
-    key: "contact",
-    label: "Contact",
-    onClick: () => { },
-    color: "bg-blue-500",
-    textColor: "text-white",
-  },
-  {
-    key: "property",
-    label: "Property",
-    onClick: () => { },
-    color: "bg-blue-500",
-    textColor: "text-white",
-  },
-  {
-    key: "plan",
-    label: "Plan",
-    onClick: () => { },
-    color: "bg-blue-500",
-    textColor: "text-white",
-  }
-];
 
 const workFlowSteps = [
   {
@@ -49,7 +27,7 @@ const workFlowSteps = [
     color: 'bg-green-300',
     icon: '2',
     date: '12/03/2025',
-    onClick: () => { router.push(`/job/status`) }
+    onClick: () => { router.push(`/${SystemRoutes.JOB}/status`) }
   },
   {
     key: 'Color',
@@ -58,7 +36,7 @@ const workFlowSteps = [
     color: 'bg-cyan-500',
     icon: 'MM',
     date: '12/03/2025',
-    onClick: () => { router.push(`/job/colour`) }
+    onClick: () => { router.push(`/${SystemRoutes.JOB}/colour`) }
   },
   {
     key: 'Construction',
@@ -117,10 +95,47 @@ const JobVariationData = [
     Invoice: 'invoice',
     Profile: 'A'
   },
+];
 
-
-]
-
+const jobInvoicePaymentSummary = [
+  { title: "Total Cost", value: 450280.0 },
+  { title: "Invoice Generated", value: 35600.45 },
+  { title: "Payment Received", value: -45000.0 },
+];
+const jobInvoicePaymentData: any[] = [
+  {
+    id: "MYH00486-I2",
+    desc: "2nd deposit",
+    amount: 35600.45,
+    payment: 0.0,
+    status: "OVERDUE",
+    date: "17-07-2023",
+  },
+  {
+    id: "MYH00486-I4",
+    desc: "base invoice",
+    amount: 45000.0,
+    payment: 0.0,
+    status: "DRAFT",
+    date: "06-08-2023",
+  },
+  {
+    id: "MYH00486-I1",
+    desc: "Initial Deposit",
+    amount: 5000.0,
+    payment: 5000.0,
+    status: "PAID",
+    date: "27-06-2023",
+  },
+  {
+    id: "MYH00486-I3",
+    desc: "Returns",
+    amount: -50000.0,
+    payment: -50000.0,
+    status: "PAID",
+    date: "31-07-2023",
+  },
+];
 export default function JobDetail() {
 
 
@@ -151,10 +166,13 @@ export default function JobDetail() {
             <div className="bg-card-color"><Result title="Document Functionality coming soon" subTitle="Please check back later" /></div>
           </TabPane>
           <TabPane tab="Variations" key="Variations">
-            <JobVariation data={JobVariationData} />
+            <JobVariationManager />
           </TabPane>
           <TabPane tab="Invoices & Payments" key="Invoices & Payments">
-            <div className="bg-card-color"><Result title="Invoices & Payments Functionality coming soon" subTitle="Please check back later" /></div>
+            <JobInvoicePayment
+              data={jobInvoicePaymentData}
+              dataSummary={jobInvoicePaymentSummary}
+            />
           </TabPane>
           <TabPane tab="Commission" key="Commission">
             <div className="bg-card-color"><Result title="Commission Functionality coming soon" subTitle="Please check back later" /></div>

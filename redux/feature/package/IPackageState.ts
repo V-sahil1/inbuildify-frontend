@@ -4,6 +4,10 @@ export type Package = {
   builderId: string;
   categoryItemIds: string[];
   amount: string;
+  dwellingTypeId: string;
+  rangeId: string;
+  range: string;
+  dwelling: string;
   createdAt: string;
   updatedAt: string;
   categoryItemDescriptions: string[];

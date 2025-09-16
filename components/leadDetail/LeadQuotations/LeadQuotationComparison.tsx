@@ -198,6 +198,7 @@ const LeadQuotationComparison: React.FC<Props> = ({
                         dataIndex="left"
                         key="left"
                         width="20%"
+                        align="center"
                     />
                     )}
                     {selectedVersions[1] && (
@@ -213,6 +214,7 @@ const LeadQuotationComparison: React.FC<Props> = ({
                         dataIndex="right"
                         key="right"
                         width="20%"
+                        align="center"
                     />
                 )}
             </Table>

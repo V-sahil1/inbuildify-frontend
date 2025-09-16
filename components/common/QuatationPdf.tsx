@@ -268,11 +268,11 @@ export const QuatationPdf = ({
             <Text style={[Page2styles.cell, Page2styles.col25]}>DESCRIPTIONS</Text>
             <View style={[Page2styles.cell, Page2styles.col75]}>
               <Text style={Page2styles.boldText}>
-                Construction of a {floorPlan?.dwellingTypeName.replace("_", " ")} Home
+                Construction of a {floorPlan?.dwellingTypeName?.replace("_", " ")} Home
               </Text>
 
               <Text style={Page2styles.paragraph}>
-                {floorPlan?.dwellingTypeName.replace("_", " ")} home with {floorPlan?.beds} bedrooms, {floorPlan?.bath} bathrooms, {floorPlan?.carPark} car parking and {floorPlan?.garage} garage.
+                {floorPlan?.dwellingTypeName?.replace("_", " ")} home with {floorPlan?.beds} bedrooms, {floorPlan?.bath} bathrooms, {floorPlan?.carPark} car parking and {floorPlan?.garage} garage.
               </Text>
               <Text style={Page2styles.paragraph}>
                 Total covered area approx. {Number(floorPlan?.totalSqft).toFixed(0)} Sq ft.
@@ -316,7 +316,7 @@ export const QuatationPdf = ({
             `Email: ${leadDetail?.email}`,
             `Phone: +61 ${leadDetail?.phone}`,
             // `Status: ${leadDetail?.status?.replace("_", " ")}`,
-            `Lead Source: ${leadDetail?.lead_source}`,
+            // `Lead Source: ${leadDetail?.leadSource}`,
             // `Created At: ${new Date(leadDetail?.created_at).toLocaleDateString()}`,
             // `Updated At: ${new Date(leadDetail?.updated_at).toLocaleDateString()}`
           ]}
@@ -345,7 +345,7 @@ export const QuatationPdf = ({
           list={[
             `Name: ${floorPlan?.name}`,
             `Range: ${floorPlan?.rangeName}`,
-            `Dwelling Type: ${floorPlan?.dwellingTypeName.replace("_", " ")}`,
+            `Dwelling Type: ${floorPlan?.dwellingTypeName?.replace("_", " ")}`,
             `Bedrooms: ${floorPlan?.beds}`,
             `Bathrooms: ${floorPlan?.bath}`,
             `Car Parks: ${floorPlan?.carPark}`,

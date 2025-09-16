@@ -21,7 +21,7 @@ const authPersistConfig = {
   whitelist: ["auth", "lead", "quotation"],
 };
 
-const rootReducer = combineReducers({
+const appReducer = combineReducers({
   auth: persistReducer(authPersistConfig, authReducer),
   lead: leadReducer,
   masterPriceList: masterPriceListReducer,
@@ -29,18 +29,37 @@ const rootReducer = combineReducers({
   facade: facadeReducer,
   package: packageReducer,
   quotation: quotationReducer,
-  dashboard: dashboardReducer,  
+  dashboard: dashboardReducer,
   types: typesReducer,
   location: locationReducer,
   contractor: contractorReducer,
   action: actionReducer,
   user: userReducer,
-}); 
+});
+
+const rootReducer = (state: ReturnType<typeof appReducer> | undefined, action: any) => {
+  if (action.type === "auth/logout") {
+    storage.removeItem("persist:root");
+    storage.removeItem("persist:auth");
+    state = undefined;
+  }
+  return appReducer(state, action);
+};
 
 const persistConfig = {
   key: "root",
   storage,
-  blacklist: ["lead", "masterPriceList", "floorPlan", "facade","dashboard","package","types","location","contractor","action","user"],
+  blacklist: [
+    "lead",
+    "masterPriceList",
+    "floorPlan",
+    "facade",
+    "dashboard",
+    "package",
+    "types",
+    "location",
+    "contractor","action","user",
+  ],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -57,9 +76,6 @@ export const store = configureStore({
 
 export const persister = persistStore(store);
 
-// Infer the root state type from the root reducer
-type RootState = ReturnType<typeof rootReducer>;
-
+export type RootState = ReturnType<typeof appReducer>;
 export type AppDispatch = typeof store.dispatch;
 
-export type { RootState };

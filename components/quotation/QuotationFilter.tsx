@@ -7,7 +7,7 @@ import { setSelectedFilters as setFacadeFilters } from "@redux/feature/facade/fa
 import { getFacades } from "@redux/feature/facade/facadeThunk";
 import { fetchPackages } from "@redux/feature/package/packageThunk";
 import { setSelectedFilters as setPackageFilters } from "@redux/feature/package/packageSlice";
-import { setSelectedFilters as setMplFilters } from "@redux/feature/masterPriceList/masterPriceListSlice";
+import { resetAllCategoriesIsExpanded, setSelectedFilters as setMplFilters } from "@redux/feature/masterPriceList/masterPriceListSlice";
 import { clearSelectedFloorplanFacadePackageReducer, setSelectedFilters as setQuotationFilters } from "@redux/feature/quotation/quotationSlice";
 import { message, Select } from "antd";
 import { mapToOptions } from "@lib/utils/rangeAndDwellingObjToOptions";
@@ -16,9 +16,10 @@ import { getDwellingTypes, getRanges } from "@redux/feature/types/typesThunk";
 
 interface QuotationFilterProps {
   isReadOnly?: boolean;
+  onFilterChange?: () => void;
 }
 
-const QuotationFilter: React.FC<QuotationFilterProps> = ({ isReadOnly = false }) => {
+const QuotationFilter: React.FC<QuotationFilterProps> = ({ isReadOnly = false, onFilterChange }) => {
   const dispatch = useAppDispatch();
   const { range, dwellingType, status } = useAppSelector(
     (state) => state.types
@@ -199,6 +200,8 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({ isReadOnly = false })
             clearSelectedFloorplanFacadePackage()
             handleRangeChange(value)
             handlePackageRangeChange(value)
+            dispatch(resetAllCategoriesIsExpanded())
+            onFilterChange?.() 
           }}
           options={rangeOptions}
           disabled={isReadOnly}
@@ -219,6 +222,8 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({ isReadOnly = false })
               handleFloorPlanDwellingTypeChange(value),
               handleFacadeDwellingTypeChange(value);
               handlePackageDwellingTypeChange(value)
+              dispatch(resetAllCategoriesIsExpanded())
+              onFilterChange?.() 
           }}
           options={dwellingOptions}
           disabled={isReadOnly}

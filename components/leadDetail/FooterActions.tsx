@@ -5,7 +5,7 @@ import { IconCheck, IconEye, IconPencil, IconX, IconDeviceFloppy } from "@tabler
 interface FooterActionsProps {
   expiryDate?: string;
   total: number;
-  quoteId?: string;
+  quoteVersionId?: string;
   isEditMode: boolean;
   onEdit: () => void;
   onCancel: () => void;
@@ -19,7 +19,7 @@ interface FooterActionsProps {
 const FooterActions: React.FC<FooterActionsProps> = ({
   expiryDate,
   total,
-  quoteId,
+  quoteVersionId,
   isEditMode,
   onEdit,
   onCancel,
@@ -33,7 +33,7 @@ const FooterActions: React.FC<FooterActionsProps> = ({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Space>
-            {quoteId ? (
+            {quoteVersionId ? (
               isEditMode ? (
                 <>
                   <Button
