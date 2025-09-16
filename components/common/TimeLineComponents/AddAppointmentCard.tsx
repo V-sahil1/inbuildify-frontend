@@ -31,15 +31,19 @@ const { TextArea } = Input;
 interface AddAppointmentCardProps {
   onSave: (appointment: AppointmentDetails) => void;
   onCancel: () => void;
+  loading: boolean;
   initialData?: AppointmentDetails;
 }
 
 const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
   onSave,
   onCancel,
+  loading,
   initialData,
 }) => {
   const { users, status } = useAppSelector((state) => state.user);
+    const { email } = useAppSelector((state) => state.auth.user);
+  
   const dispatch = useAppDispatch();
   useEffect(() => {
     if (status === Status.IDLE) {
@@ -53,12 +57,12 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
       message.error(error || "failed to fetch the users");
     }
   };
-  const userOptions = users.map((user) => {
-    return {
-      label: user.name,
-      value: user.usersId,
-    };
-  });
+  const userOptions = users.reduce((acc, user) => {
+    if (user.email !== email) {
+      acc.push({ label: user.name, value: user.usersId });
+    }
+    return acc;
+  }, [] as { label: string; value: string }[]);
 
   const [formData, setFormData] = useState<AppointmentDetails>({
     title: initialData?.title || "",
@@ -66,7 +70,7 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
     startTime: initialData?.startTime || dayjs().format("HH:mm"),
     endTime: initialData?.endTime || dayjs().add(1, "hour").format("HH:mm"),
     location: initialData?.location || "",
-    user: initialData?.user || "",
+    selectUsers: initialData?.selectUsers || "",
     notes: initialData?.notes || "",
     sendToCustomer: initialData?.sendToCustomer || false,
   });
@@ -81,6 +85,7 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
   };
 
   const handleFinish = (values: any) => {
+    form.validateFields();
     values.type = "APPOINTMENT";
     values.start_time = values.start_time.format("HH:mm");
     values.date = values.date?.format("YYYY-MM-DD");
@@ -240,7 +245,7 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
 
         <div className="flex gap-3">
           <Button onClick={onCancel}>Cancel</Button>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" loading={loading} disabled={loading}>
             Save
           </Button>
         </div>

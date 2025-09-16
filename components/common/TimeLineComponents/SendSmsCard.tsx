@@ -8,12 +8,14 @@ const { TextArea } = Input;
 interface SendSmsCardProps {
   onSave: (sms: SmsDetails) => void;
   onCancel: () => void;
+  loading: boolean;
   initialData?: SmsDetails;
 }
 
 const SendSmsCard: FC<SendSmsCardProps> = ({
   onSave,
   onCancel,
+  loading,
   initialData,
 }) => {
   const [formData, setFormData] = useState<SmsDetails>({
@@ -63,7 +65,7 @@ const SendSmsCard: FC<SendSmsCardProps> = ({
 
       <div className="flex gap-3 justify-end">
         <Button onClick={onCancel}>Cancel</Button>
-        <Button type="primary" htmlType="submit">
+        <Button type="primary" htmlType="submit" loading={loading} disabled={loading}>
           Send SMS
         </Button>
       </div>

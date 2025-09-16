@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import TimelineCard from "../common/TimeLineComponents/TimelineCard";
 import TimelineActionsBar from "../common/TimeLineComponents/TimelineActionsBar";
-import { Empty, MenuProps, message } from "antd";
+import { Empty, MenuProps, message, Spin } from "antd";
 import {
   ActionType,
   TimelineCardProps,
@@ -89,6 +89,8 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
   const [cardsData, setCardsData] = useState<TimelineCardProps[]>([]);
   const [activeTab, setActiveTab] = useState("All");
   const [activeAction, setActiveAction] = useState<ActionType>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [formLoading, setFormLoading] = useState<boolean>(false);
   const [editingItem, setEditingItem] = useState<{
     item: TimelineCardProps;
     index: number;
@@ -99,12 +101,15 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
   useEffect(() => {
     async function fetchData() {
       try {
+        setLoading(true);
         const res = await dispatch(
           getActionsThunk({ leadId, type: activeTab.toLowerCase() })
         ).unwrap();
         setCardsData(res);
       } catch (error) {
         message.error(error || "Failed to fetch actions");
+      } finally {
+        setLoading(false);
       }
     }
     fetchData();
@@ -126,37 +131,48 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
   };
 
   // Save from AddNotesCard
-  const handleSaveNote = (note: NoteDetails) => {
-    handleSaveTimelineCard(
-      leadId,
-      editingItem,
-      setCardsData,
-      handleClose,
-      activeTab,
-      "NOTES",
-      note,
-      dispatch
-    );
+  const handleSaveNote = async (note: NoteDetails) => {
+    setFormLoading(true);
+    try {
+      await handleSaveTimelineCard(
+        leadId,
+        editingItem,
+        setCardsData,
+        handleClose,
+        activeTab,
+        "NOTES",
+        note,
+        dispatch
+      );
+    } finally {
+      setFormLoading(false);
+    }
   };
 
   // Save from AddAppointmentCard
-  const handleSaveAppointment = (appointment: AppointmentDetails) => {
-    handleSaveTimelineCard(
-      leadId,
-      editingItem,
-      setCardsData,
-      handleClose,
-      activeTab,
-      "APPOINTMENT",
-      appointment,
-      dispatch
-    );
+  const handleSaveAppointment = async (appointment: AppointmentDetails) => {
+    setFormLoading(true);
+    try {
+      await handleSaveTimelineCard(
+        leadId,
+        editingItem,
+        setCardsData,
+        handleClose,
+        activeTab,
+        "APPOINTMENT",
+        appointment,
+        dispatch
+      );
+    } finally {
+      setFormLoading(false);
+    }
   };
 
   // Save from CreateTaskCard
-  const handleSaveTask = (task: TaskDetails) => {
+  const handleSaveTask = async (task: TaskDetails) => {
+    setFormLoading(true);
     try {
-      handleSaveTimelineCard(
+      await handleSaveTimelineCard(
         leadId,
         editingItem,
         setCardsData,
@@ -166,24 +182,28 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
         task,
         dispatch
       );
-    } catch (error) {
-      message.error(error || "Failed to save task");
-      console.error("Error in handleSaveTask:", error);
+    } finally {
+      setFormLoading(false);
     }
   };
 
   // Save from SendSmsCard
-  const handleSaveSms = (sms: SmsDetails) => {
-    handleSaveTimelineCard(
-      leadId,
-      editingItem,
-      setCardsData,
-      handleClose,
-      activeTab,
-      "SMS",
-      sms,
-      dispatch
-    );
+  const handleSaveSms = async (sms: SmsDetails) => {
+    setFormLoading(true);
+    try {
+      await handleSaveTimelineCard(
+        leadId,
+        editingItem,
+        setCardsData,
+        handleClose,
+        activeTab,
+        "SMS",
+        sms,
+        dispatch
+      );
+    } finally {
+      setFormLoading(false);
+    }
   };
 
   return (
@@ -208,6 +228,7 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
         <div className="space-y-8">
           {(activeAction || editingItem) && (
             <TimelineActionFormRenderer
+              loading={formLoading}
               activeAction={activeAction}
               editingItem={editingItem}
               handleSaveNote={handleSaveNote}
@@ -219,7 +240,11 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
           )}
 
           {/* Timeline */}
-          {cardsData && cardsData.length > 0 ? (
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <Spin size="large" />
+            </div>
+          ) : cardsData && cardsData.length > 0 ? (
             cardsData.map((item, idx) => (
               <TimelineCard
                 key={idx}
@@ -229,7 +254,13 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
               />
             ))
           ) : (
-            <Empty description={activeTab === "All" ? "No data available" : `No ${activeTab} available for this tab`} />
+            <Empty
+              description={
+                activeTab === "All"
+                  ? "No data available"
+                  : `No ${activeTab} available for this tab`
+              }
+            />
           )}
 
           {/* {cardsData.length > 0 && cardsData.map((item, idx) => (

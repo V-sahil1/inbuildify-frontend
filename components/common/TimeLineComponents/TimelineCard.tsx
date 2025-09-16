@@ -15,6 +15,7 @@ import {
   SmsDetails,
 } from "data/types";
 import dayjs from "dayjs";
+import { useAppSelector } from "@hooks/redux";
 
 const statusColors: Record<string, string> = {
   completed: "text-blue-600",
@@ -34,6 +35,9 @@ const TimelineCard: FC<TimelineCardProps> = ({
   item,
   // data,
 }) => {
+  const { leadDetail } = useAppSelector((state) => state.lead);
+  const { users } = useAppSelector((state) => state.user);
+
   const getTitle = () => {
     switch (item?.type) {
       case "NOTES":
@@ -43,7 +47,7 @@ const TimelineCard: FC<TimelineCardProps> = ({
       case "TASK":
         return (item?.task[0] as TaskDetails)?.name;
       case "SMS":
-        return `SMS to ${(item?.sms[0] as SmsDetails)?.message}`;
+        return `${(item?.sms[0] as SmsDetails)?.message}`;
       default:
         return "";
     }
@@ -57,8 +61,30 @@ const TimelineCard: FC<TimelineCardProps> = ({
         return (item?.appointment[0] as AppointmentDetails)?.notes;
       case "TASK":
         return (item?.task[0] as TaskDetails)?.description;
-      case "SMS":
-        return (item?.sms[0] as SmsDetails)?.message;
+      case "SMS": {
+        const sms = item?.sms?.[0] as SmsDetails;
+
+        type Recipient = string | { id: string; name: string };
+
+        const recipientNames = (
+          Array.isArray(sms?.recipient) ? sms.recipient : []
+        )
+          .map((r: Recipient) => {
+            if (typeof r === "string") {
+              const contact = leadDetail.contacts.find(
+                (c) => c.leadsContactId === r
+              );
+              return contact?.name;
+            } else if (typeof r === "object" && r?.name) {
+              return r.name;
+            }
+            return null;
+          })
+          .filter(Boolean)
+          .join(", ");
+
+        return `${recipientNames ? ` (To: ${recipientNames})` : ""}`;
+      }
       default:
         return "";
     }
@@ -68,14 +94,13 @@ const TimelineCard: FC<TimelineCardProps> = ({
     if (item?.type === "NOTES" && (item?.notes?.[0] as NoteDetails)?.tags) {
       return (item.notes[0] as NoteDetails).tags.map((tag) => tag.name);
     }
-  
+
     if (item?.type === "TASK" && (item?.task?.[0] as TaskDetails)?.priority) {
       return [`Priority: ${(item.task[0] as TaskDetails).priority}`];
     }
-  
+
     return [];
   };
-  
 
   return (
     <div className="flex items-start gap-4 relative">
@@ -155,7 +180,9 @@ const TimelineCard: FC<TimelineCardProps> = ({
                 <p>
                   <strong>Create Follow-up:</strong> Yes{" "}
                   {(item?.notes?.[0] as NoteDetails)?.task?.dueDate &&
-                    `(Due: ${(item?.notes?.[0] as NoteDetails)?.task?.dueDate})`}
+                    `(Due: ${
+                      (item?.notes?.[0] as NoteDetails)?.task?.dueDate
+                    })`}
                 </p>
               )}
             </div>
@@ -169,17 +196,37 @@ const TimelineCard: FC<TimelineCardProps> = ({
                 </p>
                 <p>
                   <strong>Time:</strong>{" "}
-                  {(item?.appointment?.[0] as AppointmentDetails)?.startTime || "-"} 
-                  {(item?.appointment?.[0] as AppointmentDetails)?.endTime || "-"}
+                  {(item?.appointment?.[0] as AppointmentDetails)?.startTime ||
+                    "-"}
+                  {(item?.appointment?.[0] as AppointmentDetails)?.endTime ||
+                    "-"}
                 </p>
                 <p>
                   <strong>Location:</strong>{" "}
-                  {(item?.appointment[0] as AppointmentDetails)?.location || "-"}
+                  {(item?.appointment[0] as AppointmentDetails)?.location ||
+                    "-"}
                 </p>
                 <p>
                   <strong>User:</strong>{" "}
-                  {(item?.appointment[0] as AppointmentDetails)?.user || "-"}
+                  {(() => {
+                    const selectedIds =
+                      (item?.appointment?.[0] as AppointmentDetails)
+                        ?.selectUsers || [];
+
+                    const userNames = Array.isArray(selectedIds)
+                      ? selectedIds
+                          .map((id) => {
+                            const found = users.find((u) => u.usersId === id);
+                            return found?.name;
+                          })
+                          .filter(Boolean)
+                          .join(", ")
+                      : "-";
+
+                    return userNames || "-";
+                  })()}
                 </p>
+
                 <p>
                   <strong>Send to Customer:</strong>{" "}
                   {(item?.appointment[0] as AppointmentDetails)?.sendToCustomer
@@ -197,7 +244,8 @@ const TimelineCard: FC<TimelineCardProps> = ({
                   : "-"}
               </p>
               <p>
-                <strong>Time:</strong> {(item.task[0] as TaskDetails)?.time || "-"}
+                <strong>Time:</strong>{" "}
+                {(item.task[0] as TaskDetails)?.time || "-"}
               </p>
               <p>
                 <strong>Priority:</strong>{" "}
@@ -205,7 +253,14 @@ const TimelineCard: FC<TimelineCardProps> = ({
               </p>
               <p>
                 <strong>Assignee:</strong>{" "}
-                {(item?.task[0] as TaskDetails)?.assignee || "-"}
+                {(() => {
+                  const assigneeId = (item?.task?.[0] as TaskDetails)?.assignee;
+                  if (!assigneeId) return "-";
+                  const assigneeUser = users.find(
+                    (u) => u.usersId === assigneeId
+                  );
+                  return assigneeUser?.name || "-";
+                })()}
               </p>
             </div>
           )}

@@ -9,6 +9,7 @@ import { ActionType, TimelineCardProps, NoteDetails, AppointmentDetails, TaskDet
 interface TimelineActionFormRendererProps {
     activeAction: ActionType;
     editingItem: { item: TimelineCardProps; index: number } | null;
+    loading: boolean;
     handleSaveNote: (note: NoteDetails) => void;
     handleSaveAppointment: (appointment: AppointmentDetails) => void;
     handleSaveTask: (task: TaskDetails) => void;
@@ -19,6 +20,7 @@ interface TimelineActionFormRendererProps {
 const TimelineActionFormRenderer: React.FC<TimelineActionFormRendererProps> = ({
     activeAction,
     editingItem,
+    loading,
     handleSaveNote,
     handleSaveAppointment,
     handleSaveTask,
@@ -41,6 +43,7 @@ const TimelineActionFormRenderer: React.FC<TimelineActionFormRendererProps> = ({
                     <AddNotesCard
                         onSave={handleSaveNote}
                         onCancel={handleClose}
+                        loading={loading}
                         // initialData={currentData as NoteDetails}
                     />
                 </TimelineCard>
@@ -68,6 +71,7 @@ const TimelineActionFormRenderer: React.FC<TimelineActionFormRendererProps> = ({
                     <AddAppointmentCard
                         onSave={handleSaveAppointment}
                         onCancel={handleClose}
+                        loading={loading}
                         // initialData={currentData as AppointmentDetails}
                     />
                 </TimelineCard>
@@ -96,6 +100,7 @@ const TimelineActionFormRenderer: React.FC<TimelineActionFormRendererProps> = ({
                     <CreateTaskCard
                         onSave={handleSaveTask}
                         onCancel={handleClose}
+                        loading={loading}
                         // initialData={currentData as TaskDetails}
                     />
                 </TimelineCard>
@@ -117,6 +122,7 @@ const TimelineActionFormRenderer: React.FC<TimelineActionFormRendererProps> = ({
                     <SendSmsCard
                         onSave={handleSaveSms}
                         onCancel={handleClose}
+                        loading={loading}
                         // initialData={currentData as SmsDetails}
                     />
                 </TimelineCard>

@@ -171,7 +171,7 @@ export interface AppointmentDetails {
   startTime: string; // e.g. "10:00"
   endTime: string;   // e.g. "11:00"
   location: string;
-  user: string;
+  selectUsers: string;
   notes: string;
   sendToCustomer?: boolean;
 }

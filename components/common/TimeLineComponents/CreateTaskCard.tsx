@@ -30,6 +30,7 @@ import {
 interface CreateTaskCardProps {
     onSave: (task: any) => void;
     onCancel: () => void;
+    loading: boolean;
     initialData?: TaskDetails;
 }
 
@@ -42,6 +43,7 @@ const priorityOptions = [
 const CreateTaskCard: FC<CreateTaskCardProps> = ({
   onSave,
   onCancel,
+  loading,
   initialData,
 }) => {
   const [form] = Form.useForm();
@@ -93,14 +95,7 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
     values.task.due_date = values.task?.due_date?.format("YYYY-MM-DD");
     values.task.time = values.task?.time?.format("HH:mm");
     values.attachment = values?.attachment?.[0]?.originFileObj || null;
-    try {
-      setSubmitting(true);
-      await onSave(values);
-    } catch (err) {
-      message.error("Failed to save task");
-    } finally {
-      setSubmitting(false);
-    }
+    onSave(values);
   };
   return (
     <Form
@@ -206,7 +201,7 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
 
         <div className="flex gap-3">
           <Button onClick={onCancel}>Cancel</Button>
-          <Button type="primary" htmlType="submit" loading={submitting}>
+          <Button type="primary" htmlType="submit" loading={loading} disabled={loading}>
             Save
           </Button>
         </div>

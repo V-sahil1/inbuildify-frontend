@@ -18,12 +18,14 @@ import { disablePastDates } from "@lib/utils/getDisabledTimeDate";
 
 interface AddNotesCardProps {
   onSave: (note: NoteDetails) => void;
+  loading: boolean;
   onCancel: () => void;
   initialData?: NoteDetails;
 }
 
 const AddNotesCard: FC<AddNotesCardProps> = ({
   onSave,
+  loading,
   onCancel,
   initialData,
 }) => {
@@ -179,7 +181,7 @@ const AddNotesCard: FC<AddNotesCardProps> = ({
             {/* Actions */}
             <div className="flex justify-end gap-3">
                 <Button onClick={onCancel}>Cancel</Button>
-                <Button type="primary" htmlType="submit">
+                <Button loading={loading} disabled={loading} type="primary" htmlType="submit">
                     Send
                 </Button>
             </div>
