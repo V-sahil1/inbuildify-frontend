@@ -5,12 +5,13 @@ import { Form, Input, Radio, Checkbox, Select, Modal, message ,Spin} from "antd"
 import { IconMinus, IconPlus } from "@tabler/icons-react";
 import { createCategoryItem, fetchCategories, updateCategoryItem } from "@redux/feature/masterPriceList/masterPriceListThunk";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
+// import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
 import { getConditions } from "@redux/feature/floorPlan/floorPlanThunk";
 import { enumToReadable } from "@lib/utils/enumToRedable";
 import { Status } from "@lib/constants/enum";
 import { addPackageItems } from "@redux/feature/package/packageSlice";
 import { mapToOptions } from "@lib/utils/rangeAndDwellingObjToOptions";
+import Link from "next/link";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -284,7 +285,27 @@ const AddMasterPricingItemModal = ({
             className="form-item-responsive"
             rules={[{ required: true, message: "Please select range" }]}
           >
-            <Select placeholder="Please select" style={{ width: "100%" }} options={rangeOptions}/>
+            <Select
+              placeholder="Please select"
+              style={{ width: "100%" }}
+              options={rangeOptions}
+              notFoundContent={
+                <div
+                  style={{ padding: "8px", color: "#999", textAlign: "center" }}
+                >
+                  <p>No range type found.</p>
+                  <div className="flex gap-1 w-full justify-center items-center">
+                    <Link
+                      href="/settings/?tab=range-dwelling"
+                      className="text-primary hover:underline"
+                    >
+                      Click Here
+                    </Link>
+                    <p>to create range type</p>
+                  </div>
+                </div>
+              }
+            />
           </Form.Item>
 
           {/* Dwelling Type */}
@@ -294,7 +315,27 @@ const AddMasterPricingItemModal = ({
             className="form-item-responsive"
             rules={[{ required: true, message: "Please select dwelling type" }]}
           >
-            <Select placeholder="Please select" style={{ width: "100%" }} options={dwellingTypeOptions}/>
+            <Select
+              placeholder="Please select"
+              style={{ width: "100%" }}
+              options={dwellingTypeOptions}
+              notFoundContent={
+                <div
+                  style={{ padding: "8px", color: "#999", textAlign: "center" }}
+                >
+                  <p>No dwelling type found.</p>
+                  <div className="flex gap-1 w-full justify-center items-center">
+                    <Link
+                      href="/settings/?tab=range-dwelling"
+                      className="text-primary hover:underline"
+                    >
+                      Click Here
+                    </Link>
+                    <p>to create dwelling type</p>
+                  </div>
+                </div>
+              }
+            />
           </Form.Item>
         </div>
 
