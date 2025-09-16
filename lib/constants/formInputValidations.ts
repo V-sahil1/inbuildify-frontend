@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-
+import type { Rule } from 'antd/es/form';
 export const passwordRules = [
   { required: true, message: "Password is required" },
   {
@@ -52,7 +52,7 @@ export const nameRules = [
   },
 ];
 
-export const emailRules = [
+export const emailRules: Rule[] = [
   { required: true, message: "Please enter email" },
   { type: "email", message: "Please enter a valid email" },
 ];

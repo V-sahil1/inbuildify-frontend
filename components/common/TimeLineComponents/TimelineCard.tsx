@@ -68,16 +68,16 @@ const TimelineCard: FC<TimelineCardProps> = ({
         type Recipient = string | { id: string; name: string };
 
         const recipientNames = (
-          Array.isArray(sms?.recipient) ? sms.recipient : []
+          Array.isArray(sms?.recipient) ? sms?.recipient : []
         )
           .map((r: Recipient) => {
             if (typeof r === "string") {
-              const contact = leadDetail.contacts.find(
-                (c) => c.leadsContactId === r
+              const contact = leadDetail?.contacts?.find(
+                (c) => c?.leadsContactId === r
               );
               return contact?.name;
             } else if (typeof r === "object" && r?.name) {
-              return r.name;
+              return r?.name;
             }
             return null;
           })

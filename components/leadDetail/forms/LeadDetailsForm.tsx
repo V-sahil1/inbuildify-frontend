@@ -2,6 +2,7 @@ import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { Status } from "@lib/constants/enum";
 import {
   addressRules,
+  emailRules,
   nameRules,
   optionalPhoneRule,
   phoneRules,
@@ -144,6 +145,8 @@ const LeadDetailsForm: React.FC<any> = ({
       } else if (!isEditing) {
         form.resetFields();
       }
+      setShowContactForm(false);
+      setHideAddressForm(true);
     }
   }, [open, isEditing, initialValues, form]);
 
@@ -163,7 +166,6 @@ const LeadDetailsForm: React.FC<any> = ({
       if (country) payload.country = country;
       if (state) payload.state = state;
 
-      // When contact is clicked, use initialValues for address fields
       if (showContactForm && initialValues && hideAddressForm) {
         payload = {
           ...payload,
@@ -183,13 +185,15 @@ const LeadDetailsForm: React.FC<any> = ({
       const { countryId, stateId, ...rest } = payload;
       await onSubmit(rest);
 
-      setShowContactForm(false);
     } catch (err) {
       if (err.errorFields) {
         message.error("Please fill all required fields");
       } else {
         message.error("An error occurred. Please try again.");
       }
+    }finally{
+      setShowContactForm(false);
+      setHideAddressForm(true);
     }
   };
 
@@ -198,6 +202,9 @@ const LeadDetailsForm: React.FC<any> = ({
     if (!isEditing) {
       form.resetFields();
     }
+    // Ensure when modal is closed and reopened, default (non-contact) form shows
+    setShowContactForm(false);
+    setHideAddressForm(true);
   };
 
   return (
@@ -233,12 +240,7 @@ const LeadDetailsForm: React.FC<any> = ({
           <Form.Item
             label="Email"
             name="email"
-            rules={[
-              {
-                required: true,
-                message: "Please enter your email",
-              },
-            ]}
+            rules={emailRules}
           >
             <Input type="email" placeholder="Enter email" />
           </Form.Item>
