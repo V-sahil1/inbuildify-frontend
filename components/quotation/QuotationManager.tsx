@@ -239,12 +239,6 @@ const QuotationManager = () => {
         floorPlanId: plan?.floorPlanId,
         facadeId: facade?.facadeId,
         packageId: selectedPackageFromSlice?.packageId,
-        }),
-        range: quotationFilters?.range,
-        dwellingType: quotationFilters?.dwelling_type,
-        floorPlanId: plan?.floorPlanId,
-        facadeId: facade?.facadeId,
-        packageId: selectedPackageFromSlice?.packageId,
         items: getQuotationItems(),
       },
     };

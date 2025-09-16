@@ -145,6 +145,7 @@ const JobAction = () => {
                             handleSaveTask={handleSaveTask}
                             handleSaveSms={handleSaveSms}
                             handleClose={handleClose}
+                            loading={false}
                         />
                     )}
 
