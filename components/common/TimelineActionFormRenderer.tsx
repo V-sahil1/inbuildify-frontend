@@ -9,6 +9,7 @@ import { ActionType, TimelineCardProps, NoteDetails, AppointmentDetails, TaskDet
 interface TimelineActionFormRendererProps {
     activeAction: ActionType;
     editingItem: { item: TimelineCardProps; index: number } | null;
+    loading: boolean;
     handleSaveNote: (note: NoteDetails) => void;
     handleSaveAppointment: (appointment: AppointmentDetails) => void;
     handleSaveTask: (task: TaskDetails) => void;
@@ -19,103 +20,110 @@ interface TimelineActionFormRendererProps {
 const TimelineActionFormRenderer: React.FC<TimelineActionFormRendererProps> = ({
     activeAction,
     editingItem,
+    loading,
     handleSaveNote,
     handleSaveAppointment,
     handleSaveTask,
     handleSaveSms,
     handleClose,
 }) => {
-    const currentData = editingItem ? editingItem.item.data : undefined;
+    const currentData = editingItem ? editingItem.item : undefined;
 
     switch (activeAction || (editingItem && editingItem.item.type)) {
         case "addNotes":
-        case "Notes":
+        case "NOTES":
             return (
                 <TimelineCard
-                    type="Notes"
+                    type="NOTES"
                     date={new Date().toLocaleString()}
-                    createdBy="Current User"
+                    createdByName="Current User"
                     createdAt={new Date().toLocaleString()}
-                    data={currentData as NoteDetails || { description: "", tags: ["Draft"], sendToCustomer: false, createFollowup: false, files: [] }}
+                    // notes={currentData as NoteDetails || { message: "", tags: [{name:"Draft"}], sendToCustomer: false, createFollowUpTask: false, attachment: [],task:{dueDate:""} }}
                 >
                     <AddNotesCard
                         onSave={handleSaveNote}
                         onCancel={handleClose}
-                        initialData={currentData as NoteDetails}
+                        loading={loading}
+                        // initialData={currentData as NoteDetails}
                     />
                 </TimelineCard>
             );
         case "bookAppointment":
-        case "Appointments":
+        case "APPOINTMENT":
             return (
                 <TimelineCard
-                    type="Appointments"
+                    type="APPOINTMENT"
                     date={new Date().toLocaleString()}
-                    createdBy="Current User"
+                    createdByName="Current User"
                     createdAt={new Date().toLocaleString()}
                     status="pending"
-                    data={currentData as AppointmentDetails || {
-                        title: "New Appointment",
-                        date: new Date().toISOString().split('T')[0],
-                        startTime: "09:00",
-                        endTime: "10:00",
-                        location: "",
-                        user: "",
-                        notes: "",
-                        sendToCustomer: false,
-                    }}
+                    // appointment={currentData as AppointmentDetails || {
+                    //     title: "New Appointment",
+                    //     date: new Date().toISOString().split('T')[0],
+                    //     startTime: "09:00",
+                    //     endTime: "10:00",
+                    //     location: "",
+                    //     user: "",
+                    //     notes: "",
+                    //     sendToCustomer: false,
+                    // }}
                 >
                     <AddAppointmentCard
                         onSave={handleSaveAppointment}
                         onCancel={handleClose}
-                        initialData={currentData as AppointmentDetails}
+                        loading={loading}
+                        // initialData={currentData as AppointmentDetails}
                     />
                 </TimelineCard>
             );
         case "createTask":
-        case "Tasks":
+        case "TASK":
             return (
                 <TimelineCard
-                    type="Tasks"
+                    type="TASK"
                     date={new Date().toLocaleString()}
-                    createdBy="Current User"
+                    createdByName="Current User"
                     createdAt={new Date().toLocaleString()}
                     status="pending"
-                    data={currentData as TaskDetails || {
-                        name: "New Task",
-                        dueDate: new Date().toISOString().split('T')[0],
-                        time: "09:00",
-                        priority: "Medium",
-                        description: "",
-                        assignee: "",
-                        files: [],
-                    }}
+                    // task={currentData as TaskDetails || {
+                    //     task:{
+                    //     name: "New Task",
+                    //     dueDate: new Date().toISOString().split('T')[0],
+                    //     time: "09:00",
+                    //     priority: "MEDIUM",
+                    //     description: "",
+                    //     assignee: "",
+                    //     },
+                    //     attachment: [],
+                    // }}
                 >
                     <CreateTaskCard
                         onSave={handleSaveTask}
                         onCancel={handleClose}
-                        initialData={currentData as TaskDetails}
+                        loading={loading}
+                        // initialData={currentData as TaskDetails}
                     />
                 </TimelineCard>
             );
         case "sendSms":
-        case "Sms":
+        case "SMS":
             return (
                 <TimelineCard
-                    type="Sms"
+                    type="SMS"
                     date={new Date().toLocaleString()}
-                    createdBy="Current User"
+                    createdByName="Current User"
                     createdAt={new Date().toLocaleString()}
                     status="pending"
-                    data={currentData as SmsDetails || {
-                        message: "",
-                        recipient: "",
-                    }}
+                    // sms={currentData as SmsDetails || {
+                    //     message: "",
+                    //     recipient: "",
+                    // }}
                 >
                     <SendSmsCard
                         onSave={handleSaveSms}
                         onCancel={handleClose}
-                        initialData={currentData as SmsDetails}
+                        loading={loading}
+                        // initialData={currentData as SmsDetails}
                     />
                 </TimelineCard>
             );

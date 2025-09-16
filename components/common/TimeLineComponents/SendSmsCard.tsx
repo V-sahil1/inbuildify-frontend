@@ -1,67 +1,76 @@
 "use client";
 import { FC, useState } from "react";
-import { Button, Input, Select } from "antd";
+import { Button, Form, Input, Select } from "antd";
 import { SmsDetails } from "data/types";
-
+import { useAppSelector } from "@hooks/redux";
+import { descriptionRules } from "@lib/constants/formInputValidations";
+const { TextArea } = Input;
 interface SendSmsCardProps {
-    onSave: (sms: SmsDetails) => void;
-    onCancel: () => void;
-    initialData?: SmsDetails;
+  onSave: (sms: SmsDetails) => void;
+  onCancel: () => void;
+  loading: boolean;
+  initialData?: SmsDetails;
 }
 
-const recipientOptions = [
-    { label: "Customer A", value: "Customer A" },
-    { label: "Customer B", value: "Customer B" },
-];
+const SendSmsCard: FC<SendSmsCardProps> = ({
+  onSave,
+  onCancel,
+  loading,
+  initialData,
+}) => {
+  const [formData, setFormData] = useState<SmsDetails>({
+    message: initialData?.message || "",
+    recipient: initialData?.recipient || "",
+  });
+  const [form] = Form.useForm();
+  const { leadDetail } = useAppSelector((state) => state.lead);
+  const recipientOptions = leadDetail.contacts.map((contact) => ({
+    label: contact.name,
+    value: contact.leadsContactId,
+  }));
 
-const SendSmsCard: FC<SendSmsCardProps> = ({ onSave, onCancel, initialData }) => {
-    const [formData, setFormData] = useState<SmsDetails>({
-        message: initialData?.message || "",
-        recipient: initialData?.recipient || "",
-    });
+  const handleFinish = async (values: SmsDetails) => {
+    values.type = "SMS";
+    await form.validateFields();
+    onSave(values);
+  };
 
-    const handleChange = (field: keyof SmsDetails, value: any) => {
-        setFormData((prev) => ({ ...prev, [field]: value }));
-    };
+  return (
+    <Form
+      form={form}
+      layout="vertical"
+      onFinish={handleFinish}
+      className="flex flex-col gap-3"
+    >
+      <Form.Item
+        label="Recipient"
+        name="recipient"
+        rules={[{ required: true, message: "Please select recipient(s)" }]}
+      >
+        <Select
+          mode="multiple"
+          options={recipientOptions}
+          placeholder="Select Recipient"
+          className="w-full"
+        />
+      </Form.Item>
 
-    const handleSave = () => {
-        onSave(formData);
-    };
+      <Form.Item
+        label="Message"
+        name="message"
+        rules={descriptionRules}
+      >
+        <TextArea rows={4} placeholder="Type your SMS message" />
+      </Form.Item>
 
-    return (
-        <div className="flex flex-col gap-3">
-            {/* Recipient */}
-            <div>
-                <label className="block text-sm text-gray-600 mb-1">Recipient</label>
-                <Select
-                    options={recipientOptions}
-                    value={formData.recipient}
-                    onChange={(value) => handleChange("recipient", value)}
-                    placeholder="Select Recipient"
-                    className="w-full"
-                />
-            </div>
-
-            {/* Message */}
-            <div>
-                <label className="block text-sm text-gray-600 mb-1">Message</label>
-                <Input.TextArea
-                    value={formData.message}
-                    onChange={(e) => handleChange("message", e.target.value)}
-                    placeholder="Type your SMS message"
-                    rows={4}
-                />
-            </div>
-
-            {/* Actions */}
-            <div className="flex gap-3">
-                <Button onClick={onCancel}>Cancel</Button>
-                <Button type="primary" onClick={handleSave}>
-                    Send SMS
-                </Button>
-            </div>
-        </div>
-    );
+      <div className="flex gap-3 justify-end">
+        <Button onClick={onCancel}>Cancel</Button>
+        <Button type="primary" htmlType="submit" loading={loading} disabled={loading}>
+          Send SMS
+        </Button>
+      </div>
+    </Form>
+  );
 };
 
 export default SendSmsCard;

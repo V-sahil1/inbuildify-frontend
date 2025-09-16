@@ -13,7 +13,7 @@ import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
 import { roleRules, emailRules } from "@lib/constants/formInputValidations";
 import { Roles } from "@lib/constants/enum";
 import { enumToReadable } from "@lib/utils/enumToRedable";
-type User = {
+export type User = {
   key: string;
   role: string;
   email: string;

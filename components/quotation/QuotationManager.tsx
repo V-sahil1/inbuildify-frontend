@@ -384,7 +384,10 @@ const QuotationManager = () => {
           title="Quotation"
           steps={[]}
         />
-        <QuotationFilter isReadOnly={isReadOnly} />
+        <QuotationFilter 
+          isReadOnly={isReadOnly}
+          onFilterChange={() => setSelectedCategory(null)} 
+          />
       </div>
 
       <InfoCards

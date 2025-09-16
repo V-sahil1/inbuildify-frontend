@@ -40,6 +40,12 @@ const LeadQuotationComparison: React.FC<Props> = ({
     fetchQuotation();
   }, [quotation.quotationId, dispatch]);
 
+  useEffect(() => {
+    if (selectedVersions.length < 2) {
+      setComparisonResult([]);
+    }
+  }, [selectedVersions]);
+  
   const handleCheckboxChange = (versionId: string) => {
     // Make sure we're working with an array of versions
     if (!Array.isArray(quotation.versions)) return;
@@ -153,17 +159,17 @@ const LeadQuotationComparison: React.FC<Props> = ({
                   ))}
                 </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex align-middle items-center gap-2">
           <Button type="primary" onClick={handleCompareClick}>
             Compare
           </Button>
-          <Button>Print</Button>
-          <Checkbox
+          {/* <Button>Print</Button> */}
+          {/* <Checkbox
             checked={showAll}
             onChange={(e) => setShowAll(e.target.checked)}
           >
             Show All
-          </Checkbox>
+          </Checkbox> */}
         </div>
       </div>
 
@@ -198,6 +204,7 @@ const LeadQuotationComparison: React.FC<Props> = ({
                         dataIndex="left"
                         key="left"
                         width="20%"
+                        align="center"
                     />
                     )}
                     {selectedVersions[1] && (
@@ -213,6 +220,7 @@ const LeadQuotationComparison: React.FC<Props> = ({
                         dataIndex="right"
                         key="right"
                         width="20%"
+                        align="center"
                     />
                 )}
             </Table>

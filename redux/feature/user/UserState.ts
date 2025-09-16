@@ -1,4 +1,5 @@
 // Types for contractors
+import { Status } from "@lib/constants/enum";
 
 // API Response Type (what comes from the backend)
 export interface UserResponse extends Array<{
@@ -45,3 +46,19 @@ export const initialState: IUserState = {
   loading: false,
   error: null
 }
+
+export type user = {
+  usersId: string;
+  builderId: string;
+  name: string;
+  email: string;
+  isVerified: boolean;
+  role: string[];
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type UserInitialState = {
+  users: user[],
+  status: Status,
+};

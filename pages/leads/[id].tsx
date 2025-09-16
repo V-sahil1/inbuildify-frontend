@@ -74,7 +74,6 @@ export interface Package {
 
 function App() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [isConvertModalVisible, setIsConvertModalVisible] = useState(false);
   const [isEditLeadModalVisible, setIsEditLeadModalVisible] = useState(false);
   const [isPropertyModalVisible, setIsPropertyModalVisible] = useState(false);
@@ -410,7 +409,7 @@ function App() {
         >
           {/* Action Tab */}
           <TabPane tab="Action" key="action" className="border border-t-0">
-            <LeadActions />
+            <LeadActions leadId={leadId}/>
           </TabPane>
           <TabPane tab="Document" key="Document">
             <div className="bg-card-color">

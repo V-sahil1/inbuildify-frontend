@@ -88,5 +88,11 @@ class API_ENDPOINTS {
   // location
   public static COUNTRY_BASE = "/country";
   public static STATE_BASE = "/state";
+
+  // action
+  public static ACTION_BASE = "/actions";
+  
+  // tags
+  public static TAGS_BASE = "/tags";
 }
 export default API_ENDPOINTS;

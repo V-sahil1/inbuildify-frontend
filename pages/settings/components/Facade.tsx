@@ -75,19 +75,19 @@ const Facade = () => {
         await dispatch(
           updateFacade({ data: formData, facadeId: editingFacade.facadeId })
         ).unwrap();
-        setIsModalVisible(false);
         message.success("Facade updated successfully");
+        setIsEditing(false);
+        setEditingFacade(null);  
       } else {
         await dispatch(createFacade(formData)).unwrap();
-        setIsModalVisible(false);
         message.success("Facade created successfully");
+        setEditingFacade(null);
       }
       setIsModalVisible(false);
 
     } catch (error) {
-      message.error(error || "Failed to create Facade");
+      message.error(error || "Failed to create/update Facade");
     } finally {
-      setIsEditing(false);
       setLoading(false);
     }
   };
@@ -102,6 +102,7 @@ const Facade = () => {
       logo: facade?.image,
       standard: facade?.standard ? "TRUE" : "FALSE",
       upgrade: facade?.upgrade ? "TRUE" : "FALSE",
+      cost: facade?.cost?.toString().split(".")[0], 
     };
     setEditingFacade(mappedFacade);
     setIsModalVisible(true);

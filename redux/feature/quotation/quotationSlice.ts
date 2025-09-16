@@ -58,6 +58,11 @@ const quotationSlice = createSlice({
         clearSelectedFloorplanFacadePackageReducer(state) {
             state.plan = null;
             state.facade = null;
+            if (state.package?.categoryItemIds) {
+                state.items = state.items.filter(
+                    item => !state.package.categoryItemIds.includes(item.itemId)
+                );
+            }
             state.package = null;
         },
         setQuotationContact(state, action: PayloadAction<ILeadContact | null>) {

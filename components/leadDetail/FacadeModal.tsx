@@ -105,13 +105,19 @@ const FacadeModal: React.FC<FacadeModalProps> = ({
                     <div className="flex gap-4">
                         <Checkbox
                             checked={!!selectedFilters.standard}
-                            onChange={(e) => dispatch(setSelectedFilters({ standard: e.target.checked }))}>
+                            onChange={(e) => {
+                                dispatch(setSelectedFilters({ standard: e.target.checked }));
+                                setSelected(null);
+                            }}>
                             Standard
                         </Checkbox>
 
                         <Checkbox
                             checked={!!selectedFilters.upgrade}
-                            onChange={(e) => dispatch(setSelectedFilters({ upgrade: e.target.checked }))}>
+                            onChange={(e) => {
+                                dispatch(setSelectedFilters({ upgrade: e.target.checked }));
+                                setSelected(null);
+                            }}>
                             Upgrade
                         </Checkbox>
                         {/* Second Variation */}

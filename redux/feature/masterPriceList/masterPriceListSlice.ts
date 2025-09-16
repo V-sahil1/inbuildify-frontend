@@ -25,6 +25,11 @@ const masterPriceListSlice = createSlice({
         category.isExpanded = true;
       }
     },
+    resetAllCategoriesIsExpanded(state) {
+      state.categories.forEach(category => {
+        category.isExpanded = false;
+      });
+    },
     setSelectedFilters(state, action) {
       state.selectedFilters = { ...state.selectedFilters, ...action.payload };
     },
@@ -105,6 +110,6 @@ const masterPriceListSlice = createSlice({
   },
 });
 
-export const { toggleExpand, setSelectedFilters, clearFilters } =
+export const { toggleExpand, setSelectedFilters, clearFilters, resetAllCategoriesIsExpanded } =
   masterPriceListSlice.actions;
 export default masterPriceListSlice.reducer;
