@@ -265,7 +265,7 @@ function App() {
             {primaryContact?.name ?? "-"}
           </h2>
           <p className="text-sm">
-            {leadDetail?.lead?.leadSource || "Lead Source not provided"}
+            {enumToReadable(leadDetail?.lead?.leadSource) || "Lead Source not provided"}
           </p>
 
           <div className="flex items-center gap-2 mt-2">

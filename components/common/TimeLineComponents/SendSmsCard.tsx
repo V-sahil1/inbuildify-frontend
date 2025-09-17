@@ -1,5 +1,5 @@
 "use client";
-import { FC, useState } from "react";
+import { FC } from "react";
 import { Button, Form, Input, Select } from "antd";
 import { SmsDetails } from "data/types";
 import { useAppSelector } from "@hooks/redux";
@@ -18,10 +18,6 @@ const SendSmsCard: FC<SendSmsCardProps> = ({
   loading,
   initialData,
 }) => {
-  const [formData, setFormData] = useState<SmsDetails>({
-    message: initialData?.message || "",
-    recipient: initialData?.recipient || "",
-  });
   const [form] = Form.useForm();
   const { leadDetail } = useAppSelector((state) => state.lead);
   const recipientOptions = leadDetail.contacts.map((contact) => ({

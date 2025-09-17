@@ -185,7 +185,23 @@ export const optionalNotesRule = [
           new Error("Notes should be at least 3 characters")
         );
       }
+      if (trimmed.length > 500) {
+        return Promise.reject(
+          new Error("Notes cannot be more than 500 characters")
+        );
+      }
       return Promise.resolve();
     },
   },
 ];
+
+export const locationRules = [
+  { required: true, message: "Please enter location" },
+  {
+    validator: (_: any, value:string) =>
+      value && value.length > 200
+        ? Promise.reject(new Error("Location cannot exceed 200 characters"))
+        : Promise.resolve(),
+  },
+];
+  

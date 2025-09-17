@@ -17,6 +17,7 @@ import { Status } from "@lib/constants/enum";
 import { getUsersThunk } from "@redux/feature/user/userThunk";
 import {
   dueDateRules,
+  locationRules,
   optionalNotesRule,
   taskNameRules,
   timeRules,
@@ -121,7 +122,7 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
         <Form.Item
           label="Location"
           name="location"
-          rules={[{ required: true, message: "Please enter location" }]}
+          rules={locationRules}
         >
           <Input placeholder="Location" />
         </Form.Item>

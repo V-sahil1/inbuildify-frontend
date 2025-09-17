@@ -16,6 +16,7 @@ import {
 import dayjs from "dayjs";
 import { useAppSelector } from "@hooks/redux";
 import { formatApiDate, timeAgo } from "@lib/utils/timeAgo";
+import { Button, Tooltip } from "antd";
 
 const statusColors: Record<string, string> = {
   completed: "text-blue-600",
@@ -130,7 +131,7 @@ const getIcon = () => {
         <div className="mb-2 flex items-center justify-between gap-2">
           {/* Left: Tags (can be empty but keeps spacing) */}
           <div className="flex flex-wrap gap-2">
-            {getTags().map((tag, idx) => (
+            {getTags().slice(0, 5).map((tag, idx) => (
               <span
                 key={idx}
                 className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-md"
@@ -138,6 +139,28 @@ const getIcon = () => {
                 {tag}
               </span>
             ))}
+
+            {getTags().length > 5 && (
+              <Tooltip
+                color="var(--card-color)"
+                title={
+                  <div className="flex flex-wrap gap-2 max-w-xs">
+                    {getTags().map((tag, idx) => (
+                      <span
+                        key={idx}
+                        className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-md"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                }
+              >
+                <span className="px-2 py-1 bg-gray-200 text-gray-600 text-xs rounded-md cursor-pointer">
+                  +{getTags().length - 5}
+                </span>
+              </Tooltip>
+            )}
           </div>
 
           {/* Right: Avatar + Type */}
@@ -208,6 +231,20 @@ const getIcon = () => {
                     })`}
                 </p>
               )}
+              {typeof (item?.notes?.[0] as NoteDetails)?.attachment === "string" &&
+                <p className="p-0">
+                  <strong>Attachments:</strong>{" "}
+                  <Button
+                    type="link"
+                    href={String((item?.notes?.[0] as NoteDetails)?.attachment)}
+                    target="_blank"
+                    className="p-0 m-0"
+                    rel="noopener noreferrer"
+                  >
+                    View Attachment
+                  </Button>
+                </p>
+              }
             </div>
           )}
           {item?.type === "APPOINTMENT" &&
@@ -288,6 +325,20 @@ const getIcon = () => {
                   return assigneeUser?.name || "-";
                 })()}
               </p>
+              {item?.task[0]?.attachment && (
+                <p>
+                  <strong>Attachments:</strong>{" "}
+                  <Button
+                    type="link"
+                    href={String((item?.task?.[0] as TaskDetails)?.attachment)}
+                    target="_blank"
+                    className="p-0 m-0"
+                    rel="noopener noreferrer"
+                  >
+                    View Attachment
+                  </Button>
+                </p>
+              )}
             </div>
           )}
         </>

@@ -194,7 +194,7 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
           valuePropName="fileList"
           getValueFromEvent={(e) => e.fileList}
         >
-          <Upload beforeUpload={() => false} maxCount={1}>
+          <Upload beforeUpload={() => false} maxCount={1} accept=".jpg,.jpeg,.png,.gif,.webp">
             <Button icon={<IconUpload />}>Attach Files</Button>
           </Upload>
         </Form.Item>

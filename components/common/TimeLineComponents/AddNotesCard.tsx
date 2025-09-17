@@ -122,7 +122,7 @@ const AddNotesCard: FC<AddNotesCardProps> = ({
           className="flex-1 max-w-[500px]"
           getValueFromEvent={(e) => e.fileList}
         >
-          <Upload beforeUpload={() => false} maxCount={1}>
+          <Upload beforeUpload={() => false} maxCount={1} accept=".jpg,.jpeg,.png,.gif,.webp">
             <Button icon={<IconUpload />}>Attach Files</Button>
           </Upload>
         </Form.Item>
