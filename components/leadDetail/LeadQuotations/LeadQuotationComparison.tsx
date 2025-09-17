@@ -90,45 +90,45 @@ const LeadQuotationComparison: React.FC<Props> = ({
       ...rightItems.map((i) => i.categoryItemId),
     ]);
 
+    // Function to format the display as a React element
+    const formatItem = (item: any) => {
+      if (!item) return "-";
+
+      const quantity = item?.categoryItemQuantity || 1;
+      const cost = parseFloat(item?.categoryItemCost);
+      const total = quantity * cost;
+
+      return (
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontWeight: 'bold', color: 'black' }}>
+            ${total.toFixed(2)}
+          </div>
+          <div style={{ fontSize: '0.85em', color: '#888' }}>
+            ({quantity} × ${cost.toFixed(2)})
+          </div>
+        </div>
+      );
+    };
+
     allItemIds.forEach((itemId) => {
-      const itemLeft = leftItems.find((i) => i.categoryItemId === itemId);
-      const itemRight = rightItems.find((i) => i.categoryItemId === itemId);
+      const itemLeft = leftItems.find((i) => i?.categoryItemId === itemId);
+      const itemRight = rightItems.find((i) => i?.categoryItemId === itemId);
 
-      if (itemLeft && !itemRight) {
+      const vLeft = formatItem(itemLeft);
+      const vRight = formatItem(itemRight);
+
+      // Check for differences
+      // Note: We'll compare the raw data, not the formatted JSX, to determine differences.
+      const rawLeftValue = itemLeft ? `${itemLeft?.categoryItemQuantity || 1}x${parseFloat(itemLeft?.categoryItemCost).toFixed(2)}` : null;
+      const rawRightValue = itemRight ? `${itemRight?.categoryItemQuantity || 1}x${parseFloat(itemRight?.categoryItemCost).toFixed(2)}` : null;
+
+      if (rawLeftValue !== rawRightValue) {
         rows.push({
           key: itemId,
-          description: itemLeft.categoryItemDescription,
-          left: `${itemLeft.quantity || 1} × $${itemLeft.categoryItemCost}`,
-          right: "-",
+          description: (itemLeft || itemRight)?.categoryItemDescription,
+          left: vLeft,
+          right: vRight,
         });
-        return;
-      }
-      if (itemRight && !itemLeft) {
-        rows.push({
-          key: itemId,
-          description: itemRight.categoryItemDescription,
-          left: "-",
-          right: `${itemRight.quantity || 1} × $${itemRight.categoryItemCost}`,
-        });
-        return;
-      }
-
-      if (itemLeft && itemRight) {
-        const vLeft = `${itemLeft.quantity || 1} × $${
-          itemLeft.categoryItemCost
-        }`;
-        const vRight = `${itemRight.quantity || 1} × $${
-          itemRight.categoryItemCost
-        }`;
-
-        if (vLeft !== vRight) {
-          rows.push({
-            key: itemId,
-            description: itemLeft.categoryItemDescription,
-            left: vLeft,
-            right: vRight,
-          });
-        }
       }
     });
     setComparisonResult(rows);
