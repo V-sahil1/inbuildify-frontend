@@ -29,7 +29,7 @@ export const PackageItem = ({
         <div>
           <h3 className="text-lg font-medium">{pkg.name}</h3>
           <p className="text-sm text-gray-500">
-            {pkg?.categoryItemIds?.length} items • ${pkg?.amount}
+            {pkg?.categoryItems?.length} items • ${pkg?.amount}
           </p>
         </div>
         <div className="flex items-center space-x-2">
@@ -84,14 +84,14 @@ export const PackageItem = ({
       {isExpanded && (
         <div className="p-4 border-t border-border-color">
           <ul className="space-y-2">
-            {pkg?.categoryItemDescriptions?.length > 0 ? (
-              pkg?.categoryItemDescriptions?.map((item) => (
+            {pkg?.categoryItems?.length > 0 ? (
+              pkg?.categoryItems?.map((item) => (
                 <li
-                  key={item}
+                  key={item.id}
                   className="flex justify-between py-2 border-b border-gray-300 "
                 >
-                  <Tooltip title={item}>
-                    <span className="line-clamp-1 word-wrap">{item}</span>
+                  <Tooltip title={item.desc}>
+                    <span className="line-clamp-1 word-wrap">{item.desc}</span>
                   </Tooltip>
                 </li>
               ))

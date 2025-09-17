@@ -38,12 +38,16 @@ export const QuatationPdf = ({
 
   const nonPackageItems = items?.map(category => ({
     ...category,
-    items: category.items.filter(item => !quotePackage?.categoryItemIds?.includes(item.categoryItemId))
+    items: category.items.filter(
+      item => !quotePackage?.categoryItems?.some(ci => ci.id === item.categoryItemId)
+    )
   }));
 
   const packageItems = items?.map(category => ({
     ...category,
-    items: category.items.filter(item => quotePackage?.categoryItemIds?.includes(item.categoryItemId))
+    items: category.items.filter(
+      item => quotePackage?.categoryItems?.some(ci => ci.id === item.categoryItemId)
+    )
   }));
   const Footer = () => {
     return (
@@ -376,7 +380,7 @@ export const QuatationPdf = ({
             imageSrc={facade?.image}
           />
 
-          {quotePackage?.categoryItemIds?.length > 0 && (
+          {quotePackage?.categoryItems?.length > 0 && (
             <View style={{ marginTop: 15 }}>
               <Text style={Page3styles.SubHeading}>Package Details</Text>
               {/* Package name is now outside the table */}

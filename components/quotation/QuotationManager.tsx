@@ -336,7 +336,7 @@ const QuotationManager = () => {
         propertyDetail: property,
         quotePackage: selectedPackageFromSlice,
         quotationAmount: calculateTotalQuotation(
-          Number(packageFromSlice?.amount),
+          packageFromSlice,
           itemsFromSlice,
           Number(facade?.cost)
         ),
@@ -449,7 +449,7 @@ const QuotationManager = () => {
       <div className="m-3">
         <FooterActions
           total={calculateTotalQuotation(
-            Number(packageFromSlice?.amount),
+            packageFromSlice,
             itemsFromSlice,
             Number(facade?.cost)
           )}

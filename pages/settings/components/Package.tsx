@@ -55,9 +55,7 @@ const Package = () => {
   const handleEditPackage = (pkg: IPackage) => {
     const mappedPackage = {
       ...pkg,
-      categoryItemDescriptions: Array.isArray(pkg.categoryItemDescriptions)
-        ? pkg.categoryItemDescriptions.filter((desc) => desc != null)
-        : [],
+      categoryItemDescriptions: pkg.categoryItems?.map((item) => item.desc) || [],
     };
 
     // Set the selected values for range and dwelling when editing

@@ -2,7 +2,11 @@ export type Package = {
   packageId: string;
   name: string;
   builderId: string;
-  categoryItemIds: string[];
+  categoryItems: {
+    id: string;
+    desc: string;
+    price: string;
+  }[];
   amount: string;
   dwellingTypeId: string;
   rangeId: string;
@@ -10,5 +14,4 @@ export type Package = {
   dwelling: string;
   createdAt: string;
   updatedAt: string;
-  categoryItemDescriptions: string[];
 };

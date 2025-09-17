@@ -7,20 +7,22 @@ interface Item {
 }
 
 const calculateTotalQuotation = (
-  packageFromSlice: number,
+  packageFromSlice: Package,
   itemsFromSlice: Item[],
   facadeCost: number,
 ) => {
-  let total = Number(packageFromSlice) || 0;
+  let total = Number(packageFromSlice?.amount) || 0;
   total += Number(facadeCost) || 0;
-
-  itemsFromSlice.forEach((item) => {
-    const qty = Number(item.quantity) || 0;
-    const price = Number(item.price) || 0;
-    total += qty * price;
+  const packageItemIds = new Set(
+    (packageFromSlice?.categoryItems || []).map((ci) => ci.id)
+  );
+  itemsFromSlice?.forEach((item) => {
+    if (!packageItemIds?.has(item.itemId)) {
+      const qty = Number(item.quantity) || 0;
+      const price = Number(item.price) || 0;
+      total += qty * price;
+    }
   });
-
-
   return Number(total.toFixed(2));
 };
 
