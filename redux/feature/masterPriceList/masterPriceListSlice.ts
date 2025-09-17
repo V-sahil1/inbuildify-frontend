@@ -1,9 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
+  createCategory,
   createCategoryItem,
+  deleteCategory,
   deleteCategoryItem,
   fetchCategories,
   fetchCategoryItems,
+  updateCategory,
   updateCategoryItem,
 } from "./masterPriceListThunk";
 import { Status } from "@lib/constants/enum";
@@ -39,7 +42,7 @@ const masterPriceListSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // fetch categories
+      // categories
       .addCase(fetchCategories.pending, (state) => {
         state.status = Status.PENDING;
         state.loading = true;
@@ -53,6 +56,28 @@ const masterPriceListSlice = createSlice({
           isExpanded: false,
           loadingItems: false,
         }));
+      })
+      .addCase(createCategory.fulfilled, (state, action) => {
+        state.categories.push({
+          ...action.payload,
+          items: null,
+          isExpanded: false,
+          loadingItems: false,
+        });
+      })
+      .addCase(updateCategory.fulfilled, (state, action) => {
+        const category = state.categories.find(
+          (c) => c.categoryId === action.payload.categoryId
+        );
+        if (category) {
+          category.name = action.payload.name;
+          category.description = action.payload.description;
+        }
+      })
+      .addCase(deleteCategory.fulfilled, (state, action) => {
+        state.categories = state.categories.filter(
+          (c) => c.categoryId !== action.payload.categoryId
+        );
       })
 
       // fetch items

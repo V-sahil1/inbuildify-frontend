@@ -39,12 +39,14 @@ export const nameRules = [
   { required: true, message: "Please enter full name" },
   {
     validator: (_: any, value: string) => {
-      if (!value) return Promise.resolve();
-      // Example: Minimum 3 characters and only letters, spaces allowed
-      const isValid = /^[a-zA-Z\s]{3,}$/.test(value);
+      if (!value) return Promise.resolve(); 
+      const cleaned = value.trim().replace(/\s+/g, " "); 
+      const lettersOnly = cleaned.replace(/\s/g, ""); 
+      const isValid = /^[a-zA-Z\s]+$/.test(cleaned) && lettersOnly.length >= 3;
+
       if (!isValid) {
         return Promise.reject(
-          "Name must be at least 3 characters and contain only letters and spaces"
+          "Name must be at least 3 letters and can only contain letters and spaces"
         );
       }
       return Promise.resolve();
@@ -90,10 +92,23 @@ export const taskNameRules = [
 ];
 
 export const descriptionRules = [
-  { required: true, message: "Please enter description" },
-  { min: 5, message: "Description must be at least 5 characters" },
-  { max: 500, message: "Description must be at most 500 characters" },
-  noWhitespace,
+  {
+    validator: (_: any, value: string) => {
+      if (!value || !value.trim()) {
+        return Promise.reject("Please enter description");
+      }
+
+      const trimmed = value.trim();
+      if (trimmed.length < 5) {
+        return Promise.reject("Description must be at least 5 characters");
+      }
+      if (trimmed.length > 500) {
+        return Promise.reject("Description must be at most 500 characters");
+      }
+
+      return Promise.resolve();
+    },
+  },
 ];
 
 export const dueDateRules = [

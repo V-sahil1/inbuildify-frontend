@@ -11,7 +11,7 @@ export const PricingItem = ({ item, handleClick }: PricingItemProps) => {
   return (
     <div
       key={item.categoryItemId}
-      className="flex items-center gap-4 p-4 border border-border-color rounded-lg hover:border-gray-300 bg-card-color text-font-color"
+      className="flex items-center gap-4 p-4 border border-border-color rounded-lg hover:border-gray-300 bg-gray-50 text-font-color"
     >
       <div className="flex-1  items-center justify-between">
         <div className="mb-2 font-medium flex gap-10 text-[16px]">

@@ -17,6 +17,7 @@ export interface Item {
     categoryId: string;
     name: string;
     description: string;
+    displayOrder?: number;
     createdAt: string;
     updatedAt: string;
     items: Item[] | null;

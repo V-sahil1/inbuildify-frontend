@@ -49,6 +49,7 @@ class API_ENDPOINTS {
   public static CREATE_MASTER_PRICE_LIST_ITEM = "/category-item";
   public static GET_MASTER_PRICE_LIST_ITEM = (id: string) =>
     `/category-item/${id}`;
+  public static MASTER_CATEGORY_ORDER = `${this.MASTER_PRICE_LIST_CATEGORY}/order/display-order`;
   public static MASTER_PRICE_LIST_CONDITION_BASE = "/condition";
   public static GET_MASTER_PRICE_LIST_CONDITIONS = `${this.MASTER_PRICE_LIST_CONDITION_BASE}/conditions`;
 
