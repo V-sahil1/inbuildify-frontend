@@ -22,13 +22,17 @@ interface AddMasterPricingItemModalProps {
   onClose: any;
   categoryId?: string;
   categoryItem?: any;
+  preselectedRange?: string;
+  preselectedDwelling?: string;
 }
 
 const AddMasterPricingItemModal = ({
     open,
     onClose,
     categoryId,
-    categoryItem
+    categoryItem,
+    preselectedRange,
+    preselectedDwelling,
   }: AddMasterPricingItemModalProps) => {    
     const [form] = Form.useForm();
     const [costType, setCostType] = useState("INCLUDED");
@@ -75,8 +79,16 @@ const AddMasterPricingItemModal = ({
       } else {
         form.resetFields();
         setCostType("INCLUDED");
+    
+        // if provided Pre-fill range and dwelling type only from package modal 
+        if (preselectedRange && preselectedDwelling) {
+          form.setFieldsValue({
+            range: preselectedRange,
+            dwelling: preselectedDwelling,
+          });
+        }
       }
-    }, [categoryItem, form]);
+    }, [categoryItem, form, preselectedRange, preselectedDwelling]);
 
   useEffect(() => {
     if (status.conditions === Status.IDLE) {
@@ -290,6 +302,7 @@ const AddMasterPricingItemModal = ({
               placeholder="Please select"
               style={{ width: "100%" }}
               options={rangeOptions}
+              disabled={!!preselectedRange} 
               notFoundContent={
                 <NoDataMessage
                   label="range type"
@@ -310,6 +323,7 @@ const AddMasterPricingItemModal = ({
               placeholder="Please select"
               style={{ width: "100%" }}
               options={dwellingTypeOptions}
+              disabled={!!preselectedDwelling}
               notFoundContent={
                 <NoDataMessage
                   label="dwelling type"

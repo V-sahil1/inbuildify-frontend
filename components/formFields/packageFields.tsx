@@ -84,6 +84,7 @@ export const packageFields = ( selectedValues?: { range?: string; dwelling?: str
       placeholder: "Select Items",
       rules: [{ required: true, message: "Please select a range" }],
       button:"Add Item",
+      disableButton: !selectedValues?.range || !selectedValues?.dwelling,
       disabled: !selectedValues?.range || !selectedValues?.dwelling,
       onClick: handleAddItem,
     },

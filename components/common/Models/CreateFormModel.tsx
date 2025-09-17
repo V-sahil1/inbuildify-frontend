@@ -34,6 +34,7 @@ export type CreateFormField = {
   mode?: "tags" | "multiple";
   options?: { value: string; label: string }[];
   button?: string;
+  disableButton?: boolean;
   onClick?: () => void;
   handleChange?: (info: UploadChangeParam) => void;
   notFoundContent?: React.ReactNode;
@@ -143,16 +144,17 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
               <div className="flex items-center justify-between w-full gap-1">
                 <span className="flex-1">{field.label}</span>
                 {field.button && (
-                  <button
-                    type="button"
-                    className="bg-primary text-white rounded py-0.5 px-2 text-[12px]"
+                  <Button
+                    size="small"
+                    type="primary"
+                    disabled={field?.disableButton || false}
                     onClick={(e) => {
                       e.stopPropagation();
                       field.onClick();
                     }}
                   >
                     {field.button}
-                  </button>
+                  </Button>
                 )}
               </div>
             }

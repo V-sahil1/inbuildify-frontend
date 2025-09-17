@@ -166,6 +166,8 @@ const Package = () => {
       {addInstItemModal && <AddMasterPricingItemModal
         open={addInstItemModal}
         onClose={() => dispatch(setAddInstItemModal(false))}
+        preselectedRange={formValues?.range}
+        preselectedDwelling={formValues?.dwelling}
       />}
     </div>
   );
