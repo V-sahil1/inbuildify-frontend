@@ -67,7 +67,7 @@ export const deleteCategory = createAsyncThunk(
 
 export const updateCategoryOrder = createAsyncThunk(
   "categorie/updateOrder",
-  async (payload: { categories: { id: string; order: number }[] }, { rejectWithValue }) => {
+  async (payload: { categories: { categoryId: string; displayOrder: number }[] }, { rejectWithValue }) => {
     try {
       const res = await api.put<ApiResponse<Category>>(
         API_ENDPOINTS.MASTER_CATEGORY_ORDER,

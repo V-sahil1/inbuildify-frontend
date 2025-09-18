@@ -175,14 +175,17 @@ export const MasterPriceList = () => {
     const fromIndex = result.source.index;
     const toIndex = result.destination.index;
   
-    // Clone the categories array and each object to avoid mutation
-    const newLocalCategories = localCategories.map(c => ({ ...c }));
+    // Keep the old state in case API fails
+    const prevCategories = [...localCategories];
+  
+    // Clone categories to avoid mutation
+    const newLocalCategories = localCategories.map((c) => ({ ...c }));
   
     // Move the dragged category in the array
     const [movedCategory] = newLocalCategories.splice(fromIndex, 1);
     newLocalCategories.splice(toIndex, 0, movedCategory);
   
-    // Array to store affected categories for payload
+    // Collect affected categories
     const changedCategories: Category[] = [];
   
     const oldDisplayOrder = movedCategory.displayOrder;
@@ -191,43 +194,40 @@ export const MasterPriceList = () => {
       // Moving down
       let previous = oldDisplayOrder;
       for (let i = fromIndex; i <= toIndex; i++) {
-        const c = { ...newLocalCategories[i] }; // clone before updating
+        const c = { ...newLocalCategories[i] };
         const currentOrder = c.displayOrder;
         c.displayOrder = previous;
         previous = currentOrder;
         changedCategories.push(c);
-        newLocalCategories[i] = c; // update UI array with cloned object
+        newLocalCategories[i] = c;
       }
     } else if (fromIndex > toIndex) {
       // Moving up
       let previous = oldDisplayOrder;
       for (let i = fromIndex; i >= toIndex; i--) {
-        const c = { ...newLocalCategories[i] }; // clone before updating
+        const c = { ...newLocalCategories[i] };
         const currentOrder = c.displayOrder;
         c.displayOrder = previous;
         previous = currentOrder;
         changedCategories.push(c);
-        newLocalCategories[i] = c; // update UI array with cloned object
+        newLocalCategories[i] = c;
       }
     }
   
-    // Update UI
-    setLocalCategories(newLocalCategories);
-  
-    console.log("Changed categories to send:", changedCategories);
-  
     try {
       const payload = changedCategories.map((c) => ({
-        id: c.categoryId,
-        order: c.displayOrder,
+        categoryId: c.categoryId,
+        displayOrder: c.displayOrder,
       }));
-      
   
       if (payload.length > 0) {
+        // here the move is only perform if the api gets success otherwise gets back to initial state
         await dispatch(updateCategoryOrder({ categories: payload })).unwrap();
+        setLocalCategories(newLocalCategories);
         message.success("Category order updated successfully");
       }
     } catch (error) {
+      setLocalCategories(prevCategories);
       message.error(error || "Failed to update category order");
     }
   };
