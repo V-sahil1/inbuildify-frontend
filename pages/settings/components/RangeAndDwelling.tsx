@@ -145,14 +145,14 @@ const RangeAndDwelling = () => {
   const dataSource =
     activeTab === "range"
       ? range?.map((item: any) => ({
-          id: item.rangeId,
-          name: item.name,
-          key: item.rangeId,
+          id: item?.rangeId,
+          name: item?.name,
+          key: item?.rangeId,
         })) || []
       : dwellingType?.map((item: any) => ({
-          id: item.dwellingTypeId,
-          name: item.name,
-          key: item.dwellingTypeId,
+          id: item?.dwellingTypeId,
+          name: item?.name,
+          key: item?.dwellingTypeId,
         })) || [];
 
   return (

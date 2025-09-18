@@ -5,10 +5,12 @@ import dynamic from "next/dynamic";
 import Breadcrumb from "@/components/common/Breadcrumb";
 import {
   IconCalendarMonth,
+  IconChartFunnel,
   IconClockHour3,
   IconLabelImportant,
   IconProgress,
   IconServer2,
+  IconSettingsBolt,
   IconTool,
 } from "@tabler/icons-react";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
@@ -17,6 +19,7 @@ import { Status } from "@lib/constants/enum";
 import { getDwellingTypes, getRanges } from "@redux/feature/types/typesThunk";
 import Service from "./components/Service";
 import LeadSource from "./components/LeadSource";
+// import Configuration from "./components/Configuration";
 
 const MasterPriceList = dynamic(() => import("./components/MasterPriceList"), {
   ssr: false,
@@ -32,10 +35,17 @@ const RangeAndDwelling = dynamic(
 );
 
 const TABS = [
+  // {
+  //   id: "configuration",
+  //   label: "Configuration",
+  //   icon: IconSettingsBolt,
+  //   breadcrumb: "Configuration",
+  //   component: Configuration,
+  // },
   {
     id: "range-dwelling",
     label: "Types",
-    icon: IconServer2,
+    icon: IconChartFunnel,
     breadcrumb: "Types",
     component: RangeAndDwelling,
   },

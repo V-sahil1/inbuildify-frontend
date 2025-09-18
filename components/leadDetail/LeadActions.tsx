@@ -96,7 +96,6 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
     index: number;
   } | null>(null);
   const dispatch = useAppDispatch();
-  // console.log("actions data", actions);
 
   useEffect(() => {
     async function fetchData() {
@@ -224,7 +223,9 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
       </div>
 
       <div className="relative ">
-        <div className="absolute left-[13px] top-0 bottom-0 w-[1px] bg-gray-300" />
+        {cardsData && cardsData?.length > 0 && !loading && (
+          <div className="absolute left-[13px] top-0 bottom-0 w-[1px] bg-gray-300" />
+        )}
         <div className="space-y-8">
           {(activeAction || editingItem) && (
             <TimelineActionFormRenderer

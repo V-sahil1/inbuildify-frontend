@@ -55,9 +55,7 @@ const Package = () => {
   const handleEditPackage = (pkg: IPackage) => {
     const mappedPackage = {
       ...pkg,
-      categoryItemDescriptions: Array.isArray(pkg.categoryItemDescriptions)
-        ? pkg.categoryItemDescriptions.filter((desc) => desc != null)
-        : [],
+      categoryItemDescriptions: pkg.categoryItems?.map((item) => item.desc) || [],
     };
 
     // Set the selected values for range and dwelling when editing
@@ -168,6 +166,8 @@ const Package = () => {
       {addInstItemModal && <AddMasterPricingItemModal
         open={addInstItemModal}
         onClose={() => dispatch(setAddInstItemModal(false))}
+        preselectedRange={formValues?.range}
+        preselectedDwelling={formValues?.dwelling}
       />}
     </div>
   );

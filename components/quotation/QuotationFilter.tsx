@@ -13,6 +13,8 @@ import { message, Select } from "antd";
 import { mapToOptions } from "@lib/utils/rangeAndDwellingObjToOptions";
 import { Status } from "@lib/constants/enum";
 import { getDwellingTypes, getRanges } from "@redux/feature/types/typesThunk";
+import NoDataMessage from "../common/NoDataMessage";
+import SystemRoutes from "@lib/constants/Routes";
 
 interface QuotationFilterProps {
   isReadOnly?: boolean;
@@ -184,7 +186,7 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({ isReadOnly = false, o
 
   const clearSelectedFloorplanFacadePackage = () => {
     dispatch(clearSelectedFloorplanFacadePackageReducer())
-  }
+  };
 
   return (
     <div className="flex items-center gap-6 justify-end text-font-color w-[1000px]">
@@ -196,6 +198,12 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({ isReadOnly = false, o
           size="small"
           allowClear
           value={selectedQuotationFilters?.range || undefined}
+          notFoundContent={
+            <NoDataMessage
+              label="Range type"
+              link={SystemRoutes.DWELLING_AND_RANGE}
+            />
+          }
           onChange={(value) => {
             clearSelectedFloorplanFacadePackage()
             handleRangeChange(value)
@@ -216,6 +224,12 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({ isReadOnly = false, o
           size="small"
           allowClear
           value={selectedQuotationFilters?.dwelling_type || undefined}
+          notFoundContent={
+            <NoDataMessage
+              label="dwelling type"
+              link={SystemRoutes.DWELLING_AND_RANGE}
+            />
+          }
           onChange={(value) => {
               clearSelectedFloorplanFacadePackage()
               handleDwellingTypeChange(value),

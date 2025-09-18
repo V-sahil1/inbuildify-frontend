@@ -23,7 +23,6 @@ const JobVariationCreateTable: React.FC<JobVariationCreateTableProps> = ({ dataS
             price: 0,
             total: 0,
         };
-        console.log("🚀 ~ handleAdd ~ newRow:", newRow)
         setDataSource([newRow, ...dataSource]);
     };
 

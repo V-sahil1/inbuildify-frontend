@@ -113,7 +113,6 @@ const JobVariation: React.FC<JobVariationProps> = ({ data, setActiveScreen }) =>
                             }
                         ],
                         onClick: (e) => {
-                            console.log("dropdown key", e.key);
                         }
                     }}
                     >

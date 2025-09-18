@@ -1,11 +1,11 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect } from "react";
 import WelcomeHeader from "../components/common/WelcomeHeader";
 import Breadcrumb from "../components/common/Breadcrumb";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { Status } from "@lib/constants/enum";
 import { getDashboardThunk } from "@redux/feature/dashboard/dashboardThunk";
 import NumbersCard from "@/components/dashboard/NumbersCard";
-import { IconUserScan } from "@tabler/icons-react";
+import { IconTie, IconUserScan, IconUsersGroup } from "@tabler/icons-react";
 import { message, Spin } from "antd";
 import { Table, TableColumnsType } from "antd";
 import Link from "next/link";
@@ -42,27 +42,27 @@ function transformDashboardData(input: InputData) {
       count: input?.contractorCount,
       description: "Total number of contractors in the system",
       icon: (
-        <IconUserScan className="stroke-primary stroke-[1.5] w-[32px] h-[32px]" />
+        <IconTie className="stroke-primary stroke-[1.5] w-[32px] h-[32px]" />
       ),
-      route: "contractor",
+      route: "contractors",
     },
-    {
-      title: "Customers",
-      count: input?.customerCount,
-      description: "Total number of customers in the system",
-      icon: (
-        <IconUserScan className="stroke-primary stroke-[1.5] w-[32px] h-[32px]" />
-      ),
-      route: "customer",
-    },
+    // {
+    //   title: "Customers",
+    //   count: input?.customerCount,
+    //   description: "Total number of customers in the system",
+    //   icon: (
+    //     <IconUserScan className="stroke-primary stroke-[1.5] w-[32px] h-[32px]" />
+    //   ),
+    //   route: "customer",
+    // },
     {
       title: "Users",
       count: input?.usersCount,
       description: "Total number of users in the system",
       icon: (
-        <IconUserScan className="stroke-primary stroke-[1.5] w-[32px] h-[32px]" />
+        <IconUsersGroup className="stroke-primary stroke-[1.5] w-[32px] h-[32px]" />
       ),
-      route: "user",
+      route: "users",
     },
     {
       title: "Leads",
@@ -77,7 +77,7 @@ function transformDashboardData(input: InputData) {
 
   const data = [
     input?.contractorData,
-    input?.customerData,
+    // input?.customerData,
     input?.usersData,
     input?.leadData,
   ];
@@ -91,7 +91,6 @@ export default function Analysis() {
   const useStatus = useAppSelector((state) => state.auth.status);
   const { countData, data } = transformDashboardData(dashboard);
   const dispatch = useAppDispatch();
-  const { role } = useAppSelector((state) => state.auth);
   const menuRef = useRef(null);
   const buttonRef = useRef(null);
   const breadcrumbItem = [
@@ -190,9 +189,9 @@ export default function Analysis() {
             item?.length > 0 ? 
             <div>
               <div className="grid grid-cols-2">
-                <div className="mb-2 font-bold">{countData[index].title}</div>
+                <div className="mb-2 font-bold">{countData[index]?.title}</div>
                 <div className="flex justify-end text-primary text-sm pr-2">
-                  <Link href={countData[index].route}>View All</Link>
+                  <Link href={countData[index]?.route}>View All</Link>
                 </div>
               </div>
 

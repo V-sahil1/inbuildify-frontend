@@ -1,12 +1,11 @@
 "use client";
 import { FC } from "react";
 import {
-  IconEdit,
   IconCalendar,
-  IconCheck,
   IconMessage,
+  IconDeviceMobileMessage,
+  IconListCheck,
 } from "@tabler/icons-react";
-// import { Button } from "antd";
 import { TimelineCardProps } from "data/types";
 import {
   AppointmentDetails,
@@ -17,6 +16,7 @@ import {
 import dayjs from "dayjs";
 import { useAppSelector } from "@hooks/redux";
 import { formatApiDate, timeAgo } from "@lib/utils/timeAgo";
+import { Button, Tooltip } from "antd";
 
 const statusColors: Record<string, string> = {
   completed: "text-blue-600",
@@ -68,16 +68,16 @@ const TimelineCard: FC<TimelineCardProps> = ({
         type Recipient = string | { id: string; name: string };
 
         const recipientNames = (
-          Array.isArray(sms?.recipient) ? sms.recipient : []
+          Array.isArray(sms?.recipient) ? sms?.recipient : []
         )
           .map((r: Recipient) => {
             if (typeof r === "string") {
-              const contact = leadDetail.contacts.find(
-                (c) => c.leadsContactId === r
+              const contact = leadDetail?.contacts?.find(
+                (c) => c?.leadsContactId === r
               );
               return contact?.name;
             } else if (typeof r === "object" && r?.name) {
-              return r.name;
+              return r?.name;
             }
             return null;
           })
@@ -103,11 +103,26 @@ const TimelineCard: FC<TimelineCardProps> = ({
     return [];
   };
 
+const getIcon = () => {
+  switch (type) {
+    case "NOTES":
+      return <IconMessage size={18} />;
+    case "APPOINTMENT":
+      return <IconCalendar size={18} />;
+    case "TASK":
+      return <IconListCheck size={18} />;
+    case "SMS":
+      return <IconDeviceMobileMessage size={18} />;
+    default:
+      return <IconMessage size={18} />;
+  }
+}
+
   return (
     <div className="flex items-start gap-4 relative">
       {/* Left Icon */}
       <div className="relative z-10 flex items-center justify-center w-7 h-7 rounded-full bg-gray-100 text-gray-600">
-        {type === "TASK" ? <IconCheck size={18} /> : <IconMessage size={18} />}
+        {getIcon()}
       </div>
 
       {/* Card */}
@@ -116,7 +131,7 @@ const TimelineCard: FC<TimelineCardProps> = ({
         <div className="mb-2 flex items-center justify-between gap-2">
           {/* Left: Tags (can be empty but keeps spacing) */}
           <div className="flex flex-wrap gap-2">
-            {getTags().map((tag, idx) => (
+            {getTags().slice(0, 5).map((tag, idx) => (
               <span
                 key={idx}
                 className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-md"
@@ -124,6 +139,28 @@ const TimelineCard: FC<TimelineCardProps> = ({
                 {tag}
               </span>
             ))}
+
+            {getTags().length > 5 && (
+              <Tooltip
+                color="var(--card-color)"
+                title={
+                  <div className="flex flex-wrap gap-2 max-w-xs">
+                    {getTags().map((tag, idx) => (
+                      <span
+                        key={idx}
+                        className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-md"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                }
+              >
+                <span className="px-2 py-1 bg-gray-200 text-gray-600 text-xs rounded-md cursor-pointer">
+                  +{getTags().length - 5}
+                </span>
+              </Tooltip>
+            )}
           </div>
 
           {/* Right: Avatar + Type */}
@@ -194,6 +231,20 @@ const TimelineCard: FC<TimelineCardProps> = ({
                     })`}
                 </p>
               )}
+              {typeof (item?.notes?.[0] as NoteDetails)?.attachment === "string" &&
+                <p className="p-0">
+                  <strong>Attachments:</strong>{" "}
+                  <Button
+                    type="link"
+                    href={String((item?.notes?.[0] as NoteDetails)?.attachment)}
+                    target="_blank"
+                    className="p-0 m-0"
+                    rel="noopener noreferrer"
+                  >
+                    View Attachment
+                  </Button>
+                </p>
+              }
             </div>
           )}
           {item?.type === "APPOINTMENT" &&
@@ -274,6 +325,20 @@ const TimelineCard: FC<TimelineCardProps> = ({
                   return assigneeUser?.name || "-";
                 })()}
               </p>
+              {item?.task[0]?.attachment && (
+                <p>
+                  <strong>Attachments:</strong>{" "}
+                  <Button
+                    type="link"
+                    href={String((item?.task?.[0] as TaskDetails)?.attachment)}
+                    target="_blank"
+                    className="p-0 m-0"
+                    rel="noopener noreferrer"
+                  >
+                    View Attachment
+                  </Button>
+                </p>
+              )}
             </div>
           )}
         </>

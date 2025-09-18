@@ -143,14 +143,14 @@ const PackageModal: React.FC<PackageModalProps> = ({
                           <div className="mb-6">
                             <h3 className="text-lg font-semibold mb-3">Included Items</h3>
                             <div className="space-y-3">
-                              {tempSelectedPackage.categoryItemDescriptions?.length ? (
-                                tempSelectedPackage.categoryItemDescriptions.map((item, idx) => (
+                              {tempSelectedPackage?.categoryItems?.length ? (
+                                tempSelectedPackage.categoryItems.map((item, idx) => (
                                   <div
                                     key={idx}
                                     className="flex items-start p-3 rounded-lg"
                                   >
                                     <div className="flex-1">
-                                      <div className="font-medium">{item}</div>
+                                      <div className="font-medium">{item?.desc}</div>
                                     </div>
                                   </div>
                                 ))

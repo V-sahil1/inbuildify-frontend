@@ -5,17 +5,81 @@ import API_ENDPOINTS from "@lib/constants/apiEndpoints";
 import { Category, Item, RequestItem } from "./iMasterPriceListState";
 
 export const fetchCategories = createAsyncThunk(
-    "categories/fetchAll",
-    async (_,{rejectWithValue}) => {
-      try {
-        const res = await api.get<ApiResponse<{categories:Category[]}>>(API_ENDPOINTS.MASTER_PRICE_LIST_CATEGORY);
-        return res.data;
-      } catch (error) {
-        return rejectWithValue(error.message);
-      }
+  "categorie/fetchAll",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await api.get<ApiResponse<{ categories: Category[] }>>(
+        API_ENDPOINTS.MASTER_PRICE_LIST_CATEGORY
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
     }
-  );
-  
+  }
+);
+
+export const createCategory = createAsyncThunk(
+  "categorie/create",
+  async (payload: { name: string; description: string }, { rejectWithValue }) => {
+    try {
+      const res = await api.post<ApiResponse<Category>>(
+        API_ENDPOINTS.MASTER_PRICE_LIST_CATEGORY,
+        { data: payload }
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const updateCategory = createAsyncThunk(
+  "categorie/update",
+  async (
+    { payload, id }: { payload: { name: string; description: string }; id: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const res = await api.put<ApiResponse<Category>>(
+        API_ENDPOINTS.MASTER_PRICE_LIST_CATEGORY + "/" + id,
+        { data: payload }
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const deleteCategory = createAsyncThunk(
+  "categorie/delete",
+  async (payload: string, { rejectWithValue }) => {
+    try {
+      const res = await api.delete<ApiResponse<Category>>(
+        API_ENDPOINTS.MASTER_PRICE_LIST_CATEGORY + "/" + payload
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const updateCategoryOrder = createAsyncThunk(
+  "categorie/updateOrder",
+  async (payload: { categories: { categoryId: string; displayOrder: number }[] }, { rejectWithValue }) => {
+    try {
+      const res = await api.put<ApiResponse<Category>>(
+        API_ENDPOINTS.MASTER_CATEGORY_ORDER,
+        { data: {orderedCategories:payload.categories} }
+      );
+      return { data: res.data, categories: payload.categories };
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
   // Fetch items of a category
   export const fetchCategoryItems = createAsyncThunk(
     "categories/fetchItems",

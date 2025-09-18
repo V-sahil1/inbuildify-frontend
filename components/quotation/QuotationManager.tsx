@@ -336,7 +336,7 @@ const QuotationManager = () => {
         propertyDetail: property,
         quotePackage: selectedPackageFromSlice,
         quotationAmount: calculateTotalQuotation(
-          Number(packageFromSlice?.amount),
+          packageFromSlice,
           itemsFromSlice,
           Number(facade?.cost)
         ),
@@ -357,7 +357,7 @@ const QuotationManager = () => {
   };
 
   const canContact = !!contact;
-  const canProperty = property && Object.keys(property).length > 0;
+  const canProperty = property && Object.keys(property).length > 0 && property?.propertyId;
   const canPlan = plan && Object.keys(plan).length > 0;
   const canFacade = !!facade;
   const canSelectedPackageFromSlice = !!selectedPackageFromSlice;
@@ -449,7 +449,7 @@ const QuotationManager = () => {
       <div className="m-3">
         <FooterActions
           total={calculateTotalQuotation(
-            Number(packageFromSlice?.amount),
+            packageFromSlice,
             itemsFromSlice,
             Number(facade?.cost)
           )}

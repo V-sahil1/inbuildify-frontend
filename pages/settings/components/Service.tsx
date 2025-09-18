@@ -15,6 +15,7 @@ import {
 } from "@redux/feature/contractor/contractorThunk";
 import { RootState } from "@redux/feature/store";
 import { Service as serviceType } from "@redux/feature/contractor/IContractorState";
+import { Status } from "@lib/constants/enum";
 
 const Service = () => {
   const dispatch = useAppDispatch();
@@ -24,7 +25,7 @@ const Service = () => {
     id: null,
     open: false,
   });
-  const { services } = useAppSelector((state: RootState) => state.contractor);
+  const { services, status } = useAppSelector((state: RootState) => state.contractor);
   const [formLoading, setFormLoading] = useState(false);
 
   const handleEdit = (item: serviceType) => {
@@ -122,7 +123,7 @@ const Service = () => {
   return (
     <div className="p-4 bg-body-color rounded-lg shadow">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold">Manage Lead Sources</h2>
+        <h2 className="text-lg font-semibold">Manage Services</h2>
         <Button type="primary" onClick={() => setIsModalVisible(true)}>
           Add
         </Button>
@@ -132,7 +133,7 @@ const Service = () => {
         columns={columns}
         dataSource={services}
         pagination={false}
-        // loading={}
+        loading={status === Status.PENDING}
         rowKey="id"
       />
 

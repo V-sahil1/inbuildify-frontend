@@ -1,8 +1,8 @@
 import TimelineActionFormRenderer from '@/components/common/TimelineActionFormRenderer';
 import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineActionsBar';
-import TimelineCard from '@/components/common/TimeLineComponents/TimelineCard';
-import { handleSaveTimelineCard } from '@lib/utils/timelineCardUtils';
-import { MenuProps } from 'antd';
+// import TimelineCard from '@/components/common/TimeLineComponents/TimelineCard';
+// import { handleSaveTimelineCard } from '@lib/utils/timelineCardUtils';
+import { Empty, MenuProps } from 'antd';
 import { ActionType, AppointmentDetails, NoteDetails, SmsDetails, TaskDetails, TimelineCardProps } from 'data/types';
 import React, { useState } from 'react'
 
@@ -134,7 +134,7 @@ const JobAction = () => {
             </div>
 
             <div className="relative ">
-                <div className="absolute left-[13px] top-0 bottom-0 w-[1px] bg-gray-300" />
+                {/* <div className="absolute left-[13px] top-0 bottom-0 w-[1px] bg-gray-300" /> */}
                 <div className="space-y-8">
                     {(activeAction || editingItem) && (
                         <TimelineActionFormRenderer
@@ -150,7 +150,7 @@ const JobAction = () => {
                     )}
 
                     {/* Timeline */}
-                    {cardsData
+                    {/* {cardsData
                         .filter((item) => item.type === activeTab || activeTab === "All")
                         .map((item, idx) => (
                             <TimelineCard
@@ -158,7 +158,16 @@ const JobAction = () => {
                                 {...item}
                                 onEdit={(data) => handleEdit(data, idx)}
                             />
-                        ))}
+                        ))} */}
+
+
+                    <Empty
+                        description={
+                            activeTab === "All"
+                                ? "No data available"
+                                : `No ${activeTab} available for this tab`
+                        }
+                    />
                 </div>
             </div>
         </div>

@@ -46,7 +46,7 @@ const AddNotesCard: FC<AddNotesCardProps> = ({
     try {
       await dispatch(getActionTags());
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }
   useEffect(() => {
@@ -122,12 +122,10 @@ const AddNotesCard: FC<AddNotesCardProps> = ({
           className="flex-1 max-w-[500px]"
           getValueFromEvent={(e) => e.fileList}
         >
-           <Upload beforeUpload={() => false} maxCount={1}>
-                      <Button icon={<IconUpload />}>Attach Files</Button>
-                    </Upload>
-                  </Form.Item>
-    
-
+          <Upload beforeUpload={() => false} maxCount={1} accept=".jpg,.jpeg,.png,.gif,.webp">
+            <Button icon={<IconUpload />}>Attach Files</Button>
+          </Upload>
+        </Form.Item>
         <div className="flex flex-col gap-3 flex-1">
           <div className="flex items-center gap-2 text-sm">
             <Form.Item name="sendToCustomer" valuePropName="checked" noStyle>

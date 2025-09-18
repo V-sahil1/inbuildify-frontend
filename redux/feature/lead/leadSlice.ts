@@ -11,6 +11,7 @@ import {
   getQuotationsByLeadIdThunk,
   updateLeadContactThunk,
   updateLeadSourceThunk,
+  updateLeadThunk,
 } from "./leadThunk";
 import { getLeadByIdThunk } from "./leadThunk";
 import { InitialState } from "./ILeadState";
@@ -23,6 +24,7 @@ const initialState: InitialState = {
     leadSources: Status.IDLE,
     leadById: Status.IDLE,
     leadQuotations: Status.IDLE,
+    updateLeadSource:Status.IDLE
   },
   leadSources: [],
   addInstSourceModal: false,
@@ -120,6 +122,30 @@ export const leadSlice = createSlice({
     builder.addCase(createLeadThunk.fulfilled, (state, action) => {
       state.leads.unshift(action.payload);
     });
+    builder.addCase(updateLeadThunk.pending,(state)=>{
+      state.status.updateLeadSource=Status.PENDING;
+    })
+    builder.addCase(updateLeadThunk.fulfilled,(state,action)=>{
+      const {leadId,notes,leadSource,updatedByName,updatedAt}=action.payload;
+      state.leadDetail.lead = action.payload;
+      if(state.leads == null){
+        state.leads=[];
+      }
+      if(state.leads.length === 0){
+        state.leads.push(action.payload);
+      }
+      else{
+        const lead = state.leads.find( (item)=> item.leadId === leadId);
+        lead.notes=notes;
+        lead.leadSource=leadSource;
+        lead.updatedByName=updatedByName;
+        lead.updatedAt=updatedAt;
+      }
+      state.status.updateLeadSource=Status.SUCCESS;
+    })
+    builder.addCase(updateLeadThunk.rejected,(state)=>{
+      state.status.updateLeadSource=Status.ERROR;
+    })
     builder.addCase(getQuotationsByLeadIdThunk.pending, (state) => {
       state.status.leadQuotations = Status.PENDING;
     });

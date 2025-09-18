@@ -17,6 +17,7 @@ import { Status } from "@lib/constants/enum";
 import { getUsersThunk } from "@redux/feature/user/userThunk";
 import {
   dueDateRules,
+  locationRules,
   optionalNotesRule,
   taskNameRules,
   timeRules,
@@ -90,7 +91,6 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
     values.start_time = values.start_time.format("HH:mm");
     values.date = values.date?.format("YYYY-MM-DD");
     values.end_time = values.end_time.format("HH:mm");
-    console.log("payload is bad", values);
     onSave(values);
   };
 
@@ -122,7 +122,7 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
         <Form.Item
           label="Location"
           name="location"
-          rules={[{ required: true, message: "Please enter location" }]}
+          rules={locationRules}
         >
           <Input placeholder="Location" />
         </Form.Item>
@@ -238,7 +238,7 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
           valuePropName="checked"
           className="mb-0"
         >
-          <Switch /> Send this appointment to customer
+          <Switch className="mr-2" /> Send this appointment to customer
         </Form.Item>
 
         <div className="flex gap-3">

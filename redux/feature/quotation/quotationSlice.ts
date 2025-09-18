@@ -4,6 +4,7 @@ import { Item } from "../masterPriceList/iMasterPriceListState";
 import { Status } from "@lib/constants/enum";
 import { createQuotation, getQuotationById, getQuotationVersionById } from "./quotationThunk";
 import { ILeadContact } from "../lead/ILeadState";
+import { Package } from "../package/IPackageState";
 
 export interface QuotationState {
     status: {create: Status, getById: Status};
@@ -23,7 +24,7 @@ export interface QuotationState {
     property: PropertyDetails;
     plan: any;
     facade: any;
-    package: any;
+    package: Package;
     items: { itemId: string; quantity: number; price: number;}[];
     extraItems: (Item & { quantity: number })[];
 }
@@ -58,11 +59,7 @@ const quotationSlice = createSlice({
         clearSelectedFloorplanFacadePackageReducer(state) {
             state.plan = null;
             state.facade = null;
-            if (state.package?.categoryItemIds) {
-                state.items = state.items.filter(
-                    item => !state.package.categoryItemIds.includes(item.itemId)
-                );
-            }
+            state.items=[];
             state.package = null;
         },
         setQuotationContact(state, action: PayloadAction<ILeadContact | null>) {
@@ -93,7 +90,7 @@ const quotationSlice = createSlice({
         },
         setQuotationPackage(state, action: PayloadAction<any>) {
             state.package = action.payload; 
-            state.items = action.payload.categoryItemIds.map((item) => ({ itemId: item, quantity: 1, price: 0 }));
+            state.items = action.payload.categoryItems.map((item) => ({ itemId: item.id, quantity: 1, price: item.price }));
         },
         updateQuotationItem: (state, action) => {
             const { itemId, quantity } = action.payload;

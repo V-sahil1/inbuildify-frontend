@@ -1,7 +1,5 @@
-// LeadQuotationComparison.tsx
 import React, { useEffect, useState } from "react";
 import { Modal, Checkbox, Button, Table, message } from "antd";
-// import { Quotation } from "data/types";
 import { QuotationResponse } from "@redux/feature/quotation/IQuotationState";
 import { getQuotationById } from "@redux/feature/quotation/quotationThunk";
 import { useAppDispatch } from "@hooks/redux";
@@ -45,41 +43,35 @@ const LeadQuotationComparison: React.FC<Props> = ({
       setComparisonResult([]);
     }
   }, [selectedVersions]);
-  
+
   const handleCheckboxChange = (versionId: string) => {
-    // Make sure we're working with an array of versions
     if (!Array.isArray(quotation.versions)) return;
-    
     const version = quotation.versions.find(
       (v) => v.quotationVersionId === versionId
     );
     if (!version) return;
-
     setSelectedVersions((prev) => {
       if (prev.some((v) => v.quotationVersionId === versionId)) {
-        // Remove if already selected
         return prev.filter((v) => v.quotationVersionId !== versionId);
       }
-      // Allow only 2 versions
       return prev.length < 2 ? [...prev, version] : prev;
     });
   };
 
-    const handleCancel = () => {
-      onClose();
+  const handleCancel = () => {
+    onClose();
     setComparisonResult([]);
-        setSelectedVersions([]);
-        setShowAll(false);
-     };
-  const handleCompareClick = () => {
+    setSelectedVersions([]);
+    setShowAll(false);
+  };
+
+  const handleCompareClick = (shouldShowAll = showAll) => {
     if (selectedVersions.length !== 2) {
       message.warning("Please select exactly 2 versions");
       return;
     }
 
-    // Always take the first selected as left column, second as right column
     const [leftVersion, rightVersion] = selectedVersions;
-
     const leftItems = quotationVersion[String(leftVersion.versionNumber)] || [];
     const rightItems = quotationVersion[String(rightVersion.versionNumber)] || [];
 
@@ -89,102 +81,104 @@ const LeadQuotationComparison: React.FC<Props> = ({
       ...rightItems.map((i) => i.categoryItemId),
     ]);
 
+    const formatItem = (item: any) => {
+      if (!item) return "-";
+      const quantity = item?.categoryItemQuantity || 1;
+      const cost = parseFloat(item?.categoryItemCost);
+      const total = quantity * cost;
+      return (
+        <div className="text-font-color align-middle">
+          <div className="font-bold">
+            ${total?.toFixed(2)}
+          </div>
+          <div className="text-xs text-gray-500">
+            ({quantity} × ${cost?.toFixed(2)})
+          </div>
+        </div>
+      );
+    };
+
     allItemIds.forEach((itemId) => {
-      const itemLeft = leftItems.find((i) => i.categoryItemId === itemId);
-      const itemRight = rightItems.find((i) => i.categoryItemId === itemId);
+      const itemLeft = leftItems.find((i) => i?.categoryItemId === itemId);
+      const itemRight = rightItems.find((i) => i?.categoryItemId === itemId);
 
-      if (itemLeft && !itemRight) {
+      const rawLeftValue = itemLeft ? `${itemLeft?.categoryItemQuantity || 1}x${parseFloat(itemLeft?.categoryItemCost).toFixed(2)}` : null;
+      const rawRightValue = itemRight ? `${itemRight?.categoryItemQuantity || 1}x${parseFloat(itemRight?.categoryItemCost).toFixed(2)}` : null;
+
+      const isDifferent = rawLeftValue !== rawRightValue;
+
+      // if (showAll || isDifferent) {
+      if (shouldShowAll || rawLeftValue !== rawRightValue) {
         rows.push({
           key: itemId,
-          description: itemLeft.categoryItemDescription,
-          left: `${itemLeft.quantity || 1} × $${itemLeft.categoryItemCost}`,
-          right: "-",
+          description: (itemLeft || itemRight)?.categoryItemDescription,
+          left: formatItem(itemLeft),
+          right: formatItem(itemRight),
+          isDifferent: isDifferent,
         });
-        return;
-      }
-      if (itemRight && !itemLeft) {
-        rows.push({
-          key: itemId,
-          description: itemRight.categoryItemDescription,
-          left: "-",
-          right: `${itemRight.quantity || 1} × $${itemRight.categoryItemCost}`,
-        });
-        return;
-      }
-
-      if (itemLeft && itemRight) {
-        const vLeft = `${itemLeft.quantity || 1} × $${
-          itemLeft.categoryItemCost
-        }`;
-        const vRight = `${itemRight.quantity || 1} × $${
-          itemRight.categoryItemCost
-        }`;
-
-        if (vLeft !== vRight) {
-          rows.push({
-            key: itemId,
-            description: itemLeft.categoryItemDescription,
-            left: vLeft,
-            right: vRight,
-          });
-        }
       }
     });
     setComparisonResult(rows);
   };
 
-        return (
-          <Modal
-            open={open}
-            onCancel={handleCancel}
-            footer={null}
-            width={900}
-            title={`Quotation Version Comparison - ${quotation.slugId}`}
-          >
-            {/* Select versions */}
-            <div className="flex items-center gap-4 mb-4 justify-between">
-              <div className="flex gap-2">
-                <span>Select two versions:</span>
-                <div className="flex flex-wrap gap-2">
-                  {quotation.versions && Array.isArray(quotation.versions) && quotation.versions.map((v) => (
-                    <Checkbox
-                      key={v.quotationVersionId}
-                      checked={selectedVersions?.some(
-                        (sv) => sv.quotationVersionId === v.quotationVersionId
-                      )}
-                      onChange={() => handleCheckboxChange(v.quotationVersionId)}
-                    >
-                      {v.versionNumber}
-                    </Checkbox>
-                  ))}
-                </div>
+  return (
+    <Modal
+      open={open}
+      onCancel={handleCancel}
+      footer={null}
+      width={900}
+      title={`Quotation Version Comparison - ${quotation.slugId}`}
+    >
+      <div className="flex items-center gap-4 mb-4 justify-between">
+        <div className="flex gap-2">
+          <span>Select two versions:</span>
+          <div className="flex flex-wrap gap-2">
+            {quotation.versions &&
+              Array.isArray(quotation.versions) &&
+              quotation.versions.map((v) => (
+                <Checkbox
+                  key={v.quotationVersionId}
+                  checked={selectedVersions?.some(
+                    (sv) => sv.quotationVersionId === v.quotationVersionId
+                  )}
+                  onChange={() => handleCheckboxChange(v.quotationVersionId)}
+                >
+                  {v.versionNumber}
+                </Checkbox>
+              ))}
+          </div>
         </div>
         <div className="flex align-middle items-center gap-2">
-          <Button type="primary" onClick={handleCompareClick}>
+          <Button type="primary" onClick={() => handleCompareClick(showAll)}>
             Compare
           </Button>
-          {/* <Button>Print</Button> */}
-          {/* <Checkbox
+          <Checkbox
             checked={showAll}
-            onChange={(e) => setShowAll(e.target.checked)}
+            onChange={(e) => {
+              const newShowAllState = e.target.checked;
+              setShowAll(newShowAllState);
+              if (selectedVersions.length === 2) {
+                handleCompareClick(newShowAllState);
+              }
+            }}
           >
             Show All
-          </Checkbox> */}
+          </Checkbox>
         </div>
       </div>
 
-            {/* Comparison Table */}
-            <div className="mt-4 flex flex-wrap gap-2 mb-3">
-              <span className="font-semibold">Property Address:</span>
-              <span> {quotation.propertyAddress}</span>
-            </div>
-            <Table
-              dataSource={comparisonResult}
-              pagination={false}
-              bordered
-              size="small"
-              rowKey="key"
-            >
+      <div className="mt-4 flex flex-wrap gap-2 mb-3">
+        <span className="font-semibold">Property Address:</span>
+        <span> {quotation.propertyAddress}</span>
+      </div>
+      <Table
+        dataSource={comparisonResult}
+        pagination={comparisonResult.length > 10 ? { pageSize: 10 } : false}
+        bordered
+        size="small"
+        rowKey="key"
+        rowClassName={(record) => (record.isDifferent && showAll) ? 'bg-primary-10' : ''}
+      >
         <Column
           title="Items"
           dataIndex="description"
@@ -196,36 +190,32 @@ const LeadQuotationComparison: React.FC<Props> = ({
             title={
               <div className="flex flex-col justify-center items-center">
                 <span>{selectedVersions[0].versionNumber}</span>
-                <span>
-                  ${Number(selectedVersions[0].totalAmount).toFixed(2)}
-                </span>
-                        </div>
-                        }
-                        dataIndex="left"
-                        key="left"
-                        width="20%"
-                        align="center"
-                    />
-                    )}
-                    {selectedVersions[1] && (
-                    <Column
-                        title={
-                        <div className="flex flex-col justify-center items-center">
-                          <span>{selectedVersions[1].versionNumber}</span>
-                          <span>
-                  ${Number(selectedVersions[1].totalAmount).toFixed(2)}
-                </span>
-                             </div>
-                        }
-                        dataIndex="right"
-                        key="right"
-                        width="20%"
-                        align="center"
-                    />
-                )}
-            </Table>
-        </Modal>
-    );
+                <span>${Number(selectedVersions[0].totalAmount).toFixed(2)}</span>
+              </div>
+            }
+            dataIndex="left"
+            key="left"
+            width="20%"
+            align="center"
+          />
+        )}
+        {selectedVersions[1] && (
+          <Column
+            title={
+              <div className="flex flex-col justify-center items-center">
+                <span>{selectedVersions[1].versionNumber}</span>
+                <span>${Number(selectedVersions[1].totalAmount).toFixed(2)}</span>
+              </div>
+            }
+            dataIndex="right"
+            key="right"
+            width="20%"
+            align="center"
+          />
+        )}
+      </Table>
+    </Modal>
+  );
 };
 
 export default LeadQuotationComparison;

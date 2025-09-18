@@ -185,10 +185,8 @@ const Variation: React.FC<VariationProps> = ({ data }) => {
         }
     ]
     const [step, setstep] = useState(initialValue)
-    console.log("step data", step)
 
 
-    console.log("data", data)
     return (
         <div className="p-3">
             <div className="flex justify-between border-b-2 p-3 ">

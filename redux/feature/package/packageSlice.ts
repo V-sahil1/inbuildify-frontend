@@ -52,13 +52,9 @@ const packageSlice = createSlice({
       if (state.packages) {
         state.packages = state.packages.map((pkg) => ({
           ...pkg,
-          categoryItemIds:
-            pkg.categoryItemIds?.filter(
-              (id) => id !== action.payload.categoryItemId
-            ) || [],
-          categoryItemDescriptions:
-            pkg.categoryItemDescriptions?.filter(
-              (desc) => desc !== action.payload.description
+          categoryItems:
+            pkg.categoryItems?.filter(
+              (item) => item.id !== action.payload.categoryItemId
             ) || [],
         }));
       }

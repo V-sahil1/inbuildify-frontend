@@ -143,7 +143,7 @@ const Leads = () => {
                   <IconMail size={16} className="mr-2 text-gray-400" />
                   {lead.email ? lead.email : 'N/A'}
                 </p>
-                <p className="text-xs">Source: {lead.leadSource ? lead.leadSource : 'N/A'}</p>
+                <p className="text-xs">Source: {lead.leadSource ? enumToReadable(lead.leadSource) : 'N/A'}</p>
                  
               </div>
             

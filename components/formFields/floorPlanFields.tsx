@@ -1,9 +1,8 @@
-
-import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
 import { CreateFormField } from "../common/Models/CreateFormModel";
 import { useAppSelector } from "@hooks/redux";
 import { mapToOptions } from "@lib/utils/rangeAndDwellingObjToOptions";
-
+import NoDataMessage from "../common/NoDataMessage";
+import SystemRoutes from "@lib/constants/Routes";
 
 export const floorPlanFields = (): CreateFormField[] => {
 const {range , dwellingType} = useAppSelector((state) => state.types);
@@ -28,6 +27,9 @@ const dwellingTypeOptions = mapToOptions(dwellingType);
       name: "range",
       type: "select",
       options: rangeOptions,
+      notFoundContent: (
+        <NoDataMessage label="range" link={SystemRoutes.DWELLING_AND_RANGE} />
+      ),
       placeholder: "Select range",
       rules: [{ required: true, message: "Please select a range" }],
     },
@@ -36,6 +38,12 @@ const dwellingTypeOptions = mapToOptions(dwellingType);
       name: "dwelling_type",
       type: "select",
       options: dwellingTypeOptions,
+      notFoundContent: (
+        <NoDataMessage
+          label="dwelling type"
+          link={SystemRoutes.DWELLING_AND_RANGE}
+        />
+      ),
       placeholder: "Select dwelling type",
       rules: [{ required: true, message: "Please select a dwelling type" }],
     },

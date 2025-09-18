@@ -5,12 +5,14 @@ import { Form, Input, Radio, Checkbox, Select, Modal, message ,Spin} from "antd"
 import { IconMinus, IconPlus } from "@tabler/icons-react";
 import { createCategoryItem, fetchCategories, updateCategoryItem } from "@redux/feature/masterPriceList/masterPriceListThunk";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
+// import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
 import { getConditions } from "@redux/feature/floorPlan/floorPlanThunk";
 import { enumToReadable } from "@lib/utils/enumToRedable";
 import { Status } from "@lib/constants/enum";
 import { addPackageItems } from "@redux/feature/package/packageSlice";
 import { mapToOptions } from "@lib/utils/rangeAndDwellingObjToOptions";
+import SystemRoutes from "@lib/constants/Routes";
+import NoDataMessage from "../NoDataMessage";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -20,13 +22,17 @@ interface AddMasterPricingItemModalProps {
   onClose: any;
   categoryId?: string;
   categoryItem?: any;
+  preselectedRange?: string;
+  preselectedDwelling?: string;
 }
 
 const AddMasterPricingItemModal = ({
     open,
     onClose,
     categoryId,
-    categoryItem
+    categoryItem,
+    preselectedRange,
+    preselectedDwelling,
   }: AddMasterPricingItemModalProps) => {    
     const [form] = Form.useForm();
     const [costType, setCostType] = useState("INCLUDED");
@@ -73,8 +79,16 @@ const AddMasterPricingItemModal = ({
       } else {
         form.resetFields();
         setCostType("INCLUDED");
+    
+        // if provided Pre-fill range and dwelling type only from package modal 
+        if (preselectedRange && preselectedDwelling) {
+          form.setFieldsValue({
+            range: preselectedRange,
+            dwelling: preselectedDwelling,
+          });
+        }
       }
-    }, [categoryItem, form]);
+    }, [categoryItem, form, preselectedRange, preselectedDwelling]);
 
   useEffect(() => {
     if (status.conditions === Status.IDLE) {
@@ -284,7 +298,18 @@ const AddMasterPricingItemModal = ({
             className="form-item-responsive"
             rules={[{ required: true, message: "Please select range" }]}
           >
-            <Select placeholder="Please select" style={{ width: "100%" }} options={rangeOptions}/>
+            <Select
+              placeholder="Please select"
+              style={{ width: "100%" }}
+              options={rangeOptions}
+              disabled={!!preselectedRange} 
+              notFoundContent={
+                <NoDataMessage
+                  label="range type"
+                  link={SystemRoutes.DWELLING_AND_RANGE}
+                />
+              }
+            />
           </Form.Item>
 
           {/* Dwelling Type */}
@@ -294,7 +319,18 @@ const AddMasterPricingItemModal = ({
             className="form-item-responsive"
             rules={[{ required: true, message: "Please select dwelling type" }]}
           >
-            <Select placeholder="Please select" style={{ width: "100%" }} options={dwellingTypeOptions}/>
+            <Select
+              placeholder="Please select"
+              style={{ width: "100%" }}
+              options={dwellingTypeOptions}
+              disabled={!!preselectedDwelling}
+              notFoundContent={
+                <NoDataMessage
+                  label="dwelling type"
+                  link={SystemRoutes.DWELLING_AND_RANGE}
+                />
+              }
+            />
           </Form.Item>
         </div>
 

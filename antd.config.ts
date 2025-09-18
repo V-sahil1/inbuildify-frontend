@@ -85,13 +85,7 @@ const theme = {
       headerSplitColor: "var(--border-color)",
     },
     Pagination: {
-      colorPrimary: "var(--font-color-400)",
-      colorPrimaryHover: "var(--primary-hover)",
-      itemActiveBg: "var(--primary-100)",
-      colorText: "var(--font-color-100)",
-      colorTextDisabled: "var(--disabled-color)",
-      itemBg: "var(--card-color)",
-      itemInputBg: "var(--card-color)",
+      colorPrimary: "var(--primary)",
     },
     Modal: {
       contentBg: "var(--card-color)",
