@@ -9,7 +9,6 @@ import {
   Spin,
   Tabs,
   Tag,
-  Tooltip,
   Typography,
 } from "antd";
 import StageProgress from "@/components/common/StageProgress";
@@ -46,6 +45,7 @@ import { ILeadContact } from "@redux/feature/lead/ILeadState";
 import { QuotationResponse } from "@redux/feature/quotation/IQuotationState";
 import LeadActions from "@/components/leadDetail/LeadActions";
 import { Status } from "@lib/constants/enum";
+import { LeadSource } from "@/components/leads/LeadSource";
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -236,7 +236,8 @@ function App() {
   }
 
   return (
-    <div className="flex flex-col">
+   <div className="grid grid-cols-3 lg:grid-cols-4">
+    <div className="col-span-3 lg:col-span-3">
       <div className="m-3 ">
         <StageProgress
           title={title}
@@ -458,6 +459,10 @@ function App() {
         onSave={() => setIsPropertyModalVisible(false)}
         initialValues={propertyFromSlice}
       />
+    </div>
+    <div className="col-span-3  lg:col-span-1 ">
+      <LeadSource  />
+    </div>
     </div>
   );
 }

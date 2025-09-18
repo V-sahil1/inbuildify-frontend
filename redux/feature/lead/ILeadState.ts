@@ -4,7 +4,7 @@ import { Status } from "@lib/constants/enum";
 
 export interface InitialState {
   leads: ILead[];
-  status: {leads: Status , leadSources: Status, leadById: Status, leadQuotations: Status};
+  status: {leads: Status , leadSources: Status, leadById: Status, leadQuotations: Status, updateLeadSource:Status};
   leadSources: LeadSource[];
   addInstSourceModal: boolean;
   leadDetail: {
@@ -35,6 +35,9 @@ export interface ILead {
   assigneeId?: string;
   createdById?: string;
   updatedById?: string;
+  assigneeName?:string,
+  createdByName?:string,
+  updatedByName?:string,
   createdAt: string;
   updatedAt: string;
 }
