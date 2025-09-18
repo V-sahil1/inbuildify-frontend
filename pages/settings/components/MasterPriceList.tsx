@@ -161,7 +161,7 @@ export const MasterPriceList = () => {
     try {
       if (type === "item") {
         await dispatch(deleteCategoryItem(id)).unwrap();
-      message.success("Category item deleted successfully");
+        message.success("Category item deleted successfully");
       } else {
         await dispatch(deleteCategory(id)).unwrap();
         message.success("Category deleted successfully");
@@ -176,25 +176,25 @@ export const MasterPriceList = () => {
 
   const handleDragEnd = async (result: DropResult) => {
     if (!result.destination) return;
-  
+
     const fromIndex = result.source.index;
     const toIndex = result.destination.index;
-  
+
     // Keep the old state in case API fails
     const prevCategories = [...localCategories];
-  
+
     // Clone categories to avoid mutation
     const newLocalCategories = localCategories.map((c) => ({ ...c }));
-  
+
     // Move the dragged category in the array
     const [movedCategory] = newLocalCategories.splice(fromIndex, 1);
     newLocalCategories.splice(toIndex, 0, movedCategory);
-  
+
     // Collect affected categories
     const changedCategories: Category[] = [];
-  
+
     const oldDisplayOrder = movedCategory.displayOrder;
-  
+
     if (fromIndex < toIndex) {
       // Moving down
       let previous = oldDisplayOrder;
@@ -228,14 +228,17 @@ export const MasterPriceList = () => {
       (c, idx) => c?.categoryId !== categories[idx]?.categoryId
     );
   };
-  
+
   const handleSaveOrder = async () => {
     setOrderLoading((prev) => ({ ...prev, save: true }));
     try {
-      const payload = localCategories.length > 0 ? localCategories?.map((c) => ({
-        categoryId: c?.categoryId,
-        displayOrder: c?.displayOrder,
-      })) : [];
+      const payload =
+        localCategories.length > 0
+          ? localCategories?.map((c) => ({
+              categoryId: c?.categoryId,
+              displayOrder: c?.displayOrder,
+            }))
+          : [];
 
       if (payload?.length > 0) {
         await dispatch(updateCategoryOrder({ categories: payload })).unwrap();
@@ -256,7 +259,7 @@ export const MasterPriceList = () => {
     setOrderLoading((prev) => ({ ...prev, reset: false }));
     setResetModalVisible(false);
   };
-  
+
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
@@ -266,31 +269,35 @@ export const MasterPriceList = () => {
         <div className="flex gap-2">
           {isOrderChanged() && (
             <>
+              <Button
+                onClick={() => {
+                  setResetModalVisible(true);
+                }}
+                disabled={orderLoading.save}
+              >
+                Reset Order
+              </Button>
+              <Button onClick={handleSaveOrder} disabled={orderLoading.save}>
+                Save Order
+              </Button>
+            </>
+          )}
+          {!isOrderChanged() && (
             <Button
-            onClick={() => {
-              setResetModalVisible(true);
-            }}
-            disabled={orderLoading.save}
-          >
-            Reset Order
-          </Button>
-          <Button
-            onClick={handleSaveOrder}
-            disabled={orderLoading.save}
-          >
-            Save Order
-          </Button>
-          </>)}
-          <Button
-            type="primary"
-            disabled={orderLoading.save || status == Status.PENDING || orderLoading.reset}
-          onClick={() => {
-            setEditing(false);
-            setAddCategoryModal(true);
-          }}
-        >
-          Add Category
-        </Button>
+              type="primary"
+              disabled={
+                orderLoading.save ||
+                status == Status.PENDING ||
+                orderLoading.reset
+              }
+              onClick={() => {
+                setEditing(false);
+                setAddCategoryModal(true);
+              }}
+            >
+              Add Category
+            </Button>
+          )}
         </div>
       </div>
 
@@ -307,10 +314,10 @@ export const MasterPriceList = () => {
                 ref={provided.innerRef}
                 className="space-y-4"
               >
-              {localCategories.map((category: Category, index: number) => {
-                const isDropdownOpen =
-                  dropDowns[category?.categoryId] || false;
-                const isLoading = loadingItems[category?.categoryId] || false;
+                {localCategories.map((category: Category, index: number) => {
+                  const isDropdownOpen =
+                    dropDowns[category?.categoryId] || false;
+                  const isLoading = loadingItems[category?.categoryId] || false;
 
                   return (
                     <Draggable
@@ -329,6 +336,7 @@ export const MasterPriceList = () => {
                           <div
                             className="flex items-center justify-between px-4 py-3 cursor-pointer rounded-t-xl"
                             onClick={() =>
+                              !isOrderChanged() &&
                               handleExpand(
                                 category?.categoryId,
                                 category?.isExpanded
@@ -355,53 +363,55 @@ export const MasterPriceList = () => {
                                 )}
                               </div>
                             </div>
-                            <div className="flex gap-3 flex-shrink-0">
-                              <button
-                                className="p-2 rounded-lg hover:bg-green-50 transition"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  openAddItemModal(category?.categoryId);
-                                }}
-                              >
-                                <IconPlus
-                                  size={18}
-                                  className="text-gray-600 hover:text-green-600"
-                                />
-                              </button>
-                              <button
-                                className="p-2 rounded-lg hover:bg-blue-50 transition"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleCategoryAction("edit", category);
-                                }}
-                              >
-                                <IconEdit
-                                  size={18}
-                                  className="text-gray-600 hover:text-blue-600"
-                                />
-                              </button>
-                              <button
-                                className="p-2 rounded-lg hover:bg-red-50 transition"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleCategoryAction("delete", category);
-                                }}
-                              >
-                                <IconTrash
-                                  size={18}
-                                  className="text-gray-600 hover:text-red-600"
-                                />
-                              </button>
+                            {!isOrderChanged() && (
+                              <div className="flex gap-3 flex-shrink-0">
+                                <button
+                                  className="p-2 rounded-lg hover:bg-green-50 transition"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    openAddItemModal(category?.categoryId);
+                                  }}
+                                >
+                                  <IconPlus
+                                    size={18}
+                                    className="text-gray-600 hover:text-green-600"
+                                  />
+                                </button>
+                                <button
+                                  className="p-2 rounded-lg hover:bg-blue-50 transition"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleCategoryAction("edit", category);
+                                  }}
+                                >
+                                  <IconEdit
+                                    size={18}
+                                    className="text-gray-600 hover:text-blue-600"
+                                  />
+                                </button>
+                                <button
+                                  className="p-2 rounded-lg hover:bg-red-50 transition"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleCategoryAction("delete", category);
+                                  }}
+                                >
+                                  <IconTrash
+                                    size={18}
+                                    className="text-gray-600 hover:text-red-600"
+                                  />
+                                </button>
 
-                              <button className="mt-1 flex-shrink-0 text-gray-600 hover:text-blue-500 transition">
-                                {isDropdownOpen ? (
-                                  <IconChevronUp />
-                                ) : (
-                                  <IconChevronDown />
-                                )}
-                              </button>
-                            </div>
+                                <button className="mt-1 flex-shrink-0 text-gray-600 hover:text-blue-500 transition">
+                                  {isDropdownOpen ? (
+                                    <IconChevronUp />
+                                  ) : (
+                                    <IconChevronDown />
+                                  )}
+                                </button>
+                              </div>
+                            )}
                           </div>
 
                           {/* Dropdown */}
@@ -484,7 +494,7 @@ export const MasterPriceList = () => {
           maxWidth="sm"
         />
       )}
-      
+
       {addItemModal && (
         <AddMasterPricingItemModal
           open={addItemModal}
