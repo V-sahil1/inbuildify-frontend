@@ -25,7 +25,7 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
-import { message, Spin, Empty, Tooltip } from "antd";
+import { message, Spin, Empty, Tooltip, Button } from "antd";
 import ConfirmationModal from "@/components/common/ConfirmationModal";
 import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
 import { MasterPricingCategoryFields } from "@/components/formFields/MasterPricingCategoryFields";
@@ -63,8 +63,13 @@ export const MasterPriceList = () => {
   const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({});
   const [selectedItem, setSelectedItem] = useState<any>();
   const [loading, setLoading] = useState(false);
+  const [orderLoading, setOrderLoading] = useState({
+    reset: false,
+    save: false,
+  });
   const [deleteModal, setDeleteModal] = useState({ open: false, type: "item" });
   const [editing, setEditing] = useState<boolean>(false);
+  const [resetModalVisible, setResetModalVisible] = useState(false);
 
   const openAddItemModal = (categoryId: string) => {
     setAddItemModal(true);
@@ -97,7 +102,7 @@ export const MasterPriceList = () => {
       } finally {
         setLoadingItems((prev) => ({ ...prev, [categoryId]: false }));
       }
-    }    
+    }
   };
 
   const handleAction = (action: string, categoryItem: any) => {
@@ -195,7 +200,7 @@ export const MasterPriceList = () => {
       let previous = oldDisplayOrder;
       for (let i = fromIndex; i <= toIndex; i++) {
         const c = { ...newLocalCategories[i] };
-        const currentOrder = c.displayOrder;
+        const currentOrder = c?.displayOrder;
         c.displayOrder = previous;
         previous = currentOrder;
         changedCategories.push(c);
@@ -206,50 +211,90 @@ export const MasterPriceList = () => {
       let previous = oldDisplayOrder;
       for (let i = fromIndex; i >= toIndex; i--) {
         const c = { ...newLocalCategories[i] };
-        const currentOrder = c.displayOrder;
+        const currentOrder = c?.displayOrder;
         c.displayOrder = previous;
         previous = currentOrder;
         changedCategories.push(c);
         newLocalCategories[i] = c;
       }
     }
+    // console.log("changedCategories", changedCategories);
+    setLocalCategories(newLocalCategories);
+  };
+
+  const isOrderChanged = () => {
+    if (localCategories?.length !== categories?.length) return true;
+    return localCategories?.some(
+      (c, idx) => c?.categoryId !== categories[idx]?.categoryId
+    );
+  };
   
+  const handleSaveOrder = async () => {
+    setOrderLoading((prev) => ({ ...prev, save: true }));
     try {
-      const payload = changedCategories.map((c) => ({
-        categoryId: c.categoryId,
-        displayOrder: c.displayOrder,
-      }));
-  
-      if (payload.length > 0) {
-        // here the move is only perform if the api gets success otherwise gets back to initial state
+      const payload = localCategories.length > 0 ? localCategories?.map((c) => ({
+        categoryId: c?.categoryId,
+        displayOrder: c?.displayOrder,
+      })) : [];
+
+      if (payload?.length > 0) {
         await dispatch(updateCategoryOrder({ categories: payload })).unwrap();
-        setLocalCategories(newLocalCategories);
         message.success("Category order updated successfully");
       }
     } catch (error) {
-      setLocalCategories(prevCategories);
+      setLocalCategories(categories);
       message.error(error || "Failed to update category order");
+    } finally {
+      setOrderLoading((prev) => ({ ...prev, save: false }));
     }
+  };
+
+  const handleResetOrder = () => {
+    setOrderLoading((prev) => ({ ...prev, reset: true }));
+    setLocalCategories(categories);
+    message.success("Category order reset successfully");
+    setOrderLoading((prev) => ({ ...prev, reset: false }));
+    setResetModalVisible(false);
   };
   
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-      <h2 className="text-[24px]/[30px] font-black my-4 text-[var(--font-color-bl)]">
-        Master Price List
-      </h2>
-        <button
-          className="btn large bg-[var(--primary)] cursor-pointer text-white"
+        <h2 className="text-[24px]/[30px] font-black my-4 text-[var(--font-color-bl)]">
+          Master Price List
+        </h2>
+        <div className="flex gap-2">
+          {isOrderChanged() && (
+            <>
+            <Button
+            onClick={() => {
+              setResetModalVisible(true);
+            }}
+            disabled={orderLoading.save}
+          >
+            Reset Order
+          </Button>
+          <Button
+            onClick={handleSaveOrder}
+            disabled={orderLoading.save}
+          >
+            Save Order
+          </Button>
+          </>)}
+          <Button
+            type="primary"
+            disabled={orderLoading.save || status == Status.PENDING || orderLoading.reset}
           onClick={() => {
             setEditing(false);
             setAddCategoryModal(true);
           }}
         >
           Add Category
-        </button>
+        </Button>
+        </div>
       </div>
 
-      {status == Status.PENDING ? (
+      {status == Status.PENDING || orderLoading.save ? (
         <div className="flex justify-center items-center pt-[20vh]">
           <Spin size="large" />
         </div>
@@ -368,9 +413,9 @@ export const MasterPriceList = () => {
                                 </div>
                               ) : category?.items?.length > 0 ? (
                                 <div className="mt-2 max-h-[300px] overflow-y-auto space-y-2 pr-2">
-                                  {category?.items.map((item: Item) => (
+                                  {category?.items?.map((item: Item) => (
                                     <PricingItem
-                                      key={item.categoryItemId}
+                                      key={item?.categoryItemId}
                                       item={item}
                                       handleClick={handleAction}
                                     />
@@ -423,6 +468,23 @@ export const MasterPriceList = () => {
         />
       )}
 
+      {resetModalVisible && (
+        <ConfirmationModal
+          open={resetModalVisible}
+          onClose={() => {
+            setResetModalVisible(false);
+            setOrderLoading((prev) => ({ ...prev, reset: false }));
+          }}
+          onConfirm={handleResetOrder}
+          message="Are you sure you want to reset the order?"
+          type="danger"
+          confirmText="Reset"
+          cancelText="Cancel"
+          loading={orderLoading.reset}
+          maxWidth="sm"
+        />
+      )}
+      
       {addItemModal && (
         <AddMasterPricingItemModal
           open={addItemModal}

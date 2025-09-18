@@ -73,7 +73,7 @@ export const updateCategoryOrder = createAsyncThunk(
         API_ENDPOINTS.MASTER_CATEGORY_ORDER,
         { data: {orderedCategories:payload.categories} }
       );
-      return res.data;
+      return { data: res.data, categories: payload.categories };
     } catch (error) {
       return rejectWithValue(error.message);
     }
