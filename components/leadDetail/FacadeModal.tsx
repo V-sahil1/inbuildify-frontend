@@ -101,7 +101,7 @@ const FacadeModal: React.FC<FacadeModalProps> = ({
             <Tabs
                 activeKey={activeTab}
                 onChange={(key) => setActiveTab(key as "available" | "custom")}
-                tabBarExtraContent={
+                tabBarExtraContent={activeTab === "available" && (
                     <div className="flex gap-4">
                         <Checkbox
                             checked={!!selectedFilters.standard}
@@ -147,7 +147,7 @@ const FacadeModal: React.FC<FacadeModalProps> = ({
                             )
                         } */}
                     </div>
-                }
+                )}
                 items={[
                     {
                         key: "available",

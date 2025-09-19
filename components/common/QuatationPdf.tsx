@@ -244,7 +244,7 @@ export const QuatationPdf = ({
             <View style={[Page2styles.cell, Page2styles.col75]}>
               <Text>Name: {leadDetail?.name || "-"}</Text>
               <Text>Email: <Text style={Page2styles.boldText}>{leadDetail?.email || "-"}</Text></Text>
-              <Text>Mobile: +61 {leadDetail?.phone || "-"}</Text>
+              <Text>Mobile: {leadDetail?.phone || "-"}</Text>
             </View>
           </View>
 
@@ -318,7 +318,7 @@ export const QuatationPdf = ({
           list={[
             `Name: ${leadDetail?.name}`,
             `Email: ${leadDetail?.email}`,
-            `Phone: +61 ${leadDetail?.phone}`,
+            `Phone: ${leadDetail?.phone}`,
             // `Status: ${leadDetail?.status?.replace("_", " ")}`,
             // `Lead Source: ${leadDetail?.leadSource}`,
             // `Created At: ${new Date(leadDetail?.created_at).toLocaleDateString()}`,

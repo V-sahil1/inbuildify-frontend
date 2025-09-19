@@ -27,6 +27,8 @@ import {
   getDisabledTime,
   getEndDisabledTime,
 } from "@lib/utils/getDisabledTimeDate";
+import NoDataMessage from "../NoDataMessage";
+import SystemRoutes from "@lib/constants/Routes";
 const { TextArea } = Input;
 
 interface AddAppointmentCardProps {
@@ -223,6 +225,7 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
           mode="multiple"
           placeholder="Select User"
           className="w-full"
+          notFoundContent={<NoDataMessage label="User" link={SystemRoutes.USERS} />}
         />
       </Form.Item>
 

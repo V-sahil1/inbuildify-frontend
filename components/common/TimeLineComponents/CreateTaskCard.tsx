@@ -17,15 +17,16 @@ import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { Status } from "@lib/constants/enum";
 import { getUsersThunk } from "@redux/feature/user/userThunk";
 import {
+  acceptOnlyImageRule,
   descriptionRules,
   dueDateRules,
   priorityRules,
   taskNameRules,
   timeRules,
 } from "@lib/constants/formInputValidations";
-import {
-  disablePastDates,
-} from "@lib/utils/getDisabledTimeDate";
+import { disablePastDates } from "@lib/utils/getDisabledTimeDate";
+import NoDataMessage from "../NoDataMessage";
+import SystemRoutes from "@lib/constants/Routes";
 
 interface CreateTaskCardProps {
     onSave: (task: any) => void;
@@ -185,7 +186,13 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
       </Form.Item>
 
       <Form.Item label="Assignee" name={["task", "assignee"]}>
-        <Select options={assigneeOptions} placeholder="Select Assignee" />
+        <Select
+          options={assigneeOptions}
+          placeholder="Select Assignee"
+          notFoundContent={
+            <NoDataMessage label="User" link={SystemRoutes.USERS} />
+          }
+        />
       </Form.Item>
 
       <div className="flex justify-between items-end gap-3">
@@ -194,7 +201,11 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
           valuePropName="fileList"
           getValueFromEvent={(e) => e.fileList}
         >
-          <Upload beforeUpload={() => false} maxCount={1} accept=".jpg,.jpeg,.png,.gif,.webp">
+          <Upload
+            beforeUpload={() => false}
+            maxCount={1}
+            accept={acceptOnlyImageRule}
+          >
             <Button icon={<IconUpload />}>Attach Files</Button>
           </Upload>
         </Form.Item>

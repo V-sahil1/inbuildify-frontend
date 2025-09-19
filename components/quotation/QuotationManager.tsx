@@ -368,7 +368,7 @@ const QuotationManager = () => {
     canFacade &&
     canSelectedPackageFromSlice;
 
-  if (quoteVersionId && quotationStatus.getById === Status.PENDING) {
+  if (quoteVersionId && quotationStatus?.getById === Status.PENDING) {
     return (
       <div className="flex items-center justify-center flex-1">
         <Spin />
@@ -404,7 +404,7 @@ const QuotationManager = () => {
       />
 
       <div className="flex flex-1 m-3 border rounded-lg ">
-        {quotationFilters.range && quotationFilters.dwelling_type ? (
+        {quotationFilters?.range && quotationFilters?.dwelling_type ? (
           <>
             <div className="w-64">
               {status === Status.IDLE ? (
@@ -436,9 +436,9 @@ const QuotationManager = () => {
         ) : (
           <div className="flex flex-1 bg-card-color text-font-color-100 items-center justify-center border rounded-lg h-[356px]">
             <p>
-              {quotationFilters.range
+              {quotationFilters?.range
                 ? "Please select Dwelling Type"
-                : quotationFilters.dwelling_type
+                : quotationFilters?.dwelling_type
                 ? "Please select Range"
                 : "Please select Range and Dwelling Type"}
             </p>

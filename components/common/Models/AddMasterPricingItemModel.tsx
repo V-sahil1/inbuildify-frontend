@@ -12,8 +12,7 @@ import { Status } from "@lib/constants/enum";
 import { addPackageItems } from "@redux/feature/package/packageSlice";
 import { mapToOptions } from "@lib/utils/rangeAndDwellingObjToOptions";
 import SystemRoutes from "@lib/constants/Routes";
-import NoDataMessage from "../NoDataMessage";
-import { numberRules, rangeRules } from "@lib/constants/formInputValidations";
+import NoDataMessage from "../NoDataMessage"; 
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -230,6 +229,7 @@ const AddMasterPricingItemModal = ({
             name="cost_type"
             className="form-item-responsive flex-1"
             initialValue="INCLUDED" // Set initial value here
+            rules={[{ required: true, message: "Please select cost type" }]}
           >
             <Radio.Group onChange={onCostTypeChange} style={{ width: "100%" }}>
               <div className="flex flex-col sm:flex-row gap-4">
@@ -269,7 +269,8 @@ const AddMasterPricingItemModal = ({
               label="Cost Options"
               name="cost_option"
               className="form-item-responsive flex-1"
-              initialValue="NONE" // Set initial value here
+              initialValue="NONE" 
+              rules={[{ required: true, message: "Please select cost option" }]}
             >
               <Radio.Group style={{ width: "100%" }}>
                 <div className="flex flex-col sm:flex-row gap-4">

@@ -9,6 +9,7 @@ import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { createFloorPlan } from "@redux/feature/floorPlan/floorPlanThunk";
 import { setQuotationPlan } from "@redux/feature/quotation/quotationSlice";
 import { mapToOptions } from "@lib/utils/rangeAndDwellingObjToOptions";
+import { acceptOnlyImageRule } from "@lib/constants/formInputValidations";
 
 const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
   const [form] = Form.useForm<IFloorPlanState>();
@@ -122,6 +123,7 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
                 listType="picture"
                 multiple={false}
                 maxCount={1}
+                accept={acceptOnlyImageRule}
                 beforeUpload={() => false}
               >
                 <Button>

@@ -7,7 +7,7 @@ class SystemRoutes {
   public static RESET_PASSWORD = `${this.AUTH}/reset-password`;
   public static FORGOT_PASSWORD = `${this.AUTH}/forgot-password`;
   public static TWO_FACTOR_AUTH = `${this.AUTH}/two-step`;
-  
+  public static USERS = `/users`;
   public static MY_PROFILE = `/my-profile`;
   public static QUOTATION = `/quotation`;
   public static QUOTATION_CREATE = (leadId: string | number) => `${this.QUOTATION}/create/${leadId}`;
