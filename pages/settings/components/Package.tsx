@@ -38,7 +38,8 @@ const Package = () => {
     // const { range, dwelling, ...payload } = values; //Removed range and dwelling from payload
     try {
       if (editingPackage) {
-        await dispatch(updatePackage({ id: editingPackage.packageId, ...values })).unwrap();
+        const categoryId = values.categoryItemIds?.map((item: any) => item.value);
+        await dispatch(updatePackage({ id: editingPackage.packageId, ...values, categoryItemIds: categoryId })).unwrap();
         message.success('Package updated successfully');
       } else {
         await dispatch(createPackage(values)).unwrap();

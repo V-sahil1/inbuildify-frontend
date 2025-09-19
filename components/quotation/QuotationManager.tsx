@@ -387,10 +387,11 @@ const QuotationManager = () => {
     );
   }
 
-  if (
-    quotationStatus?.getById === Status.PENDING ||
-    quotationStatus?.getById === Status.IDLE ||
-    (quotationStatus?.getById === Status.SUCCESS && !quoteDetails)
+  if (  
+    quoteVersionId &&
+    (quotationStatus?.getById === Status.PENDING ||
+      quotationStatus?.getById === Status.IDLE ||
+      (quotationStatus?.getById === Status.SUCCESS && !quoteDetails))
   ) {
     return (
       <div className="flex items-center justify-center flex-1">

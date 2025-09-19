@@ -9,11 +9,11 @@ import {
 } from "@lib/constants/formInputValidations";
 import { CreateFormField } from "@/components/common/Models/CreateFormModel";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import { mapToOptions } from "@lib/utils/rangeAndDwellingObjToOptions";
 import { useEffect } from "react";
 import { getLeadSourcesThunk } from "@redux/feature/lead/leadThunk";
 import { message } from "antd";
 import { setAddInstSourceModal } from "@redux/feature/lead/leadSlice";
+import { enumToReadable } from "@lib/utils/enumToRedable";
 
 export type LeadFormField = Omit<CreateFormField, "type"> & {
   type?: "email" | "phone" | "select" | "textarea";
@@ -25,7 +25,10 @@ const leadCreateFields = (
   const dispatch = useAppDispatch();
   const { leadSources } = useAppSelector((state) => state.lead);
   const status = useAppSelector((state) => state.lead.status.leadSources);
-  const LeadSourceOptions = mapToOptions(leadSources);
+  const LeadSourceOptions = leadSources?.map((item) => ({
+    label: enumToReadable(item.name),
+    value: item.name,
+  }))
 
   useEffect(() => {
     async function getLeadSources() {
