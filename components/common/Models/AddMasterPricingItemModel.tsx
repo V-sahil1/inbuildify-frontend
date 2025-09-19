@@ -12,7 +12,7 @@ import { Status } from "@lib/constants/enum";
 import { addPackageItems } from "@redux/feature/package/packageSlice";
 import { mapToOptions } from "@lib/utils/rangeAndDwellingObjToOptions";
 import SystemRoutes from "@lib/constants/Routes";
-import NoDataMessage from "../NoDataMessage"; 
+import NoDataMessage from "../NoDataMessage";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -250,19 +250,22 @@ const AddMasterPricingItemModal = ({
                 { required: true, message: "Please enter cost type text" },
                 {
                   validator: (_: any, value: string) => {
-                    // Max 225 characters
+                    if (!value) return Promise.resolve();
+                    if(value.trim().length < 3)
+                      return Promise.reject(
+                        "Cost type text must be at least 3 characters"
+                      );
                     if (value.length > 225) {
-                      return Promise.reject("Cost type text must be at most 225 characters");
+                      return Promise.reject(
+                        "Cost type text must be at most 225 characters"
+                      );
                     }
                     return Promise.resolve();
-                  }
-                }
+                  },
+                },
               ]}
             >
-              <Input
-                type="string"
-                style={{ width: "100%" }}
-              />
+              <Input type="string" style={{ width: "100%" }} />
             </Form.Item>
           ) : (
             <Form.Item
@@ -378,29 +381,45 @@ const AddMasterPricingItemModal = ({
                     {...restField}
                     label="Range - Start"
                     name={[name, "range_start"]}
+                    dependencies={[["conditions", name, "range_end"]]} // 👈 watch end
                     rules={[
+                      { required: true, message: "Please enter range start" },
                       {
                         validator: async (_, value) => {
-                          if (value === undefined || value === null) return Promise.resolve();
-                  
-                          if (value > 100000) {
-                            return Promise.reject("Range must not exceed 100,000");
+                          if (value === undefined || value === null)
+                            return Promise.resolve();
+
+                          const start = Number(value);
+                          if (start > 100000)
+                            return Promise.reject(
+                              "Range must not exceed 100,000"
+                            );
+                          if (start < 0)
+                            return Promise.reject(
+                              "Range must be greater than 0"
+                            );
+
+                          const end = form.getFieldValue([
+                            "conditions",
+                            name,
+                            "range_end",
+                          ]);
+                          if (
+                            end !== undefined &&
+                            end !== null &&
+                            start >= Number(end)
+                          ) {
+                            return Promise.reject(
+                              "Range Start must be less than Range End"
+                            );
                           }
-                          if (value < 0) {
-                            return Promise.reject("Range must be greater than 0");
-                          }
-                  
-                          const end = form.getFieldValue(["conditions", name, "range_end"]);
-                          if (end !== undefined && value >= end) {
-                            return Promise.reject("Range Start must be less than Range End");
-                          }
-                  
+
                           return Promise.resolve();
                         },
                       },
                     ]}
                   >
-                    <Input min={0} className="w-full" type="number" />
+                    <Input type="number" min={0} className="w-full" />
                   </Form.Item>
 
                   {/* Range End */}
@@ -408,28 +427,44 @@ const AddMasterPricingItemModal = ({
                     {...restField}
                     label="Range - End"
                     name={[name, "range_end"]}
-                    rules={[
+                    dependencies={[["conditions", name, "range_start"]]} // 👈 watch start
+                    rules={[{required: true, message: "Please enter range end"},
                       {
                         validator: async (_, value) => {
-                          if (value === undefined || value === null) return Promise.resolve();
-                  
-                          if (value > 100000) {
-                            return Promise.reject("Range must not exceed 100,000");
+                          if (value === undefined || value === null)
+                            return Promise.resolve();
+
+                          const end = Number(value);
+                          if (end > 100000)
+                            return Promise.reject(
+                              "Range must not exceed 100,000"
+                            );
+                          if (end < 0)
+                            return Promise.reject(
+                              "Range must be greater than 0"
+                            );
+
+                          const start = form.getFieldValue([
+                            "conditions",
+                            name,
+                            "range_start",
+                          ]);
+                          if (
+                            start !== undefined &&
+                            start !== null &&
+                            end <= Number(start)
+                          ) {
+                            return Promise.reject(
+                              "Range End must be greater than Range Start"
+                            );
                           }
-                          if (value < 0) {
-                            return Promise.reject("Range must be greater than 0");
-                          }
-                          const start = form.getFieldValue(["conditions", name, "range_start"]);
-                          if (start !== undefined && value <= start) {
-                            return Promise.reject("Range End must be greater than Range Start");
-                          }
-                  
+
                           return Promise.resolve();
                         },
                       },
                     ]}
                   >
-                    <Input min={0} className="w-full" type="number" />
+                    <Input type="number" min={0} className="w-full" />
                   </Form.Item>
 
                   {/* Minus Button – hidden if only one row */}
