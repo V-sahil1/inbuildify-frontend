@@ -45,7 +45,7 @@ const QuotationManager = () => {
   const router = useRouter();
   const { id } = router.query;
   const { quoteVersionId } = router.query as { quoteVersionId: string };
-  console.log("🚀 ~ QuotationManager ~ quoteVersionId:", quoteVersionId)
+  // console.log("🚀 ~ QuotationManager ~ quoteVersionId:", quoteVersionId)
   const [isEditMode, setIsEditMode] = useState(false);
   const isReadOnly = useMemo(
     () => !!quoteVersionId && !isEditMode,

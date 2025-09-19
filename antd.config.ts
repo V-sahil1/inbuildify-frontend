@@ -165,7 +165,7 @@ const theme = {
     DatePicker: {
       colorBgContainer: "var(--card-color)",
       colorText: "var(--font-color)",
-      colorTextPlaceholder: "var(--text-secondary)",
+      colorTextPlaceholder: "text-gray-500",
       colorTextDisabled: "var(--text-disabled)",
       colorBorder: "var(--border-color)",
       activeBorderColor: "var(--primary-color)",
