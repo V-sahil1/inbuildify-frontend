@@ -227,6 +227,17 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
                   }
                 }}
               />
+            ): field.type === "number" ? (
+              <Input
+                placeholder={field.placeholder}
+                type={field.type}
+                disabled={field.disabled}
+                onKeyPress={(e) => {
+                  if (!/[0-9]/.test(e.key)) {
+                    e.preventDefault();
+                  }
+                }}
+              />
             ) : (
               <Input
                 placeholder={field.placeholder}

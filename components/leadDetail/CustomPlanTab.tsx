@@ -145,7 +145,11 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
                   { pattern: /^[0-9]+(\.[0-9]{1,2})?$/, message: 'Only numbers allowed' }
                 ]}
               >
-                <InputNumber min={0} className="w-full" />
+                <Input min={0} className="w-full" onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}/>
               </Form.Item>
 
               <Form.Item
@@ -153,7 +157,11 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
                 name="bath"
                 rules={[{ required: true, message: 'Please input number of baths' }]}
               >
-                <InputNumber min={0} className="w-full" />
+                <Input min={0} className="w-full" onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}/>
               </Form.Item>
 
               <Form.Item
@@ -161,7 +169,11 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
                 name="car_park"
                 rules={[{ required: true, message: 'Please input number of car parks' }]}
               >
-                <InputNumber min={0} className="w-full" />
+                <Input min={0} className="w-full" onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}/>
               </Form.Item>
 
               <Form.Item
@@ -169,7 +181,11 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
                 name="garage"
                 rules={[{ required: true, message: 'Please input number of garages' }]}
               >
-                <InputNumber min={0} className="w-full" />
+                <Input min={0} className="w-full" onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}/>
               </Form.Item>
 
               <Form.Item
@@ -177,7 +193,11 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
                 name="width_meter"
                 rules={[{ required: true, message: 'Please input width in meters' }]}
               >
-                <Input type="number" step="0.01" />
+                <Input type="number" step="0.01" onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}/>
               </Form.Item>
 
               <Form.Item
@@ -185,7 +205,11 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
                 name="depth_meter"
                 rules={[{ required: true, message: 'Please input depth in meters' }]}
               >
-                <Input type="number" step="0.01" />
+                <Input type="number" step="0.01" onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}/>
               </Form.Item>
 
               <Form.Item
@@ -193,7 +217,11 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
                 name="dwelling"
                 rules={[{ required: true, message: 'Please input dwelling area' }]}
               >
-                <InputNumber min={0} className="w-full" />
+                <Input min={0} className="w-full" onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }} />
               </Form.Item>
 
               <Form.Item
@@ -201,7 +229,11 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
                 name="porch"
                 rules={[{ required: true, message: 'Please input porch area' }]}
               >
-                <InputNumber min={0} className="w-full" />
+                <Input min={0} className="w-full" onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}/>
               </Form.Item>
 
               <Form.Item
@@ -209,7 +241,11 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
                 name="alfresco"
                 rules={[{ required: true, message: 'Please input alfresco area' }]}
               >
-                <InputNumber min={0} className="w-full" />
+                <Input min={0} className="w-full" onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}/>
               </Form.Item>
 
               <Form.Item
@@ -217,7 +253,11 @@ const CustomPlanTab: React.FC<{onCancel: () => void}> = ({onCancel}) => {
                 name="total_sqft"
                 rules={[{ required: true, message: 'Please input total square footage' }]}
               >
-                <Input type="number" step="0.01" />
+                <Input type="number" step="0.01" onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}/>
               </Form.Item>
             </div>
           </div>

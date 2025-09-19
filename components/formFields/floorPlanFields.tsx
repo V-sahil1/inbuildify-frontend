@@ -3,7 +3,7 @@ import { useAppSelector } from "@hooks/redux";
 import { mapToOptions } from "@lib/utils/rangeAndDwellingObjToOptions";
 import NoDataMessage from "../common/NoDataMessage";
 import SystemRoutes from "@lib/constants/Routes";
-import { acceptOnlyImageRule, nameRules, numberRules } from "@lib/constants/formInputValidations";
+import { acceptOnlyImageRule, numberRules, settingNameRules } from "@lib/constants/formInputValidations";
 
 export const floorPlanFields = (): CreateFormField[] => {
 const {range , dwellingType} = useAppSelector((state) => state.types);
@@ -15,7 +15,7 @@ const dwellingTypeOptions = mapToOptions(dwellingType);
       name: "name",
       type: "text",
       placeholder: "Luxury Villa",
-      rules: nameRules,
+      rules: settingNameRules,
     },
     {
       label: "Image",

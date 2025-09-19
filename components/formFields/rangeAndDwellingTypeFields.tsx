@@ -1,5 +1,5 @@
 import { CreateFormField } from "@/components/common/Models/CreateFormModel";
-import { nameRules } from "@lib/constants/formInputValidations";
+import { settingNameRules } from "@lib/constants/formInputValidations";
 
 const rangeAndDwellingTypeFields = (): CreateFormField[] => {
   return [
@@ -8,7 +8,7 @@ const rangeAndDwellingTypeFields = (): CreateFormField[] => {
       name: "name",
       type: "text",
       placeholder: "Enter name",
-      rules: nameRules,
+      rules: settingNameRules,
     },
   ];
 };

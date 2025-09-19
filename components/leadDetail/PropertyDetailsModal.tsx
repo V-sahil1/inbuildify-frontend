@@ -16,6 +16,7 @@ import {
 import { Status } from "@lib/constants/enum";
 import { DefaultOptionType } from "antd/es/select";
 import { disablePastDates } from "@lib/utils/getDisabledTimeDate";
+import { CityNameRules, leadAddressRules, optionalNameRules, OptionalNumberRules } from "@lib/constants/formInputValidations";
 
 interface PropertyDetailsModalProps {
   visible: boolean;
@@ -142,7 +143,7 @@ const leadid = useParams()
         titleStatus: src?.titleStatus || "",
         titleDate: src?.titleDate ? dayjs(src.titleDate) : null,
         compactionReport: src?.compactionReport || "",
-        landType: enumToReadable(src?.landType) || "",
+        landType: enumToReadable(src?.landType) || "Regular",
         width: src?.widthM || "",
         depth: src?.depthM || "",
         totalSize: src?.totalSizeM2 || "",
@@ -236,7 +237,7 @@ const leadid = useParams()
             <Form.Item
               label="Address1"
               name="address1"
-              rules={[{ required: true, message: "Please enter address1" }]}
+              rules={leadAddressRules}
             >
               <Input placeholder="Lot 234" />
             </Form.Item>
@@ -253,7 +254,7 @@ const leadid = useParams()
             <Form.Item
               label="City / Suburb"
               name="citySuburb"
-              rules={[{ required: true, message: "Please enter city/suburb" }]}
+              rules={CityNameRules}
             >
               <Input placeholder="Tarneit" />
             </Form.Item>
@@ -300,7 +301,7 @@ const leadid = useParams()
 
         <Row gutter={16}>
           <Col span={8}>
-            <Form.Item label="Estate Name" name="estateName">
+            <Form.Item label="Estate Name" name="estateName" rules={optionalNameRules}>
               <Input placeholder="Enter estate name" />
             </Form.Item>
           </Col>
@@ -339,6 +340,7 @@ const leadid = useParams()
             <Form.Item
               label="Compaction Report"
               name="compactionReport"
+              rules={[{ required: true, message: 'Please select Compaction Report'}]}
             >
               <Select
                 placeholder="Select availability"
@@ -366,24 +368,39 @@ const leadid = useParams()
             <Form.Item
               label="Width (m)"
               name="width"
+              rules={OptionalNumberRules}
             >
-              <Input placeholder="Enter width" type="number" />
+              <Input placeholder="Enter width" type="number"  min={0} onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}/>
             </Form.Item>
           </Col>
           <Col span={8}>
             <Form.Item
               label="Depth (m)"
               name="depth"
+              rules={OptionalNumberRules}
             >
-              <Input placeholder="Enter depth" type="number" />
+              <Input placeholder="Enter depth" type="number" min={0} onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}/>
             </Form.Item>
           </Col>
           <Col span={8}>
             <Form.Item
               label="Total Size (m²)"
               name="totalSize"
+              rules={OptionalNumberRules}
             >
-              <Input placeholder="Enter total size" type="number" />
+              <Input placeholder="Enter total size" type="number" min={0} onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}/>  
             </Form.Item>
           </Col>
         </Row>
@@ -394,16 +411,26 @@ const leadid = useParams()
             <Form.Item
               label="Site Fall (mm)"
               name="siteFall"
+              rules={OptionalNumberRules}
             >
-              <Input placeholder="300" type="number" />
+              <Input placeholder="300" type="number" min={0} onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}/>
             </Form.Item>
           </Col>
           <Col span={12}>
             <Form.Item
               label="Land Fill (mm)"
               name="landFill"
+              rules={OptionalNumberRules}
             >
-              <Input placeholder="500" type="number" />
+              <Input placeholder="500" type="number" min={0} onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}/>
             </Form.Item>
           </Col>
         </Row>

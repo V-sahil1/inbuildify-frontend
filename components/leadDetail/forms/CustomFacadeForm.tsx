@@ -91,8 +91,19 @@ const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
             name={field.name}
             label={field.label}
             rules={field.rules}
-          >
-            <Input placeholder={field.placeholder} type={field.type}/>
+          >          
+            <Input 
+              placeholder={field.placeholder} 
+              type={field.type} 
+              onKeyPress={field.type === "number" ? 
+                (e) => {
+                  if (!/[0-9]/.test(e.key)) {
+                    e.preventDefault();
+                  }
+                } 
+                : undefined
+              } 
+            />
           </Form.Item>
         );
       })}
