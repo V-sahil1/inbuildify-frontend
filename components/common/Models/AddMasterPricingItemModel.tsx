@@ -13,6 +13,7 @@ import { addPackageItems } from "@redux/feature/package/packageSlice";
 import { mapToOptions } from "@lib/utils/rangeAndDwellingObjToOptions";
 import SystemRoutes from "@lib/constants/Routes";
 import NoDataMessage from "../NoDataMessage";
+import { numberRules, rangeRules } from "@lib/constants/formInputValidations";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -247,6 +248,15 @@ const AddMasterPricingItemModal = ({
               className="form-item-responsive w-full"
               rules={[
                 { required: true, message: "Please enter cost type text" },
+                {
+                  validator: (_: any, value: string) => {
+                    // Max 225 characters
+                    if (value.length > 225) {
+                      return Promise.reject("Cost type text must be at most 225 characters");
+                    }
+                    return Promise.resolve();
+                  }
+                }
               ]}
             >
               <Input
@@ -368,7 +378,25 @@ const AddMasterPricingItemModal = ({
                     label="Range - Start"
                     name={[name, "range_start"]}
                     rules={[
-                      { required: true, message: "Please enter start range" },
+                      {
+                        validator: async (_, value) => {
+                          if (value === undefined || value === null) return Promise.resolve();
+                  
+                          if (value > 100000) {
+                            return Promise.reject("Range must not exceed 100,000");
+                          }
+                          if (value < 0) {
+                            return Promise.reject("Range must be greater than 0");
+                          }
+                  
+                          const end = form.getFieldValue(["conditions", name, "range_end"]);
+                          if (end !== undefined && value >= end) {
+                            return Promise.reject("Range Start must be less than Range End");
+                          }
+                  
+                          return Promise.resolve();
+                        },
+                      },
                     ]}
                   >
                     <Input min={0} className="w-full" type="number" />
@@ -380,7 +408,24 @@ const AddMasterPricingItemModal = ({
                     label="Range - End"
                     name={[name, "range_end"]}
                     rules={[
-                      { required: true, message: "Please enter end range" },
+                      {
+                        validator: async (_, value) => {
+                          if (value === undefined || value === null) return Promise.resolve();
+                  
+                          if (value > 100000) {
+                            return Promise.reject("Range must not exceed 100,000");
+                          }
+                          if (value < 0) {
+                            return Promise.reject("Range must be greater than 0");
+                          }
+                          const start = form.getFieldValue(["conditions", name, "range_start"]);
+                          if (start !== undefined && value <= start) {
+                            return Promise.reject("Range End must be greater than Range Start");
+                          }
+                  
+                          return Promise.resolve();
+                        },
+                      },
                     ]}
                   >
                     <Input min={0} className="w-full" type="number" />

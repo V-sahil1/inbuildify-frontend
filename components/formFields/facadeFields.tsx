@@ -2,7 +2,7 @@ import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
 import { CreateFormField } from "../common/Models/CreateFormModel";
 import { useAppSelector } from "@hooks/redux";
 import { mapToOptions } from "@lib/utils/rangeAndDwellingObjToOptions";
-import { numberRules } from "@lib/constants/formInputValidations";
+import { acceptOnlyImageRule, costRules, nameRules, numberRules } from "@lib/constants/formInputValidations";
 import NoDataMessage from "../common/NoDataMessage";
 import SystemRoutes from "@lib/constants/Routes";
 
@@ -17,12 +17,13 @@ const dwellingTypeOptions = mapToOptions(dwellingType);
       name: "name",
       type: "text",
       placeholder: "Luxury Villa",
-      rules: [{ required: true, message: "Please enter the property name" }],
+      rules: nameRules,
     },
     {
       label: "Image",
       name: "image",
       type: "image",
+      acceptFileType: acceptOnlyImageRule,
       rules: [{ required: true, message: "Please upload image" }],
     },
     {
@@ -46,7 +47,7 @@ const dwellingTypeOptions = mapToOptions(dwellingType);
       name: "cost",
       type: "number",
       placeholder: "10000",
-      rules: numberRules
+      rules: costRules
     },
     {
       label: "Standard",

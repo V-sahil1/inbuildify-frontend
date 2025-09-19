@@ -42,11 +42,11 @@ export const nameRules = [
       if (!value) return Promise.resolve(); 
       const cleaned = value.trim().replace(/\s+/g, " "); 
       const lettersOnly = cleaned.replace(/\s/g, ""); 
-      const isValid = /^[a-zA-Z\s]+$/.test(cleaned) && lettersOnly.length >= 3;
+      const isValid = /^[a-zA-Z\s]+$/.test(cleaned) && lettersOnly.length >= 3 && lettersOnly.length <= 100;
 
       if (!isValid) {
         return Promise.reject(
-          "Name must be at least 3 letters and can only contain letters and spaces"
+          "Name must be at least 3 letters and at most 100 letters and can only contain letters and spaces"
         );
       }
       return Promise.resolve();
@@ -163,7 +163,7 @@ export const numberRules = [
   { required: true, message: "Please enter a number" },
   { pattern: /^\d+$/, message: "Please enter a valid number" },
 ] 
-  
+
 
 export const optionalEmailRule = [
   {
@@ -171,8 +171,8 @@ export const optionalEmailRule = [
       if (!value) return Promise.resolve(); // empty is ok
       const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       return regex.test(value)
-        ? Promise.resolve()
-        : Promise.reject(new Error("Please enter a valid email address"));
+      ? Promise.resolve()
+      : Promise.reject(new Error("Please enter a valid email address"));
     },
   },
 ];
@@ -183,8 +183,8 @@ export const optionalPhoneRule = [
       if (!value) return Promise.resolve(); // empty is ok
       const regex = /^\d{10,15}$/; 
       return regex.test(value)
-        ? Promise.resolve()
-        : Promise.reject(new Error("Phone number must be number and between 10 to 15 digits"));
+      ? Promise.resolve()
+      : Promise.reject(new Error("Phone number must be number and between 10 to 15 digits"));
     },
   },
 ];
@@ -215,11 +215,11 @@ export const locationRules = [
   {
     validator: (_: any, value:string) =>
       value && value.length > 200
-        ? Promise.reject(new Error("Location cannot exceed 200 characters"))
-        : Promise.resolve(),
+    ? Promise.reject(new Error("Location cannot exceed 200 characters"))
+    : Promise.resolve(),
   },
 ];
-  
+
 export const notesRules = [
   {
     validator: (_: any, value: string) => {
@@ -231,3 +231,78 @@ export const notesRules = [
     }
   }
 ]
+
+export const acceptOnlyImageRule = ".jpeg,.jpg,.png,.gif,.webp"
+
+export const costRules = [
+  { required: true, message: "Please enter cost" },
+  numberRules,
+  {
+    validator: (_: any, value: number) => {
+      if (value === undefined || value === null) return Promise.resolve();
+      
+      if (value > 1000000) {
+        return Promise.reject("Cost must not exceed 10,00,000");
+      }
+      if (value < 0) {
+        return Promise.reject("Cost must be greater than 0");
+      }
+      
+      return Promise.resolve();
+    },
+  },
+];
+
+export const rangeRules = [
+  ...numberRules,
+  {
+    validator: (_: any, value: number) => {
+      if (value === undefined || value === null) return Promise.resolve();
+      
+      if (value > 100000) {
+        return Promise.reject("Range must not exceed 100,000");
+      }
+      
+      return Promise.resolve();
+    },
+  },
+];
+
+
+export const getRangeStartRules = (form: any, name: number): Rule[] => [
+  {
+    validator: async (_, value) => {
+      if (value === undefined || value === null) return Promise.resolve();
+
+      if (value > 100000) {
+        return Promise.reject("Range must not exceed 100,000");
+      }
+
+      const end = form.getFieldValue(["ranges", name, "range_end"]);
+      if (end !== undefined && value >= end) {
+        return Promise.reject("Range Start must be less than Range End");
+      }
+
+      return Promise.resolve();
+    },
+  },
+];
+
+export const getRangeEndRules = (form: any, name: number): Rule[] => [
+  {
+    validator: async (_, value) => {
+      if (value === undefined || value === null) return Promise.resolve();
+
+      if (value > 100000) {
+        return Promise.reject("Range must not exceed 100,000");
+      }
+
+      const start = form.getFieldValue(["ranges", name, "range_start"]);
+      if (start !== undefined && value <= start) {
+        return Promise.reject("Range End must be greater than Range Start");
+      }
+
+      return Promise.resolve();
+    },
+  },
+];
