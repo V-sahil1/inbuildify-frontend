@@ -244,7 +244,7 @@ export const locationRules = [
 export const notesRules = [
   {
     validator: (_: any, value: string) => {
-      const isValid = /^[a-zA-Z\s.,]{3,500}$/.test(value.trim());
+      const isValid = /^[a-zA-Z0-9\s.,]{3,500}$/.test(value.trim());
       if (!isValid) {
         return Promise.reject("Notes must be at least 3 characters and doesn't contain special character");
       }

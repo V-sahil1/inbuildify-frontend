@@ -6,6 +6,7 @@ import {
   Typography,
   message,
   Spin,
+  Tooltip,
 } from "antd";
 import type { TableColumnsType } from "antd";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
@@ -296,6 +297,10 @@ const ContractorPage = () => {
         title: "Address",
         dataIndex: "address",
         key: "address",
+        width: 200,
+        render: (_, record) => (
+          <Tooltip title={record.address}> <p className="line-clamp-2">{record?.address}</p></Tooltip>
+        )
       },
       {
         title: "Service",
@@ -310,7 +315,7 @@ const ContractorPage = () => {
             <Button
               type="link"
               onClick={(e) => {
-                e.stopPropagation(); // ✅ prevent row click
+                e.stopPropagation(); 
                 handleEdit(record);
               }}
             >
@@ -320,7 +325,7 @@ const ContractorPage = () => {
               type="link"
               danger
               onClick={(e) => {
-                e.stopPropagation(); // ✅ prevent row click
+                e.stopPropagation(); 
                 setIsDeleteModalOpen({
                   open: true,
                   recordId: record.contractorId,

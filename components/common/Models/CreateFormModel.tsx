@@ -214,6 +214,8 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
               <Input.TextArea
                 placeholder={field.placeholder}
                 disabled={field.disabled}
+                className="!resize-none"
+                rows={4}
               />
             ) : field.type === "phone" ? (
               <Input

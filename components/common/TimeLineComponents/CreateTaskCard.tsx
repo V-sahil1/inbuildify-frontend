@@ -182,7 +182,7 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
         name={["task", "description"]}
         rules={descriptionRules}
       >
-        <Input.TextArea rows={3} placeholder="Task Description" />
+        <Input.TextArea rows={4} placeholder="Task Description" className="!resize-none"/>
       </Form.Item>
 
       <Form.Item label="Assignee" name={["task", "assignee"]}>
@@ -195,11 +195,12 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
         />
       </Form.Item>
 
-      <div className="flex justify-between items-end gap-3">
+      <div className="flex flex-col sm:flex-row  sm:justify-between sm:items-end gap-3">
         <Form.Item
           name="attachment"
           valuePropName="fileList"
           getValueFromEvent={(e) => e.fileList}
+          className="max-w-[200px] sm:max-w-[350px]"
         >
           <Upload
             beforeUpload={() => false}

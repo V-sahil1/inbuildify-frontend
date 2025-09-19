@@ -26,7 +26,7 @@ const Leads = () => {
     (state) => state.lead.addInstSourceModal
   );
   const [openLeadCreateModal, setOpenLeadCreateModal] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState({leadLoading:false,leadSourceLoading:false});
 
   useEffect(() => {
     async function fetchData() {
@@ -41,7 +41,7 @@ const Leads = () => {
 
   const handleSubmit = async (values: any) => {
     try {
-      setLoading(true);
+      setLoading({...loading,leadLoading:true});
       const payload = {
         lead_source: values.leadSource,
         notes: values.notes,
@@ -57,13 +57,13 @@ const Leads = () => {
     } catch (error) {
       message.error(error || "Failed to create lead");
     } finally {
-      setLoading(false);
+      setLoading({...loading,leadLoading:false});
     }
   };
 
   const handleAddLeadSourceSubmit = async (values: any) => {
     try {
-      setLoading(true);
+      setLoading({...loading,leadSourceLoading:true});
       await dispatch(createLeadSourceThunk({ name: values.name })).unwrap();
       message.success("Lead source created successfully");
       setOpenLeadCreateModal(true);
@@ -71,7 +71,7 @@ const Leads = () => {
       message.error(error || "Failed to create lead source");
     } finally {
       dispatch(setAddInstSourceModal(false));
-      setLoading(false);
+      setLoading({...loading,leadSourceLoading:false});
     }
   };
   const handleOpenModal = () => {
@@ -179,7 +179,7 @@ const Leads = () => {
       <CreateFormModal
         title="Lead"
         open={openLeadCreateModal}
-        loading={loading}
+        loading={loading.leadLoading}
         onCancel={() => setOpenLeadCreateModal(false)}
         onSubmit={handleSubmit}
         fields={leadCreateFields({
@@ -190,7 +190,7 @@ const Leads = () => {
       <CreateFormModal
         title="LeadSource"
         open={addInstSourceModal}
-        loading={loading}
+        loading={loading.leadSourceLoading}
         onCancel={() => {
           dispatch(setAddInstSourceModal(false));
           setOpenLeadCreateModal(true);

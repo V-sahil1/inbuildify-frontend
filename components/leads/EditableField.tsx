@@ -70,7 +70,7 @@ const EditableField: React.FC<EditableFieldProps> = ({
                                         name="notes"
                                         disabled={loading}
                                         maxLength={500}
-                                        rows={2}
+                                        rows={4}
                                         onChange={(e) => setEditedValue(e.target.value.trim())}
                                     />
                                 }

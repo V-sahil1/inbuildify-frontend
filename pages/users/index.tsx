@@ -17,6 +17,7 @@ export type User = {
   key: string;
   role: string;
   email: string;
+  roleEnum:string;
 };
 
 const UserPage = () => {
@@ -29,12 +30,12 @@ const UserPage = () => {
   const [form] = Form.useForm<User>();
   const [users, setUsers] = useState<User[]>([]);
   const [invitedUsers, setInvitedUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState({contentLoading:false,onCreateLoading:false});
   const dispatch = useAppDispatch();
 
   // Fetch active users
   useEffect(() => {
-    setLoading(true);
+    setLoading((prev)=>({...prev,contentLoading:true}));
     const fetchUserData = async()=>{
     await dispatch(getUsersThunk())
       .unwrap()
@@ -51,27 +52,28 @@ const UserPage = () => {
         message.error(err || "Failed to fetch users");
       })
       .finally(() => {
-        setLoading(false);
+       setLoading((prev)=>({...prev,contentLoading:false}));
       });
     }
     fetchUserData();
   }, [dispatch]);
 
   const fetchInvitedUsers = async () => {
-    setLoading(true);
+    setLoading((prev)=>({...prev,contentLoading:true}));
     try {
       const res: any = await dispatch(getInvitedUsersThunk()).unwrap();
       const mappedUsers: User[] = res?.data.users?.map((user) => ({
         key: user.userId,
         role: enumToReadable(user.role),
         email: user.email,
+        roleEnum:user.role
       }));
       setInvitedUsers(mappedUsers);
       setHasFetchedInvites(true);
     } catch (err) {
       message.error(err || "Failed to fetch invited users");
     } finally {
-      setLoading(false);
+      setLoading((prev)=>({...prev,contentLoading:false}));
     }
   };
 
@@ -97,7 +99,7 @@ const UserPage = () => {
   const handleSubmit = async (values) => {
     await form.validateFields();
     try {
-      setLoading(true);
+      setLoading((prev)=>({...prev,onCreateLoading:true}));
       const res = await dispatch(
         createUserThunk({
           email: values.email,
@@ -110,6 +112,7 @@ const UserPage = () => {
           key: `${Date.now()}`,
           role: enumToReadable(values.role),
           email: values.email,
+          roleEnum:values.role
         };
 
         setInvitedUsers((prev) => prev?.length ? [newInvitedUser, ...prev] : [newInvitedUser]);
@@ -123,17 +126,17 @@ const UserPage = () => {
     } catch (err) {
       message.error(err || "Failed to send invitation");
     } finally {
-      setLoading(false);
+      setLoading((prev)=>({...prev,onCreateLoading:false}));
     }
   };
 
   const handleResendInvite = async (record: User) => {
     try {
-      setLoading(true);
+      setLoading((prev)=>({...prev,onCreateLoading:true}));
       const res = await dispatch(
         createUserThunk({
           email: record.email,
-          role: record.role,
+          role: record.roleEnum,
         })
       ).unwrap();
 
@@ -144,7 +147,7 @@ const UserPage = () => {
     } catch (err) {
       message.error(err || 'Failed to resend invitation');
     } finally {
-      setLoading(false);
+      setLoading((prev)=>({...prev,onCreateLoading:false}));
     }
   };
 
@@ -212,7 +215,7 @@ const UserPage = () => {
             </button>
           )}
         </div>
-        <Spin spinning={loading}>
+        <Spin spinning={loading.contentLoading}>
           <Table
             rowKey="key"
             columns={activeTab === "users" ? userColumns : inviteColumns}
@@ -227,7 +230,7 @@ const UserPage = () => {
           onSubmit={handleSubmit}
           invite={true}
           onCancel={handleCancel}
-          loading={loading}
+          loading={loading.onCreateLoading}
           fields={[
             {
               label: "Role",

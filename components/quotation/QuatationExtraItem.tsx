@@ -132,7 +132,7 @@ export const QuatationExtraItem: React.FC<QuatationItemProps> = React.memo(
                                 <TextArea
                                     showCount
                                     maxLength={500}
-                                    rows={3}
+                                    rows={4}
                                     placeholder="Enter item description"
                                     value={formData.description}
                                     onChange={(e) =>
@@ -141,7 +141,7 @@ export const QuatationExtraItem: React.FC<QuatationItemProps> = React.memo(
                                             description: e.target.value,
                                         }))
                                     }
-                                    style={{ width: "100%" }}
+                                    style={{ width: "100%",resize:'none'}}
                                 />
                             </div>
                         </div>

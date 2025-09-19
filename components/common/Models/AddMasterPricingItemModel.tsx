@@ -202,7 +202,7 @@ const AddMasterPricingItemModal = ({
           <TextArea
             rows={4}
             placeholder="Enter item description"
-            style={{ width: "100%" }}
+            style={{ width: "100%" ,resize:'none'}}
             maxLength={1000}
             showCount
           />

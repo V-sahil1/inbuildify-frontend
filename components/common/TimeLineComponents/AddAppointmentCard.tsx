@@ -231,7 +231,7 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
 
       {/* Notes */}
       <Form.Item label="Notes" name="notes" rules={optionalNotesRule}>
-        <TextArea rows={3} placeholder="Additional notes" />
+        <TextArea rows={4} placeholder="Additional notes" className='!resize-none'/>
       </Form.Item>
 
       {/* Send to Customer + Actions */}
