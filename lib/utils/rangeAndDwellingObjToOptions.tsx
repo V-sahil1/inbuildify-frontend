@@ -9,7 +9,7 @@ export type Option = {
   
 export function mapToOptions<T extends Range | DwellingType | LeadSource>(items: T[]): Option[] {
     return items?.map((item) => ({
-      label: enumToReadable(item.name),
+      label: item.name,
       value: item.name,
     }));
 }

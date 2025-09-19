@@ -518,7 +518,7 @@ export const MasterPriceList = () => {
           onConfirm={() =>
             handleDelete(
               deleteModal.type,
-              selectedItem?.categoryId || selectedItem?.categoryItemId
+              deleteModal.type === "item" ? selectedItem?.categoryItemId : selectedItem?.categoryId
             )
           }
           type="danger"
