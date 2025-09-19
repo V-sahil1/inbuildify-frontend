@@ -1,8 +1,9 @@
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { Status } from "@lib/constants/enum";
 import {
-  addressRules,
+  CityNameRules,
   emailRules,
+  leadAddressRules,
   nameRules,
   optionalPhoneRule,
   phoneRules,
@@ -302,7 +303,7 @@ const LeadDetailsForm: React.FC<any> = ({
 
           {!showContactForm || !hideAddressForm ? (
             <>
-              <Form.Item label="Address 1" name="address1" rules={addressRules}>
+              <Form.Item label="Address 1" name="address1" rules={leadAddressRules}>
                 <Input placeholder="Enter address line 1" />
               </Form.Item>
 
@@ -322,9 +323,7 @@ const LeadDetailsForm: React.FC<any> = ({
               <Form.Item
                 label="City / Suburb"
                 name="city"
-                rules={[
-                  { required: true, message: "Please enter city or suburb" },
-                ]}
+                rules={CityNameRules}
               >
                 <Input placeholder="Enter city/suburb" />
               </Form.Item>
@@ -415,7 +414,7 @@ const LeadDetailsForm: React.FC<any> = ({
                       type="text"
                       icon={<IconUserCheck size={18} />}
                       className="text-blue-600 hover:text-blue-800"
-                      onClick={() => setHideAddressForm(false)}
+                      // onClick={() => setHideAddressForm(false)}
                     />
                   </div>
                 </div>

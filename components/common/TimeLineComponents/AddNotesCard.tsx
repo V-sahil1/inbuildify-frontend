@@ -96,7 +96,7 @@ const AddNotesCard: FC<AddNotesCardProps> = ({
     >
       {/* Description */}
       <Form.Item label="Notes" name="message" rules={descriptionRules}>
-        <TextArea rows={4} placeholder="Type your notes" />
+        <TextArea rows={4} placeholder="Type your notes" className="!resize-none"/>
       </Form.Item>
 
             {/* Tags */}
@@ -127,14 +127,14 @@ const AddNotesCard: FC<AddNotesCardProps> = ({
           </Upload>
         </Form.Item>
         <div className="flex flex-col gap-3 flex-1">
-          <div className="flex items-center gap-2 text-sm">
+          <div className="flex items-center gap-2 text-sm text-font-color-100">
             <Form.Item name="sendToCustomer" valuePropName="checked" noStyle>
               <Switch />
             </Form.Item>
             <span>Send this note to customer</span>
           </div>
 
-          <div className="flex items-center gap-2 text-sm">
+          <div className="flex items-center gap-2 text-sm text-font-color-100">
             <Form.Item
               name="createFollowUpTask"
               valuePropName="checked"

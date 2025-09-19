@@ -1,4 +1,4 @@
-import { abnRules, licenseRules, nameRules, phoneRules } from "@lib/constants/formInputValidations";
+import { abnRules, acceptOnlyImageRule, firmNameRules, firmSloganRules, licenseRules, nameRules, phoneRules } from "@lib/constants/formInputValidations";
 import { CreateFormField } from "../common/Models/CreateFormModel";
 
 export const profileFields = (): CreateFormField[] => {
@@ -7,6 +7,7 @@ export const profileFields = (): CreateFormField[] => {
       label: "Logo",
       name: "logo",
       type: "image",
+      acceptFileType: acceptOnlyImageRule,
       rules: [{ required: true, message: "Please upload image" }],
     },
     {
@@ -14,14 +15,14 @@ export const profileFields = (): CreateFormField[] => {
       name: "firmName",
       type: "text",
       placeholder: "Enter your firm name",
-      rules: [{ required: true, message: "Please enter your firm name" }],
+      rules: firmNameRules,
     },
     {
       label: "Slogan",
       name: "slogan",
       type: "text",
       placeholder: "Enter your firm slogan",
-      rules: [{ required: true, message: "Please enter your firm slogan" }],
+      rules: firmSloganRules,
     },
     {
       label: "Name",

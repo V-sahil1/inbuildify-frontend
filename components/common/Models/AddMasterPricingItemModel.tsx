@@ -202,7 +202,7 @@ const AddMasterPricingItemModal = ({
           <TextArea
             rows={4}
             placeholder="Enter item description"
-            style={{ width: "100%" }}
+            style={{ width: "100%" ,resize:'none'}}
             maxLength={1000}
             showCount
           />
@@ -229,6 +229,7 @@ const AddMasterPricingItemModal = ({
             name="cost_type"
             className="form-item-responsive flex-1"
             initialValue="INCLUDED" // Set initial value here
+            rules={[{ required: true, message: "Please select cost type" }]}
           >
             <Radio.Group onChange={onCostTypeChange} style={{ width: "100%" }}>
               <div className="flex flex-col sm:flex-row gap-4">
@@ -247,19 +248,32 @@ const AddMasterPricingItemModal = ({
               className="form-item-responsive w-full"
               rules={[
                 { required: true, message: "Please enter cost type text" },
+                {
+                  validator: (_: any, value: string) => {
+                    if (!value) return Promise.resolve();
+                    if(value.trim().length < 3)
+                      return Promise.reject(
+                        "Cost type text must be at least 3 characters"
+                      );
+                    if (value.length > 225) {
+                      return Promise.reject(
+                        "Cost type text must be at most 225 characters"
+                      );
+                    }
+                    return Promise.resolve();
+                  },
+                },
               ]}
             >
-              <Input
-                type="string"
-                style={{ width: "100%" }}
-              />
+              <Input type="string" style={{ width: "100%" }} />
             </Form.Item>
           ) : (
             <Form.Item
               label="Cost Options"
               name="cost_option"
               className="form-item-responsive flex-1"
-              initialValue="NONE" // Set initial value here
+              initialValue="NONE" 
+              rules={[{ required: true, message: "Please select cost option" }]}
             >
               <Radio.Group style={{ width: "100%" }}>
                 <div className="flex flex-col sm:flex-row gap-4">
@@ -367,11 +381,45 @@ const AddMasterPricingItemModal = ({
                     {...restField}
                     label="Range - Start"
                     name={[name, "range_start"]}
+                    dependencies={[["conditions", name, "range_end"]]} // 👈 watch end
                     rules={[
-                      { required: true, message: "Please enter start range" },
+                      { required: true, message: "Please enter range start" },
+                      {
+                        validator: async (_, value) => {
+                          if (value === undefined || value === null)
+                            return Promise.resolve();
+
+                          const start = Number(value);
+                          if (start > 100000)
+                            return Promise.reject(
+                              "Range must not exceed 100,000"
+                            );
+                          if (start < 0)
+                            return Promise.reject(
+                              "Range must be greater than 0"
+                            );
+
+                          const end = form.getFieldValue([
+                            "conditions",
+                            name,
+                            "range_end",
+                          ]);
+                          if (
+                            end !== undefined &&
+                            end !== null &&
+                            start >= Number(end)
+                          ) {
+                            return Promise.reject(
+                              "Range Start must be less than Range End"
+                            );
+                          }
+
+                          return Promise.resolve();
+                        },
+                      },
                     ]}
                   >
-                    <Input min={0} className="w-full" type="number" />
+                    <Input type="number" min={0} className="w-full" />
                   </Form.Item>
 
                   {/* Range End */}
@@ -379,11 +427,44 @@ const AddMasterPricingItemModal = ({
                     {...restField}
                     label="Range - End"
                     name={[name, "range_end"]}
-                    rules={[
-                      { required: true, message: "Please enter end range" },
+                    dependencies={[["conditions", name, "range_start"]]} // 👈 watch start
+                    rules={[{required: true, message: "Please enter range end"},
+                      {
+                        validator: async (_, value) => {
+                          if (value === undefined || value === null)
+                            return Promise.resolve();
+
+                          const end = Number(value);
+                          if (end > 100000)
+                            return Promise.reject(
+                              "Range must not exceed 100,000"
+                            );
+                          if (end < 0)
+                            return Promise.reject(
+                              "Range must be greater than 0"
+                            );
+
+                          const start = form.getFieldValue([
+                            "conditions",
+                            name,
+                            "range_start",
+                          ]);
+                          if (
+                            start !== undefined &&
+                            start !== null &&
+                            end <= Number(start)
+                          ) {
+                            return Promise.reject(
+                              "Range End must be greater than Range Start"
+                            );
+                          }
+
+                          return Promise.resolve();
+                        },
+                      },
                     ]}
                   >
-                    <Input min={0} className="w-full" type="number" />
+                    <Input type="number" min={0} className="w-full" />
                   </Form.Item>
 
                   {/* Minus Button – hidden if only one row */}

@@ -9,6 +9,7 @@ import {
   Spin,
   Tabs,
   Tag,
+  Tooltip,
   Typography,
 } from "antd";
 import StageProgress from "@/components/common/StageProgress";
@@ -296,9 +297,14 @@ function App() {
           propertyFromSlice?.stateRegion ||
           propertyFromSlice?.zipPostalCode ? (
             <>
-              <h2 className="font-semibold text-lg">
-                {propertyFromSlice?.address1 ?? ""}
-              </h2>
+              <Tooltip title={propertyFromSlice?.address1}>
+                <Typography.Title 
+                  className="font-semibold !text-lg" 
+                  ellipsis={{ rows: 2, symbol: '...' }}   
+                >
+                  {propertyFromSlice?.address1 ?? ""}
+                </Typography.Title>
+              </Tooltip>
               <p className="text-sm text-gray-600">
                 {[
                   propertyFromSlice?.citySuburb,

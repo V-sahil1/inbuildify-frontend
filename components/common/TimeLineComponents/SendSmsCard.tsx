@@ -56,7 +56,7 @@ const SendSmsCard: FC<SendSmsCardProps> = ({
         name="message"
         rules={descriptionRules}
       >
-        <TextArea rows={4} placeholder="Type your SMS message" />
+        <TextArea rows={4} placeholder="Type your SMS message" className="!resize-none"/>
       </Form.Item>
 
       <div className="flex gap-3 justify-end">

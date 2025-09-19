@@ -9,6 +9,7 @@ import { Item } from "@redux/feature/masterPriceList/iMasterPriceListState";
 import { setAddInstItemModal } from "@redux/feature/package/packageSlice";
 import NoDataMessage from "../common/NoDataMessage";
 import SystemRoutes from "@lib/constants/Routes";
+import { costRules, settingNameRules } from "@lib/constants/formInputValidations";
 
 export const packageFields = ( selectedValues?: { range?: string; dwelling?: string }): CreateFormField[] => {
   const {range , dwellingType} = useAppSelector((state) => state.types);
@@ -53,7 +54,7 @@ export const packageFields = ( selectedValues?: { range?: string; dwelling?: str
       name: "name",
       type: "text",
       placeholder: "Package Name",
-      rules: [{ required: true, message: "Please enter the package name" }],
+      rules: settingNameRules,
     },
     {
       label: "Range",
@@ -93,7 +94,7 @@ export const packageFields = ( selectedValues?: { range?: string; dwelling?: str
       name: "amount",
       type: "number",
       placeholder: "3200",
-      rules: [{ required: true, message: "Please enter total price" }],
+      rules: [...costRules],
     },
   ];
 };

@@ -6,9 +6,7 @@ import ItemsPanel from "@/components/leadDetail/ItemsPanel";
 import { Plan } from "@/pages/leads/[id]";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { Status } from "@lib/constants/enum";
-import {
-  toggleExpand,
-} from "@redux/feature/masterPriceList/masterPriceListSlice";
+import { toggleExpand } from "@redux/feature/masterPriceList/masterPriceListSlice";
 import { IFacadeState } from "@redux/feature/facade/IFacadeState";
 import {
   fetchCategories,
@@ -28,7 +26,7 @@ import {
   getQuotationById,
   getQuotationVersionById,
 } from "@redux/feature/quotation/quotationThunk";
-import { message, Spin } from "antd";
+import { message, Result, Spin } from "antd";
 import QuotationFilter from "@/components/quotation/QuotationFilter";
 import { updateLeadStatus } from "@redux/feature/lead/leadSlice";
 import { clearQuotation } from "@redux/feature/quotation/quotationSlice";
@@ -39,13 +37,14 @@ import SystemRoutes from "@lib/constants/Routes";
 import { useRouter } from "next/router";
 import { getDwellingTypes, getRanges } from "@redux/feature/types/typesThunk";
 import { clearFilters } from "@redux/feature/facade/facadeSlice";
+import Link from "next/link";
 
 const QuotationManager = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { id } = router.query;
   const { quoteVersionId } = router.query as { quoteVersionId: string };
-  console.log("🚀 ~ QuotationManager ~ quoteVersionId:", quoteVersionId)
+  // console.log("🚀 ~ QuotationManager ~ quoteVersionId:", quoteVersionId)
   const [isEditMode, setIsEditMode] = useState(false);
   const isReadOnly = useMemo(
     () => !!quoteVersionId && !isEditMode,
@@ -68,6 +67,11 @@ const QuotationManager = () => {
   const [selectedPackage, setSelectedPackage] = useState<Package | undefined>(
     undefined
   );
+  const isJob = useMemo(
+    () => quoteDetails?.leadStatus === "JOB",
+    [quoteDetails]
+  );
+
   // Sync local state with Redux store
   useEffect(() => {
     setSelectedPlan(plan);
@@ -85,7 +89,9 @@ const QuotationManager = () => {
 
   useEffect(() => {
     const fetchQuotation = async () => {
-      await dispatch(getQuotationVersionById(quoteVersionId as string)).unwrap();
+      await dispatch(
+        getQuotationVersionById(quoteVersionId as string)
+      ).unwrap();
     };
     if (quoteVersionId) {
       fetchQuotation();
@@ -228,7 +234,7 @@ const QuotationManager = () => {
 
   const createQuotationPayload = () => {
     return {
-      ...(quoteVersionId && {quoteId: quoteDetails?.quotationId}),
+      ...(quoteVersionId && { quoteId: quoteDetails?.quotationId }),
       quotationPayload: {
         ...(!quoteVersionId && {
           leadId: property?.leadId,
@@ -357,7 +363,8 @@ const QuotationManager = () => {
   };
 
   const canContact = !!contact;
-  const canProperty = property && Object.keys(property).length > 0 && property?.propertyId;
+  const canProperty =
+    property && Object.keys(property).length > 0 && property?.propertyId;
   const canPlan = plan && Object.keys(plan).length > 0;
   const canFacade = !!facade;
   const canSelectedPackageFromSlice = !!selectedPackageFromSlice;
@@ -368,10 +375,39 @@ const QuotationManager = () => {
     canFacade &&
     canSelectedPackageFromSlice;
 
-  if (quoteVersionId && quotationStatus.getById === Status.PENDING) {
+  if (quoteVersionId && quotationStatus?.getById === Status.ERROR) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Result
+          status="error"
+          title="Error"
+          subTitle="Failed to load quotation. Please try again later."
+        />
+      </div>
+    );
+  }
+
+  if (
+    quotationStatus?.getById === Status.PENDING ||
+    quotationStatus?.getById === Status.IDLE ||
+    (quotationStatus?.getById === Status.SUCCESS && !quoteDetails)
+  ) {
     return (
       <div className="flex items-center justify-center flex-1">
         <Spin />
+      </div>
+    );
+  }
+
+  if (isJob) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Result
+          status="403"
+          // title="Access Restricted"
+          subTitle="This lead has already been converted to a job and is no longer accessible from this page."
+          extra={<Link href="/job">Go to Jobs</Link>}
+        />
       </div>
     );
   }
@@ -384,10 +420,10 @@ const QuotationManager = () => {
           title="Quotation"
           steps={[]}
         />
-        <QuotationFilter 
+        <QuotationFilter
           isReadOnly={isReadOnly}
-          onFilterChange={() => setSelectedCategory(null)} 
-          />
+          onFilterChange={() => setSelectedCategory(null)}
+        />
       </div>
 
       <InfoCards
@@ -404,7 +440,7 @@ const QuotationManager = () => {
       />
 
       <div className="flex flex-1 m-3 border rounded-lg ">
-        {quotationFilters.range && quotationFilters.dwelling_type ? (
+        {quotationFilters?.range && quotationFilters?.dwelling_type ? (
           <>
             <div className="w-64">
               {status === Status.IDLE ? (
@@ -436,9 +472,9 @@ const QuotationManager = () => {
         ) : (
           <div className="flex flex-1 bg-card-color text-font-color-100 items-center justify-center border rounded-lg h-[356px]">
             <p>
-              {quotationFilters.range
+              {quotationFilters?.range
                 ? "Please select Dwelling Type"
-                : quotationFilters.dwelling_type
+                : quotationFilters?.dwelling_type
                 ? "Please select Range"
                 : "Please select Range and Dwelling Type"}
             </p>

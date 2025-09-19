@@ -129,7 +129,7 @@ const RangeAndDwelling = () => {
 
           <button
             className="rounded-md p-1 group"
-            onClick={() => setDeleteModalVisible({ id: record.serviceId, open: true })}
+            onClick={() => setDeleteModalVisible({ id: record.id, open: true })}
             aria-label="Delete"
           >
             <IconTrash

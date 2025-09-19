@@ -1,17 +1,19 @@
 import React, { useEffect } from "react";
-import { Form, Input, Select, Checkbox, Upload, Button } from "antd";
+import { Form, Input, Select, Checkbox, Upload, Button, FormInstance } from "antd";
 import { facadeFields } from "@/components/formFields/facadeFields";
+import { acceptOnlyImageRule } from "@lib/constants/formInputValidations";
 
 interface CustomFacadeFormProps {
   initialValues?: any;
   onFormChange: (values: any) => void;
+  form: FormInstance;
 }
 
 const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
   initialValues,
   onFormChange,
+  form,
 }) => {
-  const [form] = Form.useForm();
   const fields = facadeFields({isDwellingDisable: true});
 
   useEffect(() => {
@@ -67,6 +69,7 @@ const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
                 listType="picture"
                 multiple={false}
                 maxCount={1}
+                accept={acceptOnlyImageRule}
                 beforeUpload={() => false}
               >
                 <Button>Click to Upload</Button>
@@ -91,8 +94,19 @@ const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
             name={field.name}
             label={field.label}
             rules={field.rules}
-          >
-            <Input placeholder={field.placeholder} type={field.type}/>
+          >          
+            <Input 
+              placeholder={field.placeholder} 
+              type={field.type} 
+              onKeyPress={field.type === "number" ? 
+                (e) => {
+                  if (!/[0-9]/.test(e.key)) {
+                    e.preventDefault();
+                  }
+                } 
+                : undefined
+              } 
+            />
           </Form.Item>
         );
       })}

@@ -81,6 +81,7 @@ const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
             placeholder="Add any notes about this conversion (max 1000 characters)"
             maxLength={1000}
             showCount
+            style={{resize:'none'}}
           />
         </Form.Item>
         <Text type="secondary">

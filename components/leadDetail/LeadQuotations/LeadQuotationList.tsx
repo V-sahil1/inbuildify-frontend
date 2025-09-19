@@ -9,6 +9,7 @@ import {
 // import dayjs from "dayjs";
 import LeadQuotationComparison from "./LeadQuotationComparison";
 import { useAppSelector } from "@hooks/redux";
+import { useRouter } from "next/router";
 import { QuotationResponse } from "@redux/feature/quotation/IQuotationState";
 import { timeAgo } from "@lib/utils/timeAgo";
 
@@ -23,6 +24,7 @@ const statusTagColor: Record<QuotationStatus, string> = {
 };
 
 const LeadQuotationList = () => {
+  const router = useRouter();
   const [openComparison, setOpenComparison] = useState(false);
   const [selectedQuotation, setSelectedQuotation] = useState<QuotationResponse | null>(
     null
@@ -85,6 +87,10 @@ const LeadQuotationList = () => {
                   size="small"
                   bordered
                   scroll={{ x: "max-content" }}
+                  onRow={(record) => ({
+                    onClick: () => router.push(`/quotation/${record.quotationVersionId}`),
+                    style: { cursor: 'pointer' }
+                  })}
                 >
                   <Column title="Version" dataIndex="versionNumber" key="versionNumber" render={(versionNumber: string) => versionNumber ? `v${versionNumber}` : "-"} />
                   {/* <Column

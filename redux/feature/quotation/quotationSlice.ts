@@ -11,6 +11,7 @@ export interface QuotationState {
     quoteDetails:{
         slugId: string;
         quotationId: string;
+        leadStatus: string;
         createdAt: string; // ISO date string
         updatedAt: string; // ISO date string
         totalAmount: number;
@@ -133,6 +134,7 @@ const quotationSlice = createSlice({
                     updatedAt: data.updatedAt,
                     totalAmount: data.totalAmount,
                     builder: data.builder,
+                    leadStatus: data.lead.status,
                 };
                 // Set contact from lead.leadContact
                 if (data.lead?.leadContact) {

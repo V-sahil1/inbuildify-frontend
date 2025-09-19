@@ -55,14 +55,18 @@ const Package = () => {
   const handleEditPackage = (pkg: IPackage) => {
     const mappedPackage = {
       ...pkg,
-      categoryItemDescriptions: pkg.categoryItems?.map((item) => item.desc) || [],
+      categoryItemIds: pkg.categoryItems?.map(item => {
+        return {
+          label: item.desc,
+          value: item.id
+        };
+      })
     };
-
     // Set the selected values for range and dwelling when editing
     if (pkg.range && pkg.dwelling) {
       setFormValues({
         range: pkg.range,
-        dwelling: pkg.dwelling
+        dwelling: pkg.dwelling,
       });
     }
 

@@ -1,6 +1,6 @@
 import { enumToReadable } from "@lib/utils/enumToRedable";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
-import { Tag } from "antd";
+import { Tag, Tooltip } from "antd";
 
 interface PricingItemProps {
   item: any;
@@ -14,8 +14,8 @@ export const PricingItem = ({ item, handleClick }: PricingItemProps) => {
       className="flex items-center gap-4 p-4 border border-border-color rounded-lg hover:border-gray-300 bg-gray-50 text-font-color"
     >
       <div className="flex-1  items-center justify-between">
-        <div className="mb-2 font-medium flex gap-10 text-[16px]">
-          {item?.shortDescription || item?.description}
+        <div className="mb-2 font-medium flex gap-10 text-[16px] break-all">
+          <Tooltip title={item?.shortDescription || item?.description}> <p className="line-clamp-2"> {item?.shortDescription || item?.description} </p></Tooltip>
         </div>
         <div className="flex gap-3">
           {item?.costType && (

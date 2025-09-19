@@ -6,6 +6,7 @@ import {
   Typography,
   message,
   Spin,
+  Tooltip,
 } from "antd";
 import type { TableColumnsType } from "antd";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
@@ -52,7 +53,10 @@ const ContractorPage = () => {
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [form] = Form.useForm<Contractor>();
   const [contractors, setContractors] = useState<Contractor[]>(initialData);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState({
+    contractors: false,
+    services: false,
+    });
   const dispatch = useAppDispatch();
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedContractor, setSelectedContractor] =
@@ -66,7 +70,10 @@ const ContractorPage = () => {
   );
 
   useEffect(() => {
-    setLoading(true);
+    setLoading({
+      contractors: true,
+      services: false,
+    });
     const fetchContractorData = async () => {
     await dispatch(getContractorsThunk())
       .unwrap()
@@ -84,7 +91,10 @@ const ContractorPage = () => {
         message.error(err || "Failed to fetch contractors");
       })
       .finally(() => {
-        setLoading(false);
+        setLoading({
+          contractors: false,
+          services: false,
+        });
       });
     }
     fetchContractorData(); 
@@ -131,7 +141,10 @@ const ContractorPage = () => {
   const handleSubmit = async (values: any) => {
     await form.validateFields();
     try {
-      setLoading(true);
+      setLoading({
+        contractors: true,
+        services: false,
+      });
       if (isEditing && editingKey) {
         // Update existing contractor 
         const payload = {
@@ -183,7 +196,10 @@ const ContractorPage = () => {
     } catch (err) {
       message.error(err || "Failed to create contractor");
     } finally {
-      setLoading(false);
+      setLoading({
+        contractors: false,
+        services: false,
+      });
     }
   };
 
@@ -215,7 +231,10 @@ const ContractorPage = () => {
 
   useEffect(() => {
     const fetchServices = async () => {
-      setLoading(true);
+      setLoading({
+        contractors: false,
+        services: true,
+      });
       try {
         const services = await dispatch(getServicesThunk()).unwrap();
         const mappedServices = services?.map((service: Service) => ({
@@ -226,7 +245,10 @@ const ContractorPage = () => {
       } catch (error) {
         message.error(error || "Failed to fetch services");
       }finally{
-        setLoading(false);
+        setLoading({
+          contractors: false,
+          services: false,
+        });
       }
     };
     
@@ -235,7 +257,10 @@ const ContractorPage = () => {
 
   const handleServiceSubmit = async (values: any) => {
     try {
-      setLoading(true);
+      setLoading({
+        contractors: false,
+        services: true,
+      });
 
       await dispatch(createServiceThunk({ service: values.name })).unwrap();
       message.success("Service added successfully");
@@ -244,7 +269,10 @@ const ContractorPage = () => {
       message.error(error);
     } finally {
       dispatch(setAddServiceModal(false));
-      setLoading(false);
+      setLoading({
+        contractors: false,
+        services: false,
+      });
     }
   };
 
@@ -269,6 +297,10 @@ const ContractorPage = () => {
         title: "Address",
         dataIndex: "address",
         key: "address",
+        width: 200,
+        render: (_, record) => (
+          <Tooltip title={record.address}> <p className="line-clamp-2">{record?.address}</p></Tooltip>
+        )
       },
       {
         title: "Service",
@@ -283,7 +315,7 @@ const ContractorPage = () => {
             <Button
               type="link"
               onClick={(e) => {
-                e.stopPropagation(); // ✅ prevent row click
+                e.stopPropagation(); 
                 handleEdit(record);
               }}
             >
@@ -293,7 +325,7 @@ const ContractorPage = () => {
               type="link"
               danger
               onClick={(e) => {
-                e.stopPropagation(); // ✅ prevent row click
+                e.stopPropagation(); 
                 setIsDeleteModalOpen({
                   open: true,
                   recordId: record.contractorId,
@@ -327,7 +359,7 @@ const ContractorPage = () => {
           </button>
         </div>
 
-        <Spin spinning={loading}>
+        <Spin spinning={loading.contractors}>
           <Table
             rowKey="contractorId"
             columns={columns}
@@ -345,7 +377,7 @@ const ContractorPage = () => {
         <CreateFormModal
           title="Contractor"
           open={isModalOpen}
-          loading={loading}
+          loading={loading.contractors}
           isEditing={isEditing}
           onCancel={handleCancel}
           onSubmit={handleSubmit}
@@ -356,11 +388,9 @@ const ContractorPage = () => {
         <CreateFormModal
           title="Sevice"
           open={addServiceModal}
-          loading={loading}
-          isEditing={isEditing}
+          loading={loading.services}
           onCancel={() => dispatch(setAddServiceModal(false))}
           onSubmit={handleServiceSubmit}
-          initialValues={editingUser}
           fields={rangeAndDwellingTypeFields()}
         />
 

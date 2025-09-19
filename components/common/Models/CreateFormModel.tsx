@@ -38,6 +38,7 @@ export type CreateFormField = {
   onClick?: () => void;
   handleChange?: (info: UploadChangeParam) => void;
   notFoundContent?: React.ReactNode;
+  acceptFileType?: string;
 };
 
 interface CreateFormModalProps {
@@ -204,6 +205,7 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
                   multiple={false}
                   maxCount={1}
                   beforeUpload={() => false}
+                  accept={field?.acceptFileType || ""}
                 >
                   <Button>Click to Upload</Button>
                 </Upload>
@@ -212,6 +214,8 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
               <Input.TextArea
                 placeholder={field.placeholder}
                 disabled={field.disabled}
+                className="!resize-none"
+                rows={4}
               />
             ) : field.type === "phone" ? (
               <Input
@@ -219,6 +223,17 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
                 disabled={field.disabled}
                 minLength={10}
                 maxLength={15}
+                onKeyPress={(e) => {
+                  if (!/[0-9]/.test(e.key)) {
+                    e.preventDefault();
+                  }
+                }}
+              />
+            ): field.type === "number" ? (
+              <Input
+                placeholder={field.placeholder}
+                type={field.type}
+                disabled={field.disabled}
                 onKeyPress={(e) => {
                   if (!/[0-9]/.test(e.key)) {
                     e.preventDefault();

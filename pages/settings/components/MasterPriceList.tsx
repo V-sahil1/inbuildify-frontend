@@ -470,6 +470,7 @@ export const MasterPriceList = () => {
           open={addCategoryModal}
           loading={loading}
           onCancel={() => {
+            setSelectedItem(null);
             setAddCategoryModal(false);
           }}
           initialValues={selectedItem}

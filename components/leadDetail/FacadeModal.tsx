@@ -1,6 +1,6 @@
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { createFacade, getFacades } from "@redux/feature/facade/facadeThunk";
-import { Button, Checkbox, Modal, Tabs, Typography, message } from "antd";
+import { Button, Checkbox, Form, Modal, Tabs, Typography, message } from "antd";
 import { useEffect, useState } from "react";
 import AvailableFacadesTab from "./AvailableFacadesTab";
 import CustomFacadeForm from "./forms/CustomFacadeForm";
@@ -24,6 +24,7 @@ const FacadeModal: React.FC<FacadeModalProps> = ({
 }) => {
     const dispatch = useAppDispatch();
     const { facades, selectedFilters } = useAppSelector((state) => state.facade);
+    const [form] = Form.useForm();
 
     const [activeTab, setActiveTab] = useState<"available" | "custom">("available");
     const [selected, setSelected] = useState<any>(selectedFacade || null);
@@ -48,6 +49,7 @@ const FacadeModal: React.FC<FacadeModalProps> = ({
             dispatch(setQuotationFacade(selected));
             onCancel();
         } else {
+            await form.validateFields();
             if (!formValues) {
                 message.warning("Please fill the form before saving.");
                 return;
@@ -101,7 +103,7 @@ const FacadeModal: React.FC<FacadeModalProps> = ({
             <Tabs
                 activeKey={activeTab}
                 onChange={(key) => setActiveTab(key as "available" | "custom")}
-                tabBarExtraContent={
+                tabBarExtraContent={activeTab === "available" && (
                     <div className="flex gap-4">
                         <Checkbox
                             checked={!!selectedFilters.standard}
@@ -112,16 +114,17 @@ const FacadeModal: React.FC<FacadeModalProps> = ({
                             Standard
                         </Checkbox>
 
-                        <Checkbox
-                            checked={!!selectedFilters.upgrade}
-                            onChange={(e) => {
-                                dispatch(setSelectedFilters({ upgrade: e.target.checked }));
-                                setSelected(null);
-                            }}>
-                            Upgrade
-                        </Checkbox>
-                        {/* Second Variation */}
-                        {/* {
+              <Checkbox
+                checked={!!selectedFilters.upgrade}
+                onChange={(e) => {
+                  dispatch(setSelectedFilters({ upgrade: e.target.checked }));
+                  setSelected(null);
+                }}
+              >
+                Upgrade
+              </Checkbox>
+              {/* Second Variation */}
+              {/* {
                             activeTab === "available" && (
                                 <>
                                     <Segmented
@@ -146,34 +149,36 @@ const FacadeModal: React.FC<FacadeModalProps> = ({
                                 </>
                             )
                         } */}
-                    </div>
-                }
-                items={[
-                    {
-                        key: "available",
-                        label: "Available",
-                        children: (
-                            <AvailableFacadesTab
-                                facades={facades}
-                                selectedFacade={selected}
-                                onSelect={setSelected}
-                            />
-                        ),
-                    },
-                    {
-                        key: "custom",
-                        label: "Custom",
-                        children: (
-                            <CustomFacadeForm
-                                initialValues={formValues}
-                                onFormChange={setFormValues}
-                            />
-                        ),
-                    },
-                ]}
-            />
-        </Modal>
-    );
+            </div>
+          )
+        }
+        items={[
+          {
+            key: "available",
+            label: "Available",
+            children: (
+              <AvailableFacadesTab
+                facades={facades}
+                selectedFacade={selected}
+                onSelect={setSelected}
+              />
+            ),
+          },
+          {
+            key: "custom",
+            label: "Custom",
+            children: (
+              <CustomFacadeForm
+                initialValues={formValues}
+                onFormChange={setFormValues}
+                form={form}
+              />
+            ),
+          },
+        ]}
+      />
+    </Modal>
+  );
 };
 
 export default FacadeModal;
