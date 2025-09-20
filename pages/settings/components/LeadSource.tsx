@@ -51,7 +51,7 @@ const LeadSource = () => {
       setFormLoading(true);
 
       await dispatch(deleteLeadSourceThunk(deleteModalVisible.id)).unwrap();
-      message.success("Range deleted successfully");
+      message.success("Lead source deleted successfully");
 
       setDeleteModalVisible({ id: null, open: false });
     } catch (error: any) {
@@ -155,7 +155,7 @@ const LeadSource = () => {
         open={deleteModalVisible.open}
         onClose={() => setDeleteModalVisible({ id: null, open: false })}
         onConfirm={() => confirmDelete()}
-        message="Are you sure you want to delete this package?"
+        message="Are you sure you want to delete this lead source?"
         type="danger"
         confirmText="Delete"
         cancelText="Cancel"

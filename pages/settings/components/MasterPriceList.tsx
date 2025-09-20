@@ -170,6 +170,7 @@ export const MasterPriceList = () => {
       message.error(error || "Failed to delete category item");
     } finally {
       setDeleteModal({ open: false, type });
+      setSelectedItem(null);
       setLoading(false);
     }
   };
@@ -218,7 +219,6 @@ export const MasterPriceList = () => {
         newLocalCategories[i] = c;
       }
     }
-    // console.log("changedCategories", changedCategories);
     setLocalCategories(newLocalCategories);
   };
 

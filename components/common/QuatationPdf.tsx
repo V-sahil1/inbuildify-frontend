@@ -399,7 +399,7 @@ export const QuatationPdf = ({
                   .flat()
                   .map((item, i) => (
                     <View key={i} style={ItemTable.row}>
-                      <Text style={[ItemTable.cell, ItemTable.col40]}>{item.shortDescription}</Text>
+                      <Text style={[ItemTable.cell, ItemTable.col40]}>{item?.shortDescription || item?.description}</Text>
                       <Text style={[ItemTable.cell, ItemTable.col15, ItemTable.centerText]}>{item.quantity}</Text>
                     </View>
                   ))}

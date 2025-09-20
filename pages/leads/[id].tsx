@@ -380,23 +380,39 @@ function App() {
                       }}
                       style={{ cursor: "pointer" }}
                     >
-                      <Space size="middle">
-                        {/* <Tooltip title={quotation?.slugId}> */}
-                        <Text type="secondary">
-                          {quotation?.slugId?.slice(0, 13)}
-                        </Text>
-                        {/* </Tooltip> */}
-                        <Tag
-                          color={
-                            quotation?.lead?.status === "Open"
-                              ? "blue"
-                              : "green"
-                          }
-                        >
-                          {quotation?.leadStatus}
-                        </Tag>
-                        <Text>${quotation?.totalAmount}</Text>
-                      </Space>
+                      <div className="flex items-center justify-between w-full">
+                        <div className="flex items-center space-x-4">
+                          <div className="bg-gray-100 p-2 rounded-lg">
+                           {createdQuotations.indexOf(quotation) + 1}
+                          </div>
+                          <div>
+                            <div className="font-medium text-gray-900">
+                              
+                              <span className=" text-sm text-gray-500">
+                                {quotation?.slugId?.slice(0, 13)}...
+                              </span>
+                            </div>
+                            <div className="flex items-center space-x-2 mt-1">
+                              <Tag
+                                color={
+                                  quotation?.lead?.status === "Open"
+                                    ? "blue"
+                                    : "green"
+                                }
+                                className="m-0"
+                              >
+                                {enumToReadable(quotation?.leadStatus)}
+                              </Tag>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                            <div className="text-xs text-gray-500">Total Amount</div>
+                          <div className="text-lg font-semibold text-gray-900">
+                            ${Number(quotation?.totalAmount || 0)}
+                          </div>
+                        </div>
+                      </div>
                     </List.Item>
                   )}
                 />

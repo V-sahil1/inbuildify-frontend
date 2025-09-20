@@ -34,21 +34,21 @@ const Service = () => {
   };
 
   useEffect(() => {
-    async function getLeadSources() {
+    async function getServices() {
       try {
         await dispatch(getServicesThunk()).unwrap();
       } catch (error) {
-        message.error(error || "failed to fetch the Lead sources");
+        message.error(error || "failed to fetch the services");
       }
     }
-    getLeadSources();
+    getServices();
   }, []);
 
   const confirmDelete = async () => {
     try {
       setFormLoading(true);
       await dispatch(deleteServiceThunk(deleteModalVisible.id)).unwrap();
-      message.success("Range deleted successfully");
+      message.success("Service deleted successfully");
       setDeleteModalVisible({ id: null, open: false });
     } catch (error: any) {
       message.error(error);
@@ -156,7 +156,7 @@ const Service = () => {
           open={deleteModalVisible.open}
           onClose={() => setDeleteModalVisible({ id: null, open: false })}
           onConfirm={confirmDelete}
-          message="Are you sure you want to delete this package?"
+          message="Are you sure you want to delete this service? Make sure this service is not attached to any contractor."
           type="danger"
           confirmText="Delete"
           cancelText="Cancel"
