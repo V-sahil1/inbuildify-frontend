@@ -75,8 +75,8 @@ export const LeadSource = () => {
                 <div className='text-md font-bold'><p>People</p></div>
                 <Divider className='bg-border-color my-3'></Divider>
                 <LeadUpdateDetail label="Assignee" value={leadDetail.lead?.assigneeName} />
-                <LeadUpdateDetail label="Created" value={leadDetail.lead?.createdByName} />
-                <LeadUpdateDetail label="Updated" value={leadDetail.lead?.updatedByName} />
+                <LeadUpdateDetail label="Created by" value={leadDetail.lead?.createdByName} />
+                <LeadUpdateDetail label="Updated by" value={leadDetail.lead?.updatedByName} />
             </div>
         </div>
     );
