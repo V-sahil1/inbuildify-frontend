@@ -14,6 +14,7 @@ import {
 } from "@redux/feature/location/locationThunk";
 import { RootState } from "@redux/feature/store";
 import {
+  IconChevronLeft,
   IconMail,
   IconPhone,
   IconPlus,
@@ -140,22 +141,17 @@ const LeadDetailsForm: React.FC<any> = ({
   //   }
   // }, [open, isEditing, initialValues, form]);
 
-
-
-
-  
+  const handleContactBackClick = () =>{
+    setShowContactForm(false)
+    form.setFieldsValue(initialValues);
+  }
   useEffect(() => {
     if (open) {
-      if (isEditing && initialValues) {
         form.resetFields();
         form.setFieldsValue(initialValues);
-      } else if (!isEditing) {
-        form.resetFields();
-      }
-      setShowContactForm(false);
       setHideAddressForm(true);
     }
-  }, [open, isEditing, initialValues, form]);
+  }, [open]);
 
   const handleOk = async () => {
     try {
@@ -191,17 +187,17 @@ const LeadDetailsForm: React.FC<any> = ({
 
       const { countryId, stateId, ...rest } = payload;
       await onSubmit(rest);
-
+      setShowContactForm(false)
     } catch (err) {
       if (err.errorFields) {
         message.error("Please fill all required fields");
       } else {
         message.error("An error occurred. Please try again.");
       }
-    }finally{
-      setShowContactForm(false);
-      setHideAddressForm(true);
     }
+    // finally{
+    //   // setHissdeAddressForm(true);
+    // }
   };
 
   const handleCancel = () => {
@@ -221,14 +217,23 @@ const LeadDetailsForm: React.FC<any> = ({
           <div>
             <h1 className="text-left">Contact Details</h1>
           </div>
+          {showContactForm ? 
           <Button
+            type="primary"
+            icon={<IconChevronLeft />}
+            onClick={handleContactBackClick}
+            className="mr-6"
+          >
+            Back
+          </Button>
+           :   <Button
             type="primary"
             icon={<IconPlus />}
             onClick={handleContactClick}
             className="mr-6"
           >
             Contact
-          </Button>
+          </Button>}
         </div>
       }
       open={open}
