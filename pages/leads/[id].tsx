@@ -47,6 +47,7 @@ import { QuotationResponse } from "@redux/feature/quotation/IQuotationState";
 import LeadActions from "@/components/leadDetail/LeadActions";
 import { Status } from "@lib/constants/enum";
 import { LeadSource } from "@/components/leads/LeadSource";
+import CloseLeadModal from "@/components/leadDetail/LeadQuotations/CloseLeadModal";
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -74,6 +75,8 @@ export interface Package {
 
 function App() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConvertModalVisible, setIsConvertModalVisible] = useState(false);
   const [isEditLeadModalVisible, setIsEditLeadModalVisible] = useState(false);
   const [isPropertyModalVisible, setIsPropertyModalVisible] = useState(false);
@@ -160,6 +163,10 @@ function App() {
     }
   };
 
+  const closeLeadModal = () => {
+    setIsModalOpen(true);
+  };
+
   const steps = useMemo(() => {
     if (isOpportunity) {
       return [
@@ -182,7 +189,7 @@ function App() {
           label: "Close",
           color: "bg-gray-200",
           textColor: "text-black",
-          onClick: () => {},
+          onClick: closeLeadModal,
         },
       ];
     }
@@ -480,6 +487,12 @@ function App() {
         onCancel={() => setIsPropertyModalVisible(false)}
         onSave={() => setIsPropertyModalVisible(false)}
         initialValues={propertyFromSlice}
+      />
+      <CloseLeadModal
+        isModalOpen={isModalOpen}
+        setIsModalOpen={() => setIsModalOpen(false)}
+        leadData={leadDetail?.lead}
+        quotations={createdQuotations}
       />
     </div>
     <div className="col-span-3  lg:col-span-1 ">
