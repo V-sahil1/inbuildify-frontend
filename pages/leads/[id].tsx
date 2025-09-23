@@ -21,6 +21,7 @@ import {
   IconFileText,
   IconMail,
   IconPhoneCall,
+  IconTrash,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import SystemRoutes from "@lib/constants/Routes";
@@ -48,6 +49,9 @@ import LeadActions from "@/components/leadDetail/LeadActions";
 import { Status } from "@lib/constants/enum";
 import { LeadSource } from "@/components/leads/LeadSource";
 import CloseLeadModal from "@/components/leadDetail/LeadQuotations/CloseLeadModal";
+import ConfirmationModal from "@/components/common/ConfirmationModal";
+import { deleteQuotation } from "@redux/feature/quotation/quotationThunk";
+import { removeQuotation } from "@redux/feature/lead/leadSlice";
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -97,6 +101,11 @@ function App() {
     leadDetail?.createdQuotations?.quotations || [];
   const latestLeadDetailRef = useRef<any>(null);
   const isJob = useMemo(() => leadDetail?.lead?.status === "JOB", [leadDetail]);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [selectedQuotationId, setSelectedQuotationId] = useState<string | null>(null);
+
+  
   useEffect(() => {
     latestLeadDetailRef.current = leadDetail;
   }, [leadDetail]);
@@ -165,6 +174,22 @@ function App() {
 
   const closeLeadModal = () => {
     setIsModalOpen(true);
+  };
+
+  const handleDelete = async () => {
+   if (!selectedQuotationId) return;
+  try {
+    setIsDeleting(true);
+    await dispatch(deleteQuotation(selectedQuotationId)).unwrap().then(()=>dispatch(removeQuotation(selectedQuotationId)));
+    message.success("Quotation deleted successfully");
+     setShowDeleteConfirm(false);
+    setSelectedQuotationId(null);
+  } catch (err) {
+    message.error(err || "Failed to delete quotation");
+  } finally {
+    setIsDeleting(false);
+   
+  }
   };
 
   const steps = useMemo(() => {
@@ -419,6 +444,15 @@ function App() {
                             ${Number(quotation?.totalAmount || 0)}
                           </div>
                         </div>
+                        <div className="hover:text-red-500">
+                            <button  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedQuotationId(quotation?.quotationId);
+                                    setShowDeleteConfirm(true);
+                                  }}>
+                              <IconTrash size={20}/>
+                            </button>
+                        </div>
                       </div>
                     </List.Item>
                   )}
@@ -498,6 +532,17 @@ function App() {
     <div className="col-span-3  lg:col-span-1 ">
       <LeadSource  />
     </div>
+    <ConfirmationModal
+        open={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={() => handleDelete()}
+        message="Are you sure you want to delete this Quatation?"
+        type="danger"
+        confirmText="Delete"
+        cancelText="Cancel"
+        loading={isDeleting}
+        maxWidth="sm"
+      />
     </div>
   );
 }

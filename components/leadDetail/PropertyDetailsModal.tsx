@@ -16,7 +16,7 @@ import {
 import { Status } from "@lib/constants/enum";
 import { DefaultOptionType } from "antd/es/select";
 import { disablePastDates } from "@lib/utils/getDisabledTimeDate";
-import { CityNameRules, leadAddressRules, optionalNameRules, OptionalNumberRules } from "@lib/constants/formInputValidations";
+import { CityNameRules, leadAddressRules, optionalAddressRules, optionalNameRules, OptionalNumberRules } from "@lib/constants/formInputValidations";
 
 interface PropertyDetailsModalProps {
   visible: boolean;
@@ -239,11 +239,11 @@ const leadid = useParams()
               name="address1"
               rules={leadAddressRules}
             >
-              <Input placeholder="Lot 234" />
+              <Input placeholder="Lot 234"/>
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item label="Address2" name="address2">
+            <Form.Item label="Address 2" name="address2" rules={optionalAddressRules}>
               <Input placeholder="Optional" />
             </Form.Item>
           </Col>
@@ -289,7 +289,11 @@ const leadid = useParams()
                 { max: 4, message: "Postal code must be at most 4 characters" },
               ]}
             >
-              <Input placeholder="3029" />
+              <Input placeholder="3029" onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}/>
             </Form.Item>
           </Col>
         </Row>

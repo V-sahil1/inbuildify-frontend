@@ -46,7 +46,7 @@ export const leadSlice = createSlice({
         lead: null,
         contacts: null,
         property: null,
-        createdQuotations:{quotations:[]},
+        createdQuotations: { quotations: [] },
       };
     },
     setAddInstSourceModal: (state, action) => {
@@ -65,6 +65,12 @@ export const leadSlice = createSlice({
       state.leads = state.leads.map((lead) =>
         lead.leadId === leadId ? { ...lead, status, updatedAt } : lead
       );
+    },
+    removeQuotation: (state, action) => {
+      state.leadDetail.createdQuotations.quotations =
+        state.leadDetail.createdQuotations.quotations.filter(
+          (quotation) => quotation.quotationId !== action.payload
+        );
     },
   },
   extraReducers: (builder) => {
@@ -124,30 +130,30 @@ export const leadSlice = createSlice({
     builder.addCase(createLeadThunk.fulfilled, (state, action) => {
       state.leads.unshift(action.payload);
     });
-    builder.addCase(updateLeadThunk.pending,(state)=>{
-      state.status.updateLeadSource=Status.PENDING;
-    })
-    builder.addCase(updateLeadThunk.fulfilled,(state,action)=>{
-      const {leadId,notes,leadSource,updatedByName,updatedAt}=action.payload;
+    builder.addCase(updateLeadThunk.pending, (state) => {
+      state.status.updateLeadSource = Status.PENDING;
+    });
+    builder.addCase(updateLeadThunk.fulfilled, (state, action) => {
+      const { leadId, notes, leadSource, updatedByName, updatedAt } =
+        action.payload;
       state.leadDetail.lead = action.payload;
-      if(state.leads == null){
-        state.leads=[];
+      if (state.leads == null) {
+        state.leads = [];
       }
-      if(state.leads.length === 0){
+      if (state.leads.length === 0) {
         state.leads.push(action.payload);
+      } else {
+        const lead = state.leads.find((item) => item.leadId === leadId);
+        lead.notes = notes;
+        lead.leadSource = leadSource;
+        lead.updatedByName = updatedByName;
+        lead.updatedAt = updatedAt;
       }
-      else{
-        const lead = state.leads.find( (item)=> item.leadId === leadId);
-        lead.notes=notes;
-        lead.leadSource=leadSource;
-        lead.updatedByName=updatedByName;
-        lead.updatedAt=updatedAt;
-      }
-      state.status.updateLeadSource=Status.SUCCESS;
-    })
-    builder.addCase(updateLeadThunk.rejected,(state)=>{
-      state.status.updateLeadSource=Status.ERROR;
-    })
+      state.status.updateLeadSource = Status.SUCCESS;
+    });
+    builder.addCase(updateLeadThunk.rejected, (state) => {
+      state.status.updateLeadSource = Status.ERROR;
+    });
 
     builder.addCase(leadDeleteThunk.fulfilled, (state, action) => {
       state.leads = state.leads.filter(
@@ -263,5 +269,6 @@ export const {
   setLeadProperty,
   updateLeadStatus,
   setAddInstSourceModal,
+  removeQuotation
 } = leadSlice.actions;
 export const leadReducer = leadSlice.reducer;

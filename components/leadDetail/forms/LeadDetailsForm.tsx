@@ -5,6 +5,7 @@ import {
   emailRules,
   leadAddressRules,
   nameRules,
+  optionalAddressRules,
   optionalPhoneRule,
   phoneRules,
 } from "@lib/constants/formInputValidations";
@@ -315,12 +316,7 @@ const LeadDetailsForm: React.FC<any> = ({
               <Form.Item
                 label="Address 2"
                 name="address2"
-                rules={[
-                  {
-                    min: 10,
-                    message: "Address must be at least 10 characters",
-                  },
-                ]}
+                rules={optionalAddressRules}
               >
                 <Input placeholder="Enter address line 2" />
               </Form.Item>
@@ -343,8 +339,12 @@ const LeadDetailsForm: React.FC<any> = ({
               >
                 <Input
                   placeholder="Enter zip/postal code"
-                  // maxLength={4}
                   type="number"
+                  onKeyPress={(e) => {
+                    if (!/[0-9]/.test(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
                 />
               </Form.Item>
 

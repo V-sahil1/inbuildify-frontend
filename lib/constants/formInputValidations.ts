@@ -42,11 +42,11 @@ export const nameRules = [
       if (!value) return Promise.resolve(); 
       const cleaned = value.trim().replace(/\s+/g, " "); 
       const lettersOnly = cleaned.replace(/\s/g, ""); 
-      const isValid = /^[a-zA-Z\s]+$/.test(cleaned) && lettersOnly.length >= 3 && lettersOnly.length <= 100;
+      const isValid = /^[a-zA-Z\s]+$/.test(cleaned) && lettersOnly.length >= 2 && lettersOnly.length <= 100;
 
       if (!isValid) {
         return Promise.reject(
-          "Name must be at least 3 letters and at most 100 letters and can only contain letters and spaces"
+          "Name must be at least 2 letters and at most 100 letters and can only contain letters and spaces"
         );
       }
       return Promise.resolve();
@@ -88,7 +88,7 @@ const noWhitespace = {
 
 export const taskNameRules = [
   { required: true, message: "Please enter title" },
-  { min: 3, message: "Title must be at least 3 characters" },
+  { min: 2, message: "Title must be at least 2 characters" },
   { max: 80, message: "Title must be at most 80 characters" },
 ];
 
@@ -172,6 +172,26 @@ export const OptionalNumberRules = [
   }
 ];
 
+export const optionalAddressRules = [
+  {
+    validateFirst: true,
+    validator: (_: any, value: string) => {
+      if (!value) {
+        return Promise.resolve(); 
+      }
+      
+      if (value.length < 2) {
+        return Promise.reject("Address must be at least 2 letters");
+      }
+      
+      if (value.length >= 255) {
+        return Promise.reject("Address must be at most 255 letters");
+      }
+      return Promise.resolve();
+    },
+  },
+];
+
 export const optionalNameRules = [
   {
     validator: (_: any, value: string) => {
@@ -216,9 +236,9 @@ export const optionalNotesRule = [
       if (!value) return Promise.resolve();  
       const trimmed = value.trim();
       if (trimmed.length === 0) return Promise.resolve(); 
-      if (trimmed.length < 3) {
+      if (trimmed.length < 2) {
         return Promise.reject(
-          new Error("Notes should be at least 3 characters")
+          new Error("Notes should be at least 2 characters")
         );
       }
       if (trimmed.length > 500) {
@@ -244,9 +264,9 @@ export const locationRules = [
 export const notesRules = [
   {
     validator: (_: any, value: string) => {
-      const isValid = /^[a-zA-Z0-9\s.,]{3,500}$/.test(value.trim());
+      const isValid = /^[a-zA-Z0-9\s.,]{2,500}$/.test(value.trim());
       if (!isValid) {
-        return Promise.reject("Notes must be at least 3 characters and doesn't contain special character");
+        return Promise.reject("Notes must be at least 2 characters and doesn't contain special character");
       }
       return Promise.resolve();
     }
@@ -364,11 +384,11 @@ export const leadAddressRules = [
         return Promise.resolve(); 
       }
       
-      if (value.length < 3) {
-        return Promise.reject("Address must be at least 3 letters");
+      if (value.length < 2) {
+        return Promise.reject("Address must be at least 2 letters");
       }
       
-      if (value.length > 255) {
+      if (value && value.length > 255) {
         return Promise.reject("Address must be at most 255 letters");
       }
       return Promise.resolve();
@@ -386,12 +406,12 @@ export const CityNameRules = [
       const isValid = /^[a-zA-Z\s]+$/.test(cleaned) && lettersOnly.length <= 100 && lettersOnly.length >= 1;
       if(value.length >= 100){
          return Promise.reject(
-          "City name must be less then 100 character "
+          "City name must be less then 100 character"
         );
       }
       if (!isValid) {
         return Promise.reject(
-          "City name must be vallid string "
+          "City name must be valid string"
         );
       }
       return Promise.resolve();
