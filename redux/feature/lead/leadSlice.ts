@@ -9,6 +9,8 @@ import {
   getLeadSourcesThunk,
   getLeadThunk,
   getQuotationsByLeadIdThunk,
+  leadDeleteThunk,
+  transferLeadThunk,
   updateLeadContactThunk,
   updateLeadSourceThunk,
   updateLeadThunk,
@@ -146,6 +148,21 @@ export const leadSlice = createSlice({
     builder.addCase(updateLeadThunk.rejected,(state)=>{
       state.status.updateLeadSource=Status.ERROR;
     })
+
+    builder.addCase(leadDeleteThunk.fulfilled, (state, action) => {
+      state.leads = state.leads.filter(
+        (lead) => lead.leadId !== action.payload.leadId
+      );
+      state.leadDetail = {
+        lead: null,
+        contacts: null,
+        property: null,
+        createdQuotations: { quotations: [] },
+      };
+    });
+    builder.addCase(transferLeadThunk.fulfilled, (state, action) => {
+      state.leadDetail.lead.assigneeName = action.payload.assignee.name;
+    });
     builder.addCase(getQuotationsByLeadIdThunk.pending, (state) => {
       state.status.leadQuotations = Status.PENDING;
     });
@@ -241,6 +258,10 @@ export const leadSlice = createSlice({
   },
 });
 
-export const { clearLeadDetail, setLeadProperty, updateLeadStatus ,setAddInstSourceModal} =
-  leadSlice.actions;
+export const {
+  clearLeadDetail,
+  setLeadProperty,
+  updateLeadStatus,
+  setAddInstSourceModal,
+} = leadSlice.actions;
 export const leadReducer = leadSlice.reducer;

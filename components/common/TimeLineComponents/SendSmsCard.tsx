@@ -25,8 +25,12 @@ const SendSmsCard: FC<SendSmsCardProps> = ({
     value: contact.leadsContactId,
   }));
 
-  const handleFinish = async (values: SmsDetails) => {
+  const handleFinish = async (values) => {
     values.type = "SMS";
+    if (initialData) {
+      values.actionId = initialData.actionId;
+      values.action_type_id = initialData?.smsId;
+    }
     await form.validateFields();
     onSave(values);
   };
@@ -42,6 +46,7 @@ const SendSmsCard: FC<SendSmsCardProps> = ({
         label="Recipient"
         name="recipient"
         rules={[{ required: true, message: "Please select recipient(s)" }]}
+        initialValue={initialData?.recipient?.map((recipient) => recipient.id)}
       >
         <Select
           mode="multiple"
@@ -55,6 +60,7 @@ const SendSmsCard: FC<SendSmsCardProps> = ({
         label="Message"
         name="message"
         rules={descriptionRules}
+        initialValue={initialData?.message}
       >
         <TextArea rows={4} placeholder="Type your SMS message" className="!resize-none"/>
       </Form.Item>

@@ -5,6 +5,7 @@ import {
   IconMessage,
   IconDeviceMobileMessage,
   IconListCheck,
+  IconEdit,
 } from "@tabler/icons-react";
 import { TimelineCardProps } from "data/types";
 import {
@@ -279,7 +280,7 @@ const getIcon = () => {
                     const userNames = Array.isArray(selectedIds)
                       ? selectedIds
                           .map((id) => {
-                            const found = users.find((u) => u.usersId === id);
+                            const found = users.find((u) => u.usersId === id.id);
                             return found?.name;
                           })
                           .filter(Boolean)
@@ -320,7 +321,7 @@ const getIcon = () => {
                   const assigneeId = (item?.task?.[0] as TaskDetails)?.assignee;
                   if (!assigneeId) return "-";
                   const assigneeUser = users.find(
-                    (u) => u.usersId === assigneeId
+                    (u) => u.usersId === assigneeId.id
                   );
                   return assigneeUser?.name || "-";
                 })()}
@@ -353,27 +354,18 @@ const getIcon = () => {
           )}
 
           <div className="flex gap-3">
-            {/* {onEdit && (
-              // <button
-              //   onClick={() =>
-              //     onEdit({
-              //       type,
-              //       date,
-              //       createdBy,
-              //       createdAt,
-              //       status,
-              //       data,
-              //     } as TimelineCardProps)
-              //   }
-              // >
-              //   <IconEdit size={18} />
-              // </button>
-            )} */}
-            {onReschedule && (
+            {onEdit && (
+              <button
+                onClick={() => onEdit({ item,type:item.type } as TimelineCardProps)}
+              >
+                <IconEdit size={18} />
+              </button>
+            )}
+            {/* {onReschedule && (
               <button onClick={onReschedule}>
                 <IconCalendar size={18} />
               </button>
-            )}
+            )} */}
           </div>
         </div>
       </div>

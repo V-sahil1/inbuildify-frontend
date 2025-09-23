@@ -49,6 +49,7 @@ interface CreateFormModalProps {
   initialValues?: any;
   onCancel: () => void;
   invite?: boolean;
+  submitButtonText?: string;
   onSubmit: (values: any) => void;
   fields: readonly CreateFormField[];
   onValuesChange?: (values: any, form: any) => void;
@@ -63,6 +64,7 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
   onCancel,
   invite = false,
   onSubmit,
+  submitButtonText,
   fields,
   onValuesChange
 }) => {
@@ -129,7 +131,7 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
       onOk={handleOk}
       centered
       onCancel={onCancel}
-      okText={isEditing ? "Update" : invite ? "Invite" : "Create"}
+      okText={submitButtonText || (isEditing ? "Update" : invite ? "Invite" : "Create")}
       confirmLoading={loading}
     >
       <Form

@@ -48,21 +48,8 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
   initialData,
 }) => {
   const [form] = Form.useForm();
-  const [submitting, setSubmitting] = useState<boolean>(false);
   const { users, status } = useAppSelector((state) => state.user);
   const { email } = useAppSelector((state) => state.auth.user);
-    // const [formData, setFormData] = useState<any>({
-    //     task: {
-    //         name: initialData?.task?.name || "",
-    //         dueDate: initialData?.task?.dueDate || dayjs().format("YYYY-MM-DD"),
-    //         time: initialData?.task?.time || dayjs().format("HH:mm"),
-    //         priority: initialData?.task?.priority || "MEDIUM",
-    //         description: initialData?.task?.description || "",
-    //         assignee: initialData?.task?.assignee || "",
-    //     },
-    //     attachment: initialData?.attachment || [],
-    // });
-
   const dispatch = useAppDispatch();
   useEffect(() => {
     if (status === Status.IDLE) {
@@ -82,20 +69,18 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
     }
     return acc;
   }, [] as { label: string; value: string }[]);
-  // const attachments = newFileList.map((file: any) => ({
-  //     uid: file.uid,
-  //     name: file.name,
-  //     status: file.status,
-  //     url: file.response?.url || file.url,
-  //     originFileObj: file.originFileObj,
-  // }));
-  // };
   const handleFinish = async (values: any) => {
     await form.validateFields();
     values.type = "TASK";
+    if (initialData) {
+      values.actionId = initialData.actionId;
+      values.action_type_id = initialData?.taskId;
+    }
     values.task.due_date = values.task?.due_date?.format("YYYY-MM-DD");
     values.task.time = values.task?.time?.format("HH:mm");
-    values.attachment = values?.attachment ? values?.attachment?.[0]?.originFileObj : null;
+    values.attachment = values?.attachment
+      ? values?.attachment?.[0]?.originFileObj
+      : null;
     onSave(values);
   };
   return (
@@ -113,6 +98,7 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
         label="Task Name"
         name={["task", "name"]}
         rules={taskNameRules}
+        initialValue={initialData?.name}
       >
         <Input placeholder="Task Name" />
       </Form.Item>
@@ -122,6 +108,9 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
           label="Due Date"
           name={["task", "due_date"]}
           rules={dueDateRules}
+          initialValue={
+            initialData?.dueDate ? dayjs(initialData?.dueDate) : null
+          }
         >
           <DatePicker
             format="YYYY-MM-DD"
@@ -135,7 +124,11 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
           />
         </Form.Item>
 
-        <Form.Item label="Time" name={["task", "time"]} rules={timeRules}>
+        <Form.Item label="Time" name={["task", "time"]} rules={timeRules}
+          initialValue={
+            initialData?.time ? dayjs(initialData.time, "HH:mm") : null
+          }
+        >
           <TimePicker
             format="HH:mm"
             className="w-full"
@@ -173,6 +166,7 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
         label="Priority"
         name={["task", "priority"]}
         rules={priorityRules}
+        initialValue={initialData?.priority}
       >
         <Select options={priorityOptions} placeholder="Select Priority" />
       </Form.Item>
@@ -181,11 +175,15 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
         label="Description"
         name={["task", "description"]}
         rules={descriptionRules}
+        initialValue={initialData?.description}
       >
         <Input.TextArea rows={4} placeholder="Task Description" className="!resize-none"/>
       </Form.Item>
 
-      <Form.Item label="Assignee" name={["task", "assignee"]}>
+      <Form.Item label="Assignee" name={["task", "assignee"]}
+        initialValue={initialData?.assignee?.id} 
+        rules={[{ required: true, message: "Please select assignee" }]}
+      >
         <Select
           options={assigneeOptions}
           placeholder="Select Assignee"
@@ -201,6 +199,18 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
           valuePropName="fileList"
           getValueFromEvent={(e) => e.fileList}
           className="max-w-[200px] sm:max-w-[350px]"
+          initialValue={
+            initialData?.attachment
+              ? [
+                  {
+                    uid: "-1",
+                    name: "attachment.jpg",
+                    status: "done",
+                    url: initialData?.attachment,
+                  },
+                ]
+              : []
+          }
         >
           <Upload
             beforeUpload={() => false}

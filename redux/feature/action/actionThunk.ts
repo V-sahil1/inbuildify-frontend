@@ -38,6 +38,21 @@ export const createActionsThunk = createAsyncThunk(
     }
   );
 
+export const updateActionsThunk = createAsyncThunk(
+    "action/updateActions",
+  async (payload: { actionId: string, data: FormData }, { rejectWithValue }) => {
+      try {
+        const res = await apiWithFormDataMethods.put<ApiResponse<any>>(
+          `${API_ENDPOINTS.ACTION_BASE}/${payload.actionId}`,
+          payload.data
+        );
+        return res.data;
+      } catch (error) {
+        return rejectWithValue(error.message);
+      }
+    }
+  );
+
 export const getActionTags = createAsyncThunk("action/getActionTags", async (_, { rejectWithValue }) => {
     try {
       const res = await api.get<ApiResponse<any>>(

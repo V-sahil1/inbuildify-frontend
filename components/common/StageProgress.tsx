@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button, Dropdown, Form, Input, MenuProps, message, Modal, Tag } from "antd";
-import { IconChevronDown, IconChevronUp, IconDots } from '@tabler/icons-react';
+import {  Dropdown, Form, Input, message, Modal, Tag } from "antd";
+import {  IconDots } from '@tabler/icons-react';
 import { useAppDispatch } from "@hooks/redux";
-import { convertLeadToJobThunk } from "@redux/feature/lead/leadThunk";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { CreateFormField, CreateFormModal } from "./Models/CreateFormModel";
+import { convertLeadToJobThunk,leadDeleteThunk,transferLeadThunk } from "@redux/feature/lead/leadThunk";
+import { useRouter } from "next/navigation"; 
+import { CreateFormModal } from "./Models/CreateFormModel";
 import ConfirmationModal from "./ConfirmationModal";
+import transferLeadFields from "../formFields/transferLeadFields";
 const { TextArea } = Input;
 
 type Step = {
@@ -34,10 +34,10 @@ const actions = [
     key: "transfer",
     label: "Transfer",
   },
-  // {
-  //   key: "delete",
-  //   label: "Delete",
-  // },
+  {
+    key: "delete",
+    label: "Delete",
+  },
   // {
   //   key: "onhold",
   //   label: "On Hold",
@@ -50,10 +50,10 @@ const actions = [
   //   key: "referanceid",
   //   label: "Referance ID",
   // },
-  {
-    key: "converttolead",
-    label: "Convert to Lead",
-  },
+  // {
+  //   key: "converttolead",
+  //   label: "Convert to Lead",
+  // },
   // {
   //   key: "sendwelcomelatter",
   //   label: "Send Welcome Letter",
@@ -62,46 +62,7 @@ const actions = [
   //   key: "sendwelcomeemail",
   //   label: "Send Welcome Email",
   // },
-]
-
-const transferLeadFields = (): CreateFormField[] => {
-  return [
-    {
-      label: "Assignee",
-      name: "assignee",
-      type: "select",
-      options: [
-        {
-          label: "Account Owner",
-          value: "account_owner",
-        },
-        {
-          label: "Account Manager",
-          value: "account_manager",
-        },
-      ],
-      placeholder: "Select assignee",
-      rules: [
-        {
-          required: true,
-          message: "Please select assignee",
-        },
-      ],
-    },
-    {
-      label: "Notes",
-      name: "notes",
-      type: "textarea",
-      placeholder: "Enter notes",
-      rules: [
-        {
-          required: true,
-          message: "Please enter notes",
-        },
-      ],
-    },
-  ];
-};
+];
 
 const StageProgress: React.FC<StageProgressProps> = ({
   id,
@@ -119,7 +80,8 @@ const StageProgress: React.FC<StageProgressProps> = ({
   const [modalType, setModalType] = useState<"WON" | "LOST" | null>(null);
   const [loading, setLoading] = useState(false);
   const [dropdownVisible, setDropdownVisible] = useState(false);
-  const dispatch = useAppDispatch()
+  const leadTransferFields = transferLeadFields();
+  const dispatch = useAppDispatch();
   const [form] = Form.useForm();
   const router = useRouter();
   const handleWinClick = () => {
@@ -188,15 +150,35 @@ const StageProgress: React.FC<StageProgressProps> = ({
       default:
         break;
     }
-    
   };
 
-  const handleTransferSubmit = (values: any) => {
-    console.log("🔥 ~ handleTransferSubmit ~ values:", values)
+  const handleTransferSubmit = async (values: any) => { 
+    try {
+      setLoading(true);
+      const response = await dispatch(
+        transferLeadThunk({
+          leadId: lead.lead.leadId,
+          ...values,
+        })
+      ).unwrap();
+      message.success("Lead transferred successfully");
+    } catch (err) {
+      message.error(err || "Failed to transfer lead");
+    } finally {
+      setLoading(false);
+    }
+    setIsTransferModalOpen(false);
   };
 
-  const handleDelete = (leadId: string) => {
-    console.log("🔥 ~ handleDelete ~ leadId:", leadId)
+  const handleDelete = async (leadId: string) => {
+    try {
+      await dispatch(leadDeleteThunk(leadId)).unwrap();
+      message.success("Lead deleted successfully");
+    } catch (err) {
+      message.error(err || "Failed to delete lead");
+    } finally {
+      router.push(`/leads`);
+    }
   };
   
   return (
@@ -245,11 +227,18 @@ const StageProgress: React.FC<StageProgressProps> = ({
           })}
         </div>
       </div>
-      {lead?.lead?.status === "COMPLETED" && <div className="flex items-center gap-2">
-        <button className="btn btn-success rounded-md p-1" onClick={handleWinClick}>
-          Won
-        </button>
-        <button className="btn bg-red-500 rounded-md p-1 text-white" onClick={handleLoseClick}>
+      {lead?.lead?.status === "COMPLETED" && (
+        <div className="flex items-center gap-2">
+          <button
+            className="btn btn-success rounded-md p-1"
+            onClick={handleWinClick}
+          >
+            Won
+          </button>
+          <button
+            className="btn bg-red-500 rounded-md p-1 text-white"
+            onClick={handleLoseClick}
+          >
           Lost
         </button>
         <Dropdown
@@ -284,7 +273,8 @@ const StageProgress: React.FC<StageProgressProps> = ({
             <IconDots stroke={2} className="text-red-500"/>
           </button>
         </Dropdown>
-      </div>}
+      </div>
+    )} 
       <Modal
         title={modalType === "WON" ? "Won" : modalType === "LOST" ? "Lost" : ""}
         open={isModalOpen}
@@ -318,17 +308,20 @@ const StageProgress: React.FC<StageProgressProps> = ({
         </Form>
       </Modal>
 
-      {isTransferModalOpen && 
+      {isTransferModalOpen && (
         <CreateFormModal 
           title="Transfer Lead"
           open={isTransferModalOpen}
+          loading={loading}
           onCancel={() => {
             setSelectedAction(null);
-            setIsTransferModalOpen(false)}}
+            setIsTransferModalOpen(false);
+          }}
+          submitButtonText="Transfer"
           onSubmit={handleTransferSubmit}
-          fields={transferLeadFields()}
+          fields={leadTransferFields}
         />
-      }
+      )}
 
       {confirmModalVisible && (
         <ConfirmationModal

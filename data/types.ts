@@ -155,6 +155,8 @@ export interface NoteTask {
   priority?: string;
 }
 export interface NoteDetails {
+  actionId?: string;
+  notesId?: string;
   type?: string;
   message: string;
   tags: NoteTag[]; 
@@ -165,32 +167,38 @@ export interface NoteDetails {
 }
 
 export interface AppointmentDetails {
+  actionId?: string;
+  appointmentId?: string;
   type?: string;
   title: string;
   date: string; // e.g. "2025-09-15"
   startTime: string; // e.g. "10:00"
   endTime: string;   // e.g. "11:00"
   location: string;
-  selectUsers: string;
+  selectUsers: {id:string,name:string}[];
   notes: string;
   sendToCustomer?: boolean;
 }
 
 export interface TaskDetails {
+  actionId?: string;
+  taskId?: string;
   type?: string;
   name: string; // ✅ you directly use task[0].name
   dueDate: string; // ✅ formatted with dayjs in TimelineCard
   time: string; // "HH:mm" or "HH:mm:ss"
   priority: "LOW" | "MEDIUM" | "HIGH";
   description: string;
-  assignee: string;
+  assignee: {id:string,name:string};
   attachment?: { uid: string; name: string; url?: string }[];
 }
 
 export interface SmsDetails {
+  actionId?: string;
+  smsId?: string;
   type?: string;
-  message: string; // ✅ you use this in title & description
-  recipient?: string; // optional, since you wrote `SMS to ${message}`
+  message: string;
+  recipient?: { id: string; name: string }[];  
 }
 
 // New: normalized item shape used by TimelineCard for display
@@ -222,6 +230,7 @@ export interface BaseTimelineCardProps {
 //   | (BaseTimelineCardProps & { type: "SMS"; sms: SmsDetails });
 export interface TimelineCardProps extends BaseTimelineCardProps {
   type: "NOTES" | "APPOINTMENT" | "TASK" | "SMS";
+  actionId?: string;
 }
 
   // Lead Detail Quotation
@@ -310,13 +319,13 @@ export interface JobVariationType {
     DelayedBy: string;
     DrawingChanges: string;
     Created: {
-    user: string,
-    date: string
-  }
+    user: string;
+    date: string;
+  };
   Approved: {
-    user: string,
-    date: string
-  }
+    user: string;
+    date: string;
+  };
 
   Status: string;
   Invoice: string;
@@ -349,9 +358,9 @@ export interface JobWorkFlowChecklist {
   tag: string;
   estimatedDate: string;
   actualDate: string;
-  link:string,
-  user: string,
-  status:string
+  link: string;
+  user: string;
+  status: string;
 }
 
 export interface WorkStepsChecklist{
@@ -360,16 +369,16 @@ export interface WorkStepsChecklist{
 }
 
 export interface JobVariationDataType {
-  ReferenceID: string,
-  Amount: number,
-  RequestedBy: string,
-  DelayedBy: string,
-  DrawingChanges: string,
-  Created: { user: string, date: string },
-  Approved: { user: string, date: string },
-  Status: string,
-  Invoice: string,
-  Profile: string
+  ReferenceID: string;
+  Amount: number;
+  RequestedBy: string;
+  DelayedBy: string;
+  DrawingChanges: string;
+  Created: { user: string; date: string };
+  Approved: { user: string; date: string };
+  Status: string;
+  Invoice: string;
+  Profile: string;
 }
 
 export interface JobVariationItems {
