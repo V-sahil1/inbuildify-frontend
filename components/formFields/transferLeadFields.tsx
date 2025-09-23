@@ -14,10 +14,8 @@ export type ContractorFormField = Omit<CreateFormField, "type"> & {
 
 const useTransferLeadFields = (): readonly ContractorFormField[] => {
   const dispatch = useAppDispatch();
-  const { email } = useAppSelector((state) => state.auth.user);
-  const { users, status } = useAppSelector(
-    (state) => state.user
-  );
+  const { user } = useAppSelector((state) => state?.auth);
+  const { users, status } = useAppSelector((state) => state?.user);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -34,7 +32,7 @@ const useTransferLeadFields = (): readonly ContractorFormField[] => {
   }, [dispatch, status]);
 
   const assigneeOptions = users.reduce((acc, user) => {
-    if (user.email !== email) {
+    if (user.email !== user.email) {
       acc.push({ label: user.name, value: user.usersId });
     }
     return acc;

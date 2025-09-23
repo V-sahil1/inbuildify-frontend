@@ -40,6 +40,7 @@ class API_ENDPOINTS {
   public static CREATE_LEAD = `${this.LEAD_BASE}`;
   public static GET_LEAD_BY_ID = (id: string) => `${this.LEAD_BASE}/${id}`;
   public static LEAD_TRANSFER = `${this.LEAD_BASE}/transfer`;
+  public static LEAD_CONVERT = `${this.LEAD_BASE}/convert`;
   public static CONVERT_LEAD_TO_OPPORTUNITY = "/opportunities";
   public static CONVERT_LEAD_TO_JOB = `/job`;
   public static LEAD_CONTACT = `/leads-contact`;

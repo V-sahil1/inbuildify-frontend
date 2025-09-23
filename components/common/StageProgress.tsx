@@ -1,14 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
-import {  Dropdown, Form, Input, message, Modal, Tag } from "antd";
-import {  IconDots } from '@tabler/icons-react';
+import { Dropdown, Form, Input, message, Modal, Tag } from "antd";
+import { IconDots } from "@tabler/icons-react";
 import { useAppDispatch } from "@hooks/redux";
-import { convertLeadToJobThunk,leadDeleteThunk,transferLeadThunk } from "@redux/feature/lead/leadThunk";
+import { leadConvertThunk,leadDeleteThunk,transferLeadThunk,} from "@redux/feature/lead/leadThunk";
 import { useRouter } from "next/navigation"; 
 import { CreateFormModal } from "./Models/CreateFormModel";
 import ConfirmationModal from "./ConfirmationModal";
 import transferLeadFields from "../formFields/transferLeadFields";
+import CloseLeadModal from "../leadDetail/LeadQuotations/CloseLeadModal";
+import { QuotationResponse } from "@redux/feature/quotation/IQuotationState";
 const { TextArea } = Input;
 
 type Step = {
@@ -27,6 +29,7 @@ type StageProgressProps = {
   activeStep?: string;
   lead?: any;
   idClassName?: string;
+  quotations?: QuotationResponse[];
 };
 
 const actions = [
@@ -50,10 +53,10 @@ const actions = [
   //   key: "referanceid",
   //   label: "Referance ID",
   // },
-  // {
-  //   key: "converttolead",
-  //   label: "Convert to Lead",
-  // },
+  {
+    key: "converttolead",
+    label: "Convert to Lead",
+  },
   // {
   //   key: "sendwelcomelatter",
   //   label: "Send Welcome Letter",
@@ -72,6 +75,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
   activeStep,
   lead,
   idClassName,
+  quotations,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
@@ -94,37 +98,6 @@ const StageProgress: React.FC<StageProgressProps> = ({
     setIsModalOpen(true);
   };
 
-  const handleSubmit = async (values: any) => {
-    if (modalType === "WON") {
-      try {
-        setLoading(true)
-        const response = await dispatch(convertLeadToJobThunk({ leadId: lead.lead.leadId, message: values.message, status: "WON" })).unwrap()
-        message.success(response?.response?.message)
-        form.resetFields();
-        router.push(`/job`)
-      } catch (err) {
-        message.error(err)
-      }finally{
-        setLoading(false)
-      }
-
-    } else if (modalType === "LOST") {
-      try {
-        setLoading(true)
-        const response = await dispatch(convertLeadToJobThunk({ leadId: lead.lead.leadId, message: values.message, status: "LOST" })).unwrap()
-        form.resetFields();
-        message.success("Lead mark as lost successfully")
-        router.push(`/leads`)
-      } catch (err) {
-        message.error(err)
-      }finally{
-        setLoading(false)
-      }
-    }
-    setIsModalOpen(false);
-    setModalType(null);
-  };
-
   const handleActionSelect = (action: string) => {
     setSelectedAction(action);
     switch (action) {
@@ -142,6 +115,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
       case "referanceid":
         break;
       case "converttolead":
+        setConfirmModalVisible(true);
         break;
       case "sendwelcomelatter":
         break;
@@ -152,7 +126,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
     }
   };
 
-  const handleTransferSubmit = async (values: any) => { 
+  const handleTransferSubmit = async (values: any) => {
     try {
       setLoading(true);
       const response = await dispatch(
@@ -172,12 +146,27 @@ const StageProgress: React.FC<StageProgressProps> = ({
 
   const handleDelete = async (leadId: string) => {
     try {
+      setLoading(true);
       await dispatch(leadDeleteThunk(leadId)).unwrap();
       message.success("Lead deleted successfully");
+      router.push(`/leads`);
     } catch (err) {
+      setLoading(false);
       message.error(err || "Failed to delete lead");
     } finally {
-      router.push(`/leads`);
+      setLoading(false);
+    }
+  };
+
+  const handleConvertToLead = async (leadId: string) => {
+    try {
+      setLoading(true);
+      await dispatch(leadConvertThunk(leadId)).unwrap();
+      message.success("Lead converted successfully");
+      setConfirmModalVisible(false);
+    } catch (err) {
+      setLoading(false);
+      message.error(err || "Failed to convert lead");
     }
   };
   
@@ -275,7 +264,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
         </Dropdown>
       </div>
     )} 
-      <Modal
+      {/* <Modal
         title={modalType === "WON" ? "Won" : modalType === "LOST" ? "Lost" : ""}
         open={isModalOpen}
         onCancel={() => {
@@ -306,7 +295,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
 
           <button id="reasonFormSubmit" type="submit" hidden />
         </Form>
-      </Modal>
+      </Modal> */}
 
       {isTransferModalOpen && (
         <CreateFormModal 
@@ -323,13 +312,36 @@ const StageProgress: React.FC<StageProgressProps> = ({
         />
       )}
 
+      {isModalOpen && (
+        <CloseLeadModal
+          isModalOpen={isModalOpen}
+          setIsModalOpen={() => setIsModalOpen(false)}
+          active={modalType}
+          leadData={lead}
+          quotations={quotations}
+        />
+      )}
+
       {confirmModalVisible && (
         <ConfirmationModal
           open={confirmModalVisible}
-          type="danger"
-          onClose={() => setConfirmModalVisible(false)}
-          onConfirm={() => handleDelete(lead?.lead?.leadId)}
-          message="Are you sure you want to delete this lead?"
+          type={selectedAction === "delete" ? "danger" : "warning"}
+          loading={loading}
+          onClose={() => {
+            setConfirmModalVisible(false);
+          }}
+          onConfirm={() => {
+            if (selectedAction === "delete") {
+              handleDelete(lead?.lead?.leadId);
+            } else if (selectedAction === "converttolead") {
+              handleConvertToLead(lead?.lead?.leadId);
+            }
+          }}
+          message={
+            selectedAction === "delete"
+              ? "Are you sure you want to delete this lead?"
+              : "Are you sure you want to convert this to a lead?"
+          }
         />
       )}
     </div>

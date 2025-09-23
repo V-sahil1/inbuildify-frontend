@@ -1,19 +1,12 @@
 import React, { useState } from "react";
-import {
-  Modal,
-  Tabs,
-  Form,
-  Input,
-  Radio,
-  Select,
-  Checkbox,
-  Button,
-  Alert,
-  Space,
-} from "antd";
+import { Modal, Tabs, Form, Input, Radio, Select, Alert, message } from "antd";
 import type { TabsProps } from "antd";
 import { QuotationResponse } from "@redux/feature/quotation/IQuotationState";
 import { IconFileText } from "@tabler/icons-react";
+import { useRouter } from "next/router";
+import { convertLeadToJobThunk } from "@redux/feature/lead/leadThunk";
+import { useAppDispatch } from "@hooks/redux";
+import { enumToReadable } from "@lib/utils/enumToRedable"; 
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -22,6 +15,7 @@ interface CloseLeadModalProps {
   isModalOpen: boolean;
   setIsModalOpen: (open: boolean) => void;
   leadData?: any;
+  active?: string;
   quotations?: QuotationResponse[];
 }
 
@@ -29,39 +23,71 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
   isModalOpen,
   setIsModalOpen,
   leadData,
+  active,
   quotations,
 }) => {
   const [form] = Form.useForm();
-  const [activeTab, setActiveTab] = useState<string>("closedWon");
+  const [activeTab, setActiveTab] = useState<string>(active || "WON");
   const [selectedQuotation, setSelectedQuotation] = useState<string>("");
-  const [sendEmailNotification, setSendEmailNotification] =
-    useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+  // const [sendEmailNotification, setSendEmailNotification] =
+  //   useState<boolean>(true);
 
   const handleTabChange = (key: string) => {
     setActiveTab(key);
     form.resetFields();
   };
 
-  const handleSave = () => {
-    form
-      .validateFields()
-      .then((values) => {
-        console.log("Form values:", values);
-        console.log("Active tab:", activeTab);
-        console.log("Send email notification:", sendEmailNotification);
-        // Handle form submission logic here
+  const handleSave = async (values) => {
+    await form.validateFields();
+    if (activeTab === "WON") {
+      try {
+        setLoading(true);
+        const response = await dispatch(
+          convertLeadToJobThunk({
+            leadId: leadData?.leadId,
+            message: values.message,
+            quotation_version_id: selectedQuotation,
+            status: "WON",
+          })
+        ).unwrap();
+        message.success(response?.response?.message);
+        form.resetFields();
+        router.push(`/job`);
         setIsModalOpen(false);
-      })
-      .catch((errorInfo) => {
-        console.log("Validation failed:", errorInfo);
-      });
+      } catch (err) {
+        message.error(err);
+      } finally {
+        setLoading(false);
+      }
+    } else if (activeTab === "LOST") {
+      try {
+        setLoading(true);
+        const response = await dispatch(
+          convertLeadToJobThunk({
+            leadId: leadData?.leadId,
+            message: values.message,
+            status: "LOST",
+          })
+        ).unwrap();
+        form.resetFields();
+        message.success("Lead mark as lost successfully");
+        router.push(`/leads`);
+        setIsModalOpen(false);
+      } catch (err) {
+        message.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
   };
 
   const closedWonContent = (
     <div>
-      <div className="mb-6">
+      {/* <div className="mb-6">
         <div className="grid grid-cols-3 gap-0 border border-gray-300 rounded overflow-hidden">
-          {/* Header Row */}
           <div className="px-3 py-2 bg-gray-100 border-r border-gray-300 font-medium text-xs text-gray-600">
             Description
           </div>
@@ -72,7 +98,6 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
             Deposit Amount ($)
           </div>
 
-          {/* Data Row */}
           <div className="px-3 py-3 border-r border-gray-300 border-t ">
             <div className="font-medium text-sm mb-1">
               {leadData?.id || "MYH00492-I1"}
@@ -86,7 +111,7 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
             {leadData?.initialDeposit || "5000.00"}
           </div>
         </div>
-      </div>
+      </div> */}
 
       <div className="mb-6">
         <label className="block mb-2 font-medium">Quotations</label>
@@ -95,20 +120,35 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
           type="warning"
           className="mb-4"
         />
-
+        <Form.Item
+          name="quotationId"
+          rules={[
+            {
+              required: activeTab === "WON",
+              message: "Please select a quotation",
+            },
+          ]}
+          className="m-0"
+        >
+          <Radio.Group
+            onChange={(e) => setSelectedQuotation(e.target.value)}
+            value={selectedQuotation}
+            className="w-full"
+          >
         <div className="border border-gray-300 rounded-md overflow-hidden">
           <div className="sticky top-0 z-10 bg-white border-b border-gray-200">
             <div className="grid grid-cols-[40px_1fr_120px_120px] px-4 py-3 bg-gray-50 font-medium">
               <div></div>
               <div>Reference ID</div>
               <div>Cost</div>
-              <div>Sketch Number</div>
+              {/* <div>Sketch Number</div> */}
             </div>
           </div>
 
           <div className="max-h-100 overflow-y-auto">
             {quotations?.length > 0 ? (
               quotations?.map((quotation, index) => (
+                    <Form.Item>
                 <div
                   key={quotation?.slugId}
                   className={`grid grid-cols-[40px_1fr_120px_120px] px-4 py-3 items-center ${
@@ -118,13 +158,21 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
                   }`}
                 >
                   <Radio
-                    checked={selectedQuotation === quotation?.quotationId}
-                    onChange={() =>
-                      setSelectedQuotation(quotation?.quotationId)
+                    checked={
+                            selectedQuotation ===
+                            (quotation?.versions[0] as any)
+                              ?.quotationVersionItemId
+                          }
+                          value={
+                            (quotation?.versions[0] as any)
+                              ?.quotationVersionItemId
                     }
                   />
                   <div className="flex items-center gap-2">
-                    <span>{quotation.slugId}</span>
+                    <span>
+                            {quotation.slugId} (V
+                            {(quotation?.versions[0] as any)?.versionNumber})
+                          </span>
                     <span
                       className={`px-2 py-0.5 rounded text-xs font-medium ${
                         quotation?.leadStatus === "COMPLETED"
@@ -141,10 +189,11 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
                       minimumFractionDigits: 2,
                     })}
                   </div>
-                  <div>
+                        {/* <div>
                     <Input onChange={(e) => {}} />
+                  </div> */}
                   </div>
-                </div>
+                </Form.Item>
               ))
             ) : (
               <div className="flex flex-col items-center justify-center p-4">
@@ -159,11 +208,13 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
             )}
           </div>
         </div>
+          </Radio.Group>
+        </Form.Item>
       </div>
 
       <div className="mb-6">
         <label className="block mb-2 font-medium">Notes</label>
-        <Form.Item name="notes" className="m-0">
+        <Form.Item name="message" className="m-0" rules={[{ required: true }]}>
           <TextArea
             rows={4}
             placeholder="Add notes..."
@@ -201,7 +252,11 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
 
       <div className="mb-6">
         <label className="block mb-2 font-medium">Comments</label>
-        <Form.Item name="comments" className="m-0">
+        <Form.Item
+          name="message"
+          className="m-0"
+          rules={[{ required: true, message: "Please add a comment" }]}
+        >
           <TextArea
             rows={4}
             placeholder="Add comments..."
@@ -221,13 +276,13 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
 
   const tabItems: TabsProps["items"] = [
     {
-      key: "closedWon",
-      label: "Closed Won",
+      key: "WON",
+      label: "Won",
       children: closedWonContent,
     },
     {
-      key: "closedLost",
-      label: "Closed Lost",
+      key: "LOST",
+      label: "Lost",
       children: closedLostContent,
     },
   ];
@@ -236,28 +291,16 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
     <Modal
       open={isModalOpen}
       onCancel={() => setIsModalOpen(false)}
-      title="Close"
+      title={`Close as ${enumToReadable(activeTab)}`}
       width={800}
-      footer={
-        <div className="flex justify-between items-center">
-          <Checkbox
-            checked={sendEmailNotification}
-            onChange={(e) => setSendEmailNotification(e.target.checked)}
-          >
-            Send an email notification to customer
-          </Checkbox>
-          <Space>
-            <Button onClick={() => setIsModalOpen(false)}>Cancel</Button>
-            <Button type="primary" onClick={handleSave}>
-              Save
-            </Button>
-          </Space>
-        </div>
-      }
+      confirmLoading={loading}
+      onOk={() => form.submit()}
+      okText="Save"
+      centered
     >
-      <Form form={form} layout="vertical">
+      <Form form={form} layout="vertical" onFinish={handleSave}>
         <div className="mb-4">
-          <label className="block mb-2 font-medium">Stage</label>
+          {/* <label className="block mb-2 font-medium">Stage</label> */}
           <Tabs
             activeKey={activeTab}
             onChange={handleTabChange}

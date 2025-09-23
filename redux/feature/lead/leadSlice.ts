@@ -9,6 +9,7 @@ import {
   getLeadSourcesThunk,
   getLeadThunk,
   getQuotationsByLeadIdThunk,
+  leadConvertThunk,
   leadDeleteThunk,
   transferLeadThunk,
   updateLeadContactThunk,
@@ -165,6 +166,19 @@ export const leadSlice = createSlice({
         property: null,
         createdQuotations: { quotations: [] },
       };
+    });
+    builder.addCase(leadConvertThunk.fulfilled, (state, action) => {
+      state.leadDetail.lead.status = "NEW";
+      state.leadDetail.createdQuotations.quotations = [];
+      state.leads = state.leads.map((lead) => {
+        if (lead.leadId === action.payload.leadId) {
+          return {
+            ...lead,
+            status: "NEW",
+          };
+        }
+        return lead;
+      });
     });
     builder.addCase(transferLeadThunk.fulfilled, (state, action) => {
       state.leadDetail.lead.assigneeName = action.payload.assignee.name;

@@ -114,6 +114,19 @@ export const leadDeleteThunk = createAsyncThunk(
     }
   }
 );
+export const leadConvertThunk = createAsyncThunk(
+  "lead/leadConvert",
+  async (leadId: string, { rejectWithValue }) => {
+    try {
+      const response: ApiResponse<any> = await api.put(
+        `${API_ENDPOINTS.LEAD_CONVERT}/${leadId}`
+      );
+      return {data:response.data,leadId};
+    } catch (err: any) {
+      return rejectWithValue(err?.message);
+    }
+  }
+); 
 
 export const transferLeadThunk = createAsyncThunk(
   "lead/transferLead",
@@ -162,12 +175,13 @@ export const convertLeadToOpportunityThunk = createAsyncThunk(
 
 export const convertLeadToJobThunk = createAsyncThunk(
     "lead/convertLeadToJob",
-    async (payload: { leadId: string, message: string, status: string }, { rejectWithValue }) => {
+    async (payload: { leadId: string, message: string, status: string, quotation_version_id?: string }, { rejectWithValue }) => {
         try {
             const response: ApiResponse<any> = await api.post(`${API_ENDPOINTS.CONVERT_LEAD_TO_JOB}/${payload.leadId}`, {
                 data: {
                     message: payload.message,
-                    status: payload.status
+                    status: payload.status,
+                    quotation_version_id: payload?.quotation_version_id
                 }
             });
             return {response , payload};

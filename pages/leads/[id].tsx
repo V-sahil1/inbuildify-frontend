@@ -279,6 +279,7 @@ function App() {
           steps={steps}
           activeStep={isOpportunity ? "proposal" : "convert"}
           lead={leadDetail}
+          quotations={createdQuotations}
         />
       </div>
  

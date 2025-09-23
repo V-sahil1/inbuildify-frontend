@@ -29,6 +29,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
     items,
     package: selectedPackageFromSlice,
   } = useAppSelector((state: RootState) => state.quotation);
+  // console.log("🚀 ~ ItemsPanel ~ category:", category)
   const quantityRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const handleItemAdd = (itemId: string, price: number) => {
     const quantity = quantityRefs.current[itemId]?.value || '1';

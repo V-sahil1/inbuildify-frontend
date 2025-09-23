@@ -29,7 +29,7 @@ import {
 import { message, Result, Spin } from "antd";
 import QuotationFilter from "@/components/quotation/QuotationFilter";
 import { updateLeadStatus } from "@redux/feature/lead/leadSlice";
-import { clearQuotation } from "@redux/feature/quotation/quotationSlice";
+import { clearQuotation, setQuotationItems } from "@redux/feature/quotation/quotationSlice";
 import { usePdf } from "@hooks/usePdf";
 import QuatationPdf from "@/components/common/QuatationPdf";
 import calculateTotalQuotation from "@lib/utils/calculateTotalQuotation";
@@ -63,6 +63,7 @@ const QuotationManager = () => {
     status: quotationStatus,
     quoteDetails,
   } = useAppSelector((state: RootState) => state.quotation);
+  const lastFetchedFiltersRef = useRef<{ range?: string; dwelling_type?: string } | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<Plan | undefined>(plan);
   const [selectedPackage, setSelectedPackage] = useState<Package | undefined>(
     undefined
@@ -109,9 +110,9 @@ const QuotationManager = () => {
   }, [facade]);
 
   // Function to check if a field should be disabled
-  const isFieldDisabled = (fieldName: string) => {
-    return !!quoteVersionId && !isEditMode;
-  };
+  // const isFieldDisabled = (fieldName: string) => {
+  //   return !!quoteVersionId && !isEditMode;
+  // };
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [extraItem, setExtraItem] = useState(false);
@@ -174,6 +175,74 @@ const QuotationManager = () => {
     };
   }, [dispatch, router]);
 
+  useEffect(() => {
+    const fetchAllCategoryItems = async () => {
+      if (!quotationFilters?.range || !quotationFilters?.dwelling_type) return;
+
+      // Prevent fetching again if filters didn't change
+      if (
+        lastFetchedFiltersRef.current?.range === quotationFilters.range &&
+        lastFetchedFiltersRef.current?.dwelling_type === quotationFilters.dwelling_type
+      ) {
+        return;
+      }
+
+      try {
+        const responses = await Promise.all(
+          categoryData.map(async (cat) => {
+            if (!cat.isExpanded) {
+              dispatch(toggleExpand(cat.categoryId));
+            }
+            return dispatch(
+              fetchCategoryItems({
+                categoryId: cat.categoryId,
+                filters: {
+                  range: quotationFilters.range,
+                  dwelling_type: quotationFilters.dwelling_type,
+                },
+              })
+            ).unwrap();
+          })
+        );
+
+        // ✅ Step 2: After fetching, auto-add INCLUDED items
+        responses.forEach((res) => {
+          res.items?.forEach((item: any) => {
+            if (item?.costType === "INCLUDED") {
+              // only add if not already in quotation
+              const alreadyAdded = items.some((i) => i.itemId === item.categoryItemId);
+              if (!alreadyAdded) {
+                dispatch(
+                  setQuotationItems({
+                    itemId: item.categoryItemId,
+                    quantity: 1,
+                    price: Number(item?.cost ?? 0),
+                  })
+                );
+              }
+            }
+          });
+        });
+
+        lastFetchedFiltersRef.current = {
+          range: quotationFilters.range,
+          dwelling_type: quotationFilters.dwelling_type,
+        };
+      } catch (error) {
+        message.error(error || "Failed to fetch category items");
+      }
+    };
+
+    if (categoryData.length > 0) {
+      fetchAllCategoryItems();
+    }
+  }, [
+    quotationFilters?.range,
+    quotationFilters?.dwelling_type,
+    dispatch,
+    categoryData.length,
+    items, // dependency so INCLUDED sync works correctly
+  ]);
   const { previewPdf } = usePdf(QuatationPdf);
   const getCategoryById = useCallback(
     (categoryId: string) =>
@@ -200,6 +269,7 @@ const QuotationManager = () => {
             },
           })
         ).unwrap();
+        console.log("🚀 ~ handleFetchCategoryItems ~ response:", response)
         // if(response.categoryId === BaseCategory?.categoryId){
         //   const mappedItems = response.items.map((item) => ({
         //     itemId: item.categoryItemId,

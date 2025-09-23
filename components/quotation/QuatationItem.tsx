@@ -1,4 +1,4 @@
-import { useAppDispatch, useAppSelector } from "@hooks/redux";
+import { useAppSelector } from "@hooks/redux";
 import { enumToReadable } from "@lib/utils/enumToRedable";
 import { RootState } from "@redux/feature/store";
 import { IconPlus, IconX } from "@tabler/icons-react";
@@ -39,6 +39,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
       setQuantity(value ?? 1);
     };
 
+    const isIncluded = item.costType === "INCLUDED";
     return (
       <div
         className={
@@ -87,23 +88,24 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
             type="number"
             size="small"
             className="w-full text-center"
+            disabled={isIncluded || disabled}  
           />
         </div>
 
         {/* Price */}
         <div className="table-cell text-center p-3 align-middle">
-          ${item.cost ?? 0}
+          {!isIncluded ? `$${item.cost ?? 0}` : " "}
         </div>
 
         {/* Total */}
         <div className="table-cell text-center p-3 align-middle">
-          ${(item.cost ?? 0) * quantity}
+          {!isIncluded ? `$${(item.cost ?? 0) * quantity}` : " "}
         </div>
 
         {/* Action */}
         <div className="table-cell text-center p-3 align-middle">
           <Button
-            disabled={disabled}
+            disabled={isIncluded || disabled}
             type={isSelected ? "primary" : "dashed"}
             shape="circle"
             size="small"

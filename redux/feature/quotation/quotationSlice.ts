@@ -2,7 +2,7 @@ import { PropertyDetails } from "data/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Item } from "../masterPriceList/iMasterPriceListState";
 import { Status } from "@lib/constants/enum";
-import { createQuotation, getQuotationById, getQuotationVersionById } from "./quotationThunk";
+import { createQuotation, getQuotationVersionById } from "./quotationThunk";
 import { ILeadContact } from "../lead/ILeadState";
 import { Package } from "../package/IPackageState";
 
@@ -78,7 +78,8 @@ const quotationSlice = createSlice({
             state.items = [{ itemId: action.payload.categoryItemId, quantity: 1, price: action.payload.cost }, ...state.items];
         },
         setQuotationItems(state, action: PayloadAction<{itemId:string,quantity:number,price:number}>) {
-            state.items = [{ itemId: action.payload.itemId, quantity: action.payload.quantity, price: action.payload.price }, ...state.items];
+            // state.items = [{ itemId: action.payload.itemId, quantity: action.payload.quantity, price: action.payload.price }, ...state.items];
+            state.items.push({ itemId: action.payload.itemId, quantity: action.payload.quantity, price: action.payload.price });
         },
         removeQuotationItem(state, action: PayloadAction<string>) {
             state.items = state.items.filter((item) => item.itemId !== action.payload);
@@ -90,8 +91,9 @@ const quotationSlice = createSlice({
             state.facade = action.payload;
         },
         setQuotationPackage(state, action: PayloadAction<any>) {
-            state.package = action.payload; 
-            state.items = action.payload.categoryItems.map((item) => ({ itemId: item.id, quantity: 1, price: item.price }));
+            state.package = action.payload;
+            const uniqueItems = action.payload.categoryItems.filter((item) => !state.items.some((i) => i.itemId === item.id));
+            state.items = [...state.items,...uniqueItems.map((item) => ({ itemId: item.id, quantity: 1, price: item.price }))];
         },
         updateQuotationItem: (state, action) => {
             const { itemId, quantity } = action.payload;
