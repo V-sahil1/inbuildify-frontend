@@ -16,24 +16,22 @@ const useTransferLeadFields = (): readonly ContractorFormField[] => {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state?.auth);
   const { users, status } = useAppSelector((state) => state?.user);
-
+  const fetchUsers = async () => {
+    try {
+      await dispatch(getUsersThunk()).unwrap();
+    } catch {
+      message.error("Failed to fetch users");
+    }
+  };
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        await dispatch(getUsersThunk()).unwrap();
-      } catch {
-        message.error("Failed to fetch users");
-      }
-    };
-
-    if (status === Status.IDLE) {
+    if (status.users === Status.IDLE) {
       fetchUsers();
     }
-  }, [dispatch, status]);
+  }, [dispatch, status.users]);
 
-  const assigneeOptions = users.reduce((acc, user) => {
-    if (user.email !== user.email) {
-      acc.push({ label: user.name, value: user.usersId });
+  const assigneeOptions = users.reduce((acc, u) => {
+    if (u.email !== user?.email) {
+      acc.push({ label: u?.name, value: u?.usersId });
     }
     return acc;
   }, [] as { label: string; value: string }[]);

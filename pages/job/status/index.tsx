@@ -1,10 +1,12 @@
 "use client";
-import React, { useState } from "react";
-import { Steps, Table, Typography } from "antd";
+import React, { useEffect, useState } from "react";
+import { message, Steps, Table, Typography } from "antd";
 import StageProgress from "@/components/common/StageProgress";
 import { jobWorkflowChecklistFields } from "@/components/formFields/jobWorkflowChecklistFields";
-import { WorkStepsChecklist } from "data/sampleData";
 import TimelineActionsBar from "@/components/common/TimeLineComponents/TimelineActionsBar";
+import { useAppDispatch, useAppSelector } from "@hooks/redux";
+import { Status } from "@lib/constants/enum";
+import { fetchWorkflowProcess } from "@redux/feature/workflow/workflowThunk";
 
 const ClickableStep = ({ title, isCurrent, onClick }) => {
   return (
@@ -23,10 +25,22 @@ const index = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [activeTab, setActiveTab] = useState("Own");
   const [finishedSteps, setFinishedSteps] = useState<number[]>([]);
+  const { workflowProcess, status } = useAppSelector((state) => state.workflow);
+  const dispatch = useAppDispatch();
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
   };
 
+  const fetchWorkflow = async () => {
+    try {
+      await dispatch(fetchWorkflowProcess());
+    } catch (error) {
+      message.error(error);
+    }
+  };
+  useEffect(() => {
+    if (status === Status.IDLE) fetchWorkflow();
+  }, [status]);
   const handleStepClick = (index: number) => {
     setActiveStep(index);
 
@@ -42,8 +56,8 @@ const index = () => {
     }
   };
 
-  const currentStepTitle = WorkStepsChecklist[activeStep]?.title;
-  const currentStepChecklist = WorkStepsChecklist[activeStep]?.checklist || [];
+  const currentStepTitle = workflowProcess[activeStep]?.name;
+  const currentStepChecklist = workflowProcess[activeStep]?.checklist || [];
   return (
     <div className="bg-body-color p-6">
       <div>
@@ -76,7 +90,7 @@ const index = () => {
 
         <div className="m-3">
           <Steps current={activeStep} labelPlacement="vertical">
-            {WorkStepsChecklist.map((step, index) => {
+            {workflowProcess.map((step, index) => {
               const status = finishedSteps.includes(index)
                 ? "finish"
                 : index === activeStep
@@ -89,7 +103,7 @@ const index = () => {
                   status={status}
                   title={
                     <ClickableStep
-                      title={step.title}
+                      title={step.name}
                       isCurrent={activeStep === index}
                       onClick={() => handleStepClick(index)}
                     />

@@ -1,5 +1,5 @@
 import { enumToReadable } from "@lib/utils/enumToRedable";
-import { IconEdit, IconTrash } from "@tabler/icons-react";
+import { IconEdit, IconLink, IconTrash } from "@tabler/icons-react";
 import { Tag, Tooltip } from "antd";
 
 interface PricingItemProps {
@@ -14,9 +14,19 @@ export const PricingItem = ({ item, handleClick }: PricingItemProps) => {
       className="flex items-center gap-4 p-4 border border-border-color rounded-lg hover:border-gray-300 bg-gray-50 text-font-color"
     >
       <div className="flex-1  items-center justify-between">
-        <div className="mb-2 font-medium flex gap-10 text-[16px] break-all">
-          <Tooltip title={item?.shortDescription || item?.description}> <p className="line-clamp-2"> {item?.shortDescription || item?.description} </p></Tooltip>
+        <div className="mb-2  flex gap-10 text-[18px] break-all">
+          <p className="line-clamp-2 font-bold"> {item?.name} </p>
         </div>
+        <div className="mb-2 font-medium flex gap-10 text-[16px] break-all">
+          <Tooltip title={item?.shortDescription || item?.description}>
+            {" "}
+            <p className="line-clamp-2">
+              {" "}
+              {item?.shortDescription || item?.description}{" "}
+            </p>
+          </Tooltip>
+        </div>
+        {item?.timespent && <p>Time spent: {item?.timespent} days</p>}
         <div className="flex gap-3">
           {item?.costType && (
             <Tag color="yellow" className="text-[10px]">
@@ -49,6 +59,18 @@ export const PricingItem = ({ item, handleClick }: PricingItemProps) => {
       </div>
 
       <div className="flex gap-4">
+        {item?.attachment && (
+          <button
+            className="rounded-md p-1 group"
+            onClick={() => window.open(item.attachment, "_blank")}
+          >
+            <IconLink
+              size={20}
+              className="text-font-color group-hover:text-blue"
+            />
+          </button>
+        )}
+
         <button className="rounded-md p-1 group" onClick={() => handleClick("edit", item)}>
           <IconEdit
             size={20}

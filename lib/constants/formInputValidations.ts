@@ -112,6 +112,32 @@ export const descriptionRules = [
   },
 ];
 
+export const optionalDescriptionRules = [
+  {
+    validator: (_: any, value: string) => { 
+      if (!value) {
+        return Promise.resolve();
+      }
+
+      const trimmed = value.trim();
+ 
+      if (!trimmed) {
+        return Promise.reject("Description cannot be only spaces");
+      }
+
+      if (trimmed.length < 5) {
+        return Promise.reject("Description must be at least 5 characters");
+      }
+
+      if (trimmed.length > 500) {
+        return Promise.reject("Description must be at most 500 characters");
+      }
+
+      return Promise.resolve();
+    },
+  },
+];
+
 export const dueDateRules = [
   { required: true, message: "Due date is required" },
   {

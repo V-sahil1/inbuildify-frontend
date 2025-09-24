@@ -72,6 +72,11 @@ class API_ENDPOINTS {
   public static GET_PACKAGE_ITEMS = `${this.PACKAGE_BASE}/category/items`;
   public static FACADE_BASE = "/facade";
 
+  //  Workflow Process
+  public static WORKFLOW_PROCESS_BASE = "/workflow-process";
+  public static WORKFLOW_PROCESS_TASK = `${this.WORKFLOW_PROCESS_BASE}/task`;
+  public static WORKFLOW_PROCESS_ORDER = `${this.WORKFLOW_PROCESS_BASE}/display/order`;
+
   // Property
   public static PROPERTY_BASE = "/property";
 

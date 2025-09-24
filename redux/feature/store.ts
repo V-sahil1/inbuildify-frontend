@@ -11,9 +11,10 @@ import quotationReducer from "./quotation/quotationSlice";
 import { dashboardReducer } from "./dashboard/dashboardSlice";
 import typesReducer from "./types/typesSlice";
 import locationReducer from "./location/locationSlice";
-import contractorReducer from "./contractor/contractorSlice"; 
+import contractorReducer from "./contractor/contractorSlice";
 import actionReducer from "./action/actionSlice";
-import userReducer from "./user/userSlice"
+import userReducer from "./user/userSlice";
+import workflowReducer from "./workflow/workflowSlice";
 
 const authPersistConfig = {
   key: "auth",
@@ -35,6 +36,7 @@ const appReducer = combineReducers({
   contractor: contractorReducer,
   action: actionReducer,
   user: userReducer,
+  workflow: workflowReducer,
 });
 
 const rootReducer = (state: ReturnType<typeof appReducer> | undefined, action: any) => {
@@ -58,7 +60,10 @@ const persistConfig = {
     "package",
     "types",
     "location",
-    "contractor","action","user",
+    "contractor",
+    "action",
+    "user",
+    "workflow",
   ],
 };
 

@@ -4,6 +4,7 @@ import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
 import dynamic from "next/dynamic";
 import Breadcrumb from "@/components/common/Breadcrumb";
 import {
+  IconAdjustmentsCog,
   IconCalendarMonth,
   IconChartFunnel,
   IconClockHour3,
@@ -19,6 +20,7 @@ import { Status } from "@lib/constants/enum";
 import { getDwellingTypes, getRanges } from "@redux/feature/types/typesThunk";
 import Service from "./components/Service";
 import LeadSource from "./components/LeadSource";
+import WorkflowProcessPage from "./components/WorkflowProcess";
 // import Configuration from "./components/Configuration";
 
 const MasterPriceList = dynamic(() => import("./components/MasterPriceList"), {
@@ -90,6 +92,13 @@ const TABS = [
     icon: IconLabelImportant,
     breadcrumb: "Lead Source",
     component: LeadSource,
+  },
+  {
+    id: "workflow-process",
+    label: "Workflow Process",
+    icon: IconAdjustmentsCog,
+    breadcrumb: "Workflow Process",
+    component: WorkflowProcessPage,
   },
 ];
 
