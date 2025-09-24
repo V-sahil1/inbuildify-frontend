@@ -1,3 +1,4 @@
+import { Construction } from '@redux/feature/construction/IConstructionState';
 import { ColorCategory, JobVariationDataType, JobVariationItems, LeadDetails } from './types';
 // export const quotationData: Quotation = {
 //   id: 'MYH23070085',
@@ -533,3 +534,50 @@ export const JobVariationCreateTableData: JobVariationItems[] = [
     total: 16.40,
   },
 ];
+
+export const ConstructionDashboardData: Construction[] = [
+  {
+    id: 1,
+    customerName: 'John Doe',
+    jobAddress: '123 Main St',
+    builderName: 'My Home',
+    jobTitle: 'single Storey - Standard Build',
+    currentStage: 'Frame stage',
+    dueDate: '2023-09-24',
+    siteSupervisor: 'Patrick',
+    status: 'readyforconstruction',
+  },
+  {
+    id: 2,
+    customerName: 'Lionel Messi',
+    jobAddress: '123 Main St',
+    builderName: 'PWC',
+    jobTitle: 'single Storey - Standard Build',
+    currentStage: 'Base Stage',
+    dueDate: '2023-10-20',
+    siteSupervisor: '',
+    status: 'underconstruction',
+  },
+  {
+    id: 3,
+    customerName: 'Bill Gates',
+    jobAddress: '123 Main St',
+    builderName: 'Sahara',
+    jobTitle: 'single Storey - Standard Build',
+    currentStage: 'Base Stage',
+    dueDate: '2023-08-05',
+    siteSupervisor: '',
+    status: 'completed',
+  },
+  {
+    id: 4,
+    customerName: 'Ronaldo',
+    jobAddress: '123 Main St',
+    builderName: 'Sahara',
+    jobTitle: 'single Storey - Standard Build',
+    currentStage: 'Base Stage',
+    dueDate: '2023-08-05',
+    siteSupervisor: '',
+    status: 'onhold',
+  }
+]

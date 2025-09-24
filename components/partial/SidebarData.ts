@@ -3,6 +3,7 @@ import {
   IconBuildingSkyscraper,
   IconUsers,
   IconUsersGroup,
+  IconCrane,
 } from "@tabler/icons-react";
 
 export const menuList = [
@@ -48,6 +49,12 @@ export const menuList = [
     icon: IconUsersGroup,
     link: "Users",
     url: "/users",
+    roles: ["builder", "contractor", "customer"],
+  },
+  {
+    icon: IconCrane,
+    link: "Construction",
+    url: "/construction",
     roles: ["builder", "contractor", "customer"],
   },
   {
