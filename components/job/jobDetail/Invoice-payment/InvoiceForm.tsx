@@ -16,7 +16,6 @@ interface InvoiceFormProps {
   initialValues?: any;
   mode: "create" | "edit";
   onFinish: (values: any, mode: "create" | "edit") => void;
-  onCancel: () => void;
   totalAmount?: number; // Pass total amount for percentage calculation
 }
 
@@ -24,7 +23,6 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
   initialValues,
   mode,
   onFinish,
-  onCancel,
   totalAmount = 1000, // Example total
 }) => {
   const [form] = Form.useForm();
@@ -49,10 +47,6 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
   };
 
   return (
-    <Card
-      title={mode === "edit" ? "Edit Invoice" : "New Invoice"}
-      extra={<Button onClick={onCancel} icon={<IconX />} />}
-    >
       <Form
         form={form}
         layout="vertical"
@@ -108,7 +102,7 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
           <DatePicker style={{ width: "100%" }} />
         </Form.Item>
 
-        <Space>
+        <Space className="flex justify-end">
           <Button htmlType="submit">
             {mode === "edit" ? "Update" : "Save"}
           </Button>
@@ -121,6 +115,5 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
           </Button>
         </Space>
       </Form>
-    </Card>
   );
 };

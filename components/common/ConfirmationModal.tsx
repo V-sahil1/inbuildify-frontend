@@ -203,6 +203,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                     size="large"
                     onClick={handleConfirm}
                     loading={loading}
+                    disabled={loading}
                     className={`h-[40px] rounded-lg font-medium text-base ${btnClass}`}
                   >
                     {confirmText}

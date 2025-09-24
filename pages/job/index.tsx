@@ -97,45 +97,6 @@ const JobVariationData = [
   },
 ];
 
-const jobInvoicePaymentSummary = [
-  { title: "Total Cost", value: 450280.0 },
-  { title: "Invoice Generated", value: 35600.45 },
-  { title: "Payment Received", value: -45000.0 },
-];
-const jobInvoicePaymentData: any[] = [
-  {
-    id: "MYH00486-I2",
-    desc: "2nd deposit",
-    amount: 35600.45,
-    payment: 0.0,
-    status: "OVERDUE",
-    date: "17-07-2023",
-  },
-  {
-    id: "MYH00486-I4",
-    desc: "base invoice",
-    amount: 45000.0,
-    payment: 0.0,
-    status: "DRAFT",
-    date: "06-08-2023",
-  },
-  {
-    id: "MYH00486-I1",
-    desc: "Initial Deposit",
-    amount: 5000.0,
-    payment: 5000.0,
-    status: "PAID",
-    date: "27-06-2023",
-  },
-  {
-    id: "MYH00486-I3",
-    desc: "Returns",
-    amount: -50000.0,
-    payment: -50000.0,
-    status: "PAID",
-    date: "31-07-2023",
-  },
-];
 export default function JobDetail() {
 
 
@@ -169,10 +130,7 @@ export default function JobDetail() {
             <JobVariationManager />
           </TabPane>
           <TabPane tab="Invoices & Payments" key="Invoices & Payments">
-            <JobInvoicePayment
-              data={jobInvoicePaymentData}
-              dataSummary={jobInvoicePaymentSummary}
-            />
+            <JobInvoicePayment />
           </TabPane>
           <TabPane tab="Commission" key="Commission">
             <div className="bg-card-color"><Result title="Commission Functionality coming soon" subTitle="Please check back later" /></div>
