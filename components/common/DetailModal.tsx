@@ -1,9 +1,10 @@
-import { Modal, Spin, Card, Descriptions } from "antd";
+import { Modal, Spin, Card, Descriptions, Tooltip } from "antd";
 
-type DetailField = {
+export type DetailField = {
   label: string;
   key: string;
-  isLink?: "email" | "phone"; 
+  isLink?: "email" | "phone";
+  type?: string;
 };
 
 interface DetailModalProps {
@@ -48,6 +49,16 @@ export const DetailModal: React.FC<DetailModalProps> = ({
               if (!value) return null;
 
               let content = value;
+              if (field.type === 'date') {
+                content = new Date(content).toLocaleDateString("en-GB", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric"
+                })
+              }
+              else if (field.type === 'boolean') {
+                content = (content === true ? "Yes" : "No")
+              }
               if (field.isLink === "email") {
                 content = <a href={`mailto:${value}`}>{value}</a>;
               } else if (field.isLink === "phone") {
@@ -57,8 +68,8 @@ export const DetailModal: React.FC<DetailModalProps> = ({
               return (
                 <Descriptions.Item key={field.key} label={field.label} 
                 style={{backgroundColor:'var(--body-color)', color:'var(--font-color)'}}
-                >
-                  {content}
+                className="break-all">
+                  <Tooltip title={content}><p className="line-clamp-2">{content}</p></Tooltip>
                 </Descriptions.Item>
               );
             })}

@@ -1,255 +1,213 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { Button, Form, Table, Typography, message, Spin, Tabs } from "antd";
+import { Button, Form, Table, Typography, message, Tabs } from "antd";
 import type { TableColumnsType } from "antd";
-import { useAppDispatch } from "@hooks/redux";
+import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import {
   createUserThunk,
   getInvitedUsersThunk,
   getUsersThunk,
 } from "@redux/feature/user/userThunk";
 import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
-import { roleRules, emailRules } from "@lib/constants/formInputValidations";
-import { Roles } from "@lib/constants/enum";
+import { Status } from "@lib/constants/enum";
 import { enumToReadable } from "@lib/utils/enumToRedable";
-export type User = {
-  key: string;
-  role: string;
-  email: string;
-  roleEnum:string;
-};
+import { DetailModal } from "@/components/common/DetailModal";
+import { RootState } from "@redux/feature/store";
+import { invitedUser, user } from '@redux/feature/user/UserState'
+import { userDetailModelFields, userInviteFormFields } from "@/components/formFields/userField";
+import Loading from "@/components/common/Loading";
 
 const UserPage = () => {
+  const { users, status, invitedUsers } = useAppSelector((state: RootState) => state.user);
   const [activeTab, setActiveTab] = useState<"users" | "invites">("users");
-
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editingKey, setEditingKey] = useState<string | null>(null);
-  const [hasFetchedInvites, setHasFetchedInvites] = useState(false);
-  const [form] = Form.useForm<User>();
-  const [users, setUsers] = useState<User[]>([]);
-  const [invitedUsers, setInvitedUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState({contentLoading:false,onCreateLoading:false});
+  const [form] = Form.useForm<user>();
+  const [userInviteLoading, setuserInviteLoading] = useState(false);
+  const [resendInvite, setresendInvite] = useState("");
+  const [selectedUser, setSelectedUser] = useState(null);
   const dispatch = useAppDispatch();
 
   // Fetch active users
   useEffect(() => {
-    setLoading((prev)=>({...prev,contentLoading:true}));
-    const fetchUserData = async()=>{
-    await dispatch(getUsersThunk())
-      .unwrap()
-      .then((res: any) => {
-        const mappedUsers: User[] = res?.data.map((user) => ({
-          key: user.usersId,
-          role: user.role.map(enumToReadable).join(", "),
-          email: user.email,
-        }));
-
-        setUsers(mappedUsers);
-      })
-      .catch((err) => {
-        message.error(err || "Failed to fetch users");
-      })
-      .finally(() => {
-       setLoading((prev)=>({...prev,contentLoading:false}));
-      });
+    async function fetchData() {
+      try {
+        await dispatch(getUsersThunk()).unwrap();
+      } catch (error) {
+        message.error(error || "Failed to fetch users");
+      }
     }
-    fetchUserData();
-  }, [dispatch]);
+    if (status.users === Status.IDLE) {
+      fetchData();
+    }
+  }, [dispatch, status]);
 
   const fetchInvitedUsers = async () => {
-    setLoading((prev)=>({...prev,contentLoading:true}));
     try {
-      const res: any = await dispatch(getInvitedUsersThunk()).unwrap();
-      const mappedUsers: User[] = res?.data.users?.map((user) => ({
-        key: user.userId,
-        role: enumToReadable(user.role),
-        email: user.email,
-        roleEnum:user.role
-      }));
-      setInvitedUsers(mappedUsers);
-      setHasFetchedInvites(true);
+      await dispatch(getInvitedUsersThunk()).unwrap();
     } catch (err) {
       message.error(err || "Failed to fetch invited users");
-    } finally {
-      setLoading((prev)=>({...prev,contentLoading:false}));
     }
   };
 
   useEffect(() => {
-    if (activeTab === "invites" && !hasFetchedInvites) {
+    if (activeTab === "invites" && status.invitedUsers === Status.IDLE) {
       fetchInvitedUsers();
     }
-  }, [activeTab, hasFetchedInvites]);
-
-  const handleOpenModal = () => {
-    setIsEditing(false);
-    setEditingKey(null);
-    form.resetFields();
-    setIsModalOpen(true);
-  };
-
-  const handleCancel = () => {
-    setIsModalOpen(false);
-    setIsEditing(false);
-    setEditingKey(null);
-  };
+  }, [activeTab]);
 
   const handleSubmit = async (values) => {
     await form.validateFields();
     try {
-      setLoading((prev)=>({...prev,onCreateLoading:true}));
+      setuserInviteLoading(true)
       const res = await dispatch(
         createUserThunk({
           email: values.email,
           role: values.role,
         })
       ).unwrap();
-
-      if (res) {
-        const newInvitedUser: User = {
-          key: `${Date.now()}`,
-          role: enumToReadable(values.role),
-          email: values.email,
-          roleEnum:values.role
-        };
-
-        setInvitedUsers((prev) => prev?.length ? [newInvitedUser, ...prev] : [newInvitedUser]);
-        message.success(res.message);
-      }
-
+      message.success("Invitation sent successfully");
       form.resetFields();
       setIsModalOpen(false);
-      setIsEditing(false);
-      setEditingKey(null);
     } catch (err) {
       message.error(err || "Failed to send invitation");
     } finally {
-      setLoading((prev)=>({...prev,onCreateLoading:false}));
+      setuserInviteLoading(false);
     }
   };
 
-  const handleResendInvite = async (record: User) => {
+  const handleResendInvite = async (record: invitedUser) => {
     try {
-      setLoading((prev)=>({...prev,onCreateLoading:true}));
+      setresendInvite(record.email);
       const res = await dispatch(
         createUserThunk({
           email: record.email,
-          role: record.roleEnum,
+          role: record.role
         })
       ).unwrap();
-
-      if (res) {
-        message.success(res.message);
-        // fetchInvitedUsers();
-      }
+      message.success("Invitation sent successfully");
     } catch (err) {
       message.error(err || 'Failed to resend invitation');
     } finally {
-      setLoading((prev)=>({...prev,onCreateLoading:false}));
+      setresendInvite("");
     }
   };
+  const handleRowClick = async (record: user) => {
+    const user = { ...record, role: enumToReadable(record.role.join(" , ")) };
+    setSelectedUser(user)
+  }
 
   // Users Table Columns
-  const userColumns: TableColumnsType<User> = useMemo(
+  const userColumns: TableColumnsType<user> = useMemo(
     () => [
       { title: "Email", dataIndex: "email", key: "email" },
-      { title: "Role", dataIndex: "role", key: "role" },
+      {
+        title: "Role", dataIndex: "role", key: "role",
+        render: (_, record) => enumToReadable(record.role.join(' , '))
+      },
     ],
     []
   );
-
   // Invited Users Table Columns
-  const inviteColumns: TableColumnsType<User> = useMemo(
+  const inviteColumns: TableColumnsType<invitedUser> = useMemo(
     () => [
       { title: "Email", dataIndex: "email", key: "email" },
-      { title: "Role", dataIndex: "role", key: "role" },
       {
-        title: "Status",
-        key: "status",
-        render: () => <span style={{ color: "orange" }}>Pending</span>,
+        title: "Role", dataIndex: "role", key: "role",
+        render: (_, record) => enumToReadable(record.role)
       },
+
       {
         title: "Actions",
         key: "actions",
         render: (_, record) => (
-          <div className="flex gap-2">
-            <Button type="link" onClick={() => handleResendInvite(record)}>
-              Resend
-            </Button>
+          <div>
+            {resendInvite === record?.email ?
+              <div className="ml-6"> <Loading type="primary" /></div>
+              : <Button type="link" onClick={() => handleResendInvite(record)} disabled={resendInvite !== "" && resendInvite !== record.email}>
+                Resend
+              </Button>
+            }
           </div>
         ),
       },
     ],
-    []
+    [resendInvite]
   );
-
+  console.log("status", activeTab === 'users' ? status.users === Status.PENDING : status.invitedUsers === Status.PENDING)
   return (
     <div className="p-4">
       <div className="w-full">
-          <Typography.Title
-            level={4}
-            style={{ margin: 0, color: "var(--font-color)" }}
-          >
-            {activeTab === "users" ? "Users" : "Invited Users"}
-          </Typography.Title>
+        <Typography.Title
+          level={4}
+          style={{ margin: 0, color: "var(--font-color)" }}
+        >
+          {activeTab === "users" ? "Users" : "Invited Users"}
+        </Typography.Title>
         <div className="flex items-center justify-between mb-4">
           <div className="w-full">
-          <Tabs
-            activeKey={activeTab}
-            onChange={(key) => setActiveTab(key as "users" | "invites")}
-            items={[
-              { key: "users", label: "Users" },
-              { key: "invites", label: "Invited Users" },
-            ]}
-          />
+            <Tabs
+              activeKey={activeTab}
+              onChange={(key) => setActiveTab(key as "users" | "invites")}
+              items={[
+                { key: "users", label: "Users" },
+                { key: "invites", label: "Invited Users" },
+              ]}
+            />
           </div>
           {/* 🔹 Always visible now */}
           {activeTab == "users" && (
             <button
               className="btn large bg-primary cursor-pointer text-white w-36 ml-10"
-              onClick={handleOpenModal}
+              onClick={() => setIsModalOpen(true)}
             >
               Invite User
             </button>
           )}
         </div>
-        <Spin spinning={loading.contentLoading}>
-          <Table
-            rowKey="key"
-            columns={activeTab === "users" ? userColumns : inviteColumns}
-            dataSource={activeTab === "users" ? users : invitedUsers}
-            pagination={{ pageSize: 10 }}
-            scroll={{ x: "max-content" }}
-          />
-        </Spin>
+
+        {/* <Loading spinning={activeTab === 'users' ? status.users === Status.PENDING : status.invitedUsers === Status.PENDING} type="primary"> */}
+        <Table
+          rowKey="key"
+          columns={activeTab === "users" ? (userColumns as TableColumnsType<user | invitedUser>)
+            : (inviteColumns as TableColumnsType<user | invitedUser>)}
+          dataSource={activeTab === "users" ? users : invitedUsers}
+          pagination={{ pageSize: 10 }}
+          scroll={{ x: "max-content" }}
+          onRow={activeTab === "users" ? (record: user) => ({
+            style: { cursor: 'pointer' },
+            onClick: () => handleRowClick(record)
+          }) : (record) => ({})}
+          loading={{
+            spinning: activeTab === "users"
+              ? status.users === Status.PENDING
+              : status.invitedUsers === Status.PENDING,
+            indicator: <Loading type="primary" />,
+          }}
+          locale={{
+            emptyText: (activeTab === "users"
+              ? status.users === Status.PENDING
+              : status.invitedUsers === Status.PENDING) ? <div className="min-h-[200px]"></div> : "No Data",
+          }}
+        />
+        {/* </Loading> */}
+
+
         <CreateFormModal
           title="User"
           open={isModalOpen}
           onSubmit={handleSubmit}
           invite={true}
-          onCancel={handleCancel}
-          loading={loading.onCreateLoading}
-          fields={[
-            {
-              label: "Role",
-              name: "role",
-              rules: roleRules,
-              type: "select",
-              placeholder: "Select Role",
-              disabled: isEditing,
-              options: Roles,
-            },
-            {
-              label: "Email",
-              name: "email",
-              type: "email",
-              rules: emailRules,
-              placeholder: "john@example.com",
-              disabled: isEditing,
-            },
-          ]}
+          onCancel={() => setIsModalOpen(false)}
+          loading={userInviteLoading}
+          fields={userInviteFormFields()}
+        />
+        <DetailModal
+          title="User Details"
+          open={selectedUser !== null}
+          onCancel={() => setSelectedUser(null)}
+          data={selectedUser}
+          fields={userDetailModelFields()}
         />
       </div>
     </div>

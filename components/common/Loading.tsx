@@ -1,20 +1,14 @@
 import { IconLoader } from "@tabler/icons-react";
 
-const Loading = () => (
-  <div style={{
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    width: '100vw',
-    height: '100vh',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#ffffff', 
-    zIndex: 10000
-  }}>
-    <IconLoader className='animate-spin text-[#E27D39] w-[32px] h-[32px]'/>
-  </div>
-);
+type LoadingProps = {
+  type?: string,
+}
 
+const Loading: React.FC<LoadingProps> = ({ type }) => {
+  return (
+    <div className="flex justify-center items-center h-full">
+      <IconLoader className={`animate-spin ${type === 'primary' ? 'text-primary' : 'text-white'}`} />
+    </div>
+  )
+}
 export default Loading;

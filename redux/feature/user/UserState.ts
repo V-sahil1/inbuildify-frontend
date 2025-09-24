@@ -48,17 +48,42 @@ export const initialState: IUserState = {
 }
 
 export type user = {
-  usersId: string;
-  builderId: string;
-  name: string;
+  usersId?: string;
+  builderId?: string;
+  name?: string;
   email: string;
-  isVerified: boolean;
+  isVerified?: boolean;
   role: string[];
   createdAt?: string;
   updatedAt?: string;
 };
 
+export type invitedUser = {
+  inviteId?:string,
+  inviteToken?:string,
+  builderId?:string,
+  email:string,
+  role:string,
+  expiresAt?:string,
+  invitedAt?:string
+}
+interface Pagination {
+  totalItems: number;
+  totalPages: number;
+  currentPage: number;
+  limit: number;
+}
+
+
+export interface invitedUserResponse  {
+  users:invitedUser[];
+  pagination :Pagination
+}
+
+
+
 export type UserInitialState = {
   users: user[],
-  status: Status,
+  invitedUsers:invitedUser[]
+  status:{users:Status,invitedUsers:Status}
 };
