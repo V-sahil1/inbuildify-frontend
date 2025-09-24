@@ -3,7 +3,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import API_ENDPOINTS from "@lib/constants/apiEndpoints";
 import { ApiResponse } from "../auth/IAuthState";
 import { storeAuthToken, storeRefreshToken } from "@lib/constants/authToken";
-import { invitedUserResponse, user, UserRequest, UserResponse } from "./UserState";
+import { invitedUser, invitedUserResponse, user} from "./UserState";
 
 export const AcceptInviteThunk = createAsyncThunk(
     "user/acceptInvite",
@@ -26,7 +26,7 @@ export const createUserThunk = createAsyncThunk(
     {rejectWithValue}
   ) => {
     try {
-      const response: ApiResponse<UserRequest> = await api.post(
+      const response: ApiResponse<invitedUser> = await api.post(
         API_ENDPOINTS.INVITE_USER,
         { data: payload }
       );

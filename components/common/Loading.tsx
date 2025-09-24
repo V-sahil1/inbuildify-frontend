@@ -6,7 +6,7 @@ type LoadingProps = {
 
 const Loading: React.FC<LoadingProps> = ({ type }) => {
   return (
-    <div className="flex justify-center items-center h-full">
+    <div>
       <IconLoader className={`animate-spin ${type === 'primary' ? 'text-primary' : 'text-white'}`} />
     </div>
   )

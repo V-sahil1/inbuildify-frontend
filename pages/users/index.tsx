@@ -134,7 +134,7 @@ const UserPage = () => {
     ],
     [resendInvite]
   );
-  console.log("status", activeTab === 'users' ? status.users === Status.PENDING : status.invitedUsers === Status.PENDING)
+ 
   return (
     <div className="p-4">
       <div className="w-full">
@@ -165,8 +165,6 @@ const UserPage = () => {
             </button>
           )}
         </div>
-
-        {/* <Loading spinning={activeTab === 'users' ? status.users === Status.PENDING : status.invitedUsers === Status.PENDING} type="primary"> */}
         <Table
           rowKey="key"
           columns={activeTab === "users" ? (userColumns as TableColumnsType<user | invitedUser>)
@@ -182,7 +180,7 @@ const UserPage = () => {
             spinning: activeTab === "users"
               ? status.users === Status.PENDING
               : status.invitedUsers === Status.PENDING,
-            indicator: <Loading type="primary" />,
+            indicator:<div className="flex justify-center items-center h-full"> <Loading type="primary" /></div>,
           }}
           locale={{
             emptyText: (activeTab === "users"
@@ -190,9 +188,6 @@ const UserPage = () => {
               : status.invitedUsers === Status.PENDING) ? <div className="min-h-[200px]"></div> : "No Data",
           }}
         />
-        {/* </Loading> */}
-
-
         <CreateFormModal
           title="User"
           open={isModalOpen}

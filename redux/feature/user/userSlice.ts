@@ -2,7 +2,6 @@ import { createSlice } from "@reduxjs/toolkit";
 import { createUserThunk, getInvitedUsersThunk, getUsersThunk } from "./userThunk";
 import { UserInitialState } from "./UserState";
 import { Status } from "@lib/constants/enum";
-import { stat } from "fs";
 
 const initialState:UserInitialState = {
    users:[],
@@ -36,7 +35,9 @@ export const userSlice = createSlice({
         builder.addCase(getInvitedUsersThunk.rejected,(state)=>{
             state.status.invitedUsers = Status.ERROR
         })
-        builder.addCase(createUserThunk.fulfilled,(state,action)=>{      
+        builder.addCase(createUserThunk.fulfilled,(state,action)=>{
+            const user = state.invitedUsers.find((user) => user.inviteId === action.payload?.inviteId)
+            if (!user)
            state.invitedUsers.unshift(action.payload);
         })
        
