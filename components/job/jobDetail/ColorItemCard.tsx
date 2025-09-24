@@ -13,15 +13,6 @@ interface Props {
 // Extracted card content to avoid duplication
 const CardContent = ({ item, isGridView }: { item: ColorItem; isGridView: boolean }) => (
   <>
-    {/* Top-right button */}
-    <div className="absolute top-4 right-4">
-      <Button
-        type={(item as any).isAdded ?? false ? "default" : "primary"}
-        size="small"
-      >
-        {((item as any).isAdded ?? false) ? "Remove" : "Add"}
-      </Button>
-    </div>
 
     <div className={isGridView ? "flex flex-col h-full" : "flex flex-col md:flex-row gap-6 h-full"}>
       {/* Image Carousel */}
@@ -46,7 +37,15 @@ const CardContent = ({ item, isGridView }: { item: ColorItem; isGridView: boolea
       {/* Item Details */}
       <div className="flex-1 flex flex-col justify-between p-2">
         <div>
+          <div className="flex justify-between">
           <Title level={5}>{item.itemName}</Title>
+          <Button
+            type={(item as any).isAdded ?? false ? "default" : "primary"}
+            size="small"
+          >
+            {((item as any).isAdded ?? false) ? "Remove" : "Add"}
+          </Button>
+        </div>
           <Text type="secondary">{item.itemCode}</Text>
           <Divider className="my-2" />
           <Text className="text-gray-700">{item.itemDescription}</Text>

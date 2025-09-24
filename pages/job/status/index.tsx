@@ -22,12 +22,24 @@ const ClickableStep = ({ title, isCurrent, onClick }) => {
 const index = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [activeTab, setActiveTab] = useState("Own");
+  const [finishedSteps, setFinishedSteps] = useState<number[]>([]);
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
   };
 
-  const handleStepClick = (index) => {
+  const handleStepClick = (index: number) => {
     setActiveStep(index);
+
+    if (index > Math.max(-1, ...finishedSteps)) {
+
+      
+      const newFinished = Array.from({ length: index + 1 }, (_, i) => i);
+      setFinishedSteps(newFinished);
+    } else {
+      if (!finishedSteps.includes(index)) {
+        setFinishedSteps([...finishedSteps, index]);
+      }
+    }
   };
 
   const currentStepTitle = WorkStepsChecklist[activeStep]?.title;
@@ -64,18 +76,27 @@ const index = () => {
 
         <div className="m-3">
           <Steps current={activeStep} labelPlacement="vertical">
-            {WorkStepsChecklist.map((step, index) => (
-              <Steps.Step
-                key={index}
-                title={
-                  <ClickableStep
-                    title={step.title}
-                    isCurrent={activeStep === index}
-                    onClick={() => handleStepClick(index)}
-                  />
-                }
-              />
-            ))}
+            {WorkStepsChecklist.map((step, index) => {
+              const status = finishedSteps.includes(index)
+                ? "finish"
+                : index === activeStep
+                ? "process"
+                : "wait";
+
+              return (
+                <Steps.Step
+                  key={index}
+                  status={status}
+                  title={
+                    <ClickableStep
+                      title={step.title}
+                      isCurrent={activeStep === index}
+                      onClick={() => handleStepClick(index)}
+                    />
+                  }
+                />
+              );
+            })}
           </Steps>
         </div>
       </div>
