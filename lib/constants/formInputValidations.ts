@@ -36,7 +36,7 @@ export const passwordRules = [
 ];
 
 export const nameRules = [
-  { required: true, message: "Please enter full name" },
+  { required: true, message: "Please enter name" },
   {
     validator: (_: any, value: string) => {
       if (!value) return Promise.resolve(); 

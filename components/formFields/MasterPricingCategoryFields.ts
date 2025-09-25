@@ -1,4 +1,4 @@
-import { descriptionRules, settingNameRules } from "@lib/constants/formInputValidations";
+import { descriptionRules, optionalDescriptionRules, settingNameRules } from "@lib/constants/formInputValidations";
 import { CreateFormField } from "../common/Models/CreateFormModel";
 
 export const MasterPricingCategoryFields = (): CreateFormField[] => {
@@ -15,7 +15,7 @@ export const MasterPricingCategoryFields = (): CreateFormField[] => {
       name: "description",
       type: "text",
       placeholder: "Enter description",
-      rules: descriptionRules,
+      rules: optionalDescriptionRules,
     },
   ];
 };

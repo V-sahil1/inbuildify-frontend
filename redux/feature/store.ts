@@ -15,6 +15,7 @@ import contractorReducer from "./contractor/contractorSlice";
 import actionReducer from "./action/actionSlice";
 import userReducer from "./user/userSlice";
 import workflowReducer from "./workflow/workflowSlice";
+import colourReducer from "./color/ColourSlice";
 
 const authPersistConfig = {
   key: "auth",
@@ -37,6 +38,7 @@ const appReducer = combineReducers({
   action: actionReducer,
   user: userReducer,
   workflow: workflowReducer,
+  colour: colourReducer,
 });
 
 const rootReducer = (state: ReturnType<typeof appReducer> | undefined, action: any) => {
@@ -64,6 +66,7 @@ const persistConfig = {
     "action",
     "user",
     "workflow",
+    "colour",
   ],
 };
 

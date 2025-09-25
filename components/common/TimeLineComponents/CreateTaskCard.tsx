@@ -52,7 +52,7 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
   const { email } = useAppSelector((state) => state.auth.user);
   const dispatch = useAppDispatch();
   useEffect(() => {
-    if (status === Status.IDLE) {
+    if (status.users === Status.IDLE) {
       fetchuserData();
     }
   }, [status]);

@@ -77,6 +77,12 @@ class API_ENDPOINTS {
   public static WORKFLOW_PROCESS_TASK = `${this.WORKFLOW_PROCESS_BASE}/task`;
   public static WORKFLOW_PROCESS_ORDER = `${this.WORKFLOW_PROCESS_BASE}/display/order`;
 
+
+  //  Colour
+  public static COLOUR_CATEGORY_BASE = "/color-category";
+  public static COLOUR_SUB_CATEGORY_BASE = "/color-sub-category";
+  public static COLOUR_SUB_CATEGORY_ITEM = `/color-item`;
+
   // Property
   public static PROPERTY_BASE = "/property";
 

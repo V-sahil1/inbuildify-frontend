@@ -50,15 +50,15 @@ const workflowSlice = createSlice({
       .addCase(fetchWorkflowProcess.fulfilled, (state, action) => {
         state.status = Status.SUCCESS;
         state.loading = false;
-        state.workflowProcess =  action.payload.workflowProcesses.map((c) => ({
-          ...c,
+        state.workflowProcess =  action.payload?.workflowProcesses?.map((w) => ({
+          ...w,
           tasks: null,
           isExpanded: false,
           loadingItems: false,
         }));
       })
       .addCase(createWorkflowProcess.fulfilled, (state, action) => {
-        state.workflowProcess.push({
+        state.workflowProcess.unshift({
           ...action.payload,
           tasks: null,
           isExpanded: false,

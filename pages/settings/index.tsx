@@ -9,6 +9,7 @@ import {
   IconChartFunnel,
   IconClockHour3,
   IconLabelImportant,
+  IconPaint,
   IconProgress,
   IconServer2,
   IconSettingsBolt,
@@ -21,6 +22,7 @@ import { getDwellingTypes, getRanges } from "@redux/feature/types/typesThunk";
 import Service from "./components/Service";
 import LeadSource from "./components/LeadSource";
 import WorkflowProcessPage from "./components/WorkflowProcess";
+import ColourCategoryPage from "./components/Colour";
 // import Configuration from "./components/Configuration";
 
 const MasterPriceList = dynamic(() => import("./components/MasterPriceList"), {
@@ -100,6 +102,14 @@ const TABS = [
     breadcrumb: "Workflow Process",
     component: WorkflowProcessPage,
   },
+  {
+    id: "colour",
+    label: "Colour",
+    icon: IconPaint,
+    breadcrumb: "Colour",
+    component: ColourCategoryPage,
+  },
+  
 ];
 
 export default function ProjectList() {
