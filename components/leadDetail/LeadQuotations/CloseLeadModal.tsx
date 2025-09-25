@@ -26,7 +26,6 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
   active,
   quotations,
 }) => {
-  console.log("🚀 ~ CloseLeadModal ~ leadData:", leadData)
   const [form] = Form.useForm();
   const [activeTab, setActiveTab] = useState<string>(active || "WON");
   const [selectedQuotation, setSelectedQuotation] = useState<string>("");

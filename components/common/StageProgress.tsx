@@ -317,7 +317,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
           isModalOpen={isModalOpen}
           setIsModalOpen={() => setIsModalOpen(false)}
           active={modalType}
-          leadData={lead}
+          leadData={lead?.lead}
           quotations={quotations}
         />
       )}
