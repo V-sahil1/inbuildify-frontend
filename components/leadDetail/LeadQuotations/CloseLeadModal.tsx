@@ -6,7 +6,7 @@ import { IconFileText } from "@tabler/icons-react";
 import { useRouter } from "next/router";
 import { convertLeadToJobThunk } from "@redux/feature/lead/leadThunk";
 import { useAppDispatch } from "@hooks/redux";
-import { enumToReadable } from "@lib/utils/enumToRedable"; 
+import { enumToReadable } from "@lib/utils/enumToRedable";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -26,6 +26,7 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
   active,
   quotations,
 }) => {
+  console.log("🚀 ~ CloseLeadModal ~ leadData:", leadData)
   const [form] = Form.useForm();
   const [activeTab, setActiveTab] = useState<string>(active || "WON");
   const [selectedQuotation, setSelectedQuotation] = useState<string>("");
@@ -86,33 +87,6 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
 
   const closedWonContent = (
     <div>
-      {/* <div className="mb-6">
-        <div className="grid grid-cols-3 gap-0 border border-gray-300 rounded overflow-hidden">
-          <div className="px-3 py-2 bg-gray-100 border-r border-gray-300 font-medium text-xs text-gray-600">
-            Description
-          </div>
-          <div className="px-3 py-2 bg-gray-100 border-r border-gray-300 font-medium text-xs text-gray-600">
-            Deposit Date
-          </div>
-          <div className="px-3 py-2 bg-gray-100 font-medium text-xs text-gray-600">
-            Deposit Amount ($)
-          </div>
-
-          <div className="px-3 py-3 border-r border-gray-300 border-t ">
-            <div className="font-medium text-sm mb-1">
-              {leadData?.id || "MYH00492-I1"}
-            </div>
-            <div className="text-gray-500 text-xs">Initial Deposit</div>
-          </div>
-          <div className="px-3 py-3 border-r border-gray-300 border-t text-sm">
-            {leadData?.depositDate || "27-07-2023"}
-          </div>
-          <div className="px-3 py-3 border-t border-gray-300 text-sm">
-            {leadData?.initialDeposit || "5000.00"}
-          </div>
-        </div>
-      </div> */}
-
       <div className="mb-6">
         <label className="block mb-2 font-medium">Quotations</label>
         <Alert
@@ -120,21 +94,6 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
           type="warning"
           className="mb-4"
         />
-        <Form.Item
-          name="quotationId"
-          rules={[
-            {
-              required: activeTab === "WON",
-              message: "Please select a quotation",
-            },
-          ]}
-          className="m-0"
-        >
-          <Radio.Group
-            onChange={(e) => setSelectedQuotation(e.target.value)}
-            value={selectedQuotation}
-            className="w-full"
-          >
         <div className="border border-gray-300 rounded-md overflow-hidden">
           <div className="sticky top-0 z-10 bg-white border-b border-gray-200">
             <div className="grid grid-cols-[40px_1fr_120px_120px] px-4 py-3 bg-gray-50 font-medium">
@@ -147,54 +106,36 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
 
           <div className="max-h-100 overflow-y-auto">
             {quotations?.length > 0 ? (
-              quotations?.map((quotation, index) => (
-                    <Form.Item>
-                <div
-                  key={quotation?.slugId}
-                  className={`grid grid-cols-[40px_1fr_120px_120px] px-4 py-3 items-center ${
-                    index < quotations.length - 1
-                      ? "border-b border-gray-100"
-                      : ""
-                  }`}
+              <>
+                <Form.Item
+                  name="quotationId"
+                  rules={[
+                    {
+                      required: activeTab === "WON",
+                      message: "Please select a quotation",
+                    },
+                  ]}
+                  className="m-0"
                 >
-                  <Radio
-                    checked={
-                            selectedQuotation ===
-                            (quotation?.versions[0] as any)
-                              ?.quotationVersionItemId
-                          }
-                          value={
-                            (quotation?.versions[0] as any)
-                              ?.quotationVersionItemId
-                    }
-                  />
-                  <div className="flex items-center gap-2">
-                    <span>
-                            {quotation.slugId} (V
-                            {(quotation?.versions[0] as any)?.versionNumber})
-                          </span>
-                    <span
-                      className={`px-2 py-0.5 rounded text-xs font-medium ${
-                        quotation?.leadStatus === "COMPLETED"
-                          ? "bg-green-50 text-green-600 border border-green-200"
-                          : "bg-blue-50 text-blue-600 border border-blue-200"
-                      }`}
-                    >
-                      {quotation?.leadStatus}
-                    </span>
-                  </div>
-                  <div>
-                    $
-                    {quotation?.totalAmount.toLocaleString("en-US", {
-                      minimumFractionDigits: 2,
+                  <Radio.Group onChange={(e) => setSelectedQuotation(e.target.value)} value={selectedQuotation}>
+                    {quotations?.map((quotation, index) => {
+                      return (<Radio className="w-full" value={(quotation?.versions[0] as any)?.quotationVersionId}>
+                        <div key={quotation?.slugId} className={`px-4 py-3 items-center ${index < quotations.length - 1 ? "border-b border-gray-100 " : ""}`}>
+                          <div className="flex items-center gap-2">
+                            <div>
+                              {quotation.slugId} (V{(quotation?.versions[0] as any)?.versionNumber})
+                            </div>
+                            <div className={`px-2 py-0.5 rounded text-xs font-medium ${quotation?.leadStatus === "COMPLETED" ? "bg-green-50 text-green-600 border border-green-200" : "bg-blue-50 text-blue-600 border border-blue-200"}`}>
+                              {quotation?.leadStatus}
+                            </div>
+                            <div>${quotation?.totalAmount.toLocaleString("en-US", { minimumFractionDigits: 2 })}</div>
+                          </div>
+                        </div>
+                      </Radio>);
                     })}
-                  </div>
-                        {/* <div>
-                    <Input onChange={(e) => {}} />
-                  </div> */}
-                  </div>
+                  </Radio.Group>
                 </Form.Item>
-              ))
+              </>
             ) : (
               <div className="flex flex-col items-center justify-center p-4">
                 <IconFileText />
@@ -208,8 +149,6 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
             )}
           </div>
         </div>
-          </Radio.Group>
-        </Form.Item>
       </div>
 
       <div className="mb-6">
