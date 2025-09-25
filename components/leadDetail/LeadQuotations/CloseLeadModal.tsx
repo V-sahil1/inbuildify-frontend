@@ -96,9 +96,9 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
         />
         <div className="border border-gray-300 rounded-md overflow-hidden">
           <div className="sticky top-0 z-10 bg-white border-b border-gray-200">
-            <div className="grid grid-cols-[40px_1fr_120px_120px] px-4 py-3 bg-gray-50 font-medium">
-              <div></div>
-              <div>Reference ID</div>
+            <div className="flex items-center justify-between w-[650px] p-2 bg-gray-50 font-medium ml-9">
+              <div className="ml-4">Reference ID</div>
+              <div>Status</div>
               <div>Cost</div>
               {/* <div>Sketch Number</div> */}
             </div>
@@ -119,10 +119,10 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
                 >
                   <Radio.Group onChange={(e) => setSelectedQuotation(e.target.value)} value={selectedQuotation}>
                     {quotations?.map((quotation, index) => {
-                      return (<Radio className="w-full" value={(quotation?.versions[0] as any)?.quotationVersionId}>
-                        <div key={quotation?.slugId} className={`px-4 py-3 items-center ${index < quotations.length - 1 ? "border-b border-gray-100 " : ""}`}>
-                          <div className="flex items-center gap-2">
-                            <div>
+                      return (<Radio className="w-full ml-4" value={(quotation?.versions[0] as any)?.quotationVersionId}>
+                        <div key={quotation?.slugId} className={` px-4 py-3 items-center ${index < quotations.length - 1 ? "border-b border-gray-100 " : ""}`}>
+                          <div className="flex items-center justify-between w-[650px] ">
+                            <div className="ml-2">
                               {quotation.slugId} (V{(quotation?.versions[0] as any)?.versionNumber})
                             </div>
                             <div className={`px-2 py-0.5 rounded text-xs font-medium ${quotation?.leadStatus === "COMPLETED" ? "bg-green-50 text-green-600 border border-green-200" : "bg-blue-50 text-blue-600 border border-blue-200"}`}>
