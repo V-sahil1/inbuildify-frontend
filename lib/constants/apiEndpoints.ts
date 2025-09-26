@@ -76,7 +76,7 @@ class API_ENDPOINTS {
   public static WORKFLOW_PROCESS_BASE = "/workflow-process";
   public static WORKFLOW_PROCESS_TASK = `${this.WORKFLOW_PROCESS_BASE}/task`;
   public static WORKFLOW_PROCESS_ORDER = `${this.WORKFLOW_PROCESS_BASE}/display/order`;
-
+  public static WORKFLOW_PROCESS_TASK_FOR_JOB = `/workflow-process-task`;
 
   //  Colour
   public static COLOUR_CATEGORY_BASE = "/color-category";
@@ -105,7 +105,7 @@ class API_ENDPOINTS {
 
   // action
   public static ACTION_BASE = "/actions";
-  
+
   // tags
   public static TAGS_BASE = "/tags";
 }

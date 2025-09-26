@@ -269,7 +269,7 @@ const QuotationManager = () => {
             },
           })
         ).unwrap();
-        console.log("🚀 ~ handleFetchCategoryItems ~ response:", response)
+        // console.log("🚀 ~ handleFetchCategoryItems ~ response:", response);
         // if(response.categoryId === BaseCategory?.categoryId){
         //   const mappedItems = response.items.map((item) => ({
         //     itemId: item.categoryItemId,
@@ -338,7 +338,7 @@ const QuotationManager = () => {
           ? "Quotation updated successfully"
           : "Quotation created successfully"
       );
-      router.push(`/${SystemRoutes.JOB}`);
+      router.push(`${SystemRoutes.JOB}/${property?.leadId}`);
     } catch (error) {
       message.error(error);
     }

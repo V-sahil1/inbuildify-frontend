@@ -164,3 +164,26 @@ export const deleteWorkflowProcessTask = createAsyncThunk(
     }
   }
 );
+
+export const fetchWorkflowProcessTasksForJob = createAsyncThunk(
+  "workflowProcess/fetchItems",
+  async (
+    payload: { leadId: string; workflowProcessId: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const res = await api.get<ApiResponse<Task[]>>(
+        API_ENDPOINTS.WORKFLOW_PROCESS_TASK_FOR_JOB,
+        {
+          params: {
+            lead_id: payload.leadId,
+            workflow_process_id: payload.workflowProcessId,
+          },
+        }
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);

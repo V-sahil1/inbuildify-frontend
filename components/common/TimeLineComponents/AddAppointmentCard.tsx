@@ -49,10 +49,10 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
   
   const dispatch = useAppDispatch();
   useEffect(() => {
-    if (status === Status.IDLE) {
+    if (status.users === Status.IDLE) {
       fetchuserData();
     }
-  }, [status]);
+  }, [status.users]);
   const fetchuserData = async () => {
     try {
       await dispatch(getUsersThunk()).unwrap();

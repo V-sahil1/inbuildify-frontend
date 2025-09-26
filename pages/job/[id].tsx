@@ -10,53 +10,7 @@ import { Result, Tabs } from "antd";
 import router from "next/router";
 const { TabPane } = Tabs;
 
-const workFlowSteps = [
-  {
-    key: 'Sales',
-    label: 'Sales',
-    status: 'Closed',
-    color: 'bg-green-600',
-    icon: 'MM',
-    date: '12/03/2025',
-    onClick: () => { }
-  },
-  {
-    key: 'WorkFlow',
-    label: 'WorkFlow',
-    status: 'Completed',
-    color: 'bg-green-300',
-    icon: '2',
-    date: '12/03/2025',
-    onClick: () => { router.push(`/${SystemRoutes.JOB}/status`) }
-  },
-  {
-    key: 'Color',
-    label: 'Color',
-    status: 'Started',
-    color: 'bg-cyan-500',
-    icon: 'MM',
-    date: '12/03/2025',
-    onClick: () => { router.push(`/${SystemRoutes.JOB}/colour`) }
-  },
-  {
-    key: 'Construction',
-    label: 'Construction',
-    status: 'Under Construction',
-    color: 'bg-cyan-300',
-    icon: '4',
-    date: '',
-    onClick: () => { }
-  },
-  {
-    key: 'Maintenance',
-    label: 'Maintenance',
-    status: '',
-    color: 'bg-gray-200',
-    icon: '5',
-    date: '',
-    onClick: () => { }
-  },
-]
+
 
 const JobVariationData = [
   {
@@ -98,7 +52,54 @@ const JobVariationData = [
 ];
 
 export default function JobDetail() {
-
+  const {id} = router.query;
+  const workFlowSteps = [
+    {
+      key: 'Sales',
+      label: 'Sales',
+      status: 'Closed',
+      color: 'bg-green-600',
+      icon: 'MM',
+      date: '12/03/2025',
+      onClick: () => { }
+    },
+    {
+      key: 'WorkFlow',
+      label: 'WorkFlow',
+      status: 'Completed',
+      color: 'bg-green-300',
+      icon: '2',
+      date: '12/03/2025',
+      onClick: () => { router.push(`/${SystemRoutes.JOB_WORKFLOW}/${id}`) }
+    },
+    {
+      key: 'Color',
+      label: 'Color',
+      status: 'Started',
+      color: 'bg-cyan-500',
+      icon: 'MM',
+      date: '12/03/2025',
+      onClick: () => { router.push(`/${SystemRoutes.JOB}/colour/${id}`) }
+    },
+    {
+      key: 'Construction',
+      label: 'Construction',
+      status: 'Under Construction',
+      color: 'bg-cyan-300',
+      icon: '4',
+      date: '',
+      onClick: () => { }
+    },
+    {
+      key: 'Maintenance',
+      label: 'Maintenance',
+      status: '',
+      color: 'bg-gray-200',
+      icon: '5',
+      date: '',
+      onClick: () => { }
+    },
+  ]
 
   return (
     <>

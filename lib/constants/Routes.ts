@@ -15,6 +15,7 @@ class SystemRoutes {
   public static DWELLING_AND_RANGE = `${this.SETTINGS}/?tab=range-dwelling`;
   public static LEADS = `/leads`;
   public static JOB = `/job`;
+  public static JOB_WORKFLOW = `${this.JOB}/workflow`;
   public static CONSTRUCTION = `/construction`;
 }
 

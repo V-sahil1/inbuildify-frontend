@@ -73,7 +73,7 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
     await form.validateFields();
     values.type = "TASK";
     if (initialData) {
-      values.actionId = initialData.actionId;
+      values.actionId = initialData?.actionId;
       values.action_type_id = initialData?.taskId;
     }
     values.task.due_date = values.task?.due_date?.format("YYYY-MM-DD");

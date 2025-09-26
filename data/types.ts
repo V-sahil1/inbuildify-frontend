@@ -354,10 +354,20 @@ export interface ColorCategory {
 
 export interface JobWorkFlowChecklist {
   id: number;
+  workflowProcessTaskId: string;
+  workflowProcessId: string;
   task: string;
   tag: string;
   estimatedDate: string;
   actualDate: string;
+  attachment?: string;
+  actionId?: string;
+  dueDate?: Date | string;
+  name: string;
+  priority: string;
+  description: string;
+  assignee: string;
+  time: string;
   link: string;
   user: string;
   status: string;

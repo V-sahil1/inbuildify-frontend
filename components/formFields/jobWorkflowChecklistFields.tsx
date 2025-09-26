@@ -1,45 +1,83 @@
 import {
   IconCircleCheck,
+  IconCircleX,
   IconDotsVertical,
   IconLink,
-  IconMessage,
-  IconRestore,
 } from "@tabler/icons-react";
-import { Dropdown, Tag } from "antd";
+import { Dropdown, message, Modal } from "antd";
 import { ColumnsType } from "antd/es/table";
 import { JobWorkFlowChecklist } from "data/types";
 import { useState } from "react";
 import ConfirmationModal from "@/components/common/ConfirmationModal";
+import dayjs from "dayjs";
+import CreateTaskCard from "../common/TimeLineComponents/CreateTaskCard";
+import { useAppDispatch } from "@hooks/redux";
+import { deleteActionsThunk, updateActionsThunk } from "@redux/feature/action/actionThunk";
+import { formDataGenerator } from "@lib/utils/formDataGenerator";
 
-const UserActions: React.FC<{ user: string; record: JobWorkFlowChecklist }> = ({
-  user,
-  record,
-}) => {
+const UserActions: React.FC<{
+  user: string;
+  record: JobWorkFlowChecklist;
+  onUpdateRow: (updated: JobWorkFlowChecklist) => void;
+  onDeleteRow: (id: string) => void;
+}> = ({ user, record, onUpdateRow, onDeleteRow }) => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [selectedRecord, setSelectedRecord] =
+    useState<JobWorkFlowChecklist | null>(null);
+  const [loading, setLoading] = useState(false);
+  const dispatch = useAppDispatch();
 
-  const handleEdit = () => {
-    console.log("Editing:", record);
+  const handleEdit = (record: JobWorkFlowChecklist) => {
+    setSelectedRecord(record);
   };
 
-  const handleDelete = () => {
+  const handleDelete = (record: JobWorkFlowChecklist) => {
     setShowDeleteConfirm(true);
+    setSelectedRecord(record);
   };
 
-  const confirmDelete = () => {
-    console.log("Deleting:", record.id);
+  const confirmDelete = async () => {
+    // console.log("Deleting:", selectedRecord?.actionId);
+    try {
+      await dispatch(deleteActionsThunk({ actionId: selectedRecord?.actionId })).unwrap();
+      message.success("Task deleted successfully");
+      onDeleteRow(selectedRecord?.actionId);
+      setSelectedRecord(null);
     setShowDeleteConfirm(false);
+    } catch (error) {
+      message.error(error || "Failed to delete task");
+    }
+  };
+
+  const handleUpdateTask = async (values: any) => { 
+    const { actionId, ...rest } = values;
+    setLoading(true);
+    try {
+      const response = await dispatch(
+        updateActionsThunk({
+          actionId: actionId,
+          data: formDataGenerator(rest),
+        })
+      ).unwrap();
+      setSelectedRecord(null);
+      onUpdateRow(response.task);
+      message.success("Task updated successfully");
+    } catch (error) {
+      message.error(error || "Failed to update task");
+    }
+    setLoading(false);
   };
 
   return (
     <>
       <div className="flex gap-4 justify-end items-center relative">
-        <button className="hover:text-blue">
+        {/* <button className="hover:text-blue">
           <IconMessage />
         </button>
         <button className="hover:text-blue">
           <IconRestore />
-        </button>
-        <div
+        </button> */}
+        {/* <div
           className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-semibold"
           style={{
             backgroundColor: "var(--body-color)",
@@ -47,7 +85,7 @@ const UserActions: React.FC<{ user: string; record: JobWorkFlowChecklist }> = ({
           }}
         >
           {user.charAt(0).toUpperCase()}
-        </div>
+        </div> */}
 
         <div className="relative">
           <Dropdown
@@ -57,8 +95,8 @@ const UserActions: React.FC<{ user: string; record: JobWorkFlowChecklist }> = ({
                 { key: "delete", label: "Delete" },
               ],
               onClick: (e) => {
-                if (e.key === "edit") handleEdit();
-                if (e.key === "delete") handleDelete();
+                if (e.key === "edit") handleEdit(record);
+                if (e.key === "delete") handleDelete(record);
               },
             }}
           >
@@ -69,6 +107,26 @@ const UserActions: React.FC<{ user: string; record: JobWorkFlowChecklist }> = ({
         </div>
       </div>
 
+      {selectedRecord && (
+        <Modal
+          open={selectedRecord ? true : false}
+          title="Job Workflow Task"
+          centered
+          onCancel={() => {
+            setSelectedRecord(null);
+            setShowDeleteConfirm(false);
+          }}
+          confirmLoading={loading}
+          footer={null}
+        >
+          <CreateTaskCard
+            onSave={handleUpdateTask}
+            onCancel={() => {}}
+            loading={loading}
+            initialData={selectedRecord as any}
+          />
+        </Modal>
+      )}
       <ConfirmationModal
         open={showDeleteConfirm}
         onClose={() => setShowDeleteConfirm(false)}
@@ -84,15 +142,25 @@ const UserActions: React.FC<{ user: string; record: JobWorkFlowChecklist }> = ({
 
 let globalCurrentStep = -1;
 
-export const jobWorkflowChecklistFields: ColumnsType<JobWorkFlowChecklist> = [
+export const jobWorkflowChecklistFields = (
+  onUpdateRow: (updated: JobWorkFlowChecklist) => void,
+  onDeleteRow: (id: string) => void
+): ColumnsType<JobWorkFlowChecklist> => [
   {
     title: "Task",
-    dataIndex: "task",
-    key: "task",
+    dataIndex: "name",
+    key: "name",
     width: "45%",
     render: (text, record, index) => {
-      // Mark as finished if this step is <= the last clicked step
-      const isFinished = index <= globalCurrentStep;
+      // Build due datetime (date + time)
+      const estimatedDateTime =
+        record.dueDate && record.time
+          ? dayjs(`${record.dueDate} ${record.time}`, "YYYY-MM-DD HH:mm")
+          : null;
+
+      // Compare with current datetime
+      const isExpired =
+        estimatedDateTime && estimatedDateTime.isBefore(dayjs());
 
       return (
         <div
@@ -101,28 +169,30 @@ export const jobWorkflowChecklistFields: ColumnsType<JobWorkFlowChecklist> = [
             globalCurrentStep = index; // update global step
           }}
         >
-          <IconCircleCheck
-            className={isFinished ? "text-green-500" : "text-green-200"}
-            size={18}
-          />
+          {isExpired ? (
+            <IconCircleX className="text-red-500" size={18} />
+          ) : (
+            <IconCircleCheck className="text-green-500" size={18} />
+          )}
           <span className="text-font-color font-medium">{text}</span>
         </div>
       );
     },
   },
+
+  // {
+  //   dataIndex: "tag",
+  //   key: "tag",
+  //   width: "25%",
+  //   render: (tag) => <Tag color="blue">{tag}</Tag>,
+  // },
   {
-    dataIndex: "tag",
-    key: "tag",
-    width: "25%",
-    render: (tag) => <Tag color="blue">{tag}</Tag>,
-  },
-  {
-    dataIndex: "link",
-    key: "link",
-    render: (link) => (
+    dataIndex: "attachment",
+    key: "attachment",
+    render: (attachment) => (
       <div className="flex items-center justify-end relative">
-        {link && (
-          <a href={link} target="_blank" className="hover:text-blue">
+        {attachment && (
+          <a href={attachment} target="_blank" className="hover:text-blue">
             <IconLink size={18} />
           </a>
         )}
@@ -131,34 +201,44 @@ export const jobWorkflowChecklistFields: ColumnsType<JobWorkFlowChecklist> = [
   },
   {
     title: "Estimated",
-    dataIndex: "estimatedDate",
-    key: "estimatedDate",
+    dataIndex: "dueDate",
+    key: "dueDate",
     width: "10%",
-    render: (date) => (
-      <span className="text-font-color font-medium">{date}</span>
-    ),
+    render: (date: string) => {
+      if (!date) return "-";
+      return (
+        <span className="text-font-color font-medium">
+          {dayjs(date).format("MMM D, YYYY")}
+        </span>
+      );
+    },
   },
   {
     title: "Actual",
     dataIndex: "actualDate",
     key: "actualDate",
     width: "10%",
-    render: (date, record) => (
+    render: (date: string, record) => {
+      const formatted = dayjs(date || new Date()).format("MMM D, YYYY");
+      return (
       <div className="font-medium">
         <span
           className={
             record.status === "active" ? "text-green-600" : "text-red-600"
           }
         >
-          {date}
+          {formatted}
         </span>
       </div>
-    ),
+    );
+    },
   },
   {
     dataIndex: "user",
     key: "user",
     width: "10%",
-    render: (user, record) => <UserActions user={user} record={record} />,
+    render: (user, record) => (
+      <UserActions user={user} record={record} onUpdateRow={onUpdateRow} onDeleteRow={onDeleteRow}/>
+    ),
   },
 ];

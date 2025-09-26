@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
 import { convertLeadToJobThunk } from "@redux/feature/lead/leadThunk";
 import { useAppDispatch } from "@hooks/redux";
 import { enumToReadable } from "@lib/utils/enumToRedable";
+import SystemRoutes from "@lib/constants/Routes";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -55,7 +56,7 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
         ).unwrap();
         message.success(response?.response?.message);
         form.resetFields();
-        router.push(`/job`);
+        router.push(`${SystemRoutes.JOB}/${leadData?.leadId}`);
         setIsModalOpen(false);
       } catch (err) {
         message.error(err);

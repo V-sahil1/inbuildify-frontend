@@ -53,6 +53,20 @@ export const updateActionsThunk = createAsyncThunk(
     }
   );
 
+export const deleteActionsThunk = createAsyncThunk(
+    "action/deleteActions",
+  async (payload: { actionId: string }, { rejectWithValue }) => {
+      try {
+        const res = await api.delete<ApiResponse<any>>(
+          `${API_ENDPOINTS.ACTION_BASE}/${payload.actionId}`
+        );
+        return res.data;
+      } catch (error) {
+        return rejectWithValue(error.message);
+      }
+    }
+  );
+
 export const getActionTags = createAsyncThunk("action/getActionTags", async (_, { rejectWithValue }) => {
     try {
       const res = await api.get<ApiResponse<any>>(

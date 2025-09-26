@@ -12,7 +12,7 @@ import {
 } from "data/types";
 import { handleSaveTimelineCard } from "../../lib/utils/timelineCardUtils";
 import TimelineActionFormRenderer from "../common/TimelineActionFormRenderer";
-import { useAppDispatch, useAppSelector } from "@hooks/redux";
+import { useAppDispatch } from "@hooks/redux";
 import { getActionsThunk } from "@redux/feature/action/actionThunk";
 
 
@@ -23,8 +23,7 @@ const actionItems: MenuProps["items"] = [
   { key: "createTask", label: "Create Task" },
 ];
 
-const LeadActions = ({ leadId }: { leadId: string }) => {
-  const actions = useAppSelector((state) => state.action.actions);
+const LeadActions = ({ leadId }: { leadId: string }) => { 
   const [cardsData, setCardsData] = useState<TimelineCardProps[]>([]);
   const [activeTab, setActiveTab] = useState("All");
   const [activeAction, setActiveAction] = useState<ActionType>(null);

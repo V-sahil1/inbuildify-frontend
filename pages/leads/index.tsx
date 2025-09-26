@@ -104,7 +104,7 @@ const Leads = () => {
               key={lead.leadId}
               onClick={() => {
                 if (lead.status === "CANCELLED") return;
-                else if (lead.status === "JOB") router.push(SystemRoutes.JOB);
+                else if (lead.status === "JOB") router.push(`${SystemRoutes.JOB}/${lead.leadId}`);
                 else router.push(`${SystemRoutes.LEADS}/${lead.leadId}`);
               }}
               className={`rounded-2xl border border-border-color shadow-sm p-6 ${

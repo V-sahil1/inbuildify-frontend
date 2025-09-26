@@ -6,8 +6,12 @@ import { jobWorkflowChecklistFields } from "@/components/formFields/jobWorkflowC
 import TimelineActionsBar from "@/components/common/TimeLineComponents/TimelineActionsBar";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { Status } from "@lib/constants/enum";
-import { fetchWorkflowProcess } from "@redux/feature/workflow/workflowThunk";
-
+import {
+  fetchWorkflowProcess,
+  fetchWorkflowProcessTasksForJob,
+} from "@redux/feature/workflow/workflowThunk";
+import router from "next/router";
+import { JobWorkFlowChecklist } from "data/types";
 const ClickableStep = ({ title, isCurrent, onClick }) => {
   return (
     <div
@@ -22,15 +26,26 @@ const ClickableStep = ({ title, isCurrent, onClick }) => {
   );
 };
 const index = () => {
+  const { id } = router.query as { id: string };
   const [activeStep, setActiveStep] = useState(0);
   const [activeTab, setActiveTab] = useState("Own");
   const [finishedSteps, setFinishedSteps] = useState<number[]>([]);
+  const [workflowProcessTasks, setWorkflowProcessTasks] = useState([]);
   const { workflowProcess, status } = useAppSelector((state) => state.workflow);
   const dispatch = useAppDispatch();
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
   };
 
+  const handleUpdateRow = (updatedRecord: JobWorkFlowChecklist) => {
+    setWorkflowProcessTasks((prev) =>
+      prev.map((r) => (r.id === updatedRecord.id ? updatedRecord : r))
+    );
+  };
+
+  const handleDeleteRow = (id: string) => {
+    setWorkflowProcessTasks((prev) => prev.filter((r) => r.id !== id));
+  };
   const fetchWorkflow = async () => {
     try {
       await dispatch(fetchWorkflowProcess());
@@ -45,8 +60,6 @@ const index = () => {
     setActiveStep(index);
 
     if (index > Math.max(-1, ...finishedSteps)) {
-
-      
       const newFinished = Array.from({ length: index + 1 }, (_, i) => i);
       setFinishedSteps(newFinished);
     } else {
@@ -57,7 +70,23 @@ const index = () => {
   };
 
   const currentStepTitle = workflowProcess[activeStep]?.name;
-  const currentStepChecklist = workflowProcess[activeStep]?.checklist || [];
+  const currentStepId = workflowProcess[activeStep]?.workflowProcessId;
+  const fetchWorkflowProcessTasks = async () => {
+    try {
+      const response = await dispatch(
+        fetchWorkflowProcessTasksForJob({
+          leadId: id,
+          workflowProcessId: currentStepId,
+        })
+      ).unwrap();
+      setWorkflowProcessTasks(response);
+    } catch (error) {
+      message.error(error);
+    }
+  };
+  useEffect(() => {
+    if (currentStepId) fetchWorkflowProcessTasks();
+  }, [currentStepId]);
   return (
     <div className="bg-body-color p-6">
       <div>
@@ -121,8 +150,8 @@ const index = () => {
         </Typography.Title>
         <div className="overflow-x-auto">
           <Table
-            dataSource={currentStepChecklist}
-            columns={jobWorkflowChecklistFields}
+            dataSource={workflowProcessTasks}
+            columns={jobWorkflowChecklistFields(handleUpdateRow,handleDeleteRow)}
             pagination={{ pageSize: 10 }}
             rowKey="id"
           />
