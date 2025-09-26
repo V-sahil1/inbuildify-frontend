@@ -2,11 +2,11 @@
 export type Status = "readyforconstruction" | "underconstruction" | "completed" | "onhold";
 
 export interface Construction {
-    id: number;
+    id: string;
     customerName: string;
     jobAddress: string;
     builderName: string;
-    jobTitle: string;
+    jobType: string;
     currentStage: string;
     dueDate: string;
     siteSupervisor: string;

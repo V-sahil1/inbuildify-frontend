@@ -94,17 +94,17 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
           type="warning"
           className="mb-4"
         />
-        <div className="border border-gray-300 rounded-md overflow-hidden">
-          <div className="sticky top-0 z-10 bg-white border-b border-gray-200">
-            <div className="flex items-center justify-between w-[650px] p-2 bg-gray-50 font-medium ml-9">
-              <div className="ml-4">Reference ID</div>
-              <div>Status</div>
+        <div className="border border-gray-300 rounded-md overflow-hidden w-full">
+          <div className="sticky top-0 z-10 bg-gray-100 border-b border-gray-200">
+            <div className="flex items-center lg:gap-56 max-[1024px]:gap-44 max-[620px]:gap-24 gap-7 p-2 font-medium ml-11 mr-11 ">
+              <div>Reference ID</div>
+              <div >Status</div>
               <div>Cost</div>
               {/* <div>Sketch Number</div> */}
             </div>
           </div>
 
-          <div className="max-h-100 overflow-y-auto">
+          <div className="max-h-full overflow-y-auto">
             {quotations?.length > 0 ? (
               <>
                 <Form.Item
@@ -119,9 +119,9 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
                 >
                   <Radio.Group onChange={(e) => setSelectedQuotation(e.target.value)} value={selectedQuotation}>
                     {quotations?.map((quotation, index) => {
-                      return (<Radio className="w-full ml-4" value={(quotation?.versions[0] as any)?.quotationVersionId}>
-                        <div key={quotation?.slugId} className={` px-4 py-3 items-center ${index < quotations.length - 1 ? "border-b border-gray-100 " : ""}`}>
-                          <div className="flex items-center justify-between w-[650px] ">
+                      return (<Radio className="flex items-center ml-10 p-2  font-medium" value={(quotation?.versions[0] as any)?.quotationVersionId}>
+                        <div key={quotation?.slugId} className={`py-2 items-center ${index < quotations.length - 1 ? "border-b border-gray-100 " : ""}`}>
+                          <div className="flex items-center justify-between lg:gap-48 max-[1024px]:gap-36 max-[620px]:gap-16 gap-7  ">
                             <div className="ml-2">
                               {quotation.slugId} (V{(quotation?.versions[0] as any)?.versionNumber})
                             </div>
