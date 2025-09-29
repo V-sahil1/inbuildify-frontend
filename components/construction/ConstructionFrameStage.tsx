@@ -1,8 +1,10 @@
 import { IconCaretDownFilled, IconDotsVertical, IconMessage, IconPlus } from "@tabler/icons-react"
 import { Button, Checkbox, Input, Table, Dropdown, MenuProps, DatePicker } from "antd"
+import InspectionCheckListDrawer from "./InspectionCheckListDrawer";
+import { useState } from "react";
 
 const ConstructionFrameStage = () => {
-
+    const [openDrawer, setOpenDrawer] = useState(false);
     const items: MenuProps['items'] = [
         {
             key: '1',
@@ -118,16 +120,19 @@ const ConstructionFrameStage = () => {
             }
         },
     ]
+
+
     return (
         <div className="bg-card-color !mt-0 p-3">
             <div className="flex justify-end gap-1">
                 <Button size="small" type="primary" className="text-xs" >Update Status</Button>
-                <Button size="small" type="primary" className="text-xs">Inspection</Button>
+                <Button size="small" type="primary" className="text-xs" onClick={() => setOpenDrawer(true)}>Inspection</Button>
                 <Button size="small" type="primary" className="text-xs">OH&S</Button>
             </div>
             <div>
                 <Table columns={columns} dataSource={data} />
             </div>
+            <InspectionCheckListDrawer open={openDrawer} onClose={() => setOpenDrawer(false)} />
         </div>
     )
 }

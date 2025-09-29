@@ -16,6 +16,7 @@ import {
 } from "../formFields/constuctionField";
 import { getStatus } from "@lib/utils/constructionStatusCards";
 import React from "react";
+import SystemRoutes from "@lib/constants/Routes";
 
 const ConstructionManager = () => {
   const router = useRouter();
@@ -143,7 +144,7 @@ const ConstructionManager = () => {
           pagination={{ pageSize: 10 }}
           scroll={{ x: true }}
           onRow={(record) => ({
-            onClick: () => router.push(`/construction/#${record.id}`),
+            onClick: () => router.push(`/${SystemRoutes.CONSTRUCTION}/${record.id}`),
           })}
         />
       </div>

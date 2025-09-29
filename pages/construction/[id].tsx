@@ -4,6 +4,7 @@ import StageProgress from '@/components/common/StageProgress'
 import ConstructionDetailHeader from '@/components/construction/ConstructionDetailHeader'
 import ConstructionTimeline from '@/components/construction/ConstructionTimeline'
 import ConstructionTabs from '@/components/construction/ConstructionTab'
+import MailSendModal from '@/components/common/Models/MailSendModal'
 
 const index = () => {
     const router = useRouter()
@@ -18,8 +19,6 @@ const index = () => {
         { title: 'Fixing Stage' },
         { title: 'Preconstruction', }
     ]
-    console.log("id:", normalizedId)
-    console.log("current",current);
     return (
         <div className='p-3'>
             <div className='flex gap-3'>
@@ -32,6 +31,13 @@ const index = () => {
             </div>
             <ConstructionTimeline current_value={current} setCurrent={setCurrent} steps={steps}  />
             <ConstructionTabs current_value={current}/>
+
+       <MailSendModal
+        open={true}
+        onCancel={()=>{}}
+        onSend={()=>{}}
+        title="Send email to Private Inspector"
+      />
         </div>
     )
 }
