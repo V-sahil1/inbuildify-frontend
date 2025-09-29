@@ -37,15 +37,18 @@ import ColorCategoryItemModel from "@/components/common/Models/ColorCategoryItem
 export const ColourCategoryPage = () => {
   const dispatch = useAppDispatch();
   const { ColorCategory, status } = useAppSelector((state) => state.colour);
+  const fetchColourCategoryData = async () => {
+    try {
+      await dispatch(fetchColourCategory()).unwrap();
+    } catch (error) {
+      message.error(error || "Failed to fetch colour category");
+    }
+  };
   useEffect(() => {
     if (status === Status.IDLE) {
-      try {
-        dispatch(fetchColourCategory()).unwrap();
-      } catch (error) {
-        message.error(error || "Failed to fetch colour category");
-      }
+      fetchColourCategoryData();
     }
-  }, [dispatch, status]);
+  }, [status]);
 
   const [colorCategoryId, setColorCategoryId] = useState("");
   const [addColourCategoryModal, setAddColourCategoryModal] = useState(false);

@@ -12,22 +12,27 @@ import ConfirmationModal from "@/components/common/ConfirmationModal";
 import dayjs from "dayjs";
 import CreateTaskCard from "../common/TimeLineComponents/CreateTaskCard";
 import { useAppDispatch } from "@hooks/redux";
-import { deleteActionsThunk, updateActionsThunk } from "@redux/feature/action/actionThunk";
+import {
+  deleteActionsThunk,
+  updateActionsThunk,
+} from "@redux/feature/action/actionThunk";
 import { formDataGenerator } from "@lib/utils/formDataGenerator";
 
 const UserActions: React.FC<{
   user: string;
   record: JobWorkFlowChecklist;
   onUpdateRow: (updated: JobWorkFlowChecklist) => void;
-  onDeleteRow: (id: string) => void;
+  onDeleteRow: (deleteRecord: JobWorkFlowChecklist) => void;
 }> = ({ user, record, onUpdateRow, onDeleteRow }) => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [selectedRecord, setSelectedRecord] =
     useState<JobWorkFlowChecklist | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const dispatch = useAppDispatch();
 
   const handleEdit = (record: JobWorkFlowChecklist) => {
+    setShowEditModal(true);
     setSelectedRecord(record);
   };
 
@@ -37,19 +42,23 @@ const UserActions: React.FC<{
   };
 
   const confirmDelete = async () => {
-    // console.log("Deleting:", selectedRecord?.actionId);
+    setLoading(true);
     try {
-      await dispatch(deleteActionsThunk({ actionId: selectedRecord?.actionId })).unwrap();
+      await dispatch(
+        deleteActionsThunk({ actionId: selectedRecord?.actionId })
+      ).unwrap();
       message.success("Task deleted successfully");
-      onDeleteRow(selectedRecord?.actionId);
+      onDeleteRow(selectedRecord);
+      setLoading(false);
       setSelectedRecord(null);
-    setShowDeleteConfirm(false);
+      setShowDeleteConfirm(false);
     } catch (error) {
       message.error(error || "Failed to delete task");
+      setLoading(false);
     }
   };
 
-  const handleUpdateTask = async (values: any) => { 
+  const handleUpdateTask = async (values: any) => {
     const { actionId, ...rest } = values;
     setLoading(true);
     try {
@@ -60,6 +69,7 @@ const UserActions: React.FC<{
         })
       ).unwrap();
       setSelectedRecord(null);
+      setShowEditModal(false);
       onUpdateRow(response.task);
       message.success("Task updated successfully");
     } catch (error) {
@@ -107,21 +117,24 @@ const UserActions: React.FC<{
         </div>
       </div>
 
-      {selectedRecord && (
+      {showEditModal && (
         <Modal
-          open={selectedRecord ? true : false}
+          open={showEditModal}
           title="Job Workflow Task"
           centered
           onCancel={() => {
+            setShowEditModal(false);
             setSelectedRecord(null);
-            setShowDeleteConfirm(false);
           }}
           confirmLoading={loading}
           footer={null}
         >
           <CreateTaskCard
             onSave={handleUpdateTask}
-            onCancel={() => {}}
+            onCancel={() => {
+              setShowEditModal(false);
+              setSelectedRecord(null);
+            }}
             loading={loading}
             initialData={selectedRecord as any}
           />
@@ -131,8 +144,9 @@ const UserActions: React.FC<{
         open={showDeleteConfirm}
         onClose={() => setShowDeleteConfirm(false)}
         onConfirm={confirmDelete}
-        message={`Are you sure you want to delete "${record.task}"?`}
+        message={`Are you sure you want to delete "${record.name}"?`}
         type="danger"
+        loading={loading}
         confirmText="Delete"
         cancelText="Cancel"
       />
@@ -144,7 +158,7 @@ let globalCurrentStep = -1;
 
 export const jobWorkflowChecklistFields = (
   onUpdateRow: (updated: JobWorkFlowChecklist) => void,
-  onDeleteRow: (id: string) => void
+  onDeleteRow: (deleteRecord: JobWorkFlowChecklist) => void
 ): ColumnsType<JobWorkFlowChecklist> => [
   {
     title: "Task",
@@ -221,16 +235,16 @@ export const jobWorkflowChecklistFields = (
     render: (date: string, record) => {
       const formatted = dayjs(date || new Date()).format("MMM D, YYYY");
       return (
-      <div className="font-medium">
-        <span
-          className={
-            record.status === "active" ? "text-green-600" : "text-red-600"
-          }
-        >
-          {formatted}
-        </span>
-      </div>
-    );
+        <div className="font-medium">
+          <span
+            className={
+              record.status === "active" ? "text-green-600" : "text-red-600"
+            }
+          >
+            {formatted}
+          </span>
+        </div>
+      );
     },
   },
   {
@@ -238,7 +252,12 @@ export const jobWorkflowChecklistFields = (
     key: "user",
     width: "10%",
     render: (user, record) => (
-      <UserActions user={user} record={record} onUpdateRow={onUpdateRow} onDeleteRow={onDeleteRow}/>
+      <UserActions
+        user={user}
+        record={record}
+        onUpdateRow={onUpdateRow}
+        onDeleteRow={onDeleteRow}
+      />
     ),
   },
 ];

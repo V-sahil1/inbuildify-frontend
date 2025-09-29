@@ -58,7 +58,7 @@ export const deleteActionsThunk = createAsyncThunk(
   async (payload: { actionId: string }, { rejectWithValue }) => {
       try {
         const res = await api.delete<ApiResponse<any>>(
-          `${API_ENDPOINTS.ACTION_BASE}/${payload.actionId}`
+          `${API_ENDPOINTS.WORKFLOW_PROCESS_TASK_FOR_JOB}/${payload.actionId}`
         );
         return res.data;
       } catch (error) {

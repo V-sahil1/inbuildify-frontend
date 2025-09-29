@@ -43,8 +43,8 @@ const index = () => {
     );
   };
 
-  const handleDeleteRow = (id: string) => {
-    setWorkflowProcessTasks((prev) => prev.filter((r) => r.id !== id));
+  const handleDeleteRow = (deleteRecord: JobWorkFlowChecklist) => {
+    setWorkflowProcessTasks((prev) => prev.filter((r) => r.id !== deleteRecord.id));
   };
   const fetchWorkflow = async () => {
     try {
