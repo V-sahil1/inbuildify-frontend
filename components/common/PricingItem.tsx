@@ -59,16 +59,18 @@ export const PricingItem = ({ item, handleClick }: PricingItemProps) => {
       </div>
 
       <div className="flex gap-4">
-        {item?.attachment && (
+        {item?.attachment || item?.image && (
+          <Tooltip title="view attachment">
           <button
             className="rounded-md p-1 group"
-            onClick={() => window.open(item.attachment, "_blank")}
+            onClick={() => window.open(item.attachment || item.image, "_blank")}
           >
             <IconLink
               size={20}
               className="text-font-color group-hover:text-blue"
             />
           </button>
+          </Tooltip>
         )}
 
         <button className="rounded-md p-1 group" onClick={() => handleClick("edit", item)}>

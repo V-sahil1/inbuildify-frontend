@@ -16,6 +16,7 @@ export interface WorkflowProcess {
   displayOrder?: number;
   createdAt: string;
   updatedAt: string;
+  image?: string;
   tasks: Task[] | null;
   isExpanded: boolean;
   loadingItems: boolean;

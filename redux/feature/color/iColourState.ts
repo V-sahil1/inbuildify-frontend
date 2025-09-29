@@ -5,6 +5,7 @@ export interface SubCategory {
   colorCategoryId: string;
   name: string;
   description: string;
+  image?: string;
   items: SubCategoryItem[] | null;
   isExpanded: boolean;
   createdAt: string;

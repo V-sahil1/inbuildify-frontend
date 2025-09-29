@@ -3,10 +3,11 @@ import {
   IconChevronDown,
   IconChevronUp,
   IconEdit,
+  IconLink,
   IconPlus,
   IconTrash,
 } from "@tabler/icons-react";
-import { Spin } from "antd";
+import { Spin, Tooltip } from "antd";
 import { useState } from "react";
 
 interface NestedItemProps {
@@ -48,6 +49,19 @@ export const NestedItem = ({
         </div>
 
         <div className="flex items-center gap-2">
+          {item?.image && (
+             <Tooltip title="view attachment">
+            <button
+              className="rounded-md p-1 group"
+              onClick={() => window.open(item.image, "_blank")}
+            >
+              <IconLink
+                size={20}
+                className="text-font-color group-hover:text-blue"
+              />
+            </button>
+            </Tooltip>
+          )}
           {onAdd && (
             <button
               className="p-2 rounded-lg hover:bg-green-50 transition"

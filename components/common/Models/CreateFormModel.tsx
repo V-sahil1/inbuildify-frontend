@@ -112,7 +112,7 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
     }
   };
 
-  const makeFileFromUrl = (url?: string, name: string = "logo") => {
+  const makeFileFromUrl = (url?: string, name: string = "image") => {
     if (!url) return [];
     return [
       {

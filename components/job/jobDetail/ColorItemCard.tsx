@@ -14,12 +14,14 @@ import {
   Empty,
 } from "antd";
 import { SubCategoryItem } from "@redux/feature/color/iColourState";
+import Loading from "@/components/common/Loading";
 
 const { Title, Text } = Typography;
 
 interface Props {
   data: SubCategoryItem[];
   isGridView: boolean;
+  loading: boolean;
 }
 
 // Extracted card content to avoid duplication
@@ -105,8 +107,27 @@ const CardContent = ({
   </>
 );
 
-export const ColorItemCard: React.FC<Props> = ({ data, isGridView }) => {
-  console.log("data of card", data);
+export const ColorItemCard: React.FC<Props> = ({ data, isGridView, loading }) => {
+  // console.log("data of card", data);
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center p-10 h-96">
+        {loading ? (
+          <Loading type="primary" />
+        ) : (
+          <Empty
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+            description={
+              <div className="text-gray-500">
+                <p className="text-lg font-semibold">No items found</p>
+                <p>Try searching for a different item or category.</p>
+              </div>
+            }
+          />
+        )}
+      </div>
+    );
+  }
   if (data.length === 0) {
     return (
       <div className="flex justify-center items-center p-10 h-96">

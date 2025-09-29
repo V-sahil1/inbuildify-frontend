@@ -1,3 +1,4 @@
+import Loading from "@/components/common/Loading";
 import StageProgress from "@/components/common/StageProgress";
 import ColorFilter from "@/components/job/jobDetail/ColorFilter";
 import { ColorItemCard } from "@/components/job/jobDetail/ColorItemCard";
@@ -10,12 +11,11 @@ import { ColorItemList } from "data/sampleData";
 import React, { useState } from "react";
  
 const Index = () => {
-  const [selectedSubCategory, setSelectedSubCategory] = useState(
-    ""
-  ); 
+  const [selectedSubCategory, setSelectedSubCategory] = useState("");
   const [isGridView, setIsGridView] = useState(true);
   const { ColorCategory } = useAppSelector((state) => state.colour);
   const [subCategoryItem, setSubCategoryItem] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const dispatch = useAppDispatch();
   const handleSubCategoryExpand = async (selectedSubCategory: {
@@ -23,6 +23,7 @@ const Index = () => {
     subCategoryId: string;
   }) => {
     setSelectedSubCategory(selectedSubCategory.subCategoryId);
+    setLoading(true);
     const category = ColorCategory.find(
       (item) => item.colorCategoryId === selectedSubCategory.categoryId
     );
@@ -54,6 +55,7 @@ const Index = () => {
     } else {
       setSubCategoryItem(subCategory?.items);
     }
+    setLoading(false);
   };
 
   const addedCount = ColorItemList.map(
@@ -122,7 +124,7 @@ const Index = () => {
           />
         </div>
         <div className="p-3">
-          <ColorItemCard data={subCategoryItem || []} isGridView={isGridView} />
+          <ColorItemCard loading={loading} data={subCategoryItem || []} isGridView={isGridView} />
         </div>
       </div>
       <div className="sticky bottom-0 left-0 w-full bg-[var(--card-color)] border-t p-3 z-50">
