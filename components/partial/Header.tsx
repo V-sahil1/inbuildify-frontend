@@ -449,7 +449,7 @@ const handleSignOut = async () => {
         <div className="container-fluid flex items-center">
           <div className="flex items-center gap-3 sm:pe-4 pe-2">
             <button
-              onClick={toggleMiniSidebar}
+              onClick={() => router.back()}
               className="xl:flex hidden items-center justify-center w-[36px] h-[36px] min-w-[36px] text-primary bg-primary-10 rounded-full"
             >
               <IconArrowBigLeftFilled
