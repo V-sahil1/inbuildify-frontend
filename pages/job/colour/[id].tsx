@@ -9,13 +9,16 @@ import { toggleExpandColourCategoryItem } from "@redux/feature/color/ColourSlice
 import { Button, message, Select } from "antd";
 import { ColorItemList } from "data/sampleData";
 import React, { useState } from "react";
- 
+import { usePdf } from "@hooks/usePdf";
+import ColorPdf from "@/components/common/ColorPdf";
+
 const Index = () => {
   const [selectedSubCategory, setSelectedSubCategory] = useState("");
   const [isGridView, setIsGridView] = useState(true);
   const { ColorCategory } = useAppSelector((state) => state.colour);
   const [subCategoryItem, setSubCategoryItem] = useState([]);
   const [loading, setLoading] = useState(false);
+  const { previewPdf } = usePdf(ColorPdf);
 
   const dispatch = useAppDispatch();
   const handleSubCategoryExpand = async (selectedSubCategory: {
@@ -124,7 +127,11 @@ const Index = () => {
           />
         </div>
         <div className="p-3">
-          <ColorItemCard loading={loading} data={subCategoryItem || []} isGridView={isGridView} />
+          <ColorItemCard
+            loading={loading}
+            data={subCategoryItem || []}
+            isGridView={isGridView}
+          />
         </div>
       </div>
       <div className="sticky bottom-0 left-0 w-full bg-[var(--card-color)] border-t p-3 z-50">
@@ -134,9 +141,7 @@ const Index = () => {
             <Button type="primary" onClick={() => console.log("Save clicked")}>
               Approve
             </Button>
-            <Button onClick={() => console.log("Reset clicked")}>
-              Preview
-            </Button>
+            <Button onClick={previewPdf}>Preview</Button>
             <Button onClick={() => console.log("Export clicked")}>
               Create Template
             </Button>
