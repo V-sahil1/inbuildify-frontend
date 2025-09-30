@@ -9,7 +9,7 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
-import { message, Spin, Empty, Tooltip, Button } from "antd";
+import { message,Empty, Tooltip, Button } from "antd";
 import ConfirmationModal from "@/components/common/ConfirmationModal";
 import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
 import { MasterPricingCategoryFields } from "@/components/formFields/MasterPricingCategoryFields";
@@ -33,6 +33,7 @@ import {
 } from "@redux/feature/color/ColourSlice";
 import { NestedItem } from "@/components/common/NestedItem";
 import ColorCategoryItemModel from "@/components/common/Models/ColorCategoryItemModel";
+import Loading from "@/components/common/Loading";
 
 export const ColourCategoryPage = () => {
   const dispatch = useAppDispatch();
@@ -275,7 +276,7 @@ export const ColourCategoryPage = () => {
 
       {status == Status.PENDING ? (
         <div className="flex justify-center items-center pt-[20vh]">
-          <Spin size="large" />
+          <Loading type="primary" />
         </div>
       ) : ColorCategory.length > 0 ? (
         <div className="space-y-4">
@@ -369,12 +370,12 @@ export const ColourCategoryPage = () => {
                   <div className="px-4 pb-4">
                     {isLoading ? (
                       <div className="flex justify-center items-center py-10 gap-4 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 h-[85px]">
-                        <Spin size="large" />
+                        <Loading type="primary" />
                       </div>
                     ) : colorCategory?.subCategories?.length > 0 ? (
                       <div className="mt-2 max-h-[300px] overflow-y-auto space-y-2 pr-2">
                         {colorCategory?.subCategories?.map(
-                          (item: SubCategory) => (
+                          (item: SubCategory) => ( 
                             <NestedItem
                               key={item?.colorSubCategoryId}
                               item={item}
@@ -386,6 +387,7 @@ export const ColourCategoryPage = () => {
                               }
                               handleClick={handleColourSubCategoryAction}
                               onToggleDropdown={handleSubCategoryExpand}
+                              isLoading={loadingItems[item.colorSubCategoryId]}
                             />
                           )
                         )}

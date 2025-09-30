@@ -139,6 +139,7 @@ export const WorkflowProcessPage = () => {
             payload: { name: values.name, description: values.description },
           })
         ).unwrap();
+        setEditing(false);
         message.success("Workflow process updated successfully");
       } else {
         await dispatch(
@@ -177,6 +178,7 @@ export const WorkflowProcessPage = () => {
           })
         ).unwrap();
         message.success("Workflow process updated successfully");
+        setEditing(false);
       } else {
         await dispatch(createWorkflowProcessTask(formData)).unwrap();
         message.success("Workflow process task created successfully");
@@ -518,6 +520,7 @@ export const WorkflowProcessPage = () => {
           open={addWorkflowProcessModal}
           loading={loading}
           onCancel={() => {
+            setEditing(false);
             setSelectedItem(null);
             setAddWorkflowProcessModal(false);
           }}
@@ -551,6 +554,7 @@ export const WorkflowProcessPage = () => {
           open={addWorkflowProcessTaskModal}
           loading={loading}
           onCancel={() => {
+            setEditing(false);
             setSelectedItem(null);
             setAddWorkflowProcessTaskModal(false);
           }}

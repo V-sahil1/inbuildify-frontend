@@ -102,11 +102,9 @@ const ColourSlice = createSlice({
     // color subcategory
     builder
       .addCase(fetchColourSubCategory.pending, (state) => {
-        state.status = Status.PENDING;
         state.loading = true;
       })
       .addCase(fetchColourSubCategory.fulfilled, (state, action) => {
-        state.status = Status.SUCCESS;
         state.loading = false;
       
         const category = state.ColorCategory.find(
