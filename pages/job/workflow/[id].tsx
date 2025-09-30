@@ -12,6 +12,7 @@ import {
 } from "@redux/feature/workflow/workflowThunk";
 import router from "next/router";
 import { JobWorkFlowChecklist } from "data/types";
+import Loading from "@/components/common/Loading";
 const ClickableStep = ({ title, isCurrent, onClick }) => {
   return (
     <div
@@ -31,6 +32,7 @@ const index = () => {
   const [activeTab, setActiveTab] = useState("Own");
   const [finishedSteps, setFinishedSteps] = useState<number[]>([]);
   const [workflowProcessTasks, setWorkflowProcessTasks] = useState([]);
+  const [loading, setLoading] = useState(false);
   const { workflowProcess, status } = useAppSelector((state) => state.workflow);
   const dispatch = useAppDispatch();
   const handleTabChange = (tab: string) => {
@@ -39,12 +41,16 @@ const index = () => {
 
   const handleUpdateRow = (updatedRecord: JobWorkFlowChecklist) => {
     setWorkflowProcessTasks((prev) =>
-      prev.map((r) => (r.id === updatedRecord.id ? updatedRecord : r))
+      prev.map((r) =>
+        r.actionId === updatedRecord.actionId ? updatedRecord : r
+      )
     );
   };
 
   const handleDeleteRow = (deleteRecord: JobWorkFlowChecklist) => {
-    setWorkflowProcessTasks((prev) => prev.filter((r) => r.id !== deleteRecord.id));
+    setWorkflowProcessTasks((prev) =>
+      prev.filter((r) => r.actionId !== deleteRecord.actionId)
+    );
   };
   const fetchWorkflow = async () => {
     try {
@@ -72,6 +78,7 @@ const index = () => {
   const currentStepTitle = workflowProcess[activeStep]?.name;
   const currentStepId = workflowProcess[activeStep]?.workflowProcessId;
   const fetchWorkflowProcessTasks = async () => {
+    setLoading(true);
     try {
       const response = await dispatch(
         fetchWorkflowProcessTasksForJob({
@@ -82,6 +89,8 @@ const index = () => {
       setWorkflowProcessTasks(response);
     } catch (error) {
       message.error(error);
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
@@ -149,12 +158,18 @@ const index = () => {
           {currentStepTitle}
         </Typography.Title>
         <div className="overflow-x-auto">
+          {loading ? (
+            <div className="flex justify-center items-center h-[200px]">
+              <Loading type="primary" />
+            </div>
+          ) : (
           <Table
             dataSource={workflowProcessTasks}
             columns={jobWorkflowChecklistFields(handleUpdateRow,handleDeleteRow)}
             pagination={{ pageSize: 10 }}
-            rowKey="id"
+            rowKey="actionId"
           />
+          )}
         </div>
       </div>
     </div>

@@ -122,7 +122,7 @@ export const NestedItem = ({
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleClick("edit", subItem, "item");
+                        handleClick("edit", subItem, "subCategoryItem");
                       }}
                       className="p-1 hover:bg-gray-100 rounded"
                     >
@@ -131,7 +131,7 @@ export const NestedItem = ({
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleClick("delete", subItem, "item");
+                        handleClick("delete", subItem, "subCategoryItem",);
                       }}
                       className="p-1 hover:bg-red-50 rounded"
                     >

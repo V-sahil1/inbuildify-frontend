@@ -216,8 +216,9 @@ const StageProgress: React.FC<StageProgressProps> = ({
           })}
         </div>
       </div>
+      <div className="flex items-center gap-2">
       {lead?.lead?.status === "COMPLETED" && (
-        <div className="flex items-center gap-2">
+        <>
           <button
             className="btn btn-success rounded-md p-1"
             onClick={handleWinClick}
@@ -230,11 +231,13 @@ const StageProgress: React.FC<StageProgressProps> = ({
           >
           Lost
         </button>
+          </>
+        )}
         <Dropdown
           open={dropdownVisible}
           onOpenChange={(open) => setDropdownVisible(open)}
           placement="bottomRight"
-          trigger={['click']}
+          trigger={["click"]}
           dropdownRender={() => (
             <div className="bg-white shadow-lg rounded-md border border-gray-200 w-56">
               <div className="py-1">
@@ -263,7 +266,6 @@ const StageProgress: React.FC<StageProgressProps> = ({
           </button>
         </Dropdown>
       </div>
-    )} 
       {/* <Modal
         title={modalType === "WON" ? "Won" : modalType === "LOST" ? "Lost" : ""}
         open={isModalOpen}

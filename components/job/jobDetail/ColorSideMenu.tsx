@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Menu, MenuProps, message } from "antd";
-import {SubCategory } from "@redux/feature/color/iColourState";
+import { SubCategory } from "@redux/feature/color/iColourState";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import {
   fetchColourCategory,
@@ -9,6 +9,8 @@ import {
 import { toggleExpandColourCategory } from "@redux/feature/color/ColourSlice";
 import { Status } from "@lib/constants/enum";
 import Loading from "@/components/common/Loading";
+import NoDataMessage from "@/components/common/NoDataMessage";
+import SystemRoutes from "@lib/constants/Routes";
 
 export interface SidebarMenuItem {
     key: string;
@@ -87,10 +89,24 @@ const ColorSideMenu: React.FC<ColorSideMenuProps> = ({onSelect, selectedKey}) =>
     return {
       key: cat?.colorCategoryId,
       label: cat?.name,
-    children: cat?.subCategories?.map((sub) => ({
-      key: sub?.colorSubCategoryId,
-      label: sub?.name,
-    })),
+         children:cat?.subCategories && cat.subCategories.length > 0
+          ? cat?.subCategories?.map((sub) => ({
+              key: sub?.colorSubCategoryId,
+              label: sub?.name,
+            }))
+          : [
+            {
+              key: `${cat?.colorCategoryId}-empty`,
+              label: (
+                <div className="w-full ml-[-80px]flex justify-center items-center">
+                  <NoDataMessage
+                    label="Sub Category"
+                    link={SystemRoutes.SETTINGS_COLOUR} 
+                  />
+                </div>
+              ),
+            },
+          ],
     };
   });
 

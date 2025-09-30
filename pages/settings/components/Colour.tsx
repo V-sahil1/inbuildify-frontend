@@ -166,7 +166,7 @@ export const ColourCategoryPage = () => {
     if (action === "edit") {
       setEditing(true);
       setAddColourCategoryModal(true);
-    } else {
+    } else if (action === "delete"){
       setDeleteModal({ open: true, type: "colorCategory" });
     }
   };
@@ -469,9 +469,10 @@ export const ColourCategoryPage = () => {
         <ConfirmationModal
           loading={loading}
           open={deleteModal.open}
-          onClose={() =>
+          onClose={() =>{
+            setSelectedItem(null);
             setDeleteModal({ open: false, type: deleteModal.type })
-          }
+          }}
           onConfirm={() =>
             handleDelete(
               deleteModal.type,
@@ -486,10 +487,10 @@ export const ColourCategoryPage = () => {
           title="Confirm Deletion"
           message={
             deleteModal.type === "subCategoryItem"
-              ? "Are you sure you want to delete this Sub Category Item? Deleting it will also remove it from any associated packages."
+              ? "Are you sure you want to delete this Sub Category Item? Deleting it will also remove it from any associated subcategory."
               : deleteModal.type === "subCategory"
-              ? "Are you sure you want to delete this Sub Category? Deleting it will also remove it from any associated packages."
-              : "Are you sure you want to delete this Category? Deleting it will also remove all the tasks under it and affect any places where it is used."
+              ? "Are you sure you want to delete this Sub Category? Deleting it will also remove it from any associated Color category."
+              : "Are you sure you want to delete this Category? Deleting it will also remove all the subcategories and subcategory items under it and affect any places where it is used."
           }
         />
       )}

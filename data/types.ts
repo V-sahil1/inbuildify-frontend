@@ -204,7 +204,10 @@ export interface SmsDetails {
 // New: normalized item shape used by TimelineCard for display
 export interface TimelineItem {
   type: "NOTES" | "APPOINTMENT" | "TASK" | "SMS";
-  createdByName: string;
+  createdBy: {
+    id: string;
+    name: string;
+  };
   createdAt: string;
   notes?: NoteDetails[];
   appointment?: AppointmentDetails[];
@@ -214,7 +217,10 @@ export interface TimelineItem {
 
 export interface BaseTimelineCardProps {
   date: string;
-  createdByName: string;
+  createdBy: {
+    id: string;
+    name: string;
+  };
   createdAt: string;
   item?: TimelineItem; // optional to allow rendering empty form state
   status?: "completed" | "pending" | "working" | "";
@@ -354,8 +360,8 @@ export interface JobWorkFlowChecklist {
 }
 
 export interface WorkStepsChecklist{
-  title: string,
-  checkList: JobWorkFlowChecklist[]
+  title: string;
+  checkList: JobWorkFlowChecklist[];
 }
 
 export interface JobVariationDataType {

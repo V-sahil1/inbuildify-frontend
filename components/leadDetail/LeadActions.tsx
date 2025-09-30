@@ -188,6 +188,7 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
               <TimelineCard
                 key={idx}
                 {...item}
+                createdBy={item?.createdBy}
                 item={item}
                 onEdit={(data) => handleEdit(data, idx)}
               />

@@ -28,7 +28,7 @@ const statusColors: Record<string, string> = {
 const TimelineCard: FC<TimelineCardProps> = ({
   type,
   // date,
-  // createdBy,
+  createdBy,
   createdAt,
   status,
   onEdit,
@@ -180,10 +180,10 @@ const getIcon = () => {
                 {item?.type}
               </span>
             )}
-           {item?.createdByName && (<div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs text-gray-500">
-              <p>{item?.createdByName?.charAt(0)}</p>
+           {createdBy?.name && (<div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs text-gray-500">
+              <p>{createdBy?.name?.charAt(0)}</p>
             </div>)}
-          </div>
+          </div> 
         </div>
 
         {/* Row 2 - Title + Avatar */}
@@ -346,9 +346,9 @@ const getIcon = () => {
 
         {/* Row 4 - Created info + Actions */}
         <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          {(createdAt || item?.createdAt) && item?.createdByName && (
+          {(createdAt || item?.createdAt) && createdBy?.name && (
             <p className="text-xs text-font-color-100">
-              {item?.createdByName} created{" "}
+              {createdBy?.name} created{" "}
               {timeAgo(createdAt || item?.createdAt)}
             </p>
           )}

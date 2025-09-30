@@ -11,6 +11,8 @@ import { ColorItemList } from "data/sampleData";
 import React, { useState } from "react";
 import { usePdf } from "@hooks/usePdf";
 import ColorPdf from "@/components/common/ColorPdf";
+import NoDataMessage from "@/components/common/NoDataMessage";
+import SystemRoutes from "@lib/constants/Routes";
 
 const Index = () => {
   const [selectedSubCategory, setSelectedSubCategory] = useState("");
@@ -127,11 +129,20 @@ const Index = () => {
           />
         </div>
         <div className="p-3">
+          {subCategoryItem.length > 0 ? (
           <ColorItemCard
             loading={loading}
             data={subCategoryItem || []}
             isGridView={isGridView}
           />
+          ) : (
+            <div className="w-full h-full flex justify-center items-center">
+              <NoDataMessage
+                label="Color Sub Category Item"
+                link={SystemRoutes.SETTINGS_COLOUR}
+              />
+            </div>
+          )}
         </div>
       </div>
       <div className="sticky bottom-0 left-0 w-full bg-[var(--card-color)] border-t p-3 z-50">

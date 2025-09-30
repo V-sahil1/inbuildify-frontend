@@ -12,6 +12,7 @@ class SystemRoutes {
   public static QUOTATION = `/quotation`;
   public static QUOTATION_CREATE = (leadId: string | number) => `${this.QUOTATION}/create/${leadId}`;
   public static SETTINGS = `/settings`;
+  public static SETTINGS_COLOUR = `${this.SETTINGS}/?tab=colour`;
   public static DWELLING_AND_RANGE = `${this.SETTINGS}/?tab=range-dwelling`;
   public static LEADS = `/leads`;
   public static JOB = `/job`;
