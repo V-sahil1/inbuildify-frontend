@@ -36,7 +36,7 @@ const TimelineActionFormRenderer: React.FC<TimelineActionFormRendererProps> = ({
                 <TimelineCard
                     type="NOTES"
                     date={new Date().toLocaleString()}
-                    createdByName="Current User"
+                    // createdByName="Current User"
                     createdAt={new Date().toLocaleString()}
                     // notes={currentData?.item?.notes[0] as NoteDetails || { message: "", tags: [{name:"Draft"}], sendToCustomer: false, createFollowUpTask: false, attachment: [],task:{dueDate:""} }}
                 >
@@ -58,7 +58,7 @@ const TimelineActionFormRenderer: React.FC<TimelineActionFormRendererProps> = ({
                 <TimelineCard
                     type="APPOINTMENT"
                     date={new Date().toLocaleString()}
-                    createdByName="Current User"
+                    // createdByName="Current User"
                     createdAt={new Date().toLocaleString()}
                     status="pending"
                     // appointment={currentData as AppointmentDetails || {
@@ -90,7 +90,7 @@ const TimelineActionFormRenderer: React.FC<TimelineActionFormRendererProps> = ({
                 <TimelineCard
                     type="TASK"
                     date={new Date().toLocaleString()}
-                    createdByName="Current User"
+                    // createdByName="Current User"
                     createdAt={new Date().toLocaleString()}
                     status="pending"
                     // task={currentData as TaskDetails || {
@@ -123,7 +123,7 @@ const TimelineActionFormRenderer: React.FC<TimelineActionFormRendererProps> = ({
                 <TimelineCard
                     type="SMS"
                     date={new Date().toLocaleString()}
-                    createdByName="Current User"
+                    // createdByName="Current User"
                     createdAt={new Date().toLocaleString()}
                     status="pending"
                     // sms={currentData as SmsDetails || {

@@ -8,6 +8,7 @@ import JobVariationManager from "@/components/job/jobDetail/Variation/JobVariati
 import SystemRoutes from "@lib/constants/Routes";
 import { Result, Tabs } from "antd";
 import router from "next/router";
+import { JobCommission } from "@/components/job/jobDetail/comission/JobCommission";
 const { TabPane } = Tabs;
 
 
@@ -134,7 +135,7 @@ export default function JobDetail() {
             <JobInvoicePayment />
           </TabPane>
           <TabPane tab="Commission" key="Commission">
-            <div className="bg-card-color"><Result title="Commission Functionality coming soon" subTitle="Please check back later" /></div>
+            <JobCommission />
           </TabPane>
           <TabPane tab="Custom Fields" key="Custom Fields">
             <div className="bg-card-color"><Result title="Custom Fields Functionality coming soon" subTitle="Please check back later" /></div>

@@ -87,9 +87,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
   const { leadDetail } = useAppSelector((state) => state.lead);
-  const status = useAppSelector(
-    (state) => state.lead.status.leadById
-  );
+  const status = useAppSelector((state) => state.lead.status.leadById);
   const isLoggedIn = useAppSelector((state) => state.auth.isAuthenticated);
 
   const isOpportunity = leadDetail?.lead?.status !== "NEW";
@@ -279,10 +277,10 @@ function App() {
           steps={steps}
           activeStep={isOpportunity ? "proposal" : "convert"}
           lead={leadDetail}
+          showOptions={true}
           quotations={createdQuotations}
         />
       </div>
- 
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 m-3">
         {/* Contact Card */}
@@ -474,7 +472,7 @@ function App() {
         >
           {/* Action Tab */}
           <TabPane tab="Action" key="action" className="border border-t-0">
-            <LeadActions leadId={leadId}/>
+            <LeadActions leadId={leadId} />
           </TabPane>
           <TabPane tab="Document" key="Document">
             <div className="bg-card-color">

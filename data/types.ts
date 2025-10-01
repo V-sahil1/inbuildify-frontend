@@ -204,7 +204,7 @@ export interface SmsDetails {
 // New: normalized item shape used by TimelineCard for display
 export interface TimelineItem {
   type: "NOTES" | "APPOINTMENT" | "TASK" | "SMS";
-  createdBy: {
+  createdBy?: {
     id: string;
     name: string;
   };
@@ -217,7 +217,7 @@ export interface TimelineItem {
 
 export interface BaseTimelineCardProps {
   date: string;
-  createdBy: {
+  createdBy?: {
     id: string;
     name: string;
   };

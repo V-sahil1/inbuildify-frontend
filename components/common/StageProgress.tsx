@@ -4,8 +4,12 @@ import React, { useState } from "react";
 import { Dropdown, Form, Input, message, Modal, Tag } from "antd";
 import { IconDots } from "@tabler/icons-react";
 import { useAppDispatch } from "@hooks/redux";
-import { leadConvertThunk,leadDeleteThunk,transferLeadThunk,} from "@redux/feature/lead/leadThunk";
-import { useRouter } from "next/navigation"; 
+import {
+  leadConvertThunk,
+  leadDeleteThunk,
+  transferLeadThunk,
+} from "@redux/feature/lead/leadThunk";
+import { useRouter } from "next/navigation";
 import { CreateFormModal } from "./Models/CreateFormModel";
 import ConfirmationModal from "./ConfirmationModal";
 import transferLeadFields from "../formFields/transferLeadFields";
@@ -28,6 +32,7 @@ type StageProgressProps = {
   steps: Step[];
   activeStep?: string;
   lead?: any;
+  showOptions?: boolean;
   idClassName?: string;
   quotations?: QuotationResponse[];
 };
@@ -74,6 +79,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
   steps,
   activeStep,
   lead,
+  showOptions = false,
   idClassName,
   quotations,
 }) => {
@@ -233,6 +239,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
         </button>
           </>
         )}
+        {showOptions && (
         <Dropdown
           open={dropdownVisible}
           onOpenChange={(open) => setDropdownVisible(open)}
@@ -242,7 +249,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
             <div className="bg-white shadow-lg rounded-md border border-gray-200 w-56">
               <div className="py-1">
                 {actions.map((action) => (
-                  <button 
+                  <button
                     key={action.key}
                     className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center justify-between"
                     onClick={() => {
@@ -265,6 +272,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
             <IconDots stroke={2} className="text-red-500"/>
           </button>
         </Dropdown>
+        )}
       </div>
       {/* <Modal
         title={modalType === "WON" ? "Won" : modalType === "LOST" ? "Lost" : ""}
