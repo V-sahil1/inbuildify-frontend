@@ -1,5 +1,6 @@
 import { Result, Tabs } from "antd";
 import ConstructionFrameStage from "./ConstructionFrameStage";
+import ConstructionBaseStage from "./ConstructionBaseStage";
 
 const ConstructionTabs = ({ current_value }) => {
   const items = [
@@ -14,12 +15,7 @@ const ConstructionTabs = ({ current_value }) => {
     },
     {
       title: 'Base Stage',
-      children: <div className="bg-card-color">
-        <Result
-          title="Base Stage Functionality coming soon"
-          subTitle="Please check back later"
-        />
-      </div>
+      children: <ConstructionBaseStage />
     },
     {
       title: 'Frame Stage',

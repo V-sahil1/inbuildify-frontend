@@ -9,6 +9,8 @@ import SystemRoutes from "@lib/constants/Routes";
 import { Result, Tabs } from "antd";
 import router from "next/router";
 import { JobCommission } from "@/components/job/jobDetail/comission/JobCommission";
+import JobDetailHeader from "@/components/job/jobDetail/JobDetailHeader";
+import JobCustomFields from "@/components/job/jobDetail/JobCustomFields";
 const { TabPane } = Tabs;
 
 
@@ -105,12 +107,15 @@ export default function JobDetail() {
   return (
     <>
       <div className="m-3">
-        <StageProgress
+        <div className="flex justify-between">
+           <StageProgress
           id="MH-001"
           title="Job"
           status="Pending"
           steps={[]}
         />
+        <JobDetailHeader />
+        </div>      
         <WorkflowSteps steps={workFlowSteps} />
       </div>
       <div className="m-3">
@@ -138,7 +143,7 @@ export default function JobDetail() {
             <JobCommission />
           </TabPane>
           <TabPane tab="Custom Fields" key="Custom Fields">
-            <div className="bg-card-color"><Result title="Custom Fields Functionality coming soon" subTitle="Please check back later" /></div>
+           <JobCustomFields />
           </TabPane>
           <TabPane tab="Activity" key="Activity">
             <div className="bg-card-color"><Result title="Activity Functionality coming soon" subTitle="Please check back later" /></div>

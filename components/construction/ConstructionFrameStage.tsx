@@ -1,10 +1,16 @@
 import { IconCaretDownFilled, IconDotsVertical, IconMessage, IconPlus } from "@tabler/icons-react"
 import { Button, Checkbox, Input, Table, Dropdown, MenuProps, DatePicker } from "antd"
-import InspectionCheckListDrawer from "./InspectionCheckListDrawer";
-import { useState } from "react";
+import { useEffect } from "react";
 
 const ConstructionFrameStage = () => {
-    const [openDrawer, setOpenDrawer] = useState(false);
+
+    useEffect(() => {
+        const fetchConstructionFrameStageData = () => {
+            // call fetch api of constructionframestage
+        }
+        fetchConstructionFrameStageData();
+    }, [])
+
     const items: MenuProps['items'] = [
         {
             key: '1',
@@ -15,9 +21,9 @@ const ConstructionFrameStage = () => {
             label: '2nd menu item'
         }];
     const data = [
-        { checklistitem: 'Site measure by car penter' },
-        { checklistitem: 'Car measurement from truss company' },
-        { checklistitem: 'Delivery of bricks' }
+        { checklistitem: 'Site measure by car penter', supplier: '', start: '14-07-21', finish: '', complete: false },
+        { checklistitem: 'Car measurement from truss company', supplier: '', start: '', finish: '', complete: false },
+        { checklistitem: 'Delivery of bricks', supplier: 'Meet', start: '', finish: '', complete: true }
     ]
     const columns = [
         {
@@ -43,10 +49,12 @@ const ConstructionFrameStage = () => {
             </div>),
             dataIndex: 'supplier',
             key: "supplier",
-            render: () => {
+            render: (_, record) => {
                 return (
                     <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-1 text-xs text-blue"><Dropdown menu={{ items }} trigger={["click"]}>Assign Supplier</Dropdown><IconCaretDownFilled size={15} /></div>
+                        {record.supplier ?
+                            <p>{record.supplier}</p>
+                            : <div className="flex items-center gap-1 text-xs text-blue"><Dropdown menu={{ items }} trigger={["click"]}>Assign Supplier</Dropdown><IconCaretDownFilled size={15} /></div>}
                         <div className="text-blue"><IconMessage size={20} /></div>
                     </div>
                 )
@@ -57,11 +65,11 @@ const ConstructionFrameStage = () => {
                 <div>Start</div>
                 <div><Input /></div>
             </div>),
-            dataIndex: 'Start',
-            key: "Start",
-            render: () => {
+            dataIndex: 'start',
+            key: "start",
+            render: (_, record) => {
                 return (
-                    <DatePicker variant="borderless" suffixIcon={null} />
+                    <div>  {record.start ? <p>{record.start}</p> : <DatePicker className="!pl-0" variant="borderless" suffixIcon={null} allowClear={false} />}</div>
                 )
             }
         },
@@ -70,11 +78,11 @@ const ConstructionFrameStage = () => {
                 <div>Finish</div>
                 <div><Input /></div>
             </div>),
-            dataIndex: 'Finish',
-            key: "Finish",
-            render: () => {
+            dataIndex: 'finish',
+            key: "finish",
+            render: (_, record) => {
                 return (
-                    <DatePicker variant="borderless" suffixIcon={null} />
+                    <div>  {record.finish ? <p>{record.finish}</p> : <DatePicker className="!pl-0" variant="borderless" suffixIcon={null} allowClear={false} />}</div>
                 )
             }
         },
@@ -83,11 +91,11 @@ const ConstructionFrameStage = () => {
                 <div className="flex gap-1"><Checkbox></Checkbox>Complete</div>
                 <div><Input /></div>
             </div>),
-            dataIndex: 'Complete',
-            key: "Complete",
-            render: () => {
+            dataIndex: 'complete',
+            key: "complete",
+            render: (_, record) => {
                 return (
-                    <div><Checkbox /></div>
+                    <div>{record.complete ? <p>Yes</p> : <Checkbox />}</div>
                 )
             }
         },
@@ -105,9 +113,7 @@ const ConstructionFrameStage = () => {
                             {
                                 key: "edit",
                                 label: "Edit",
-                                onClick: () => {
-
-                                },
+                                onClick: () => { },
                             },
                             {
                                 key: "delete",
@@ -120,19 +126,16 @@ const ConstructionFrameStage = () => {
             }
         },
     ]
-
-
     return (
         <div className="bg-card-color !mt-0 p-3">
             <div className="flex justify-end gap-1">
                 <Button size="small" type="primary" className="text-xs" >Update Status</Button>
-                <Button size="small" type="primary" className="text-xs" onClick={() => setOpenDrawer(true)}>Inspection</Button>
+                <Button size="small" type="primary" className="text-xs">Inspection</Button>
                 <Button size="small" type="primary" className="text-xs">OH&S</Button>
             </div>
             <div>
                 <Table columns={columns} dataSource={data} />
             </div>
-            <InspectionCheckListDrawer open={openDrawer} onClose={() => setOpenDrawer(false)} />
         </div>
     )
 }
