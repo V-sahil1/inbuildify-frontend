@@ -1,11 +1,12 @@
 import React, { useRef } from "react";
-import { Button, Spin } from "antd";
+import { Button } from "antd";
 import { Category } from "@redux/feature/masterPriceList/iMasterPriceListState";
 import { QuatationItem } from "../quotation/QuatationItem";
 // import { QuatationExtraItem } from "../quotation/QuatationExtraItem";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { RootState } from "@redux/feature/store";
 import { removeQuotationItem, setQuotationItems, updateQuotationItem } from "@redux/feature/quotation/quotationSlice";
+import Loading from "../common/Loading";
 
 interface ItemsPanelProps {
   category?: Category;
@@ -45,9 +46,9 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
   };
   
   return (
-    <div className="flex-1 bg-card-color flex flex-col overflow-hidden">
+    <div className="w-full bg-card-color flex flex-col">
       {/* Header (search + actions) */}
-      <div className="p-4 border-b border-gray-200">
+      <div className="p-4 border-b border-gray-200 overflow-hidden">
         <div className="flex items-center justify-end w-full ">
           {/* <div className="flex items-center gap-4">
             <span className="text-xs">All</span>
@@ -68,7 +69,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
       </div>
 
       {/* Table */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="w-full overflow-y-auto  ">
         <div className="table w-full border-collapse">
           {/* Table Head */}
           <div className="table-header-group bg-card-color text-sm font-medium text-font-color border-b border-gray-200">
@@ -104,13 +105,12 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
           )}
 
           {/* Table Body */}
-          {
-            itemsLoading ? (
+          {itemsLoading ? (
                <div className="table-cell p-6 text-center col-span-7 text-font-color">
-              <Spin />
+              <Loading type="primary" />
               </div>
             ): (
-          <div className="table-row-group">
+          <div className="table-row-group overflow-y-auto">
             {category?.items?.length > 0 ? (
               category.items.map((item) => (
                 <QuatationItem

@@ -166,15 +166,12 @@ export const jobWorkflowChecklistFields = (
     key: "name",
     width: "45%",
     render: (text, record, index) => {
-      // Build due datetime (date + time)
-      const estimatedDateTime =
-        record.dueDate && record.time
-          ? dayjs(`${record.dueDate} ${record.time}`, "YYYY-MM-DD HH:mm")
-          : null;
+        const estimatedDateTime = dayjs(record.dueDate)
+          .hour(dayjs(record.time, "HH:mm:ss").hour())
+          .minute(dayjs(record.time, "HH:mm:ss").minute())
+          .second(dayjs(record.time, "HH:mm:ss").second());
 
-      // Compare with current datetime
-      const isExpired =
-        estimatedDateTime && estimatedDateTime.isBefore(dayjs());
+        const isExpired = estimatedDateTime.isBefore(dayjs());
 
       return (
         <div

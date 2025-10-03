@@ -27,7 +27,7 @@ const initialState: InitialState = {
     leadSources: Status.IDLE,
     leadById: Status.IDLE,
     leadQuotations: Status.IDLE,
-    updateLeadSource:Status.IDLE
+    updateLeadSource: Status.IDLE,
   },
   leadSources: [],
   addInstSourceModal: false,
@@ -135,7 +135,7 @@ export const leadSlice = createSlice({
       state.status.updateLeadSource = Status.PENDING;
     });
     builder.addCase(updateLeadThunk.fulfilled, (state, action) => {
-      const { leadId, notes, leadSource, updatedByName, updatedAt } =
+      const { leadId, notes, leadSource, updatedBy, updatedAt } =
         action.payload;
       state.leadDetail.lead = action.payload;
       if (state.leads == null) {
@@ -147,7 +147,7 @@ export const leadSlice = createSlice({
         const lead = state.leads.find((item) => item.leadId === leadId);
         lead.notes = notes;
         lead.leadSource = leadSource;
-        lead.updatedByName = updatedByName;
+        lead.updatedBy = updatedBy;
         lead.updatedAt = updatedAt;
       }
       state.status.updateLeadSource = Status.SUCCESS;
@@ -181,7 +181,7 @@ export const leadSlice = createSlice({
       });
     });
     builder.addCase(transferLeadThunk.fulfilled, (state, action) => {
-      state.leadDetail.lead.assigneeName = action.payload.assignee.name;
+      state.leadDetail.lead.assignee = action.payload?.assignee;
     });
     builder.addCase(getQuotationsByLeadIdThunk.pending, (state) => {
       state.status.leadQuotations = Status.PENDING;
@@ -283,6 +283,6 @@ export const {
   setLeadProperty,
   updateLeadStatus,
   setAddInstSourceModal,
-  removeQuotation
+  removeQuotation,
 } = leadSlice.actions;
 export const leadReducer = leadSlice.reducer;

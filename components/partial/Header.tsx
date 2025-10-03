@@ -461,7 +461,7 @@ const handleSignOut = async () => {
               />
             </button>
             {/* <Link href="/"> 
-              <Image src="/company.png" alt="logo" width={100} height={100} />
+              <Image src="/company-light.webp" alt="logo" width={100} height={100} />
          </Link>   */}
           </div>
           <div className="relative px-4 flex-1 md:block hidden">

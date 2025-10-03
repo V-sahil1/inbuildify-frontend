@@ -510,7 +510,7 @@ const QuotationManager = () => {
         isReadOnly={isReadOnly}
       />
 
-      <div className="flex flex-1 m-3 border rounded-lg ">
+      <div className="flex flex-1 m-3 border rounded-lg h-[365px]">
         {quotationFilters?.range && quotationFilters?.dwelling_type ? (
           <>
             <div className="w-64">

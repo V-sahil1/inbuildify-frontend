@@ -173,7 +173,7 @@
 
 .custom-scrollbar {
   scrollbar-color: var(--card-color) var(--card-color);
-  scrollbar-width: thin;
+  scrollbar-width: none;
 }
 
 .custom-scrollbar:hover {
@@ -1324,3 +1324,4 @@ color: var(--font-color) !important;
 {
   background-color: #d8d8d8 !important;
 }
+

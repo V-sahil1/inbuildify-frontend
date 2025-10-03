@@ -60,15 +60,14 @@ export default function MyProfile() {
       <div className="container-fluid">
         <Breadcrumb breadcrumbItem={breadcrumbItem} />
         <WelcomeHeader />
-        <div className="card bg-card-color rounded-xl border border-dashed border-border-color">
-          <div className="md:p-6 p-4 border-b relative">
+        <div className="card bg-card-color rounded-xl border border-border-color">
+          <div className="md:p-6 p-4 relative">
             <IconEdit
               size={24}
               className="absolute top-3 right-3 cursor-pointer"
               onClick={() => setIsEditModalOpen(true)}
             />
             <div className="flex md:items-start items-center md:gap-8 gap-4 md:flex-row flex-col">
-              {/* Profile Image */}
               <Image
                 src={user?.logo || profile_av}
                 alt="user profile"
@@ -77,10 +76,8 @@ export default function MyProfile() {
                 className="sm:w-[160px] sm:h-[160px] sm:min-w-[160px] w-[100px] h-[100px] min-w-[100px] object-cover rounded-xl"
               />
 
-              {/* Vertical Line */}
               <div className="hidden md:block w-px bg-gray-300 mx-6" />
 
-              {/* Builder Details */}
               <div className="md:text-start text-center">
                 <h2 className="text-[24px]/[30px] font-light flex gap-2 items-center md:justify-start justify-center">
                   Builder Details
@@ -93,10 +90,8 @@ export default function MyProfile() {
                 <p className="mb-3">ABN Number: {user?.abnNumber}</p>
               </div>
 
-              {/* Vertical Line */}
               <div className="hidden md:block w-px bg-gray-300 mx-6" />
 
-              {/* Personal Details */}
               <div className="flex flex-col gap-2">
                 <h2 className="text-[24px]/[30px] font-light flex gap-2 items-center md:justify-start justify-center">
                   Personal Details

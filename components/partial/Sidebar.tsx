@@ -117,7 +117,7 @@ export default function Sidebar({
         <h4 className="sidebar-title text-[24px]/[30px] font-medium mb-0">
           {/* <span className="sm-txt">I</span>
           <span>nBuildify</span> */}
-          <Image src="/company.png" alt="logo" width={200} height={100} />
+          <Image src="/company-light.webp" alt="logo" width={200} height={100} />
         </h4>
       </div>
       {/* <Search /> */}

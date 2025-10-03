@@ -411,7 +411,7 @@ function App() {
                       }}
                       style={{ cursor: "pointer" }}
                     >
-                      <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center justify-between w-full overflow-hidden">
                         <div className="flex items-center space-x-4">
                           <div className="bg-gray-100 p-2 rounded-lg">
                            {createdQuotations.indexOf(quotation) + 1}

@@ -52,7 +52,7 @@ const EditableField: React.FC<EditableFieldProps> = ({
     return (
         <>
             <Form onFinish={handleSubmit} form={form} initialValues={initialValues}>
-                <div className='grid grid-cols-8 sm:grid-cols-5 md:grid-cols-7 lg:grid-cols-9 mb-2 items-baseline '>
+                <div className='grid grid-cols-8 sm:grid-cols-5 md:grid-cols-7 lg:grid-cols-9 mb-2 items-start '>
                     <div className='col-span-2 sm:col-span-1 md:col-span-2 lg:col-span-3 font-semibold text-font-color'>{label}:</div>
                     <div className='col-span-3 sm:col-span-2 lg:col-span-5 items-center' ref={ref}>
                         {isleadEditing ? (

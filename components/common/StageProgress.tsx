@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Dropdown, Form, Input, message, Modal, Tag } from "antd";
+import { Dropdown, message, Tag } from "antd";
 import { IconDots } from "@tabler/icons-react";
 import { useAppDispatch } from "@hooks/redux";
 import {
@@ -15,7 +15,6 @@ import ConfirmationModal from "./ConfirmationModal";
 import transferLeadFields from "../formFields/transferLeadFields";
 import CloseLeadModal from "../leadDetail/LeadQuotations/CloseLeadModal";
 import { QuotationResponse } from "@redux/feature/quotation/IQuotationState";
-const { TextArea } = Input;
 
 type Step = {
   key: string;
@@ -92,7 +91,6 @@ const StageProgress: React.FC<StageProgressProps> = ({
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const leadTransferFields = transferLeadFields();
   const dispatch = useAppDispatch();
-  const [form] = Form.useForm();
   const router = useRouter();
   const handleWinClick = () => {
     setModalType("WON");
@@ -317,6 +315,8 @@ const StageProgress: React.FC<StageProgressProps> = ({
             setIsTransferModalOpen(false);
           }}
           submitButtonText="Transfer"
+          isEditing={!!lead?.lead?.assignee?.id}
+          initialValues={{ assignee_id: [{ label: lead?.lead?.assignee?.name, value: lead?.lead?.assignee?.id }] }}
           onSubmit={handleTransferSubmit}
           fields={leadTransferFields}
         />

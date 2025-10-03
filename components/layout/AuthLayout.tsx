@@ -20,7 +20,7 @@ export default function AuthLayout({
           <div className="items-center justify-center w-full lg:flex hidden">
             <div className="max-w-[400px]">
               <div className="mb-4">
-                <Image src="/company.png" alt="logo" width={300} height={100} />
+                <Image src="/company-light.webp" alt="logo" width={300} height={100} />
               </div>
               <p className="mb-12 text-[32px]/[40px] font-medium">
                 Build digital products with:

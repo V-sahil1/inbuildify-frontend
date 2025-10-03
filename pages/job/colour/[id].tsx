@@ -68,7 +68,7 @@ const Index = () => {
   ).reduce((a, b) => a + b, 0);
 
   return (
-    <>
+    <div className="overflow-hidden h-screen flex flex-col">
       <div className="grid grid-cols-[250px_1fr]">
         <div className="p-3">
           <StageProgress
@@ -121,14 +121,14 @@ const Index = () => {
       </div>
 
       {/* side menu and items list */}
-      <div className="grid grid-cols-[250px_1fr]">
-        <div>
+      <div className="grid grid-cols-[250px_1fr] h-screen overflow-auto">
+        <div className="h-full overflow-y-auto bg-card-color custom-scrollbar">
           <ColorSideMenu
             selectedKey={selectedSubCategory}
             onSelect={(key) => handleSubCategoryExpand(key)}
           />
         </div>
-        <div className="p-3">
+        <div className="p-3 h-full overflow-y-auto custom-scrollbar">
           {subCategoryItem.length > 0 ? (
           <ColorItemCard
             loading={loading}
@@ -166,7 +166,7 @@ const Index = () => {
           <div className="text-lg font-semibold">Total Amount: $1234.56</div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
