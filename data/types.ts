@@ -387,3 +387,9 @@ export interface JobVariationItems {
   price: number;
   total: number;
 }
+
+export interface StatusCard {
+  label: string;
+  color: string;
+  icon: React.ReactNode;
+}

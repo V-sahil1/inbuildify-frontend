@@ -18,6 +18,7 @@ class SystemRoutes {
   public static JOB = `/job`;
   public static JOB_WORKFLOW = `${this.JOB}/workflow`;
   public static CONSTRUCTION = `/construction`;
+  public static MAINTENANCE = `/maintenance`;
 }
 
 export default SystemRoutes;

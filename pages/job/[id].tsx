@@ -11,6 +11,7 @@ import router from "next/router";
 import { JobCommission } from "@/components/job/jobDetail/comission/JobCommission";
 import JobDetailHeader from "@/components/job/jobDetail/JobDetailHeader";
 import JobCustomFields from "@/components/job/jobDetail/JobCustomFields";
+import { JobActivity } from "@/components/job/jobDetail/activity/jobActivity";
 const { TabPane } = Tabs;
 
 
@@ -146,7 +147,7 @@ export default function JobDetail() {
            <JobCustomFields />
           </TabPane>
           <TabPane tab="Activity" key="Activity">
-            <div className="bg-card-color"><Result title="Activity Functionality coming soon" subTitle="Please check back later" /></div>
+            <JobActivity/> 
           </TabPane>
 
         </Tabs>
