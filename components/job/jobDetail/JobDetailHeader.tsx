@@ -1,9 +1,11 @@
-import { IconUserSquareRounded } from "@tabler/icons-react"
-import { Modal, Tag } from "antd"
+import { IconDotsVertical, IconList, IconUserSquareRounded } from "@tabler/icons-react"
+import { Button, Modal, Tag } from "antd"
 import { useState } from "react";
+import JobChecklist from "./JobChecklist";
 
 const JobDetailHeader = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isChecklistDreawerOpen,setChecklistDrawerOpen]=useState(false)
     const handleClose = () => {
         setIsModalOpen(false)
     }
@@ -32,9 +34,14 @@ const JobDetailHeader = () => {
                     </div>
                     <div className="border-l-2 pl-2 cursor-pointer" onClick={() => setIsModalOpen(true)}>
                         <div className="flex text-base font-semibold text-blue">$ 495,280.00</div>
-                        <div>Balance to be paid</div>
+                        <div>Balance to be paid <Tag color="orange">Finance Pending</Tag></div>
                     </div>
+                     <div  className="flex gap-2">
+                            <Button icon={<IconList />} onClick={()=>setChecklistDrawerOpen(true)}></Button>
+                            <Button icon={<IconDotsVertical />}></Button>
+                        </div>
                 </div>
+                <JobChecklist open={isChecklistDreawerOpen} onClose={()=>setChecklistDrawerOpen(false)}  />
                 <Modal
                     title={"Cost Summary"}
                     onOk={handleClose}
