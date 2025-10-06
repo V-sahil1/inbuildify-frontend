@@ -21,6 +21,7 @@ import SystemRoutes from "@lib/constants/Routes";
 const ConstructionManager = () => {
   const router = useRouter();
   const [constructionData, setConstructionData] = useState(ConstructionDashboardData);
+
   const [filters, setFilters] = useState({
     id: "",
     customerName: "",
@@ -30,6 +31,7 @@ const ConstructionManager = () => {
     currentStage: "All",
     dueDate: null as string | null,
     siteSupervisor: "All",
+    status: "All", // <-- Add status filter
   });
 
   const [toggledFilters, setToggledFilters] = useState({
@@ -67,6 +69,7 @@ const ConstructionManager = () => {
   const handleEdit = () => console.log("Editing");
   const handleDelete = () => console.log("Deleting");
 
+  // Filter data including status filter
   const filteredData = constructionData.filter((item) => {
     return (
       item.id.toString().toLowerCase().includes(filters.id.toLowerCase()) &&
@@ -76,7 +79,8 @@ const ConstructionManager = () => {
       (filters.builderName === "All" || item.builderName === filters.builderName) &&
       (filters.currentStage === "All" || item.currentStage === filters.currentStage) &&
       (!filters.dueDate || dayjs(item.dueDate).isSame(filters.dueDate, "day")) &&
-      (filters.siteSupervisor === "All" || item.siteSupervisor === filters.siteSupervisor)
+      (filters.siteSupervisor === "All" || item.siteSupervisor === filters.siteSupervisor) &&
+      (filters.status === "All" || item.status === filters.status) // <-- status filter
     );
   });
 
@@ -99,11 +103,16 @@ const ConstructionManager = () => {
       <div className="flex flex-wrap gap-4 justify-start p-4">
         {Object.entries(statusCounts).map(([status, count]) => {
           const { label, color, icon } = getStatus(status);
+          const isActive = filters.status === status;
           return (
             <Card
               key={status}
-              className="min-w-[250px] flex-1"
-              style={{ borderLeft: `4px solid ${color}` }}
+              className={`min-w-[250px] flex-1 cursor-pointer transition-shadow  ${isActive ? "shadow-md" : "shadow-sm"
+                }`}
+              style={{
+                borderLeft: `4px solid ${color}`,
+              }}
+              onClick={() => setFilters(prev => ({ ...prev, status }))}
             >
               <div className="flex items-center gap-3">
                 <div className="text-2xl">{icon}</div>
@@ -117,13 +126,16 @@ const ConstructionManager = () => {
         })}
       </div>
 
-      <div className="pl-4 pr-4 flex items-center">
+
+      {/* Active filter tags */}
+      <div className="pl-4 pr-4 flex items-center gap-2">
         {FILTER_DEFINITIONS.map(
           (filter) =>
             toggledFilters[filter.key] && (
               <Tag
                 key={filter.key}
-                closable color="orange"
+                closable
+                color="orange"
                 onClose={() =>
                   setToggledFilters({ ...toggledFilters, [filter.key]: false })
                 }
@@ -133,8 +145,19 @@ const ConstructionManager = () => {
               </Tag>
             )
         )}
+        {filters.status !== "All" && (
+          <Tag
+            closable
+            color="blue"
+            onClose={() => setFilters(prev => ({ ...prev, status: "All" }))}
+            className="text-base"
+          >
+            {filters.status}
+          </Tag>
+        )}
       </div>
 
+      {/* Table */}
       <div className="p-4">
         <Table
           dataSource={filteredData}

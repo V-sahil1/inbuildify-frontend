@@ -10,3 +10,19 @@ export interface Maintenance {
     Supervisor: string;
     status :Status;
 }
+
+export interface DescriptionNote {
+  title: string;
+}
+
+export interface RequestItem {
+  id: string;
+  reference: string;
+  descriptions: DescriptionNote[];
+  supplier: string;
+  start: string;
+  finish: string;
+  complete: string;
+  status: string;
+  amount: string;
+}

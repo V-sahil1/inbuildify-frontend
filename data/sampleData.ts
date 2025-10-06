@@ -1,6 +1,6 @@
 import { Construction } from '@redux/feature/construction/IConstructionState';
 import { JobVariationDataType, JobVariationItems, LeadDetails } from './types';
-import { Maintenance } from '@redux/feature/maintenance/IMaintenanceState';
+import { Maintenance, RequestItem } from '@redux/feature/maintenance/IMaintenanceState';
 // export const quotationData: Quotation = {
 //   id: 'MYH23070085',
 //   version: 'V1',
@@ -634,3 +634,20 @@ export const MaintenanceDashboardData: Maintenance[] = [
     status : "completed"
   },
 ]
+
+export const maintenanceRequestData: RequestItem[] = [
+  {
+    id: "1",
+    reference: "MYH00664-MR2",
+    descriptions: [
+      { title: "Oil Change" },
+      { title: "Brakes" },
+    ],
+    supplier: "another",
+    start: "",
+    finish: "",
+    complete: "",
+    status: "Pending",
+    amount: "$0.00",
+  },
+];

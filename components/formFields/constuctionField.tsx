@@ -22,13 +22,20 @@ import React from "react";
 
 export const { Option } = Select;
 
+const ALL_CONSTUCTION_STATUSES = [
+  { key: "readyforconstuction", label: "Ready For Constuction" },
+  { key: "underconstuction", label: "Under Constuction" },
+  { key: "completed", label: "Completed" },
+  { key: "onhold", label: "On Hold" },
+];
+
 export const FILTER_DEFINITIONS = [
   { label: "Not able to see in video", key: "notAbleToSeeInVideo" },
   { label: "Has Private Inspector", key: "hasPrivateInspector" },
   { label: "Has Options", key: "hasOptions" },
 ];
 
-export const FilterPopover = ({ toggledFilters, setToggledFilters  }) => {
+export const FilterPopover = ({ toggledFilters, setToggledFilters }) => {
   const content = (
     <div className="flex flex-col gap-4 w-64">
       <h3 className="font-semibold text-sm">Filters</h3>
@@ -247,36 +254,55 @@ export const getColumns = ({
       dataIndex: "siteSupervisor",
       key: "siteSupervisor",
       width: 180,
-      render: (supervisor: string, record: Construction) => (
-        <div className="flex items-center justify-between">
-          <AssignSupervisorDropdown
-            assignedSupervisor={supervisor}
-            onAssign={(newSupervisor) => handleSupervisorAssign(record.id.toString(), newSupervisor)}
-          />
-          <div className="flex gap-2">
-            <Dropdown
-              menu={{
-                items: [
-                  { key: "edit", label: "Edit" },
-                  { key: "delete", label: "Delete" },
-                ],
-                onClick: (e) => {
-                  if (e.key === "edit") {
-                    console.log("Editing job", record);
-                    handleEdit();
-                  }
-                  if (e.key === "delete") handleDelete();
-                },
-              }}
-            >
-              <IconDotsVertical size={22} stroke={2} />
-            </Dropdown>
-            <button className="hover:text-primary">
-              <IconExternalLink size={22} />
-            </button>
+      render: (supervisor: string, record: Construction) => {
+        const currentStatusKey = record.status.toLowerCase();
+
+        const statusChangeItems = ALL_CONSTUCTION_STATUSES
+          .filter((item) => item.key !== currentStatusKey)
+          .map((item) => ({
+            key: item.key,
+            label: item.label,
+          }));
+
+        const actionMenu = {
+          items: [
+            {
+              key: "changestatusto_header",
+              label: "Change status to:",
+              type: 'group' as const,
+              children: statusChangeItems,
+            },
+            { type: 'divider' as const },
+            { key: "revert", label: "Revert to Construction" },
+            { type: 'divider' as const },
+            { key: "export", label: "Export" },
+          ],
+          onClick: (e) => {
+            if (statusChangeItems.some(item => item.key === e.key)) {
+              console.log(`Changing status of job ${record.id} from ${currentStatusKey} to ${e.key}`);
+            }
+            if (e.key === "revert") console.log("Reverting job", record.id);
+            if (e.key === "export") console.log("Exporting job", record.id);
+          },
+        };
+
+        return (
+          <div className="flex items-center justify-between">
+            <AssignSupervisorDropdown
+              assignedSupervisor={supervisor}
+              onAssign={(newSupervisor) =>
+                handleSupervisorAssign(record.id.toString(), newSupervisor)
+              }
+            />
+            <div className="flex gap-2">
+              <Dropdown menu={actionMenu}>
+                <Button type="text" icon={<IconDotsVertical size={22} />} />
+              </Dropdown>
+              <Button type="text" className="hover:text-primary" icon={<IconExternalLink size={22} />} />
+            </div>
           </div>
-        </div>
-      ),
+        );
+      },
     },
   ];
 };

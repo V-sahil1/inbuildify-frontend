@@ -10,6 +10,8 @@ import {
 import dayjs, { Dayjs } from "dayjs";
 import { Maintenance } from "@redux/feature/maintenance/IMaintenanceState";
 import AssignSupervisorDropdown from "../construction/assignSupervisorModal";
+import { useRouter } from "next/navigation";
+import SystemRoutes from "@lib/constants/Routes";
 
 type DateRange = [Dayjs, Dayjs] | null;
 type DateFilterKey = 'all' | '7' | '15' | '30' | null;
@@ -51,13 +53,14 @@ const getDateRangeFromKey = (keyStr: DateFilterKey): DateRange => {
     return range;
 };
 
-
 export const MaintenanceFields = ({
     filters,
     setFilters,
     uniqueSupervisors,
     handleSupervisorAssign
 }) => {
+    const router = useRouter();
+
     const renderDateTitle = (title: string, dateKey: 'startDate' | 'endDate') => {
         const currentKey = getKeyFromRange(filters[dateKey]);
         const currentValue = currentKey || 'all';
@@ -149,7 +152,7 @@ export const MaintenanceFields = ({
         {
             title: (
                 <div className="flex flex-col gap-1">
-                    <span className="font-semibold">Site Supervisor</span>
+                    <span className="font-semibold">Supervisor</span>
                     <Select
                         value={filters.Supervisor || "All"}
                         size="small"
@@ -196,19 +199,23 @@ export const MaintenanceFields = ({
 
                 return (
                     <div className="flex items-center justify-between">
-                        
                         <AssignSupervisorDropdown
                             assignedSupervisor={supervisor}
                             onAssign={(newSupervisor) => handleSupervisorAssign(record.id.toString(), newSupervisor)}
                         />
 
                         <div className="flex gap-2">
-                            <Dropdown
-                                menu={actionMenu}
-                            >
+                            <Dropdown menu={actionMenu}>
                                 <IconDotsVertical size={22} stroke={2} className="cursor-pointer" />
                             </Dropdown>
-                            <button className="hover:text-primary">
+
+                            <button
+                                className="hover:text-primary"
+                                onClick={(e) => {
+                                    window.open(`/${SystemRoutes.MAINTENANCE}/${record.id}`, "_blank");
+                                    e.stopPropagation();
+                                }}
+                            >
                                 <IconExternalLink size={22} />
                             </button>
                         </div>

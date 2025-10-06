@@ -1,6 +1,7 @@
 "use client";
 
 import StageProgress from "@/components/common/StageProgress";
+import RequestList from "@/components/maintenance/maintenanceDetails/maintananceRequest/maintenanceRequest";
 import { Result, Tabs } from "antd";
 const { TabPane } = Tabs;
 
@@ -20,7 +21,7 @@ const Index = () => {
       </div>
       <div className="m-3">
         <Tabs
-          defaultActiveKey="action"
+          defaultActiveKey="request"
           type="card"
           tabBarStyle={{ margin: "0px", marginRight: "10px" }}
           tabBarGutter={10}
@@ -28,7 +29,7 @@ const Index = () => {
         >
           {/* Action Tab */}
           <TabPane tab="Request" key="request" className="border border-t-0">
-            <div className="bg-card-color"><Result title="Request Functionality coming soon" subTitle="Please check back later" /></div>
+            <RequestList />
           </TabPane>
           <TabPane tab="Documents" key="Documents">
             <div className="bg-card-color"><Result title="Document Functionality coming soon" subTitle="Please check back later" /></div>
