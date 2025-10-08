@@ -1,26 +1,31 @@
-import React, { useEffect, useRef, useState } from "react";
-import { ChromePicker } from "react-color";
-import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
-import {
-  IconArrowsMaximize,
-  IconWorld,
+import React, { useEffect, useRef, useState } from "react"; 
+import { 
   IconMoonStars,
-  IconSettings,
-  IconX,
-  IconBrush,
-  IconBellRinging,
-  IconNote,
-  IconMessage,
-  IconThumbUpFilled,
-  IconChartPieFilled,
-  IconInfoCircleFilled,
-  IconInfoTriangleFilled,
+  IconLayoutGrid,
+  IconSettings, 
+  IconBrush, 
   IconUser,
-  IconCreditCard,
   IconUsersGroup,
   IconCalendarFilled,
-  IconTag,
   IconArrowBigLeftFilled,
+  IconAddressBook,
+  IconChecklist,
+  IconListCheck,
+  IconUsers,
+  IconDatabase,
+  IconReceipt,
+  IconHome,
+  IconPackage,
+  IconPalette,
+  IconColorPicker,
+  IconTruck,
+  IconBeach,
+  IconFileDescription,
+  IconBuildingEstate,
+  IconCoins,
+  IconFileCertificate,
+  IconLayout2,
+  IconClipboardList,
 } from "@tabler/icons-react";
 import {
   dark_version,
@@ -52,7 +57,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { logoutThunk } from "@redux/feature/auth/authThunk";
-import { message } from "antd";
+import { Divider, message } from "antd";
 import { useRouter } from "next/navigation";
 import SystemRoutes from "@lib/constants/Routes";
 import ConfirmationModal from "../common/ConfirmationModal";
@@ -90,6 +95,8 @@ export default function Header({
   const { user } = useAppSelector((state: RootState) => state.auth);
   const [miniSidebar, setMiniSidebar] = useState<boolean>(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState<boolean>(false);
+  const [isGridDropdownOpen, setIsGridDropdownOpen] = useState(false);
+  const gridDropdownRef = useRef<HTMLDivElement>(null);
   const [isLogoutLoading, setIsLogoutLoading] = useState<boolean>(false);
   const toggleMiniSidebar = () => {
     setMiniSidebar((prev) => !prev);
@@ -106,6 +113,25 @@ export default function Header({
       }
     }
   }, [miniSidebar]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        gridDropdownRef.current &&
+        !gridDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsGridDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const toggleGridDropdown = () => {
+    setIsGridDropdownOpen(!isGridDropdownOpen);
+  };
 
   // full screen
   const toggleFullScreen = () => {
@@ -163,19 +189,19 @@ export default function Header({
   // light dark mode
   const [darkMode, setDarkMode] = useState(false);
   const toggleDarkMode = () => {
-    setDarkMode(!darkMode)
+    setDarkMode(!darkMode);
   };
-  
-  useEffect(()=>{
-    let theme = localStorage.getItem('theme') === 'True';
-    if(theme){
-      setDarkMode(theme);
-    }
-  },[])
 
   useEffect(() => {
-     localStorage.setItem('theme',darkMode === true ? 'True' : 'False');
-     document.documentElement.setAttribute(
+    let theme = localStorage.getItem("theme") === "True";
+    if (theme) {
+      setDarkMode(theme);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("theme", darkMode === true ? "True" : "False");
+    document.documentElement.setAttribute(
       "data-theme",
       darkMode ? "dark" : "light"
     );
@@ -314,21 +340,21 @@ export default function Header({
     };
   }, [searchBar]);
 
-const handleSignOut = async () => {
-  try {
-    setIsLogoutLoading(true);
-    const response = await dispatch(logoutThunk()).unwrap();
-    message.success(response);
-    dispatch(logout());
-    persister.purge();
-    router.push(SystemRoutes.LOGIN);
-    setIsLogoutModalOpen(false);
-  } catch (e) {
-    message.error(e);
-  } finally {
-    setIsLogoutLoading(false);
-  }
-};
+  const handleSignOut = async () => {
+    try {
+      setIsLogoutLoading(true);
+      const response = await dispatch(logoutThunk()).unwrap();
+      message.success(response);
+      dispatch(logout());
+      persister.purge();
+      router.push(SystemRoutes.LOGIN);
+      setIsLogoutModalOpen(false);
+    } catch (e) {
+      message.error(e);
+    } finally {
+      setIsLogoutLoading(false);
+    }
+  };
   const colorItem = [
     {
       name: "indigo",
@@ -436,6 +462,155 @@ const handleSignOut = async () => {
     {
       image: font_jura,
       font: "Jura, sans-serif",
+    },
+  ];
+
+  interface MenuItem {
+    id: number;
+    icon: React.ReactNode;
+    label: string;
+    href: string;
+  }
+
+  const gridMenuItems: MenuItem[] = [
+    {
+      id: 1,
+      icon: <IconUser className="w-4 h-4 mr-3" />,
+      label: "User",
+      href: "#",
+    },
+    {
+      id: 2,
+      icon: <IconAddressBook className="w-4 h-4 mr-3" />, // Changed from IconCreditCard to IconAddressBook
+      label: "Contact",
+      href: "#",
+    },
+    {
+      id: 3,
+      icon: <IconUsersGroup className="w-4 h-4 mr-3" />,
+      label: "User Group",
+      href: "#",
+    },
+    {
+      id: 4,
+      icon: <IconCalendarFilled className="w-4 h-4 mr-3" />,
+      label: "Appointment",
+      href: `${SystemRoutes.APPOINTMENT}`,
+    },
+    {
+      id: 5,
+      icon: <IconChecklist className="w-4 h-4 mr-3" />,
+      label: "Task",
+      href: `${SystemRoutes.TASKS}`,
+    },
+    {
+      id: 6,
+      icon: <IconListCheck className="w-4 h-4 mr-3" />,
+      label: "Todo",
+      href: "#",
+    },
+    {
+      id: 7,
+      icon: <IconUsers className="w-4 h-4 mr-3" />,
+      label: "Agent/Referral",
+      href: "#",
+    },
+  ];
+
+  const gridMenuItems2: MenuItem[] = [
+    {
+      id: 1,
+      icon: <IconSettings className="w-4 h-4 mr-3" />,
+      label: "Admin",
+      href: "#",
+    },
+    {
+      id: 2,
+      icon: <IconDatabase className="w-4 h-4 mr-3" />,
+      label: "Master Collections",
+      href: "#",
+    },
+    {
+      id: 3,
+      icon: <IconReceipt className="w-4 h-4 mr-3" />,
+      label: "Price List",
+      href: "#",
+    },
+
+    {
+      id: 4,
+      icon: <IconHome className="w-4 h-4 mr-3" />,
+      label: "Facade",
+      href: "#",
+    },
+    {
+      id: 5,
+      icon: <IconLayout2 className="w-4 h-4 mr-3" />,
+      label: "Floor Plan",
+      href: "#",
+    },
+    {
+      id: 6,
+      icon: <IconPackage className="w-4 h-4 mr-3" />,
+      label: "Package",
+      href: "#",
+    },
+
+    {
+      id: 7,
+      icon: <IconPalette className="w-4 h-4 mr-3" />,
+      label: "Color",
+      href: "#",
+    },
+    {
+      id: 8,
+      icon: <IconColorPicker className="w-4 h-4 mr-3" />,
+      label: "Color Group",
+      href: "#",
+    },
+    {
+      id: 9,
+      icon: <IconTruck className="w-4 h-4 mr-3" />,
+      label: "Supplier",
+      href: "#",
+    },
+
+    {
+      id: 10,
+      icon: <IconBeach className="w-4 h-4 mr-3" />,
+      label: "Holiday",
+      href: "#",
+    },
+    {
+      id: 11,
+      icon: <IconFileDescription className="w-4 h-4 mr-3" />,
+      label: "Quotation Format",
+      href: "#",
+    },
+    {
+      id: 12,
+      icon: <IconClipboardList className="w-4 h-4 mr-3" />,
+      label: "Survey Template",
+      href: "#",
+    },
+
+    {
+      id: 13,
+      icon: <IconBuildingEstate className="w-4 h-4 mr-3" />,
+      label: "Estate",
+      href: "#",
+    },
+    {
+      id: 14,
+      icon: <IconCoins className="w-4 h-4 mr-3" />,
+      label: "Cost Center",
+      href: "#",
+    },
+    {
+      id: 15,
+      icon: <IconFileCertificate className="w-4 h-4 mr-3" />,
+      label: "Contract Document Format",
+      href: "#",
     },
   ];
 
@@ -814,6 +989,60 @@ const handleSignOut = async () => {
             >
               <IconMessage className="stroke-[1.5] w-[20px] h-[20px]" />
             </button> */}
+            <div className="relative" ref={gridDropdownRef}>
+              <button
+                onClick={toggleGridDropdown}
+                className="md:py-2 md:px-3 p-2 hover:bg-primary-10 transition-all duration-300"
+              >
+                <IconLayoutGrid className="stroke-[1.5] xl:w-[24px] xl:h-[24px] w-[20px] h-[20px]" />
+              </button>
+
+              {isGridDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-[500px] bg-white rounded-md shadow-lg overflow-hidden z-50">
+                  <div className="max-h-[70vh] flex flex-col">
+                    {/* First Section */}
+                    <div className="p-3 border-b border-gray-200">
+                      <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 px-2">
+                        Quick Links
+                      </h3>
+                      <div className="grid grid-cols-3 gap-2">
+                        {gridMenuItems.map((item) => (
+                          <Link
+                            key={item.id}
+                            href={item.href}
+                            className="flex items-center px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                          >
+                            {item.icon}
+                            <span className="ml-2">{item.label}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Second Section */}
+                    <div className="flex-1 overflow-y-auto">
+                      <div className="p-3">
+                        <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 px-2">
+                          Administration
+                        </h3>
+                        <div className="grid grid-cols-3 gap-2">
+                          {gridMenuItems2.map((item) => (
+                            <Link
+                              key={item.id}
+                              href={item.href}
+                              className="flex items-center px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                            >
+                              {item.icon}
+                              <span className="ml-2">{item.label}</span>
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
             <button
               onClick={toggleDarkMode}
               className="md:py-2 md:px-3 p-2 hover:bg-primary-10 transition-all duration-300"
@@ -838,7 +1067,10 @@ const handleSignOut = async () => {
                   </div>
                 </div>
                 <div className="p-1 m-1 custom-scrollbar overflow-auto max-h-[calc(80svh-163px)]">
-                  <Link href={SystemRoutes.MY_PROFILE} className="py-2 px-4 flex items-center gap-3">
+                  <Link
+                    href={SystemRoutes.MY_PROFILE}
+                    className="py-2 px-4 flex items-center gap-3"
+                  >
                     <IconUser className="w-[16px] h-[16px]" />
                     My Profile
                   </Link>
@@ -1186,8 +1418,7 @@ const handleSignOut = async () => {
             : "opacity-0 invisible overflow-hidden"
         }`}
       ></div> */}
-      {
-        isLogoutModalOpen &&
+      {isLogoutModalOpen && (
         <ConfirmationModal
           open={isLogoutModalOpen}
           onClose={() => setIsLogoutModalOpen(false)}
@@ -1200,7 +1431,7 @@ const handleSignOut = async () => {
           loading={isLogoutLoading}
           maxWidth="sm"
         />
-      }
+      )}
     </>
   );
 }
