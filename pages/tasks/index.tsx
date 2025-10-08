@@ -1,21 +1,16 @@
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useRouter } from "next/router";
 import { Table, Input, Select, Button, Space, Badge } from "antd";
 import { IconFilter, IconDownload, IconBell } from "@tabler/icons-react";
-import type { ColumnsType } from "antd/es/table";
-import { useState } from "react";
+import { debounce } from "lodash";
+import { exportToExcel } from "@lib/utils/exportToExcel";
 import DateFilterDropdown from "@/components/common/custom-selects/DateFilterDropdown";
-
-interface DataType {
-  key: string;
-  name: string;
-  status: string;
-  priority: string;
-  dueDate: string;
-  assignedToId: number;
-  assignedTo: string;
-  tags: string[];
-  contactName: string;
-  phone: string;
-}
+import PrioritySelect from "@/components/common/custom-selects/PrioritySelect";
+import StatusSelect from "@/components/common/custom-selects/StatusSelect";
+import type { ColumnsType } from "antd/es/table";
+import { data, DataType } from "data/tasklistDara";
+import { Dayjs } from "dayjs";
 
 const assignees = [
   { id: 1, label: "John Doe", value: "john@example.com" },
@@ -24,170 +19,213 @@ const assignees = [
   { id: 4, label: "Alice Williams", value: "alice@example.com" },
 ];
 
-const priorityOptions = [
-  { text: "High", value: "high" },
-  { text: "Medium", value: "medium" },
-  { text: "Low", value: "low" },
-];
-
-const statusOptions = [
-  { text: "Open", value: "open" },
-  { text: "In Progress", value: "inProgress" },
-  { text: "Completed", value: "completed" },
-];
-const columns: ColumnsType<DataType> = [
-  {
-    title: (
-      <div>
-        <span>Name</span>
-        <Input />
-      </div>
-    ),
-    dataIndex: "name",
-    key: "name",
-  },
-  {
-    title: (
-      <div>
-        <span>Contact Name</span>
-        <Input />
-      </div>
-    ),
-    dataIndex: "contactName",
-    key: "contactName",
-    width: 150,
-  },
-  {
-    title: (
-      <div>
-        <span>Phone</span>
-        <Input />
-      </div>
-    ),
-    dataIndex: "phone",
-    key: "phone",
-    width: 150,
-  },
-  {
-    title: (
-      <div className="flex flex-col">
-        <span>Due Date</span>
-        <DateFilterDropdown
-          onFilter={(type, dates) => {
-            console.log("Selected filter:", type, dates);
-          }}
-          onClear={() => {
-            console.log("Cleared date filter");
-          }}
-        />
-      </div>
-    ),
-    dataIndex: "dueDate",
-    key: "dueDate",
-    width: 200,
-    render: (date) => new Date(date).toLocaleDateString(),
-  },
-  {
-    title: (
-      <div>
-        <span>Priority</span>
-        <Select options={priorityOptions} className="w-full" />
-      </div>
-    ),
-    dataIndex: "priority",
-    key: "priority",
-    width: 120,
-  },
-  {
-    title: (
-      <div>
-        <span>Status</span>
-        <Select options={statusOptions} className="w-full" />
-      </div>
-    ),
-    dataIndex: "status",
-    key: "status",
-  },
-  {
-    title: (
-      <div>
-        <span>Assignee</span>
-        <Select options={assignees} className="w-full" />
-      </div>
-    ),
-    dataIndex: "assignedTo",
-    key: "assignedTo",
-    width: 200,
-  },
-];
-
 const TaskTable: React.FC = () => {
-  // Mock data
-  const data: DataType[] = [
-    {
-      key: "1",
-      name: "Task 1",
-      status: "open",
-      priority: "High",
-      dueDate: "2023-10-15",
-      assignedTo: "John Doe",
-      assignedToId: 1,
-      contactName: "John Doe",
-      phone: "123-456-7890",
-      tags: ["urgent", "important"],
-    },
-    {
-      key: "2",
-      name: "Task 2",
-      status: "open",
-      priority: "High",
-      dueDate: "2023-10-14",
-      assignedTo: "John Doe",
-      assignedToId: 2,
-      contactName: "John Doe",
-      phone: "123-456-7890",
-      tags: ["urgent", "important"],
-    },
-    {
-      key: "3",
-      name: "Task 3",
-      status: "open",
-      priority: "High",
-      dueDate: "2023-10-16",
-      assignedTo: "John Doe",
-      assignedToId: 3,
-      contactName: "John Doe",
-      phone: "123-456-7890",
-      tags: ["urgent", "important"],
-    },
-    // Add more mock data
-  ];
-
-  const [activeFilter, setActiveFilter] = useState<{
-    type:
-      | "all"
-      | "open"
-      | "inProgress"
-      | "completed"
-      | "high"
-      | "medium"
-      | "low";
-    label: string;
-  }>({ type: "all", label: "All Tasks" });
-
-  // Filter data based on active filter
-  const filteredData = data.filter((item) => {
-    if (activeFilter.type === "all") return true;
-    if (["open", "inProgress", "completed"].includes(activeFilter.type)) {
-      return item.status === activeFilter.type;
-    }
-    if (["high", "medium", "low"].includes(activeFilter.type)) {
-      return item.priority === activeFilter.type;
-    }
-    return true;
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [filters, setFilters] = useState<{
+    name: string;
+    contactName: string;
+    phone: string;
+    dueDate: [Dayjs, Dayjs] | string | null;
+    priority: string;
+    status: string;
+  }>({
+    name: searchParams.get("name") || "",
+    contactName: searchParams.get("contactName") || "",
+    phone: searchParams.get("phone") || "",
+    dueDate: searchParams.get("dueDate") || "",
+    priority: searchParams.get("priority") || "",
+    status: searchParams.get("status") || "",
   });
 
-  const filterOptions = [
+  const debouncedUpdateURL = useMemo(
+    () =>
+      debounce((newFilters: typeof filters) => {
+        const params = new URLSearchParams(searchParams.toString());
+
+        Object.entries(newFilters).forEach(([key, value]) => {
+          if (value) {
+            params.set(key, value.toString());
+          } else {
+            params.delete(key);
+          }
+        });
+
+        router.replace(`${pathname}?${params.toString()}`);
+      }, 500), // 500ms debounce delay
+    [pathname, router, searchParams]
+  );
+
+  const handleFilterChange = useCallback(
+    (updates: Partial<typeof filters>) => {
+      setFilters((prev) => {
+        const newFilters = { ...prev, ...updates };
+        debouncedUpdateURL(newFilters);
+        return newFilters;
+      });
+    },
+    [debouncedUpdateURL]
+  );
+
+  useEffect(() => {
+    return () => {
+      debouncedUpdateURL.cancel();
+    };
+  }, [debouncedUpdateURL]);
+
+  const handleExport = (data: DataType[]) => {
+    const column = {
+      name: "Name",
+      contactName: "Contact Name",
+      phone: "Phone",
+      dueDate: "Due Date",
+      priority: "Priority",
+      status: "Status",
+      assignedTo: "Assignee",
+    };
+    exportToExcel({
+      data,
+      fileName: "TaskList",
+      sheetName: "TaskList",
+      columnHeaders: column,
+    });
+  };
+
+  const columns: ColumnsType<DataType> = [
+    {
+      title: (
+        <div>
+          <span>Name</span>
+          <Input
+            value={filters.name}
+            onChange={(e) =>
+              handleFilterChange({ ...filters, name: e.target.value })
+            }
+          />
+        </div>
+      ),
+      dataIndex: "name",
+      key: "name",
+      width: 250,
+    },
+    {
+      title: (
+        <div>
+          <span>Contact Name</span>
+          <Input
+            value={filters.contactName}
+            onChange={(e) =>
+              handleFilterChange({ ...filters, contactName: e.target.value })
+            }
+          />
+        </div>
+      ),
+      dataIndex: "contactName",
+      key: "contactName",
+      width: 200,
+    },
+    {
+      title: (
+        <div>
+          <span>Phone</span>
+          <Input
+            value={filters.phone}
+            onChange={(e) =>
+              handleFilterChange({ ...filters, phone: e.target.value })
+            }
+          />
+        </div>
+      ),
+      dataIndex: "phone",
+      key: "phone",
+      width: 150,
+    },
+    {
+      title: (
+        <div className="flex flex-col">
+          <span>Due Date</span>
+          <DateFilterDropdown
+            onFilter={(type, dates) => {
+              const dateString = dates
+                ? `${dates[0].toISOString()},${dates[1].toISOString()}`
+                : "";
+              handleFilterChange({ ...filters, dueDate: dateString });
+            }}
+            onClear={() => {
+              console.log("Cleared date filter");
+              handleFilterChange({ ...filters, dueDate: "" });
+            }}
+          />
+        </div>
+      ),
+      dataIndex: "dueDate",
+      key: "dueDate",
+      width: 150,
+      render: (date) => new Date(date).toLocaleDateString(),
+    },
+    {
+      title: (
+        <div>
+          <span>Priority</span>
+          <PrioritySelect
+            value={filters.priority}
+            onChange={(value) =>
+              handleFilterChange({ ...filters, priority: value })
+            }
+          />
+        </div>
+      ),
+      dataIndex: "priority",
+      key: "priority",
+      width: 150,
+    },
+    {
+      title: (
+        <div className="flex flex-col">
+          <span>Status</span>
+          <StatusSelect
+            value={filters.status}
+            onChange={(value) =>
+              handleFilterChange({ ...filters, status: value })
+            }
+          />
+        </div>
+      ),
+      dataIndex: "status",
+      key: "status",
+      width: 120,
+    },
+    {
+      title: (
+        <div>
+          <span>Assignee</span>
+          <Select options={assignees} className="w-full" />
+        </div>
+      ),
+      dataIndex: "assignedTo",
+      key: "assignedTo",
+      width: 200,
+    },
+  ];
+  type FilterType =
+    | "today"
+    | "tomorrow"
+    | "this-week"
+    | "next-week"
+    | "overdue"
+    | "pending";
+  const [activeFilter, setActiveFilter] = useState<{
+    type: FilterType;
+    label: string;
+    count?: number;
+  }>({ type: "today", label: "Today" });
+
+  const filterOptions: Array<{
+    type: FilterType;
+    label: string;
+    count: number;
+  }> = [
     { type: "today", label: "Today", count: data.length },
     { type: "tomorrow", label: "Tomorrow", count: data.length },
     { type: "this-week", label: "This Week", count: data.length },
@@ -210,7 +248,10 @@ const TaskTable: React.FC = () => {
           {filterOptions.map((filter) => (
             <button
               key={filter.type}
-              onClick={() => setActiveFilter(filter)}
+              onClick={() => {
+                const { type, label } = filter;
+                setActiveFilter({ type, label });
+              }}
               className={`px-4 py-2 text-sm font-medium ${
                 activeFilter.type === filter.type
                   ? "text-blue-600 border-b-2 border-blue-600 bg-primary text-white rounded"
@@ -230,7 +271,14 @@ const TaskTable: React.FC = () => {
           <Badge count={5}>
             <Button icon={<IconBell />} shape="circle" />
           </Badge>
-          <Button icon={<IconDownload />}>Export</Button>
+          <Button
+            icon={<IconDownload />}
+            onClick={() => {
+              handleExport(data);
+            }}
+          >
+            Export
+          </Button>
           <Button icon={<IconFilter />}>Filter</Button>
         </Space>
       </div>
