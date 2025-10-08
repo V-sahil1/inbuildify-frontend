@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useRouter } from "next/router";
-import { Table, Input, Select, Button, Space, Badge } from "antd";
+import { Table, Input, Select, Button, Space } from "antd";
 import { IconFilter, IconDownload, IconBell } from "@tabler/icons-react";
 import { debounce } from "lodash";
 import { exportToExcel } from "@lib/utils/exportToExcel";
@@ -9,8 +9,11 @@ import DateFilterDropdown from "@/components/common/custom-selects/DateFilterDro
 import PrioritySelect from "@/components/common/custom-selects/PrioritySelect";
 import StatusSelect from "@/components/common/custom-selects/StatusSelect";
 import type { ColumnsType } from "antd/es/table";
-import { data, DataType } from "data/tasklistDara";
+import { data, DataType } from "data/tasklistData";
 import { Dayjs } from "dayjs";
+import SystemRoutes from "@lib/constants/Routes";
+import FilterTabs from "@/components/common/FilterTabs";
+import AssigneeSelect from "@/components/common/custom-selects/AssigneeSelect";
 
 const assignees = [
   { id: 1, label: "John Doe", value: "john@example.com" },
@@ -30,6 +33,7 @@ const TaskTable: React.FC = () => {
     dueDate: [Dayjs, Dayjs] | string | null;
     priority: string;
     status: string;
+    assignedTo: string;
   }>({
     name: searchParams.get("name") || "",
     contactName: searchParams.get("contactName") || "",
@@ -37,6 +41,7 @@ const TaskTable: React.FC = () => {
     dueDate: searchParams.get("dueDate") || "",
     priority: searchParams.get("priority") || "",
     status: searchParams.get("status") || "",
+    assignedTo: searchParams.get("assignedTo") || "",
   });
 
   const debouncedUpdateURL = useMemo(
@@ -90,6 +95,11 @@ const TaskTable: React.FC = () => {
       sheetName: "TaskList",
       columnHeaders: column,
     });
+  };
+
+  const handleFilterTabChange = (selectedType: string) => {
+    console.log("Selected filter:", selectedType);
+    // You can call your API or set state here
   };
 
   const columns: ColumnsType<DataType> = [
@@ -166,7 +176,7 @@ const TaskTable: React.FC = () => {
     },
     {
       title: (
-        <div>
+        <div className="flex flex-col">
           <span>Priority</span>
           <PrioritySelect
             value={filters.priority}
@@ -200,7 +210,12 @@ const TaskTable: React.FC = () => {
       title: (
         <div>
           <span>Assignee</span>
-          <Select options={assignees} className="w-full" />
+          <AssigneeSelect
+            value={filters.assignedTo}
+            onChange={(value) =>
+              handleFilterChange({ ...filters, assignedTo: value })
+            }
+          />
         </div>
       ),
       dataIndex: "assignedTo",
@@ -230,9 +245,7 @@ const TaskTable: React.FC = () => {
     { type: "tomorrow", label: "Tomorrow", count: data.length },
     { type: "this-week", label: "This Week", count: data.length },
     { type: "next-week", label: "Next Week", count: data.length },
-
     { type: "overdue", label: "Overdue", count: data.length },
-
     {
       type: "pending",
       label: "Pending",
@@ -245,32 +258,18 @@ const TaskTable: React.FC = () => {
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Tasks</h1>
         <div className="flex space-x-1 border-b items-center justify-center">
-          {filterOptions.map((filter) => (
-            <button
-              key={filter.type}
-              onClick={() => {
-                const { type, label } = filter;
-                setActiveFilter({ type, label });
-              }}
-              className={`px-4 py-2 text-sm font-medium ${
-                activeFilter.type === filter.type
-                  ? "text-blue-600 border-b-2 border-blue-600 bg-primary text-white rounded"
-                  : "text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
-            >
-              <div className="flex items-center space-x-2">
-                <span>{filter.label}</span>
-                <span className="bg-gray-100 text-gray-600 text-xs font-medium px-2 py-0.5 rounded-full">
-                  {filter.count}
-                </span>
-              </div>
-            </button>
-          ))}
+          <FilterTabs
+            options={filterOptions}
+            defaultType="today"
+            onChange={handleFilterTabChange}
+          />
         </div>
         <Space>
-          <Badge count={5}>
-            <Button icon={<IconBell />} shape="circle" />
-          </Badge>
+          <Button
+            icon={<IconBell />}
+            shape="circle"
+            onClick={() => router.push(SystemRoutes.TODO)}
+          />
           <Button
             icon={<IconDownload />}
             onClick={() => {

@@ -1,9 +1,9 @@
-import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import CustomSelect from './CustomSelect';
-import { useEffect } from 'react';
-import { message } from 'antd';
-import { getUsersThunk } from '@redux/feature/user/userThunk';
-import { Status } from '@lib/constants/enum';
+import { useAppDispatch, useAppSelector } from "@hooks/redux";
+import CustomSelect from "./CustomSelect";
+import { useEffect } from "react";
+import { message } from "antd";
+import { getUsersThunk } from "@redux/feature/user/userThunk";
+import { Status } from "@lib/constants/enum";
 
 interface AssigneeSelectProps {
   value?: string;
@@ -11,29 +11,28 @@ interface AssigneeSelectProps {
   width?: number | string;
 }
 
-const AssigneeSelect: React.FC<AssigneeSelectProps> = ({ 
-  value, 
+const AssigneeSelect: React.FC<AssigneeSelectProps> = ({
+  value,
   onChange,
-  width = 120 
+  width,
 }) => {
-      const { user } = useAppSelector((state) => state?.auth);
-      const { users, status } = useAppSelector((state) => state?.user);
-      const dispatch = useAppDispatch();
-      useEffect(()=>{
-        async function fetchUsers(){
-          try{
-            await dispatch(getUsersThunk()).unwrap();
-          }
-          catch(error){
-            message.error(error)
-          }
-        }
-        if(status.users === Status.IDLE){
-          fetchUsers();
-        }
-      },[dispatch,status])
+  const { user } = useAppSelector((state) => state?.auth);
+  const { users, status } = useAppSelector((state) => state?.user);
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    async function fetchUsers() {
+      try {
+        await dispatch(getUsersThunk()).unwrap();
+      } catch (error) {
+        message.error(error);
+      }
+    }
+    if (status.users === Status.IDLE) {
+      fetchUsers();
+    }
+  }, [dispatch, status]);
 
-      const assigneeOptions = users.reduce((acc, u) => {
+  const assigneeOptions = users.reduce((acc, u) => {
     if (u.email !== user?.email) {
       acc.push({ label: u?.name, value: u?.usersId });
     }

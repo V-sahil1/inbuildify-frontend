@@ -22,6 +22,7 @@ class SystemRoutes {
   public static ACTION = `/action`;
   public static TASKS = `/tasks`;
   public static APPOINTMENT = `/appointments`;
+  public static TODO = `/todo`;
 }
 
 export default SystemRoutes;
