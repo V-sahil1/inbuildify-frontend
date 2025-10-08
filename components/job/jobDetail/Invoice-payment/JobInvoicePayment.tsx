@@ -21,6 +21,9 @@ import {
 } from "@tabler/icons-react";
 import { InvoiceForm } from "./InvoiceForm";
 import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
+import InvoicePdf from "@/components/common/Invoicepdf";
+import { usePdf } from "@hooks/usePdf";
+import InvoiceReceiptPdf from "@/components/common/InvoiceReceiptPdf";
 
 const initialData: any[] = [
   {
@@ -67,7 +70,8 @@ const JobInvoicePayment: React.FC = () => {
   const [formMode, setFormMode] = useState<"create" | "edit" | null>(null);
   const [editingRecord, setEditingRecord] = useState<any>(null);
   const [invoices, setInvoices] = useState<any[]>(initialData);
-
+const invoicePdf = usePdf(InvoicePdf);
+const invoiceReceiptPdf = usePdf(InvoiceReceiptPdf);
   const statusColors: Record<string, string> = {
     OVERDUE: "red",
     DRAFT: "default",
@@ -147,6 +151,16 @@ const JobInvoicePayment: React.FC = () => {
                 label: "Delete",
                 onClick: () => handleDelete(record),
               },
+              {
+                key:"PreviewInvoice",
+                label:"Preview Invoice",
+                onClick: invoicePdf.previewPdf
+              },
+               {
+                key:"PreviewReceipt",
+                label:"Preview Receipt",
+                onClick: invoiceReceiptPdf.previewPdf
+              }
             ],
           }}
           trigger={["click"]}

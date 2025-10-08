@@ -1,8 +1,10 @@
 import { Result, Tabs } from "antd";
 import ConstructionFrameStage from "./ConstructionFrameStage";
 import ConstructionBaseStage from "./ConstructionBaseStage";
+import LeadActions from "../leadDetail/LeadActions";
+import ConstructionActivity from "./ConstructionActivity";
 
-const ConstructionTabs = ({ current_value }) => {
+const ConstructionTabs = ({ current_value}) => {
   const items = [
     {
       title: 'Preconstruction',
@@ -78,22 +80,12 @@ const ConstructionTabs = ({ current_value }) => {
     {
       key: '4',
       label: 'Actions',
-      children: <div className="bg-card-color">
-        <Result
-          title="Actions Functionality coming soon"
-          subTitle="Please check back later"
-        />
-      </div>
+      children: <LeadActions leadId='MK102CH2DSF' />
     },
     {
       key: '5',
       label: 'Activity',
-      children: <div className="bg-card-color">
-        <Result
-          title="Activity Functionality coming soon"
-          subTitle="Please check back later"
-        />
-      </div>
+      children: <ConstructionActivity />
     },
     {
       key: '6',
