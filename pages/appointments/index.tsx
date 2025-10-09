@@ -159,7 +159,7 @@ export default function Appointments() {
             ),
             dataIndex: "assignee",
             key: "assignee",
-            width: 120,
+            width: 150,
             render: (_, record) => (
                 <CustomAvtar label={record.assignee} />
             )

@@ -14,7 +14,7 @@ interface CategorySelectProps {
 const CategorySelect: React.FC<CategorySelectProps> = ({
     value,
     onChange,
-    width = 120
+    width
 }) => {
     return (
         <CustomSelect
