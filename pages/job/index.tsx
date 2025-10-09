@@ -4,7 +4,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { Table, Input, Space, Dropdown, Switch, Button } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { debounce } from "lodash";
-import { IconFilter, IconDownload } from "@tabler/icons-react";
+import { IconFilter, IconDownload, IconShare3 } from "@tabler/icons-react";
 import { exportToExcel } from "@lib/utils/exportToExcel";
 import DateFilterDropdown from "@/components/common/custom-selects/DateFilterDropdown";
 import FilterTabs from "@/components/common/FilterTabs";
@@ -12,6 +12,8 @@ import AssigneeSelect from "@/components/common/custom-selects/AssigneeSelect";
 import TooltipButton from "@/components/common/TooltipButtton";
 import DynamicHorizontalChart from "@/components/common/charts/DynamicHorizontalChart";
 import { JobDataType, jobDummyData } from "data/joblistData";
+import CustomAvtar from "@/components/common/CustomAvtar";
+import Link from "next/link";
 
 const LeadPage: React.FC = () => {
   const router = useRouter();
@@ -233,7 +235,12 @@ const LeadPage: React.FC = () => {
       dataIndex: "consultant",
       key: "consultant",
       width: 200,
-      render: (consultant) => consultant?.name,
+      render: (consultant) => (
+        <div className="flex justify-between items-center">
+          <CustomAvtar label={consultant?.name} />
+          <Link href="#"><IconShare3 size={15} className="cursor-pointer text-blue" /></Link>
+        </div>
+      ),
     },
   ];
   type FilterType =

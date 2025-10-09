@@ -52,6 +52,7 @@ const DateFilterDropdown: React.FC<DateFilterDropdownProps> = ({ onFilter, onCle
         value={selectedFilter}
         onChange={handleChange}
         placeholder="Select date"
+        style={{width:'100%'}}
       >
         {filterOptions.map(option => (
           <Option key={option.value} value={option.value}>

@@ -2,7 +2,7 @@ import AssigneeSelect from "@/components/common/custom-selects/AssigneeSelect";
 import DateFilterDropdown from "@/components/common/custom-selects/DateFilterDropdown";
 import FilterTabs from "@/components/common/FilterTabs";
 import { IconCopy, IconDotsVertical, IconShare3, IconTable } from "@tabler/icons-react";
-import { Button, Dropdown, Input, Modal, Space, Switch, Table } from "antd";
+import { Button, Dropdown, Input, Modal, Space, Switch, Table, Tooltip } from "antd";
 import { ColumnsType } from "antd/es/table";
 import { Dayjs } from "dayjs";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -10,41 +10,12 @@ import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { debounce } from "lodash";
 import CustomAvtar from "@/components/common/CustomAvtar";
+import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
+import HLPackageCopyModal from "@/components/common/Models/HLPackageCopyModal";
+import {data,DataType} from "data/hlpackageData"
+import Link from "next/link";
 
-type DataType = {
-    packages: string;
-    lotAddress: string;
-    estateName: string;
-    facadeName: string;
-    floorplanName: string;
-    cost: string;
-    createdDate: string;
-    assignee: string;
-}
-const data = [
-    {
-        packages: 'New HL pack',
-        lotAddress: 'LOT 507 Stirling, Tarneit, 3002',
-        estateName: 'Ambervue',
-        facadeName: 'LKL 81',
-        floorplanName: 'My Home 2',
-        cost: '$3000.00',
-        createdDate: '01-10-2025',
-        assignee: 'Krunal'
-    },
-    {
-        packages: 'Epping 123',
-        lotAddress: 'LOT 507 Stirling, Tarneit, 3002',
-        estateName: 'Ambervue',
-        facadeName: 'LKL 44',
-        floorplanName: 'My Home 2',
-        cost: '$3000.00',
-        createdDate: '01-10-2025',
-        assignee: 'Meet'
-    },
-]
-
-export default function HLPackage() {
+export default function HLPackages() {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -241,7 +212,6 @@ export default function HLPackage() {
             width: 200,
             render: (_, record) => (
                 <div className="flex justify-between items-center">
-
                     <CustomAvtar label={record.assignee} />
                     <div className="flex gap-4 text-blue items-center">
                         <Dropdown menu={{
@@ -257,12 +227,11 @@ export default function HLPackage() {
                                     onClick: () => { }
                                 }
                             ]
-                        }}><IconDotsVertical size={15} />
+                        }} trigger={['click']}><IconDotsVertical size={15}  className="cursor-pointer" />
                         </Dropdown>
-                        <IconCopy size={15} onClick={() => setIsCopyModalOpen(true)} />
-                        <IconShare3 size={15} /></div>
+                        <Tooltip title="Copy House and Land Package"><IconCopy size={15} onClick={() => setIsCopyModalOpen(true)} className="cursor-pointer" /></Tooltip>
+                        <Link href="#"><IconShare3 size={15} className="cursor-pointer text-blue" /></Link></div>
                 </div>
-
             )
         },
     ];
@@ -326,33 +295,28 @@ export default function HLPackage() {
                     pageSize: 10,
                 }}
             />
+
             {/* create package modal */}
-            <Modal open={isModalOpen} onCancel={() => setIsModalOpen(false)} title="New Package" okText="Create" onOk={handleNewPackaheSubmit} centered>
-                <div className="p-3">
-                    <div> <p className="mb-1">Title</p> <Input /> </div>
-                    <p className="mt-3">Are you sure you want to create the new package?</p>
-                </div>
-            </Modal>
+            <CreateFormModal
+                title="New Package"
+                open={isModalOpen}
+                onCancel={() => setIsModalOpen(false)}
+                onSubmit={handleNewPackaheSubmit}
+                fields={[
+                    {
+                        label: 'Title',
+                        name: 'title',
+                    }
+                ]} />
 
             {/* copy package modal */}
-            <Modal open={isCopyModalOpen} onCancel={() => setIsCopyModalOpen(false)} title="Copy Package" okText="Copy" centered>
-                <div className="p-3">
-                    <div className="mb-4">
-                        <Button type="primary">Link Lot</Button>
-                        <Button>Copy Lot</Button>
-                    </div>
-                    <div>
-                        <p className="mb-1">Title</p>
-                        <Input />
-                    </div>
-                    <p className="text-red-500">Note: Linked lot details can't be modified</p>
-                    <p className="mt-3">Are you sure you want to copy this package?</p>
-                    <div className="my-3 flex gap-2">
-                        <Switch /> <p>Get price from master</p>
-                    </div>
-                    <p className="text-red-500">Note: TBA,TBC and Additional items will be copied to the  new package  with the old price. Please review the new package and update the costs for applicable items.</p>
-                </div>
-            </Modal>
+            <HLPackageCopyModal
+                title="Copy Package"
+                open={isCopyModalOpen}
+                onCancel={() => setIsCopyModalOpen(false)}
+                onOk={() => { }}
+            />
+
         </div>
     )
 }

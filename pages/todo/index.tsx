@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useRouter } from "next/router";
 import { Table, Input, Select, Button, Space, Dropdown, Menu } from "antd";
-import { IconDownload } from "@tabler/icons-react";
+import { IconDownload, IconTruck } from "@tabler/icons-react";
 import { debounce } from "lodash";
 import { exportToExcel } from "@lib/utils/exportToExcel";
 import DateFilterDropdown from "@/components/common/custom-selects/DateFilterDropdown";
@@ -182,8 +182,11 @@ const TodosPage: React.FC = () => {
       dataIndex: "siteSupervisor",
       key: "siteSupervisor",
       width: 150,
-      render:(_,record)=>(
-        <CustomAvtar label={record.siteSupervisor} />
+      render: (_, record) => (
+        <div className="flex items-center justify-between">
+          <CustomAvtar label={record.siteSupervisor} />
+          <IconTruck size={20} className="text-blue cursor-pointer" />
+        </div>
       )
     },
   ];

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useRouter } from "next/router";
 import { Table, Input, Button, Space } from "antd";
-import { IconFilter, IconDownload, IconBell } from "@tabler/icons-react";
+import { IconFilter, IconDownload, IconBell, IconShare3 } from "@tabler/icons-react";
 import { debounce } from "lodash";
 import { exportToExcel } from "@lib/utils/exportToExcel";
 import DateFilterDropdown from "@/components/common/custom-selects/DateFilterDropdown";
@@ -14,6 +14,8 @@ import { Dayjs } from "dayjs";
 import SystemRoutes from "@lib/constants/Routes";
 import FilterTabs from "@/components/common/FilterTabs";
 import AssigneeSelect from "@/components/common/custom-selects/AssigneeSelect";
+import CustomAvtar from "@/components/common/CustomAvtar";
+import Link from "next/link";
 
 const TaskTable: React.FC = () => {
   const router = useRouter();
@@ -214,6 +216,12 @@ const TaskTable: React.FC = () => {
       dataIndex: "assignedTo",
       key: "assignedTo",
       width: 200,
+      render: (_, record) => (
+        <div className="flex justify-between items-center">
+          <CustomAvtar label={record.assignedTo} />
+          <Link href="#"><IconShare3 size={15} className="cursor-pointer text-blue" /></Link>
+        </div>
+      ),
     },
   ];
   type FilterType =

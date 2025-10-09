@@ -8,6 +8,7 @@ import {
   IconDownload,
   IconUpload,
   IconTrash,
+  IconShare3,
 } from "@tabler/icons-react";
 import type { ColumnsType } from "antd/es/table";
 import { exportToExcel } from "@lib/utils/exportToExcel";
@@ -22,6 +23,8 @@ import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { ILead } from "@redux/feature/lead/ILeadState";
 import TooltipButton from "@/components/common/TooltipButtton";
 import SystemRoutes from "@lib/constants/Routes";
+import CustomAvtar from "@/components/common/CustomAvtar";
+import Link from "next/link";
 
 const LeadPage: React.FC = () => {
   const router = useRouter();
@@ -284,7 +287,12 @@ const LeadPage: React.FC = () => {
       dataIndex: "assignee",
       key: "assignee",
       width: 200,
-      render: (assignee) => assignee?.name,
+      render: (assignee) => (
+        <div className="flex justify-between items-center">
+          <CustomAvtar label={assignee?.name} />
+          <Link href="#"><IconShare3 size={15} className="cursor-pointer text-blue" /></Link>
+        </div>
+      ),
     },
   ];
   type FilterType =

@@ -11,33 +11,7 @@ import { debounce } from "lodash";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-
-type DataType = {
-    title: string;
-    location: string;
-    date: string;
-    assignee: string;
-    category: string;
-    status: string;
-}
-const data = [
-    {
-        title: 'sydney color',
-        location: 'Lot 678,23232,VIC,2323',
-        date: '10:00AM - 9:00PM',
-        status: 'Cancelled',
-        assignee: 'meet',
-        category: 'job'
-    },
-    {
-        title: 'sydney color ',
-        location: 'Lot 678,23232,VIC,2323',
-        date: '5:00AM - 9:00PM',
-        status: 'Cancelled',
-        assignee: 'akshat bhai',
-        category: 'general'
-    }
-]
+import { data, DataType } from "data/appointmentData"
 
 export default function Appointments() {
     const router = useRouter();
@@ -93,7 +67,7 @@ export default function Appointments() {
         };
     }, [debouncedUpdateURL]);
 
-    const columns: ColumnsType<any> = [
+    const columns: ColumnsType<DataType> = [
         {
             title: (
                 <div>
@@ -203,7 +177,6 @@ export default function Appointments() {
         | "tomorrow"
         | "this-week"
         | "next-week"
-        | "overdue"
         | "pending";
     const [activeFilter, setActiveFilter] = useState<{
         type: FilterType;
@@ -220,7 +193,6 @@ export default function Appointments() {
             { type: "tomorrow", label: "Tomorrow", count: data.length },
             { type: "this-week", label: "This Week", count: data.length },
             { type: "next-week", label: "Next Week", count: data.length },
-            { type: "overdue", label: "Overdue", count: data.length },
             {
                 type: "pending",
                 label: "Pending",
@@ -256,11 +228,16 @@ export default function Appointments() {
                     <Popover content={PopOverContent} placement="bottomRight" >
                         <Button icon={<IconDots className="text-primary" />}></Button>
                     </Popover>
-
                 </div>
             </div>
             {CancelledIncluded && <div className="mb-1"><Tag color="gray" closeIcon onClose={() => setCancelledIncluded(false)}>Cancelled Included</Tag></div>}
-            <Table columns={columns} dataSource={data}></Table>
+            <Table
+                columns={columns}
+                dataSource={data}
+                pagination={{
+                    pageSize: 10,
+                }}>
+            </Table>
         </div >
     );
 }
