@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter } from "next/router";
 import { usePathname, useSearchParams } from "next/navigation";
-import { Table, Input, Button, Space, Dropdown, Switch, Tooltip } from "antd";
+import { Table, Input, Button, Space, Dropdown, Switch } from "antd";
 import { debounce } from "lodash";
 import {
   IconFilter,
@@ -16,7 +16,10 @@ import FilterTabs from "@/components/common/FilterTabs";
 import AssigneeSelect from "@/components/common/custom-selects/AssigneeSelect";
 import SourceSelect from "@/components/common/custom-selects/SourceSelect";
 import RatingSelect from "@/components/common/custom-selects/RatingSelect";
-import { leadDummyData, LeadDataType } from "data/LeadlistData";
+import { getLeadThunk } from "@redux/feature/lead/leadThunk";
+import { Status } from "@lib/constants/enum";
+import { useAppDispatch, useAppSelector } from "@hooks/redux";
+import { ILead } from "@redux/feature/lead/ILeadState";
 import TooltipButton from "@/components/common/TooltipButtton";
 
 const LeadPage: React.FC = () => {
@@ -43,6 +46,20 @@ const LeadPage: React.FC = () => {
     assignedTo: searchParams.get("assignedTo") || "",
   });
   const [showBlocked, setShowBlocked] = useState(false);
+  const { leads } = useAppSelector((state) => state.lead);
+  const { leads: leadLoading } = useAppSelector((state) => state.lead.status);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    async function fetchData() {
+      if (leadLoading === Status.IDLE) {
+        await dispatch(getLeadThunk()).unwrap();
+      }
+    }
+    if (leadLoading === Status.IDLE || leadLoading === Status.ERROR) {
+      fetchData();
+    }
+  }, [dispatch, leadLoading]);
 
   const debouncedUpdateURL = useMemo(
     () =>
@@ -79,7 +96,7 @@ const LeadPage: React.FC = () => {
     };
   }, [debouncedUpdateURL]);
 
-  const handleExport = (data: LeadDataType[]) => {
+  const handleExport = (data: ILead[]) => {
     const column = {
       name: "Name",
       refrenceId: "Refrence ID",
@@ -103,7 +120,7 @@ const LeadPage: React.FC = () => {
     // You can call your API or set state here
   };
 
-  const columns: ColumnsType<LeadDataType> = [
+  const columns: ColumnsType<ILead> = [
     {
       title: (
         <div>
@@ -116,8 +133,8 @@ const LeadPage: React.FC = () => {
           />
         </div>
       ),
-      dataIndex: "refrenceId",
-      key: "refrenceId",
+      dataIndex: "slugId",
+      key: "slugId",
       width: 250,
     },
     {
@@ -167,8 +184,8 @@ const LeadPage: React.FC = () => {
           />
         </div>
       ),
-      dataIndex: "source",
-      key: "source",
+      dataIndex: "leadSource",
+      key: "leadSource",
       width: 150,
     },
     {
@@ -205,8 +222,8 @@ const LeadPage: React.FC = () => {
           />
         </div>
       ),
-      dataIndex: "created",
-      key: "created",
+      dataIndex: "createdAt",
+      key: "createdAt",
       width: 150,
       render: (date) => new Date(date).toLocaleDateString(),
     },
@@ -228,8 +245,8 @@ const LeadPage: React.FC = () => {
           />
         </div>
       ),
-      dataIndex: "updated",
-      key: "updated",
+      dataIndex: "updatedAt",
+      key: "updatedAt",
       width: 150,
       render: (date) => new Date(date).toLocaleDateString(),
     },
@@ -245,9 +262,10 @@ const LeadPage: React.FC = () => {
           />
         </div>
       ),
-      dataIndex: "assignedTo",
-      key: "assignedTo",
+      dataIndex: "assignee",
+      key: "assignee",
       width: 200,
+      render: (assignee) => assignee?.name,
     },
   ];
   type FilterType =
@@ -263,16 +281,16 @@ const LeadPage: React.FC = () => {
     label: string;
     count: number;
   }> = [
-    { type: "all", label: "All", count: leadDummyData.length },
-    { type: "leads", label: "Leads", count: leadDummyData.length },
+    { type: "all", label: "All", count: leads.length },
+    { type: "leads", label: "Leads", count: leads.length },
     {
       type: "opportunities",
       label: "Opportunities",
-      count: leadDummyData.length,
+      count: leads.length,
     },
-    { type: "closedWon", label: "Closed Won", count: leadDummyData.length },
-    { type: "closedLost", label: "Closed Lost", count: leadDummyData.length },
-    { type: "onHold", label: "On Hold", count: leadDummyData.length },
+    { type: "closedWon", label: "Closed Won", count: leads.length },
+    { type: "closedLost", label: "Closed Lost", count: leads.length },
+    { type: "onHold", label: "On Hold", count: leads.length },
   ];
 
   return (
@@ -287,7 +305,7 @@ const LeadPage: React.FC = () => {
           />
         </div>
         <Space>
-          <Button>Total Records: {leadDummyData.length}</Button>
+          <Button>Total Records: {leads.length}</Button>
           <Dropdown
             trigger={["click"]}
             menu={{
@@ -313,17 +331,17 @@ const LeadPage: React.FC = () => {
             <TooltipButton
               title="Delete"
               icon={<IconTrash />}
-              onClick={() => handleExport(leadDummyData)}
+              onClick={() => handleExport(leads)}
             />
             <TooltipButton
               title="Import"
               icon={<IconUpload />}
-              onClick={() => handleExport(leadDummyData)}
+              onClick={() => handleExport(leads)}
             />
             <TooltipButton
               title="Export"
               icon={<IconDownload />}
-              onClick={() => handleExport(leadDummyData)}
+              onClick={() => handleExport(leads)}
             />
           </Space>
         </Space>
@@ -331,7 +349,7 @@ const LeadPage: React.FC = () => {
 
       <Table
         columns={columns}
-        dataSource={leadDummyData}
+        dataSource={leads}
         rowSelection={{
           type: "checkbox",
         }}
