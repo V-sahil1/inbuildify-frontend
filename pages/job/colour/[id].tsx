@@ -7,7 +7,6 @@ import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { fetchColourSubCategoryItems } from "@redux/feature/color/colorThunk";
 import { toggleExpandColourCategoryItem } from "@redux/feature/color/ColourSlice";
 import { Button, message, Select } from "antd";
-import { ColorItemList } from "data/sampleData";
 import React, { useState } from "react";
 import { usePdf } from "@hooks/usePdf";
 import ColorPdf from "@/components/common/ColorPdf";
@@ -63,9 +62,13 @@ const Index = () => {
     setLoading(false);
   };
 
-  const addedCount = ColorItemList.map(
-    (item) => item.items.filter((item) => item.isAdded).length
-  ).reduce((a, b) => a + b, 0);
+  const addedCount = ColorCategory?.reduce((total, category) => {
+    if (!category.subCategories) return total;
+    return total + category.subCategories.reduce((subTotal, subCategory) => {
+      if (!subCategory.items) return subTotal;
+      return subTotal + subCategory.items.filter(item => item).length;
+    }, 0);
+  }, 0);
 
   return (
     <div className="overflow-hidden h-screen flex flex-col">

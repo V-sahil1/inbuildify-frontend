@@ -15,7 +15,7 @@ import { JobDataType, jobDummyData } from "data/joblistData";
 import CustomAvtar from "@/components/common/CustomAvtar";
 import Link from "next/link";
 
-const LeadPage: React.FC = () => {
+const JobPage: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -332,4 +332,4 @@ const LeadPage: React.FC = () => {
   );
 };
 
-export default LeadPage;
+export default JobPage;

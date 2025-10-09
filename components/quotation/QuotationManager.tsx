@@ -338,7 +338,8 @@ const QuotationManager = () => {
           ? "Quotation updated successfully"
           : "Quotation created successfully"
       );
-      router.push(`${SystemRoutes.JOB}/${property?.leadId}`);
+      // router.push(`${SystemRoutes.JOB}/${property?.leadId}`);
+      router.back()
     } catch (error) {
       message.error(error);
     }

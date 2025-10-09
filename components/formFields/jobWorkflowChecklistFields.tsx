@@ -1,22 +1,23 @@
+import { useState } from "react";
+import dayjs from "dayjs";
+import { Dropdown, message, Modal } from "antd";
+import type { ColumnsType } from "antd/es/table";
 import {
   IconCircleCheck,
   IconCircleX,
   IconDotsVertical,
   IconLink,
 } from "@tabler/icons-react";
-import { Dropdown, message, Modal } from "antd";
-import { ColumnsType } from "antd/es/table";
-import { JobWorkFlowChecklist } from "data/types";
-import { useState } from "react";
 import ConfirmationModal from "@/components/common/ConfirmationModal";
-import dayjs from "dayjs";
 import CreateTaskCard from "../common/TimeLineComponents/CreateTaskCard";
 import { useAppDispatch } from "@hooks/redux";
+import { formDataGenerator } from "@lib/utils/formDataGenerator";
 import {
   deleteActionsThunk,
   updateActionsThunk,
 } from "@redux/feature/action/actionThunk";
-import { formDataGenerator } from "@lib/utils/formDataGenerator";
+import { JobWorkFlowChecklist } from "data/types";
+import { getIsExpiredDate } from "@lib/utils/getIsExpiredDate";
 
 const UserActions: React.FC<{
   user: string;
@@ -166,13 +167,7 @@ export const jobWorkflowChecklistFields = (
     key: "name",
     width: "45%",
     render: (text, record, index) => {
-        const estimatedDateTime = dayjs(record.dueDate)
-          .hour(dayjs(record.time, "HH:mm:ss").hour())
-          .minute(dayjs(record.time, "HH:mm:ss").minute())
-          .second(dayjs(record.time, "HH:mm:ss").second());
-
-        const isExpired = estimatedDateTime.isBefore(dayjs());
-
+      const isExpired = getIsExpiredDate(record.dueDate, record.time);
       return (
         <div
           className="flex gap-2 items-center relative cursor-pointer"
@@ -230,14 +225,11 @@ export const jobWorkflowChecklistFields = (
     key: "actualDate",
     width: "10%",
     render: (date: string, record) => {
+      const isExpired = getIsExpiredDate(record.dueDate, record.time);
       const formatted = dayjs(date || new Date()).format("MMM D, YYYY");
       return (
         <div className="font-medium">
-          <span
-            className={
-              record.status === "active" ? "text-green-600" : "text-red-600"
-            }
-          >
+          <span className={isExpired ? "text-red-600" : "text-green-600"}>
             {formatted}
           </span>
         </div>
