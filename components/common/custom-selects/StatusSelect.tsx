@@ -15,7 +15,7 @@ interface StatusSelectProps {
 const StatusSelect: React.FC<StatusSelectProps> = ({ 
   value, 
   onChange,
-  width = 150 
+  width
 }) => {
   return (
     <CustomSelect

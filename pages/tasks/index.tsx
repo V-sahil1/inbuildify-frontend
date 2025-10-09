@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useRouter } from "next/router";
-import { Table, Input, Select, Button, Space } from "antd";
+import { Table, Input, Button, Space } from "antd";
 import { IconFilter, IconDownload, IconBell } from "@tabler/icons-react";
 import { debounce } from "lodash";
 import { exportToExcel } from "@lib/utils/exportToExcel";
@@ -14,13 +14,6 @@ import { Dayjs } from "dayjs";
 import SystemRoutes from "@lib/constants/Routes";
 import FilterTabs from "@/components/common/FilterTabs";
 import AssigneeSelect from "@/components/common/custom-selects/AssigneeSelect";
-
-const assignees = [
-  { id: 1, label: "John Doe", value: "john@example.com" },
-  { id: 2, label: "Jane Smith", value: "jane@example.com" },
-  { id: 3, label: "Bob Johnson", value: "bob@example.com" },
-  { id: 4, label: "Alice Williams", value: "alice@example.com" },
-];
 
 const TaskTable: React.FC = () => {
   const router = useRouter();

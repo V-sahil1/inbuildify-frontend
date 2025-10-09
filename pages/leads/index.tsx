@@ -1,205 +1,348 @@
-import React, { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "@hooks/redux";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { useRouter } from "next/router";
+import { usePathname, useSearchParams } from "next/navigation";
+import { Table, Input, Button, Space, Dropdown, Switch, Tooltip } from "antd";
+import { debounce } from "lodash";
 import {
-  createLeadSourceThunk,
-  createLeadThunk,
-  getLeadThunk,
-} from "@redux/feature/lead/leadThunk";
-import { message, Typography, Empty, Spin } from "antd";
-import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
-import { Status } from "@lib/constants/enum";
-import { useRouter } from "next/navigation";
-import { ILead } from "@redux/feature/lead/ILeadState";
-import { IconMail, IconPhone } from "@tabler/icons-react";
-import { timeAgo } from "@lib/utils/timeAgo";
-import { enumToReadable } from "@lib/utils/enumToRedable";
-import leadCreateFields from "@/components/formFields/LeadCreateFields";
-import SystemRoutes from "@lib/constants/Routes";
-import { setAddInstSourceModal } from "@redux/feature/lead/leadSlice";
-import rangeAndDwellingTypeFields from "@/components/formFields/rangeAndDwellingTypeFields";
-const Leads = () => {
-  const { leads } = useAppSelector((state) => state.lead);
-  const status = useAppSelector((state) => state.lead.status.leads);
-  const dispatch = useAppDispatch();
+  IconFilter,
+  IconDownload,
+  IconUpload,
+  IconTrash,
+} from "@tabler/icons-react";
+import type { ColumnsType } from "antd/es/table";
+import { exportToExcel } from "@lib/utils/exportToExcel";
+import DateFilterDropdown from "@/components/common/custom-selects/DateFilterDropdown";
+import FilterTabs from "@/components/common/FilterTabs";
+import AssigneeSelect from "@/components/common/custom-selects/AssigneeSelect";
+import SourceSelect from "@/components/common/custom-selects/SourceSelect";
+import RatingSelect from "@/components/common/custom-selects/RatingSelect";
+import { leadDummyData, LeadDataType } from "data/LeadlistData";
+import TooltipButton from "@/components/common/TooltipButtton";
+
+const LeadPage: React.FC = () => {
   const router = useRouter();
-  const addInstSourceModal = useAppSelector(
-    (state) => state.lead.addInstSourceModal
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [filters, setFilters] = useState<{
+    refrenceId: string;
+    name: string;
+    propertyAddress: string;
+    source: string;
+    rating: string;
+    created: string;
+    updated: string;
+    assignedTo: string;
+  }>({
+    refrenceId: searchParams.get("refrenceId") || "",
+    name: searchParams.get("name") || "",
+    propertyAddress: searchParams.get("propertyAddress") || "",
+    source: searchParams.get("source") || "",
+    rating: searchParams.get("rating") || "",
+    created: searchParams.get("created") || "",
+    updated: searchParams.get("updated") || "",
+    assignedTo: searchParams.get("assignedTo") || "",
+  });
+  const [showBlocked, setShowBlocked] = useState(false);
+
+  const debouncedUpdateURL = useMemo(
+    () =>
+      debounce((newFilters: typeof filters) => {
+        const params = new URLSearchParams(searchParams.toString());
+
+        Object.entries(newFilters).forEach(([key, value]) => {
+          if (value) {
+            params.set(key, value.toString());
+          } else {
+            params.delete(key);
+          }
+        });
+
+        router.replace(`${pathname}?${params.toString()}`);
+      }, 500), // 500ms debounce delay
+    [pathname, router, searchParams]
   );
-  const [openLeadCreateModal, setOpenLeadCreateModal] = useState(false);
-  const [loading, setLoading] = useState({leadLoading:false,leadSourceLoading:false});
+
+  const handleFilterChange = useCallback(
+    (updates: Partial<typeof filters>) => {
+      setFilters((prev) => {
+        const newFilters = { ...prev, ...updates };
+        debouncedUpdateURL(newFilters);
+        return newFilters;
+      });
+    },
+    [debouncedUpdateURL]
+  );
 
   useEffect(() => {
-    async function fetchData() {
-      if (status === Status.IDLE) {
-        await dispatch(getLeadThunk()).unwrap();
-      }
-    }
-    if (status === Status.IDLE || status === Status.ERROR) {
-      fetchData();
-    }
-  }, [dispatch, status]);
+    return () => {
+      debouncedUpdateURL.cancel();
+    };
+  }, [debouncedUpdateURL]);
 
-  const handleSubmit = async (values: any) => {
-    try {
-      setLoading({...loading,leadLoading:true});
-      const payload = {
-        lead_source: values.leadSource,
-        notes: values.notes,
-        contact: {
-          name: values.name,
-          ...(values.email && { email: values.email }),
-          ...(values.phone && { phone: values.phone }),
-        },
-      };
-      await dispatch(createLeadThunk(payload)).unwrap();
-      message.success("Lead created successfully");
-      setOpenLeadCreateModal(false);
-    } catch (error) {
-      message.error(error || "Failed to create lead");
-    } finally {
-      setLoading({...loading,leadLoading:false});
-    }
+  const handleExport = (data: LeadDataType[]) => {
+    const column = {
+      name: "Name",
+      refrenceId: "Refrence ID",
+      propertyAddress: "Property Address",
+      source: "Source",
+      rating: "Rating",
+      created: "Created",
+      updated: "Updated",
+      assignedTo: "Assignee",
+    };
+    exportToExcel({
+      data,
+      fileName: "Leads",
+      sheetName: "Leads",
+      columnHeaders: column,
+    });
   };
 
-  const handleAddLeadSourceSubmit = async (values: any) => {
-    try {
-      setLoading({...loading,leadSourceLoading:true});
-      await dispatch(createLeadSourceThunk({ name: values.name })).unwrap();
-      message.success("Lead source created successfully");
-      setOpenLeadCreateModal(true);
-    } catch (error: any) {
-      message.error(error || "Failed to create lead source");
-    } finally {
-      dispatch(setAddInstSourceModal(false));
-      setLoading({...loading,leadSourceLoading:false});
-    }
+  const handleFilterTabChange = (selectedType: string) => {
+    console.log("Selected filter:", selectedType);
+    // You can call your API or set state here
   };
-  const handleOpenModal = () => {
-    setOpenLeadCreateModal(true);
-  };
+
+  const columns: ColumnsType<LeadDataType> = [
+    {
+      title: (
+        <div>
+          <span>Refrence ID</span>
+          <Input
+            value={filters.refrenceId}
+            onChange={(e) =>
+              handleFilterChange({ ...filters, refrenceId: e.target.value })
+            }
+          />
+        </div>
+      ),
+      dataIndex: "refrenceId",
+      key: "refrenceId",
+      width: 250,
+    },
+    {
+      title: (
+        <div>
+          <span>Name</span>
+          <Input
+            value={filters.name}
+            onChange={(e) =>
+              handleFilterChange({ ...filters, name: e.target.value })
+            }
+          />
+        </div>
+      ),
+      dataIndex: "name",
+      key: "name",
+      width: 250,
+    },
+    {
+      title: (
+        <div>
+          <span>Property Address</span>
+          <Input
+            value={filters.propertyAddress}
+            onChange={(e) =>
+              handleFilterChange({
+                ...filters,
+                propertyAddress: e.target.value,
+              })
+            }
+          />
+        </div>
+      ),
+      dataIndex: "propertyAddress",
+      key: "propertyAddress",
+      width: 200,
+    },
+    {
+      title: (
+        <div>
+          <span>Source</span>
+          <SourceSelect
+            value={filters.source}
+            onChange={(value) =>
+              handleFilterChange({ ...filters, source: value })
+            }
+          />
+        </div>
+      ),
+      dataIndex: "source",
+      key: "source",
+      width: 150,
+    },
+    {
+      title: (
+        <div className="flex flex-col">
+          <span>Rating</span>
+          <RatingSelect
+            value={filters.rating}
+            onChange={(value) =>
+              handleFilterChange({ ...filters, rating: value })
+            }
+          />
+        </div>
+      ),
+      dataIndex: "rating",
+      key: "rating",
+      width: 150,
+    },
+    {
+      title: (
+        <div className="flex flex-col">
+          <span>Created</span>
+          <DateFilterDropdown
+            onFilter={(type, dates) => {
+              const dateString = dates
+                ? `${dates[0].toISOString()},${dates[1].toISOString()}`
+                : "";
+              handleFilterChange({ ...filters, created: dateString });
+            }}
+            onClear={() => {
+              console.log("Cleared date filter");
+              handleFilterChange({ ...filters, created: "" });
+            }}
+          />
+        </div>
+      ),
+      dataIndex: "created",
+      key: "created",
+      width: 150,
+      render: (date) => new Date(date).toLocaleDateString(),
+    },
+    {
+      title: (
+        <div className="flex flex-col">
+          <span>Updated</span>
+          <DateFilterDropdown
+            onFilter={(type, dates) => {
+              const dateString = dates
+                ? `${dates[0].toISOString()},${dates[1].toISOString()}`
+                : "";
+              handleFilterChange({ ...filters, updated: dateString });
+            }}
+            onClear={() => {
+              console.log("Cleared date filter");
+              handleFilterChange({ ...filters, updated: "" });
+            }}
+          />
+        </div>
+      ),
+      dataIndex: "updated",
+      key: "updated",
+      width: 150,
+      render: (date) => new Date(date).toLocaleDateString(),
+    },
+    {
+      title: (
+        <div>
+          <span>Assignee</span>
+          <AssigneeSelect
+            value={filters.assignedTo}
+            onChange={(value) =>
+              handleFilterChange({ ...filters, assignedTo: value })
+            }
+          />
+        </div>
+      ),
+      dataIndex: "assignedTo",
+      key: "assignedTo",
+      width: 200,
+    },
+  ];
+  type FilterType =
+    | "all"
+    | "leads"
+    | "opportunities"
+    | "closedWon"
+    | "closedLost"
+    | "onHold";
+
+  const filterOptions: Array<{
+    type: FilterType;
+    label: string;
+    count: number;
+  }> = [
+    { type: "all", label: "All", count: leadDummyData.length },
+    { type: "leads", label: "Leads", count: leadDummyData.length },
+    {
+      type: "opportunities",
+      label: "Opportunities",
+      count: leadDummyData.length,
+    },
+    { type: "closedWon", label: "Closed Won", count: leadDummyData.length },
+    { type: "closedLost", label: "Closed Lost", count: leadDummyData.length },
+    { type: "onHold", label: "On Hold", count: leadDummyData.length },
+  ];
+
   return (
     <div className="p-4">
-      <div className="flex items-center justify-between mb-4">
-        <Typography.Title
-          level={4}
-          style={{ margin: 0, color: "var(--font-color)" }}
-        >
-          Leads
-        </Typography.Title>
-        <button
-          className="btn large bg-[var(--primary)] cursor-pointer text-white"
-          onClick={handleOpenModal}
-        >
-          Create
-        </button>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">Leads</h1>
+        <div className="flex space-x-1 border-b items-center justify-center">
+          <FilterTabs
+            options={filterOptions}
+            defaultType="all"
+            onChange={handleFilterTabChange}
+          />
+        </div>
+        <Space>
+          <Button>Total Records: {leadDummyData.length}</Button>
+          <Dropdown
+            trigger={["click"]}
+            menu={{
+              items: [
+                {
+                  key: "1",
+                  label: (
+                    <Space>
+                      <Switch
+                        checked={showBlocked}
+                        onChange={(val) => setShowBlocked(val)}
+                      />
+                      <span>Show Blocklisted Leads</span>
+                    </Space>
+                  ),
+                },
+              ],
+            }}
+          >
+            <TooltipButton title="Filter" icon={<IconFilter />} />
+          </Dropdown>
+          <Space>
+            <TooltipButton
+              title="Delete"
+              icon={<IconTrash />}
+              onClick={() => handleExport(leadDummyData)}
+            />
+            <TooltipButton
+              title="Import"
+              icon={<IconUpload />}
+              onClick={() => handleExport(leadDummyData)}
+            />
+            <TooltipButton
+              title="Export"
+              icon={<IconDownload />}
+              onClick={() => handleExport(leadDummyData)}
+            />
+          </Space>
+        </Space>
       </div>
-      {status === Status.PENDING ? (
-        <div className="flex justify-center items-center pt-[20vh]">
-          <Spin size="large" />
-        </div>
-      ) : leads.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {leads.map((lead: ILead) => (
-            <div
-              key={lead.leadId}
-              onClick={() => {
-                if (lead.status === "CANCELLED") return;
-                else if (lead.status === "JOB") router.push(`${SystemRoutes.JOB}/${lead.leadId}`);
-                else router.push(`${SystemRoutes.LEADS}/${lead.leadId}`);
-              }}
-              className={`rounded-2xl border border-border-color shadow-sm p-6 ${
-                lead.status === "CANCELLED"
-                  ? "opacity-60 cursor-not-allowed"
-                  : "cursor-pointer hover:shadow-xl hover:scale-[1.02]"
-              } 
-                transition-all duration-200 bg-card-color flex flex-col`}
-            >
-              {/* Header with Tag on Top Right */}
-              <div className="flex justify-between items-start mb-3">
-                <h3 className="text-lg font-semibold">{lead.name}</h3>
-                <span
-                  className={`text-xs px-3 py-1 rounded-full font-medium whitespace-nowrap ${
-                    lead.status === "IN_PROGRESS"
-                      ? "bg-purple-100 text-purple-700"
-                      : lead.status === "COMPLETED"
-                      ? "bg-green-100 text-green-700"
-                      : lead.status === "JOB"
-                      ? "bg-fuchsia-300 text-fuchsia-700"
-                      : "bg-yellow-100 text-yellow-700"
-                  }`}
-                >
-                  {enumToReadable(lead.status)}
-                </span>
-              </div>
-            
-              {/* Contact Info */}
-              <div className=" flex-1 space-y-2 mb-4">
-                
-                <p className="flex items-center text-sm ">
-                  <IconPhone size={16} className="mr-2 text-gray-400" />
-                  {lead.phone ? lead.phone : 'N/A'}
-                </p>
-                <p className="flex items-center text-sm ">
-                  <IconMail size={16} className="mr-2 text-gray-400" />
-                  {lead.email ? lead.email : 'N/A'}
-                </p>
-                <p className="text-xs">Source: {lead.leadSource ? enumToReadable(lead.leadSource) : 'N/A'}</p>
-                 
-              </div>
-            
-              {/* Footer with dates */}
-              <div className="flex border-t border-gray-100 pt-3 gap-4 text-xs text-gray-400">
-                <p
-                  className="flex-1 truncate"
-                  title={`Created: ${timeAgo(lead.createdAt)}`}
-                >
-                  Created: {timeAgo(lead.createdAt)}
-                </p>
-                <p
-                  className="flex-1 truncate"
-                  title={`Updated: ${timeAgo(lead.updatedAt)}`}
-                >
-                  Updated: {timeAgo(lead.updatedAt)}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <Empty
-          description={
-            <span className="text-gray-500">
-              No Leads found. Create your first Lead to get started.
-            </span>
-          }
-          className="pt-100"
-        />
-      )}
 
-      <CreateFormModal
-        title="Lead"
-        open={openLeadCreateModal}
-        loading={loading.leadLoading}
-        onCancel={() => setOpenLeadCreateModal(false)}
-        onSubmit={handleSubmit}
-        fields={leadCreateFields({
-          isEmailDisable: false,
-        })}
-      />
-
-      <CreateFormModal
-        title="LeadSource"
-        open={addInstSourceModal}
-        loading={loading.leadSourceLoading}
-        onCancel={() => {
-          dispatch(setAddInstSourceModal(false));
-          setOpenLeadCreateModal(true);
+      <Table
+        columns={columns}
+        dataSource={leadDummyData}
+        rowSelection={{
+          type: "checkbox",
         }}
-        onSubmit={handleAddLeadSourceSubmit}
-        fields={rangeAndDwellingTypeFields()}
+        pagination={{
+          pageSize: 10,
+          showSizeChanger: true,
+          showQuickJumper: true,
+        }}
       />
     </div>
   );
 };
 
-export default Leads;
+export default LeadPage;

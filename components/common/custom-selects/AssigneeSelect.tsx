@@ -4,14 +4,9 @@ import { useEffect, useState } from "react";
 import { message } from "antd";
 import { getUsersThunk } from "@redux/feature/user/userThunk";
 import { user } from "@redux/feature/user/UserState";
+import { CustomSelectOption, CustomSelectProps } from "types/common.types";
 
-interface AssigneeSelectProps {
-  value?: string;
-  onChange?: (value: string) => void;
-  width?: number | string;
-}
-
-const AssigneeSelect: React.FC<AssigneeSelectProps> = ({
+const AssigneeSelect: React.FC<CustomSelectProps> = ({
   value,
   onChange,
   width,
@@ -42,7 +37,7 @@ const AssigneeSelect: React.FC<AssigneeSelectProps> = ({
       });
     }
     return acc;
-  }, [] as { label: string; value: string; role?: string[] }[]);
+  }, [] as CustomSelectOption[]);
 
   return (
     <CustomSelect
