@@ -1,7 +1,7 @@
+import SystemRoutes from "@lib/constants/Routes";
 import {
   IconHome,
   IconBuildingSkyscraper,
-  IconUsers,
   IconUsersGroup,
   IconCrane,
   IconTools,
@@ -12,32 +12,13 @@ import {
   IconChartHistogram,
 } from "@tabler/icons-react";
 const commonRoles = ["builder", "contractor", "customer"];
-export const menuList = [
-  // {
-  //   devider: "Main",
-  // },
+export const menuList = [ 
   {
     icon: IconHome,
     link: "My Dashboard",
     url: "/",
     roles: ["builder", "contractor", "customer"],
-    // children: [
-    //   {
-    //     link: "Analysis",
-    //     url: ,
-    //     roles: ["builder", "contractor", "customer"],
-    //   },
-    //   {
-    //     link: "My Wallet",
-    //     url: "/dashboard/my-wallet",
-    //     roles: ["builder", "contractor", "customer"],
-    //   },
-    //   {
-    //     link: "Smart IOT",
-    //     url: "/dashboard/smart-iot",
-    //     roles: ["builder", "contractor", "customer"],
-    //   },
-    // ],
+   
   },
   {
     icon: IconCalendar,
@@ -48,19 +29,13 @@ export const menuList = [
   {
     icon: IconShieldCheck,
     link: "Job",
-    url: "/job",
+    url: SystemRoutes.JOB,
     roles: ["builder", "contractor", "customer"],
   },
   {
     icon: IconBuildingSkyscraper,
     link: "Contractors",
     url: "/contractors",
-    roles: ["builder", "contractor", "customer"],
-  },
-  {
-    icon: IconUsers,
-    link: "Leads",
-    url: "/leads",
     roles: ["builder", "contractor", "customer"],
   },
   {
@@ -81,7 +56,7 @@ export const menuList = [
       },
       {
         link: "Leads",
-        url: "/leads",
+        url: SystemRoutes.LEADS,
         roles: ["builder", "contractor", "customer"],
       },
       {

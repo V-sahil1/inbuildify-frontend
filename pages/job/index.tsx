@@ -1,27 +1,17 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter } from "next/router";
 import { usePathname, useSearchParams } from "next/navigation";
-import { Table, Input, Button, Space, Dropdown, Switch } from "antd";
-import { debounce } from "lodash";
-import {
-  IconFilter,
-  IconDownload,
-  IconUpload,
-  IconTrash,
-} from "@tabler/icons-react";
+import { Table, Input, Space, Dropdown, Switch, Button } from "antd";
 import type { ColumnsType } from "antd/es/table";
+import { debounce } from "lodash";
+import { IconFilter, IconDownload } from "@tabler/icons-react";
 import { exportToExcel } from "@lib/utils/exportToExcel";
 import DateFilterDropdown from "@/components/common/custom-selects/DateFilterDropdown";
 import FilterTabs from "@/components/common/FilterTabs";
 import AssigneeSelect from "@/components/common/custom-selects/AssigneeSelect";
-import SourceSelect from "@/components/common/custom-selects/SourceSelect";
-import RatingSelect from "@/components/common/custom-selects/RatingSelect";
-import { getLeadThunk } from "@redux/feature/lead/leadThunk";
-import { Status } from "@lib/constants/enum";
-import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import { ILead } from "@redux/feature/lead/ILeadState";
 import TooltipButton from "@/components/common/TooltipButtton";
-import SystemRoutes from "@lib/constants/Routes";
+import DynamicHorizontalChart from "@/components/common/charts/DynamicHorizontalChart";
+import { JobDataType, jobDummyData } from "data/joblistData";
 
 const LeadPage: React.FC = () => {
   const router = useRouter();
@@ -29,40 +19,23 @@ const LeadPage: React.FC = () => {
   const searchParams = useSearchParams();
   const [filters, setFilters] = useState<{
     refrenceId: string;
-    name: string;
-    propertyAddress: string;
-    source: string;
-    rating: string;
+    customerName: string;
+    jobAddress: string;
+    estateName: string;
     created: string;
-    updated: string;
-    assignedTo: string;
+    titled: string;
+    consultant: string;
   }>({
     refrenceId: searchParams.get("refrenceId") || "",
-    name: searchParams.get("name") || "",
-    propertyAddress: searchParams.get("propertyAddress") || "",
-    source: searchParams.get("source") || "",
-    rating: searchParams.get("rating") || "",
+    customerName: searchParams.get("customerName") || "",
+    jobAddress: searchParams.get("jobAddress") || "",
+    estateName: searchParams.get("estateName") || "",
     created: searchParams.get("created") || "",
-    updated: searchParams.get("updated") || "",
-    assignedTo: searchParams.get("assignedTo") || "",
+    titled: searchParams.get("titled") || "",
+    consultant: searchParams.get("consultant") || "",
   });
   const [showBlocked, setShowBlocked] = useState(false);
-  const [currentFilter, setCurrentFilter] = useState<string>("all");
-
-  const { leads } = useAppSelector((state) => state.lead);
-  const { leads: leadLoading } = useAppSelector((state) => state.lead.status);
-  const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    async function fetchData() {
-      if (leadLoading === Status.IDLE) {
-        await dispatch(getLeadThunk()).unwrap();
-      }
-    }
-    if (leadLoading === Status.IDLE || leadLoading === Status.ERROR) {
-      fetchData();
-    }
-  }, [dispatch, leadLoading]);
+  const [currentBar, setCurrentBar] = useState<string>();
 
   const debouncedUpdateURL = useMemo(
     () =>
@@ -99,47 +72,35 @@ const LeadPage: React.FC = () => {
     };
   }, [debouncedUpdateURL]);
 
-  const handleExport = (data: ILead[]) => {
+  const handleExport = (data: JobDataType[]) => {
     const column = {
-      name: "Name",
       refrenceId: "Refrence ID",
-      propertyAddress: "Property Address",
-      source: "Source",
-      rating: "Rating",
-      created: "Created",
-      updated: "Updated",
-      assignedTo: "Assignee",
+      CustomerName: "Customer Name",
+      jobAddress: "Job Address",
+      created: "Created At",
+      titled: "Titled At",
+      estateName: "Estate Name",
+      consultant: "Consultant",
     };
     exportToExcel({
       data,
-      fileName: "Leads",
-      sheetName: "Leads",
+      fileName: "Jobs",
+      sheetName: "Jobs",
       columnHeaders: column,
     });
   };
 
-  const getFilterTitle = (filter: string) => {
-    const titles: Record<string, string> = {
-      all: "All Leads",
-      new: "New Leads",
-      contacted: "Contacted Leads",
-      qualified: "Qualified Leads",
-      proposal: "Proposal Sent",
-      negotiation: "In Negotiation",
-      closedWon: "Closed Won",
-      closedLost: "Closed Lost",
-      onHold: "On Hold",
-    };
-    return titles[filter] || "Leads";
-  };
-
   const handleFilterTabChange = (selectedType: string) => {
     console.log("Selected filter:", selectedType);
-    setCurrentFilter(selectedType);
     // You can call your API or set state here
   };
 
-  const columns: ColumnsType<ILead> = [
+  const handleBarClick = (status: string) => {
+    console.log("status", status);
+    setCurrentBar(status);
+  };
+
+  const columns: ColumnsType<JobDataType> = [
     {
       title: (
         <div>
@@ -159,74 +120,43 @@ const LeadPage: React.FC = () => {
     {
       title: (
         <div>
-          <span>Name</span>
+          <span>Customer Name</span>
           <Input
-            value={filters.name}
+            value={filters.customerName}
             onChange={(e) =>
-              handleFilterChange({ ...filters, name: e.target.value })
+              handleFilterChange({ ...filters, customerName: e.target.value })
             }
           />
         </div>
       ),
-      dataIndex: "name",
-      key: "name",
+      dataIndex: "customerName",
+      key: "customerName",
       width: 250,
     },
     {
       title: (
         <div>
-          <span>Property Address</span>
+          <span>Job Address</span>
           <Input
-            value={filters.propertyAddress}
+            value={filters.jobAddress}
             onChange={(e) =>
               handleFilterChange({
                 ...filters,
-                propertyAddress: e.target.value,
+                jobAddress: e.target.value,
               })
             }
           />
         </div>
       ),
-      dataIndex: "propertyAddress",
-      key: "propertyAddress",
+      dataIndex: "jobAddress",
+      key: "jobAddress",
       width: 200,
     },
-    {
-      title: (
-        <div>
-          <span>Source</span>
-          <SourceSelect
-            value={filters.source}
-            onChange={(value) =>
-              handleFilterChange({ ...filters, source: value })
-            }
-          />
-        </div>
-      ),
-      dataIndex: "leadSource",
-      key: "leadSource",
-      width: 150,
-    },
+
     {
       title: (
         <div className="flex flex-col">
-          <span>Rating</span>
-          <RatingSelect
-            value={filters.rating}
-            onChange={(value) =>
-              handleFilterChange({ ...filters, rating: value })
-            }
-          />
-        </div>
-      ),
-      dataIndex: "rating",
-      key: "rating",
-      width: 150,
-    },
-    {
-      title: (
-        <div className="flex flex-col">
-          <span>Created</span>
+          <span>Created Date</span>
           <DateFilterDropdown
             onFilter={(type, dates) => {
               const dateString = dates
@@ -249,73 +179,86 @@ const LeadPage: React.FC = () => {
     {
       title: (
         <div className="flex flex-col">
-          <span>Updated</span>
+          <span>Title Date</span>
           <DateFilterDropdown
             onFilter={(type, dates) => {
               const dateString = dates
                 ? `${dates[0].toISOString()},${dates[1].toISOString()}`
                 : "";
-              handleFilterChange({ ...filters, updated: dateString });
+              handleFilterChange({ ...filters, titled: dateString });
             }}
             onClear={() => {
               console.log("Cleared date filter");
-              handleFilterChange({ ...filters, updated: "" });
+              handleFilterChange({ ...filters, titled: "" });
             }}
           />
         </div>
       ),
-      dataIndex: "updatedAt",
-      key: "updatedAt",
+      dataIndex: "titledAt",
+      key: "titledAt",
       width: 150,
       render: (date) => new Date(date).toLocaleDateString(),
     },
     {
       title: (
         <div>
-          <span>Assignee</span>
-          <AssigneeSelect
-            value={filters.assignedTo}
-            onChange={(value) =>
-              handleFilterChange({ ...filters, assignedTo: value })
+          <span>Estate Name</span>
+          <Input
+            value={filters.estateName}
+            onChange={(e) =>
+              handleFilterChange({
+                ...filters,
+                estateName: e.target.value,
+              })
             }
           />
         </div>
       ),
-      dataIndex: "assignee",
-      key: "assignee",
+      dataIndex: "estateName",
+      key: "estateName",
       width: 200,
-      render: (assignee) => assignee?.name,
+    },
+    {
+      title: (
+        <div>
+          <span>Consultant</span>
+          <AssigneeSelect
+            value={filters.consultant}
+            onChange={(value) =>
+              handleFilterChange({ ...filters, consultant: value })
+            }
+          />
+        </div>
+      ),
+      dataIndex: "consultant",
+      key: "consultant",
+      width: 200,
+      render: (consultant) => consultant?.name,
     },
   ];
   type FilterType =
-    | "all"
-    | "leads"
-    | "opportunities"
-    | "closedWon"
-    | "closedLost"
-    | "onHold";
+    | "inProgress"
+    | "completed"
+    | "onHold"
+    | "cancelled"
+    | "archieved";
 
   const filterOptions: Array<{
     type: FilterType;
     label: string;
     count: number;
   }> = [
-    { type: "all", label: "All", count: leads.length },
-    { type: "leads", label: "Leads", count: leads.length },
-    {
-      type: "opportunities",
-      label: "Opportunities",
-      count: leads.length,
-    },
-    { type: "closedWon", label: "Closed Won", count: leads.length },
-    { type: "closedLost", label: "Closed Lost", count: leads.length },
-    { type: "onHold", label: "On Hold", count: leads.length },
+    { type: "inProgress", label: "In Progress", count: jobDummyData.length },
+    { type: "completed", label: "Completed", count: jobDummyData.length },
+    { type: "onHold", label: "On Hold", count: jobDummyData.length },
+    { type: "cancelled", label: "Cancelled", count: jobDummyData.length },
+    { type: "archieved", label: "Archieved", count: jobDummyData.length },
   ];
 
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">{getFilterTitle(currentFilter)}</h1>
+        <h1 className="text-2xl font-bold">Job List</h1>
         <div className="flex space-x-1 border-b items-center justify-center">
           <FilterTabs
             options={filterOptions}
@@ -324,7 +267,7 @@ const LeadPage: React.FC = () => {
           />
         </div>
         <Space>
-          <Button>Total Records: {leads.length}</Button>
+          <Button>Filtered Records: {jobDummyData.length}</Button>
           <Dropdown
             trigger={["click"]}
             menu={{
@@ -348,35 +291,33 @@ const LeadPage: React.FC = () => {
           </Dropdown>
           <Space>
             <TooltipButton
-              title="Delete"
-              icon={<IconTrash />}
-              onClick={() => handleExport(leads)}
-            />
-            <TooltipButton
-              title="Import"
-              icon={<IconUpload />}
-              onClick={() => handleExport(leads)}
-            />
-            <TooltipButton
               title="Export"
               icon={<IconDownload />}
-              onClick={() => handleExport(leads)}
+              onClick={() => handleExport(jobDummyData)}
             />
           </Space>
         </Space>
       </div>
-
+      <DynamicHorizontalChart
+        title="Job Status Overview"
+        categories={[
+          "In Progress",
+          "Completed",
+          "On Hold",
+          "Cancelled",
+          "Archived",
+        ]}
+        chartType="bar"
+        seriesData={[40, 7, 3, 80, 9]}
+        onBarClick={handleBarClick}
+      />
+      <p className="my-4">{currentBar && "Job status: " + currentBar}</p>
       <Table
         columns={columns}
-        dataSource={leads}
+        dataSource={jobDummyData}
         rowSelection={{
           type: "checkbox",
         }}
-        onRow={(record) => ({
-          onClick: () => {
-            router.push(`${SystemRoutes.LEADS}/${record.leadId}`);
-          },
-        })}
         pagination={{
           pageSize: 10,
           showSizeChanger: true,

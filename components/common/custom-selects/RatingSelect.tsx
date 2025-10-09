@@ -1,3 +1,4 @@
+'use client';
 import { CustomSelectOption, CustomSelectProps } from "types/common.types";
 import CustomSelect from "./CustomSelect";
 
@@ -7,11 +8,7 @@ const ratingOptions: CustomSelectOption[] = [
   { value: "cold", label: "Cold" },
 ];
 
-const RatingSelect: React.FC<CustomSelectProps> = ({
-  value,
-  onChange,
-  width,
-}) => {
+const RatingSelect = ({ value, onChange, width }: CustomSelectProps) => {
   return (
     <CustomSelect
       value={value}
