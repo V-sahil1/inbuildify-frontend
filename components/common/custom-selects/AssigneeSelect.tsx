@@ -3,6 +3,8 @@ import CustomSelect from "./CustomSelect";
 import { useEffect, useState } from "react";
 import { message } from "antd";
 import { getUsersThunk } from "@redux/feature/user/userThunk";
+import { user } from "@redux/feature/user/UserState";
+
 interface AssigneeSelectProps {
   value?: string;
   onChange?: (value: string) => void;
@@ -15,27 +17,33 @@ const AssigneeSelect: React.FC<AssigneeSelectProps> = ({
   width,
 }) => {
   const { user } = useAppSelector((state) => state?.auth);
-  const { users, status } = useAppSelector((state) => state?.user);
-  const [Users, setUsers] = useState(users || null);
+  const [users, setUsers] = useState<user[]>([]);
   const dispatch = useAppDispatch();
-  useEffect(() => {
-    async function fetchUsers() {
-      try {
-        const data = await dispatch(getUsersThunk()).unwrap();
-        setUsers(Users);
-      } catch (error) {
-        message.error(error);
-      }
-    }
-      fetchUsers();
-  }, [dispatch, status]);
 
-  const assigneeOptions = Users.reduce((acc, u) => {
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await dispatch(getUsersThunk()).unwrap();
+        setUsers(response.data || []);
+      } catch (error) {
+        message.error(error instanceof Error ? error.message : "Failed to fetch users");
+      }
+    };
+
+    fetchUsers();
+  }, [dispatch]);
+
+  const assigneeOptions = users.reduce((acc, u) => {
     if (u.email !== user?.email) {
-      acc.push({ label: u?.name, value: u?.usersId, role: u?.role });
+      acc.push({ 
+        label: u?.name || 'Unnamed User', 
+        value: u?.usersId || '',
+        role: u?.role 
+      });
     }
     return acc;
   }, [] as { label: string; value: string; role?: string[] }[]);
+
   return (
     <CustomSelect
       value={value}
@@ -43,6 +51,11 @@ const AssigneeSelect: React.FC<AssigneeSelectProps> = ({
       options={assigneeOptions}
       placeholder="Assignee"
       width={width}
+      showSearch
+      optionFilterProp="label"
+      filterOption={(input, option) =>
+        (option?.label ?? '').toString().toLowerCase().includes(input.toLowerCase())
+      }
     />
   );
 };
