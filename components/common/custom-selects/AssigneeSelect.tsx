@@ -1,10 +1,8 @@
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import CustomSelect from "./CustomSelect";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { message } from "antd";
 import { getUsersThunk } from "@redux/feature/user/userThunk";
-import { Status } from "@lib/constants/enum";
-
 interface AssigneeSelectProps {
   value?: string;
   onChange?: (value: string) => void;
@@ -18,26 +16,26 @@ const AssigneeSelect: React.FC<AssigneeSelectProps> = ({
 }) => {
   const { user } = useAppSelector((state) => state?.auth);
   const { users, status } = useAppSelector((state) => state?.user);
+  const [Users, setUsers] = useState(users || null);
   const dispatch = useAppDispatch();
   useEffect(() => {
     async function fetchUsers() {
       try {
-        await dispatch(getUsersThunk()).unwrap();
+        const data = await dispatch(getUsersThunk()).unwrap();
+        setUsers(Users);
       } catch (error) {
         message.error(error);
       }
     }
-    if (status.users === Status.IDLE) {
       fetchUsers();
-    }
   }, [dispatch, status]);
 
-  const assigneeOptions = users.reduce((acc, u) => {
+  const assigneeOptions = Users.reduce((acc, u) => {
     if (u.email !== user?.email) {
-      acc.push({ label: u?.name, value: u?.usersId });
+      acc.push({ label: u?.name, value: u?.usersId, role: u?.role });
     }
     return acc;
-  }, [] as { label: string; value: string }[]);
+  }, [] as { label: string; value: string; role?: string[] }[]);
   return (
     <CustomSelect
       value={value}

@@ -11,6 +11,7 @@ import { todoDummyData, TodoDataType } from "data/tasklistData";
 import { Dayjs } from "dayjs";
 import FilterTabs from "@/components/common/FilterTabs";
 import AssigneeSelect from "@/components/common/custom-selects/AssigneeSelect";
+import CustomAvtar from "@/components/common/CustomAvtar";
 
 const TodosPage: React.FC = () => {
   const router = useRouter();
@@ -181,6 +182,9 @@ const TodosPage: React.FC = () => {
       dataIndex: "siteSupervisor",
       key: "siteSupervisor",
       width: 150,
+      render:(_,record)=>(
+        <CustomAvtar label={record.siteSupervisor} />
+      )
     },
   ];
 
