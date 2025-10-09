@@ -322,9 +322,6 @@ const LeadPage: React.FC = () => {
       <Table
         columns={columns}
         dataSource={jobDummyData}
-        rowSelection={{
-          type: "checkbox",
-        }}
         pagination={{
           pageSize: 10,
           showSizeChanger: true,
