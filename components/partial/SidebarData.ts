@@ -12,36 +12,17 @@ import {
   IconChartHistogram,
 } from "@tabler/icons-react";
 const commonRoles = ["builder", "contractor", "customer"];
-export const menuList = [ 
+export const menuList = [
   {
     icon: IconHome,
     link: "My Dashboard",
     url: "/",
     roles: ["builder", "contractor", "customer"],
-   
   },
   {
     icon: IconCalendar,
     link: "Calendar",
     url: "/calendar",
-    roles: ["builder", "contractor", "customer"],
-  },
-  {
-    icon: IconShieldCheck,
-    link: "Job",
-    url: SystemRoutes.JOB,
-    roles: ["builder", "contractor", "customer"],
-  },
-  {
-    icon: IconBuildingSkyscraper,
-    link: "Contractors",
-    url: "/contractors",
-    roles: ["builder", "contractor", "customer"],
-  },
-  {
-    icon: IconUsersGroup,
-    link: "Users",
-    url: "/users",
     roles: ["builder", "contractor", "customer"],
   },
   {
@@ -61,7 +42,7 @@ export const menuList = [
       },
       {
         link: "Quotation",
-        url: "/quotation",
+        url: SystemRoutes.QUOTATION,
         roles: ["builder", "contractor", "customer"],
       },
       {
@@ -82,6 +63,12 @@ export const menuList = [
     ],
   },
   {
+    icon: IconShieldCheck,
+    link: "Job",
+    url: SystemRoutes.JOB,
+    roles: ["builder", "contractor", "customer"],
+  },
+  {
     icon: IconCrane,
     link: "Construction",
     url: "/construction",
@@ -92,12 +79,6 @@ export const menuList = [
     link: "Maintenance",
     url: "/maintenance",
     roles: ["builder", "contractor", "customer"],
-  },
-  {
-    icon: IconBuildingSkyscraper,
-    link: "Settings",
-    url: "/settings",
-    roles: ["builder"],
   },
   {
     icon: IconFolderOpen,
@@ -307,5 +288,23 @@ export const menuList = [
         ],
       },
     ],
+  },
+  {
+    icon: IconBuildingSkyscraper,
+    link: "Settings",
+    url: "/settings",
+    roles: ["builder"],
+  },
+  {
+    icon: IconBuildingSkyscraper,
+    link: "Contractors",
+    url: "/contractors",
+    roles: ["builder", "contractor", "customer"],
+  },
+  {
+    icon: IconUsersGroup,
+    link: "Users",
+    url: "/users",
+    roles: ["builder", "contractor", "customer"],
   },
 ];
