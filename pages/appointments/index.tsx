@@ -4,8 +4,8 @@ import DateFilterDropdown from "@/components/common/custom-selects/DateFilterDro
 import CustomAvtar from "@/components/common/CustomAvtar";
 import FilterTabs from "@/components/common/FilterTabs";
 import { exportToExcel } from "@lib/utils/exportToExcel";
-import { IconDots, IconDownload } from "@tabler/icons-react";
-import { Button, Input, Table, Tag } from "antd";
+import { IconDots, IconDownload, IconX } from "@tabler/icons-react";
+import { Button, Dropdown, Input, Popover, Switch, Table, Tag } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { debounce } from "lodash";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -43,6 +43,7 @@ export default function Appointments() {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
+    const [CancelledIncluded, setCancelledIncluded] = useState(false);
     const [filters, setFilters] = useState<{
         title: string;
         location: string;
@@ -97,7 +98,7 @@ export default function Appointments() {
             title: (
                 <div>
                     <span>Title</span>
-                    <Input />
+                    <Input onChange={(e) => handleFilterChange({ ...filters, title: e.target.value })} />
                 </div>
             ),
             dataIndex: "title",
@@ -111,7 +112,7 @@ export default function Appointments() {
             title: (
                 <div>
                     <span>Location</span>
-                    <Input />
+                    <Input onChange={(e) => handleFilterChange({ ...filters, location: e.target.value })} />
                 </div>
             ),
             dataIndex: "location",
@@ -229,6 +230,14 @@ export default function Appointments() {
     const handleFilterTabChange = (selectedType: string) => {
         console.log("Selected filter:", selectedType);
     };
+
+    const PopOverContent = (
+        <div className="flex gap-2">
+            <p>Include Cancelled Appointment </p>
+            <Switch checked={CancelledIncluded}
+                onChange={(checked) => setCancelledIncluded(checked)} ></Switch>
+        </div>
+    )
     return (
         <div className="m-2">
             <div className="flex justify-between  items-center m-3">
@@ -244,9 +253,13 @@ export default function Appointments() {
                     <Button icon={<IconDownload />} onClick={() => { handleExport(data); }}>
                         Export
                     </Button>
-                    <Button icon={<IconDots className="text-primary" />}></Button>
+                    <Popover content={PopOverContent} placement="bottomRight" >
+                        <Button icon={<IconDots className="text-primary" />}></Button>
+                    </Popover>
+
                 </div>
             </div>
+            {CancelledIncluded && <div className="mb-1"><Tag color="gray" closeIcon onClose={() => setCancelledIncluded(false)}>Cancelled Included</Tag></div>}
             <Table columns={columns} dataSource={data}></Table>
         </div >
     );
