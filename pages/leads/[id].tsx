@@ -101,9 +101,10 @@ function App() {
   const isJob = useMemo(() => leadDetail?.lead?.status === "JOB", [leadDetail]);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [selectedQuotationId, setSelectedQuotationId] = useState<string | null>(null);
+  const [selectedQuotationId, setSelectedQuotationId] = useState<string | null>(
+    null
+  );
 
-  
   useEffect(() => {
     latestLeadDetailRef.current = leadDetail;
   }, [leadDetail]);
@@ -124,7 +125,7 @@ function App() {
     (cont: ILeadContact) =>
       cont.leadsContactId === leadDetail?.lead?.leadContactId
   );
-  
+
   useEffect(() => {
     return () => {
       if (primaryContact && isLoggedIn) {
@@ -175,19 +176,20 @@ function App() {
   };
 
   const handleDelete = async () => {
-   if (!selectedQuotationId) return;
-  try {
-    setIsDeleting(true);
-    await dispatch(deleteQuotation(selectedQuotationId)).unwrap().then(()=>dispatch(removeQuotation(selectedQuotationId)));
-    message.success("Quotation deleted successfully");
-     setShowDeleteConfirm(false);
-    setSelectedQuotationId(null);
-  } catch (err) {
-    message.error(err || "Failed to delete quotation");
-  } finally {
-    setIsDeleting(false);
-   
-  }
+    if (!selectedQuotationId) return;
+    try {
+      setIsDeleting(true);
+      await dispatch(deleteQuotation(selectedQuotationId))
+        .unwrap()
+        .then(() => dispatch(removeQuotation(selectedQuotationId)));
+      message.success("Quotation deleted successfully");
+      setShowDeleteConfirm(false);
+      setSelectedQuotationId(null);
+    } catch (err) {
+      message.error(err || "Failed to delete quotation");
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const steps = useMemo(() => {
@@ -212,7 +214,7 @@ function App() {
           label: "Close",
           color: "bg-gray-200",
           textColor: "text-black",
-          onClick: closeLeadModal,
+          onClick: () => {},
         },
       ];
     }
@@ -256,282 +258,284 @@ function App() {
           status="403"
           // title="Access Restricted"
           subTitle="This lead has already been converted to a job and is no longer accessible from this page."
-          extra={
-            <Link href="/job">
-              Go to Jobs
-            </Link>
-          }
+          extra={<Link href="/job">Go to Jobs</Link>}
         />
       </div>
     );
   }
 
   return (
-   <div className="grid grid-cols-3 lg:grid-cols-4">
-    <div className="col-span-3 lg:col-span-3">
-      <div className="m-3 ">
-        <StageProgress
-          title={title}
-          id={leadDetail?.lead?.slugId}
-          status={enumToReadable(leadDetail?.lead?.status)}
-          steps={steps}
-          activeStep={isOpportunity ? "proposal" : "convert"}
-          lead={leadDetail}
-          showOptions={true}
+    <div className="grid grid-cols-3 lg:grid-cols-4">
+      <div className="col-span-3 lg:col-span-3">
+        <div className="m-3 ">
+          <StageProgress
+            title={title}
+            id={leadDetail?.lead?.slugId}
+            status={enumToReadable(leadDetail?.lead?.status)}
+            steps={steps}
+            activeStep={isOpportunity ? "proposal" : "convert"}
+            lead={leadDetail}
+            showOptions={true}
+            quotations={createdQuotations}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 m-3">
+          {/* Contact Card */}
+          <Card className="relative">
+            <div className="flex items-center justify-between mb-3">
+              <span className="bg-yellow-100 text-yellow-700 text-xs px-2 py-0.5 rounded">
+                Contact
+              </span>
+              <IconEdit
+                className="text-gray-400 text-sm cursor-pointer hover:text-gray-600"
+                onClick={() => setIsEditLeadModalVisible(true)}
+              />
+            </div>
+            <h2 className="font-semibold text-lg">
+              {primaryContact?.name ?? "-"}
+            </h2>
+            <p className="text-sm">
+              {enumToReadable(leadDetail?.lead?.leadSource) ||
+                "Lead Source not provided"}
+            </p>
+
+            <div className="flex items-center gap-2 mt-2">
+              <IconPhoneCall className="w-4 h-4" />
+              <span className="text-sm">{primaryContact?.phone ?? "N/A"}</span>
+            </div>
+
+            <div className="flex items-center gap-2 mt-1">
+              <IconMail className="w-4 h-4" />
+              <span className="text-sm">{primaryContact?.email ?? "N/A"}</span>
+            </div>
+          </Card>
+
+          {/* Property Card */}
+          <Card className="relative">
+            <div className="flex items-center justify-between mb-3">
+              <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded">
+                Property
+              </span>
+              <IconEdit
+                className="text-gray-400 text-sm cursor-pointer hover:text-gray-600"
+                onClick={() => setIsPropertyModalVisible(true)}
+              />
+            </div>
+            {propertyFromSlice?.address1 ||
+            propertyFromSlice?.citySuburb ||
+            propertyFromSlice?.stateRegion ||
+            propertyFromSlice?.zipPostalCode ? (
+              <>
+                <Tooltip title={propertyFromSlice?.address1}>
+                  <Typography.Title
+                    className="font-semibold !text-lg"
+                    ellipsis={{ rows: 2, symbol: "..." }}
+                  >
+                    {propertyFromSlice?.address1 ?? ""}
+                  </Typography.Title>
+                </Tooltip>
+                <p className="text-sm text-gray-600">
+                  {[
+                    propertyFromSlice?.citySuburb,
+                    propertyFromSlice?.stateRegion,
+                    propertyFromSlice?.zipPostalCode,
+                  ]
+                    .filter(Boolean)
+                    .join(", ")}
+                </p>
+
+                <div className="text-sm text-gray-600 mt-2">
+                  <p>
+                    Title :{" "}
+                    {propertyFromSlice?.titleDate
+                      ? dayjs(propertyFromSlice?.titleDate).format("DD-MM-YYYY")
+                      : ""}
+                  </p>
+                  <p>Type : {propertyFromSlice?.landType ?? ""}</p>
+                  <p>
+                    W: {propertyFromSlice?.widthM || ""}
+                    {propertyFromSlice?.widthM ? "m" : ""} D:{" "}
+                    {propertyFromSlice?.depthM || ""}
+                    {propertyFromSlice?.depthM ? "m" : ""} Total:{" "}
+                    {propertyFromSlice?.totalSizeM2 || ""}
+                    {propertyFromSlice?.totalSizeM2 ? " m²" : ""}
+                  </p>
+                </div>
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center p-6 rounded-lg">
+                <IconBarrierBlock />
+                <p className="text-sm text-gray-500 text-center">
+                  No property details added yet
+                </p>
+                <p className="text-xs text-gray-400 mt-1">
+                  Add property information to get started
+                </p>
+              </div>
+            )}
+          </Card>
+
+          {/* Quotation Card */}
+          {isOpportunity && (
+            <Card>
+              <div className="flex flex-col justify-between">
+                <Link
+                  href={SystemRoutes.QUOTATION_CREATE(leadId)}
+                  className="text-theme-blue text-sm"
+                >
+                  Create Quotation
+                </Link>
+                <div className="max-h-[200px] my-2 overflow-y-auto">
+                  <List
+                    dataSource={createdQuotations || []}
+                    locale={{
+                      emptyText: (
+                        <div className="flex flex-col items-center justify-center p-6">
+                          <IconFileText />
+                          <p className=" text-sm text-gray-500 text-center">
+                            No quotations found
+                          </p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            Create a quotation to get started
+                          </p>
+                        </div>
+                      ),
+                    }}
+                    renderItem={(quotation: any) => (
+                      <List.Item
+                        key={quotation?.quotationId}
+                        onClick={() => {
+                          return router.push(
+                            `/quotation/${quotation?.versions[0]?.quotationVersionId}`
+                          );
+                        }}
+                        style={{ cursor: "pointer" }}
+                      >
+                        <div className="flex items-center justify-between w-full overflow-hidden">
+                          <div className="flex items-center space-x-4">
+                            <div className="bg-gray-100 p-2 rounded-lg">
+                              {createdQuotations.indexOf(quotation) + 1}
+                            </div>
+                            <div>
+                              <div className="font-medium text-gray-900">
+                                <span className=" text-sm text-gray-500">
+                                  {quotation?.slugId?.slice(0, 13)}...
+                                </span>
+                              </div>
+                              <div className="flex items-center space-x-2 mt-1">
+                                <Tag
+                                  color={
+                                    quotation?.lead?.status === "Open"
+                                      ? "blue"
+                                      : "green"
+                                  }
+                                  className="m-0"
+                                >
+                                  {enumToReadable(quotation?.leadStatus)}
+                                </Tag>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-xs text-gray-500">
+                              Total Amount
+                            </div>
+                            <div className="text-lg font-semibold text-gray-900">
+                              ${Number(quotation?.totalAmount || 0)}
+                            </div>
+                          </div>
+                          <div className="hover:text-red-500">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedQuotationId(quotation?.quotationId);
+                                setShowDeleteConfirm(true);
+                              }}
+                            >
+                              <IconTrash size={20} />
+                            </button>
+                          </div>
+                        </div>
+                      </List.Item>
+                    )}
+                  />
+                </div>
+              </div>
+            </Card>
+          )}
+        </div>
+
+        <div className="m-3">
+          <Tabs
+            defaultActiveKey="action"
+            type="card"
+            tabBarStyle={{ margin: "0px", marginRight: "10px" }}
+            tabBarGutter={10}
+            size="large"
+          >
+            {/* Action Tab */}
+            <TabPane tab="Action" key="action" className="border border-t-0">
+              <LeadActions leadId={leadId} />
+            </TabPane>
+            <TabPane tab="Document" key="Document">
+              <div className="bg-card-color">
+                <Result
+                  title="Document Functionality coming soon"
+                  subTitle="Please check back later"
+                />
+              </div>
+            </TabPane>
+            <TabPane tab="Quotations" key="quotations">
+              <LeadQuotations />
+            </TabPane>
+            <TabPane tab="Activity" key="Activity">
+              <div className="bg-card-color">
+                <Result
+                  title="Activity Functionality coming soon"
+                  subTitle="Please check back later"
+                />
+              </div>
+            </TabPane>
+          </Tabs>
+        </div>
+        {/* <LeadSpecifications /> */}
+        <ConvertLeadModal
+          visible={isConvertModalVisible}
+          onCancel={handleConvertCancel}
+          leadId={router.query.id as string}
+        />
+
+        <LeadDetailsForm
+          open={isEditLeadModalVisible}
+          onCancel={() => setIsEditLeadModalVisible(false)}
+          onSubmit={handleEditLeadSubmit}
+          loading={loading}
+          isEditing={true}
+          initialValues={{
+            ...primaryContact,
+            secondary_phone: primaryContact?.secondaryPhone,
+          }}
+        />
+
+        {/* Property Details Modal */}
+        <PropertyDetailsModal
+          visible={isPropertyModalVisible}
+          onCancel={() => setIsPropertyModalVisible(false)}
+          onSave={() => setIsPropertyModalVisible(false)}
+          initialValues={propertyFromSlice}
+        />
+        <CloseLeadModal
+          isModalOpen={isModalOpen}
+          setIsModalOpen={() => setIsModalOpen(false)}
+          leadData={leadDetail?.lead}
           quotations={createdQuotations}
         />
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 m-3">
-        {/* Contact Card */}
-        <Card className="relative">
-          <div className="flex items-center justify-between mb-3">
-            <span className="bg-yellow-100 text-yellow-700 text-xs px-2 py-0.5 rounded">
-              Contact
-            </span>
-            <IconEdit
-              className="text-gray-400 text-sm cursor-pointer hover:text-gray-600"
-              onClick={() => setIsEditLeadModalVisible(true)}
-            />
-          </div>
-          <h2 className="font-semibold text-lg">
-            {primaryContact?.name ?? "-"}
-          </h2>
-          <p className="text-sm">
-            {enumToReadable(leadDetail?.lead?.leadSource) || "Lead Source not provided"}
-          </p>
-
-          <div className="flex items-center gap-2 mt-2">
-            <IconPhoneCall className="w-4 h-4" />
-            <span className="text-sm">{primaryContact?.phone ?? "N/A"}</span>
-          </div>
-
-          <div className="flex items-center gap-2 mt-1">
-            <IconMail className="w-4 h-4" />
-            <span className="text-sm">{primaryContact?.email ?? "N/A"}</span>
-          </div>
-        </Card>
-
-        {/* Property Card */}
-        <Card className="relative">
-          <div className="flex items-center justify-between mb-3">
-            <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded">
-              Property
-            </span>
-            <IconEdit
-              className="text-gray-400 text-sm cursor-pointer hover:text-gray-600"
-              onClick={() => setIsPropertyModalVisible(true)}
-            />
-          </div>
-          {propertyFromSlice?.address1 ||
-          propertyFromSlice?.citySuburb ||
-          propertyFromSlice?.stateRegion ||
-          propertyFromSlice?.zipPostalCode ? (
-            <>
-              <Tooltip title={propertyFromSlice?.address1}>
-                <Typography.Title 
-                  className="font-semibold !text-lg" 
-                  ellipsis={{ rows: 2, symbol: '...' }}   
-                >
-                  {propertyFromSlice?.address1 ?? ""}
-                </Typography.Title>
-              </Tooltip>
-              <p className="text-sm text-gray-600">
-                {[
-                  propertyFromSlice?.citySuburb,
-                  propertyFromSlice?.stateRegion,
-                  propertyFromSlice?.zipPostalCode,
-                ]
-                  .filter(Boolean)
-                  .join(", ")}
-              </p>
-
-              <div className="text-sm text-gray-600 mt-2">
-                <p>
-                  Title :{" "}
-                  {propertyFromSlice?.titleDate
-                    ? dayjs(propertyFromSlice?.titleDate).format("DD-MM-YYYY")
-                    : ""}
-                </p>
-                <p>Type : {propertyFromSlice?.landType ?? ""}</p>
-                <p>
-                  W: {propertyFromSlice?.widthM || ""}
-                  {propertyFromSlice?.widthM ? "m" : ""} D:{" "}
-                  {propertyFromSlice?.depthM || ""}
-                  {propertyFromSlice?.depthM ? "m" : ""} Total:{" "}
-                  {propertyFromSlice?.totalSizeM2 || ""}
-                  {propertyFromSlice?.totalSizeM2 ? " m²" : ""}
-                </p>
-              </div>
-            </>
-          ) : (
-            <div className="flex flex-col items-center justify-center p-6 rounded-lg">
-              <IconBarrierBlock />
-              <p className="text-sm text-gray-500 text-center">
-                No property details added yet
-              </p>
-              <p className="text-xs text-gray-400 mt-1">
-                Add property information to get started
-              </p>
-            </div>
-          )}
-        </Card>
-
-        {/* Quotation Card */}
-        {isOpportunity && (
-          <Card>
-            <div className="flex flex-col justify-between">
-              <Link
-                href={SystemRoutes.QUOTATION_CREATE(leadId)}
-                className="text-theme-blue text-sm"
-              >
-                Create Quotation
-              </Link>
-              <div className="max-h-[200px] my-2 overflow-y-auto">
-                <List
-                  dataSource={createdQuotations || []}
-                  locale={{
-                    emptyText: (
-                      <div className="flex flex-col items-center justify-center p-6">
-                        <IconFileText />
-                        <p className=" text-sm text-gray-500 text-center">
-                          No quotations found
-                        </p>
-                        <p className="text-xs text-gray-400 mt-1">
-                          Create a quotation to get started
-                        </p>
-                      </div>
-                    ),
-                  }}
-                  renderItem={(quotation: any) => (
-                    <List.Item
-                      key={quotation?.quotationId}
-                      onClick={() => {
-                        return router.push(`/quotation/${quotation?.versions[0]?.quotationVersionId}`);
-                      }}
-                      style={{ cursor: "pointer" }}
-                    >
-                      <div className="flex items-center justify-between w-full overflow-hidden">
-                        <div className="flex items-center space-x-4">
-                          <div className="bg-gray-100 p-2 rounded-lg">
-                           {createdQuotations.indexOf(quotation) + 1}
-                          </div>
-                          <div>
-                            <div className="font-medium text-gray-900">
-                              
-                              <span className=" text-sm text-gray-500">
-                                {quotation?.slugId?.slice(0, 13)}...
-                              </span>
-                            </div>
-                            <div className="flex items-center space-x-2 mt-1">
-                              <Tag
-                                color={
-                                  quotation?.lead?.status === "Open"
-                                    ? "blue"
-                                    : "green"
-                                }
-                                className="m-0"
-                              >
-                                {enumToReadable(quotation?.leadStatus)}
-                              </Tag>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                            <div className="text-xs text-gray-500">Total Amount</div>
-                          <div className="text-lg font-semibold text-gray-900">
-                            ${Number(quotation?.totalAmount || 0)}
-                          </div>
-                        </div>
-                        <div className="hover:text-red-500">
-                            <button  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setSelectedQuotationId(quotation?.quotationId);
-                                    setShowDeleteConfirm(true);
-                                  }}>
-                              <IconTrash size={20}/>
-                            </button>
-                        </div>
-                      </div>
-                    </List.Item>
-                  )}
-                />
-              </div>
-            </div>
-          </Card>
-        )}
+      <div className="col-span-3  lg:col-span-1 ">
+        <LeadSource />
       </div>
-
-      <div className="m-3">
-        <Tabs
-          defaultActiveKey="action"
-          type="card"
-          tabBarStyle={{ margin: "0px", marginRight: "10px" }}
-          tabBarGutter={10}
-          size="large"
-        >
-          {/* Action Tab */}
-          <TabPane tab="Action" key="action" className="border border-t-0">
-            <LeadActions leadId={leadId} />
-          </TabPane>
-          <TabPane tab="Document" key="Document">
-            <div className="bg-card-color">
-              <Result
-                title="Document Functionality coming soon"
-                subTitle="Please check back later"
-              />
-            </div>
-          </TabPane>
-          <TabPane tab="Quotations" key="quotations">
-            <LeadQuotations />
-          </TabPane>
-          <TabPane tab="Activity" key="Activity">
-            <div className="bg-card-color">
-              <Result
-                title="Activity Functionality coming soon"
-                subTitle="Please check back later"
-              />
-            </div>
-          </TabPane>
-        </Tabs>
-      </div>
-      {/* <LeadSpecifications /> */}
-      <ConvertLeadModal
-        visible={isConvertModalVisible}
-        onCancel={handleConvertCancel}
-        leadId={router.query.id as string}
-      />
-
-      <LeadDetailsForm
-        open={isEditLeadModalVisible}
-        onCancel={() => setIsEditLeadModalVisible(false)}
-        onSubmit={handleEditLeadSubmit}
-        loading={loading}
-        isEditing={true}
-        initialValues={{
-          ...primaryContact,
-          secondary_phone: primaryContact?.secondaryPhone,
-        }}
-      />
-
-      {/* Property Details Modal */}
-      <PropertyDetailsModal
-        visible={isPropertyModalVisible}
-        onCancel={() => setIsPropertyModalVisible(false)}
-        onSave={() => setIsPropertyModalVisible(false)}
-        initialValues={propertyFromSlice}
-      />
-      <CloseLeadModal
-        isModalOpen={isModalOpen}
-        setIsModalOpen={() => setIsModalOpen(false)}
-        leadData={leadDetail?.lead}
-        quotations={createdQuotations}
-      />
-    </div>
-    <div className="col-span-3  lg:col-span-1 ">
-      <LeadSource  />
-    </div>
-    <ConfirmationModal
+      <ConfirmationModal
         open={showDeleteConfirm}
         onClose={() => setShowDeleteConfirm(false)}
         onConfirm={() => handleDelete()}
