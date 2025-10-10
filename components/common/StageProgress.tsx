@@ -153,7 +153,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
       setLoading(true);
       await dispatch(leadDeleteThunk(leadId)).unwrap();
       message.success("Lead deleted successfully");
-      router.push(`/leads`);
+      router.push(`/`);
     } catch (err) {
       setLoading(false);
       message.error(err || "Failed to delete lead");
