@@ -173,20 +173,20 @@ const StageProgress: React.FC<StageProgressProps> = ({
       message.error(err || "Failed to convert lead");
     }
   };
-  
+
   return (
     <div className="flex items-center justify-between flex-wrap gap-2 w-full">
       <div className="flex flex-col gap-2">
         {/* Info */}
         <div className="flex items-center gap-2">
-          <span className="font-medium">{title} <span className="text-secondary">{id && `- ${id}`}</span></span>
-          {
-            status && (
-              <Tag color="cyan" className="rounded-md">
-                {status}
-              </Tag>
-            )
-          }
+          <span className="font-medium">
+            {title} <span className="text-secondary">{id && `- ${id}`}</span>
+          </span>
+          {status && (
+            <Tag color="cyan" className="rounded-md">
+              {status}
+            </Tag>
+          )}
         </div>
 
         {/* Step Progress */}
@@ -221,55 +221,62 @@ const StageProgress: React.FC<StageProgressProps> = ({
         </div>
       </div>
       <div className="flex items-center gap-2">
-      {lead?.lead?.status === "COMPLETED" && (
-        <>
-          <button
-            className="btn btn-success rounded-md p-1"
-            onClick={handleWinClick}
-          >
-            Won
-          </button>
-          <button
-            className="btn bg-red-500 rounded-md p-1 text-white"
-            onClick={handleLoseClick}
-          >
-          Lost
-        </button>
+        {lead?.lead?.status === "COMPLETED" && (
+          <>
+            <button
+              className="btn btn-success rounded-md p-1"
+              onClick={handleWinClick}
+            >
+              Won
+            </button>
+            <button
+              className="btn bg-red-500 rounded-md p-1 text-white"
+              onClick={handleLoseClick}
+            >
+              Lost
+            </button>
           </>
         )}
         {showOptions && (
-        <Dropdown
-          open={dropdownVisible}
-          onOpenChange={(open) => setDropdownVisible(open)}
-          placement="bottomRight"
-          trigger={["click"]}
-          dropdownRender={() => (
-            <div className="bg-white shadow-lg rounded-md border border-gray-200 w-56">
-              <div className="py-1">
-                {actions.map((action) => (
-                  <button
-                    key={action.key}
-                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center justify-between"
-                    onClick={() => {
-                      // Handle move to previous stage
-                      handleActionSelect(action.key);
-                      setDropdownVisible(false);
-                  }}
-                >
-                  <span>{action.label}</span>
-                </button>
-                ))}
+          <Dropdown
+            open={dropdownVisible}
+            onOpenChange={(open) => setDropdownVisible(open)}
+            placement="bottomRight"
+            trigger={["click"]}
+            dropdownRender={() => (
+              <div className="bg-white shadow-lg rounded-md border border-gray-200 w-56">
+                <div className="py-1">
+                  {actions
+                    .filter(
+                      (action) =>
+                        action.key !== "converttolead" ||
+                        (lead?.lead?.status !== "NEW")
+                    )
+                    .map((action) => (
+                      <button
+                        key={action.key}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center justify-between"
+                        onClick={() => {
+                          handleActionSelect(action.key);
+                          setDropdownVisible(false);
+                        }}
+                      >
+                        <span>{action.label}</span>
+                      </button>
+                    ))}
+                </div>
               </div>
-            </div>
-          )}
-        >
-          <button 
-            className={`btn border ${dropdownVisible ? 'border-red-500 bg-red-50' : 'border-red-500'} rounded-md p-1`}
-            onClick={() => setDropdownVisible(!dropdownVisible)}
+            )}
           >
-            <IconDots stroke={2} className="text-red-500"/>
-          </button>
-        </Dropdown>
+            <button
+              className={`btn border ${
+                dropdownVisible ? "border-red-500 bg-red-50" : "border-red-500"
+              } rounded-md p-1`}
+              onClick={() => setDropdownVisible(!dropdownVisible)}
+            >
+              <IconDots stroke={2} className="text-red-500" />
+            </button>
+          </Dropdown>
         )}
       </div>
       {/* <Modal
@@ -306,7 +313,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
       </Modal> */}
 
       {isTransferModalOpen && (
-        <CreateFormModal 
+        <CreateFormModal
           title="Transfer Lead"
           open={isTransferModalOpen}
           loading={loading}
@@ -316,7 +323,14 @@ const StageProgress: React.FC<StageProgressProps> = ({
           }}
           submitButtonText="Transfer"
           isEditing={!!lead?.lead?.assignee?.id}
-          initialValues={{ assignee_id: [{ label: lead?.lead?.assignee?.name, value: lead?.lead?.assignee?.id }] }}
+          initialValues={{
+            assignee_id: [
+              {
+                label: lead?.lead?.assignee?.name,
+                value: lead?.lead?.assignee?.id,
+              },
+            ],
+          }}
           onSubmit={handleTransferSubmit}
           fields={leadTransferFields}
         />

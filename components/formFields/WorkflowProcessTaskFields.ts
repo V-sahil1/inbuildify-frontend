@@ -28,7 +28,7 @@ export const WorkflowProcessTaskFields = (): CreateFormField[] => {
     },
     {
       name: "timespent",
-      label: "Time Spend",
+      label: "Time Spend (In days)",
       type: "number",
       rules: [
         ...OptionalNumberRules,
