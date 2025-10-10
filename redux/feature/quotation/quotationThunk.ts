@@ -48,3 +48,15 @@ export const getQuotationVersionById = createAsyncThunk(
     }
   }
 );
+
+export const deleteQuotation = createAsyncThunk(
+  "lead/deleteQuotation",
+  async (quotationId: string, { rejectWithValue }) => {
+    try {
+       await api.delete<ApiResponse>(`${API_ENDPOINTS.QUOTATION_BASE}/${quotationId}`);
+      return quotationId;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);

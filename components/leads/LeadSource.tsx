@@ -71,13 +71,13 @@ export const LeadSource = () => {
                     onSave={handleLeadSourceEdit}
                 />
             </div>
-            <div className=' flex-1 mt-[80px] md:mt-[0px] lg:mt-[100px]' >
-                <div className='text-md font-bold'><p>People</p></div>
-                <Divider className='bg-border-color my-3'></Divider>
-                <LeadUpdateDetail label="Assignee" value={leadDetail.lead?.assigneeName} />
-                <LeadUpdateDetail label="Created by" value={leadDetail.lead?.createdByName} />
-                <LeadUpdateDetail label="Updated by" value={leadDetail.lead?.updatedByName} />
-            </div>
+                <div className=' flex-1 mt-[80px] md:mt-[0px] lg:mt-[100px]' >
+                    <div className='text-md font-bold'><p>People</p></div>
+                    <Divider className='bg-border-color my-3'></Divider>
+                    <LeadUpdateDetail label="Assignee" value={leadDetail.lead?.assignee?.name} />
+                    <LeadUpdateDetail label="Created by" value={leadDetail.lead?.createdBy?.name} />
+                    <LeadUpdateDetail label="Updated by" value={leadDetail.lead?.updatedBy?.name} />
+                </div>  
         </div>
     );
 };  

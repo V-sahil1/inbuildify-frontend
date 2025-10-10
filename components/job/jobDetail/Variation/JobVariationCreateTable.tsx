@@ -12,19 +12,19 @@ type JobVariationCreateTableProps = {
 const JobVariationCreateTable: React.FC<JobVariationCreateTableProps> = ({ dataSource, setDataSource, selectedVariation, setSelectedVariation }: { dataSource: JobVariationItems[]; setDataSource: React.Dispatch<React.SetStateAction<JobVariationItems[]>>; selectedVariation: JobVariationItems[] | null; setSelectedVariation: React.Dispatch<React.SetStateAction<JobVariationItems[] | null>> }) => {
     const [editingKey, setEditingKey] = React.useState<string | null>(null);
 
-    const handleAdd = () => {
-        const newRow: JobVariationItems = {
-            key: new Date().toISOString(),
-            additional: "",
-            siteCost: "",
-            cost: "",
-            drawingChanges: false,
-            quantity: 0,
-            price: 0,
-            total: 0,
-        };
-        setDataSource([newRow, ...dataSource]);
-    };
+    // const handleAdd = () => {
+    //     const newRow: JobVariationItems = {
+    //         key: new Date().toISOString(),
+    //         additional: "",
+    //         siteCost: "",
+    //         cost: "",
+    //         drawingChanges: false,
+    //         quantity: 0,
+    //         price: 0,
+    //         total: 0,
+    //     };
+    //     setDataSource([newRow, ...dataSource]);
+    // };
 
     const isEditing = (record: JobVariationItems) => record.key === editingKey;
 
@@ -248,9 +248,9 @@ const JobVariationCreateTable: React.FC<JobVariationCreateTableProps> = ({ dataS
                     emptyText: (
                         <div className="flex flex-col items-center gap-3 py-10">
                             <Empty className="!text-[var(--font-color)]" description="No data available" />
-                            <Button type="primary" onClick={handleAdd}>
+                            {/* <Button type="primary" onClick={handleAdd}>
                                 Add Variation
-                            </Button>
+                            </Button> */}
                         </div>
                     ),
                 }}

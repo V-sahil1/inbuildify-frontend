@@ -9,9 +9,11 @@ import {
   Radio,
   Upload,
   Button,
+  DatePicker,
 } from "antd";
 import { UploadChangeParam } from "antd/es/upload";
 import React, { useEffect } from "react";
+import dayjs from "dayjs";
 
 export type CreateFormField = {
   label: string;
@@ -49,6 +51,7 @@ interface CreateFormModalProps {
   initialValues?: any;
   onCancel: () => void;
   invite?: boolean;
+  submitButtonText?: string;
   onSubmit: (values: any) => void;
   fields: readonly CreateFormField[];
   onValuesChange?: (values: any, form: any) => void;
@@ -63,6 +66,7 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
   onCancel,
   invite = false,
   onSubmit,
+  submitButtonText,
   fields,
   onValuesChange
 }) => {
@@ -108,7 +112,7 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
     }
   };
 
-  const makeFileFromUrl = (url?: string, name: string = "logo") => {
+  const makeFileFromUrl = (url?: string, name: string = "image") => {
     if (!url) return [];
     return [
       {
@@ -129,7 +133,7 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
       onOk={handleOk}
       centered
       onCancel={onCancel}
-      okText={isEditing ? "Update" : invite ? "Invite" : "Create"}
+      okText={submitButtonText || (isEditing ? "Update" : invite ? "Invite" : "Create")}
       confirmLoading={loading}
     >
       <Form

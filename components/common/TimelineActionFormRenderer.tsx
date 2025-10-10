@@ -36,15 +36,19 @@ const TimelineActionFormRenderer: React.FC<TimelineActionFormRendererProps> = ({
                 <TimelineCard
                     type="NOTES"
                     date={new Date().toLocaleString()}
-                    createdByName="Current User"
+                    // createdByName="Current User"
                     createdAt={new Date().toLocaleString()}
-                    // notes={currentData as NoteDetails || { message: "", tags: [{name:"Draft"}], sendToCustomer: false, createFollowUpTask: false, attachment: [],task:{dueDate:""} }}
+                    // notes={currentData?.item?.notes[0] as NoteDetails || { message: "", tags: [{name:"Draft"}], sendToCustomer: false, createFollowUpTask: false, attachment: [],task:{dueDate:""} }}
                 >
                     <AddNotesCard
                         onSave={handleSaveNote}
                         onCancel={handleClose}
                         loading={loading}
-                        // initialData={currentData as NoteDetails}
+                        initialData={
+                          currentData?.type === "NOTES"
+                          ? currentData?.item?.notes[0]
+                           : undefined
+                          }
                     />
                 </TimelineCard>
             );
@@ -54,7 +58,7 @@ const TimelineActionFormRenderer: React.FC<TimelineActionFormRendererProps> = ({
                 <TimelineCard
                     type="APPOINTMENT"
                     date={new Date().toLocaleString()}
-                    createdByName="Current User"
+                    // createdByName="Current User"
                     createdAt={new Date().toLocaleString()}
                     status="pending"
                     // appointment={currentData as AppointmentDetails || {
@@ -72,7 +76,11 @@ const TimelineActionFormRenderer: React.FC<TimelineActionFormRendererProps> = ({
                         onSave={handleSaveAppointment}
                         onCancel={handleClose}
                         loading={loading}
-                        // initialData={currentData as AppointmentDetails}
+                        initialData={
+                            currentData?.type === "APPOINTMENT"
+                            ? currentData?.item?.appointment[0]
+                            : undefined
+                        }
                     />
                 </TimelineCard>
             );
@@ -82,7 +90,7 @@ const TimelineActionFormRenderer: React.FC<TimelineActionFormRendererProps> = ({
                 <TimelineCard
                     type="TASK"
                     date={new Date().toLocaleString()}
-                    createdByName="Current User"
+                    // createdByName="Current User"
                     createdAt={new Date().toLocaleString()}
                     status="pending"
                     // task={currentData as TaskDetails || {
@@ -101,7 +109,11 @@ const TimelineActionFormRenderer: React.FC<TimelineActionFormRendererProps> = ({
                         onSave={handleSaveTask}
                         onCancel={handleClose}
                         loading={loading}
-                        // initialData={currentData as TaskDetails}
+                        initialData={
+                            currentData?.type === "TASK"
+                             ? currentData?.item?.task[0]
+                             : undefined
+                         }
                     />
                 </TimelineCard>
             );
@@ -111,7 +123,7 @@ const TimelineActionFormRenderer: React.FC<TimelineActionFormRendererProps> = ({
                 <TimelineCard
                     type="SMS"
                     date={new Date().toLocaleString()}
-                    createdByName="Current User"
+                    // createdByName="Current User"
                     createdAt={new Date().toLocaleString()}
                     status="pending"
                     // sms={currentData as SmsDetails || {
@@ -123,7 +135,11 @@ const TimelineActionFormRenderer: React.FC<TimelineActionFormRendererProps> = ({
                         onSave={handleSaveSms}
                         onCancel={handleClose}
                         loading={loading}
-                        // initialData={currentData as SmsDetails}
+                        initialData={
+                            currentData?.type === "SMS"
+                        ? currentData?.item?.sms[0]
+                        : undefined
+                }
                     />
                 </TimelineCard>
             );

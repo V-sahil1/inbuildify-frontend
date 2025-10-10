@@ -9,6 +9,8 @@ import {
   Space,
   Dropdown,
   message,
+  Statistic,
+  Modal,
 } from "antd";
 import {
   IconDots,
@@ -18,23 +20,58 @@ import {
   IconWallet,
 } from "@tabler/icons-react";
 import { InvoiceForm } from "./InvoiceForm";
+import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
+import InvoicePdf from "@/components/common/Invoicepdf";
+import { usePdf } from "@hooks/usePdf";
+import InvoiceReceiptPdf from "@/components/common/InvoiceReceiptPdf";
 
-interface JobInvoicePaymentProps {
-  data: any[];
-  dataSummary: { title: string; value: number }[];
-}
+const initialData: any[] = [
+  {
+    id: "MYH00486-I2",
+    desc: "2nd deposit",
+    amount: 35600.45,
+    payment: 0.0,
+    status: "OVERDUE",
+    date: "17-07-2023",
+  },
+  {
+    id: "MYH00486-I4",
+    desc: "base invoice",
+    amount: 45000.0,
+    payment: 0.0,
+    status: "DRAFT",
+    date: "06-08-2023",
+  },
+  {
+    id: "MYH00486-I1",
+    desc: "Initial Deposit",
+    amount: 5000.0,
+    payment: 5000.0,
+    status: "PAID",
+    date: "27-06-2023",
+  },
+  {
+    id: "MYH00486-I3",
+    desc: "Returns",
+    amount: -50000.0,
+    payment: -50000.0,
+    status: "PAID",
+    date: "31-07-2023",
+  },
+];
 
-const JobInvoicePayment: React.FC<JobInvoicePaymentProps> = ({
-  data,
-  dataSummary,
-}) => {
+const summaryData = [
+  { title: "Total Cost", value: 450280.0, icon: <IconWallet /> },
+  { title: "Invoice Generated", value: 35600.45, icon: <IconFileInvoice /> },
+  { title: "Payment Received", value: -45000.0, icon: <IconReceipt2 /> },
+];
+
+const JobInvoicePayment: React.FC = () => {
   const [formMode, setFormMode] = useState<"create" | "edit" | null>(null);
   const [editingRecord, setEditingRecord] = useState<any>(null);
-
-  const [invoices, setInvoices] = useState<any[]>(
-    Array.isArray(data) ? data : []
-  );
-
+  const [invoices, setInvoices] = useState<any[]>(initialData);
+const invoicePdf = usePdf(InvoicePdf);
+const invoiceReceiptPdf = usePdf(InvoiceReceiptPdf);
   const statusColors: Record<string, string> = {
     OVERDUE: "red",
     DRAFT: "default",
@@ -56,7 +93,6 @@ const JobInvoicePayment: React.FC<JobInvoicePaymentProps> = ({
       );
       message.success("Invoice updated!");
     }
-
     setFormMode(null);
     setEditingRecord(null);
   };
@@ -70,22 +106,22 @@ const JobInvoicePayment: React.FC<JobInvoicePaymentProps> = ({
     { title: "Invoice ID", dataIndex: "id" },
     { title: "Description", dataIndex: "desc" },
     {
-      title: "Invoice($)",
+      title: "Invoice ($)",
       dataIndex: "amount",
       render: (val: number, record: any) => (
         <Space direction="vertical" size={0}>
           <span>{typeof val === "number" ? val.toFixed(2) : "—"}</span>
-          <Tag color="blue">{record.date}</Tag>
+          <Tag>{record.date}</Tag>
         </Space>
       ),
     },
     {
-      title: "Payment($)",
+      title: "Payment ($)",
       dataIndex: "payment",
       render: (val: number, record: any) => (
         <Space direction="vertical" size={0}>
           <span>{typeof val === "number" ? val.toFixed(2) : "—"}</span>
-          {val !== 0 && <Tag color="blue">{record.date}</Tag>}
+          {val !== 0 && <Tag>{record.date}</Tag>}
         </Space>
       ),
     },
@@ -115,6 +151,16 @@ const JobInvoicePayment: React.FC<JobInvoicePaymentProps> = ({
                 label: "Delete",
                 onClick: () => handleDelete(record),
               },
+              {
+                key:"PreviewInvoice",
+                label:"Preview Invoice",
+                onClick: invoicePdf.previewPdf
+              },
+               {
+                key:"PreviewReceipt",
+                label:"Preview Receipt",
+                onClick: invoiceReceiptPdf.previewPdf
+              }
             ],
           }}
           trigger={["click"]}
@@ -125,87 +171,68 @@ const JobInvoicePayment: React.FC<JobInvoicePaymentProps> = ({
     },
   ];
 
-  const iconMap: Record<string, React.ReactNode> = {
-    "Total Cost": <IconWallet />,
-    "Invoice Generated": <IconFileInvoice />,
-    "Payment Received": <IconReceipt2 />,
-  };
-
   return (
-    <>
-      {/* Summary Cards + Create */}
-      <div className="flex flex-col justify-center bg-card-color">
-        <Row
-          gutter={[16, 16]}
-          align="middle"
-          justify="space-between"
-          style={{ marginBottom: 16, marginTop: 8 }}
-        >
-          {/* Left: Summary Cards */}
-          <Col flex="auto">
-            <Row gutter={[16, 16]}>
-              {dataSummary?.map((s) => (
-                <Col key={s.title} xs={24} sm={12} md={8} lg={6}>
-                  <Card>
-                    <div className="flex items-center gap-3">
-                      {iconMap[s.title]}
-                      <div className="flex flex-col">
-                        <span className="text-gray-500 text-sm">{s.title}</span>
-                        <span className="text-xl font-semibold">
-                          ${s.value.toLocaleString()}
-                        </span>
-                      </div>
-                    </div>
-                  </Card>
-                </Col>
-              ))}
-            </Row>
-          </Col>
-
-          {/* Right: Button */}
-          <Col>
-            <Button
-              type="primary"
-              size="large"
-              icon={<IconPlus size={18} />}
-              onClick={() => {
-                setFormMode("create");
-                setEditingRecord(null);
+    <Card>
+      <Row gutter={[16, 16]} align="middle">
+        {summaryData.map((s) => (
+          <Col xs={24} sm={12} md={8} lg={6} key={s.title}>
+            <Card
+              style={{
+                background: "linear-gradient(180deg, var(--card-color), var(--primary-10))",
+                border: "none",
               }}
             >
-              Create Invoice
-            </Button>
+              <Space direction="vertical" size="small">
+                <Space align="center" size="middle">
+                  <div className="flex items-center justify-center h-[20px] w-[20px]">{s.icon}</div>
+                  <span className="font-medium">{s.title}</span>
+                </Space>
+                <div className="text-xl font-medium">${s.value.toLocaleString()}</div>
+              </Space>
+            </Card>
           </Col>
-        </Row>
+        ))}
 
-        {/* Table + Form */}
-        <Row gutter={[16, 16]}>
-          <Col xs={24} lg={formMode ? 14 : 24}>
-            <Table
-              dataSource={invoices}
-              columns={columns}
-              pagination={false}
-              rowKey="id"
-              scroll={{ x: true }}
-            />
-          </Col>
+        {/* Create Invoice Button as card */}
+        <Col xs={24} sm={12} md={8} lg={6}>
+          <Card
+            className="border border-dashed flex cursor-pointer items-center justify-center bg-body-color hover:border hover:border-primary hover:text-primary transition duration-150"
+            onClick={() => {
+              setFormMode("create");
+              setEditingRecord(null);
+            }}
+          >
+            <Space direction="vertical" align="center">
+              <IconPlus size={28} />
+              <span style={{ fontWeight: 500 }}>Create Invoice</span>
+            </Space>
+          </Card>
+        </Col>
+      </Row>
 
-          {formMode && (
-            <Col xs={24} lg={10}>
-              <InvoiceForm
-                mode={formMode}
-                initialValues={formMode === "edit" ? editingRecord : undefined}
-                onFinish={handleFinish}
-                onCancel={() => {
-                  setFormMode(null);
-                  setEditingRecord(null);
-                }}
-              />
-            </Col>
-          )}
-        </Row>
-      </div>
-    </>
+
+      <Table
+        dataSource={invoices}
+        columns={columns}
+        pagination={false}
+        rowKey="id"
+      />
+      <Modal
+        title={formMode === "edit" ? "Edit Invoice" : "Create Invoice"}
+        open={formMode !== null}
+        onCancel={() => setFormMode(null)}
+        footer={null}
+      >
+        {formMode && (
+          <InvoiceForm
+            mode={formMode}
+            initialValues={formMode === "edit" ? editingRecord : undefined}
+            onFinish={handleFinish}
+          />
+        )}
+      </Modal>
+
+    </Card>
   );
 };
 

@@ -12,70 +12,9 @@ import {
 } from "data/types";
 import { handleSaveTimelineCard } from "../../lib/utils/timelineCardUtils";
 import TimelineActionFormRenderer from "../common/TimelineActionFormRenderer";
-import { useAppDispatch, useAppSelector } from "@hooks/redux";
+import { useAppDispatch } from "@hooks/redux";
 import { getActionsThunk } from "@redux/feature/action/actionThunk";
 
-// const timeLineCardData: TimelineCardProps[] = [
-//   {
-//     type: "Notes",
-//     date: "31-07-2023 6:00PM",
-//     createdBy: "Murthy Muthuswamy",
-//     createdAt: "22-07-2023 10:50AM",
-//     // status: "completed",
-//     data: {
-//       // title: "Follow up - Yash Murthy",
-//       message:
-//         "This is a follow-up to your quotation. Please sign the quote and send it back asap.",
-//       tags: ["Customer Update", "Tag1"],
-//     } as NoteDetails,
-//   },
-//   {
-//     type: "Sms",
-//     date: "31-07-2023 6:00PM",
-//     createdBy: "Murthy Muthuswamy",
-//     createdAt: "22-07-2023 10:50AM",
-//     status: "pending",
-//     data: {
-//       message:
-//         "This is a follow-up to your quotation. Please sign the quote and send it back asap.",
-//       recipient: "John Doe",
-//     } as SmsDetails,
-//   },
-//   {
-//     type: "Appointments",
-//     date: "31-07-2023 6:00PM",
-//     createdBy: "Murthy Muthuswamy",
-//     createdAt: "22-07-2023 10:50AM",
-//     status: "working",
-//     data: {
-//       title: "Follow up - Yash Murthy",
-//       date: "31-07-2023",
-//       startTime: "09:00",
-//       endTime: "10:00",
-//       location: "Client Office",
-//       user: "Yash Murthy",
-//       notes: "Discuss quotation details.",
-//       sendToCustomer: true,
-//     } as AppointmentDetails,
-//   },
-//   {
-//     type: "Tasks",
-//     date: "31-07-2023 6:00PM",
-//     createdBy: "Murthy Muthuswamy",
-//     createdAt: "22-07-2023 10:50AM",
-//     status: "working",
-//     data: {
-//       name: "Follow up - Yash Murthy",
-//       dueDate: "2023-07-31",
-//       time: "18:00",
-//       priority: "HIGH",
-//       description:
-//         "This is a follow-up to your quotation. Please sign the quote and send it back asap.",
-//       assignee: "Yash Murthy",
-//       files: [],
-//     } as TaskDetails,
-//   },
-// ];
 
 const actionItems: MenuProps["items"] = [
   { key: "addNotes", label: "Add Notes" },
@@ -84,8 +23,7 @@ const actionItems: MenuProps["items"] = [
   { key: "createTask", label: "Create Task" },
 ];
 
-const LeadActions = ({ leadId }: { leadId: string }) => {
-  const actions = useAppSelector((state) => state.action.actions);
+const LeadActions = ({ leadId }: { leadId: string }) => { 
   const [cardsData, setCardsData] = useState<TimelineCardProps[]>([]);
   const [activeTab, setActiveTab] = useState("All");
   const [activeAction, setActiveAction] = useState<ActionType>(null);
@@ -250,6 +188,7 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
               <TimelineCard
                 key={idx}
                 {...item}
+                createdBy={item?.createdBy}
                 item={item}
                 onEdit={(data) => handleEdit(data, idx)}
               />

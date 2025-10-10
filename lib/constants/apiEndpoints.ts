@@ -39,6 +39,8 @@ class API_ENDPOINTS {
   public static LEAD_BASE = "/leads";
   public static CREATE_LEAD = `${this.LEAD_BASE}`;
   public static GET_LEAD_BY_ID = (id: string) => `${this.LEAD_BASE}/${id}`;
+  public static LEAD_TRANSFER = `${this.LEAD_BASE}/transfer`;
+  public static LEAD_CONVERT = `${this.LEAD_BASE}/convert`;
   public static CONVERT_LEAD_TO_OPPORTUNITY = "/opportunities";
   public static CONVERT_LEAD_TO_JOB = `/job`;
   public static LEAD_CONTACT = `/leads-contact`;
@@ -70,6 +72,17 @@ class API_ENDPOINTS {
   public static GET_PACKAGE_ITEMS = `${this.PACKAGE_BASE}/category/items`;
   public static FACADE_BASE = "/facade";
 
+  //  Workflow Process
+  public static WORKFLOW_PROCESS_BASE = "/workflow-process";
+  public static WORKFLOW_PROCESS_TASK = `${this.WORKFLOW_PROCESS_BASE}/task`;
+  public static WORKFLOW_PROCESS_ORDER = `${this.WORKFLOW_PROCESS_BASE}/display/order`;
+  public static WORKFLOW_PROCESS_TASK_FOR_JOB = `/workflow-process-task`;
+
+  //  Colour
+  public static COLOUR_CATEGORY_BASE = "/color-category";
+  public static COLOUR_SUB_CATEGORY_BASE = "/color-sub-category";
+  public static COLOUR_SUB_CATEGORY_ITEM = `/color-item`;
+
   // Property
   public static PROPERTY_BASE = "/property";
 
@@ -92,7 +105,7 @@ class API_ENDPOINTS {
 
   // action
   public static ACTION_BASE = "/actions";
-  
+
   // tags
   public static TAGS_BASE = "/tags";
 }

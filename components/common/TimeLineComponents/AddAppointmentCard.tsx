@@ -49,10 +49,10 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
   
   const dispatch = useAppDispatch();
   useEffect(() => {
-    if (status === Status.IDLE) {
+    if (status.users === Status.IDLE) {
       fetchuserData();
     }
-  }, [status]);
+  }, [status.users]);
   const fetchuserData = async () => {
     try {
       await dispatch(getUsersThunk()).unwrap();
@@ -66,30 +66,14 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
     }
     return acc;
   }, [] as { label: string; value: string }[]);
-
-  const [formData, setFormData] = useState<AppointmentDetails>({
-    title: initialData?.title || "",
-    date: initialData?.date || dayjs().format("YYYY-MM-DD"),
-    startTime: initialData?.startTime || dayjs().format("HH:mm"),
-    endTime: initialData?.endTime || dayjs().add(1, "hour").format("HH:mm"),
-    location: initialData?.location || "",
-    selectUsers: initialData?.selectUsers || "",
-    notes: initialData?.notes || "",
-    sendToCustomer: initialData?.sendToCustomer || false,
-  });
   const [form] = Form.useForm();
-
-  const handleChange = (field: keyof AppointmentDetails, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleSave = () => {
-    onSave(formData);
-  };
-
   const handleFinish = (values: any) => {
     form.validateFields();
     values.type = "APPOINTMENT";
+    if (initialData) {
+      values.actionId = initialData.actionId;
+      values.action_type_id = initialData?.appointmentId;
+    }
     values.start_time = values.start_time.format("HH:mm");
     values.date = values.date?.format("YYYY-MM-DD");
     values.end_time = values.end_time.format("HH:mm");
@@ -103,12 +87,18 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
       onFinish={handleFinish}
       className="flex flex-col gap-3"
     >
-      <Form.Item label="Title" name="title" rules={taskNameRules}>
+      <Form.Item label="Title" name="title" rules={taskNameRules}
+        initialValue={initialData?.title}>
         <Input placeholder="Appointment Title" />
       </Form.Item>
 
       <div className="grid grid-cols-2 gap-3">
-        <Form.Item label="Date" name="date" rules={dueDateRules}>
+        <Form.Item
+          label="Date"
+          name="date"
+          rules={dueDateRules}
+          initialValue={initialData?.date ? dayjs(initialData?.date) : null}
+        >
           <DatePicker
             className="w-full"
             disabledDate={disablePastDates}
@@ -125,6 +115,7 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
           label="Location"
           name="location"
           rules={locationRules}
+          initialValue={initialData?.location}
         >
           <Input placeholder="Location" />
         </Form.Item>
@@ -136,6 +127,11 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
               label="Start Time"
               name="start_time"
               rules={timeRules}
+              initialValue={
+                initialData?.startTime
+                  ? dayjs(initialData.startTime, "HH:mm")
+                  : null
+              }
             >
               <TimePicker
                 format="HH:mm"
@@ -181,6 +177,11 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
               label="End Time"
               name="end_time"
               dependencies={["start_time", "date"]}
+              initialValue={
+                initialData?.endTime
+                  ? dayjs(initialData.endTime, "HH:mm")
+                  : null
+              }
               rules={[
                 ...timeRules,
                 ({ getFieldValue }) => ({
@@ -219,6 +220,7 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
         label="User"
         name="select_users"
         rules={[{ required: true, message: "Please select user(s)" }]}
+        initialValue={initialData?.selectUsers?.map((user) => user.id)}  
       >
         <Select
           options={userOptions}
@@ -230,24 +232,26 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
       </Form.Item>
 
       {/* Notes */}
-      <Form.Item label="Notes" name="notes" rules={optionalNotesRule}>
-        <TextArea rows={4} placeholder="Additional notes" className='!resize-none'/>
+      <Form.Item label="Notes" name="notes" rules={optionalNotesRule}
+        initialValue={initialData?.notes}
+      >
+        <TextArea rows={4} placeholder="Additional notes" className="!resize-none"/>
       </Form.Item>
 
       {/* Send to Customer + Actions */}
       <div className="flex items-center justify-between mt-2">
-        <Form.Item
+        {!initialData && <Form.Item
           name="sendToCustomer"
           valuePropName="checked"
           className="mb-0"
         >
           <Switch className="mr-2" /> Send this appointment to customer
-        </Form.Item>
+        </Form.Item>}
 
         <div className="flex gap-3">
           <Button onClick={onCancel}>Cancel</Button>
           <Button type="primary" htmlType="submit" loading={loading} disabled={loading}>
-            Save
+           {initialData ? "Update" : "Save"}
           </Button>
         </div>
       </div>

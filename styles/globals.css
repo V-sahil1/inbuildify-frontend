@@ -173,7 +173,7 @@
 
 .custom-scrollbar {
   scrollbar-color: var(--card-color) var(--card-color);
-  scrollbar-width: thin;
+  scrollbar-width: none;
 }
 
 .custom-scrollbar:hover {
@@ -1317,3 +1317,11 @@ color: var(--font-color) !important;
   background-color: var(--primary-light) !important;
   border-color: var(--primary-light) !important;
 }
+
+.ant-steps-item-finish .ant-steps-item-tail::after,
+.ant-steps-item-wait .ant-steps-item-tail::after,
+.ant-steps-item-process .ant-steps-item-tail::after 
+{
+  background-color: #d8d8d8 !important;
+}
+

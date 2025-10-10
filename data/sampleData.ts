@@ -1,4 +1,6 @@
-import { ColorCategory, JobVariationDataType, JobVariationItems, LeadDetails } from './types';
+import { Construction } from '@redux/feature/construction/IConstructionState';
+import { JobVariationDataType, JobVariationItems, LeadDetails } from './types';
+import { Maintenance, RequestItem } from '@redux/feature/maintenance/IMaintenanceState';
 // export const quotationData: Quotation = {
 //   id: 'MYH23070085',
 //   version: 'V1',
@@ -216,96 +218,96 @@ export const leadDetails: LeadDetails = {
 //   }
 // ];
 
-export const ColorItemList: ColorCategory[] = [
-  {
-    category: "bricks-access",
-    items: [
-      {
-        key: "br-001",
-        images: ["https://img.freepik.com/free-photo/background-made-from-bricks_23-2148742475.jpg?t=st=1757423430~exp=1757427030~hmac=6fd91972a1d2c7126ce68c51132bd8fdca6a0ceeb29968afbfbda1c3dce77123&w=2000", "https://placehold.co/600x400"],
-        itemName: "Red Sand Brick",
-        itemCode: "BR-001",
-        itemDescription: "Durable red sand brick suitable for exterior walls.",
-        itemFeatures: "High strength, weather resistant, eco-friendly",
-        itemUnits: 100,
-        itemSupplier: "Supplier 1",
-        itemCost: 150,
-        isAdded: false,
-      },
-      {
-        key: "br-002",
-        images: ["https://img.freepik.com/free-photo/effect-view-grungy-construction-vintage-material_1417-1038.jpg?t=st=1757423521~exp=1757427121~hmac=f706a084b106859b448dd937d389c9f6b2910c2e11b152243fdc2733baee51ea&w=2000", "https://placehold.co/600x400"],
-        itemName: "Grey Cement Brick",
-        itemCode: "BR-002",
-        itemDescription: "Grey cement brick with smooth finish.",
-        itemFeatures: "Cost-effective, low maintenance",
-        itemUnits: 80,
-        itemCost: 150,
-        isAdded: true,
-      },
-    ],
-  },
-  {
-    category: "roof-concrete",
-    items: [
-      {
-        key: "rf-001",
-        images: ["https://img.freepik.com/free-photo/roof-tiles_23-2148742475.jpg?t=st=1757423612~exp=1757427212~hmac=2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b"],
-        itemName: "Classic Concrete Tile",
-        itemCode: "RF-001",
-        itemDescription: "Concrete roof tile with natural stone finish.",
-        itemFeatures: "Fire resistant, sound insulation",
-        itemUnits: 200,
-        isAdded: true,
-      },
-    ],
-  },
-  {
-    category: "windows-black",
-    items: [
-      {
-        key: "wd-001",
-        images: ["https://img.freepik.com/free-photo/roof-tiles_23-2148742475.jpg?t=st=1757423612~exp=1757427212~hmac=2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b"],
-        itemName: "Black Aluminium Window",
-        itemCode: "WD-001",
-        itemDescription: "Sleek black frame for modern homes.",
-        itemFeatures: "Powder-coated, double-glazed option",
-        itemUnits: 50,
-        isAdded: true,
-      },
-    ],
-  },
-  {
-    category: "doors-hinged",
-    items: [
-      {
-        key: "dr-001",
-        images: ["https://img.freepik.com/free-photo/roof-tiles_23-2148742475.jpg?t=st=1757423612~exp=1757427212~hmac=2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b"],
-        itemName: "Classic Hinged Door",
-        itemCode: "DR-001",
-        itemDescription: "Traditional wooden hinged door with premium finish.",
-        itemFeatures: "Solid wood, customizable handle",
-        itemUnits: 30,
-        isAdded: false,
-      },
-    ],
-  },
-  {
-    category: "flooring-timber",
-    items: [
-      {
-        key: "fl-001",
-        images: ["https://img.freepik.com/free-photo/roof-tiles_23-2148742475.jpg?t=st=1757423612~exp=1757427212~hmac=2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b"],
-        itemName: "Oak Timber Flooring",
-        itemCode: "FL-001",
-        itemDescription: "Premium oak timber flooring for luxury interiors.",
-        itemFeatures: "Durable, scratch resistant, natural look",
-        itemUnits: 500,
-        isAdded: false,
-      },
-    ],
-  },
-];
+// export const ColorItemList: ColorCategory[] = [
+//   {
+//     category: "bricks-access",
+//     items: [
+//       {
+//         key: "br-001",
+//         images: ["https://img.freepik.com/free-photo/background-made-from-bricks_23-2148742475.jpg?t=st=1757423430~exp=1757427030~hmac=6fd91972a1d2c7126ce68c51132bd8fdca6a0ceeb29968afbfbda1c3dce77123&w=2000", "https://placehold.co/600x400"],
+//         itemName: "Red Sand Brick",
+//         itemCode: "BR-001",
+//         itemDescription: "Durable red sand brick suitable for exterior walls.",
+//         itemFeatures: "High strength, weather resistant, eco-friendly",
+//         itemUnits: 100,
+//         itemSupplier: "Supplier 1",
+//         itemCost: 150,
+//         isAdded: false,
+//       },
+//       {
+//         key: "br-002",
+//         images: ["https://img.freepik.com/free-photo/effect-view-grungy-construction-vintage-material_1417-1038.jpg?t=st=1757423521~exp=1757427121~hmac=f706a084b106859b448dd937d389c9f6b2910c2e11b152243fdc2733baee51ea&w=2000", "https://placehold.co/600x400"],
+//         itemName: "Grey Cement Brick",
+//         itemCode: "BR-002",
+//         itemDescription: "Grey cement brick with smooth finish.",
+//         itemFeatures: "Cost-effective, low maintenance",
+//         itemUnits: 80,
+//         itemCost: 150,
+//         isAdded: true,
+//       },
+//     ],
+//   },
+//   {
+//     category: "roof-concrete",
+//     items: [
+//       {
+//         key: "rf-001",
+//         images: ["https://img.freepik.com/free-photo/roof-tiles_23-2148742475.jpg?t=st=1757423612~exp=1757427212~hmac=2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b"],
+//         itemName: "Classic Concrete Tile",
+//         itemCode: "RF-001",
+//         itemDescription: "Concrete roof tile with natural stone finish.",
+//         itemFeatures: "Fire resistant, sound insulation",
+//         itemUnits: 200,
+//         isAdded: true,
+//       },
+//     ],
+//   },
+//   {
+//     category: "windows-black",
+//     items: [
+//       {
+//         key: "wd-001",
+//         images: ["https://img.freepik.com/free-photo/roof-tiles_23-2148742475.jpg?t=st=1757423612~exp=1757427212~hmac=2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b"],
+//         itemName: "Black Aluminium Window",
+//         itemCode: "WD-001",
+//         itemDescription: "Sleek black frame for modern homes.",
+//         itemFeatures: "Powder-coated, double-glazed option",
+//         itemUnits: 50,
+//         isAdded: true,
+//       },
+//     ],
+//   },
+//   {
+//     category: "doors-hinged",
+//     items: [
+//       {
+//         key: "dr-001",
+//         images: ["https://img.freepik.com/free-photo/roof-tiles_23-2148742475.jpg?t=st=1757423612~exp=1757427212~hmac=2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b"],
+//         itemName: "Classic Hinged Door",
+//         itemCode: "DR-001",
+//         itemDescription: "Traditional wooden hinged door with premium finish.",
+//         itemFeatures: "Solid wood, customizable handle",
+//         itemUnits: 30,
+//         isAdded: false,
+//       },
+//     ],
+//   },
+//   {
+//     category: "flooring-timber",
+//     items: [
+//       {
+//         key: "fl-001",
+//         images: ["https://img.freepik.com/free-photo/roof-tiles_23-2148742475.jpg?t=st=1757423612~exp=1757427212~hmac=2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b"],
+//         itemName: "Oak Timber Flooring",
+//         itemCode: "FL-001",
+//         itemDescription: "Premium oak timber flooring for luxury interiors.",
+//         itemFeatures: "Durable, scratch resistant, natural look",
+//         itemUnits: 500,
+//         isAdded: false,
+//       },
+//     ],
+//   },
+// ];
 
 
 export const WorkStepsChecklist = [
@@ -531,5 +533,121 @@ export const JobVariationCreateTableData: JobVariationItems[] = [
     quantity: 4,
     price: 4.10,
     total: 16.40,
+  },
+];
+
+export const ConstructionDashboardData: Construction[] = [
+  {
+    id: "MK102CH2DSF",
+    customerName: 'John Doe',
+    jobAddress: '123 Main St',
+    builderName: 'My Home',
+    jobType: 'single Storey - Standard Build',
+    currentStage: 'Frame stage',
+    dueDate: '2023-09-24',
+    siteSupervisor: '',
+    status: 'readyforconstruction',
+  },
+  {
+    id: "MK103CH2DSF",
+    customerName: 'Lionel Messi',
+    jobAddress: '123 Main St',
+    builderName: 'PWC',
+    jobType: 'single Storey - Standard Build',
+    currentStage: 'Base Stage',
+    dueDate: '2023-10-20',
+    siteSupervisor: '',
+    status: 'underconstruction',
+  },
+  {
+    id: "MK104CH2DSFSF",
+    customerName: 'Bill Gates',
+    jobAddress: '123 Main St',
+    builderName: 'Sahara',
+    jobType: 'single Storey - Standard Build',
+    currentStage: 'Base Stage',
+    dueDate: '2023-08-05',
+    siteSupervisor: '',
+    status: 'completed',
+  },
+  {
+    id: "JKSADHF3JKHH",
+    customerName: 'Ronaldo',
+    jobAddress: '123 Main St',
+    builderName: 'Sahara',
+    jobType: 'single Storey - Standard Build',
+    currentStage: 'Base Stage',
+    dueDate: '2023-08-05',
+    siteSupervisor: '',
+    status: 'onhold',
+  },
+  {
+    id: "JKSADHF3JKHHSDFS",
+    customerName: 'Ronaldo',
+    jobAddress: '123 Main St',
+    builderName: 'Sahara',
+    jobType: 'single Storey - Standard Build',
+    currentStage: 'Base Stage',
+    dueDate: '2023-08-05',
+    siteSupervisor: '',
+    status: 'onhold',
+  },
+  {
+    id: "JKSADHF3JKHHSDF",
+    customerName: 'Ronaldo',
+    jobAddress: '123 Main St',
+    builderName: 'Sahara',
+    jobType: 'double Storey - Standard Build',
+    currentStage: 'lockup Stage',
+    dueDate: '2025-08-05',
+    siteSupervisor: '',
+    status: 'onhold',
+  },
+]
+
+export const MaintenanceDashboardData: Maintenance[] = [
+  {
+    id: "MK102CH2DSF",
+    customerName: 'John Doe',
+    jobAddress: '123 Main St',
+    startDate: '14-02-2024',
+    endDate :'15-04-2025',
+    Supervisor:'',
+    status : 'readyformaintenance'
+  },
+  {
+    id: "MK202CH2DDX",
+    customerName: 'Messi',
+    jobAddress: '234 Main St',
+    startDate: '25-04-2024',
+    endDate :'07-06-2025',
+    Supervisor:'',
+    status : 'completed'
+  },
+  {
+    id: "MK647JB5HFS",
+    customerName: 'ronaldo',
+    jobAddress: '456 Main St',
+    startDate: '15-06-2024',
+    endDate :'23-08-2025',
+    Supervisor:'',
+    status : "completed"
+  },
+]
+
+export const maintenanceRequestData: RequestItem[] = [
+  {
+    id: "1",
+    reference: "MYH00664-MR2",
+    descriptions: [
+      { title: "Oil Change" },
+      { title: "Brakes" },
+    ],
+    supplier: "another",
+    start: "",
+    finish: "",
+    complete: "",
+    status: "Pending",
+    amount: "$0.00",
   },
 ];

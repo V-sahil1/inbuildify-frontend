@@ -1,11 +1,9 @@
 "use client";
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect } from "react";
 import { Button, Switch, Upload, DatePicker, Select, Input, Form } from "antd";
 const { Option } = Select;
 import { IconUpload } from "@tabler/icons-react";
 import { NoteDetails } from "data/types";
-import type { UploadProps } from "antd";
-import type { UploadFile, UploadFileStatus } from "antd/es/upload/interface";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { getActionTags } from "@redux/feature/action/actionThunk";
 import { Status } from "@lib/constants/enum";
@@ -15,6 +13,7 @@ import {
   taskNameRules,
 } from "@lib/constants/formInputValidations";
 import { disablePastDates } from "@lib/utils/getDisabledTimeDate";
+import dayjs from "dayjs";
 
 interface AddNotesCardProps {
   onSave: (note: NoteDetails) => void;
@@ -33,15 +32,6 @@ const AddNotesCard: FC<AddNotesCardProps> = ({
   const { TextArea } = Input;
   const dispatch = useAppDispatch();
   const { tags, tagStatus } = useAppSelector((state) => state.action);
-  const [fileList, setFileList] = useState<UploadFile[]>(
-    initialData?.attachment
-      ? initialData.attachment.map((file) => ({
-          ...file,
-          status: file.status as UploadFileStatus,
-        }))
-      : []
-  );
-
   async function getTags() {
     try {
       await dispatch(getActionTags());
@@ -58,6 +48,10 @@ const AddNotesCard: FC<AddNotesCardProps> = ({
   const handleSave = async (values) => {
     await form.validateFields();
     values.type = "NOTES";
+    if (initialData) {
+      values.actionId = initialData.actionId;
+      values.action_type_id = initialData?.notesId;
+    }
     if (values.task?.name) {
       values.task = {
         ...values.task,
@@ -67,21 +61,6 @@ const AddNotesCard: FC<AddNotesCardProps> = ({
     }
     values.attachment = values?.attachment ? values?.attachment[0]?.originFileObj : null;
     onSave(values);
-  };
-
-    const uploadProps: UploadProps = {
-        onRemove: (file) => {
-            const index = fileList.indexOf(file);
-            const newFileList = fileList.slice();
-            newFileList.splice(index, 1);
-            setFileList(newFileList);
-        },
-        beforeUpload: (file) => {
-            setFileList((prev) => [...prev, file]);
-            return false;
-        },
-        fileList,
-        multiple: true,
     };
 
     return (
@@ -95,12 +74,12 @@ const AddNotesCard: FC<AddNotesCardProps> = ({
       }}
     >
       {/* Description */}
-      <Form.Item label="Notes" name="message" rules={descriptionRules}>
-        <TextArea rows={4} placeholder="Type your notes" className="!resize-none"/>
+      <Form.Item label="Notes" name="message" rules={descriptionRules} initialValue={initialData?.message}>
+        <TextArea rows={4} placeholder="Type your notes" className="!resize-none" />
       </Form.Item>
 
             {/* Tags */}
-            <Form.Item label="Tags" name="tags">
+            <Form.Item label="Tags" name="tags" initialValue={initialData?.tags?.map((t) => t.name) ?? []}>
                 <Select
                     mode="tags"
                     style={{ width: '100%' }}
@@ -115,35 +94,48 @@ const AddNotesCard: FC<AddNotesCardProps> = ({
                 </Select>
             </Form.Item>
 
-            <div className="flex gap-4">
+      <div className="flex gap-4">
         <Form.Item
           label="Attach Files"
           name="attachment"
           className="flex-1 max-w-[500px]"
+          valuePropName="fileList"
           getValueFromEvent={(e) => e.fileList}
+          initialValue={
+            initialData?.attachment
+              ? [
+                  {
+                    uid: "-1",
+                    name: "attachment.jpg",
+                    status: "done",
+                    url: initialData?.attachment,
+                  },
+                ]
+              : []
+          }
         >
-          <Upload beforeUpload={() => false} maxCount={1} accept=".jpg,.jpeg,.png,.gif,.webp">
+          <Upload beforeUpload={() => false} maxCount={1} accept=".jpg,.jpeg,.png,.gif,.webp" listType="picture">
             <Button icon={<IconUpload />}>Attach Files</Button>
           </Upload>
         </Form.Item>
         <div className="flex flex-col gap-3 flex-1">
+      {!initialData && (
+        <>
           <div className="flex items-center gap-2 text-sm text-font-color-100">
-            <Form.Item name="sendToCustomer" valuePropName="checked" noStyle>
+            <Form.Item name="sendToCustomer" valuePropName="checked" initialValue={initialData?.sendToCustomer || true} noStyle>
               <Switch />
             </Form.Item>
             <span>Send this note to customer</span>
           </div>
 
           <div className="flex items-center gap-2 text-sm text-font-color-100">
-            <Form.Item
-              name="createFollowUpTask"
-              valuePropName="checked"
-              noStyle
-            >
+            <Form.Item name="createFollowUpTask" valuePropName="checked" initialValue={initialData?.createFollowUpTask || true} noStyle>
               <Switch />
             </Form.Item>
             <span>Create follow-up task</span>
           </div>
+            </>
+          )}
 
           <Form.Item noStyle shouldUpdate>
             {({ getFieldValue }) =>
@@ -154,6 +146,7 @@ const AddNotesCard: FC<AddNotesCardProps> = ({
                     name={["task", "name"]}
                     rules={taskNameRules}
                     className="mb-2"
+                    initialValue={initialData?.task?.name}
                   >
                     <Input placeholder="Enter task name" />
                   </Form.Item>
@@ -163,6 +156,11 @@ const AddNotesCard: FC<AddNotesCardProps> = ({
                     name={["task", "due_date"]}
                     rules={dueDateRules}
                     className="mb-0"
+                    initialValue={
+                      initialData?.task?.dueDate
+                        ? dayjs(initialData?.task?.dueDate)
+                        : null
+                    }
                   >
                     <DatePicker
                       className="w-full max-w-52"
@@ -181,7 +179,7 @@ const AddNotesCard: FC<AddNotesCardProps> = ({
             <div className="flex justify-end gap-3">
                 <Button onClick={onCancel}>Cancel</Button>
                 <Button loading={loading} disabled={loading} type="primary" htmlType="submit">
-                    Send
+                  {initialData ? "Update" : "Send"}
                 </Button>
             </div>
       </Form>

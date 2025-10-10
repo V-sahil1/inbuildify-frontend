@@ -21,6 +21,7 @@ import {
   IconFileText,
   IconMail,
   IconPhoneCall,
+  IconTrash,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import SystemRoutes from "@lib/constants/Routes";
@@ -47,6 +48,10 @@ import { QuotationResponse } from "@redux/feature/quotation/IQuotationState";
 import LeadActions from "@/components/leadDetail/LeadActions";
 import { Status } from "@lib/constants/enum";
 import { LeadSource } from "@/components/leads/LeadSource";
+import CloseLeadModal from "@/components/leadDetail/LeadQuotations/CloseLeadModal";
+import ConfirmationModal from "@/components/common/ConfirmationModal";
+import { deleteQuotation } from "@redux/feature/quotation/quotationThunk";
+import { removeQuotation } from "@redux/feature/lead/leadSlice";
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -74,15 +79,15 @@ export interface Package {
 
 function App() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConvertModalVisible, setIsConvertModalVisible] = useState(false);
   const [isEditLeadModalVisible, setIsEditLeadModalVisible] = useState(false);
   const [isPropertyModalVisible, setIsPropertyModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
   const { leadDetail } = useAppSelector((state) => state.lead);
-  const status = useAppSelector(
-    (state) => state.lead.status.leadById
-  );
+  const status = useAppSelector((state) => state.lead.status.leadById);
   const isLoggedIn = useAppSelector((state) => state.auth.isAuthenticated);
 
   const isOpportunity = leadDetail?.lead?.status !== "NEW";
@@ -94,6 +99,11 @@ function App() {
     leadDetail?.createdQuotations?.quotations || [];
   const latestLeadDetailRef = useRef<any>(null);
   const isJob = useMemo(() => leadDetail?.lead?.status === "JOB", [leadDetail]);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [selectedQuotationId, setSelectedQuotationId] = useState<string | null>(null);
+
+  
   useEffect(() => {
     latestLeadDetailRef.current = leadDetail;
   }, [leadDetail]);
@@ -160,6 +170,26 @@ function App() {
     }
   };
 
+  const closeLeadModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = async () => {
+   if (!selectedQuotationId) return;
+  try {
+    setIsDeleting(true);
+    await dispatch(deleteQuotation(selectedQuotationId)).unwrap().then(()=>dispatch(removeQuotation(selectedQuotationId)));
+    message.success("Quotation deleted successfully");
+     setShowDeleteConfirm(false);
+    setSelectedQuotationId(null);
+  } catch (err) {
+    message.error(err || "Failed to delete quotation");
+  } finally {
+    setIsDeleting(false);
+   
+  }
+  };
+
   const steps = useMemo(() => {
     if (isOpportunity) {
       return [
@@ -182,7 +212,7 @@ function App() {
           label: "Close",
           color: "bg-gray-200",
           textColor: "text-black",
-          onClick: () => {},
+          onClick: closeLeadModal,
         },
       ];
     }
@@ -247,9 +277,10 @@ function App() {
           steps={steps}
           activeStep={isOpportunity ? "proposal" : "convert"}
           lead={leadDetail}
+          showOptions={true}
+          quotations={createdQuotations}
         />
       </div>
- 
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 m-3">
         {/* Contact Card */}
@@ -380,7 +411,7 @@ function App() {
                       }}
                       style={{ cursor: "pointer" }}
                     >
-                      <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center justify-between w-full overflow-hidden">
                         <div className="flex items-center space-x-4">
                           <div className="bg-gray-100 p-2 rounded-lg">
                            {createdQuotations.indexOf(quotation) + 1}
@@ -412,6 +443,15 @@ function App() {
                             ${Number(quotation?.totalAmount || 0)}
                           </div>
                         </div>
+                        <div className="hover:text-red-500">
+                            <button  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedQuotationId(quotation?.quotationId);
+                                    setShowDeleteConfirm(true);
+                                  }}>
+                              <IconTrash size={20}/>
+                            </button>
+                        </div>
                       </div>
                     </List.Item>
                   )}
@@ -432,7 +472,7 @@ function App() {
         >
           {/* Action Tab */}
           <TabPane tab="Action" key="action" className="border border-t-0">
-            <LeadActions leadId={leadId}/>
+            <LeadActions leadId={leadId} />
           </TabPane>
           <TabPane tab="Document" key="Document">
             <div className="bg-card-color">
@@ -481,10 +521,27 @@ function App() {
         onSave={() => setIsPropertyModalVisible(false)}
         initialValues={propertyFromSlice}
       />
+      <CloseLeadModal
+        isModalOpen={isModalOpen}
+        setIsModalOpen={() => setIsModalOpen(false)}
+        leadData={leadDetail?.lead}
+        quotations={createdQuotations}
+      />
     </div>
     <div className="col-span-3  lg:col-span-1 ">
       <LeadSource  />
     </div>
+    <ConfirmationModal
+        open={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={() => handleDelete()}
+        message="Are you sure you want to delete this Quatation?"
+        type="danger"
+        confirmText="Delete"
+        cancelText="Cancel"
+        loading={isDeleting}
+        maxWidth="sm"
+      />
     </div>
   );
 }

@@ -20,7 +20,7 @@ export default function Footer({ className }: { className?: string }) {
           , All Rights Reserved.
         </p>
         <Link href="/">
-          <Image src="/company.png" alt="logo" width={100} height={100} />
+          <Image src="/company-light.webp" alt="logo" width={100} height={100} />
         </Link>
         <ul className="flex items-center gap-x-20 gap-y-5 flex-wrap justify-center">
           <li>

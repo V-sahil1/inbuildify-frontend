@@ -35,13 +35,17 @@ export interface ILead {
   assigneeId?: string;
   createdById?: string;
   updatedById?: string;
-  assigneeName?:string,
-  createdByName?:string,
-  updatedByName?:string,
+  assignee: IDNamePair | null;
+  createdBy: IDNamePair | null;
+  updatedBy: IDNamePair | null;
   createdAt: string;
   updatedAt: string;
 }
 
+export interface IDNamePair {
+  id: string;
+  name: string;
+}
 export interface ILeadContact {
   leadId?: string;
   leadsContactId: string;

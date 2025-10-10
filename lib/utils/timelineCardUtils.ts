@@ -1,4 +1,7 @@
-import { createActionsThunk } from "@redux/feature/action/actionThunk";
+import {
+  createActionsThunk,
+  updateActionsThunk,
+} from "@redux/feature/action/actionThunk";
 import { AppDispatch } from "@redux/feature/store";
 import { message } from "antd";
 import {
@@ -34,15 +37,43 @@ export const handleSaveTimelineCard = async <
   data: D,
   dispatch: AppDispatch
 ): Promise<void> => {
-  // if (editingItem && editingItem?.item?.type === type) {
-  //   setCardsData((prev) =>
-  //     prev.map((card, i) =>
-  //       i === editingItem.index
-  //         ? ({ ...card, data: data, type: type } as TimelineCardProps)
-  //         : card
-  //     )
-  //   );
-  // } else {
+  if (editingItem) {
+    const { actionId, ...rest } = data;
+    try {
+      const response = await dispatch(
+        updateActionsThunk({
+          actionId: actionId,
+          data: formDataGenerator(rest),
+        })
+      ).unwrap();
+
+      setCardsData((prev) =>
+        prev.map((card) => {
+          if (card?.actionId === response.actionId) {
+            const updatedTasks = response.task ? [response.task] : [];
+            const updatedNotes = response.notes ? [response.notes] : [];
+            const updatedAppointments = response.appointment
+              ? [response.appointment]
+              : [];
+            const updatedSms = response.sms ? [response.sms] : [];
+            return {
+              ...card,
+              ...response,
+              task: updatedTasks,
+              notes: updatedNotes,
+              appointment: updatedAppointments,
+              sms: updatedSms,
+            };
+          }
+          return card;
+        })
+      );
+      message.success(`${type} updated successfully`);
+      handleClose();
+    } catch (err) {
+      message.error(err || `Failed to update ${type}`);  
+    }
+  } else {
     try {
       const response = await dispatch(
         createActionsThunk({ leadId: leadId, data: formDataGenerator(data) })
@@ -92,15 +123,5 @@ export const handleSaveTimelineCard = async <
     } catch (error) {
       message.error(error?.message || `Failed to create ${type}`); 
     }
-    // const newCard: TimelineCardProps = {
-    //   type: type,
-    //   date: new Date().toLocaleString(),
-    //   createdBy: "Current User",
-    //   createdAt: new Date().toLocaleString(),
-    //   status: type === "Notes" ? undefined : "pending",
-    //   data: data,
-    // } as TimelineCardProps;
-   
-  // }
- 
+  }
 };
