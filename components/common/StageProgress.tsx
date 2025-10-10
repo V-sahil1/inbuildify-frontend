@@ -171,6 +171,8 @@ const StageProgress: React.FC<StageProgressProps> = ({
     } catch (err) {
       setLoading(false);
       message.error(err || "Failed to convert lead");
+    }finally{
+      setLoading(false);
     }
   };
 
