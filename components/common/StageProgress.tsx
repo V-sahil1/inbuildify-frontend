@@ -326,7 +326,10 @@ const StageProgress: React.FC<StageProgressProps> = ({
           submitButtonText="Transfer"
           isEditing={!!lead?.lead?.assignee?.id}
           initialValues={{
-            assignee_id: lead?.lead?.assignee?.id,
+            assignee_id: {
+              value: lead?.lead?.assignee?.id,
+              label: lead?.lead?.assignee?.name,
+            },
           }}
           onSubmit={handleTransferSubmit}
           fields={leadTransferFields}

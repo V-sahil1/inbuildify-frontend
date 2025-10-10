@@ -72,6 +72,9 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
   const handleFinish = async (values: any) => {
     await form.validateFields();
     values.type = "TASK";
+    if (values.task?.assignee?.value) {
+      values.task.assignee = values.task.assignee.value;
+    }
     if (initialData) {
       values.actionId = initialData?.actionId;
       values.action_type_id = initialData?.taskId;

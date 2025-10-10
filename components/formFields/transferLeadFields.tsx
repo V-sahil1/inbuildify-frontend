@@ -1,7 +1,7 @@
 import { Status } from "@lib/constants/enum";
 import { CreateFormField } from "@/components/common/Models/CreateFormModel";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { message } from "antd";
 import { getUsersThunk } from "@redux/feature/user/userThunk";
 import NoDataMessage from "../common/NoDataMessage";
@@ -16,18 +16,22 @@ const useTransferLeadFields = (): readonly ContractorFormField[] => {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state?.auth);
   const { users, status } = useAppSelector((state) => state?.user);
-  const fetchUsers = async () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const fetchUsers = useCallback(async () => {
+    if (isLoading || status.users !== Status.IDLE) return;
+    setIsLoading(true);
     try {
       await dispatch(getUsersThunk()).unwrap();
     } catch {
       message.error("Failed to fetch users");
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [dispatch, isLoading, status.users]);
+  
   useEffect(() => {
-    if (status.users === Status.IDLE) {
-      fetchUsers();
-    }
-  }, [dispatch, status.users]);
+    fetchUsers();
+  }, [status.users]);
 
   const assigneeOptions = users.reduce((acc, u) => {
     if (u.email !== user?.email) {
