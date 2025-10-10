@@ -61,6 +61,9 @@ const UserActions: React.FC<{
 
   const handleUpdateTask = async (values: any) => {
     const { actionId, ...rest } = values;
+    if (rest.task?.assignee?.value) {
+      rest.task.assignee = values.task.assignee.value;
+    }
     setLoading(true);
     try {
       const response = await dispatch(
