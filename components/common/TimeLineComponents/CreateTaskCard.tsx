@@ -29,16 +29,16 @@ import NoDataMessage from "../NoDataMessage";
 import SystemRoutes from "@lib/constants/Routes";
 
 interface CreateTaskCardProps {
-    onSave: (task: any) => void;
-    onCancel: () => void;
-    loading: boolean;
-    initialData?: TaskDetails;
+  onSave: (task: any) => void;
+  onCancel: () => void;
+  loading: boolean;
+  initialData?: TaskDetails;
 }
 
 const priorityOptions = [
-    { label: "Low", value: "LOW" },
-    { label: "Medium", value: "MEDIUM" },
-    { label: "High", value: "HIGH" },
+  { label: "Low", value: "LOW" },
+  { label: "Medium", value: "MEDIUM" },
+  { label: "High", value: "HIGH" },
 ];
 
 const CreateTaskCard: FC<CreateTaskCardProps> = ({
@@ -118,13 +118,18 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
             inputReadOnly
             onChange={(date) => {
               // Reset the time field whenever due_date changes
-              form.setFieldsValue({ task: { ...form.getFieldValue("task"), time: null } });
+              form.setFieldsValue({
+                task: { ...form.getFieldValue("task"), time: null },
+              });
             }}
             disabledDate={disablePastDates}
           />
         </Form.Item>
 
-        <Form.Item label="Time" name={["task", "time"]} rules={timeRules}
+        <Form.Item
+          label="Time"
+          name={["task", "time"]}
+          rules={timeRules}
           initialValue={
             initialData?.time ? dayjs(initialData.time, "HH:mm") : null
           }
@@ -177,11 +182,28 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
         rules={descriptionRules}
         initialValue={initialData?.description}
       >
-        <Input.TextArea rows={4} placeholder="Task Description" className="!resize-none"/>
+        <Input.TextArea
+          rows={4}
+          placeholder="Task Description"
+          className="!resize-none"
+        />
       </Form.Item>
 
-      <Form.Item label="Assignee" name={["task", "assignee"]}
-        initialValue={initialData?.assignee?.id} 
+      <Form.Item
+        label="Assignee"
+        name={["task", "assignee"]}
+        initialValue={
+          initialData?.assignee?.id
+            ? {
+                key: initialData?.assignee?.id,
+                label: initialData?.assignee?.name,
+                value: initialData?.assignee?.id,
+              }
+            : {
+                key: initialData?.assignee,
+                value: initialData?.assignee,
+              }
+        }
         rules={[{ required: true, message: "Please select assignee" }]}
       >
         <Select
@@ -223,7 +245,12 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
 
         <div className="flex gap-3">
           <Button onClick={onCancel}>Cancel</Button>
-          <Button type="primary" htmlType="submit" loading={loading} disabled={loading}>
+          <Button
+            type="primary"
+            htmlType="submit"
+            loading={loading}
+            disabled={loading}
+          >
             Save
           </Button>
         </div>

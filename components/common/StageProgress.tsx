@@ -144,8 +144,8 @@ const StageProgress: React.FC<StageProgressProps> = ({
       message.error(err || "Failed to transfer lead");
     } finally {
       setLoading(false);
+      setIsTransferModalOpen(false);
     }
-    setIsTransferModalOpen(false);
   };
 
   const handleDelete = async (leadId: string) => {
@@ -171,7 +171,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
     } catch (err) {
       setLoading(false);
       message.error(err || "Failed to convert lead");
-    }finally{
+    } finally {
       setLoading(false);
     }
   };
@@ -252,7 +252,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
                     .filter(
                       (action) =>
                         action.key !== "converttolead" ||
-                        (lead?.lead?.status !== "NEW")
+                        lead?.lead?.status !== "NEW"
                     )
                     .map((action) => (
                       <button
@@ -326,12 +326,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
           submitButtonText="Transfer"
           isEditing={!!lead?.lead?.assignee?.id}
           initialValues={{
-            assignee_id: [
-              {
-                label: lead?.lead?.assignee?.name,
-                value: lead?.lead?.assignee?.id,
-              },
-            ],
+            assignee_id: lead?.lead?.assignee?.id,
           }}
           onSubmit={handleTransferSubmit}
           fields={leadTransferFields}
