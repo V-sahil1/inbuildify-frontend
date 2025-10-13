@@ -267,7 +267,7 @@ const leadid = useParams()
                 { required: true, message: "Please select state/region" },
               ]}
             >
-              <Select placeholder="Select country">
+              <Select placeholder="Select state">
                 {states?.length && states?.map((state) => (
                   <Select.Option
                     key={state?.stateId}
