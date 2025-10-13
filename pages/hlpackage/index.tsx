@@ -14,6 +14,7 @@ import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
 import HLPackageCopyModal from "@/components/common/Models/HLPackageCopyModal";
 import {data,DataType} from "data/hlpackageData"
 import Link from "next/link";
+import SystemRoutes from "@lib/constants/Routes";
 
 export default function HLPackages() {
     const router = useRouter();
@@ -294,6 +295,10 @@ export default function HLPackages() {
                 pagination={{
                     pageSize: 10,
                 }}
+                onRow={(record) => ({
+                    style: { cursor: 'pointer' },
+                    onClick: () => router.push(`/${SystemRoutes.HLPACKAGE}/${record.id}`),
+                })}
             />
 
             {/* create package modal */}

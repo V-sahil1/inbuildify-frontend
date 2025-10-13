@@ -1,4 +1,5 @@
 export interface DataType  {
+    id:string;
     packages: string;
     lotAddress: string;
     estateName: string;
@@ -9,7 +10,8 @@ export interface DataType  {
     assignee: string;
 }
 export const data:DataType[] = [
-    {
+    {   
+        id:'1',
         packages: 'New HL pack',
         lotAddress: 'LOT 507 Stirling, Tarneit, 3002',
         estateName: 'Ambervue',
@@ -20,6 +22,7 @@ export const data:DataType[] = [
         assignee: 'Krunal'
     },
     {
+        id:'2',
         packages: 'Epping 123',
         lotAddress: 'LOT 507 Stirling, Tarneit, 3002',
         estateName: 'Ambervue',

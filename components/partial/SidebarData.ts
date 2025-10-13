@@ -46,8 +46,8 @@ export const menuList = [
         roles: ["builder", "contractor", "customer"],
       },
       {
-        link: "Compaigns",
-        url: "/compaigns",
+        link: "Campaigns",
+        url: "/campaigns",
         roles: ["builder", "contractor", "customer"],
       },
       {

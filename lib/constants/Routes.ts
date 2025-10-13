@@ -23,6 +23,7 @@ class SystemRoutes {
   public static TASKS = `/tasks`;
   public static APPOINTMENT = `/appointments`;
   public static TODO = `/todo`;
+  public static HLPACKAGE = `/hlpackage`
 }
 
 export default SystemRoutes;
