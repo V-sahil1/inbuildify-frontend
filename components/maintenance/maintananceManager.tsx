@@ -1,4 +1,7 @@
 "use client";
+import React, { useState, useMemo, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import dayjs from "dayjs";
 import {
   Button,
   Card,
@@ -9,18 +12,14 @@ import {
   DatePicker,
 } from "antd";
 import { IconFilter } from "@tabler/icons-react";
-import { useRouter } from "next/navigation";
-import React, { useState, useMemo, useCallback } from "react";
-import dayjs from "dayjs";
-import { MaintenanceDashboardData } from "data/sampleData";
 import SystemRoutes from "@lib/constants/Routes";
-import { MaintenanceFields } from "../formFields/maintenanceField";
 import {
   DateRange,
   getStatus,
-  Maintenance,
   PROJECT_STATUS_MAP,
 } from "@lib/utils/maintenanceStatusCards";
+import { MaintenanceDashboardData } from "data/sampleData";
+import { useMaintenanceTableLogic } from "../formFields/maintenanceField";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -45,18 +44,12 @@ const MaintenanceManager = () => {
   const [pciDateFilter, setPciDateFilter] = useState("All");
   const [handoverDateFilter, setHandoverDateFilter] = useState("All");
   const [customRange, setCustomRange] = useState<[dayjs.Dayjs, dayjs.Dayjs] | null>(null);
-
   const handleDateFilterChange = (key: "PCI" | "Handover", value: string) => {
     key === "PCI" ? setPciDateFilter(value) : setHandoverDateFilter(value);
   };
 
   const handleCardClick = (status: string) =>
     setActiveStatus((prev) => (prev === status ? "All" : status));
-
-  const uniqueSupervisors = useMemo(
-    () => ["All", ...new Set(maintenanceData.map((d) => d.Supervisor).filter(Boolean))],
-    [maintenanceData]
-  );
 
   const filteredData = useMemo(() => {
     return maintenanceData.filter((item) => {
@@ -96,10 +89,23 @@ const MaintenanceManager = () => {
       prev.map((i) => (i.id.toString() === jobId.toString() ? { ...i, Supervisor: newSupervisor } : i))
     );
 
-  const columns = useMemo(
-    () => MaintenanceFields({ filters, setFilters, uniqueSupervisors, handleSupervisorAssign }),
-    [filters, uniqueSupervisors]
-  );
+  const handleStatusChange = (jobId: string | number, newStatusKey: string) => {
+  };
+
+  const handleRevertToConstruction = (jobId: string) => {
+    console.log("Reverting maintennace to construction:", jobId);
+  };
+
+
+  const {
+    maintenanceColumns: columns,
+    StatusChangeModal,
+    RevertModal
+  } = useMaintenanceTableLogic({
+    handleSupervisorAssign,
+    handleStatusChange,
+    handleRevertToConstruction
+  });
 
   const filterDropdown = (
     <div className="p-3 w-64 bg-white shadow-md rounded-md">
@@ -212,6 +218,8 @@ const MaintenanceManager = () => {
           })}
         />
       </div>
+      <StatusChangeModal />
+      <RevertModal />
     </div>
   );
 };

@@ -4,7 +4,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { Table, Input, Space, Dropdown, Switch, Button } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { debounce } from "lodash";
-import { IconFilter, IconDownload, IconShare3 } from "@tabler/icons-react";
+import { IconFilter, IconDownload, IconExternalLink } from "@tabler/icons-react";
 import { exportToExcel } from "@lib/utils/exportToExcel";
 import DateFilterDropdown from "@/components/common/custom-selects/DateFilterDropdown";
 import FilterTabs from "@/components/common/FilterTabs";
@@ -238,7 +238,7 @@ const JobPage: React.FC = () => {
       render: (consultant) => (
         <div className="flex justify-between items-center">
           <CustomAvtar label={consultant?.name} />
-          <Link href="#"><IconShare3 size={15} className="cursor-pointer text-blue" /></Link>
+          <Link href="#"><IconExternalLink size={22} className="cursor-pointer text-blue" /></Link>
         </div>
       ),
     },

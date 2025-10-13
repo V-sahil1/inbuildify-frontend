@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useRouter } from "next/router";
 import { Table, Input, Button, Space } from "antd";
-import { IconFilter, IconDownload, IconBell, IconShare3 } from "@tabler/icons-react";
+import { IconFilter, IconDownload, IconBell, IconExternalLink } from "@tabler/icons-react";
 import { debounce } from "lodash";
 import { exportToExcel } from "@lib/utils/exportToExcel";
 import DateFilterDropdown from "@/components/common/custom-selects/DateFilterDropdown";
@@ -219,7 +219,11 @@ const TaskTable: React.FC = () => {
       render: (_, record) => (
         <div className="flex justify-between items-center">
           <CustomAvtar label={record.assignedTo} />
-          <Link href="#"><IconShare3 size={15} className="cursor-pointer text-blue" /></Link>
+          <Link
+            href={`job/jobStatus/${record.key}`}
+          >
+            <IconExternalLink size={22} className="cursor-pointer text-blue" />
+          </Link>
         </div>
       ),
     },

@@ -1,38 +1,15 @@
 "use client";
-import {
-  Card,
-  Table,
-  Tag,
-} from "antd";
+import { Card, Table, Tag } from "antd";
+import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import dayjs from "dayjs";
-import { Construction } from "@redux/feature/construction/IConstructionState";
-import { ConstructionDashboardData } from "data/sampleData";
-import {
-  getColumns,
-  FILTER_DEFINITIONS,
-  FilterPopover,
-} from "../formFields/constuctionField";
-import { getStatus } from "@lib/utils/constructionStatusCards";
-import React from "react";
 import SystemRoutes from "@lib/constants/Routes";
+import { getStatus } from "@lib/utils/constructionStatusCards";
+import { ConstructionDashboardData } from "data/sampleData";
+import { FILTER_DEFINITIONS, FilterPopover, useConstructionTableLogic } from "../formFields/constuctionField";
 
 const ConstructionManager = () => {
   const router = useRouter();
   const [constructionData, setConstructionData] = useState(ConstructionDashboardData);
-
-  const [filters, setFilters] = useState({
-    id: "",
-    customerName: "",
-    jobAddress: "",
-    builderName: "All",
-    jobType: "",
-    currentStage: "All",
-    dueDate: null as string | null,
-    siteSupervisor: "All",
-    status: "All", // <-- Add status filter
-  });
 
   const [toggledFilters, setToggledFilters] = useState({
     notAbleToSeeInVideo: false,
@@ -40,62 +17,70 @@ const ConstructionManager = () => {
     hasOptions: false,
   });
 
-  const statusCounts = constructionData.reduce((acc, item) => {
-    acc[item.status] = (acc[item.status] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-
-  const makeUnique = (key: keyof Construction | "adminCoordinator") => {
-    const adminCoordinators = ["All", "John", "Jane"];
-    if (key === "adminCoordinator") return adminCoordinators;
-    return ["All", ...new Set(constructionData.map((d) => d[key as keyof Construction]))];
-  };
-
-  const uniqueBuilders = makeUnique("builderName");
-  const uniqueStages = makeUnique("currentStage");
-  const uniqueSupervisors = makeUnique("siteSupervisor");
-
   const handleSupervisorAssign = (jobId: string | number, newSupervisor: string) => {
-    setConstructionData(prevData =>
-      prevData.map(item =>
-        item.id.toString() === jobId.toString()
-          ? { ...item, siteSupervisor: newSupervisor }
-          : item
+    setConstructionData(prev =>
+      prev.map(item =>
+        item.id.toString() === jobId.toString() ? { ...item, siteSupervisor: newSupervisor } : item
       )
     );
-    console.log(`Assigned ${newSupervisor} to job ${jobId}`);
   };
 
-  const handleEdit = () => console.log("Editing");
-  const handleDelete = () => console.log("Deleting");
+  const handleStatusChange = (jobId: string | number, newStatusKey: string) => {
+  };
 
-  // Filter data including status filter
-  const filteredData = constructionData.filter((item) => {
-    return (
-      item.id.toString().toLowerCase().includes(filters.id.toLowerCase()) &&
-      item.customerName.toLowerCase().includes(filters.customerName.toLowerCase()) &&
-      item.jobAddress.toLowerCase().includes(filters.jobAddress.toLowerCase()) &&
-      item.jobType.toLowerCase().includes(filters.jobType.toLowerCase()) &&
-      (filters.builderName === "All" || item.builderName === filters.builderName) &&
-      (filters.currentStage === "All" || item.currentStage === filters.currentStage) &&
-      (!filters.dueDate || dayjs(item.dueDate).isSame(filters.dueDate, "day")) &&
-      (filters.siteSupervisor === "All" || item.siteSupervisor === filters.siteSupervisor) &&
-      (filters.status === "All" || item.status === filters.status) // <-- status filter
-    );
+  const handleRevertFromConstruction = (jobId: string) => {
+    console.log("Reverting job from construction:", jobId);
+  };
+
+  const handleExport = (jobId: string) => {
+    console.log("Exporting job:", jobId);
+  };
+
+  const {
+    filters,
+    handleFilterChange,
+    constructionColumns: columns,
+    RevertModal,
+    StatusChangeModal
+  } = useConstructionTableLogic({
+    handleSupervisorAssign,
+    handleStatusChange,
+    handleRevertFromConstruction,
+    handleExport
   });
 
-  const columns = getColumns({ filters, setFilters, uniqueBuilders, uniqueStages, uniqueSupervisors, handleSupervisorAssign, handleEdit, handleDelete });
+  const statusCounts = useMemo(() => {
+    return constructionData.reduce((acc, item) => {
+      acc[item.status] = (acc[item.status] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+  }, [constructionData]);
+
+  const filteredData = useMemo(() => {
+    return constructionData.filter(item => {
+      return (
+        item.id.toString().toLowerCase().includes(filters.id.toLowerCase()) &&
+        item.customerName.toLowerCase().includes(filters.customerName.toLowerCase()) &&
+        item.jobAddress.toLowerCase().includes(filters.jobAddress.toLowerCase()) &&
+        item.jobType.toLowerCase().includes(filters.jobType.toLowerCase()) &&
+        (filters.builderName === "All" || item.builderName === filters.builderName) &&
+        (filters.currentStage === "All" || item.currentStage === filters.currentStage) &&
+        (filters.siteSupervisor === "All" || item.siteSupervisor === filters.siteSupervisor) &&
+        (filters.status === "All" || item.status === filters.status)
+      );
+    });
+  }, [constructionData, filters]);
 
   return (
     <>
       {/* Header */}
       <div className="flex items-center justify-between p-4">
-        <h1 className="text-2xl font-bold text-left mt-4">
-          Construction Dashboard
-        </h1>
+        <h1 className="text-2xl font-bold mt-4">Construction Dashboard</h1>
         <FilterPopover
           toggledFilters={toggledFilters}
-          setToggledFilters={setToggledFilters}
+          setToggledFilters={(updated) =>
+            setToggledFilters(prev => ({ ...prev, ...updated }))
+          }
         />
       </div>
 
@@ -107,25 +92,19 @@ const ConstructionManager = () => {
           return (
             <Card
               key={status}
-              className={`min-w-[250px] flex-1 cursor-pointer transition-shadow  ${isActive ? "shadow-md" : "shadow-sm"
-                }`}
-              style={{
-                borderLeft: `4px solid ${color}`,
-              }}
-              onClick={() => setFilters(prev => ({ ...prev, status }))}
+              className={`min-w-[250px] flex-1 cursor-pointer transition-shadow ${isActive ? "shadow-md" : "shadow-sm"}`}
+              style={{ borderLeft: `4px solid ${color}` }}
+              onClick={() => handleFilterChange({ status })}
             >
               <div className="flex items-center gap-3">
                 <div className="text-2xl">{icon}</div>
-                <div className="flex-1">
-                  <h3 className="m-0 font-medium">{label}</h3>
-                </div>
+                <div className="flex-1 font-medium">{label}</div>
                 <div className="text-xl font-bold">{count}</div>
               </div>
             </Card>
           );
         })}
       </div>
-
 
       {/* Active filter tags */}
       <div className="pl-4 pr-4 flex items-center gap-2">
@@ -137,7 +116,7 @@ const ConstructionManager = () => {
                 closable
                 color="orange"
                 onClose={() =>
-                  setToggledFilters({ ...toggledFilters, [filter.key]: false })
+                  setToggledFilters(prev => ({ ...prev, [filter.key]: false }))
                 }
                 className="text-base"
               >
@@ -149,7 +128,7 @@ const ConstructionManager = () => {
           <Tag
             closable
             color="blue"
-            onClose={() => setFilters(prev => ({ ...prev, status: "All" }))}
+            onClose={() => handleFilterChange({ status: "All" })}
             className="text-base"
           >
             {filters.status}
@@ -171,6 +150,8 @@ const ConstructionManager = () => {
           })}
         />
       </div>
+      <StatusChangeModal />
+      <RevertModal />
     </>
   );
 };
