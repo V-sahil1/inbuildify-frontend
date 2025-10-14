@@ -10,10 +10,13 @@ import {
   Upload,
   Button,
   DatePicker,
+  ColorPicker,
+  Switch,
 } from "antd";
 import { UploadChangeParam } from "antd/es/upload";
 import React, { useEffect } from "react";
 import dayjs from "dayjs";
+import RichTextEditorFormField from "../rich-text-editor/RichTextEditorFormField";
 
 export type CreateFormField = {
   label: string;
@@ -32,7 +35,10 @@ export type CreateFormField = {
     | "url"
     | "number"
     | "checkbox"
-    | "image";
+    | "image"
+    | "textEditor"
+    | "color"
+    | "switch";
   mode?: "tags" | "multiple";
   options?: { value: string; label: string }[];
   button?: string;
@@ -244,6 +250,18 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
                   }
                 }}
               />
+            ) : field.type === "textEditor" ? (
+              <RichTextEditorFormField
+                value={form.getFieldValue(field.name) || ''}
+                onChange={(val) => form.setFieldValue(field.name, val)}
+                maxHeight="400px"
+              />
+            ) : field.type === "color" ? (
+              <ColorPicker defaultValue='#d59d35' onChange={(color) => {
+                form.setFieldValue(field.name, color.toHexString());
+              }} />
+            ) : field.type === "switch" ? (
+              <Switch />
             ) : (
               <Input
                 placeholder={field.placeholder}

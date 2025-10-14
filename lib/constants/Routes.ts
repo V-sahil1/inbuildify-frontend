@@ -24,6 +24,7 @@ class SystemRoutes {
   public static APPOINTMENT = `/appointments`;
   public static TODO = `/todo`;
   public static HLPACKAGE = `/hlpackage`
+  public static CAMPAIGN = `/campaigns`
 }
 
 export default SystemRoutes;

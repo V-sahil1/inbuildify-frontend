@@ -47,12 +47,12 @@ export const menuList = [
       },
       {
         link: "Campaigns",
-        url: "/campaigns",
+        url: SystemRoutes.CAMPAIGN,
         roles: ["builder", "contractor", "customer"],
       },
       {
         link: "HL Package",
-        url: "/hlpackage",
+        url: SystemRoutes.HLPACKAGE,
         roles: ["builder", "contractor", "customer"],
       },
       {
