@@ -228,10 +228,11 @@ export default function HLPackages() {
                                     onClick: () => { }
                                 }
                             ]
-                        }} trigger={['click']}><IconDotsVertical size={15}  className="cursor-pointer" />
+                        }} trigger={['click']}><IconDotsVertical size={15}  className="cursor-pointer"  onClick={(e)=>e.stopPropagation()} />
                         </Dropdown>
-                        <Tooltip title="Copy House and Land Package"><IconCopy size={15} onClick={() => setIsCopyModalOpen(true)} className="cursor-pointer" /></Tooltip>
-                        <Link href="#"><IconShare3 size={15} className="cursor-pointer text-blue" /></Link></div>
+                        <Tooltip title="Copy House and Land Package"><IconCopy size={15} onClick={(e) => {e.stopPropagation();
+                            setIsCopyModalOpen(true)}} className="cursor-pointer" /></Tooltip>
+                        <Link href="#" onClick={(e)=>e.stopPropagation()}><IconShare3 size={15} className="cursor-pointer text-blue" /></Link></div>
                 </div>
             )
         },
@@ -270,7 +271,7 @@ export default function HLPackages() {
         setActiveFilter(filterOptions.find(f => f.type === selectedType) || activeFilter);
     };
 
-    const handleNewPackaheSubmit = () => {
+    const handleNewPackageSubmit = () => {
         // create new package
     }
 
@@ -309,7 +310,7 @@ export default function HLPackages() {
                 title="New Package"
                 open={isModalOpen}
                 onCancel={() => setIsModalOpen(false)}
-                onSubmit={handleNewPackaheSubmit}
+                onSubmit={handleNewPackageSubmit}
                 fields={[
                     {
                         label: 'Title',

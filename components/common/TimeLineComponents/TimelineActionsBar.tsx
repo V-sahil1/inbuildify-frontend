@@ -44,7 +44,7 @@ const TimelineActionsBar: FC<TimelineActionsBarProps> = ({
               }
               `}
           >
-            {tab.type}
+            {tab.label}
             {isCountShow &&
           <div className=" rounded-3xl bg-white text-gray-500 w-fit h-fit px-1">{tab.count}</div>
             }

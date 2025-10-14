@@ -25,6 +25,14 @@ const CampaignPreviewSend = () => {
             width: 150,
         }
     ];
+
+    const fields = [
+        { label: 'Campaign Name', value: 'new' },
+        { label: 'Subject', value: '[ContactName]' },
+        { label: 'Attachment', value: 'No Attachment' },
+        { label: 'Message', value: 'Preview' },
+
+    ]
     return (<div className="border border-border-color bg-card-color mt-8 p-4 mb-3">
         <div className="flex justify-between mb-4">
             <h1 className="text-xl font-medium">Preview and Send</h1>
@@ -35,22 +43,12 @@ const CampaignPreviewSend = () => {
         <div>
             <div className="flex justify-between mb-3 text-sm">
                 <div className="flex flex-col gap-2">
-                    <div className="flex">
-                        <p className="w-[300px]">Campaign Name</p>
-                        <p>new</p>
-                    </div>
-                    <div className="flex">
-                        <p className="w-[300px]">Subject</p>
-                        <p>[ContactName]</p>
-                    </div>
-                    <div className="flex">
-                        <p className="w-[300px]">Attachment</p>
-                        <p>No Attachment</p>
-                    </div>
-                    <div className="flex">
-                        <p className="w-[300px]">Message</p>
-                        <p>Preview</p>
-                    </div>
+                    {fields.map((field) => (
+                        <div className="flex">
+                            <p className="w-[300px]">{field.label}</p>
+                            <p>{field.value}</p>
+                        </div>
+                    ))}
                 </div>
                 <div className="flex flex-col gap-2 border border-border-color p-3">
                     <p>Send to (Add , if you use multiple email id)</p>

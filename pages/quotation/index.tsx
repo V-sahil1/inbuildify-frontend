@@ -18,6 +18,7 @@ import { QuotationDataType, quotationDummyData } from "data/quotationlistData";
 import CustomAvtar from "@/components/common/CustomAvtar";
 import Link from "next/link";
 import TimelineActionsBar from "@/components/common/TimeLineComponents/TimelineActionsBar";
+import HLPackageCopyModal from "@/components/common/Models/HLPackageCopyModal";
 
 const QuotationPage: React.FC = () => {
   const router = useRouter();
@@ -239,7 +240,8 @@ const QuotationPage: React.FC = () => {
             <Tooltip title="Copy Quotation">
               <IconCopy
                 size={15}
-                onClick={() => setIsCopyModalOpen(true)}
+                onClick={(e) =>{e.stopPropagation() 
+                  setIsCopyModalOpen(true)} }
                 className="cursor-pointer"
               />
             </Tooltip>
@@ -336,6 +338,12 @@ const QuotationPage: React.FC = () => {
           showQuickJumper: true,
         }}
       />
+      <HLPackageCopyModal
+                title="Copy Quation"
+                open={isCopyModalOpen}
+                onCancel={() => setIsCopyModalOpen(false)}
+                onOk={() => { }}
+            />
     </div>
   );
 };
