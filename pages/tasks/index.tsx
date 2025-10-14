@@ -12,10 +12,10 @@ import type { ColumnsType } from "antd/es/table";
 import { data, DataType } from "data/tasklistData";
 import { Dayjs } from "dayjs";
 import SystemRoutes from "@lib/constants/Routes";
-import FilterTabs from "@/components/common/FilterTabs";
 import AssigneeSelect from "@/components/common/custom-selects/AssigneeSelect";
 import CustomAvtar from "@/components/common/CustomAvtar";
 import Link from "next/link";
+import TimelineActionsBar from "@/components/common/TimeLineComponents/TimelineActionsBar";
 
 const TaskTable: React.FC = () => {
   const router = useRouter();
@@ -94,6 +94,7 @@ const TaskTable: React.FC = () => {
 
   const handleFilterTabChange = (selectedType: string) => {
     console.log("Selected filter:", selectedType);
+    setActiveFilter(filterOptions.find(f => f.type === selectedType) || activeFilter);
     // You can call your API or set state here
   };
 
@@ -262,11 +263,13 @@ const TaskTable: React.FC = () => {
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Tasks</h1>
-        <div className="flex space-x-1 border-b items-center justify-center">
-          <FilterTabs
-            options={filterOptions}
-            defaultType="today"
-            onChange={handleFilterTabChange}
+        <div>
+          <TimelineActionsBar
+            tabs={filterOptions.map(f => ({ type: f.type, label: f.label, count: f.count }))}
+            activeTab={activeFilter.type}
+            onTabChange={handleFilterTabChange}
+            isActionShow={false}
+            isCountShow={true}
           />
         </div>
         <Space>

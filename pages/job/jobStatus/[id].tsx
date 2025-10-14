@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Collapse, Button, Tag, Space, Checkbox, Tooltip, Popconfirm, message } from 'antd';
-import { IconPlus, IconPaperclip, IconMessage, IconDotsVertical } from '@tabler/icons-react';
+import { IconPlus, IconPaperclip, IconMessage, IconDotsVertical, IconInfoSmall } from '@tabler/icons-react';
 import AssignSupervisorDropdown from '@/components/construction/assignSupervisorModal';
 import StageProgress from '@/components/common/StageProgress';
 import { INITIAL_STAGES_DATA, jobStatusStage, jobStatusTask } from 'data/jobStatusTaskData';
@@ -19,7 +19,7 @@ const JobStatusTaskManager = () => {
   const isAllTasksCompleted = (tasks: jobStatusTask[]) =>
     tasks.length > 0 && tasks.every(task => task.status === 'completed');
   const isSomeTasksCompleted = (tasks: jobStatusTask[]) =>
-    tasks.some(task => task.status === 'completed') && !isAllTasksCompleted(tasks)
+    tasks.some(task => task.status === 'completed') && !isAllTasksCompleted(tasks);
 
   const confirmHeaderChange = (stageId: string, checked: boolean) => {
     setStagesData(prev =>
@@ -72,10 +72,11 @@ const JobStatusTaskManager = () => {
     { type: "Not Applicable", label: "Not Applicable", count: notApplicableCount },
   ];
 
-  const TaskRow = ({ task, stageId }: { task: jobStatusTask; stageId: string }) => (
+  const TaskRow = ({ task, stage }: { task: jobStatusTask; stage: jobStatusStage }) => (
     <div
-      className={`flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 px-4 sm:px-6 py-4 border-b border-gray-200 text-font-color ${task.status === 'completed' ? 'bg-primary-10' : 'bg-card-color'
-        }`}
+      className={`flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 px-4 sm:px-6 py-4 border-b border-gray-200 text-font-color
+      ${task.status === 'completed' ? 'bg-primary-10' : 'bg-card-color'}
+      ${!stage.included ? 'opacity-50 pointer-events-none bg-gray-200' : ''}`}
     >
       <div className="flex-1 w-full sm:w-auto">
         <span className="font-normal text-sm">{task.task}</span>
@@ -89,11 +90,15 @@ const JobStatusTaskManager = () => {
       <div className="sm:w-16 w-full flex justify-start sm:justify-center">
         <Checkbox
           checked={task.status === 'completed'}
-          onChange={e => handleTaskCheckboxChange(stageId, task.id, e.target.checked)}
+          disabled={!stage.included}
+          onChange={e => handleTaskCheckboxChange(stage.id, task.id, e.target.checked)}
         />
       </div>
       <div className="sm:w-32 w-full text-left sm:text-center">
-        <span className={`text-sm ${task.actual ? 'text-red-500' : ''}`}>{task.actual}</span>
+        {/* Only show Actual if task is completed */}
+        <span className={`text-sm ${task.status === 'completed' && task.actual ? 'text-red-500' : ''}`}>
+          {task.status === 'completed' ? task.actual : ''}
+        </span>
       </div>
       <div className="sm:w-16 w-full text-left sm:text-center">
         <AssignSupervisorDropdown
@@ -104,13 +109,13 @@ const JobStatusTaskManager = () => {
       <div className="sm:w-32 w-full flex justify-start sm:justify-center">
         <Space size="small">
           <Tooltip title="Attach files">
-            <Button type="text" icon={<IconPaperclip size={22} />} />
+            <Button type="text" icon={<IconPaperclip size={22} />} disabled={!stage.included} />
           </Tooltip>
           <Tooltip title="Comments">
-            <Button type="text" icon={<IconMessage size={22} />} />
+            <Button type="text" icon={<IconMessage size={22} />} disabled={!stage.included} />
           </Tooltip>
           <Tooltip title="Other Options">
-            <Button type="text" icon={<IconDotsVertical size={22} />} />
+            <Button type="text" icon={<IconDotsVertical size={22} />} disabled={!stage.included} />
           </Tooltip>
         </Space>
       </div>
@@ -121,11 +126,28 @@ const JobStatusTaskManager = () => {
     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full">
       <div className="flex items-center gap-2 flex-1">
         <span className="font-medium text-base">{stage.title}</span>
-        <Button 
-        size='small'
-        onClick={e => e.stopPropagation()}
-        >Skip Stage</Button>
+
+        {!stage.included ? (
+          <Popconfirm
+            title="Do you want to include permits and pre construction stage?"
+            onConfirm={e => {
+              e?.stopPropagation();
+              setStagesData(prev =>
+                prev.map(s => s.id === stage.id ? { ...s, included: true } : s)
+              );
+              message.success("Stage included successfully!");
+            }}
+            okText="Yes"
+            cancelText="No"
+            placement="bottom"
+          >
+            <Button size="small" type='primary' onClick={e => e.stopPropagation()}>Include<IconInfoSmall /></Button>
+          </Popconfirm>
+        ) : (
+          <Button size="small" type='primary' onClick={e => e.stopPropagation()}>Skip Stage</Button>
+        )}
       </div>
+
       <div className="hidden sm:block sm:w-44"></div>
       <div className="sm:w-32 text-left sm:text-center">
         <span className="text-sm font-medium text-gray-700">Estimated</span>
@@ -134,19 +156,20 @@ const JobStatusTaskManager = () => {
         <Popconfirm
           title={<div className='flex flex-col gap-4'>
             <span>Are you sure you want to update the stage?</span>
-            <span>Note: this will mark all task a comleted <br /> and move the job to the next page.</span>
+            <span>Note: this will mark all tasks as completed <br /> and move the job to the next page.</span>
           </div>}
           onConfirm={(e) => {
-            e.stopPropagation(); 
+            e.stopPropagation();
             confirmHeaderChange(stage.id, !isAllTasksCompleted(stage.tasks));
           }}
           okText="Yes"
           cancelText="No"
+          placement="bottom"
         >
           <Checkbox
             checked={isAllTasksCompleted(stage.tasks)}
             indeterminate={isSomeTasksCompleted(stage.tasks)}
-            disabled={stage.tasks.length === 0}
+            disabled={stage.tasks.length === 0 || !stage.included}
             onClick={e => e.stopPropagation()}
           />
         </Popconfirm>
@@ -160,6 +183,7 @@ const JobStatusTaskManager = () => {
           type="primary"
           icon={<IconPlus size={16} />}
           className="rounded"
+          disabled={!stage.included}
           onClick={e => {
             e.stopPropagation();
             handleOpenTaskModal(stage);
@@ -172,7 +196,7 @@ const JobStatusTaskManager = () => {
   );
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen flex flex-col gap-7 overflow-y-auto">
+    <div className="p-6 bg-gray-100 min-h-screen flex flex-col gap-7 overflow-y-auto custom-scrollbar">
       <div className="flex flex-col md:flex-row gap-4">
         <div className="m-3">
           <StageProgress
@@ -213,13 +237,9 @@ const JobStatusTaskManager = () => {
           >
             <div>
               {stage.tasks.length > 0 ? (
-                stage.tasks.map(task => (
-                  <TaskRow key={task.id} task={task} stageId={stage.id} />
-                ))
+                stage.tasks.map(task => <TaskRow key={task.id} task={task} stage={stage} />)
               ) : (
-                <div className="px-6 py-8 text-center text-gray-500">
-                  No tasks added yet
-                </div>
+                <div className="px-6 py-8 text-center text-gray-500">No tasks added yet</div>
               )}
             </div>
           </Panel>

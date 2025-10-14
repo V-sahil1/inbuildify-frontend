@@ -2,7 +2,7 @@ import AssigneeSelect from "@/components/common/custom-selects/AssigneeSelect";
 import CategorySelect from "@/components/common/custom-selects/CategorySelect";
 import DateFilterDropdown from "@/components/common/custom-selects/DateFilterDropdown";
 import CustomAvtar from "@/components/common/CustomAvtar";
-import FilterTabs from "@/components/common/FilterTabs";
+import TimelineActionsBar from "@/components/common/TimeLineComponents/TimelineActionsBar";
 import { exportToExcel } from "@lib/utils/exportToExcel";
 import { IconDots, IconDownload, IconX } from "@tabler/icons-react";
 import { Button, Dropdown, Input, Popover, Switch, Table, Tag } from "antd";
@@ -11,7 +11,7 @@ import { debounce } from "lodash";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { data, DataType } from "data/appointmentData"
+import { data, DataType } from "data/appointmentData";
 
 export default function Appointments() {
     const router = useRouter();
@@ -201,25 +201,27 @@ export default function Appointments() {
         ];
     const handleFilterTabChange = (selectedType: string) => {
         console.log("Selected filter:", selectedType);
+        setActiveFilter(filterOptions.find(f => f.type === selectedType) || activeFilter);
     };
 
     const PopOverContent = (
         <div className="flex gap-2">
             <p>Include Cancelled Appointment </p>
-            <Switch checked={CancelledIncluded}
-                onChange={(checked) => setCancelledIncluded(checked)} ></Switch>
+            <Switch checked={CancelledIncluded} onChange={(checked) => setCancelledIncluded(checked)} />
         </div>
     )
     return (
         <div className="m-2">
             <div className="flex justify-between  items-center m-3">
                 <h1 className="text-2xl font-bold">Appointments</h1>
-                <div className="flex space-x-1 border-b items-center justify-center">
-                    <FilterTabs
-                        options={filterOptions}
-                        defaultType="today"
-                        onChange={handleFilterTabChange}
-                    />
+                <div>
+                    <TimelineActionsBar
+                        tabs={filterOptions.map(f => ({ type: f.type, label: f.label, count: f.count }))}
+                        activeTab={activeFilter.type}
+                        onTabChange={handleFilterTabChange}
+                        isActionShow={false}
+                        isCountShow={true}
+                    />  
                 </div>
                 <div className="flex gap-2">
                     <Button icon={<IconDownload />} onClick={() => { handleExport(data); }}>

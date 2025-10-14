@@ -7,13 +7,13 @@ import { debounce } from "lodash";
 import { IconFilter, IconDownload, IconExternalLink } from "@tabler/icons-react";
 import { exportToExcel } from "@lib/utils/exportToExcel";
 import DateFilterDropdown from "@/components/common/custom-selects/DateFilterDropdown";
-import FilterTabs from "@/components/common/FilterTabs";
 import AssigneeSelect from "@/components/common/custom-selects/AssigneeSelect";
 import TooltipButton from "@/components/common/TooltipButtton";
 import DynamicHorizontalChart from "@/components/common/charts/DynamicHorizontalChart";
 import { JobDataType, jobDummyData } from "data/joblistData";
 import CustomAvtar from "@/components/common/CustomAvtar";
 import Link from "next/link";
+import TimelineActionsBar from "@/components/common/TimeLineComponents/TimelineActionsBar";
 
 const JobPage: React.FC = () => {
   const router = useRouter();
@@ -94,6 +94,7 @@ const JobPage: React.FC = () => {
 
   const handleFilterTabChange = (selectedType: string) => {
     console.log("Selected filter:", selectedType);
+    setActiveFilter(filterOptions.find(f => f.type === selectedType) || activeFilter);
     // You can call your API or set state here
   };
 
@@ -249,7 +250,11 @@ const JobPage: React.FC = () => {
     | "onHold"
     | "cancelled"
     | "archieved";
-
+const [activeFilter, setActiveFilter] = useState<{
+        type: FilterType;
+        label: string;
+        count?: number;
+    }>({ type: "inProgress", label: "In Progress" });
   const filterOptions: Array<{
     type: FilterType;
     label: string;
@@ -266,13 +271,15 @@ const JobPage: React.FC = () => {
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Job List</h1>
-        <div className="flex space-x-1 border-b items-center justify-center">
-          <FilterTabs
-            options={filterOptions}
-            defaultType="all"
-            onChange={handleFilterTabChange}
-          />
-        </div>
+        <div className="flex w-full md:w-[60%] ml-[20%] ">
+                    <TimelineActionsBar
+                        tabs={filterOptions.map(f => ({ type: f.type, label: f.label, count: f.count }))}
+                        activeTab={activeFilter.type}
+                        onTabChange={handleFilterTabChange}
+                        isActionShow={false}
+                        isCountShow={true}
+                    />  
+                </div>
         <Space>
           <Button>Filtered Records: {jobDummyData.length}</Button>
           <Dropdown

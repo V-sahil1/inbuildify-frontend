@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { message, Steps, Table, Typography } from "antd";
 import StageProgress from "@/components/common/StageProgress";
 import { jobWorkflowChecklistFields } from "@/components/formFields/jobWorkflowChecklistFields";
-import TimelineActionsBar from "@/components/common/TimeLineComponents/TimelineActionsBar";
+import TimelineActionsBar,{FilterOption} from "@/components/common/TimeLineComponents/TimelineActionsBar";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { Status } from "@lib/constants/enum";
 import {
@@ -96,35 +96,40 @@ const index = () => {
   useEffect(() => {
     if (currentStepId) fetchWorkflowProcessTasks();
   }, [currentStepId]);
+
+  const tabs: FilterOption[] = [
+    { type: "Own", label: "Own", count: 5 },
+    { type: "All", label: "All", count: 12 },
+  ];
+
   return (
     <div className="bg-body-color p-6">
-      <div>
-        <div className="flex gap-4">
-          <div className="m-3">
-            <StageProgress
-              id="MY12F48"
-              title="Job Status"
-              steps={[]}
-              status="In Progress"
-              idClassName="text-[#]"
+      <div className="flex gap-4">
+        <div className="m-3">
+          <StageProgress
+            id="MY12F48"
+            title="Job Status"
+            steps={[]}
+            status="In Progress"
+            idClassName="text-[#]"
+          />
+        </div>
+        <div className="flex w-[78%] justify-between items-center">
+          <div className="p-3">
+            <h6 className="text-secondary">Murthy</h6>
+            <p>Lot 300 Tallis Road, VIC, 3030</p>
+          </div>
+          <div className="flex items-center">
+            <TimelineActionsBar
+              tabs={tabs}
+              activeTab={activeTab}
+              onTabChange={handleTabChange}
+              isActionShow={false}
+              isCountShow={true}
             />
           </div>
-          <div className="flex w-[78%] justify-between">
-            <div className="p-3">
-              <h6 className="text-secondary">Murthy</h6>
-              <p>Lot 300 Tallis Road, VIC , 3030</p>
-            </div>
-            <div className="flex align-middle">
-              <TimelineActionsBar
-                tabs={["Own", "test 2", "test 3"]}
-                activeTab={activeTab}
-                onTabChange={handleTabChange}
-                actionItems={null}
-                isActionShow={false}
-              />
-            </div>
-          </div>
         </div>
+      </div>
 
         <div className="m-3">
           <Steps current={activeStep} labelPlacement="vertical">
@@ -135,22 +140,21 @@ const index = () => {
                 ? "process"
                 : "wait";
 
-              return (
-                <Steps.Step
-                  key={index}
-                  status={status}
-                  title={
-                    <ClickableStep
-                      title={step.name}
-                      isCurrent={activeStep === index}
-                      onClick={() => handleStepClick(index)}
-                    />
-                  }
-                />
-              );
-            })}
-          </Steps>
-        </div>
+            return (
+              <Steps.Step
+                key={index}
+                status={status}
+                title={
+                  <ClickableStep
+                    title={step.name}
+                    isCurrent={activeStep === index}
+                    onClick={() => handleStepClick(index)}
+                  />
+                }
+              />
+            );
+          })}
+        </Steps>
       </div>
 
       <div>

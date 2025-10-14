@@ -1,6 +1,7 @@
+"use client";
 import React, { useEffect, useState } from "react";
 import TimelineCard from "../common/TimeLineComponents/TimelineCard";
-import TimelineActionsBar from "../common/TimeLineComponents/TimelineActionsBar";
+import TimelineActionsBar, { FilterOption } from "../common/TimeLineComponents/TimelineActionsBar";
 import { Empty, MenuProps, message, Spin } from "antd";
 import {
   ActionType,
@@ -23,17 +24,21 @@ const actionItems: MenuProps["items"] = [
   { key: "createTask", label: "Create Task" },
 ];
 
-const LeadActions = ({ leadId }: { leadId: string }) => { 
+const LeadActions = ({ leadId }: { leadId: string }) => {
+  const dispatch = useAppDispatch();
   const [cardsData, setCardsData] = useState<TimelineCardProps[]>([]);
   const [activeTab, setActiveTab] = useState("All");
   const [activeAction, setActiveAction] = useState<ActionType>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [formLoading, setFormLoading] = useState<boolean>(false);
-  const [editingItem, setEditingItem] = useState<{
-    item: TimelineCardProps;
-    index: number;
-  } | null>(null);
-  const dispatch = useAppDispatch();
+  const [loading, setLoading] = useState(false);
+  const [formLoading, setFormLoading] = useState(false);
+  const [editingItem, setEditingItem] = useState<{ item: TimelineCardProps; index: number } | null>(null);
+  const tabs: FilterOption[] = [
+    { type: "All", label: "All" },
+    { type: "NOTES", label: "Notes" },
+    { type: "SMS", label: "SMS" },
+    { type: "APPOINTMENT", label: "Appointment" },
+    { type: "TASK", label: "Task" },
+  ];
 
   useEffect(() => {
     async function fetchData() {
@@ -148,7 +153,7 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
       <div className="p-4">
         <div className="ml-8">
           <TimelineActionsBar
-            tabs={["All", "NOTES", "SMS", "APPOINTMENT", "TASK"]}
+            tabs={tabs}
             activeTab={activeTab}
             onTabChange={handleTabChange}
             actionItems={actionItems}
@@ -160,8 +165,9 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
         </div>
       </div>
 
-      <div className="relative ">
-        {(activeAction || editingItem) ?  <div className="absolute left-[13px] top-0 bottom-0 w-[1px] bg-gray-300" /> : cardsData && cardsData?.length > 0 && !loading &&  (
+      {/* Timeline list */}
+      <div className="relative">
+        {(activeAction || editingItem || (cardsData && cardsData.length > 0)) && (
           <div className="absolute left-[13px] top-0 bottom-0 w-[1px] bg-gray-300" />
         )}
         <div className="space-y-8">

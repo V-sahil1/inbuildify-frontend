@@ -9,9 +9,9 @@ import DateFilterDropdown from "@/components/common/custom-selects/DateFilterDro
 import type { ColumnsType } from "antd/es/table";
 import { todoDummyData, TodoDataType } from "data/tasklistData";
 import { Dayjs } from "dayjs";
-import FilterTabs from "@/components/common/FilterTabs";
 import AssigneeSelect from "@/components/common/custom-selects/AssigneeSelect";
 import CustomAvtar from "@/components/common/CustomAvtar";
+import TimelineActionsBar from "@/components/common/TimeLineComponents/TimelineActionsBar";
 
 const TodosPage: React.FC = () => {
   const router = useRouter();
@@ -87,7 +87,9 @@ const TodosPage: React.FC = () => {
 
   const handleFilterTabChange = (selectedType: string) => {
     console.log("Selected filter:", selectedType);
+    setActiveFilter(filterOptions.find(f => f.type === selectedType) || activeFilter);
   };
+
   const columns: ColumnsType<TodoDataType> = [
     {
       title: (
@@ -228,28 +230,34 @@ const TodosPage: React.FC = () => {
     | "this-week"
     | "next-week"
     | "overdue";
-
+  const [activeFilter, setActiveFilter] = useState<{
+    type: FilterType;
+    label: string;
+    count?: number;
+  }>({ type: "today", label: "Today" });
   const filterOptions: Array<{
     type: FilterType;
     label: string;
     count: number;
   }> = [
-    { type: "today", label: "Today", count: todoDummyData.length },
-    { type: "tomorrow", label: "Tomorrow", count: todoDummyData.length },
-    { type: "this-week", label: "This Week", count: todoDummyData.length },
-    { type: "next-week", label: "Next Week", count: todoDummyData.length },
-    { type: "overdue", label: "Overdue", count: todoDummyData.length },
-  ];
+      { type: "today", label: "Today", count: todoDummyData.length },
+      { type: "tomorrow", label: "Tomorrow", count: todoDummyData.length },
+      { type: "this-week", label: "This Week", count: todoDummyData.length },
+      { type: "next-week", label: "Next Week", count: todoDummyData.length },
+      { type: "overdue", label: "Overdue", count: todoDummyData.length },
+    ];
 
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Todo</h1>
-        <div className="flex space-x-1 border-b items-center justify-center">
-          <FilterTabs
-            options={filterOptions}
-            defaultType="today"
-            onChange={handleFilterTabChange}
+        <div>
+          <TimelineActionsBar
+            tabs={filterOptions.map(f => ({ type: f.type, label: f.label, count: f.count }))}
+            activeTab={activeFilter.type}
+            onTabChange={handleFilterTabChange}
+            isActionShow={false}
+            isCountShow={true}
           />
         </div>
         <Space>

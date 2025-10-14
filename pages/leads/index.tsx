@@ -25,6 +25,8 @@ import TooltipButton from "@/components/common/TooltipButtton";
 import SystemRoutes from "@lib/constants/Routes";
 import CustomAvtar from "@/components/common/CustomAvtar";
 import Link from "next/link";
+import { ActionDialogmodel } from "@/components/common/Models/ActionDialogModel";
+import TimelineActionsBar from "@/components/common/TimeLineComponents/TimelineActionsBar";
 
 const LeadPage: React.FC = () => {
   const router = useRouter();
@@ -51,6 +53,8 @@ const LeadPage: React.FC = () => {
   });
   const [showBlocked, setShowBlocked] = useState(false);
   const [currentFilter, setCurrentFilter] = useState<string>("all");
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
   const { leads } = useAppSelector((state) => state.lead);
   const { leads: leadLoading } = useAppSelector((state) => state.lead.status);
@@ -124,11 +128,8 @@ const LeadPage: React.FC = () => {
   const getFilterTitle = (filter: string) => {
     const titles: Record<string, string> = {
       all: "All Leads",
-      new: "New Leads",
-      contacted: "Contacted Leads",
-      qualified: "Qualified Leads",
-      proposal: "Proposal Sent",
-      negotiation: "In Negotiation",
+      leads: "Leads",
+      opportunities: "Opportunities",
       closedWon: "Closed Won",
       closedLost: "Closed Lost",
       onHold: "On Hold",
@@ -139,6 +140,7 @@ const LeadPage: React.FC = () => {
   const handleFilterTabChange = (selectedType: string) => {
     console.log("Selected filter:", selectedType);
     setCurrentFilter(selectedType);
+    setActiveFilter(filterOptions.find(f => f.type === selectedType) || activeFilter);
     // You can call your API or set state here
   };
 
@@ -302,33 +304,47 @@ const LeadPage: React.FC = () => {
     | "closedWon"
     | "closedLost"
     | "onHold";
-
+  const [activeFilter, setActiveFilter] = useState<{
+    type: FilterType;
+    label: string;
+    count?: number;
+  }>({ type: "all", label: "All" });
   const filterOptions: Array<{
     type: FilterType;
     label: string;
     count: number;
   }> = [
-    { type: "all", label: "All", count: leads.length },
-    { type: "leads", label: "Leads", count: leads.length },
-    {
-      type: "opportunities",
-      label: "Opportunities",
-      count: leads.length,
-    },
-    { type: "closedWon", label: "Closed Won", count: leads.length },
-    { type: "closedLost", label: "Closed Lost", count: leads.length },
-    { type: "onHold", label: "On Hold", count: leads.length },
-  ];
+      { type: "all", label: "All", count: leads.length },
+      { type: "leads", label: "Leads", count: leads.length },
+      {
+        type: "opportunities",
+        label: "Opportunities",
+        count: leads.length,
+      },
+      { type: "closedWon", label: "Closed Won", count: leads.length },
+      { type: "closedLost", label: "Closed Lost", count: leads.length },
+      { type: "onHold", label: "On Hold", count: leads.length },
+    ];
+
+  const handleOpenDeleteModal = () => setIsDeleteModalVisible(true);
+  const handleCancelDelete = () => setIsDeleteModalVisible(false);
+  const handleDeleteConfirm = (fields: { comments: string }) => {
+    setIsDeleteModalVisible(false);
+  };
+
+  const selectedLeads = leads.filter((lead) => selectedRowKeys.includes(lead.leadId));
 
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">{getFilterTitle(currentFilter)}</h1>
-        <div className="flex space-x-1 border-b items-center justify-center">
-          <FilterTabs
-            options={filterOptions}
-            defaultType="all"
-            onChange={handleFilterTabChange}
+        <div>
+          <TimelineActionsBar
+            tabs={filterOptions.map(f => ({ type: f.type, label: f.label, count: f.count }))}
+            activeTab={activeFilter.type}
+            onTabChange={handleFilterTabChange}
+            isActionShow={false}
+            isCountShow={true}
           />
         </div>
         <Space>
@@ -358,7 +374,7 @@ const LeadPage: React.FC = () => {
             <TooltipButton
               title="Delete"
               icon={<IconTrash />}
-              onClick={() => handleExport(leads)}
+              onClick={handleOpenDeleteModal}
             />
             <TooltipButton
               title="Import"
@@ -377,8 +393,11 @@ const LeadPage: React.FC = () => {
       <Table
         columns={columns}
         dataSource={leads}
+        rowKey="leadId"
         rowSelection={{
           type: "checkbox",
+          selectedRowKeys,
+          onChange: setSelectedRowKeys,
         }}
         onRow={(record) => ({
           onClick: () => {
@@ -390,6 +409,57 @@ const LeadPage: React.FC = () => {
           showSizeChanger: true,
           showQuickJumper: true,
         }}
+      />
+
+      <ActionDialogmodel
+        open={isDeleteModalVisible}
+        onCancel={handleCancelDelete}
+        title={
+          <div className="space-y-2  text-sm">
+            <span className=" text-gray-400">
+              The below associated details of the selected {getFilterTitle(currentFilter)} will also be <br /> deleted:
+            </span>
+            <div className="max-h-64 overflow-y-auto   px-3 py-2 mb-2 custom-scrollbar">
+              {selectedLeads.length > 0 ? (
+                <div className="space-y-4">
+                  {selectedLeads.map((lead, idx) => (
+                    <div key={lead.leadId}>
+                      <div className="font-bold text-font-color mb-1">{idx + 1}. {lead.slugId} - {lead.name}</div>
+                      <ul className="list-disc pl-6 space-y-1 text-primary">
+                        <li>Lead</li>
+                        <li>Customer</li>
+                        <li>Contact</li>
+                        <li>Quotation</li>
+                        <li>Property</li>
+                        <li>ColorSelection</li>
+                        <li>Construction</li>
+                        <li>Job</li>
+                        <li>Commision</li>
+                        <li>Payment</li>
+                        <li>Task</li>
+                        <li>Workflow</li>
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <span className="text-gray-400">No leads selected</span>
+              )}
+            </div>
+          </div>
+        }
+        isEditing={true}
+        fields={[
+          {
+            name: "comments",
+            label: "Notes",
+            type: "textarea",
+            placeholder: "Enter notes...",
+            extra: `Are you sure you want to delete the ${getFilterTitle(currentFilter)}?`
+          },
+        ]}
+        onSubmit={handleDeleteConfirm}
+        submitButtonText="Confirm"
       />
     </div>
   );

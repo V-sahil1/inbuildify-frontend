@@ -1,6 +1,5 @@
 import AssigneeSelect from "@/components/common/custom-selects/AssigneeSelect";
 import DateFilterDropdown from "@/components/common/custom-selects/DateFilterDropdown";
-import FilterTabs from "@/components/common/FilterTabs";
 import { IconCopy, IconDotsVertical, IconShare3, IconTable } from "@tabler/icons-react";
 import { Button, Dropdown, Input, Modal, Space, Switch, Table, Tooltip } from "antd";
 import { ColumnsType } from "antd/es/table";
@@ -15,6 +14,7 @@ import HLPackageCopyModal from "@/components/common/Models/HLPackageCopyModal";
 import {data,DataType} from "data/hlpackageData"
 import Link from "next/link";
 import SystemRoutes from "@lib/constants/Routes";
+import TimelineActionsBar from "@/components/common/TimeLineComponents/TimelineActionsBar";
 
 export default function HLPackages() {
     const router = useRouter();
@@ -267,6 +267,7 @@ export default function HLPackages() {
         ];
     const handleFilterTabChange = (selectedType: string) => {
         console.log("Selected filter:", selectedType);
+        setActiveFilter(filterOptions.find(f => f.type === selectedType) || activeFilter);
     };
 
     const handleNewPackaheSubmit = () => {
@@ -277,12 +278,14 @@ export default function HLPackages() {
         <div className="p-4">
             <div className="flex justify-between items-center mb-4">
                 <h1 className="text-2xl font-bold">H & L Packages</h1>
-                <div className="flex space-x-1 border-b items-center justify-center">
-                    <FilterTabs
-                        options={filterOptions}
-                        defaultType="all"
-                        onChange={handleFilterTabChange}
-                    />
+                <div>
+                    <TimelineActionsBar
+                        tabs={filterOptions.map(f => ({ type: f.type, label: f.label, count: f.count }))}
+                        activeTab={activeFilter.type}
+                        onTabChange={handleFilterTabChange}
+                        isActionShow={false}
+                        isCountShow={true}
+                    />  
                 </div>
                 <Space>
                     <Button onClick={() => setIsModalOpen(true)}>New Package</Button>
