@@ -65,16 +65,16 @@ export default function JobDetail() {
       color: 'bg-green-600',
       icon: 'MM',
       date: '12/03/2025',
-      onClick: () => { }
+      onClick: () => router.push(`${SystemRoutes.LEADS}/${id}`)
     },
     {
-      key: 'WorkFlow',
-      label: 'WorkFlow',
+      key: 'preconstruction',
+      label: 'Preconstruction',
       status: 'Completed',
       color: 'bg-green-300',
       icon: '2',
       date: '12/03/2025',
-      onClick: () => { router.push(`/${SystemRoutes.JOB_WORKFLOW}/${id}`) }
+      onClick: () => { router.push(`/${SystemRoutes.JOB_PRECONSTRUCTION}/${id}`) }
     },
     {
       key: 'Color',

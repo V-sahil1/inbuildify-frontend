@@ -471,18 +471,18 @@ const QuotationManager = () => {
     );
   }
 
-  if (isJob) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <Result
-          status="403"
-          // title="Access Restricted"
-          subTitle="This lead has already been converted to a job and is no longer accessible from this page."
-          extra={<Link href="/job">Go to Jobs</Link>}
-        />
-      </div>
-    );
-  }
+  // if (isJob) {
+  //   return (
+  //     <div className="flex items-center justify-center h-screen">
+  //       <Result
+  //         status="403"
+  //         // title="Access Restricted"
+  //         subTitle="This lead has already been converted to a job and is no longer accessible from this page."
+  //         extra={<Link href="/job">Go to Jobs</Link>}
+  //       />
+  //     </div>
+  //   );
+  // }
 
   return (
     <>

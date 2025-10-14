@@ -12,6 +12,7 @@ import { usePdf } from "@hooks/usePdf";
 import ColorPdf from "@/components/common/ColorPdf";
 import NoDataMessage from "@/components/common/NoDataMessage";
 import SystemRoutes from "@lib/constants/Routes";
+import { useRouter } from "next/navigation";
 
 const Index = () => {
   const [selectedSubCategory, setSelectedSubCategory] = useState("");
@@ -19,6 +20,7 @@ const Index = () => {
   const { ColorCategory } = useAppSelector((state) => state.colour);
   const [subCategoryItem, setSubCategoryItem] = useState([]);
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
   const { previewPdf } = usePdf(ColorPdf);
 
   const dispatch = useAppDispatch();
@@ -160,7 +162,7 @@ const Index = () => {
               Create Template
             </Button>
             <Button onClick={() => console.log("Delete clicked")}>Email</Button>
-            <Button onClick={() => console.log("Delete clicked")}>
+            <Button onClick={() => router.back()}>
               View Job
             </Button>
           </div>

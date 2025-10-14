@@ -67,14 +67,15 @@ interface LeadCreationModalProps {
 
 const jobStatusOptions = [
   { value: "Preconstruction", label: "Preconstruction" },
-  { value: "Underway", label: "Underway" },
-  { value: "Completed", label: "Completed" },
+  { value: "Color", label: "Color" },
+  { value: "Construction", label: "Construction" },
+  { value: "Maintenance", label: "Maintenance" },
 ];
 
 const titleStatusOptions = [
-  { value: "Registered", label: "Registered" },
-  { value: "Expected", label: "Expected" },
-  { value: "Released", label: "Released" },
+  { value: "Estimated", label: "Estimated" },
+  { value: "Confirmed", label: "Confirmed" },
+  { value: "Titled", label: "Titled" },
 ];
 
 export const JobCreationModal: React.FC<LeadCreationModalProps> = ({

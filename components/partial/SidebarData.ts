@@ -22,7 +22,7 @@ export const menuList = [
   {
     icon: IconCalendar,
     link: "Calendar",
-    url: "/calendar",
+    url: SystemRoutes.CALENDAR,
     roles: ["builder", "contractor", "customer"],
   },
   {
@@ -299,12 +299,6 @@ export const menuList = [
     icon: IconBuildingSkyscraper,
     link: "Contractors",
     url: "/contractors",
-    roles: ["builder", "contractor", "customer"],
-  },
-  {
-    icon: IconUsersGroup,
-    link: "Users",
-    url: "/users",
     roles: ["builder", "contractor", "customer"],
   },
 ];
