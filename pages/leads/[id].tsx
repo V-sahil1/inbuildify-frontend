@@ -5,7 +5,6 @@ import {
   List,
   message,
   Result,
-  Space,
   Spin,
   Tabs,
   Tag,
@@ -52,6 +51,7 @@ import CloseLeadModal from "@/components/leadDetail/LeadQuotations/CloseLeadModa
 import ConfirmationModal from "@/components/common/ConfirmationModal";
 import { deleteQuotation } from "@redux/feature/quotation/quotationThunk";
 import { removeQuotation } from "@redux/feature/lead/leadSlice";
+import DepositModel from "@/components/common/Models/DepositModel";
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -84,6 +84,7 @@ function App() {
   const [isConvertModalVisible, setIsConvertModalVisible] = useState(false);
   const [isEditLeadModalVisible, setIsEditLeadModalVisible] = useState(false);
   const [isPropertyModalVisible, setIsPropertyModalVisible] = useState(false);
+  const [isDepositModalVisible, setIsDepositModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
   const { leadDetail } = useAppSelector((state) => state.lead);
@@ -98,7 +99,7 @@ function App() {
   const createdQuotations: QuotationResponse[] =
     leadDetail?.createdQuotations?.quotations || [];
   const latestLeadDetailRef = useRef<any>(null);
-  const isJob = useMemo(() => leadDetail?.lead?.status === "JOB", [leadDetail]);
+  // const isJob = useMemo(() => leadDetail?.lead?.status === "JOB", [leadDetail]);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [selectedQuotationId, setSelectedQuotationId] = useState<string | null>(
@@ -314,13 +315,32 @@ function App() {
           {/* Property Card */}
           <Card className="relative">
             <div className="flex items-center justify-between mb-3">
-              <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded">
-                Property
-              </span>
-              <IconEdit
-                className="text-gray-400 text-sm cursor-pointer hover:text-gray-600"
-                onClick={() => setIsPropertyModalVisible(true)}
-              />
+              {leadDetail?.lead?.status === "NEW" ? (
+                <div className="flex items-center justify-center h-full p-4 w-full">
+                  <Card className="text-center h-full my-auto">
+                    <button
+                      className="text-sm text-blue-600 underline hover:text-blue-800 transition-colors"
+                      onClick={() => setIsPropertyModalVisible(true)}
+                    >
+                      Add property details
+                    </button>
+                    <p className="text-sm text-gray-600 mt-2">
+                      Add Job details
+                    </p>
+                  </Card>
+                </div>
+              ) : (
+                <>
+                  {" "}
+                  <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded">
+                    Property
+                  </span>
+                  <IconEdit
+                    className="text-gray-400 text-sm cursor-pointer hover:text-gray-600"
+                    onClick={() => setIsPropertyModalVisible(true)}
+                  />
+                </>
+              )}
             </div>
             {propertyFromSlice?.address1 ||
             propertyFromSlice?.citySuburb ||
@@ -364,105 +384,126 @@ function App() {
                 </div>
               </>
             ) : (
-              <div className="flex flex-col items-center justify-center p-6 rounded-lg">
-                <IconBarrierBlock />
-                <p className="text-sm text-gray-500 text-center">
-                  No property details added yet
-                </p>
-                <p className="text-xs text-gray-400 mt-1">
-                  Add property information to get started
-                </p>
-              </div>
+              leadDetail?.lead?.status !== "NEW" && (
+                <div className="flex flex-col items-center justify-center p-6 rounded-lg">
+                  <IconBarrierBlock />
+                  <p className="text-sm text-gray-500 text-center">
+                    No property details added yet
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Add property information to get started
+                  </p>
+                </div>
+              )
             )}
           </Card>
 
           {/* Quotation Card */}
-          {isOpportunity && (
-            <Card>
-              <div className="flex flex-col justify-between">
-                <Link
-                  href={SystemRoutes.QUOTATION_CREATE(leadId)}
-                  className="text-theme-blue text-sm"
-                >
-                  Create Quotation
-                </Link>
-                <div className="max-h-[200px] my-2 overflow-y-auto">
-                  <List
-                    dataSource={createdQuotations || []}
-                    locale={{
-                      emptyText: (
-                        <div className="flex flex-col items-center justify-center p-6">
-                          <IconFileText />
-                          <p className=" text-sm text-gray-500 text-center">
-                            No quotations found
-                          </p>
-                          <p className="text-xs text-gray-400 mt-1">
-                            Create a quotation to get started
-                          </p>
-                        </div>
-                      ),
-                    }}
-                    renderItem={(quotation: any) => (
-                      <List.Item
-                        key={quotation?.quotationId}
-                        onClick={() => {
-                          return router.push(
-                            `/quotation/${quotation?.versions[0]?.quotationVersionId}`
-                          );
-                        }}
-                        style={{ cursor: "pointer" }}
-                      >
-                        <div className="flex items-center justify-between w-full overflow-hidden">
-                          <div className="flex items-center space-x-4">
-                            <div className="bg-gray-100 p-2 rounded-lg">
-                              {createdQuotations.indexOf(quotation) + 1}
-                            </div>
-                            <div>
-                              <div className="font-medium text-gray-900">
-                                <span className=" text-sm text-gray-500">
-                                  {quotation?.slugId?.slice(0, 13)}...
-                                </span>
-                              </div>
-                              <div className="flex items-center space-x-2 mt-1">
-                                <Tag
-                                  color={
-                                    quotation?.lead?.status === "Open"
-                                      ? "blue"
-                                      : "green"
-                                  }
-                                  className="m-0"
-                                >
-                                  {enumToReadable(quotation?.leadStatus)}
-                                </Tag>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-xs text-gray-500">
-                              Total Amount
-                            </div>
-                            <div className="text-lg font-semibold text-gray-900">
-                              ${Number(quotation?.totalAmount || 0)}
-                            </div>
-                          </div>
-                          <div className="hover:text-red-500">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedQuotationId(quotation?.quotationId);
-                                setShowDeleteConfirm(true);
-                              }}
-                            >
-                              <IconTrash size={20} />
-                            </button>
-                          </div>
-                        </div>
-                      </List.Item>
-                    )}
-                  />
-                </div>
-              </div>
+          {leadDetail?.lead?.status === "NEW" ? (
+            <Card className="flex flex-col items-center justify-center p-6 rounded-lg">
+              <Link
+                href={SystemRoutes.QUOTATION_CREATE(leadId)}
+                className="text-sm text-gray-500 text-center underline"
+              >
+                Create Quotation
+              </Link>
+              <p
+                className="text-sm text-gray-500 text-center underline mt-2 cursor-pointer"
+                onClick={() => setIsDepositModalVisible(true)}
+              >
+                Capture deposit
+              </p>
             </Card>
+          ) : (
+            leadDetail?.lead?.status !== "NEW" && (
+              <Card>
+                <div className="flex flex-col justify-between">
+                  <Link
+                    href={SystemRoutes.QUOTATION_CREATE(leadId)}
+                    className="text-theme-blue text-sm"
+                  >
+                    Create Quotation
+                  </Link>
+                  <div className="max-h-[200px] my-2 overflow-y-auto">
+                    <List
+                      dataSource={createdQuotations || []}
+                      locale={{
+                        emptyText: (
+                          <div className="flex flex-col items-center justify-center p-6">
+                            <IconFileText />
+                            <p className=" text-sm text-gray-500 text-center">
+                              No quotations found
+                            </p>
+                            <p className="text-xs text-gray-400 mt-1">
+                              Create a quotation to get started
+                            </p>
+                          </div>
+                        ),
+                      }}
+                      renderItem={(quotation: any) => (
+                        <List.Item
+                          key={quotation?.quotationId}
+                          onClick={() => {
+                            return router.push(
+                              `/quotation/${quotation?.versions[0]?.quotationVersionId}`
+                            );
+                          }}
+                          style={{ cursor: "pointer" }}
+                        >
+                          <div className="flex items-center justify-between w-full overflow-hidden">
+                            <div className="flex items-center space-x-4">
+                              <div className="bg-gray-100 p-2 rounded-lg">
+                                {createdQuotations.indexOf(quotation) + 1}
+                              </div>
+                              <div>
+                                <div className="font-medium text-gray-900">
+                                  <span className=" text-sm text-gray-500">
+                                    {quotation?.slugId?.slice(0, 13)}...
+                                  </span>
+                                </div>
+                                <div className="flex items-center space-x-2 mt-1">
+                                  <Tag
+                                    color={
+                                      quotation?.lead?.status === "Open"
+                                        ? "blue"
+                                        : "green"
+                                    }
+                                    className="m-0"
+                                  >
+                                    {enumToReadable(quotation?.leadStatus)}
+                                  </Tag>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-xs text-gray-500">
+                                Total Amount
+                              </div>
+                              <div className="text-lg font-semibold text-gray-900">
+                                ${Number(quotation?.totalAmount || 0)}
+                              </div>
+                            </div>
+                            <div className="hover:text-red-500">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedQuotationId(
+                                    quotation?.quotationId
+                                  );
+                                  setShowDeleteConfirm(true);
+                                }}
+                              >
+                                <IconTrash size={20} />
+                              </button>
+                            </div>
+                          </div>
+                        </List.Item>
+                      )}
+                    />
+                  </div>
+                </div>
+              </Card>
+            )
           )}
         </div>
 
@@ -545,6 +586,16 @@ function App() {
         cancelText="Cancel"
         loading={isDeleting}
         maxWidth="sm"
+      />
+
+      <DepositModel
+        visible={isDepositModalVisible}
+        title="Capture Deposit"
+        onCancel={() => setIsDepositModalVisible(false)}
+        onSubmit={(values) => {
+          console.log("Updated deposit:", values);
+          setIsDepositModalVisible(false);
+        }}
       />
     </div>
   );
