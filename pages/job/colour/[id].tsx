@@ -13,9 +13,17 @@ import ColorPdf from "@/components/common/ColorPdf";
 import NoDataMessage from "@/components/common/NoDataMessage";
 import SystemRoutes from "@lib/constants/Routes";
 import { useRouter } from "next/navigation";
+import { ActionDialogmodel } from "@/components/common/Models/ActionDialogModel";
+import { createTemplateFields } from "@/components/formFields/createTemplateFIelds";
+import MailSendModal from "@/components/common/Models/MailSendModal";
 
 const Index = () => {
   const [selectedSubCategory, setSelectedSubCategory] = useState("");
+  const [modelOpen, setModelOpen] = useState({
+    approve: false,
+    createTemplate: false,
+    email: false,
+  });
   const [isGridView, setIsGridView] = useState(true);
   const { ColorCategory } = useAppSelector((state) => state.colour);
   const [subCategoryItem, setSubCategoryItem] = useState([]);
@@ -66,10 +74,13 @@ const Index = () => {
 
   const addedCount = ColorCategory?.reduce((total, category) => {
     if (!category.subCategories) return total;
-    return total + category.subCategories.reduce((subTotal, subCategory) => {
-      if (!subCategory.items) return subTotal;
-      return subTotal + subCategory.items.filter(item => item).length;
-    }, 0);
+    return (
+      total +
+      category.subCategories.reduce((subTotal, subCategory) => {
+        if (!subCategory.items) return subTotal;
+        return subTotal + subCategory.items.filter((item) => item).length;
+      }, 0)
+    );
   }, 0);
 
   return (
@@ -135,11 +146,11 @@ const Index = () => {
         </div>
         <div className="p-3 h-full overflow-y-auto custom-scrollbar">
           {subCategoryItem.length > 0 ? (
-          <ColorItemCard
-            loading={loading}
-            data={subCategoryItem || []}
-            isGridView={isGridView}
-          />
+            <ColorItemCard
+              loading={loading}
+              data={subCategoryItem || []}
+              isGridView={isGridView}
+            />
           ) : (
             <div className="w-full h-full flex justify-center items-center">
               <NoDataMessage
@@ -154,23 +165,75 @@ const Index = () => {
         <div className="max-w-[1200px] mx-auto flex justify-between items-center">
           {/* Left side buttons */}
           <div className="flex gap-3">
-            <Button type="primary" onClick={() => console.log("Save clicked")}>
+            <Button
+              type="primary"
+              onClick={() => setModelOpen({ ...modelOpen, approve: true })}
+            >
               Approve
             </Button>
             <Button onClick={previewPdf}>Preview</Button>
-            <Button onClick={() => console.log("Export clicked")}>
+            <Button
+              onClick={() =>
+                setModelOpen({ ...modelOpen, createTemplate: true })
+              }
+            >
               Create Template
             </Button>
-            <Button onClick={() => console.log("Delete clicked")}>Email</Button>
-            <Button onClick={() => router.back()}>
-              View Job
-            </Button>
+            <Button onClick={() => setModelOpen({ ...modelOpen, email: true })}>Email</Button>
+            <Button onClick={() => router.back()}>View Job</Button>
           </div>
 
           {/* Right side total amount */}
           <div className="text-lg font-semibold">Total Amount: $1234.56</div>
         </div>
       </div>
+      <ActionDialogmodel
+        open={modelOpen.approve}
+        onCancel={() => setModelOpen({ ...modelOpen, approve: false })}
+        title={
+          <div className="space-y-2  text-sm">
+            <div className="max-h-64 overflow-y-auto py-2 mb-2 custom-scrollbar">
+              <div className="space-y-4">
+                <div>
+                  <div className="font-bold text-font-color mb-1 text-2xl ">
+                    Confirmation
+                  </div>
+                  <p className="text-sm mt-2">
+                    Has the customer finished choosing the colors? please
+                    verfifythe color items price and units prior to approval
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+        isEditing={true}
+        fields={[
+          {
+            name: "comments",
+            label: "Are you sure you want to approve the selected colors?",
+            type: "switch",
+          },
+        ]}
+        onSubmit={() => setModelOpen({ ...modelOpen, approve: false })}
+        submitButtonText="Confirm"
+      />
+
+      <ActionDialogmodel
+        open={modelOpen.createTemplate}
+        onCancel={() => setModelOpen({ ...modelOpen, createTemplate: false })}
+        title="Create Template"
+        isEditing={true}
+        fields={createTemplateFields()}
+        onSubmit={() => setModelOpen({ ...modelOpen, createTemplate: false })}
+        submitButtonText="Confirm"
+      />
+
+      <MailSendModal
+        open={modelOpen.email}
+        onCancel={() => setModelOpen({ ...modelOpen, email: false })}
+        onSend={() => {}}
+      />
     </div>
   );
 };
