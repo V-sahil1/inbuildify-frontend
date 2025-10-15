@@ -9,7 +9,6 @@ import {
   Space,
   Dropdown,
   message,
-  Statistic,
   Modal,
 } from "antd";
 import {
@@ -20,45 +19,12 @@ import {
   IconWallet,
 } from "@tabler/icons-react";
 import { InvoiceForm } from "./InvoiceForm";
-import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
 import InvoicePdf from "@/components/common/Invoicepdf";
 import { usePdf } from "@hooks/usePdf";
 import InvoiceReceiptPdf from "@/components/common/InvoiceReceiptPdf";
+import StatusTracker, { Stage } from "@/components/common/StatusTracker";
+import { JobinvoiceData } from "data/sampleData";
 
-const initialData: any[] = [
-  {
-    id: "MYH00486-I2",
-    desc: "2nd deposit",
-    amount: 35600.45,
-    payment: 0.0,
-    status: "OVERDUE",
-    date: "17-07-2023",
-  },
-  {
-    id: "MYH00486-I4",
-    desc: "base invoice",
-    amount: 45000.0,
-    payment: 0.0,
-    status: "DRAFT",
-    date: "06-08-2023",
-  },
-  {
-    id: "MYH00486-I1",
-    desc: "Initial Deposit",
-    amount: 5000.0,
-    payment: 5000.0,
-    status: "PAID",
-    date: "27-06-2023",
-  },
-  {
-    id: "MYH00486-I3",
-    desc: "Returns",
-    amount: -50000.0,
-    payment: -50000.0,
-    status: "PAID",
-    date: "31-07-2023",
-  },
-];
 
 const summaryData = [
   { title: "Total Cost", value: 450280.0, icon: <IconWallet /> },
@@ -69,7 +35,7 @@ const summaryData = [
 const JobInvoicePayment: React.FC = () => {
   const [formMode, setFormMode] = useState<"create" | "edit" | null>(null);
   const [editingRecord, setEditingRecord] = useState<any>(null);
-  const [invoices, setInvoices] = useState<any[]>(initialData);
+  const [invoices, setInvoices] = useState<any[]>(JobinvoiceData);
 const invoicePdf = usePdf(InvoicePdf);
 const invoiceReceiptPdf = usePdf(InvoiceReceiptPdf);
   const statusColors: Record<string, string> = {
@@ -77,8 +43,7 @@ const invoiceReceiptPdf = usePdf(InvoiceReceiptPdf);
     DRAFT: "default",
     PAID: "green",
   };
-
-  const handleFinish = (values: any, mode: "create" | "edit") => {
+const handleFinish = (values: any, mode: "create" | "edit") => {
     if (mode === "create") {
       setInvoices([
         ...invoices,
@@ -96,11 +61,78 @@ const invoiceReceiptPdf = usePdf(InvoiceReceiptPdf);
     setFormMode(null);
     setEditingRecord(null);
   };
-
+  
   const handleDelete = (record: any) => {
     setInvoices(invoices.filter((inv) => inv.id !== record.id));
     message.success("Invoice deleted!");
-  };
+  }
+
+    const [stages, setStages] = useState<Stage[]>([
+      {
+        id: 1,
+        title: "Create Invoice",
+        status: "active",
+        buttons: [
+          {
+            label: "Edit Invoice",
+            type: "primary",
+            onClick: () => handleStageClick(2),
+          },
+        ],
+    },
+    {
+      id: 2,
+      title: "Send Invoice",
+      status: "disabled",
+      buttons: [
+        {
+          label: "Send",
+          type: "primary",
+          onClick: () => handleStageClick(3),
+        },
+        {
+          label: "Skip Sending",
+          onClick: () => handleStageClick(3),
+        },
+      ],
+    },
+    {
+      id: 3,
+      title: "Record Payment",
+      status: "disabled",
+      buttons: [
+        {
+          label: "Record Payment",
+          type: "primary",
+          onClick: () => handleStageClick(4),
+        },
+      ],
+    },
+    {
+      id: 4,
+      title: "Send Receipt",
+      status: "disabled",
+      buttons: [
+        {
+          label: "Send Receipt",
+          type: "primary",
+          onClick: () => handleStageClick(5),
+        },
+      ],
+    },
+  ]);
+
+  const handleStageClick = (clickedId: number) => {
+  setStages((prevStages) =>
+    prevStages.map((stage) => {
+      if (stage.status === "completed") return stage;
+
+      if (stage.id < clickedId) return { ...stage, status: "completed" };
+      if (stage.id === clickedId) return { ...stage, status: "active" };
+      return { ...stage, status: "disabled" };
+    })
+  );
+};
 
   const columns = [
     { title: "Invoice ID", dataIndex: "id" },
@@ -210,30 +242,52 @@ const invoiceReceiptPdf = usePdf(InvoiceReceiptPdf);
         </Col>
       </Row>
 
-
-      <Table
-        dataSource={invoices}
-        columns={columns}
-        pagination={false}
-        rowKey="id"
-      />
-      <Modal
-        title={formMode === "edit" ? "Edit Invoice" : "Create Invoice"}
-        open={formMode !== null}
-        onCancel={() => setFormMode(null)}
-        footer={null}
-      >
-        {formMode && (
-          <InvoiceForm
-            mode={formMode}
-            initialValues={formMode === "edit" ? editingRecord : undefined}
-            onFinish={handleFinish}
+    {/* Invoices Table & Workflow */}
+    <Row gutter={[24, 24]} align="top" className="mt-10">
+      <Col xs={24} md={14} lg={14}>
+        <Card
+          title="Invoices"
+          className="shadow-sm border border-gray-100"
+          bodyStyle={{ padding: 16 }}
+        >
+          <Table
+            dataSource={invoices}
+            columns={columns}
+            pagination={false}
+            rowKey="id"
           />
-        )}
-      </Modal>
+        </Card>
+      </Col>
 
-    </Card>
-  );
+      <Col xs={24} md={10} lg={10}>
+        <Card
+          title="Invoice Workflow"
+          className="shadow-sm border border-gray-100"
+          bodyStyle={{ padding: 16 }}
+        >
+          <StatusTracker stages={stages} />
+        </Card>
+      </Col>
+    </Row>
+
+    {/* Invoice Modal */}
+    <Modal
+      title={formMode === "edit" ? "Edit Invoice" : "Create Invoice"}
+      open={formMode !== null}
+      onCancel={() => setFormMode(null)}
+      footer={null}
+    >
+      {formMode && (
+        <InvoiceForm
+          mode={formMode}
+          initialValues={formMode === "edit" ? editingRecord : undefined}
+          onFinish={handleFinish}
+        />
+      )}
+    </Modal>
+  </Card>
+);
+
 };
 
 export default JobInvoicePayment;

@@ -18,6 +18,7 @@ import { mapToOptions } from "@lib/utils/rangeAndDwellingObjToOptions";
 import { IconCirclePlus } from "@tabler/icons-react";
 import HouseLandPopover from "../common/HLPopover";
 import LeadSourceDetailsDrawer from "../common/LeadSourceDetailDrawer";
+import { ClientTypeOptions, PurposeOptions, RatingOptions, RegionOptions, YesNoOptions } from "data/options";
 
 export const LeadSource = () => {
   const dispatch = useAppDispatch();
@@ -99,38 +100,7 @@ export const LeadSource = () => {
     }
   };
 
-  const RatingOptions = [
-    { label: "Hot", value: "hot" },
-    { label: "Cold", value: "cold" },
-    { label: "Warm", value: "warm" },
-  ];
-
-  const YesNoOptions = [
-    { label: "None", value: "none" },
-    { label: "Yes", value: "yes" },
-    { label: "No", value: "no" },
-  ];
-
-  const PurposeOptions = [
-    { label: "Own House", value: "ownhouse" },
-    { label: "Investment Property", value: "investmentproperty" },
-  ];
-
-  const RegionOptions = [
-    { label: "Sydney East", value: "sydneyeast" },
-    { label: "Melbourne North", value: "melbournenorth" },
-    { label: "Brisbane South", value: "brisbanesouth" },
-  ];
-
-  const ClientTypeOptions = [
-    { label: "None", value: "none" },
-    { label: "Renovator", value: "renovator" },
-    { label: "New Build", value: "newbuild" },
-    { label: "First Home Buyer", value: "firsthomebuyer" },
-    { label: "Second Home Buyer", value: "secondhomebuyer" },
-    { label: "Fourth Home Buyer", value: "fourthhomebuyer" },
-    { label: "Investor", value: "investor" },
-  ];
+  
 
   const openDrawer = (title: string) => {
     setDrawerTitle(title);
