@@ -14,109 +14,106 @@ import JobCustomFields from "@/components/job/jobDetail/JobCustomFields";
 import { JobActivity } from "@/components/job/jobDetail/activity/jobActivity";
 const { TabPane } = Tabs;
 
-
-
 const JobVariationData = [
   {
-    ReferenceID: 'MYH00486-V1',
-    Amount: 7000.00,
-    RequestedBy: 'Aman',
-    DelayedBy: 'Hiren',
+    ReferenceID: "MYH00486-V1",
+    Amount: 7000.0,
+    RequestedBy: "Aman",
+    DelayedBy: "Hiren",
     DrawingChanges: "Yes",
-    Created: { user: 'MM', date: "1/1/2002" },
-    Approved: { user: 'MM', date: "1/1/2002" },
-    Status: 'Approved',
-    Invoice: 'invoice',
-    Profile: 'MM'
+    Created: { user: "MM", date: "1/1/2002" },
+    Approved: { user: "MM", date: "1/1/2002" },
+    Status: "Approved",
+    Invoice: "invoice",
+    Profile: "MM",
   },
   {
-    ReferenceID: 'MYH00486-V2',
-    Amount: 7000.00,
-    RequestedBy: 'Aman',
-    DelayedBy: 'Hiren',
+    ReferenceID: "MYH00486-V2",
+    Amount: 7000.0,
+    RequestedBy: "Aman",
+    DelayedBy: "Hiren",
     DrawingChanges: "No",
-    Created: { user: 'MM', date: "1/1/2002" },
-    Approved: { user: 'MM', date: "1/1/2002" },
-    Status: 'Approved',
-    Invoice: 'invoice',
-    Profile: 'A'
+    Created: { user: "MM", date: "1/1/2002" },
+    Approved: { user: "MM", date: "1/1/2002" },
+    Status: "Approved",
+    Invoice: "invoice",
+    Profile: "A",
   },
   {
-    ReferenceID: 'MYH00486-V3',
-    Amount: 7000.00,
-    RequestedBy: 'Aman',
-    DelayedBy: 'Hiren',
+    ReferenceID: "MYH00486-V3",
+    Amount: 7000.0,
+    RequestedBy: "Aman",
+    DelayedBy: "Hiren",
     DrawingChanges: "Yes",
-    Created: { user: 'MM', date: "1/1/2002" },
-    Approved: { user: 'MM', date: "1/1/2002" },
-    Status: 'Draft',
-    Invoice: 'invoice',
-    Profile: 'A'
+    Created: { user: "MM", date: "1/1/2002" },
+    Approved: { user: "MM", date: "1/1/2002" },
+    Status: "Draft",
+    Invoice: "invoice",
+    Profile: "A",
   },
 ];
 
 export default function JobDetail() {
-  const {id} = router.query;
+  const { id } = router.query;
   const workFlowSteps = [
     {
-      key: 'Sales',
-      label: 'Sales',
-      status: 'Closed',
-      color: 'bg-green-600',
-      icon: 'MM',
-      date: '12/03/2025',
-      onClick: () => router.push(`${SystemRoutes.LEADS}/${id}`)
+      key: "Sales",
+      label: "Sales",
+      status: "Closed",
+      color: "bg-green-600",
+      icon: "MM",
+      date: "12/03/2025",
+      onClick: () => router.push(`${SystemRoutes.LEADS}/${id}`),
     },
     {
-      key: 'preconstruction',
-      label: 'Preconstruction',
-      status: 'Completed',
-      color: 'bg-green-300',
-      icon: '2',
-      date: '12/03/2025',
-      onClick: () => { router.push(`/${SystemRoutes.JOB_PRECONSTRUCTION}/${id}`) }
+      key: "preconstruction",
+      label: "Preconstruction",
+      status: "Completed",
+      color: "bg-green-300",
+      icon: "2",
+      date: "12/03/2025",
+      onClick: () => {
+        router.push(`/${SystemRoutes.JOB_PRECONSTRUCTION}/${id}`);
+      },
     },
     {
-      key: 'Color',
-      label: 'Color',
-      status: 'Started',
-      color: 'bg-cyan-500',
-      icon: 'MM',
-      date: '12/03/2025',
-      onClick: () => { router.push(`/${SystemRoutes.JOB}/colour/${id}`) }
+      key: "Color",
+      label: "Color",
+      status: "Started",
+      color: "bg-cyan-500",
+      icon: "MM",
+      date: "12/03/2025",
+      onClick: () => {
+        router.push(`/${SystemRoutes.JOB}/colour/${id}`);
+      },
     },
     {
-      key: 'Construction',
-      label: 'Construction',
-      status: 'Under Construction',
-      color: 'bg-cyan-300',
-      icon: '4',
-      date: '',
-      onClick: () => { }
+      key: "Construction",
+      label: "Construction",
+      status: "Under Construction",
+      color: "bg-cyan-300",
+      icon: "4",
+      date: "",
+      onClick: () => {},
     },
     {
-      key: 'Maintenance',
-      label: 'Maintenance',
-      status: '',
-      color: 'bg-gray-200',
-      icon: '5',
-      date: '',
-      onClick: () => { }
+      key: "Maintenance",
+      label: "Maintenance",
+      status: "",
+      color: "bg-gray-200",
+      icon: "5",
+      date: "",
+      onClick: () => {},
     },
-  ]
+  ];
 
   return (
     <>
       <div className="m-3">
         <div className="flex justify-between">
-           <StageProgress
-          id="MH-001"
-          title="Job"
-          status="Pending"
-          steps={[]}
-        />
-        <JobDetailHeader />
-        </div>      
+          <StageProgress id="MH-001" title="Job" status="Pending" steps={[]} />
+          <JobDetailHeader />
+        </div>
         <WorkflowSteps steps={workFlowSteps} />
       </div>
       <div className="m-3">
@@ -132,7 +129,12 @@ export default function JobDetail() {
             <JobAction />
           </TabPane>
           <TabPane tab="Documents" key="Documents">
-            <div className="bg-card-color"><Result title="Document Functionality coming soon" subTitle="Please check back later" /></div>
+            <div className="bg-card-color">
+              <Result
+                title="Document Functionality coming soon"
+                subTitle="Please check back later"
+              />
+            </div>
           </TabPane>
           <TabPane tab="Variations" key="Variations">
             <JobVariationManager />
@@ -144,12 +146,11 @@ export default function JobDetail() {
             <JobCommission />
           </TabPane>
           <TabPane tab="Custom Fields" key="Custom Fields">
-           <JobCustomFields />
+            <JobCustomFields />
           </TabPane>
           <TabPane tab="Activity" key="Activity">
-            <JobActivity/> 
+            <JobActivity />
           </TabPane>
-
         </Tabs>
       </div>
     </>

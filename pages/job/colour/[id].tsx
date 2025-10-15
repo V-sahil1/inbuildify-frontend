@@ -1,4 +1,3 @@
-import Loading from "@/components/common/Loading";
 import StageProgress from "@/components/common/StageProgress";
 import ColorFilter from "@/components/job/jobDetail/ColorFilter";
 import { ColorItemCard } from "@/components/job/jobDetail/ColorItemCard";
@@ -6,8 +5,8 @@ import ColorSideMenu from "@/components/job/jobDetail/ColorSideMenu";
 import { useAppDispatch, useAppSelector } from "@hooks/redux";
 import { fetchColourSubCategoryItems } from "@redux/feature/color/colorThunk";
 import { toggleExpandColourCategoryItem } from "@redux/feature/color/ColourSlice";
-import { Button, message, Select } from "antd";
-import React, { useState } from "react";
+import { Button, Dropdown, message, Select } from "antd";
+import React, { useEffect, useState } from "react";
 import { usePdf } from "@hooks/usePdf";
 import ColorPdf from "@/components/common/ColorPdf";
 import NoDataMessage from "@/components/common/NoDataMessage";
@@ -16,6 +15,11 @@ import { useRouter } from "next/navigation";
 import { ActionDialogmodel } from "@/components/common/Models/ActionDialogModel";
 import { createTemplateFields } from "@/components/formFields/createTemplateFIelds";
 import MailSendModal from "@/components/common/Models/MailSendModal";
+import { getRanges } from "@redux/feature/types/typesThunk";
+import { Status } from "@lib/constants/enum";
+import ConfirmationModal from "@/components/common/ConfirmationModal";
+import { TemplateColorItemCard } from "@/components/job/jobDetail/TemplateColorItemCard";
+import { TemplateDummyOptions } from "data/options";
 
 const Index = () => {
   const [selectedSubCategory, setSelectedSubCategory] = useState("");
@@ -26,12 +30,28 @@ const Index = () => {
   });
   const [isGridView, setIsGridView] = useState(true);
   const { ColorCategory } = useAppSelector((state) => state.colour);
+  const { range, status } = useAppSelector((state) => state.types);
   const [subCategoryItem, setSubCategoryItem] = useState([]);
+  const [confirmationModal, setConfirmationModal] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { previewPdf } = usePdf(ColorPdf);
-
   const dispatch = useAppDispatch();
+  const fetchRange = async () => {
+    try {
+      await dispatch(getRanges()).unwrap();
+    } catch (error) {
+      message.error(error || "Failed to fetch ranges");
+    }
+  };
+
+  useEffect(() => {
+    if (status.range === Status.IDLE) {
+      fetchRange();
+    }
+  }, [status.range]);
+
   const handleSubCategoryExpand = async (selectedSubCategory: {
     categoryId: string;
     subCategoryId: string;
@@ -72,6 +92,10 @@ const Index = () => {
     setLoading(false);
   };
 
+  const handleTemplateSelect = () => {
+    setConfirmationModal(false);
+    console.log("Selected template:", selectedTemplate);
+  };
   const addedCount = ColorCategory?.reduce((total, category) => {
     if (!category.subCategories) return total;
     return (
@@ -95,7 +119,7 @@ const Index = () => {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4 items-center justify-center">
           <div className="p-3">
             <h6>Murthy</h6>
             <p>Lot 300 Tallis Road, VIC , 3030</p>
@@ -105,12 +129,33 @@ const Index = () => {
             <Select
               placeholder="Select Range"
               allowClear
-              options={[
-                { value: "Range 1", label: "Range 1" },
-                { value: "Range 2", label: "Range 2" },
-                { value: "Range 3", label: "Range 3" },
-              ]}
+              options={range?.map((item) => ({
+                value: item.rangeId,
+                label: item.name,
+              }))}
             />
+          </div>
+          <div className="p-3">
+            <Dropdown
+              menu={{
+                items: TemplateDummyOptions,
+                onClick: (info) => {
+                  if (info.key === "manage") {
+                    console.log("Manage template clicked");
+                  } else {
+                    setConfirmationModal(true);
+                    setSelectedTemplate(info.key);
+                  }
+                },
+              }}
+              placement="bottom"
+              trigger={["click"]}
+              className="w-[200px]"
+            >
+              <p className="text-center text-lg font-semibold cursor-pointer">
+                Choose Template
+              </p>
+            </Dropdown>
           </div>
         </div>
       </div>
@@ -145,7 +190,37 @@ const Index = () => {
           />
         </div>
         <div className="p-3 h-full overflow-y-auto custom-scrollbar">
-          {subCategoryItem.length > 0 ? (
+          {selectedTemplate &&
+          !confirmationModal &&
+          subCategoryItem.length > 0 ? (
+            <TemplateColorItemCard
+              templateName={`Template ${selectedTemplate}`}
+              onEdit={() => {
+                console.log("Edit template:", selectedTemplate);
+              }}
+              onAddNew={() => {
+                const newItem = {
+                  id: `item-${Date.now()}`,
+                  name: "",
+                  code: "",
+                  image: "/images/placeholder.png",
+                  quantity: 1,
+                  unit: "pcs",
+                  description: "",
+                };
+              }}
+              onRemove={() => {}}
+              onUpdateItem={() => {}}
+              items={subCategoryItem.map((item) => ({
+                id: item.colorItemId,
+                name: item.name,
+
+                image: item.image,
+
+                isAdded: (item as any).isAdded,
+              }))}
+            />
+          ) : subCategoryItem.length > 0 ? (
             <ColorItemCard
               loading={loading}
               data={subCategoryItem || []}
@@ -179,7 +254,9 @@ const Index = () => {
             >
               Create Template
             </Button>
-            <Button onClick={() => setModelOpen({ ...modelOpen, email: true })}>Email</Button>
+            <Button onClick={() => setModelOpen({ ...modelOpen, email: true })}>
+              Email
+            </Button>
             <Button onClick={() => router.back()}>View Job</Button>
           </div>
 
@@ -187,53 +264,70 @@ const Index = () => {
           <div className="text-lg font-semibold">Total Amount: $1234.56</div>
         </div>
       </div>
-      <ActionDialogmodel
-        open={modelOpen.approve}
-        onCancel={() => setModelOpen({ ...modelOpen, approve: false })}
-        title={
-          <div className="space-y-2  text-sm">
-            <div className="max-h-64 overflow-y-auto py-2 mb-2 custom-scrollbar">
-              <div className="space-y-4">
-                <div>
-                  <div className="font-bold text-font-color mb-1 text-2xl ">
-                    Confirmation
+
+      {confirmationModal && (
+        <ConfirmationModal
+          open={confirmationModal}
+          onClose={() => setConfirmationModal(false)}
+          onConfirm={handleTemplateSelect}
+          type="info"
+          message="Are you sure you want to choose this template?"
+        />
+      )}
+
+      {modelOpen.approve && (
+        <ActionDialogmodel
+          open={modelOpen.approve}
+          onCancel={() => setModelOpen({ ...modelOpen, approve: false })}
+          title={
+            <div className="space-y-2  text-sm">
+              <div className="max-h-64 overflow-y-auto py-2 mb-2 custom-scrollbar">
+                <div className="space-y-4">
+                  <div>
+                    <div className="font-bold text-font-color mb-1 text-2xl ">
+                      Confirmation
+                    </div>
+                    <p className="text-sm mt-2">
+                      Has the customer finished choosing the colors? please
+                      verfifythe color items price and units prior to approval
+                    </p>
                   </div>
-                  <p className="text-sm mt-2">
-                    Has the customer finished choosing the colors? please
-                    verfifythe color items price and units prior to approval
-                  </p>
                 </div>
               </div>
             </div>
-          </div>
-        }
-        isEditing={true}
-        fields={[
-          {
-            name: "comments",
-            label: "Are you sure you want to approve the selected colors?",
-            type: "switch",
-          },
-        ]}
-        onSubmit={() => setModelOpen({ ...modelOpen, approve: false })}
-        submitButtonText="Confirm"
-      />
+          }
+          isEditing={true}
+          fields={[
+            {
+              name: "comments",
+              label: "Are you sure you want to approve the selected colors?",
+              type: "switch",
+            },
+          ]}
+          onSubmit={() => setModelOpen({ ...modelOpen, approve: false })}
+          submitButtonText="Confirm"
+        />
+      )}
 
-      <ActionDialogmodel
-        open={modelOpen.createTemplate}
-        onCancel={() => setModelOpen({ ...modelOpen, createTemplate: false })}
-        title="Create Template"
-        isEditing={true}
-        fields={createTemplateFields()}
-        onSubmit={() => setModelOpen({ ...modelOpen, createTemplate: false })}
-        submitButtonText="Confirm"
-      />
+      {modelOpen.createTemplate && (
+        <ActionDialogmodel
+          open={modelOpen.createTemplate}
+          onCancel={() => setModelOpen({ ...modelOpen, createTemplate: false })}
+          title="Create Template"
+          isEditing={true}
+          fields={createTemplateFields()}
+          onSubmit={() => setModelOpen({ ...modelOpen, createTemplate: false })}
+          submitButtonText="Confirm"
+        />
+      )}
 
-      <MailSendModal
-        open={modelOpen.email}
-        onCancel={() => setModelOpen({ ...modelOpen, email: false })}
-        onSend={() => {}}
-      />
+      {modelOpen.email && (
+        <MailSendModal
+          open={modelOpen.email}
+          onCancel={() => setModelOpen({ ...modelOpen, email: false })}
+          onSend={() => {}}
+        />
+      )}
     </div>
   );
 };

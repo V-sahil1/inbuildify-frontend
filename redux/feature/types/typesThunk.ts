@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import api, { apiWithFormDataMethods } from "@lib/constants/api";
+import api from "@lib/constants/api";
 import API_ENDPOINTS from "@lib/constants/apiEndpoints";
 import { DwellingType, Range } from "./ITypesState";
 import { ApiResponse } from "../auth/IAuthState";
@@ -9,14 +9,14 @@ import { ApiResponse } from "../auth/IAuthState";
 
 export const getRanges = createAsyncThunk(
   "floorPlans/ranges",
-  async () => {
+  async (_,{rejectWithValue}) => {
     try {
       const res = await api.get<ApiResponse<any>>(
         API_ENDPOINTS.RANGE
       );
       return res.data;
     } catch (error) {
-      return error.message;
+      return rejectWithValue(error.message);
     }
   }
 );

@@ -34,7 +34,6 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   loading = false,
   maxWidth = "sm",
 }) => {
-
   const getConfig = () => {
     const baseClasses = "p-3 rounded-full mb-6 shadow-lg";
     switch (type) {
@@ -42,7 +41,11 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         return {
           icon: (
             <div className={`${baseClasses} bg-green-100`}>
-              <IconCheck size={40} className="text-green-600" strokeWidth={2.5} />
+              <IconCheck
+                size={40}
+                className="text-green-600"
+                strokeWidth={2.5}
+              />
             </div>
           ),
           btnClass:
@@ -53,7 +56,11 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         return {
           icon: (
             <div className={`${baseClasses} bg-amber-100`}>
-              <IconAlertSquare size={40} className="text-amber-600" strokeWidth={2} />
+              <IconAlertSquare
+                size={40}
+                className="text-amber-600"
+                strokeWidth={2}
+              />
             </div>
           ),
           btnClass:
@@ -80,7 +87,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             </div>
           ),
           btnClass:
-            "bg-blue-600 hover:bg-blue-700 text-white border-none hover:shadow-lg transition-all duration-200",
+            "!bg-blue-500 hover:!bg-blue-600 text-secondary border hover:shadow-md active:!bg-blue-700 transition-all duration-200 shadow-sm",
           borderColor: "border-blue-100",
         };
     }
@@ -120,52 +127,57 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
       className="confirmation-modal"
       styles={{
         content: {
-          borderRadius: '16px',
-          overflow: 'hidden',
-          padding: '0',
+          borderRadius: "16px",
+          overflow: "hidden",
+          padding: "0",
         },
         body: {
-          padding: '0',
-        }
+          padding: "0",
+        },
       }}
     >
       <AnimatePresence>
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.2 }}
-            className="p-8"
-          >
-            <div className="absolute top-4 right-4">
-              <button
-                onClick={handleClose}
-                className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
-                aria-label="Close"
-              >
-                <IconX size={20} />
-              </button>
-            </div>
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          transition={{ duration: 0.2 }}
+          className="p-8"
+        >
+          <div className="absolute top-4 right-4">
+            <button
+              onClick={handleClose}
+              className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+              aria-label="Close"
+            >
+              <IconX size={20} />
+            </button>
+          </div>
 
-            <div className="flex flex-col items-center text-center">
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.1, type: 'spring', stiffness: 500, damping: 20 }}
-              >
-                {icon}
-              </motion.div>
-              
-              <motion.h3 
-                className="text-xl  text-gray-600 mb-3 mt-2"
-                initial={{ y: 10, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.15 }}
-              >
-                {typeof message === "string" ? <p>{message}</p> : message}
-                </motion.h3>
-              
-              {/* <motion.div 
+          <div className="flex flex-col items-center text-center">
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{
+                delay: 0.1,
+                type: "spring",
+                stiffness: 500,
+                damping: 20,
+              }}
+            >
+              {icon}
+            </motion.div>
+
+            <motion.h3
+              className="text-xl  text-gray-600 mb-3 mt-2"
+              initial={{ y: 10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.15 }}
+            >
+              {typeof message === "string" ? <p>{message}</p> : message}
+            </motion.h3>
+
+            {/* <motion.div 
                 className="text-gray-600 mb-8 leading-relaxed"
                 initial={{ y: 10, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
@@ -174,44 +186,44 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                 {typeof message === "string" ? <p>{message}</p> : message}
               </motion.div> */}
 
-              <div className="flex flex-col sm:flex-row justify-center gap-4 w-full mt-6">
-                <motion.div
-                  className="w-full sm:w-auto"
-                  initial={{ y: 10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.2 }}
+            <div className="flex flex-col sm:flex-row justify-center gap-4 w-full mt-6">
+              <motion.div
+                className="w-full sm:w-auto"
+                initial={{ y: 10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                <Button
+                  block
+                  size="large"
+                  onClick={handleClose}
+                  disabled={loading}
+                  className="h-[40px] rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 font-medium text-base"
                 >
-                  <Button
-                    block
-                    size="large"
-                    onClick={handleClose}
-                    disabled={loading}
-                    className="h-[40px] rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 font-medium text-base"
-                  >
-                    {cancelText}
-                  </Button>
-                </motion.div>
-                
-                <motion.div
-                  className="w-full sm:w-auto"
-                  initial={{ y: 10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.25 }}
+                  {cancelText}
+                </Button>
+              </motion.div>
+
+              <motion.div
+                className="w-full sm:w-auto"
+                initial={{ y: 10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.25 }}
+              >
+                <Button
+                  block
+                  size="large"
+                  onClick={handleConfirm}
+                  loading={loading}
+                  disabled={loading}
+                  className={`h-[40px] rounded-lg font-medium text-base ${btnClass}`}
                 >
-                  <Button
-                    block
-                    size="large"
-                    onClick={handleConfirm}
-                    loading={loading}
-                    disabled={loading}
-                    className={`h-[40px] rounded-lg font-medium text-base ${btnClass}`}
-                  >
-                    {confirmText}
-                  </Button>
-                </motion.div>
-              </div>
+                  {confirmText}
+                </Button>
+              </motion.div>
             </div>
-          </motion.div>
+          </div>
+        </motion.div>
       </AnimatePresence>
     </Modal>
   );
