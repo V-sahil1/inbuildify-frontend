@@ -1,7 +1,7 @@
 "use client";
 import { FC } from "react";
 import { Button, Dropdown, MenuProps } from "antd";
-import { IconFilter2, IconPlus } from "@tabler/icons-react";
+import { IconFilter, IconPlus } from "@tabler/icons-react";
 
 
 export interface FilterOption {
@@ -55,10 +55,9 @@ const TimelineActionsBar: FC<TimelineActionsBarProps> = ({
 
       {/* Actions Section */}
       {isActionShow && <div className="flex items-center gap-2 sm:mt-0 mt-2">
-        {/* <Button
-          icon={<IconFilter2 />}
-          className="border-gray-300"
-        /> */}
+        <button className="text-primary rounded p-1 border-2  border-primary">
+          <IconFilter />
+        </button>
         <Dropdown
           menu={{
             items: actionItems,
