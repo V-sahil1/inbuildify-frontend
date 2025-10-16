@@ -1,5 +1,5 @@
 import { ContentCard } from "@/components/common/card/ContentCard";
-import { UserInfoCard } from "@/components/common/card/userInfoCard";
+import { UserInfoCard } from "@/components/common/card/UserInfoCard";
 import { IconPlus, IconX } from "@tabler/icons-react";
 import {
   Form,
@@ -643,39 +643,26 @@ const BuildingContractForm = () => {
             <>
               {fields.map(({ key, name, fieldKey, ...restField }) => (
                 <div
-                  key={key}
-                  // Replaced <Space> with a <div> for better Tailwind control
+                    key={key} 
                   className="flex items-start mb-2 p-3 border border-gray-300 rounded"
-                  /*
-                              flex: display: flex
-                              items-start: align-items: flex-start (align="start" in Space)
-                              mb-2: margin-bottom: 8px (approx)
-                              p-3: padding: 12px (approx 10px from old style)
-                              border border-gray-300 rounded: border: 1px solid #ddd; border-radius: 4px
-                            */
+               
                 >
                   <Form.Item
                     {...restField}
                     name={[name, "description"]}
                     fieldKey={[fieldKey, "description"]}
-                    // Tailwind classes for the description's Form.Item
                     className="flex-grow m-0"
-                    /*
-                                  flex-grow: flex-grow: 1 (flexGrow: 1 from old style)
-                                  m-0: margin: 0 (margin: 0 from old style)
-                                */
-                    style={{ width: "100%" }} // Keep width 100% just in case, though flex-grow should handle it
+                    
+                    style={{ width: "100%" }} 
                   >
                     <TextArea
                       placeholder="Description..."
                       rows={3}
-                      // Make sure the TextArea itself takes full width of its Form.Item container
+                      
                       className="w-full"
                     />
                   </Form.Item>
 
-                  {/* Cross Icon (IconX) */}
-                  {/* We use ml-4 for spacing, text-xl for size, text-red-600 for color, mt-2 for vertical align */}
                   <IconX
                     onClick={() => remove(name)}
                     className="ml-4 text-xl text-red-600 cursor-pointer mt-2"
@@ -686,9 +673,8 @@ const BuildingContractForm = () => {
                 type="dashed"
                 onClick={() => add()}
                 block
-                // Replace IconPlus with an Antd icon if necessary (e.g., <PlusOutlined />)
                 icon={<IconPlus />}
-                className="mb-5" // Tailwind for marginBottom: 20px (mb-5 is usually 1.25rem/20px)
+                className="mb-5" 
               >
                 Add Special Condition
               </Button>
