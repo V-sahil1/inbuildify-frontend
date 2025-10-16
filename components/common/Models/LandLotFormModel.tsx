@@ -1,7 +1,36 @@
 import { IconX } from "@tabler/icons-react";
 import { Button, DatePicker, Drawer, Form, Input, Radio, Select } from "antd"
 
-const LandLotFormModel = ({ title, open, onClose, isCopy, onSubmit, initialValues }) => {
+type LandLotFormField ={
+  lotNumber:string;
+  lotPrice:string;
+  estate:string;
+  stage:string;
+  street:string;
+  city:string;
+  state:string;
+  zipcode:string;
+  titleStatus:string;
+  date:string;
+  lotType:string;
+  cornerBlock:string;
+  siteFall:string;
+  landFill:string;
+  width:number;
+  depth:number;
+  totalSize:number;
+}
+
+type LandLotFormModelProps = {
+title:string;
+open:boolean;
+onClose:()=>void;
+onSubmit:(values)=>void;
+isCopy:boolean;
+initialValues?:LandLotFormField[];
+}
+
+const LandLotFormModel:React.FC<LandLotFormModelProps> = ({ title, open, onClose, isCopy, onSubmit, initialValues }) => {
   const [form] = Form.useForm();
 
   const handleSubmit = async (values) => {

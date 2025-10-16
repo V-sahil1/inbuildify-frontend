@@ -6,14 +6,14 @@ import { IconEdit, IconPinned, IconPlus, IconTrash, IconCheck, IconX } from "@ta
 const { Option } = Select;
 
 
-interface Stage {
+export interface Stage {
   name: string;
   total: number;
   toBePaid: number;
   paid: number;
 }
 
-interface Partner {
+export interface Partner {
   id: string;
   type: "Referral Partner" | "Sales Person" | "";
   name: string;
