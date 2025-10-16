@@ -10,6 +10,7 @@ import {
   Upload,
   Button,
   Switch,
+  DatePicker,
 } from "antd";
 import { UploadChangeParam } from "antd/es/upload";
 import React, { useEffect, useState } from "react";
@@ -32,7 +33,8 @@ export type FormField = {
     | "number"
     | "checkbox"
     | "image"
-    | "switch";
+    | "switch"
+    | "date";
   mode?: "tags" | "multiple";
   options?: { value: string; label: string }[];
   button?: string;
@@ -267,6 +269,13 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
               <Switch
                 checked={switchValues[field.name] || false}
                 onChange={(checked) => handleSwitchChange(field.name, checked)}
+              />
+            ) : field.type === "date" ? (
+              <DatePicker
+                className="w-full"
+                placeholder={field.placeholder || "Select date"}
+                disabled={field.disabled}
+                format="YYYY-MM-DD"
               />
             ) : (
               <Input

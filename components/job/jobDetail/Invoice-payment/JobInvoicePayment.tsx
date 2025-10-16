@@ -24,6 +24,7 @@ import { usePdf } from "@hooks/usePdf";
 import InvoiceReceiptPdf from "@/components/common/InvoiceReceiptPdf";
 import StatusTracker, { Stage } from "@/components/common/StatusTracker";
 import { JobinvoiceData } from "data/sampleData";
+import { ActionDialogmodel } from "@/components/common/Models/ActionDialogModel";
 
 
 const summaryData = [
@@ -35,15 +36,17 @@ const summaryData = [
 const JobInvoicePayment: React.FC = () => {
   const [formMode, setFormMode] = useState<"create" | "edit" | null>(null);
   const [editingRecord, setEditingRecord] = useState<any>(null);
+  const [isContractDetailsModalVisible, setIsContractDetailsModalVisible] = useState<boolean>();
+  const [showContractNotice, setShowContractNotice] = useState(true);
   const [invoices, setInvoices] = useState<any[]>(JobinvoiceData);
-const invoicePdf = usePdf(InvoicePdf);
-const invoiceReceiptPdf = usePdf(InvoiceReceiptPdf);
+  const invoicePdf = usePdf(InvoicePdf);
+  const invoiceReceiptPdf = usePdf(InvoiceReceiptPdf);
   const statusColors: Record<string, string> = {
     OVERDUE: "red",
     DRAFT: "default",
     PAID: "green",
   };
-const handleFinish = (values: any, mode: "create" | "edit") => {
+  const handleFinish = (values: any, mode: "create" | "edit") => {
     if (mode === "create") {
       setInvoices([
         ...invoices,
@@ -61,24 +64,39 @@ const handleFinish = (values: any, mode: "create" | "edit") => {
     setFormMode(null);
     setEditingRecord(null);
   };
-  
+
   const handleDelete = (record: any) => {
     setInvoices(invoices.filter((inv) => inv.id !== record.id));
     message.success("Invoice deleted!");
   }
+  const handleContractDetails = () => {
+    setIsContractDetailsModalVisible(true);
+  }
 
-    const [stages, setStages] = useState<Stage[]>([
-      {
-        id: 1,
-        title: "Create Invoice",
-        status: "active",
-        buttons: [
-          {
-            label: "Edit Invoice",
-            type: "primary",
-            onClick: () => handleStageClick(2),
-          },
-        ],
+  const handleResendInvoice = (record: any) => {
+    message.success("Resend invoice!");
+  }
+
+  const handleSendReceipt = (record: any) => {
+    message.success("Send Receipt!");
+  }
+
+  const handleSyncToXero = (record: any) => {
+    message.success("Synk To Xero!");
+  }
+
+  const [stages, setStages] = useState<Stage[]>([
+    {
+      id: 1,
+      title: "Create Invoice",
+      status: "active",
+      buttons: [
+        {
+          label: "Edit Invoice",
+          type: "primary",
+          onClick: () => handleStageClick(2),
+        },
+      ],
     },
     {
       id: 2,
@@ -123,16 +141,16 @@ const handleFinish = (values: any, mode: "create" | "edit") => {
   ]);
 
   const handleStageClick = (clickedId: number) => {
-  setStages((prevStages) =>
-    prevStages.map((stage) => {
-      if (stage.status === "completed") return stage;
+    setStages((prevStages) =>
+      prevStages.map((stage) => {
+        if (stage.status === "completed") return stage;
 
-      if (stage.id < clickedId) return { ...stage, status: "completed" };
-      if (stage.id === clickedId) return { ...stage, status: "active" };
-      return { ...stage, status: "disabled" };
-    })
-  );
-};
+        if (stage.id < clickedId) return { ...stage, status: "completed" };
+        if (stage.id === clickedId) return { ...stage, status: "active" };
+        return { ...stage, status: "disabled" };
+      })
+    );
+  };
 
   const columns = [
     { title: "Invoice ID", dataIndex: "id" },
@@ -166,41 +184,68 @@ const handleFinish = (values: any, mode: "create" | "edit") => {
     },
     {
       title: "Modify",
-      render: (_: any, record: any) => (
-        <Dropdown
-          menu={{
-            items: [
-              {
-                key: "edit",
-                label: "Edit",
-                onClick: () => {
-                  setFormMode("edit");
-                  setEditingRecord(record);
-                },
+      render: (_: any, record: any) => {
+        const isPaid = record.status === "PAID";
+        const menuItems = isPaid
+          ? [
+            {
+              key: "edit",
+              label: "Edit",
+              onClick: () => {
+                setFormMode("edit");
+                setEditingRecord(record);
               },
-              {
-                key: "delete",
-                label: "Delete",
-                onClick: () => handleDelete(record),
-              },
-              {
-                key:"PreviewInvoice",
-                label:"Preview Invoice",
-                onClick: invoicePdf.previewPdf
-              },
-               {
-                key:"PreviewReceipt",
-                label:"Preview Receipt",
-                onClick: invoiceReceiptPdf.previewPdf
-              }
-            ],
-          }}
-          trigger={["click"]}
-        >
-          <Button type="text" icon={<IconDots size={18} />} />
-        </Dropdown>
-      ),
-    },
+            },
+            {
+              key: "delete",
+              label: "Delete",
+              onClick: () => handleDelete(record),
+            },
+            {
+              key: "PreviewInvoice",
+              label: "Preview Invoice",
+              onClick: invoicePdf.previewPdf,
+            },
+            {
+              key: "PreviewReceipt",
+              label: "Preview Receipt",
+              onClick: invoiceReceiptPdf.previewPdf,
+            },
+            {
+              key: "ResendInvoice",
+              label: "Reset Invoice",
+              onClick: () => handleResendInvoice(record),
+            },
+            {
+              key: "SendReceipt",
+              label: "Send Receipt",
+              onClick: () => handleSendReceipt(record),
+            },
+            {
+              key: "SyncToXero",
+              label: "Sync To Xero",
+              onClick: () => handleSyncToXero(record),
+            },
+          ]
+          : [
+            {
+              key: "delete",
+              label: "Delete",
+              onClick: () => handleDelete(record),
+            },
+          ];
+
+        return (
+          <Dropdown
+            menu={{ items: menuItems }}
+            trigger={["click"]}
+          >
+            <Button type="text" icon={<IconDots size={18} />} />
+          </Dropdown>
+        );
+      },
+    }
+
   ];
 
   return (
@@ -241,52 +286,98 @@ const handleFinish = (values: any, mode: "create" | "edit") => {
           </Card>
         </Col>
       </Row>
+      {showContractNotice && (
+        <Row>
+          <span className="w-full bg-primary-10 mt-3 font-base text-font-color text-lg my-2">
+            Contract sign date is not provided,&nbsp;
+            <a
+              className="text-blue underline cursor-pointer"
+              onClick={() => {
+                setIsContractDetailsModalVisible(true);
 
-    {/* Invoices Table & Workflow */}
-    <Row gutter={[24, 24]} align="top" className="mt-10">
-      <Col xs={24} md={14} lg={14}>
-        <Card
-          title="Invoices"
-          className="shadow-sm border border-gray-100"
-          bodyStyle={{ padding: 16 }}
-        >
-          <Table
-            dataSource={invoices}
-            columns={columns}
-            pagination={false}
-            rowKey="id"
-          />
-        </Card>
-      </Col>
-
-      <Col xs={24} md={10} lg={10}>
-        <Card
-          title="Invoice Workflow"
-          className="shadow-sm border border-gray-100"
-          bodyStyle={{ padding: 16 }}
-        >
-          <StatusTracker stages={stages} />
-        </Card>
-      </Col>
-    </Row>
-
-    {/* Invoice Modal */}
-    <Modal
-      title={formMode === "edit" ? "Edit Invoice" : "Create Invoice"}
-      open={formMode !== null}
-      onCancel={() => setFormMode(null)}
-      footer={null}
-    >
-      {formMode && (
-        <InvoiceForm
-          mode={formMode}
-          initialValues={formMode === "edit" ? editingRecord : undefined}
-          onFinish={handleFinish}
-        />
+              }}
+            >
+              click here
+            </a>
+            &nbsp;to provide the dates. Note: On providing the date, stage payment invoices will be created.
+          </span>
+        </Row>
       )}
-    </Modal>
-  </Card>
-);
+      {/* Invoices Table & Workflow */}
+      <Row gutter={[24, 24]} align="top" className="mt-10">
+        <Col xs={24} md={14} lg={14}>
+          <Card
+            title="Invoices"
+            className="shadow-sm border border-gray-100"
+            bodyStyle={{ padding: 16 }}
+          >
+            <Table
+              dataSource={invoices}
+              columns={columns}
+              pagination={false}
+              rowKey="id"
+            />
+          </Card>
+        </Col>
+{/* //show this component when new invoice in successfully created according to selected options the table view is also getting changed*/}
+        <Col xs={24} md={10} lg={10}>
+          <Card
+            title="Invoice Workflow"
+            className="shadow-sm border border-gray-100"
+            bodyStyle={{ padding: 16 }}
+          >
+            <StatusTracker
+              stages={stages.map((stage) => ({
+                ...stage,
+                buttons: stage.status === "disabled" ? [] : stage.buttons,
+              }))}
+            />
+          </Card>
+        </Col>
+      </Row>
+
+      {/* Invoice Modal */}
+      <Modal
+        title={formMode === "edit" ? "Edit Invoice" : "Create Invoice"}
+        open={formMode !== null}
+        onCancel={() => setFormMode(null)}
+        footer={null}
+      >
+        {formMode && (
+          <InvoiceForm
+            mode={formMode}
+            initialValues={formMode === "edit" ? editingRecord : undefined}
+            onFinish={handleFinish}
+          />
+        )}
+      </Modal>
+      <ActionDialogmodel
+        open={isContractDetailsModalVisible}
+        onCancel={() => setIsContractDetailsModalVisible(false)}
+        title="Contract Details"
+        isEditing={true}
+        fields={[
+          {
+            name: "prepareddate",
+            label: "Prepared date",
+            type: "date" as const,
+            extra: ''
+          },
+          {
+            name: "signeddate",
+            label: "Signed date",
+            type: "date" as const,
+          },
+        ]}
+        onSubmit={() => {
+          setIsContractDetailsModalVisible(false);
+          message.success("Contract details saved successfully!");
+          setShowContractNotice(false);
+        }}
+        submitButtonText="Confirm"
+      />
+    </Card>
+  );
 
 };
 
