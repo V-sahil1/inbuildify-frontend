@@ -42,3 +42,8 @@ export let CostType = [
    { value: "VARIABLE", label: "Variable" },
 ];
   
+export class ACTION_TYPE {
+  static DEFAULT = "default";
+  static MODAL = "modal";
+  static SIDEBAR = "sidebar";
+}

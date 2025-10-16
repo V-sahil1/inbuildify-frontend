@@ -25,7 +25,7 @@ type Step = {
 };
 
 type StageProgressProps = {
-  id: string;
+  id?: string;
   title: string;
   status?: string;
   steps: Step[];

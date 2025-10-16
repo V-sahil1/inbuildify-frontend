@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Modal, Input, Button, Form, Select } from "antd";
 import RichTextEditor from "../rich-text-editor/RichTextEditor";
 
@@ -9,6 +9,7 @@ interface MailSendModalProps {
   onCancel: () => void;
   onSend: (data: { to: string[]; subject: string; content: string }) => void;
   title?: string;
+  initialValue?: { to: string[]; subject: string; content: string };
 }
 
 const MailSendModal: React.FC<MailSendModalProps> = ({
@@ -16,6 +17,7 @@ const MailSendModal: React.FC<MailSendModalProps> = ({
   onCancel,
   onSend,
   title = "Send Mail",
+  initialValue,
 }) => {
   const [form] = Form.useForm();
   const [toEmails, setToEmails] = useState<string[]>([]);
@@ -78,6 +80,7 @@ const MailSendModal: React.FC<MailSendModalProps> = ({
         <Form.Item
           label="To"
           name="to"
+          initialValue={initialValue?.to}
           rules={[
             { required: true, message: "Please add at least one recipient" },
           ]}
@@ -103,15 +106,20 @@ const MailSendModal: React.FC<MailSendModalProps> = ({
           label="Subject"
           name="subject"
           rules={[{ required: true, message: "Please enter subject" }]}
+          initialValue={initialValue?.subject}
         >
           <Input placeholder="Enter subject" />
         </Form.Item>
 
-        <Form.Item label="Message" name="message">
+        <Form.Item
+          label="Message"
+          name="message"
+          initialValue={initialValue?.content}
+        >
           <RichTextEditor
             value={editedContent}
             onChange={setEditedContent}
-            placeholder="Enter your message"
+            placeholder="Job Pdf will be attached with this email"
             maxHeight="300px"
           />
         </Form.Item>

@@ -20,6 +20,7 @@ import { useRouter } from "next/router";
 import { usePathname, useSearchParams } from "next/navigation";
 import { ActionDialogmodel } from "@/components/common/Models/ActionDialogModel";
 import { CustomSectionField, InclusinList, initialPartners, initialValues, lotdata, templateOptions } from "data/HLPackageDeatilData";
+import { ContentCard } from "@/components/common/card/ContentCard";
 
 const HLPackageDetail = () => {
     const [contactNameEditOpen, setContactNameEditOpen] = useState(false);
@@ -115,12 +116,6 @@ const HLPackageDetail = () => {
                 <Form.Item name={name}><Select className="w-full" options={options}
                     onChange={onChange} placeholder="Please Select Option"></Select></Form.Item>
                 : <p onClick={onClick}>{form.getFieldValue(name)}</p>}
-        </div>
-    )
-    const ContentCard = ({ children, title }: { children: React.ReactNode, title: string }) => (
-        <div className="relative border rounded-md p-3 m-2 bg-card-color">
-            <Tag className="absolute -top-2 left-3 " color="orange" > {title} </Tag>
-            {children}
         </div>
     )
     const filterButtons = ['All', 'Selected', 'UnSelected'];
