@@ -53,6 +53,8 @@ interface ActionDialogProps {
   loading?: boolean;
   isEditing?: boolean;
   initialValues?: any;
+  headerMessage?: string;
+  footerMessage?: string;
   onCancel: () => void;
   invite?: boolean;
   submitButtonText?: string;
@@ -67,6 +69,8 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
   loading = false,
   isEditing = false,
   initialValues = {},
+  headerMessage,
+  footerMessage,
   onCancel,
   onSubmit,
   submitButtonText,
@@ -148,6 +152,7 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
       okText={submitButtonText}
       confirmLoading={loading}
     >
+      {headerMessage && <p className="text-sm my-4 font-semibold">{headerMessage}</p>}
       <Form
         form={form}
         layout="vertical"
@@ -286,6 +291,7 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
             )}
           </Form.Item>
         ))}
+        {footerMessage && <p className="text-sm my-4 font-semibold">{footerMessage}</p>}
       </Form>
     </Modal>
   );

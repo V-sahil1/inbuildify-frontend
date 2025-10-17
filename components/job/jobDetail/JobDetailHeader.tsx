@@ -6,12 +6,9 @@ import {
 import { Button, Modal, Switch, Tag } from "antd";
 import { useEffect, useState } from "react";
 import JobChecklist from "./JobChecklist";
-import MailSendModal from "@/components/common/Models/MailSendModal";
 import { JobOptions } from "data/options";
-import DelayExtensionNotice from "./joboptions/DelayExtensionNotice";
-import CustomerFeedback from "./joboptions/CustomerFeedback";
 import { useRouter } from "next/navigation";
-import JobDocumentModal from "./joboptions/JobDocumentModal";
+import { jobOptionRenderer } from "./joboptions";
 const JobDetailHeader = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isChecklistDreawerOpen, setChecklistDrawerOpen] = useState(false);
@@ -19,6 +16,7 @@ const JobDetailHeader = () => {
   const [activeAction, setActiveAction] = useState(null);
   const [isJobOptionModalOpen, setJobOptionModalOpen] = useState(false);
   const router = useRouter();
+
   const handleClose = () => {
     setIsModalOpen(false);
   };
@@ -60,42 +58,6 @@ const JobDetailHeader = () => {
     setJobOptionModalOpen(true);
   };
 
-  const jobOptionRenderer = () => {
-    switch (activeAction) {
-      case "commencementLetter":
-        return (
-          <MailSendModal
-            open={isJobOptionModalOpen}
-            onCancel={() => setJobOptionModalOpen(false)}
-            onSend={() => setJobOptionModalOpen(false)}
-            title="Commencement Letter"
-          />
-        );
-      case "delayExtensionNotice":
-        return (
-          <DelayExtensionNotice
-            open={isJobOptionModalOpen}
-            onCancel={() => setJobOptionModalOpen(false)}
-          />
-        );
-      case "customerFeedback":
-        return (
-          <CustomerFeedback
-            open={isJobOptionModalOpen}
-            onCancel={() => setJobOptionModalOpen(false)}
-          />
-        );
-      case "jobDocument":
-        return (
-          <JobDocumentModal
-            open={isJobOptionModalOpen}
-            onCancel={() => setJobOptionModalOpen(false)}
-          />
-        );
-      default:
-        return null;
-    }
-  };
   return (
     <>
       <div className="w-full pr-[100px]">
@@ -175,7 +137,6 @@ const JobDetailHeader = () => {
                                         size="small"
                                         className="mr-2"
                                         onChange={(checked) => {
-                                          // search this "Finance Pending" when it is true then it will be converted into the "Finance Approved"
                                           console.log(
                                             `Finance Approval ${
                                               checked
@@ -248,7 +209,11 @@ const JobDetailHeader = () => {
           open={isChecklistDreawerOpen}
           onClose={() => setChecklistDrawerOpen(false)}
         />
-        {jobOptionRenderer()}
+        {jobOptionRenderer({
+          activeAction,
+          onCancel: () => setJobOptionModalOpen(false),
+          open: isJobOptionModalOpen,
+        })}
         <Modal
           title={"Cost Summary"}
           onOk={handleClose}
