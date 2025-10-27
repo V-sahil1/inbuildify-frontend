@@ -1,11 +1,12 @@
-import React from "react";
+import React, { useContext } from "react";
 import Link from "next/link";
 import CompanyLogo from "../common/CompanyLogo";
 import Image from "next/image";
+import { themeContext } from "contexts/ThemeContext";
 
 export default function Footer({ className }: { className?: string }) {
   const CurrentYear = new Date().getFullYear();
-
+ const {isDarkMode}=useContext(themeContext)
   return (
     <div
       className={`${className ? className : ""
@@ -20,7 +21,7 @@ export default function Footer({ className }: { className?: string }) {
           , All Rights Reserved.
         </p>
         <Link href="/">
-          <Image src="/company-light.webp" alt="logo" width={100} height={100} />
+          <Image src={isDarkMode ? "/company-dark.png" : "/company-light.png"} alt="logo" width={100} height={100} />
         </Link>
         <ul className="flex items-center gap-x-20 gap-y-5 flex-wrap justify-center">
           <li>

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useContext ,useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import { menuList } from "./SidebarData";
 import {
@@ -7,6 +7,7 @@ import {
 } from "@tabler/icons-react";
 import Link from "next/link";
 import Image from "next/image";
+import { themeContext } from "contexts/ThemeContext";
 
 interface MenuDivider {
   devider?: string;
@@ -41,7 +42,7 @@ export default function Sidebar({
   const pageUrl = useRouter().pathname;
   // const userRole = useSelector((state) => state.auth.user.role);
   const userRole = 'builder';
-
+  const {isDarkMode}=useContext(themeContext)
   const filteredMenuList = useMemo(() => {
     // Helper function with correct type annotation
     const hasAccess = (item: SidebarMenuItem) => {
@@ -115,9 +116,8 @@ export default function Sidebar({
     <>
       <div className="sidebar-header px-3 mb-6 flex items-center justify-between gap-2">
         <h4 className="sidebar-title text-[24px]/[30px] font-medium mb-0">
-          {/* <span className="sm-txt">I</span>
-          <span>nBuildify</span> */}
-          <Image src="/company-light.webp" alt="logo" width={200} height={100} />
+          <Image src={isDarkMode ? "/company-dark.png" : "/company-light.png"}
+alt="logo" width={200} height={100} />
         </h4>
       </div>
       {/* <Search /> */}

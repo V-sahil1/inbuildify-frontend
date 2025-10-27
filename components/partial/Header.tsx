@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   IconMoonStars,
   IconLayoutGrid,
@@ -17,6 +17,7 @@ import SystemRoutes from "@lib/constants/Routes";
 import ConfirmationModal from "../common/ConfirmationModal";
 import { persister, RootState } from "@redux/feature/store";
 import { logout } from "@redux/feature/auth/authSlice";
+import { themeContext } from "contexts/ThemeContext";
 import {
   createMenuGridItems,
   gridMenuItems,
@@ -99,25 +100,10 @@ export default function Header({
     setIsCreateDropdownOpen(!isCreateDropdownOpen);
   };
   // light dark mode
-  const [darkMode, setDarkMode] = useState(false);
+  const {toggleTheme} = useContext(themeContext);
   const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
+   toggleTheme()
   };
-
-  useEffect(() => {
-    let theme = localStorage.getItem("theme") === "True";
-    if (theme) {
-      setDarkMode(theme);
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("theme", darkMode === true ? "True" : "False");
-    document.documentElement.setAttribute(
-      "data-theme",
-      darkMode ? "dark" : "light"
-    );
-  }, [darkMode]);
 
   // page header setting
   const [headerFix, setHeaderFix] = useState(true);
