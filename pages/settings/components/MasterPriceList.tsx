@@ -19,13 +19,15 @@ import {
 import {
   IconChevronDown,
   IconChevronUp,
+  IconDownload,
   IconEdit,
   IconGripVertical,
   IconPlus,
   IconTrash,
+  IconUpload,
 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
-import { message, Spin, Empty, Tooltip, Button } from "antd";
+import { message, Spin, Empty, Tooltip, Button, Select } from "antd";
 import ConfirmationModal from "@/components/common/ConfirmationModal";
 import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
 import { MasterPricingCategoryFields } from "@/components/formFields/MasterPricingCategoryFields";
@@ -35,6 +37,8 @@ import {
   Draggable,
   DropResult,
 } from "react-beautiful-dnd";
+import RangeSelect from "@/components/common/custom-selects/RangeSelect";
+import DwellingTypeSelect from "@/components/common/custom-selects/DwellingTypeSelect";
 
 export const MasterPriceList = () => {
   const dispatch = useAppDispatch();
@@ -262,11 +266,35 @@ export const MasterPriceList = () => {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-[24px]/[30px] font-black my-4 text-[var(--font-color-bl)]">
+      <div className="flex justify-between mb-4">
+        <h2 className="text-2xl font-bold">
           Master Price List
         </h2>
         <div className="flex gap-2">
+          <Button>Total Records<div className="rounded-full w-4 h-4 text-center bg-primary text-white text-xs">7</div></Button>
+          <Button>Location</Button>
+          <Button>Master</Button>
+          <Button>Item</Button>
+          <Button icon={<IconUpload />}></Button>
+          <Button icon={<IconDownload />}></Button>
+        </div>
+      </div>
+      <div className="flex justify-between mb-4">
+        <div className="flex gap-6 ml-2">
+          <div className="flex items-center gap-1">
+            <p className="text-sm">Location</p>
+            <Select placeholder=' Please Select'></Select>
+          </div>
+          <div className="flex items-center gap-1">
+            <p className="text-sm">Range</p>
+            <RangeSelect></RangeSelect>
+          </div>
+          <div className="flex items-center gap-1">
+            <p className="text-sm w-full">Dwelling Type</p>
+            <DwellingTypeSelect></DwellingTypeSelect>
+          </div>
+        </div>
+        <div className="flex gap-2 justify-end">
           {isOrderChanged() && (
             <>
               <Button
