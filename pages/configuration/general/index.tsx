@@ -1,9 +1,4 @@
-import TabLayout from "@/components/common/TabLayout";
-import { useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import { message } from "antd";
-import { getDwellingTypes, getRanges } from "@redux/feature/types/typesThunk";
-import { Status } from "@lib/constants/enum";
+import TabLayout from "@/components/common/TabLayout"; 
 import SettingsPage from "@/components/configurations/general/Settings";
 import CompanyDetails from "@/components/configurations/general/CompanyDetails";
 import BuilderDetails from "@/components/configurations/general/BuilderDetails";
@@ -13,15 +8,7 @@ import NotesTag from "@/components/configurations/general/NotesTag";
 import Checklist from "@/components/configurations/general/Checklist";
 import RoleAndUser from "@/components/configurations/general/RoleAndUser";
 import { PasswordPolicy } from "@/components/configurations/general/PasswordPolicy";
-
-const tabsLabel = (label: string, note: string) => {
-  return (
-    <div>
-      <p>{label}</p>
-      <span className="text-sm font-medium">{note}</span>
-    </div>
-  );
-};
+import { tabsLabel } from "@/components/common/TabLabel";
 
 const TABS = [
   {
@@ -72,22 +59,6 @@ const TABS = [
   
 ];
 
-export default function ProjectList() {
-  const dispatch = useAppDispatch();
-  const { status } = useAppSelector((state: any) => state.types);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        if (status.range === Status.IDLE) await dispatch(getRanges()).unwrap();
-        if (status.dwellingType === Status.IDLE)
-          await dispatch(getDwellingTypes()).unwrap();
-      } catch (err: any) {
-        message.error(err);
-      }
-    };
-    fetchData();
-  }, [dispatch, status]);
-
+export default function GeneralConfig() {
   return <TabLayout tabs={TABS} />;
 }
