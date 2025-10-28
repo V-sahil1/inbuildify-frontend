@@ -72,7 +72,7 @@ const TABS = [
   
 ];
 
-export default function ProjectList() {
+export default function GeneralConfig() {
   const dispatch = useAppDispatch();
   const { status } = useAppSelector((state: any) => state.types);
 
