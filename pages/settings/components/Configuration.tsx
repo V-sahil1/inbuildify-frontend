@@ -28,7 +28,11 @@ export const Configuration = () => {
             type="info"
             showIcon
           />
-          <Button type="primary" className="mt-4" onClick={() => setIsEditing(true)}>
+          <Button
+            type="primary"
+            className="mt-4"
+            onClick={() => setIsEditing(true)}
+          >
             Add Email Configuration
           </Button>
         </Card>

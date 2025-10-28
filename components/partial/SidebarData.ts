@@ -290,6 +290,73 @@ export const menuList = [
     ],
   },
   {
+    icon: IconChartHistogram,
+    link: "Configuration",
+    roles: commonRoles,
+    children: [
+      {
+        link: "General",
+        roles: commonRoles,
+        url: `/configuration/general`,
+      },
+
+      {
+        link: "Sales",
+        roles: commonRoles,
+        url: `/configuration/sales`,
+      },
+
+      {
+        link: "Job",
+        roles: commonRoles,
+        url: `/configuration/job`,
+      },
+      {
+        link: "Construction",
+        roles: commonRoles,
+        url: `/configuration/construction`,
+      },
+
+      {
+        link: "Maintenance",
+        roles: commonRoles,
+        url: `/configuration/maintenance`,
+      },
+       {
+        link: "Document",
+        roles: commonRoles,
+        url: `/configuration/document`,
+      },
+       {
+        link: "Integration",
+        roles: commonRoles,
+        url: `/configuration/integration`,
+      },
+      {
+        link: "Templates",
+        roles: commonRoles,
+        url: `/configuration/templates`,
+      },
+      {
+        link: "Scheduler",
+        roles: commonRoles,
+        url: `/configuration/scheduler`,
+      },
+       {
+        link: "Portal",
+        roles: commonRoles,
+        url: `/configuration/portal`,
+      },
+
+      {
+        link: "Others",
+        roles: commonRoles,
+        url: `/configuration/others`,
+      },
+    ],
+  },
+  
+  {
     icon: IconBuildingSkyscraper,
     link: "Settings",
     url: "/settings",
