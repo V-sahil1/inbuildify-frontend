@@ -277,3 +277,16 @@ export const JobDocumentOptions = [
       checked: false,
     },
   ];
+
+export const stateRegionOptions = [
+  { value: "Victoria", label: "Victoria" },
+  { value: "NSW", label: "New South Wales" },
+  { value: "QLD", label: "Queensland" },
+  { value: "TAS", label: "Tasmania" },
+];
+
+export const timezoneOptions = [
+  { value: "GMT+10", label: "(GMT+10) Brisbane" },
+  { value: "GMT+11", label: "(GMT+11) Sydney" },
+  { value: "GMT+8", label: "(GMT+8) Perth" },
+];
