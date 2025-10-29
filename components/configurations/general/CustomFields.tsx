@@ -17,7 +17,7 @@ import {
   IconX,
   IconList,
 } from "@tabler/icons-react";
-import { customFieldsData, fieldTypeOptions } from "data/ConfigrationData";
+import { customFieldsData, fieldTypeOptions } from "data/configuration/ConfigrationData";
 import { ActionDialogmodel } from "@/components/common/Models/ActionDialogModel";
 
 const sectionOptions = [

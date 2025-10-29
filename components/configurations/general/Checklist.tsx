@@ -8,7 +8,7 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import ChecklistDrawer from "../components/ChecklistDrawer";
-import { checklistData, checklistFunctionalityOptions, checklistScreenOptions } from "data/ConfigrationData";
+import { checklistData, checklistFunctionalityOptions, checklistScreenOptions } from "data/configuration/ConfigrationData";
 
 const Checklist = () => {
   const [data, setData] = useState(checklistData || []);

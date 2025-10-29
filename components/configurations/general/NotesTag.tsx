@@ -17,7 +17,7 @@ import {
   IconX,
   IconPlus,
 } from "@tabler/icons-react";
-import { notesTagData } from "data/ConfigrationData";
+import { notesTagData } from "data/configuration/ConfigrationData";
 
 type TagRow = {
   id: number;

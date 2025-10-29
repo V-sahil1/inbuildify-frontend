@@ -10,7 +10,7 @@ import {
   Form,
   Button,
 } from "antd";
-import { configurationSettingsOptions } from "data/ConfigrationData";
+import { configurationSettingsOptions } from "data/configuration/ConfigrationData";
 
 
 

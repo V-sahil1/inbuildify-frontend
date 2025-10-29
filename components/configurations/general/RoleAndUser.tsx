@@ -7,7 +7,7 @@ import {
   RoleMapping,
   rolesOfRoleMapping,
   typeOptionsOfRoleMapping,
-} from "data/ConfigrationData";
+} from "data/configuration/ConfigrationData";
 
 const { Title, Text } = Typography;
 

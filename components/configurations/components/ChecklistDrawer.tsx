@@ -19,7 +19,7 @@ import {
   IconX,
   IconTrash,
 } from "@tabler/icons-react";
-import { checklistDrawerData } from "data/ConfigrationData";
+import { checklistDrawerData } from "data/configuration/ConfigrationData";
 
 interface ChecklistDrawerProps {
   open: boolean;
@@ -241,7 +241,7 @@ const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({
             onChange={(val) =>
               setFilters((p) => ({ ...p, constructionType: val }))
             }
-            // this will be removed witb api call
+            // this will be removed with api call dynamic data
             options={[
               { label: "Single Storey", value: "Single Storey" },
               { label: "Double Storey", value: "Double Storey" },
@@ -255,7 +255,7 @@ const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({
             style={{ width: 200 }}
             value={filters.stage}
             onChange={(val) => setFilters((p) => ({ ...p, stage: val }))}
-            // this will be removed witb api call
+            // this will be removed with api call dynamic data
             options={[
               { label: "Base Stage", value: "Base Stage" },
               { label: "Fixing Stage", value: "Fixing Stage" },
