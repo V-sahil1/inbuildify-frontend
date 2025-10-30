@@ -1,15 +1,14 @@
-import TabLayout from "@/components/common/TabLayout"; 
-import CompanyDetails from "@/components/configurations/components/general/CompanyDetails";
-import BuilderDetails from "@/components/configurations/components/general/BuilderDetails";
+import TabLayout from "@/components/common/TabLayout";
 import SurveyorsDetails from "@/components/configurations/components/general/SurveyorsDetails";
 import CustomFields from "@/components/configurations/components/general/CustomFields";
 import NotesTag from "@/components/configurations/components/general/NotesTag";
 import Checklist from "@/components/configurations/components/general/Checklist";
 import RoleAndUser from "@/components/configurations/components/general/RoleAndUser";
 import { PasswordPolicy } from "@/components/configurations/components/general/PasswordPolicy";
-import { tabsLabel } from "@/components/common/TabLabel"; 
+import { tabsLabel } from "@/components/common/TabLabel";
 import { Setting } from "@/components/configurations/components/job/Setting";
 import { JobProcess } from "@/components/configurations/components/job/JobProcess";
+import { Colors } from "@/components/configurations/components/job/Colors";
 
 const TABS = [
   {
@@ -22,12 +21,12 @@ const TABS = [
     label: tabsLabel("Job Process", "Configure job Stages"),
     component: JobProcess,
   },
-   {
-    id: "builder-details",
-    label: tabsLabel("Builders Details", "Mapped builders details"),
-    component: BuilderDetails,
+  {
+    id: "colors",
+    label: tabsLabel("Colors", "Manage color Selection"),
+    component: Colors,
   },
-   {
+  {
     id: "surveyors-details",
     label: tabsLabel("Surveyors Details", "Mapped surveyors details"),
     component: SurveyorsDetails,
@@ -42,7 +41,7 @@ const TABS = [
     label: tabsLabel("Notes Tag", "Add tags to category the notes"),
     component: NotesTag,
   },
-   {
+  {
     id: "checklist",
     label: tabsLabel("Checklist", "Manage Checklist"),
     component: Checklist,
@@ -57,7 +56,6 @@ const TABS = [
     label: tabsLabel("Password Policy", "Password privacy settings"),
     component: PasswordPolicy,
   },
-  
 ];
 
 export default function GeneralConfig() {

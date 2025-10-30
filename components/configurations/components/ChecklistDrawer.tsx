@@ -275,7 +275,7 @@ const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({
       </Form>
 
       <Table
-        columns={columns}
+        columns={columns as any}
         dataSource={data}
         pagination={false}
         size="middle"

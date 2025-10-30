@@ -263,7 +263,7 @@ export default function Land() {
             />
             <LandPackageDrawerModel title="Packages" open={isPackageDrawerOpen} onClose={() => setIsPackageDrawerOpen(false)} />
             <LandLotFormModel title="Lot Details" open={isLotFormDrawerOpen} isCopy={isCopy} onSubmit={handleLotSubmit}
-                initialValues={initialValues} onClose={() => {
+                initialValues={initialValues as any} onClose={() => {
                     setIsLotFormDrawerOpen(false)
                     setIsCopy(false)
                 }} />
