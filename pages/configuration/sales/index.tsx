@@ -1,14 +1,14 @@
 import TabLayout from "@/components/common/TabLayout";
 import { tabsLabel } from "@/components/common/TabLabel";
-import { LeadsOrOpportunities } from "@/components/configurations/sales/LeadsOrOpportunities";
-import { SalesProcess } from "@/components/configurations/sales/SalesProcess";
-import { LeadSource } from "@/components/configurations/sales/LeadSource";
-import { LeadLostReasons } from "@/components/configurations/sales/LeadLostReasons";
-import { ClientType } from "@/components/configurations/sales/ClientType";
-import { Range } from "@/components/configurations/sales/Range";
-import { DwellingType } from "@/components/configurations/sales/DwellingType";
-import { Quotation } from "@/components/configurations/sales/Quotation";
-import { HouseAndLandPackage } from "@/components/configurations/sales/HouseAndLandPackage";
+import { LeadsOrOpportunities } from "@/components/configurations/components/sales/LeadsOrOpportunities";
+import { SalesProcess } from "@/components/configurations/components/sales/SalesProcess";
+import { LeadSource } from "@/components/configurations/components/sales/LeadSource";
+import { LeadLostReasons } from "@/components/configurations/components/sales/LeadLostReasons";
+import { ClientType } from "@/components/configurations/components/sales/ClientType";
+import { Range } from "@/components/configurations/components/sales/Range";
+import { DwellingType } from "@/components/configurations/components/sales/DwellingType";
+import { Quotation } from "@/components/configurations/components/sales/Quotation";
+import { HouseAndLandPackage } from "@/components/configurations/components/sales/HouseAndLandPackage";
 
 
 const TABS = [

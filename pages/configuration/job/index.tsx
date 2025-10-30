@@ -1,5 +1,4 @@
 import TabLayout from "@/components/common/TabLayout"; 
-import SettingsPage from "@/components/configurations/components/general/Settings";
 import CompanyDetails from "@/components/configurations/components/general/CompanyDetails";
 import BuilderDetails from "@/components/configurations/components/general/BuilderDetails";
 import SurveyorsDetails from "@/components/configurations/components/general/SurveyorsDetails";
@@ -8,18 +7,20 @@ import NotesTag from "@/components/configurations/components/general/NotesTag";
 import Checklist from "@/components/configurations/components/general/Checklist";
 import RoleAndUser from "@/components/configurations/components/general/RoleAndUser";
 import { PasswordPolicy } from "@/components/configurations/components/general/PasswordPolicy";
-import { tabsLabel } from "@/components/common/TabLabel";
+import { tabsLabel } from "@/components/common/TabLabel"; 
+import { Setting } from "@/components/configurations/components/job/Setting";
+import { JobProcess } from "@/components/configurations/components/job/JobProcess";
 
 const TABS = [
   {
     id: "settings",
-    label: tabsLabel("Settings", "Common Settings"),
-    component: SettingsPage,
+    label: tabsLabel("Settings", "Job Settings"),
+    component: Setting,
   },
   {
-    id: "company-details",
-    label: tabsLabel("Company Details", "Contact and bank details"),
-    component: CompanyDetails,
+    id: "job-process",
+    label: tabsLabel("Job Process", "Configure job Stages"),
+    component: JobProcess,
   },
    {
     id: "builder-details",
