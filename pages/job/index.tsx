@@ -248,12 +248,12 @@ const JobPage: React.FC = () => {
     label: string;
     count: number;
   }> = [
-      { type: 'inProgress', label: 'In Progress', count: jobDummyData.length },
-      { type: 'completed', label: 'Completed', count: jobDummyData.length },
-      { type: 'onHold', label: 'On Hold', count: jobDummyData.length },
-      { type: 'cancelled', label: 'Cancelled', count: jobDummyData.length },
-      { type: 'archieved', label: 'Archieved', count: jobDummyData.length },
-    ];
+    { type: 'inProgress', label: 'In Progress', count: jobDummyData.length },
+    { type: 'completed', label: 'Completed', count: jobDummyData.length },
+    { type: 'onHold', label: 'On Hold', count: jobDummyData.length },
+    { type: 'cancelled', label: 'Cancelled', count: jobDummyData.length },
+    { type: 'archieved', label: 'Archieved', count: jobDummyData.length },
+  ];
 
   return (
     <div className="p-4">
@@ -317,7 +317,7 @@ const JobPage: React.FC = () => {
           onClick: () => {
             router.push(`${SystemRoutes.JOB}/${record.slugId}`);
           },
-          style: { cursor: 'pointer' }
+          style: { cursor: 'pointer' },
         })}
       />
     </div>

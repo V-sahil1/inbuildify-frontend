@@ -1,4 +1,10 @@
-import { IconDotsVertical, IconList, IconMail, IconPhone, IconUserSquareRounded } from '@tabler/icons-react';
+import {
+  IconDotsVertical,
+  IconList,
+  IconMail,
+  IconPhone,
+  IconUserSquareRounded,
+} from '@tabler/icons-react';
 import { Button, Modal, Popover, Switch, Tag } from 'antd';
 import { useEffect, useState } from 'react';
 import JobChecklist from './JobChecklist';
@@ -76,7 +82,6 @@ const JobDetailHeader = () => {
                 Lot 300 Tallis Cct,Tarneit,VIC,5345<Tag color="green">Titled</Tag>
               </div>
             </Popover>
-
           </div>
           <div className="border-l-2 pl-2">
             <div className="text-base font-semibold flex items-center">My Home</div>
@@ -140,7 +145,8 @@ const JobDetailHeader = () => {
                                           className="mr-2"
                                           onChange={checked => {
                                             console.log(
-                                              `Finance Approval ${checked ? 'approved' : 'not approved'
+                                              `Finance Approval ${
+                                                checked ? 'approved' : 'not approved'
                                               }`
                                             );
                                           }}

@@ -152,7 +152,7 @@ export const Colors: React.FC = () => {
     {
       title: 'Attachments',
       key: 'attachments',
-      render: (record: any) => <p>{record.attachments[0].name}</p>,
+      render: (record: any) => <p>{record.attachments?.[0]?.name}</p>,
     },
     {
       title: 'Sort Order',

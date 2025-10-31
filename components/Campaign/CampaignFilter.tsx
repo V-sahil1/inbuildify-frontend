@@ -86,7 +86,7 @@ export default function CampaignFilter() {
             ))}
             <div>
               <p>Created Date</p>
-              <DateFilterDropdown onFilter={() => { }} onClear={() => { }} />
+              <DateFilterDropdown onFilter={() => {}} onClear={() => {}} />
             </div>
             <div>
               <p>Address</p>

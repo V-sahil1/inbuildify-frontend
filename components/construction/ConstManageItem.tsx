@@ -79,12 +79,16 @@ export function CostManageItem({ onRemove, index, form, onConfirm, onSubmit }) {
               />
             }
           />
-          <Popconfirm title="Delete the item"
+          <Popconfirm
+            title="Delete the item"
             description="Are you sure to delete this item?"
             onConfirm={onRemove}
             okText="Yes"
-            cancelText="No"> <Button type="text" icon={<IconTrash size={20} color="red" />} /></Popconfirm>
-
+            cancelText="No"
+          >
+            {' '}
+            <Button type="text" icon={<IconTrash size={20} color="red" />} />
+          </Popconfirm>
         </div>
       ) : (
         <div className="flex gap-3 text-center p-3 align-middle">

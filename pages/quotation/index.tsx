@@ -259,18 +259,18 @@ const QuotationPage: React.FC = () => {
     label: string;
     count: number;
   }> = [
-      { type: 'all', label: 'All', count: quotationDummyData.length },
-      { type: 'draft', label: 'Draft', count: quotationDummyData.length },
-      { type: 'approved', label: 'Approved', count: quotationDummyData.length },
-      { type: 'modified', label: 'Modified', count: quotationDummyData.length },
-      {
-        type: 'pendingApproval',
-        label: 'Pending Approval',
-        count: quotationDummyData.length,
-      },
-      { type: 'cancelled', label: 'Cancelled', count: quotationDummyData.length },
-      { type: 'expired', label: 'Expired', count: quotationDummyData.length },
-    ];
+    { type: 'all', label: 'All', count: quotationDummyData.length },
+    { type: 'draft', label: 'Draft', count: quotationDummyData.length },
+    { type: 'approved', label: 'Approved', count: quotationDummyData.length },
+    { type: 'modified', label: 'Modified', count: quotationDummyData.length },
+    {
+      type: 'pendingApproval',
+      label: 'Pending Approval',
+      count: quotationDummyData.length,
+    },
+    { type: 'cancelled', label: 'Cancelled', count: quotationDummyData.length },
+    { type: 'expired', label: 'Expired', count: quotationDummyData.length },
+  ];
 
   return (
     <div className="p-4">
@@ -326,14 +326,16 @@ const QuotationPage: React.FC = () => {
           onClick: () => {
             // router.push(`${SystemRoutes.QUOTATION}/${record.slugId}`);
           },
-          style: { cursor: 'pointer' }
+          style: { cursor: 'pointer' },
         })}
       />
       <HLPackageCopyModal
         title="Copy Quation"
         open={isCopyModalOpen}
         onCancel={() => setIsCopyModalOpen(false)}
-        onOk={() => { setIsCopyModalOpen(false) }}
+        onOk={() => {
+          setIsCopyModalOpen(false);
+        }}
       />
     </div>
   );

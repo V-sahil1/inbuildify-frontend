@@ -29,7 +29,7 @@ const ConstructionManager = () => {
     );
   };
 
-  const handleStatusChange = (jobId: string | number, newStatusKey: string) => { };
+  const handleStatusChange = (jobId: string | number, newStatusKey: string) => {};
 
   const handleRevertFromConstruction = (jobId: string) => {
     console.log('Reverting job from construction:', jobId);
@@ -149,7 +149,7 @@ const ConstructionManager = () => {
           scroll={{ x: true }}
           onRow={record => ({
             onClick: () => router.push(`/${SystemRoutes.CONSTRUCTION}/${record.id}`),
-            style: { cursor: 'pointer' }
+            style: { cursor: 'pointer' },
           })}
         />
       </div>

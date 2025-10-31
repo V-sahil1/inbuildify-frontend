@@ -137,7 +137,9 @@ const LandLotFormModel: React.FC<LandLotFormModelProps> = ({
         </div>
         <div className="flex justify-end gap-2">
           <Button>Cancel</Button>
-          <Button type='primary' htmlType="submit">Save</Button>
+          <Button type="primary" htmlType="submit">
+            Save
+          </Button>
         </div>
       </Form>
     </Drawer>

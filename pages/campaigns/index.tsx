@@ -139,9 +139,9 @@ export default function Campaigns() {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold">Campaigns</h1>
-      <div className="flex justify-between gap-2 mt-3">
+      <div className="flex justify-between gap-3 mt-3">
         {card.map(op => (
-          <div className="p-3 bg-card-color w-[200px]">
+          <div className="p-3 bg-card-color w-full">
             <p>{op.title}</p>
             <div className="flex justify-between mt-3 items-center">
               <h1 className="text-[35px] font-medium">{op.count}</h1>

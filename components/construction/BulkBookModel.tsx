@@ -24,9 +24,9 @@ const BulkBookModel = ({
     label: string;
     count: number;
   }> = [
-      { type: 'currentStage', label: 'Current Stage', count: 0 },
-      { type: 'allStages', label: 'All Stages', count: 0 },
-    ];
+    { type: 'currentStage', label: 'Current Stage', count: 0 },
+    { type: 'allStages', label: 'All Stages', count: 0 },
+  ];
   const handleFilterTabChange = (selectedType: string) => {
     console.log('Selected filter:', selectedType);
     setActiveFilter(filterOptions.find(f => f.type === selectedType) || activeFilter);
@@ -107,7 +107,7 @@ const BulkBookModel = ({
               <Popconfirm
                 title="Are you sure you want to book the suppliers?"
                 onConfirm={handleSubmit}
-                onCancel={() => { }}
+                onCancel={() => {}}
                 okText="Yes"
                 cancelText="No"
               >

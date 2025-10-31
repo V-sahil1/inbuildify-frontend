@@ -1,6 +1,6 @@
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import { IconFileTypeXml, IconPlus, IconTrash } from '@tabler/icons-react';
-import { Avatar, Button, Drawer, Space, Table, Tag, Typography } from 'antd';
+import { Avatar, Button, Drawer, Popconfirm, Space, Table, Tag, Typography } from 'antd';
 import { TemplateData, templateDummyData } from 'data/delayExtentionDummyData';
 import { JobCustomerFeedbackOptions } from 'data/options';
 const { Text } = Typography;
@@ -28,9 +28,13 @@ export default function CustomerFeedback({
 }) {
   const [addModalOpen, setAddModalOpen] = useState(false);
   const handleCustomerFeedback = () => {
+    setAddModalOpen(false);
     console.log('Customer Feedback');
   };
 
+  const handleDelete = (key: string) => {
+    console.log('Delete item:', key);
+  };
   // 3. Define the Table Columns
   const columns = [
     {
@@ -90,11 +94,18 @@ export default function CustomerFeedback({
       key: 'action',
       width: '5%',
       render: (text: string, record: TemplateData) => (
-        <IconTrash
-          className="text-gray-400 hover:text-red-500 cursor-pointer"
-          size={18}
-          onClick={() => console.log('Remove item:', record.key)}
-        />
+        <Popconfirm
+          title="Are you sure to delete this task?"
+          onConfirm={() => handleDelete(record.key)}
+          okText="Yes"
+          cancelText="No"
+        >
+          <IconTrash
+            className="text-gray-400 hover:text-red-500 cursor-pointer"
+            size={18}
+            onClick={() => console.log('Remove item:', record.key)}
+          />
+        </Popconfirm>
       ),
     },
   ];

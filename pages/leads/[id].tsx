@@ -291,7 +291,7 @@ function App() {
           {/* Property Card */}
           <Card className="relative">
             <div className="flex items-center justify-between mb-3">
-              {leadDetail?.lead?.status === 'NEW' ? (
+              {leadDetail?.lead?.status === 'NEW' && propertyFromSlice?.zipPostalCode === null ? (
                 <div className="flex items-center justify-center h-full p-4 w-full">
                   <Card className="text-center h-full my-auto">
                     <button
@@ -300,7 +300,7 @@ function App() {
                     >
                       Add property details
                     </button>
-                    <p className="text-sm text-gray-600 mt-2">Add Job details</p>
+                    {/* <p className="text-sm text-gray-600 mt-2">Add Job details</p> */}
                   </Card>
                 </div>
               ) : (

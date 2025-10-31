@@ -255,13 +255,17 @@ const ConstructionChecklistItem = ({
         title={`Supplier - ${values?.checklist}`}
         open={supplierMessageOpen}
         onCancel={() => setSupplierMessageOpen(false)}
-        onSubmit={() => { setSupplierMessageOpen(false) }}
+        onSubmit={() => {
+          setSupplierMessageOpen(false);
+        }}
         initialValues={{}}
       />
       <ChecklistNotesModal
         open={notesOpen}
         onCancel={() => setNotesOpen(false)}
-        onSubmit={() => { setNotesOpen(false) }}
+        onSubmit={() => {
+          setNotesOpen(false);
+        }}
       />
       <ChecklistSubtaskModal
         open={subtaskOpen}
