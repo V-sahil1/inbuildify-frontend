@@ -178,7 +178,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
   };
 
   return (
-    <div className="flex items-center justify-between flex-wrap gap-2 w-[300px]">
+    <div className="flex items-center justify-between flex-wrap gap-2 min-w-[300px] ">
       <div className="flex flex-col gap-2">
         {/* Info */}
         <div className="flex items-center gap-2">
@@ -273,9 +273,8 @@ const StageProgress: React.FC<StageProgressProps> = ({
             )}
           >
             <button
-              className={`btn border ${
-                dropdownVisible ? 'border-red-500 bg-red-50' : 'border-red-500'
-              } rounded-md p-1`}
+              className={`btn border ${dropdownVisible ? 'border-red-500 bg-red-50' : 'border-red-500'
+                } rounded-md p-1`}
               onClick={() => setDropdownVisible(!dropdownVisible)}
             >
               <IconDots stroke={2} className="text-red-500" />

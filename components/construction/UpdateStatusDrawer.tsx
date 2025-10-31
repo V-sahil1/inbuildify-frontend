@@ -14,10 +14,10 @@ export function UpdateStatusDrawer({ open, onCancel, checkItems }) {
     type: FilterType;
     label: string;
   }> = [
-    { type: 'all', label: 'All' },
-    { type: 'applicable', label: 'Applicable' },
-    { type: 'notApplicable', label: 'Not Applicable' },
-  ];
+      { type: 'all', label: 'All' },
+      { type: 'applicable', label: 'Applicable' },
+      { type: 'notApplicable', label: 'Not Applicable' },
+    ];
   const handleFilterTabChange = (selectedType: string) => {
     console.log('Selected filter:', selectedType);
     setActiveFilter(filterOptions.find(f => f.type === selectedType) || activeFilter);
@@ -58,7 +58,7 @@ export function UpdateStatusDrawer({ open, onCancel, checkItems }) {
           ))}
         </div>
         <div className="mt-3 justify-end flex gap-2">
-          <Button>Cancel</Button>
+          <Button onClick={onCancel}>Cancel</Button>
           <Button type="primary">Mark As Applicable</Button>
           <Button type="primary">Mark As Not Applicable</Button>
         </div>

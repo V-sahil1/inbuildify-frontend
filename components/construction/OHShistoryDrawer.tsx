@@ -112,8 +112,8 @@ export function OHShistoryDrawer({ open, onCancel }) {
       {addList.supplier && (
         <div className="mt-2 text-center">
           <Select
-            placeholder="Please Select"
-            options={[{ label: 'a1', value: 'a1' }]}
+            placeholder="Select Supplier"
+            options={[{ label: 'supplier1', value: 'supplier1' }]}
             onChange={value => setSupplier(prev => ({ ...prev, value: value }))}
           />
         </div>
@@ -145,12 +145,12 @@ export function OHShistoryDrawer({ open, onCancel }) {
     label: string;
     count: number;
   }> = [
-    { type: 'all', label: 'All', count: data.length },
-    { type: 'pending', label: 'Pending', count: data.length },
-    { type: 'yes', label: 'Yes', count: data.length },
-    { type: 'no', label: 'No', count: data.length },
-    { type: 'N/A', label: 'N/A', count: data.length },
-  ];
+      { type: 'all', label: 'All', count: data.length },
+      { type: 'pending', label: 'Pending', count: data.length },
+      { type: 'yes', label: 'Yes', count: data.length },
+      { type: 'no', label: 'No', count: data.length },
+      { type: 'N/A', label: 'N/A', count: data.length },
+    ];
   const handleFilterTabChange = (selectedType: string) => {
     console.log('Selected filter:', selectedType);
     setActiveFilter(filterOptions.find(f => f.type === selectedType) || activeFilter);
@@ -185,8 +185,8 @@ export function OHShistoryDrawer({ open, onCancel }) {
       onClose={
         showList
           ? () => {
-              setShowList(false);
-            }
+            setShowList(false);
+          }
           : onCancel
       }
       size="large"

@@ -205,12 +205,12 @@ export default function HLPackages() {
                   {
                     key: 'Available',
                     label: 'Available',
-                    onClick: () => {},
+                    onClick: () => { },
                   },
                   {
                     key: 'Delete',
                     label: 'Delete',
-                    onClick: () => {},
+                    onClick: () => { },
                   },
                 ],
               }}
@@ -260,20 +260,21 @@ export default function HLPackages() {
     label: string;
     count: number;
   }> = [
-    { type: 'all', label: 'All', count: data.length },
-    { type: 'available', label: 'Available', count: data.length },
-    { type: 'modified', label: 'Modified', count: data.length },
-    { type: 'approved', label: 'Approved', count: data.length },
-    { type: 'published', label: 'Published', count: data.length },
-    { type: 'sold', label: 'Sold', count: data.length },
-    { type: 'unavailable', label: 'Unavailable', count: data.length },
-  ];
+      { type: 'all', label: 'All', count: data.length },
+      { type: 'available', label: 'Available', count: data.length },
+      { type: 'modified', label: 'Modified', count: data.length },
+      { type: 'approved', label: 'Approved', count: data.length },
+      { type: 'published', label: 'Published', count: data.length },
+      { type: 'sold', label: 'Sold', count: data.length },
+      { type: 'unavailable', label: 'Unavailable', count: data.length },
+    ];
   const handleFilterTabChange = (selectedType: string) => {
     console.log('Selected filter:', selectedType);
     setActiveFilter(filterOptions.find(f => f.type === selectedType) || activeFilter);
   };
 
   const handleNewPackageSubmit = () => {
+    setIsModalOpen(false)
     // create new package
   };
 
@@ -329,7 +330,7 @@ export default function HLPackages() {
         title="Copy Package"
         open={isCopyModalOpen}
         onCancel={() => setIsCopyModalOpen(false)}
-        onOk={() => {}}
+        onOk={() => { setIsCopyModalOpen(false) }}
       />
     </div>
   );

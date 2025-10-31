@@ -84,7 +84,7 @@ const MaintenanceManager = () => {
       )
     );
 
-  const handleStatusChange = (jobId: string | number, newStatusKey: string) => {};
+  const handleStatusChange = (jobId: string | number, newStatusKey: string) => { };
 
   const handleRevertToConstruction = (jobId: string) => {
     console.log('Reverting maintennace to construction:', jobId);
@@ -182,9 +182,8 @@ const MaintenanceManager = () => {
             <Card
               key={status}
               onClick={() => handleCardClick(status)}
-              className={`min-w-[250px] flex-1 border-l-4 cursor-pointer transition-all duration-200 ${
-                active ? 'shadow-lg' : 'hover:shadow-md'
-              }`}
+              className={`min-w-[250px] flex-1 border-l-4 cursor-pointer transition-all duration-200 ${active ? 'shadow-lg' : 'hover:shadow-md'
+                }`}
               style={{ borderLeft: `4px solid ${color}` }}
             >
               <div className="flex items-center gap-3">
@@ -207,7 +206,8 @@ const MaintenanceManager = () => {
           pagination={{ pageSize: 10 }}
           scroll={{ x: 1400 }}
           onRow={record => ({
-            onClick: () => router.push(`/${SystemRoutes.MAINTENANCE}/${record.id}`),
+            onClick: () => router.push(`${SystemRoutes.MAINTENANCE}/${record.id}`),
+            style: { cursor: 'pointer' }
           })}
         />
       </div>

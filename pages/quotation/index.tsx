@@ -14,6 +14,7 @@ import CustomAvtar from '@/components/common/CustomAvtar';
 import Link from 'next/link';
 import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineActionsBar';
 import HLPackageCopyModal from '@/components/common/Models/HLPackageCopyModal';
+import SystemRoutes from '@lib/constants/Routes';
 
 const QuotationPage: React.FC = () => {
   const router = useRouter();
@@ -258,18 +259,18 @@ const QuotationPage: React.FC = () => {
     label: string;
     count: number;
   }> = [
-    { type: 'all', label: 'All', count: quotationDummyData.length },
-    { type: 'draft', label: 'Draft', count: quotationDummyData.length },
-    { type: 'approved', label: 'Approved', count: quotationDummyData.length },
-    { type: 'modified', label: 'Modified', count: quotationDummyData.length },
-    {
-      type: 'pendingApproval',
-      label: 'Pending Approval',
-      count: quotationDummyData.length,
-    },
-    { type: 'cancelled', label: 'Cancelled', count: quotationDummyData.length },
-    { type: 'expired', label: 'Expired', count: quotationDummyData.length },
-  ];
+      { type: 'all', label: 'All', count: quotationDummyData.length },
+      { type: 'draft', label: 'Draft', count: quotationDummyData.length },
+      { type: 'approved', label: 'Approved', count: quotationDummyData.length },
+      { type: 'modified', label: 'Modified', count: quotationDummyData.length },
+      {
+        type: 'pendingApproval',
+        label: 'Pending Approval',
+        count: quotationDummyData.length,
+      },
+      { type: 'cancelled', label: 'Cancelled', count: quotationDummyData.length },
+      { type: 'expired', label: 'Expired', count: quotationDummyData.length },
+    ];
 
   return (
     <div className="p-4">
@@ -321,12 +322,18 @@ const QuotationPage: React.FC = () => {
           showSizeChanger: true,
           showQuickJumper: true,
         }}
+        onRow={record => ({
+          onClick: () => {
+            // router.push(`${SystemRoutes.QUOTATION}/${record.slugId}`);
+          },
+          style: { cursor: 'pointer' }
+        })}
       />
       <HLPackageCopyModal
         title="Copy Quation"
         open={isCopyModalOpen}
         onCancel={() => setIsCopyModalOpen(false)}
-        onOk={() => {}}
+        onOk={() => { setIsCopyModalOpen(false) }}
       />
     </div>
   );

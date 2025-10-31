@@ -272,7 +272,7 @@ const LeadPage: React.FC = () => {
       render: assignee => (
         <div className="flex justify-between items-center">
           <CustomAvtar label={assignee?.name} />
-          <Link href="#">
+          <Link href="#" onClick={(e) => { e.stopPropagation(); }}>
             <IconShare3 size={15} className="cursor-pointer text-blue" />
           </Link>
         </div>
@@ -290,17 +290,17 @@ const LeadPage: React.FC = () => {
     label: string;
     count: number;
   }> = [
-    { type: 'all', label: 'All', count: leads.length },
-    { type: 'leads', label: 'Leads', count: leads.length },
-    {
-      type: 'opportunities',
-      label: 'Opportunities',
-      count: leads.length,
-    },
-    { type: 'closedWon', label: 'Closed Won', count: leads.length },
-    { type: 'closedLost', label: 'Closed Lost', count: leads.length },
-    { type: 'onHold', label: 'On Hold', count: leads.length },
-  ];
+      { type: 'all', label: 'All', count: leads.length },
+      { type: 'leads', label: 'Leads', count: leads.length },
+      {
+        type: 'opportunities',
+        label: 'Opportunities',
+        count: leads.length,
+      },
+      { type: 'closedWon', label: 'Closed Won', count: leads.length },
+      { type: 'closedLost', label: 'Closed Lost', count: leads.length },
+      { type: 'onHold', label: 'On Hold', count: leads.length },
+    ];
 
   const handleOpenDeleteModal = () => setIsDeleteModalVisible(true);
   const handleCancelDelete = () => setIsDeleteModalVisible(false);
@@ -372,6 +372,7 @@ const LeadPage: React.FC = () => {
           onClick: () => {
             router.push(`${SystemRoutes.LEADS}/${record.leadId}`);
           },
+          style: { cursor: 'pointer' }
         })}
         pagination={{
           pageSize: 10,

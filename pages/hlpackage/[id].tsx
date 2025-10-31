@@ -150,7 +150,7 @@ const HLPackageDetail = () => {
     </div>
   );
   const filterButtons = ['All', 'Selected', 'UnSelected'];
-  function handleSubmit(values) {}
+  function handleSubmit(values) { }
   return (
     <div className="p-4">
       <Form form={form} onFinish={handleSubmit} initialValues={initialValues}>
@@ -552,7 +552,7 @@ const HLPackageDetail = () => {
         title="Custom Section"
         open={customSectionModalOpen}
         onCancel={() => setCustomSectionModalOpen(false)}
-        onSubmit={() => {}}
+        onSubmit={() => { setCustomSectionModalOpen(false) }}
         fields={CustomSectionField}
       />
       <PriceListDrawer

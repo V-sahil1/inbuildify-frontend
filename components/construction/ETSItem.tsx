@@ -1,5 +1,5 @@
 import { IconCheck, IconPencil, IconTrash, IconX } from '@tabler/icons-react';
-import { Form, Input, InputNumber, Select } from 'antd';
+import { Form, Input, InputNumber, Popconfirm, Select } from 'antd';
 import { useState } from 'react';
 
 export const ETSItem = ({ onRemove, index, form, onConfirm, tableHeaderField }) => {
@@ -47,8 +47,14 @@ export const ETSItem = ({ onRemove, index, form, onConfirm, tableHeaderField }) 
               setIsDisabled(false);
               setConfirmed(false);
             }}
+            className='cursor-pointer'
           />
-          <IconTrash size={20} color="red" onClick={onRemove} />
+          <Popconfirm title="Delete the item"
+            description="Are you sure to delete this item?"
+            onConfirm={onRemove}
+            okText="Yes"
+            cancelText="No"> <IconTrash size={20} color="red" className='cursor-pointer' /></Popconfirm>
+
         </div>
       ) : (
         <div className="flex gap-3 text-center p-3 align-middle">
@@ -58,8 +64,9 @@ export const ETSItem = ({ onRemove, index, form, onConfirm, tableHeaderField }) 
             onClick={() => {
               handleConfirm();
             }}
+            className='cursor-pointer'
           />
-          <IconX size={20} color="red" onClick={onRemove} />
+          <IconX size={20} color="red" onClick={onRemove} className='cursor-pointer' />
         </div>
       )}
     </div>

@@ -37,18 +37,16 @@ const CampaignDetail = ({ current, setCurrent }) => {
             <p className="w-[200px]">Campaign By</p>
             <div className="w-[500px]">
               <Button
-                className={` ${
-                  activeTab === 'Email' ? 'bg-primary' : 'bg-white text-primary'
-                } rounded-none`}
+                className={` ${activeTab === 'Email' ? 'bg-primary' : 'bg-white text-primary'
+                  } rounded-none`}
                 type="primary"
                 onClick={() => setActiveTab('Email')}
               >
                 Email
               </Button>
               <Button
-                className={` ${
-                  activeTab === 'SMS' ? 'bg-primary' : 'bg-white text-primary'
-                } rounded-none`}
+                className={` ${activeTab === 'SMS' ? 'bg-primary' : 'bg-white text-primary'
+                  } rounded-none`}
                 type="primary"
                 onClick={() => setActiveTab('SMS')}
               >
@@ -71,7 +69,7 @@ const CampaignDetail = ({ current, setCurrent }) => {
                       {
                         key: 'Insert Contact Name',
                         label: 'Insert Contact Name',
-                        onClick: () => {},
+                        onClick: () => { },
                       },
                     ],
                   }}
@@ -106,7 +104,8 @@ const CampaignDetail = ({ current, setCurrent }) => {
         title="Footer"
         open={footerOpen}
         onCancel={() => setFooterOpen(false)}
-        onSubmit={values => {
+        onSubmit={(values) => {
+          setFooterOpen(false)
           console.log(values);
         }}
         fields={fields}

@@ -30,7 +30,7 @@ const ConstructionChecklistModal = ({
                 <Input className="w-[250px]" />
               </Form.Item>
             </div>
-            <div className="text-blue" onClick={() => setHideSetting(!hideSetting)}>
+            <div className="text-blue cursor-pointer" onClick={() => setHideSetting(!hideSetting)}>
               {hideSetting ? 'Hide Advance Settings' : 'Show Advance Settings'}
             </div>
           </div>

@@ -134,10 +134,10 @@ const LandCreatePackageDrawerModel = ({ title, open, onClose, onSubmit }) => {
               <div className="flex justify-between">
                 <p>Facade</p>
                 <div className="flex gap-4">
-                  <Checkbox checked={true} onChange={e => {}}>
+                  <Checkbox checked={true} onChange={e => { }}>
                     Standard{' '}
                   </Checkbox>
-                  <Checkbox checked={false} onChange={e => {}}>
+                  <Checkbox checked={false} onChange={e => { }}>
                     Upgrade{' '}
                   </Checkbox>
                 </div>
@@ -180,7 +180,7 @@ const LandCreatePackageDrawerModel = ({ title, open, onClose, onSubmit }) => {
             </div>
             <div className="flex justify-end gap-2 mt-3">
               <Button>Cancel</Button>
-              <Button htmlType="submit">Save</Button>
+              <Button type='primary' htmlType="submit">Save</Button>
             </div>
           </Form>
         </div>
