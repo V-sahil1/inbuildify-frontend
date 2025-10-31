@@ -1,20 +1,21 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import { Dropdown, message, Tag } from "antd";
-import { IconDots } from "@tabler/icons-react";
-import { useAppDispatch } from "@hooks/redux";
+import React, { useState } from 'react';
+import { Button, Dropdown, message, Tag } from 'antd';
+import { IconDots } from '@tabler/icons-react';
+import { useAppDispatch } from '@hooks/redux';
 import {
   leadConvertThunk,
   leadDeleteThunk,
   transferLeadThunk,
-} from "@redux/feature/lead/leadThunk";
-import { useRouter } from "next/navigation";
-import { CreateFormModal } from "./Models/CreateFormModel";
-import ConfirmationModal from "./ConfirmationModal";
-import transferLeadFields from "../formFields/transferLeadFields";
-import CloseLeadModal from "../leadDetail/LeadQuotations/CloseLeadModal";
-import { QuotationResponse } from "@redux/feature/quotation/IQuotationState";
+} from '@redux/feature/lead/leadThunk';
+import { useRouter } from 'next/navigation';
+import { CreateFormModal } from './Models/CreateFormModel';
+import ConfirmationModal from './ConfirmationModal';
+import transferLeadFields from '../formFields/transferLeadFields';
+import CloseLeadModal from '../leadDetail/LeadQuotations/CloseLeadModal';
+import { QuotationResponse } from '@redux/feature/quotation/IQuotationState';
+import SystemRoutes from '@lib/constants/Routes';
 
 type Step = {
   key: string;
@@ -25,7 +26,7 @@ type Step = {
 };
 
 type StageProgressProps = {
-  id: string;
+  id?: string;
   title: string;
   status?: string;
   steps: Step[];
@@ -38,12 +39,12 @@ type StageProgressProps = {
 
 const actions = [
   {
-    key: "transfer",
-    label: "Transfer",
+    key: 'transfer',
+    label: 'Transfer',
   },
   {
-    key: "delete",
-    label: "Delete",
+    key: 'delete',
+    label: 'Delete',
   },
   // {
   //   key: "onhold",
@@ -58,8 +59,8 @@ const actions = [
   //   label: "Referance ID",
   // },
   {
-    key: "converttolead",
-    label: "Convert to Lead",
+    key: 'converttolead',
+    label: 'Convert to Lead',
   },
   // {
   //   key: "sendwelcomelatter",
@@ -86,44 +87,44 @@ const StageProgress: React.FC<StageProgressProps> = ({
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const [confirmModalVisible, setConfirmModalVisible] = useState(false);
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
-  const [modalType, setModalType] = useState<"WON" | "LOST" | null>(null);
+  const [modalType, setModalType] = useState<'WON' | 'LOST' | null>(null);
   const [loading, setLoading] = useState(false);
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const leadTransferFields = transferLeadFields();
   const dispatch = useAppDispatch();
   const router = useRouter();
   const handleWinClick = () => {
-    setModalType("WON");
+    setModalType('WON');
     setIsModalOpen(true);
   };
 
   const handleLoseClick = () => {
-    setModalType("LOST");
+    setModalType('LOST');
     setIsModalOpen(true);
   };
 
   const handleActionSelect = (action: string) => {
     setSelectedAction(action);
     switch (action) {
-      case "transfer":
+      case 'transfer':
         setIsTransferModalOpen(true);
 
         break;
-      case "delete":
+      case 'delete':
         setConfirmModalVisible(true);
         break;
-      case "onhold":
+      case 'onhold':
         break;
-      case "blocklist":
+      case 'blocklist':
         break;
-      case "referanceid":
+      case 'referanceid':
         break;
-      case "converttolead":
+      case 'converttolead':
         setConfirmModalVisible(true);
         break;
-      case "sendwelcomelatter":
+      case 'sendwelcomelatter':
         break;
-      case "sendwelcomeemail":
+      case 'sendwelcomeemail':
         break;
       default:
         break;
@@ -139,9 +140,9 @@ const StageProgress: React.FC<StageProgressProps> = ({
           ...values,
         })
       ).unwrap();
-      message.success("Lead transferred successfully");
+      message.success('Lead transferred successfully');
     } catch (err) {
-      message.error(err || "Failed to transfer lead");
+      message.error(err || 'Failed to transfer lead');
     } finally {
       setLoading(false);
       setIsTransferModalOpen(false);
@@ -152,11 +153,11 @@ const StageProgress: React.FC<StageProgressProps> = ({
     try {
       setLoading(true);
       await dispatch(leadDeleteThunk(leadId)).unwrap();
-      message.success("Lead deleted successfully");
+      message.success('Lead deleted successfully');
       router.push(`/`);
     } catch (err) {
       setLoading(false);
-      message.error(err || "Failed to delete lead");
+      message.error(err || 'Failed to delete lead');
     } finally {
       setLoading(false);
     }
@@ -166,18 +167,18 @@ const StageProgress: React.FC<StageProgressProps> = ({
     try {
       setLoading(true);
       await dispatch(leadConvertThunk(leadId)).unwrap();
-      message.success("Lead converted successfully");
+      message.success('Lead converted successfully');
       setConfirmModalVisible(false);
     } catch (err) {
       setLoading(false);
-      message.error(err || "Failed to convert lead");
+      message.error(err || 'Failed to convert lead');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-between flex-wrap gap-2 w-full">
+    <div className="flex items-center justify-between flex-wrap gap-2 w-[300px]">
       <div className="flex flex-col gap-2">
         {/* Info */}
         <div className="flex items-center gap-2">
@@ -204,16 +205,16 @@ const StageProgress: React.FC<StageProgressProps> = ({
                 className={`
                 flex-1 text-center py-2 cursor-pointer select-none text-font-color
                 ${step.color}
-                ${isActive && step.textColor ? step.textColor : "text-gray-700"}
+                ${isActive && step.textColor ? step.textColor : 'text-gray-700'}
                 transition-colors
-                ${index > 0 ? "-ml-3" : ""}
+                ${index > 0 ? '-ml-3' : ''}
                 relative
               `}
                 style={{
                   zIndex: steps.length - index,
                   clipPath: !isLast
-                    ? "polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%)"
-                    : "none",
+                    ? 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%)'
+                    : 'none',
                 }}
               >
                 <span className="whitespace-nowrap px-4">{step.label}</span>
@@ -223,18 +224,21 @@ const StageProgress: React.FC<StageProgressProps> = ({
         </div>
       </div>
       <div className="flex items-center gap-2">
-        {lead?.lead?.status === "COMPLETED" && (
+        {lead?.lead?.status === 'JOB' && (
+          <Button
+            type="primary"
+            className="btn rounded-md p-1"
+            onClick={() => router.push(`${SystemRoutes.JOB}/${lead?.lead?.leadId}`)}
+          >
+            view job
+          </Button>
+        )}
+        {lead?.lead?.status === 'COMPLETED' && (
           <>
-            <button
-              className="btn btn-success rounded-md p-1"
-              onClick={handleWinClick}
-            >
+            <button className="btn btn-success rounded-md p-1" onClick={handleWinClick}>
               Won
             </button>
-            <button
-              className="btn bg-red-500 rounded-md p-1 text-white"
-              onClick={handleLoseClick}
-            >
+            <button className="btn bg-red-500 rounded-md p-1 text-white" onClick={handleLoseClick}>
               Lost
             </button>
           </>
@@ -242,19 +246,17 @@ const StageProgress: React.FC<StageProgressProps> = ({
         {showOptions && (
           <Dropdown
             open={dropdownVisible}
-            onOpenChange={(open) => setDropdownVisible(open)}
+            onOpenChange={open => setDropdownVisible(open)}
             placement="bottomRight"
-            trigger={["click"]}
+            trigger={['click']}
             dropdownRender={() => (
               <div className="bg-white shadow-lg rounded-md border border-gray-200 w-56">
                 <div className="py-1">
                   {actions
                     .filter(
-                      (action) =>
-                        action.key !== "converttolead" ||
-                        lead?.lead?.status !== "NEW"
+                      action => action.key !== 'converttolead' || lead?.lead?.status !== 'NEW'
                     )
-                    .map((action) => (
+                    .map(action => (
                       <button
                         key={action.key}
                         className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center justify-between"
@@ -272,7 +274,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
           >
             <button
               className={`btn border ${
-                dropdownVisible ? "border-red-500 bg-red-50" : "border-red-500"
+                dropdownVisible ? 'border-red-500 bg-red-50' : 'border-red-500'
               } rounded-md p-1`}
               onClick={() => setDropdownVisible(!dropdownVisible)}
             >
@@ -307,7 +309,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
             label={modalType === "WON" ? "Comment" : "Lost Reason"}
             rules={[{ required: true, message: "Please provide a reason" }]}
           >
-            <TextArea rows={4} showCount maxLength={500} />
+            <TextArea rows={4} style={{resize:'none'}} showCount maxLength={500} />
           </Form.Item>
 
           <button id="reasonFormSubmit" type="submit" hidden />
@@ -349,22 +351,22 @@ const StageProgress: React.FC<StageProgressProps> = ({
       {confirmModalVisible && (
         <ConfirmationModal
           open={confirmModalVisible}
-          type={selectedAction === "delete" ? "danger" : "warning"}
+          type={selectedAction === 'delete' ? 'danger' : 'warning'}
           loading={loading}
           onClose={() => {
             setConfirmModalVisible(false);
           }}
           onConfirm={() => {
-            if (selectedAction === "delete") {
+            if (selectedAction === 'delete') {
               handleDelete(lead?.lead?.leadId);
-            } else if (selectedAction === "converttolead") {
+            } else if (selectedAction === 'converttolead') {
               handleConvertToLead(lead?.lead?.leadId);
             }
           }}
           message={
-            selectedAction === "delete"
-              ? "Are you sure you want to delete this lead?"
-              : "Are you sure you want to convert this to a lead?"
+            selectedAction === 'delete'
+              ? 'Are you sure you want to delete this lead?'
+              : 'Are you sure you want to convert this to a lead?'
           }
         />
       )}

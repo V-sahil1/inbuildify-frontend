@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
-import { Form, Input, Select, Checkbox, Upload, Button, FormInstance } from "antd";
-import { facadeFields } from "@/components/formFields/facadeFields";
-import { acceptOnlyImageRule } from "@lib/constants/formInputValidations";
+import React, { useEffect } from 'react';
+import { Form, Input, Select, Checkbox, Upload, Button, FormInstance } from 'antd';
+import { facadeFields } from '@/components/formFields/facadeFields';
+import { acceptOnlyImageRule } from '@lib/constants/formInputValidations';
 
 interface CustomFacadeFormProps {
   initialValues?: any;
@@ -14,7 +14,7 @@ const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
   onFormChange,
   form,
 }) => {
-  const fields = facadeFields({isDwellingDisable: true});
+  const fields = facadeFields({ isDwellingDisable: true });
 
   useEffect(() => {
     form.setFieldsValue(initialValues || {});
@@ -22,7 +22,7 @@ const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
 
   useEffect(() => {
     form.setFieldsValue({
-      dwelling_type: fields.find((field) => field.name === "dwelling_type")?.initialValue,
+      dwelling_type: fields.find(field => field.name === 'dwelling_type')?.initialValue,
     });
   }, [fields]);
 
@@ -37,15 +37,10 @@ const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
       initialValues={initialValues}
       onValuesChange={handleValuesChange}
     >
-      {fields.map((field) => {
-        if (field.type === "select") {
+      {fields.map(field => {
+        if (field.type === 'select') {
           return (
-            <Form.Item
-              key={field.name}
-              name={field.name}
-              label={field.label}
-              rules={field.rules}
-            >
+            <Form.Item key={field.name} name={field.name} label={field.label} rules={field.rules}>
               <Select
                 options={field.options}
                 placeholder={field.placeholder}
@@ -56,14 +51,9 @@ const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
             </Form.Item>
           );
         }
-        if (field.type === "image") {
+        if (field.type === 'image') {
           return (
-            <Form.Item
-              key={field.name}
-              name={field.name}
-              label={field.label}
-              rules={field.rules}
-            >
+            <Form.Item key={field.name} name={field.name} label={field.label} rules={field.rules}>
               <Upload
                 name="image"
                 listType="picture"
@@ -77,35 +67,27 @@ const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
             </Form.Item>
           );
         }
-        if (field.type === "checkbox") {
+        if (field.type === 'checkbox') {
           return (
-            <Form.Item
-              key={field.name}
-              name={field.name}
-              valuePropName="checked"
-            >
+            <Form.Item key={field.name} name={field.name} valuePropName="checked">
               <Checkbox>{field.label}</Checkbox>
             </Form.Item>
           );
         }
         return (
-          <Form.Item
-            key={field.name}
-            name={field.name}
-            label={field.label}
-            rules={field.rules}
-          >          
-            <Input 
-              placeholder={field.placeholder} 
-              type={field.type} 
-              onKeyPress={field.type === "number" ? 
-                (e) => {
-                  if (!/[0-9]/.test(e.key)) {
-                    e.preventDefault();
-                  }
-                } 
-                : undefined
-              } 
+          <Form.Item key={field.name} name={field.name} label={field.label} rules={field.rules}>
+            <Input
+              placeholder={field.placeholder}
+              type={field.type}
+              onKeyPress={
+                field.type === 'number'
+                  ? e => {
+                      if (!/[0-9]/.test(e.key)) {
+                        e.preventDefault();
+                      }
+                    }
+                  : undefined
+              }
             />
           </Form.Item>
         );

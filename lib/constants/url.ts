@@ -1,16 +1,16 @@
-import queryString from "query-string";
-import { omit } from "lodash";
+import queryString from 'query-string';
+import { omit } from 'lodash';
 
 export const queryStringToObject = (str: string, options = {}) =>
   queryString.parse(str, {
-    arrayFormat: "bracket",
+    arrayFormat: 'bracket',
     ...options,
   });
 
 //eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const objectToQueryString = (obj: any, options = {}) =>
   queryString.stringify(obj, {
-    arrayFormat: "bracket",
+    arrayFormat: 'bracket',
     ...options,
   });
 

@@ -1,10 +1,8 @@
-import MaintenanceManager from '@/components/maintenance/maintananceManager'
-import React from 'react'
+import MaintenanceManager from '@/components/maintenance/maintananceManager';
+import React from 'react';
 
 const index = () => {
-  return (
-    <MaintenanceManager />
-  )
-}
+  return <MaintenanceManager />;
+};
 
-export default index
+export default index;

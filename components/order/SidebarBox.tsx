@@ -1,6 +1,6 @@
-import { IconEdit } from "@tabler/icons-react";
-import { useState } from "react";
-import Address from "./modal/Address";
+import { IconEdit } from '@tabler/icons-react';
+import { useState } from 'react';
+import Address from './modal/Address';
 
 export function SidebarBox({
   title,
@@ -34,11 +34,7 @@ export function SidebarBox({
       </div>
       <div className="p-2 space-y-1">{children}</div>
       {newTaskModal && (
-        <Address
-          isOpen={newTaskModal}
-          onClose={openNewTaskModal}
-          modelKey={modelKey}
-        />
+        <Address isOpen={newTaskModal} onClose={openNewTaskModal} modelKey={modelKey} />
       )}
     </div>
   );

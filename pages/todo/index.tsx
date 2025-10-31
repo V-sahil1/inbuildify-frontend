@@ -1,17 +1,17 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
-import { useRouter } from "next/router";
-import { Table, Input, Select, Button, Space, Dropdown, Menu } from "antd";
-import { IconDownload, IconTruck } from "@tabler/icons-react";
-import { debounce } from "lodash";
-import { exportToExcel } from "@lib/utils/exportToExcel";
-import DateFilterDropdown from "@/components/common/custom-selects/DateFilterDropdown";
-import type { ColumnsType } from "antd/es/table";
-import { todoDummyData, TodoDataType } from "data/tasklistData";
-import { Dayjs } from "dayjs";
-import FilterTabs from "@/components/common/FilterTabs";
-import AssigneeSelect from "@/components/common/custom-selects/AssigneeSelect";
-import CustomAvtar from "@/components/common/CustomAvtar";
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/router';
+import { Table, Input, Select, Button, Space, Dropdown, Menu } from 'antd';
+import { IconDownload, IconTruck } from '@tabler/icons-react';
+import { debounce } from 'lodash';
+import { exportToExcel } from '@lib/utils/exportToExcel';
+import DateFilterDropdown from '@/components/common/custom-selects/DateFilterDropdown';
+import type { ColumnsType } from 'antd/es/table';
+import { todoDummyData, TodoDataType } from 'data/tasklistData';
+import { Dayjs } from 'dayjs';
+import AssigneeSelect from '@/components/common/custom-selects/AssigneeSelect';
+import CustomAvtar from '@/components/common/CustomAvtar';
+import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineActionsBar';
 
 const TodosPage: React.FC = () => {
   const router = useRouter();
@@ -25,12 +25,12 @@ const TodosPage: React.FC = () => {
     startDate: [Dayjs, Dayjs] | string | null;
     siteSupervisor: string;
   }>({
-    jobAddress: searchParams.get("jobAddress") || "",
-    taskName: searchParams.get("taskName") || "",
-    supplier: searchParams.get("supplier") || "",
-    bookingDate: searchParams.get("bookingDate") || "",
-    startDate: searchParams.get("startDate") || "",
-    siteSupervisor: searchParams.get("siteSupervisor") || "",
+    jobAddress: searchParams.get('jobAddress') || '',
+    taskName: searchParams.get('taskName') || '',
+    supplier: searchParams.get('supplier') || '',
+    bookingDate: searchParams.get('bookingDate') || '',
+    startDate: searchParams.get('startDate') || '',
+    siteSupervisor: searchParams.get('siteSupervisor') || '',
   });
 
   const debouncedUpdateURL = useMemo(
@@ -53,7 +53,7 @@ const TodosPage: React.FC = () => {
 
   const handleFilterChange = useCallback(
     (updates: Partial<typeof filters>) => {
-      setFilters((prev) => {
+      setFilters(prev => {
         const newFilters = { ...prev, ...updates };
         debouncedUpdateURL(newFilters);
         return newFilters;
@@ -70,12 +70,12 @@ const TodosPage: React.FC = () => {
 
   const handleExport = (data: TodoDataType[], type: string) => {
     const column = {
-      JobAddress: "Job Address",
-      taskName: "Task Name",
-      supplier: "Supplier",
-      bookingDate: "Booking Date",
-      startDate: "start Date",
-      siteSupervisor: "Site Supervisor",
+      JobAddress: 'Job Address',
+      taskName: 'Task Name',
+      supplier: 'Supplier',
+      bookingDate: 'Booking Date',
+      startDate: 'start Date',
+      siteSupervisor: 'Site Supervisor',
     };
     exportToExcel({
       data,
@@ -86,8 +86,10 @@ const TodosPage: React.FC = () => {
   };
 
   const handleFilterTabChange = (selectedType: string) => {
-    console.log("Selected filter:", selectedType);
+    console.log('Selected filter:', selectedType);
+    setActiveFilter(filterOptions.find(f => f.type === selectedType) || activeFilter);
   };
+
   const columns: ColumnsType<TodoDataType> = [
     {
       title: (
@@ -95,14 +97,12 @@ const TodosPage: React.FC = () => {
           <span>Job Address</span>
           <Input
             value={filters.jobAddress}
-            onChange={(e) =>
-              handleFilterChange({ ...filters, jobAddress: e.target.value })
-            }
+            onChange={e => handleFilterChange({ ...filters, jobAddress: e.target.value })}
           />
         </div>
       ),
-      dataIndex: "jobAddress",
-      key: "jobAddress",
+      dataIndex: 'jobAddress',
+      key: 'jobAddress',
       width: 250,
     },
     {
@@ -111,14 +111,12 @@ const TodosPage: React.FC = () => {
           <span>Task Name</span>
           <Input
             value={filters.taskName}
-            onChange={(e) =>
-              handleFilterChange({ ...filters, taskName: e.target.value })
-            }
+            onChange={e => handleFilterChange({ ...filters, taskName: e.target.value })}
           />
         </div>
       ),
-      dataIndex: "taskName",
-      key: "taskName",
+      dataIndex: 'taskName',
+      key: 'taskName',
       width: 200,
     },
     {
@@ -127,22 +125,20 @@ const TodosPage: React.FC = () => {
           <span>Booking Date</span>
           <DateFilterDropdown
             onFilter={(type, dates) => {
-              const dateString = dates
-                ? `${dates[0].toISOString()},${dates[1].toISOString()}`
-                : "";
+              const dateString = dates ? `${dates[0].toISOString()},${dates[1].toISOString()}` : '';
               handleFilterChange({ ...filters, bookingDate: dateString });
             }}
             onClear={() => {
-              console.log("Cleared date filter");
-              handleFilterChange({ ...filters, bookingDate: "" });
+              console.log('Cleared date filter');
+              handleFilterChange({ ...filters, bookingDate: '' });
             }}
           />
         </div>
       ),
-      dataIndex: "bookingDate",
-      key: "bookingDate",
+      dataIndex: 'bookingDate',
+      key: 'bookingDate',
       width: 150,
-      render: (date) => new Date(date).toLocaleDateString(),
+      render: date => new Date(date).toLocaleDateString(),
     },
     {
       title: (
@@ -150,22 +146,20 @@ const TodosPage: React.FC = () => {
           <span>Start Date</span>
           <DateFilterDropdown
             onFilter={(type, dates) => {
-              const dateString = dates
-                ? `${dates[0].toISOString()},${dates[1].toISOString()}`
-                : "";
+              const dateString = dates ? `${dates[0].toISOString()},${dates[1].toISOString()}` : '';
               handleFilterChange({ ...filters, startDate: dateString });
             }}
             onClear={() => {
-              console.log("Cleared date filter");
-              handleFilterChange({ ...filters, startDate: "" });
+              console.log('Cleared date filter');
+              handleFilterChange({ ...filters, startDate: '' });
             }}
           />
         </div>
       ),
-      dataIndex: "startDate",
-      key: "startDate",
+      dataIndex: 'startDate',
+      key: 'startDate',
       width: 150,
-      render: (date) => new Date(date).toLocaleDateString(),
+      render: date => new Date(date).toLocaleDateString(),
     },
     {
       title: (
@@ -173,21 +167,19 @@ const TodosPage: React.FC = () => {
           <span>Site Supervisor</span>
           <AssigneeSelect
             value={filters.siteSupervisor}
-            onChange={(value) =>
-              handleFilterChange({ ...filters, siteSupervisor: value })
-            }
+            onChange={value => handleFilterChange({ ...filters, siteSupervisor: value })}
           />
         </div>
       ),
-      dataIndex: "siteSupervisor",
-      key: "siteSupervisor",
+      dataIndex: 'siteSupervisor',
+      key: 'siteSupervisor',
       width: 150,
       render: (_, record) => (
         <div className="flex items-center justify-between">
           <CustomAvtar label={record.siteSupervisor} />
           <IconTruck size={20} className="text-blue cursor-pointer" />
         </div>
-      )
+      ),
     },
   ];
 
@@ -195,22 +187,22 @@ const TodosPage: React.FC = () => {
     <Menu
       items={[
         {
-          key: "1",
-          label: "Export Today list",
-          onClick: () => handleExport(todoDummyData, "today"),
+          key: '1',
+          label: 'Export Today list',
+          onClick: () => handleExport(todoDummyData, 'today'),
         },
         {
-          key: "2",
-          label: "Export Today and overdue list",
-          onClick: () => handleExport(todoDummyData, "todayAndOverdue"),
+          key: '2',
+          label: 'Export Today and overdue list',
+          onClick: () => handleExport(todoDummyData, 'todayAndOverdue'),
         },
         {
-          key: "3",
-          label: "Export All list",
-          onClick: () => handleExport(todoDummyData, "all"),
+          key: '3',
+          label: 'Export All list',
+          onClick: () => handleExport(todoDummyData, 'all'),
         },
         {
-          key: "4",
+          key: '4',
           label: (
             <span className="text-red-500">
               Export will take 2 to 3 <br /> min of time
@@ -222,38 +214,39 @@ const TodosPage: React.FC = () => {
     />
   );
 
-  type FilterType =
-    | "today"
-    | "tomorrow"
-    | "this-week"
-    | "next-week"
-    | "overdue";
-
+  type FilterType = 'today' | 'tomorrow' | 'this-week' | 'next-week' | 'overdue';
+  const [activeFilter, setActiveFilter] = useState<{
+    type: FilterType;
+    label: string;
+    count?: number;
+  }>({ type: 'today', label: 'Today' });
   const filterOptions: Array<{
     type: FilterType;
     label: string;
     count: number;
   }> = [
-    { type: "today", label: "Today", count: todoDummyData.length },
-    { type: "tomorrow", label: "Tomorrow", count: todoDummyData.length },
-    { type: "this-week", label: "This Week", count: todoDummyData.length },
-    { type: "next-week", label: "Next Week", count: todoDummyData.length },
-    { type: "overdue", label: "Overdue", count: todoDummyData.length },
+    { type: 'today', label: 'Today', count: todoDummyData.length },
+    { type: 'tomorrow', label: 'Tomorrow', count: todoDummyData.length },
+    { type: 'this-week', label: 'This Week', count: todoDummyData.length },
+    { type: 'next-week', label: 'Next Week', count: todoDummyData.length },
+    { type: 'overdue', label: 'Overdue', count: todoDummyData.length },
   ];
 
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Todo</h1>
-        <div className="flex space-x-1 border-b items-center justify-center">
-          <FilterTabs
-            options={filterOptions}
-            defaultType="today"
-            onChange={handleFilterTabChange}
+        <div>
+          <TimelineActionsBar
+            tabs={filterOptions.map(f => ({ type: f.type, label: f.label, count: f.count }))}
+            activeTab={activeFilter.type}
+            onTabChange={handleFilterTabChange}
+            isActionShow={false}
+            isCountShow={true}
           />
         </div>
         <Space>
-          <Dropdown overlay={menu} className="w-[100px]" trigger={["click"]}>
+          <Dropdown overlay={menu} className="w-[100px]" trigger={['click']}>
             <Button icon={<IconDownload />}>Export</Button>
           </Dropdown>
         </Space>
@@ -265,7 +258,7 @@ const TodosPage: React.FC = () => {
         columns={columns}
         dataSource={todoDummyData}
         rowSelection={{
-          type: "checkbox",
+          type: 'checkbox',
         }}
         pagination={{
           pageSize: 10,

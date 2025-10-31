@@ -1,18 +1,11 @@
-"use client";
-import { numberToWords } from "@lib/utils/convertNumberToWords";
-import { formatDate } from "@lib/utils/formatDate";
-import {
-  Document,
-  Page,
-  Text,
-  View,
-  StyleSheet,
-  Image,
-} from "@react-pdf/renderer";
-import { User } from "@redux/feature/auth/IAuthState";
-import { IFacadeState } from "@redux/feature/facade/IFacadeState";
-import { IFloorPlanState } from "@redux/feature/floorPlan/IFloorPlanState";
-import { Package } from "@redux/feature/package/IPackageState";
+'use client';
+import { numberToWords } from '@lib/utils/convertNumberToWords';
+import { formatDate } from '@lib/utils/formatDate';
+import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
+import { User } from '@redux/feature/auth/IAuthState';
+import { IFacadeState } from '@redux/feature/facade/IFacadeState';
+import { IFloorPlanState } from '@redux/feature/floorPlan/IFloorPlanState';
+import { Package } from '@redux/feature/package/IPackageState';
 
 interface QuatationPdfProps {
   user: User;
@@ -35,19 +28,18 @@ export const QuatationPdf = ({
   quotationAmount,
   items,
 }: QuatationPdfProps) => {
-
   const nonPackageItems = items?.map(category => ({
     ...category,
     items: category.items.filter(
       item => !quotePackage?.categoryItems?.some(ci => ci.id === item.categoryItemId)
-    )
+    ),
   }));
 
   const packageItems = items?.map(category => ({
     ...category,
-    items: category.items.filter(
-      item => quotePackage?.categoryItems?.some(ci => ci.id === item.categoryItemId)
-    )
+    items: category.items.filter(item =>
+      quotePackage?.categoryItems?.some(ci => ci.id === item.categoryItemId)
+    ),
   }));
   const Footer = () => {
     return (
@@ -55,40 +47,33 @@ export const QuatationPdf = ({
         {/* Top White Row */}
         <View style={styles.footerTop}>
           <Text style={styles.footerTopText}>{formatDate(new Date())}</Text>
-          <Text
-            style={styles.footerTopText}
-            render={({ pageNumber }) => `Page ${pageNumber}`}
-          />
+          <Text style={styles.footerTopText} render={({ pageNumber }) => `Page ${pageNumber}`} />
           <Text style={styles.footerTopText}>Initial................ / ................</Text>
         </View>
 
         {/* Bottom Blue Row */}
         <View style={styles.footerBottom}>
           {/* Phone */}
-          {
-            user?.phoneNumber && (
-              <View style={styles.footerItem}>
-                <Image
-                  src="https://img.icons8.com/ios-filled/50/e63946/phone.png"
-                  style={styles.footerIconImg}
-                />
-                <Text style={styles.footerText}>{user?.phoneNumber}</Text>
-              </View>
-            )
-          }
+          {user?.phoneNumber && (
+            <View style={styles.footerItem}>
+              <Image
+                src="https://img.icons8.com/ios-filled/50/e63946/phone.png"
+                style={styles.footerIconImg}
+              />
+              <Text style={styles.footerText}>{user?.phoneNumber}</Text>
+            </View>
+          )}
 
           {/* Email */}
-          {
-            user?.email && (
-              <View style={styles.footerItem}>
-                <Image
-                  src="https://img.icons8.com/ios-filled/50/e63946/new-post.png"
-                  style={styles.footerIconImg}
-                />
-                <Text style={styles.footerText}>{user?.email}</Text>
-              </View>
-            )
-          }
+          {user?.email && (
+            <View style={styles.footerItem}>
+              <Image
+                src="https://img.icons8.com/ios-filled/50/e63946/new-post.png"
+                style={styles.footerIconImg}
+              />
+              <Text style={styles.footerText}>{user?.email}</Text>
+            </View>
+          )}
         </View>
       </View>
     );
@@ -99,8 +84,10 @@ export const QuatationPdf = ({
       <View style={styles.header} fixed>
         <Image src={user?.logo} style={styles.headerLogo} />
         <View style={styles.headerTextContainer}>
-          <Text style={styles.headerTitle}>{user?.licenseNumber && ("Lic No : " + user?.licenseNumber)}</Text>
-          <Text style={styles.headerSlogan}>{user?.abnNumber && ("ABN : " + user?.abnNumber)}</Text>
+          <Text style={styles.headerTitle}>
+            {user?.licenseNumber && 'Lic No : ' + user?.licenseNumber}
+          </Text>
+          <Text style={styles.headerSlogan}>{user?.abnNumber && 'ABN : ' + user?.abnNumber}</Text>
         </View>
       </View>
     );
@@ -126,13 +113,19 @@ export const QuatationPdf = ({
   };
 
   // Helper component for creating lists with a title
-  const ListWithTitle = ({ title, list, description, imageSrc }: { title?: string; list?: string[], description?: string | string[], imageSrc?: string }) => (
+  const ListWithTitle = ({
+    title,
+    list,
+    description,
+    imageSrc,
+  }: {
+    title?: string;
+    list?: string[];
+    description?: string | string[];
+    imageSrc?: string;
+  }) => (
     <View style={Page3styles.section}>
-      {
-        title && (
-          <Text style={Page3styles.SubHeading}>{title}</Text>
-        )
-      }
+      {title && <Text style={Page3styles.SubHeading}>{title}</Text>}
       {/* Row container for list + image */}
       <View style={Page3styles.row}>
         {/* Left column (list + description) */}
@@ -154,19 +147,17 @@ export const QuatationPdf = ({
         )}
       </View>
 
-      {Array.isArray(description) ?
-        (
-          description?.map((item, i) => (
-            <View key={i} style={Page3styles.listItem}>
-              <Text style={Page3styles.listText}>{item}</Text>
-            </View>
-          ))
-        ) : (
-          <View style={Page3styles.listItem}>
-            <Text style={Page3styles.listText}>{description}</Text>
+      {Array.isArray(description) ? (
+        description?.map((item, i) => (
+          <View key={i} style={Page3styles.listItem}>
+            <Text style={Page3styles.listText}>{item}</Text>
           </View>
-        )
-      }
+        ))
+      ) : (
+        <View style={Page3styles.listItem}>
+          <Text style={Page3styles.listText}>{description}</Text>
+        </View>
+      )}
     </View>
   );
 
@@ -186,16 +177,15 @@ export const QuatationPdf = ({
           <View style={Page1styles.row}>
             <Text style={Page1styles.label}>Dear</Text>
             <Text style={Page1styles.colon}>:</Text>
-            <Text style={Page1styles.value}>{leadDetail?.name || "-"}</Text>
+            <Text style={Page1styles.value}>{leadDetail?.name || '-'}</Text>
           </View>
 
           {/* Body */}
           <View style={Page1styles.body}>
             <Text style={Page1styles.paragraph}>
-              Thank you for your recent enquiry and for the opportunity to work
-              collaboratively throughout the negotiation process. {user?.firmName || "-"} is
-              pleased to present the premium tender proposal for the Double-Storey
-              Home,
+              Thank you for your recent enquiry and for the opportunity to work collaboratively
+              throughout the negotiation process. {user?.firmName || '-'} is pleased to present the
+              premium tender proposal for the Double-Storey Home,
             </Text>
 
             <Text style={Page1styles.paragraph}>
@@ -203,14 +193,14 @@ export const QuatationPdf = ({
             </Text>
 
             <Text style={Page1styles.paragraph}>
-              Please note that any requested upgrades, design amendments, or
-              modifications to the inclusions will be clearly documented and itemized
-              as variations in the final tender contract.
+              Please note that any requested upgrades, design amendments, or modifications to the
+              inclusions will be clearly documented and itemized as variations in the final tender
+              contract.
             </Text>
 
             <Text style={Page1styles.paragraph}>
-              We look forward to the possibility of partnering with you to deliver a
-              high-quality result that meets your expectations.
+              We look forward to the possibility of partnering with you to deliver a high-quality
+              result that meets your expectations.
             </Text>
 
             <Text style={Page1styles.paragraph}>Warm regards,</Text>
@@ -218,13 +208,11 @@ export const QuatationPdf = ({
 
           {/* Signature */}
           <View style={Page1styles.signature}>
-            <Text style={Page1styles.name}>{user?.name || ""}</Text>
+            <Text style={Page1styles.name}>{user?.name || ''}</Text>
             <Text style={Page1styles.position}>Director</Text>
-            {
-              user?.phoneNumber && (
-                <Text style={Page1styles.phone}>Ph No. {user?.phoneNumber || ""}</Text>
-              )
-            }
+            {user?.phoneNumber && (
+              <Text style={Page1styles.phone}>Ph No. {user?.phoneNumber || ''}</Text>
+            )}
           </View>
         </View>
       </PageLayout>
@@ -242,9 +230,11 @@ export const QuatationPdf = ({
           <View style={Page2styles.row}>
             <Text style={[Page2styles.cell, Page2styles.col25]}>CLIENT</Text>
             <View style={[Page2styles.cell, Page2styles.col75]}>
-              <Text>Name: {leadDetail?.name || "-"}</Text>
-              <Text>Email: <Text style={Page2styles.boldText}>{leadDetail?.email || "-"}</Text></Text>
-              <Text>Mobile: {leadDetail?.phone || "-"}</Text>
+              <Text>Name: {leadDetail?.name || '-'}</Text>
+              <Text>
+                Email: <Text style={Page2styles.boldText}>{leadDetail?.email || '-'}</Text>
+              </Text>
+              <Text>Mobile: {leadDetail?.phone || '-'}</Text>
             </View>
           </View>
 
@@ -263,7 +253,7 @@ export const QuatationPdf = ({
           <View style={Page2styles.row}>
             <Text style={[Page2styles.cell, Page2styles.col25]}>PROJECT ADDRESS</Text>
             <Text style={[Page2styles.cell, Page2styles.col75]}>
-              {`${propertyDetail?.address1 || ""} ${propertyDetail?.address2 || ""}, ${propertyDetail?.citySuburb || ""}, ${propertyDetail?.stateRegion || ""} ${propertyDetail?.zipPostalCode || ""}, ${propertyDetail?.country || ""}`}
+              {`${propertyDetail?.address1 || ''} ${propertyDetail?.address2 || ''}, ${propertyDetail?.citySuburb || ''}, ${propertyDetail?.stateRegion || ''} ${propertyDetail?.zipPostalCode || ''}, ${propertyDetail?.country || ''}`}
             </Text>
           </View>
 
@@ -272,22 +262,24 @@ export const QuatationPdf = ({
             <Text style={[Page2styles.cell, Page2styles.col25]}>DESCRIPTIONS</Text>
             <View style={[Page2styles.cell, Page2styles.col75]}>
               <Text style={Page2styles.boldText}>
-                Construction of a {floorPlan?.dwellingTypeName?.replace("_", " ")} Home
+                Construction of a {floorPlan?.dwellingTypeName?.replace('_', ' ')} Home
               </Text>
 
               <Text style={Page2styles.paragraph}>
-                {floorPlan?.dwellingTypeName?.replace("_", " ")} home with {floorPlan?.beds} bedrooms, {floorPlan?.bath} bathrooms, {floorPlan?.carPark} car parking and {floorPlan?.garage} garage.
+                {floorPlan?.dwellingTypeName?.replace('_', ' ')} home with {floorPlan?.beds}{' '}
+                bedrooms, {floorPlan?.bath} bathrooms, {floorPlan?.carPark} car parking and{' '}
+                {floorPlan?.garage} garage.
               </Text>
               <Text style={Page2styles.paragraph}>
                 Total covered area approx. {Number(floorPlan?.totalSqft).toFixed(0)} Sq ft.
               </Text>
 
               <Text>
-                The construction includes concrete slab, timber frame, brick veneer walls with concrete tiled or steel fabricated roof.
+                The construction includes concrete slab, timber frame, brick veneer walls with
+                concrete tiled or steel fabricated roof.
               </Text>
             </View>
           </View>
-
 
           {/* TOTAL COST */}
           <View style={Page2styles.row}>
@@ -339,8 +331,8 @@ export const QuatationPdf = ({
             `Total Size: ${propertyDetail?.totalSizeM2} m²`,
             `Site Fall: ${propertyDetail?.siteFallMm} mm`,
             `Land Fill: ${propertyDetail?.landFillMm} mm`,
-            `Bush Fire: ${propertyDetail?.bushFire ? "Yes" : "No"}`,
-            `Corner Block: ${propertyDetail?.cornerBlock ? "Yes" : "No"}`
+            `Bush Fire: ${propertyDetail?.bushFire ? 'Yes' : 'No'}`,
+            `Corner Block: ${propertyDetail?.cornerBlock ? 'Yes' : 'No'}`,
           ]}
         />
 
@@ -349,7 +341,7 @@ export const QuatationPdf = ({
           list={[
             `Name: ${floorPlan?.name}`,
             `Range: ${floorPlan?.rangeName}`,
-            `Dwelling Type: ${floorPlan?.dwellingTypeName?.replace("_", " ")}`,
+            `Dwelling Type: ${floorPlan?.dwellingTypeName?.replace('_', ' ')}`,
             `Bedrooms: ${floorPlan?.beds}`,
             `Bathrooms: ${floorPlan?.bath}`,
             `Car Parks: ${floorPlan?.carPark}`,
@@ -359,7 +351,7 @@ export const QuatationPdf = ({
             `Width: ${floorPlan?.widthMeter} m`,
             `Depth: ${floorPlan?.depthMeter} m`,
             `Dwelling: ${floorPlan?.dwelling}`,
-            `Total Area: ${floorPlan?.totalSqft} Sqft`
+            `Total Area: ${floorPlan?.totalSqft} Sqft`,
           ]}
           imageSrc={floorPlan?.image}
         />
@@ -370,9 +362,9 @@ export const QuatationPdf = ({
             title="Facade Details"
             list={[
               `Name: ${facade?.name}`,
-              `Dwelling Type: ${facade?.dwellingTypeName?.replace("_", " ")}`,
-              `Standard: ${facade?.standard ? "Yes" : "No"}`,
-              `Upgrade: ${facade?.upgrade ? "Yes" : "No"}`,
+              `Dwelling Type: ${facade?.dwellingTypeName?.replace('_', ' ')}`,
+              `Standard: ${facade?.standard ? 'Yes' : 'No'}`,
+              `Upgrade: ${facade?.upgrade ? 'Yes' : 'No'}`,
               `Cost: ${facade?.cost}`,
               // `Created At: ${new Date(facade?.createdAt).toLocaleDateString()}`,
               // `Updated At: ${new Date(facade?.updatedAt).toLocaleDateString()}`
@@ -390,30 +382,39 @@ export const QuatationPdf = ({
                 {/* Header with two columns */}
                 <View style={[ItemTable.row, ItemTable.headerRow]}>
                   <Text style={[ItemTable.cell, ItemTable.col40]}>Item Name</Text>
-                  <Text style={[ItemTable.cell, ItemTable.col15, ItemTable.centerText]}>Quantity</Text>
+                  <Text style={[ItemTable.cell, ItemTable.col15, ItemTable.centerText]}>
+                    Quantity
+                  </Text>
                 </View>
 
                 {/* Rows with two columns */}
                 {packageItems
-                  .map((cat) => cat.items)
+                  .map(cat => cat.items)
                   .flat()
                   .map((item, i) => (
                     <View key={i} style={ItemTable.row}>
-                      <Text style={[ItemTable.cell, ItemTable.col40]}>{item?.shortDescription || item?.description}</Text>
-                      <Text style={[ItemTable.cell, ItemTable.col15, ItemTable.centerText]}>{item.quantity}</Text>
+                      <Text style={[ItemTable.cell, ItemTable.col40]}>
+                        {item?.shortDescription || item?.description}
+                      </Text>
+                      <Text style={[ItemTable.cell, ItemTable.col15, ItemTable.centerText]}>
+                        {item.quantity}
+                      </Text>
                     </View>
                   ))}
 
                 {/* Total row with two columns and a span */}
                 <View style={[ItemTable.row, ItemTable.totalRow]}>
-                  <Text
-                    style={[ItemTable.cell, ItemTable.col40, { borderRightWidth: 0 }]}
-                  >
+                  <Text style={[ItemTable.cell, ItemTable.col40, { borderRightWidth: 0 }]}>
                     Package Amount
                   </Text>
                   {/* The amount will now span across the remaining width */}
                   <Text
-                    style={[ItemTable.cell, ItemTable.col15, ItemTable.centerText, { borderLeftWidth: 1, borderRightWidth: 1 }]}
+                    style={[
+                      ItemTable.cell,
+                      ItemTable.col15,
+                      ItemTable.centerText,
+                      { borderLeftWidth: 1, borderRightWidth: 1 },
+                    ]}
                   >
                     ${Number(quotePackage?.amount).toLocaleString()}
                   </Text>
@@ -423,58 +424,57 @@ export const QuatationPdf = ({
           )}
         </View>
 
-
         <View style={{ marginTop: 10 }}>
-        {nonPackageItems.length > 0 &&
-            nonPackageItems
-              ?.map((cat: any) => cat.items.length > 0)
-              .includes(true) && (
+          {nonPackageItems.length > 0 &&
+            nonPackageItems?.map((cat: any) => cat.items.length > 0).includes(true) && (
               <Text style={Page3styles.SubHeading}>Quotation Items</Text>
             )}
-          {nonPackageItems?.map((cat: any, catIndex: number) => (
-            cat.items.length > 0 && (
-              <View key={catIndex} style={{ marginBottom: 15 }}>
-                <Text style={Page3styles.categoryHeading}>{cat.categoryName}</Text>
-                {cat.description && (
-                  <Text style={[Page3styles.description, { marginBottom: 15 }]}>
-                    {cat.description}
-                  </Text>
-                )}
-                <View style={ItemTable.table}>
-                  <View style={[ItemTable.row, ItemTable.headerRow]}>
-                    <Text style={[ItemTable.cell, ItemTable.col40]}>Description</Text>
-                    <Text style={[ItemTable.cell, ItemTable.col15]}>Qty</Text>
-                    <Text style={[ItemTable.cell, ItemTable.col15]}>Price</Text>
-                    <Text style={[ItemTable.cell, ItemTable.col15]}>Total</Text>
-                  </View>
-                  {cat.items.map((item: any, i: number) => (
-                    <View key={i} style={ItemTable.row}>
-                      <Text style={[ItemTable.cell, ItemTable.col40]}>
-                        {item.description || item.shortDescription || "-"}
-                      </Text>
-                      <Text style={[ItemTable.cell, ItemTable.col15]}>{item.quantity}</Text>
+          {nonPackageItems?.map(
+            (cat: any, catIndex: number) =>
+              cat.items.length > 0 && (
+                <View key={catIndex} style={{ marginBottom: 15 }}>
+                  <Text style={Page3styles.categoryHeading}>{cat.categoryName}</Text>
+                  {cat.description && (
+                    <Text style={[Page3styles.description, { marginBottom: 15 }]}>
+                      {cat.description}
+                    </Text>
+                  )}
+                  <View style={ItemTable.table}>
+                    <View style={[ItemTable.row, ItemTable.headerRow]}>
+                      <Text style={[ItemTable.cell, ItemTable.col40]}>Description</Text>
+                      <Text style={[ItemTable.cell, ItemTable.col15]}>Qty</Text>
+                      <Text style={[ItemTable.cell, ItemTable.col15]}>Price</Text>
+                      <Text style={[ItemTable.cell, ItemTable.col15]}>Total</Text>
+                    </View>
+                    {cat.items.map((item: any, i: number) => (
+                      <View key={i} style={ItemTable.row}>
+                        <Text style={[ItemTable.cell, ItemTable.col40]}>
+                          {item.description || item.shortDescription || '-'}
+                        </Text>
+                        <Text style={[ItemTable.cell, ItemTable.col15]}>{item.quantity}</Text>
+                        <Text style={[ItemTable.cell, ItemTable.col15]}>
+                          ${Number(item.price).toLocaleString()}
+                        </Text>
+                        <Text style={[ItemTable.cell, ItemTable.col15]}>
+                          ${Number(item.price * item.quantity).toLocaleString()}
+                        </Text>
+                      </View>
+                    ))}
+                    <View style={[ItemTable.row, ItemTable.totalRow]}>
+                      <Text style={[ItemTable.cell, ItemTable.col40]}>Subtotal</Text>
+                      <Text style={[ItemTable.cell, ItemTable.col15]} />
+                      <Text style={[ItemTable.cell, ItemTable.col15]} />
                       <Text style={[ItemTable.cell, ItemTable.col15]}>
-                        ${Number(item.price).toLocaleString()}
-                      </Text>
-                      <Text style={[ItemTable.cell, ItemTable.col15]}>
-                        ${Number(item.price * item.quantity).toLocaleString()}
+                        $
+                        {Number(
+                          cat.items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+                        )}
                       </Text>
                     </View>
-                  ))}
-                  <View style={[ItemTable.row, ItemTable.totalRow]}>
-                    <Text style={[ItemTable.cell, ItemTable.col40]}>Subtotal</Text>
-                    <Text style={[ItemTable.cell, ItemTable.col15]} />
-                    <Text style={[ItemTable.cell, ItemTable.col15]} />
-                    <Text style={[ItemTable.cell, ItemTable.col15]}>
-                      ${
-                        Number(cat.items.reduce((sum, item) => sum + item.price * item.quantity, 0))
-                      }
-                    </Text>
                   </View>
                 </View>
-              </View>
-            )
-          ))}
+              )
+          )}
         </View>
 
         {/* Final Total Section */}
@@ -482,7 +482,9 @@ export const QuatationPdf = ({
           <Text style={finalTotalStyles.title}>Final Total Amount</Text>
           <View style={finalTotalStyles.row}>
             <Text style={finalTotalStyles.label}>Package Total:</Text>
-            <Text style={finalTotalStyles.value}>${Number(quotePackage?.amount).toLocaleString()}</Text>
+            <Text style={finalTotalStyles.value}>
+              ${Number(quotePackage?.amount).toLocaleString()}
+            </Text>
           </View>
           <View style={finalTotalStyles.row}>
             <Text style={finalTotalStyles.label}>Facade Total:</Text>
@@ -490,7 +492,17 @@ export const QuatationPdf = ({
           </View>
           <View style={finalTotalStyles.row}>
             <Text style={finalTotalStyles.label}>Quotation Items Subtotal:</Text>
-            <Text style={finalTotalStyles.value}>${Number(nonPackageItems.reduce((sum, cat) => sum + cat.items.reduce((itemSum, item) => itemSum + item.price * item.quantity, 0), 0)).toLocaleString()}</Text>
+            <Text style={finalTotalStyles.value}>
+              $
+              {Number(
+                nonPackageItems.reduce(
+                  (sum, cat) =>
+                    sum +
+                    cat.items.reduce((itemSum, item) => itemSum + item.price * item.quantity, 0),
+                  0
+                )
+              ).toLocaleString()}
+            </Text>
           </View>
           <View style={finalTotalStyles.divider} />
           <View style={finalTotalStyles.row}>
@@ -937,24 +949,24 @@ const styles = StyleSheet.create({
     paddingTop: 100, // Space for the header
     paddingBottom: 40, // Space for the footer
     paddingHorizontal: 40,
-    flexDirection: "column",
-    backgroundColor: "#fff",
-    fontFamily: "Helvetica",
+    flexDirection: 'column',
+    backgroundColor: '#fff',
+    fontFamily: 'Helvetica',
   },
   header: {
-    position: "absolute",
+    position: 'absolute',
     top: 20,
     left: 0,
     right: 40,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingBottom: 6,
   },
-  headerLogo: { width: 250, height: 70, objectFit: "contain" },
-  headerTextContainer: { flexDirection: "column", alignItems: "flex-end" },
-  headerTitle: { fontSize: 12, fontWeight: "bold", color: "#2f4e75" },
-  headerSlogan: { fontSize: 10, color: "#2f4e75" },
+  headerLogo: { width: 250, height: 70, objectFit: 'contain' },
+  headerTextContainer: { flexDirection: 'column', alignItems: 'flex-end' },
+  headerTitle: { fontSize: 12, fontWeight: 'bold', color: '#2f4e75' },
+  headerSlogan: { fontSize: 10, color: '#2f4e75' },
   watermarkWrapper: {
     position: 'absolute',
     top: 0,
@@ -971,32 +983,32 @@ const styles = StyleSheet.create({
     objectFit: 'contain',
   },
   footerWrapper: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
   },
   footerTop: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     paddingHorizontal: 40,
     paddingVertical: 4,
   },
   footerTopText: {
     fontSize: 9,
-    color: "#000",
+    color: '#000',
   },
   footerBottom: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#1E3A8A", // blue
-    borderTop: "3pt solid #E63946", // red border
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#1E3A8A', // blue
+    borderTop: '3pt solid #E63946', // red border
     paddingVertical: 6,
   },
   footerItem: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginHorizontal: 20,
   },
   footerIconImg: {
@@ -1006,8 +1018,8 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 11,
-    color: "#fff",
-    fontWeight: "bold",
+    color: '#fff',
+    fontWeight: 'bold',
   },
   contentWrapper: {
     flexGrow: 1, // This is the key
@@ -1023,11 +1035,11 @@ const Page1styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    textAlign: "center",
+    textAlign: 'center',
     marginBottom: 25,
   },
   row: {
-    flexDirection: "row",
+    flexDirection: 'row',
     marginBottom: 6,
   },
   label: {
@@ -1048,7 +1060,7 @@ const Page1styles = StyleSheet.create({
   paragraph: {
     fontSize: 11,
     marginBottom: 12,
-    textAlign: "justify",
+    textAlign: 'justify',
   },
   signature: {
     marginTop: 50,
@@ -1072,30 +1084,30 @@ const Page1styles = StyleSheet.create({
 
 const Page2styles = StyleSheet.create({
   table: {
-    width: "100%",
+    width: '100%',
     borderWidth: 1,
-    borderColor: "#000",
-    flexDirection: "column",
+    borderColor: '#000',
+    flexDirection: 'column',
     marginTop: 20,
     marginBottom: 20, // Add margin to separate from the next section
   },
   row: {
-    flexDirection: "row",
+    flexDirection: 'row',
     borderBottomWidth: 1,
-    borderColor: "#000",
+    borderColor: '#000',
   },
   cell: {
     borderRightWidth: 1,
-    borderColor: "#000",
+    borderColor: '#000',
     padding: 6,
     fontSize: 11,
-    flexWrap: "wrap",
+    flexWrap: 'wrap',
   },
   col25: { flex: 1 }, // 25%
   col75: { flex: 3 }, // 75%
   col50: { flex: 2 }, // 50%
   boldText: {
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   paragraph: {
     marginTop: 4,
@@ -1110,23 +1122,23 @@ const Page3styles = StyleSheet.create({
   },
   heading: {
     fontSize: 16,
-    textAlign: "center",
+    textAlign: 'center',
     marginBottom: 10,
   },
   SubHeading: {
     fontSize: 12,
-    textAlign: "center",
-    fontWeight: "bold",
+    textAlign: 'center',
+    fontWeight: 'bold',
     marginBottom: 10,
   },
   categoryHeading: {
     fontSize: 12,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 10,
   },
   listItem: {
-    flexDirection: "row",
-    alignItems: "flex-start",
+    flexDirection: 'row',
+    alignItems: 'flex-start',
     marginBottom: 1,
   },
   bullet: {
@@ -1152,9 +1164,9 @@ const Page3styles = StyleSheet.create({
     marginTop: 5,
   },
   row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
   },
   leftCol: {
     flex: 1,
@@ -1162,13 +1174,13 @@ const Page3styles = StyleSheet.create({
   },
   rightCol: {
     width: 300,
-    alignItems: "center",
+    alignItems: 'center',
   },
   image: {
     width: 300,
     height: 200,
-    borderRadius: "10px",
-    objectFit: "contain",
+    borderRadius: '10px',
+    objectFit: 'contain',
   },
 });
 
@@ -1179,39 +1191,39 @@ const TenderAcceptanceStyles = StyleSheet.create({
   },
   heading: {
     fontSize: 16,
-    fontWeight: "bold",
-    textAlign: "center",
+    fontWeight: 'bold',
+    textAlign: 'center',
     marginBottom: 20,
   },
   paragraph: {
-    lineHeight: 0.8
+    lineHeight: 0.8,
   },
   subSection: {
     marginBottom: 10,
-    flexDirection: "row",
-    flexWrap: "wrap",
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     lineHeight: 1,
   },
   boldText: {
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   text: {
     flex: 1,
   },
   signatureContainer: {
     marginTop: 50,
-    flexDirection: "row",
-    justifyContent: "space-around",
+    flexDirection: 'row',
+    justifyContent: 'space-around',
   },
   signatureLine: {
-    width: "45%",
-    flexDirection: "column",
-    alignItems: "center",
+    width: '45%',
+    flexDirection: 'column',
+    alignItems: 'center',
   },
   signatureUnderscore: {
     fontSize: 12,
     marginTop: 20,
-    color: "#000",
+    color: '#000',
   },
   clientText: {
     fontSize: 11,
@@ -1222,31 +1234,31 @@ const TenderAcceptanceStyles = StyleSheet.create({
 const ItemTable = StyleSheet.create({
   table: {
     borderWidth: 1,
-    borderColor: "#000",
+    borderColor: '#000',
     marginBottom: 10,
   },
   row: {
-    flexDirection: "row",
+    flexDirection: 'row',
     borderBottomWidth: 1,
-    borderColor: "#000",
+    borderColor: '#000',
   },
   headerRow: {
-    backgroundColor: "#f1f1f1",
+    backgroundColor: '#f1f1f1',
   },
   totalRow: {
-    backgroundColor: "#e6f0ff",
+    backgroundColor: '#e6f0ff',
   },
   cell: {
     padding: 4,
     fontSize: 9,
     borderRightWidth: 1,
-    borderColor: "#000",
+    borderColor: '#000',
   },
   centerText: {
     textAlign: 'center',
   },
   col40: { flex: 4 },
-  col15: { flex: 1.5, textAlign: "right" },
+  col15: { flex: 1.5, textAlign: 'right' },
 });
 
 const finalTotalStyles = StyleSheet.create({

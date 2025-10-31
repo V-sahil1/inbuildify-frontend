@@ -1,5 +1,5 @@
-import Link from "next/link";
-import React from "react";
+import Link from 'next/link';
+import React from 'react';
 
 export default function Breadcrumb({
   breadcrumbItem,
@@ -22,10 +22,7 @@ export default function Breadcrumb({
     <div className="mb-4">
       <ul className="flex flex-wrap gap-x-2 gap-y-1">
         <li>
-          <Link
-            href="/"
-            className="text-secondary sm:text-[16px]/[24px] text-[14px]/[20px]"
-          >
+          <Link href="/" className="text-secondary sm:text-[16px]/[24px] text-[14px]/[20px]">
             Home
           </Link>
         </li>

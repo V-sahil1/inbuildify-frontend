@@ -1,14 +1,16 @@
-import { IconLoader } from "@tabler/icons-react";
+import { IconLoader } from '@tabler/icons-react';
 
 type LoadingProps = {
-  type?: string,
-}
+  type?: string;
+};
 
 const Loading: React.FC<LoadingProps> = ({ type }) => {
   return (
     <div>
-      <IconLoader className={`animate-spin ${type === 'primary' ? 'text-primary' : 'text-white'}`} />
+      <IconLoader
+        className={`animate-spin ${type === 'primary' ? 'text-primary' : 'text-white'}`}
+      />
     </div>
-  )
-}
+  );
+};
 export default Loading;

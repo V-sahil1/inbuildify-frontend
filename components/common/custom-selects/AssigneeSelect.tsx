@@ -1,17 +1,13 @@
-import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import CustomSelect from "./CustomSelect";
-import { useEffect, useState } from "react";
-import { message } from "antd";
-import { getUsersThunk } from "@redux/feature/user/userThunk";
-import { user } from "@redux/feature/user/UserState";
-import { CustomSelectOption, CustomSelectProps } from "types/common.types";
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import CustomSelect from './CustomSelect';
+import { useEffect, useState } from 'react';
+import { message } from 'antd';
+import { getUsersThunk } from '@redux/feature/user/userThunk';
+import { user } from '@redux/feature/user/UserState';
+import { CustomSelectOption, CustomSelectProps } from 'types/common.types';
 
-const AssigneeSelect: React.FC<CustomSelectProps> = ({
-  value,
-  onChange,
-  width,
-}) => {
-  const { user } = useAppSelector((state) => state?.auth);
+const AssigneeSelect: React.FC<CustomSelectProps> = ({ value, onChange, width }) => {
+  const { user } = useAppSelector(state => state?.auth);
   const [users, setUsers] = useState<user[]>([]);
   const dispatch = useAppDispatch();
 
@@ -21,7 +17,7 @@ const AssigneeSelect: React.FC<CustomSelectProps> = ({
         const response = await dispatch(getUsersThunk()).unwrap();
         setUsers(response.data || []);
       } catch (error) {
-        message.error(error instanceof Error ? error.message : "Failed to fetch users");
+        message.error(error instanceof Error ? error.message : 'Failed to fetch users');
       }
     };
 
@@ -30,10 +26,10 @@ const AssigneeSelect: React.FC<CustomSelectProps> = ({
 
   const assigneeOptions = users.reduce((acc, u) => {
     if (u.email !== user?.email) {
-      acc.push({ 
-        label: u?.name || 'Unnamed User', 
+      acc.push({
+        label: u?.name || 'Unnamed User',
         value: u?.usersId || '',
-        role: u?.role 
+        role: u?.role,
       });
     }
     return acc;

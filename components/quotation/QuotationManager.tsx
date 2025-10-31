@@ -1,43 +1,38 @@
-import StageProgress from "@/components/common/StageProgress";
-import CategorySidebar from "@/components/leadDetail/CategorySidebar";
-import FooterActions from "@/components/leadDetail/FooterActions";
-import InfoCards from "@/components/leadDetail/InfoCards";
-import ItemsPanel from "@/components/leadDetail/ItemsPanel";
-import { Plan } from "@/pages/leads/[id]";
-import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import { Status } from "@lib/constants/enum";
-import { toggleExpand } from "@redux/feature/masterPriceList/masterPriceListSlice";
-import { IFacadeState } from "@redux/feature/facade/IFacadeState";
+import StageProgress from '@/components/common/StageProgress';
+import CategorySidebar from '@/components/leadDetail/CategorySidebar';
+import FooterActions from '@/components/leadDetail/FooterActions';
+import InfoCards from '@/components/leadDetail/InfoCards';
+import ItemsPanel from '@/components/leadDetail/ItemsPanel';
+import { Plan } from '@/pages/leads/[id]';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { Status } from '@lib/constants/enum';
+import { toggleExpand } from '@redux/feature/masterPriceList/masterPriceListSlice';
+import { IFacadeState } from '@redux/feature/facade/IFacadeState';
 import {
   fetchCategories,
   fetchCategoryItems,
-} from "@redux/feature/masterPriceList/masterPriceListThunk";
-import { Package } from "@redux/feature/package/IPackageState";
-import { RootState } from "@redux/feature/store";
-import React, {
-  useEffect,
-  useState,
-  useCallback,
-  useRef,
-  useMemo,
-} from "react";
+} from '@redux/feature/masterPriceList/masterPriceListThunk';
+import { Package } from '@redux/feature/package/IPackageState';
+import { RootState } from '@redux/feature/store';
+import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import {
   createQuotation,
   getQuotationById,
   getQuotationVersionById,
-} from "@redux/feature/quotation/quotationThunk";
-import { message, Result, Spin } from "antd";
-import QuotationFilter from "@/components/quotation/QuotationFilter";
-import { updateLeadStatus } from "@redux/feature/lead/leadSlice";
-import { clearQuotation, setQuotationItems } from "@redux/feature/quotation/quotationSlice";
-import { usePdf } from "@hooks/usePdf";
-import QuatationPdf from "@/components/common/QuatationPdf";
-import calculateTotalQuotation from "@lib/utils/calculateTotalQuotation";
-import SystemRoutes from "@lib/constants/Routes";
-import { useRouter } from "next/router";
-import { getDwellingTypes, getRanges } from "@redux/feature/types/typesThunk";
-import { clearFilters } from "@redux/feature/facade/facadeSlice";
-import Link from "next/link";
+} from '@redux/feature/quotation/quotationThunk';
+import { message, Result, Spin } from 'antd';
+import QuotationFilter from '@/components/quotation/QuotationFilter';
+import { updateLeadStatus } from '@redux/feature/lead/leadSlice';
+import { clearQuotation, setQuotationItems } from '@redux/feature/quotation/quotationSlice';
+import { usePdf } from '@hooks/usePdf';
+import QuatationPdf from '@/components/common/QuatationPdf';
+import calculateTotalQuotation from '@lib/utils/calculateTotalQuotation';
+import SystemRoutes from '@lib/constants/Routes';
+import { useRouter } from 'next/router';
+import { getDwellingTypes, getRanges } from '@redux/feature/types/typesThunk';
+import { clearFilters } from '@redux/feature/facade/facadeSlice';
+import Link from 'next/link';
+import Loading from '../common/Loading';
 
 const QuotationManager = () => {
   const dispatch = useAppDispatch();
@@ -46,11 +41,8 @@ const QuotationManager = () => {
   const { quoteVersionId } = router.query as { quoteVersionId: string };
   // console.log("🚀 ~ QuotationManager ~ quoteVersionId:", quoteVersionId)
   const [isEditMode, setIsEditMode] = useState(false);
-  const isReadOnly = useMemo(
-    () => !!quoteVersionId && !isEditMode,
-    [quoteVersionId, isEditMode]
-  );
-  const { user } = useAppSelector((state) => state.auth);
+  const isReadOnly = useMemo(() => !!quoteVersionId && !isEditMode, [quoteVersionId, isEditMode]);
+  const { user } = useAppSelector(state => state.auth);
   const {
     contact,
     property,
@@ -65,22 +57,15 @@ const QuotationManager = () => {
   } = useAppSelector((state: RootState) => state.quotation);
   const lastFetchedFiltersRef = useRef<{ range?: string; dwelling_type?: string } | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<Plan | undefined>(plan);
-  const [selectedPackage, setSelectedPackage] = useState<Package | undefined>(
-    undefined
-  );
-  const isJob = useMemo(
-    () => quoteDetails?.leadStatus === "JOB",
-    [quoteDetails]
-  );
+  const [selectedPackage, setSelectedPackage] = useState<Package | undefined>(undefined);
+  const isJob = useMemo(() => quoteDetails?.leadStatus === 'JOB', [quoteDetails]);
 
   // Sync local state with Redux store
   useEffect(() => {
     setSelectedPlan(plan);
     setSelectedPackage(selectedPackageFromSlice);
   }, [plan, selectedPackageFromSlice]);
-  const [selectedFacade, setSelectedFacade] = useState<
-    IFacadeState | undefined
-  >(facade);
+  const [selectedFacade, setSelectedFacade] = useState<IFacadeState | undefined>(facade);
 
   useEffect(() => {
     return () => {
@@ -90,9 +75,7 @@ const QuotationManager = () => {
 
   useEffect(() => {
     const fetchQuotation = async () => {
-      await dispatch(
-        getQuotationVersionById(quoteVersionId as string)
-      ).unwrap();
+      await dispatch(getQuotationVersionById(quoteVersionId as string)).unwrap();
     };
     if (quoteVersionId) {
       fetchQuotation();
@@ -116,12 +99,11 @@ const QuotationManager = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [extraItem, setExtraItem] = useState(false);
-  const { status: typesStatus } = useAppSelector(
-    (state: RootState) => state.types
-  );
+  const { status: typesStatus } = useAppSelector((state: RootState) => state.types);
   const { categories: categoryData, status } = useAppSelector(
     (state: RootState) => state.masterPriceList
   );
+  console.log('categoryyyy', categoryData, items);
   // const { categories: mplCategories } = useAppSelector(
   //   (state: RootState) => state.masterPriceList
   // );
@@ -129,7 +111,7 @@ const QuotationManager = () => {
   //   (state: RootState) => state.masterPriceList
   // );
   const { package: packageFromSlice, items: itemsFromSlice } = useAppSelector(
-    (state) => state.quotation
+    state => state.quotation
   );
 
   // const BaseCategory = useMemo(() => mplCategories.find((cat) => cat.name === "base price"), [mplCategories]);
@@ -139,7 +121,7 @@ const QuotationManager = () => {
       try {
         await dispatch(fetchCategories()).unwrap();
       } catch (e) {
-        message.error(e || "Failed to fetch categories");
+        message.error(e || 'Failed to fetch categories');
       }
     };
     if (status === Status.IDLE) {
@@ -169,9 +151,9 @@ const QuotationManager = () => {
         dispatch(clearQuotation());
       }
     };
-    router.events.on("routeChangeStart", handleRouteChange);
+    router.events.on('routeChangeStart', handleRouteChange);
     return () => {
-      router.events.off("routeChangeStart", handleRouteChange);
+      router.events.off('routeChangeStart', handleRouteChange);
     };
   }, [dispatch, router]);
 
@@ -189,7 +171,7 @@ const QuotationManager = () => {
 
       try {
         const responses = await Promise.all(
-          categoryData.map(async (cat) => {
+          categoryData.map(async cat => {
             if (!cat.isExpanded) {
               dispatch(toggleExpand(cat.categoryId));
             }
@@ -206,11 +188,11 @@ const QuotationManager = () => {
         );
 
         // ✅ Step 2: After fetching, auto-add INCLUDED items
-        responses.forEach((res) => {
+        responses.forEach(res => {
           res.items?.forEach((item: any) => {
-            if (item?.costType === "INCLUDED") {
+            if (item?.costType === 'INCLUDED') {
               // only add if not already in quotation
-              const alreadyAdded = items.some((i) => i.itemId === item.categoryItemId);
+              const alreadyAdded = items.some(i => i.itemId === item.categoryItemId);
               if (!alreadyAdded) {
                 dispatch(
                   setQuotationItems({
@@ -229,7 +211,7 @@ const QuotationManager = () => {
           dwelling_type: quotationFilters.dwelling_type,
         };
       } catch (error) {
-        message.error(error || "Failed to fetch category items");
+        message.error(error || 'Failed to fetch category items');
       }
     };
 
@@ -245,8 +227,7 @@ const QuotationManager = () => {
   ]);
   const { previewPdf } = usePdf(QuatationPdf);
   const getCategoryById = useCallback(
-    (categoryId: string) =>
-      categoryData.find((cat) => cat.categoryId === categoryId),
+    (categoryId: string) => categoryData.find(cat => cat.categoryId === categoryId),
     [categoryData]
   );
 
@@ -279,7 +260,7 @@ const QuotationManager = () => {
         //   dispatch(setQuotationBaseItems(mappedItems));
         // }
       } catch (error) {
-        message.error(error || "Failed to fetch category items");
+        message.error(error || 'Failed to fetch category items');
       }
     }
   };
@@ -291,14 +272,12 @@ const QuotationManager = () => {
       itemId: isExtra ? item.categoryItemId : item.itemId,
       quantity: Number(item.quantity),
       price: isExtra ? Number(item.cost) : Number(item.price),
-      total:
-        Number(item.quantity) *
-        (isExtra ? Number(item.cost) : Number(item.price)),
+      total: Number(item.quantity) * (isExtra ? Number(item.cost) : Number(item.price)),
     });
 
     return [
-      ...items.map((item) => normalize(item)),
-      ...extraItems.map((item) => normalize(item, true)),
+      ...items.map(item => normalize(item)),
+      ...extraItems.map(item => normalize(item, true)),
     ];
   };
 
@@ -328,18 +307,16 @@ const QuotationManager = () => {
         dispatch(
           updateLeadStatus({
             leadId: response?.leadId,
-            status: "COMPLETED",
+            status: 'COMPLETED',
             updatedAt: response.updatedAt,
           })
         );
       }
       message.success(
-        quoteVersionId
-          ? "Quotation updated successfully"
-          : "Quotation created successfully"
+        quoteVersionId ? 'Quotation updated successfully' : 'Quotation created successfully'
       );
       // router.push(`${SystemRoutes.JOB}/${property?.leadId}`);
-      router.back()
+      router.back();
     } catch (error) {
       message.error(error);
     }
@@ -348,7 +325,7 @@ const QuotationManager = () => {
     setPreviewLoading(true);
     try {
       const responses = await Promise.all(
-        categoryData.map((cat) => {
+        categoryData.map(cat => {
           if (!cat.isExpanded) {
             dispatch(toggleExpand(cat.categoryId));
             return dispatch(
@@ -369,10 +346,8 @@ const QuotationManager = () => {
       );
 
       // Use the updated categories (from Redux or responses)
-      const allCategories = categoryData.map((cat) => {
-        const fetched = responses.find(
-          (res) => res.categoryId === cat.categoryId
-        );
+      const allCategories = categoryData.map(cat => {
+        const fetched = responses.find(res => res.categoryId === cat.categoryId);
         return {
           ...cat,
           items: fetched?.items || cat.items || [],
@@ -380,15 +355,11 @@ const QuotationManager = () => {
       });
 
       // Now build grouped items
-      const groupedItems = allCategories.map((category) => {
+      const groupedItems = allCategories.map(category => {
         const matchedItems = (category.items || [])
-          .filter((catItem) =>
-            itemsFromSlice.some((sel) => sel.itemId === catItem.categoryItemId)
-          )
-          .map((catItem) => {
-            const selected = itemsFromSlice.find(
-              (sel) => sel.itemId === catItem.categoryItemId
-            );
+          .filter(catItem => itemsFromSlice.some(sel => sel.itemId === catItem.categoryItemId))
+          .map(catItem => {
+            const selected = itemsFromSlice.find(sel => sel.itemId === catItem.categoryItemId);
             return {
               ...catItem,
               ...selected,
@@ -404,9 +375,7 @@ const QuotationManager = () => {
           categoryTotal: matchedItems.reduce((sum, i) => sum + i.total, 0),
         };
       });
-      const filteredGroupedItems = groupedItems.filter(
-        (cat) => cat.items.length > 0
-      );
+      const filteredGroupedItems = groupedItems.filter(cat => cat.items.length > 0);
       previewPdf({
         user: user,
         leadDetail: contact,
@@ -422,7 +391,7 @@ const QuotationManager = () => {
         items: filteredGroupedItems,
       });
     } catch (error) {
-      message.error(error || "Failed to preview quotation");
+      message.error(error || 'Failed to preview quotation');
     } finally {
       setPreviewLoading(false);
     }
@@ -434,17 +403,12 @@ const QuotationManager = () => {
   };
 
   const canContact = !!contact;
-  const canProperty =
-    property && Object.keys(property).length > 0 && property?.propertyId;
+  const canProperty = property && Object.keys(property).length > 0 && property?.propertyId;
   const canPlan = plan && Object.keys(plan).length > 0;
   const canFacade = !!facade;
   const canSelectedPackageFromSlice = !!selectedPackageFromSlice;
   const canAction =
-    canContact &&
-    canProperty &&
-    canPlan &&
-    canFacade &&
-    canSelectedPackageFromSlice;
+    canContact && canProperty && canPlan && canFacade && canSelectedPackageFromSlice;
 
   if (quoteVersionId && quotationStatus?.getById === Status.ERROR) {
     return (
@@ -458,7 +422,7 @@ const QuotationManager = () => {
     );
   }
 
-  if (  
+  if (
     quoteVersionId &&
     (quotationStatus?.getById === Status.PENDING ||
       quotationStatus?.getById === Status.IDLE ||
@@ -466,36 +430,29 @@ const QuotationManager = () => {
   ) {
     return (
       <div className="flex items-center justify-center flex-1">
-        <Spin />
+        <Loading type="primary" />
       </div>
     );
   }
 
-  if (isJob) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <Result
-          status="403"
-          // title="Access Restricted"
-          subTitle="This lead has already been converted to a job and is no longer accessible from this page."
-          extra={<Link href="/job">Go to Jobs</Link>}
-        />
-      </div>
-    );
-  }
+  // if (isJob) {
+  //   return (
+  //     <div className="flex items-center justify-center h-screen">
+  //       <Result
+  //         status="403"
+  //         // title="Access Restricted"
+  //         subTitle="This lead has already been converted to a job and is no longer accessible from this page."
+  //         extra={<Link href="/job">Go to Jobs</Link>}
+  //       />
+  //     </div>
+  //   );
+  // }
 
   return (
     <>
       <div className="m-3 flex justify-between items-center">
-        <StageProgress
-          id={quoteDetails?.slugId || ""}
-          title="Quotation"
-          steps={[]}
-        />
-        <QuotationFilter
-          isReadOnly={isReadOnly}
-          onFilterChange={() => setSelectedCategory(null)}
-        />
+        <StageProgress id={quoteDetails?.slugId || ''} title="Quotation" steps={[]} />
+        <QuotationFilter isReadOnly={isReadOnly} onFilterChange={() => setSelectedCategory(null)} />
       </div>
 
       <InfoCards
@@ -517,7 +474,7 @@ const QuotationManager = () => {
             <div className="w-64">
               {status === Status.IDLE ? (
                 <div className="flex items-center justify-center flex-1">
-                  <Spin />
+                  <Loading type="primary" />
                 </div>
               ) : (
                 <CategorySidebar
@@ -536,19 +493,19 @@ const QuotationManager = () => {
               isReadOnly={isReadOnly}
               itemsLoading={
                 selectedCategory
-                  ? getCategoryById(selectedCategory)?.loadingItems ?? false
+                  ? (getCategoryById(selectedCategory)?.loadingItems ?? false)
                   : false
               }
             />
           </>
         ) : (
-          <div className="flex flex-1 bg-card-color text-font-color-100 items-center justify-center border rounded-lg h-[356px]">
+          <div className="flex flex-1 bg-card-color text-font-color-100 items-center justify-center border rounded-lg">
             <p>
               {quotationFilters?.range
-                ? "Please select Dwelling Type"
+                ? 'Please select Dwelling Type'
                 : quotationFilters?.dwelling_type
-                ? "Please select Range"
-                : "Please select Range and Dwelling Type"}
+                  ? 'Please select Range'
+                  : 'Please select Range and Dwelling Type'}
             </p>
           </div>
         )}
@@ -556,11 +513,7 @@ const QuotationManager = () => {
 
       <div className="m-3">
         <FooterActions
-          total={calculateTotalQuotation(
-            packageFromSlice,
-            itemsFromSlice,
-            Number(facade?.cost)
-          )}
+          total={calculateTotalQuotation(packageFromSlice, itemsFromSlice, Number(facade?.cost))}
           quoteVersionId={quoteVersionId}
           isEditMode={isEditMode}
           onEdit={() => setIsEditMode(true)}

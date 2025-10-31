@@ -1,16 +1,16 @@
-import { createAsyncThunk } from "@reduxjs/toolkit";
-import api, { apiWithFormDataMethods } from "@lib/constants/api";
-import { ApiResponse } from "../auth/IAuthState";
-import API_ENDPOINTS from "@lib/constants/apiEndpoints";
-import { RequestTask, Task, WorkflowProcess } from "./iWorkflowState";
+import { createAsyncThunk } from '@reduxjs/toolkit';
+import api, { apiWithFormDataMethods } from '@lib/constants/api';
+import { ApiResponse } from '../auth/IAuthState';
+import API_ENDPOINTS from '@lib/constants/apiEndpoints';
+import { RequestTask, Task, WorkflowProcess } from './iWorkflowState';
 
 export const fetchWorkflowProcess = createAsyncThunk(
-  "workflowProcess/fetchAll",
+  'workflowProcess/fetchAll',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await api.get<
-        ApiResponse<{ workflowProcesses: WorkflowProcess[] }>
-      >(API_ENDPOINTS.WORKFLOW_PROCESS_BASE);
+      const res = await api.get<ApiResponse<{ workflowProcesses: WorkflowProcess[] }>>(
+        API_ENDPOINTS.WORKFLOW_PROCESS_BASE
+      );
       return res.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -19,11 +19,8 @@ export const fetchWorkflowProcess = createAsyncThunk(
 );
 
 export const createWorkflowProcess = createAsyncThunk(
-  "workflowProcess/create",
-  async (
-    payload: { name: string; description: string },
-    { rejectWithValue }
-  ) => {
+  'workflowProcess/create',
+  async (payload: { name: string; description: string }, { rejectWithValue }) => {
     try {
       const res = await api.post<ApiResponse<WorkflowProcess>>(
         API_ENDPOINTS.WORKFLOW_PROCESS_BASE,
@@ -37,17 +34,14 @@ export const createWorkflowProcess = createAsyncThunk(
 );
 
 export const updateWorkflowProcess = createAsyncThunk(
-  "workflowProcess/update",
+  'workflowProcess/update',
   async (
-    {
-      payload,
-      id,
-    }: { payload: { name: string; description: string }; id: string },
+    { payload, id }: { payload: { name: string; description: string }; id: string },
     { rejectWithValue }
   ) => {
     try {
       const res = await api.put<ApiResponse<WorkflowProcess>>(
-        API_ENDPOINTS.WORKFLOW_PROCESS_BASE + "/" + id,
+        API_ENDPOINTS.WORKFLOW_PROCESS_BASE + '/' + id,
         { data: payload }
       );
       return res.data;
@@ -58,11 +52,11 @@ export const updateWorkflowProcess = createAsyncThunk(
 );
 
 export const deleteWorkflowProcess = createAsyncThunk(
-  "workflowProcess/delete",
+  'workflowProcess/delete',
   async (payload: string, { rejectWithValue }) => {
     try {
       const res = await api.delete<ApiResponse<WorkflowProcess>>(
-        API_ENDPOINTS.WORKFLOW_PROCESS_BASE + "/" + payload
+        API_ENDPOINTS.WORKFLOW_PROCESS_BASE + '/' + payload
       );
       return res.data;
     } catch (error) {
@@ -72,7 +66,7 @@ export const deleteWorkflowProcess = createAsyncThunk(
 );
 
 export const updateWorkflowProcessOrder = createAsyncThunk(
-  "workflowProcess/updateOrder",
+  'workflowProcess/updateOrder',
   async (
     payload: {
       workflowProcesses: { workflowProcessId: string; displayOrder: number }[];
@@ -93,7 +87,7 @@ export const updateWorkflowProcessOrder = createAsyncThunk(
 
 // Fetch items of a category
 export const fetchWorkflowProcessTasks = createAsyncThunk(
-  "workflowProcess/fetchItems",
+  'workflowProcess/fetchItems',
   async (
     args: {
       workflowProcessId: string;
@@ -106,9 +100,8 @@ export const fetchWorkflowProcessTasks = createAsyncThunk(
       let url = `${API_ENDPOINTS.WORKFLOW_PROCESS_TASK}/${workflowProcessId}`;
       if (filters && (filters.range || filters.dwelling_type)) {
         const query = new URLSearchParams();
-        if (filters.range) query.append("range", filters.range);
-        if (filters.dwelling_type)
-          query.append("dwellingType", filters.dwelling_type);
+        if (filters.range) query.append('range', filters.range);
+        if (filters.dwelling_type) query.append('dwellingType', filters.dwelling_type);
         url = `${url}?${query.toString()}`;
       }
       const res = await api.get<ApiResponse<Task[]>>(url);
@@ -120,7 +113,7 @@ export const fetchWorkflowProcessTasks = createAsyncThunk(
 );
 
 export const createWorkflowProcessTask = createAsyncThunk(
-  "workflowProcess/createItem",
+  'workflowProcess/createItem',
   async (payload: FormData, { rejectWithValue }) => {
     try {
       const res = await apiWithFormDataMethods.post<ApiResponse<Task>>(
@@ -135,11 +128,11 @@ export const createWorkflowProcessTask = createAsyncThunk(
 );
 
 export const updateWorkflowProcessTask = createAsyncThunk(
-  "workflowProcess/updateItem",
+  'workflowProcess/updateItem',
   async (payload: { id: string; data: FormData }, { rejectWithValue }) => {
     try {
       const res = await apiWithFormDataMethods.put<ApiResponse<Task>>(
-        API_ENDPOINTS.WORKFLOW_PROCESS_TASK + "/" + payload.id,
+        API_ENDPOINTS.WORKFLOW_PROCESS_TASK + '/' + payload.id,
         payload.data
       );
       return res.data;
@@ -150,13 +143,11 @@ export const updateWorkflowProcessTask = createAsyncThunk(
 );
 
 export const deleteWorkflowProcessTask = createAsyncThunk(
-  "workflowProcess/deleteItem",
+  'workflowProcess/deleteItem',
   async (payload: { workflowProcessTaskId: string }, { rejectWithValue }) => {
     try {
       const res = await api.delete<ApiResponse<Task>>(
-        API_ENDPOINTS.WORKFLOW_PROCESS_TASK +
-          "/" +
-          payload.workflowProcessTaskId
+        API_ENDPOINTS.WORKFLOW_PROCESS_TASK + '/' + payload.workflowProcessTaskId
       );
       return res.data;
     } catch (error) {
@@ -166,21 +157,15 @@ export const deleteWorkflowProcessTask = createAsyncThunk(
 );
 
 export const fetchWorkflowProcessTasksForJob = createAsyncThunk(
-  "workflowProcess/fetchItems",
-  async (
-    payload: { leadId: string; workflowProcessId: string },
-    { rejectWithValue }
-  ) => {
+  'workflowProcess/fetchItems',
+  async (payload: { leadId: string; workflowProcessId: string }, { rejectWithValue }) => {
     try {
-      const res = await api.get<ApiResponse<Task[]>>(
-        API_ENDPOINTS.WORKFLOW_PROCESS_TASK_FOR_JOB,
-        {
-          params: {
-            lead_id: payload.leadId,
-            workflow_process_id: payload.workflowProcessId,
-          },
-        }
-      );
+      const res = await api.get<ApiResponse<Task[]>>(API_ENDPOINTS.WORKFLOW_PROCESS_TASK_FOR_JOB, {
+        params: {
+          lead_id: payload.leadId,
+          workflow_process_id: payload.workflowProcessId,
+        },
+      });
       return res.data;
     } catch (error) {
       return rejectWithValue(error.message);

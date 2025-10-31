@@ -1,21 +1,21 @@
-"use client";
-import React, { useState, useEffect } from "react";
-import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
-import { Button, Table, Tabs, message, Modal } from "antd";
-import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import { IconEdit, IconTrash } from "@tabler/icons-react";
-import ConfirmationModal from "@/components/common/ConfirmationModal";
-import rangeAndDwellingTypeFields from "@/components/formFields/rangeAndDwellingTypeFields"; 
+'use client';
+import React, { useState, useEffect } from 'react';
+import { CreateFormModal } from '@/components/common/Models/CreateFormModel';
+import { Button, Table, Tabs, message, Modal } from 'antd';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
+import ConfirmationModal from '@/components/common/ConfirmationModal';
+import rangeAndDwellingTypeFields from '@/components/formFields/rangeAndDwellingTypeFields';
 
 import {
   createServiceThunk,
   deleteServiceThunk,
   getServicesThunk,
   updateServiceThunk,
-} from "@redux/feature/contractor/contractorThunk";
-import { RootState } from "@redux/feature/store";
-import { Service as serviceType } from "@redux/feature/contractor/IContractorState";
-import { Status } from "@lib/constants/enum";
+} from '@redux/feature/contractor/contractorThunk';
+import { RootState } from '@redux/feature/store';
+import { Service as serviceType } from '@redux/feature/contractor/IContractorState';
+import { Status } from '@lib/constants/enum';
 
 const Service = () => {
   const dispatch = useAppDispatch();
@@ -38,7 +38,7 @@ const Service = () => {
       try {
         await dispatch(getServicesThunk()).unwrap();
       } catch (error) {
-        message.error(error || "failed to fetch the services");
+        message.error(error || 'failed to fetch the services');
       }
     }
     getServices();
@@ -48,7 +48,7 @@ const Service = () => {
     try {
       setFormLoading(true);
       await dispatch(deleteServiceThunk(deleteModalVisible.id)).unwrap();
-      message.success("Service deleted successfully");
+      message.success('Service deleted successfully');
       setDeleteModalVisible({ id: null, open: false });
     } catch (error: any) {
       message.error(error);
@@ -63,15 +63,15 @@ const Service = () => {
 
       if (editingItem) {
         await dispatch(
-            updateServiceThunk({
+          updateServiceThunk({
             serviceId: editingItem.serviceId,
             service: values.name,
           })
         ).unwrap();
-        message.success("Service updated successfully");
+        message.success('Service updated successfully');
       } else {
         await dispatch(createServiceThunk({ service: values.name })).unwrap();
-        message.success("Service created successfully");
+        message.success('Service created successfully');
       }
 
       setIsModalVisible(false);
@@ -85,13 +85,13 @@ const Service = () => {
 
   const columns = [
     {
-      title: "Service",
-      dataIndex: "service",
-      key: "service",
+      title: 'Service',
+      dataIndex: 'service',
+      key: 'service',
     },
     {
-      title: "Actions",
-      key: "actions",
+      title: 'Actions',
+      key: 'actions',
       width: 120,
       render: (_: any, record) => (
         <div className="flex gap-2">
@@ -100,20 +100,14 @@ const Service = () => {
             onClick={() => handleEdit(record)}
             aria-label="Edit"
           >
-            <IconEdit
-              size={20}
-              className="text-font-color group-hover:text-blue"
-            />
+            <IconEdit size={20} className="text-font-color group-hover:text-blue" />
           </button>
           <button
             className="rounded-md p-1 group"
             onClick={() => setDeleteModalVisible({ id: record.serviceId, open: true })}
             aria-label="Delete"
           >
-            <IconTrash
-              size={20}
-              className="text-font-color group-hover:text-red-500"
-            />
+            <IconTrash size={20} className="text-font-color group-hover:text-red-500" />
           </button>
         </div>
       ),

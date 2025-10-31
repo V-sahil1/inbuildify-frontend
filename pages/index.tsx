@@ -1,32 +1,30 @@
-import React, { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "@hooks/redux";
+import React, { useEffect, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import {
   createLeadSourceThunk,
   createLeadThunk,
   getLeadThunk,
-} from "@redux/feature/lead/leadThunk";
-import { message, Typography, Empty, Spin } from "antd";
-import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
-import { Status } from "@lib/constants/enum";
-import { useRouter } from "next/navigation";
-import { ILead } from "@redux/feature/lead/ILeadState";
-import { IconMail, IconPhone } from "@tabler/icons-react";
-import { timeAgo } from "@lib/utils/timeAgo";
-import { enumToReadable } from "@lib/utils/enumToRedable";
-import leadCreateFields from "@/components/formFields/LeadCreateFields";
-import SystemRoutes from "@lib/constants/Routes";
-import { setAddInstSourceModal } from "@redux/feature/lead/leadSlice";
-import rangeAndDwellingTypeFields from "@/components/formFields/rangeAndDwellingTypeFields";
+} from '@redux/feature/lead/leadThunk';
+import { message, Typography, Empty, Spin } from 'antd';
+import { CreateFormModal } from '@/components/common/Models/CreateFormModel';
+import { Status } from '@lib/constants/enum';
+import { useRouter } from 'next/navigation';
+import { ILead } from '@redux/feature/lead/ILeadState';
+import { IconMail, IconPhone } from '@tabler/icons-react';
+import { timeAgo } from '@lib/utils/timeAgo';
+import { enumToReadable } from '@lib/utils/enumToRedable';
+import leadCreateFields from '@/components/formFields/LeadCreateFields';
+import SystemRoutes from '@lib/constants/Routes';
+import { setAddInstSourceModal } from '@redux/feature/lead/leadSlice';
+import rangeAndDwellingTypeFields from '@/components/formFields/rangeAndDwellingTypeFields';
 const Leads = () => {
-  const { leads } = useAppSelector((state) => state.lead);
-  const status = useAppSelector((state) => state.lead.status.leads);
+  const { leads } = useAppSelector(state => state.lead);
+  const status = useAppSelector(state => state.lead.status.leads);
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const addInstSourceModal = useAppSelector(
-    (state) => state.lead.addInstSourceModal
-  );
+  const addInstSourceModal = useAppSelector(state => state.lead.addInstSourceModal);
   const [openLeadCreateModal, setOpenLeadCreateModal] = useState(false);
-  const [loading, setLoading] = useState({leadLoading:false,leadSourceLoading:false});
+  const [loading, setLoading] = useState({ leadLoading: false, leadSourceLoading: false });
 
   useEffect(() => {
     async function fetchData() {
@@ -41,7 +39,7 @@ const Leads = () => {
 
   const handleSubmit = async (values: any) => {
     try {
-      setLoading({...loading,leadLoading:true});
+      setLoading({ ...loading, leadLoading: true });
       const payload = {
         lead_source: values.leadSource,
         notes: values.notes,
@@ -52,26 +50,26 @@ const Leads = () => {
         },
       };
       await dispatch(createLeadThunk(payload)).unwrap();
-      message.success("Lead created successfully");
+      message.success('Lead created successfully');
       setOpenLeadCreateModal(false);
     } catch (error) {
-      message.error(error || "Failed to create lead");
+      message.error(error || 'Failed to create lead');
     } finally {
-      setLoading({...loading,leadLoading:false});
+      setLoading({ ...loading, leadLoading: false });
     }
   };
 
   const handleAddLeadSourceSubmit = async (values: any) => {
     try {
-      setLoading({...loading,leadSourceLoading:true});
+      setLoading({ ...loading, leadSourceLoading: true });
       await dispatch(createLeadSourceThunk({ name: values.name })).unwrap();
-      message.success("Lead source created successfully");
+      message.success('Lead source created successfully');
       setOpenLeadCreateModal(true);
     } catch (error: any) {
-      message.error(error || "Failed to create lead source");
+      message.error(error || 'Failed to create lead source');
     } finally {
       dispatch(setAddInstSourceModal(false));
-      setLoading({...loading,leadSourceLoading:false});
+      setLoading({ ...loading, leadSourceLoading: false });
     }
   };
   const handleOpenModal = () => {
@@ -80,10 +78,7 @@ const Leads = () => {
   return (
     <div className="p-4">
       <div className="flex items-center justify-between mb-4">
-        <Typography.Title
-          level={4}
-          style={{ margin: 0, color: "var(--font-color)" }}
-        >
+        <Typography.Title level={4} style={{ margin: 0, color: 'var(--font-color)' }}>
           Leads
         </Typography.Title>
         <button
@@ -103,14 +98,14 @@ const Leads = () => {
             <div
               key={lead.leadId}
               onClick={() => {
-                if (lead.status === "CANCELLED") return;
-                else if (lead.status === "JOB") router.push(`${SystemRoutes.JOB}/${lead.leadId}`);
+                if (lead.status === 'CANCELLED') return;
+                else if (lead.status === 'JOB') router.push(`${SystemRoutes.JOB}/${lead.leadId}`);
                 else router.push(`${SystemRoutes.LEADS}/${lead.leadId}`);
               }}
               className={`rounded-2xl border border-border-color shadow-sm p-6 ${
-                lead.status === "CANCELLED"
-                  ? "opacity-60 cursor-not-allowed"
-                  : "cursor-pointer hover:shadow-xl hover:scale-[1.02]"
+                lead.status === 'CANCELLED'
+                  ? 'opacity-60 cursor-not-allowed'
+                  : 'cursor-pointer hover:shadow-xl hover:scale-[1.02]'
               } 
                 transition-all duration-200 bg-card-color flex flex-col`}
             >
@@ -119,22 +114,21 @@ const Leads = () => {
                 <h3 className="text-lg font-semibold">{lead.name}</h3>
                 <span
                   className={`text-xs px-3 py-1 rounded-full font-medium whitespace-nowrap ${
-                    lead.status === "IN_PROGRESS"
-                      ? "bg-purple-100 text-purple-700"
-                      : lead.status === "COMPLETED"
-                      ? "bg-green-100 text-green-700"
-                      : lead.status === "JOB"
-                      ? "bg-fuchsia-300 text-fuchsia-700"
-                      : "bg-yellow-100 text-yellow-700"
+                    lead.status === 'IN_PROGRESS'
+                      ? 'bg-purple-100 text-purple-700'
+                      : lead.status === 'COMPLETED'
+                        ? 'bg-green-100 text-green-700'
+                        : lead.status === 'JOB'
+                          ? 'bg-fuchsia-300 text-fuchsia-700'
+                          : 'bg-yellow-100 text-yellow-700'
                   }`}
                 >
                   {enumToReadable(lead.status)}
                 </span>
               </div>
-            
+
               {/* Contact Info */}
               <div className=" flex-1 space-y-2 mb-4">
-                
                 <p className="flex items-center text-sm ">
                   <IconPhone size={16} className="mr-2 text-gray-400" />
                   {lead.phone ? lead.phone : 'N/A'}
@@ -143,22 +137,17 @@ const Leads = () => {
                   <IconMail size={16} className="mr-2 text-gray-400" />
                   {lead.email ? lead.email : 'N/A'}
                 </p>
-                <p className="text-xs">Source: {lead.leadSource ? enumToReadable(lead.leadSource) : 'N/A'}</p>
-                 
+                <p className="text-xs">
+                  Source: {lead.leadSource ? enumToReadable(lead.leadSource) : 'N/A'}
+                </p>
               </div>
-            
+
               {/* Footer with dates */}
               <div className="flex border-t border-gray-100 pt-3 gap-4 text-xs text-gray-400">
-                <p
-                  className="flex-1 truncate"
-                  title={`Created: ${timeAgo(lead.createdAt)}`}
-                >
+                <p className="flex-1 truncate" title={`Created: ${timeAgo(lead.createdAt)}`}>
                   Created: {timeAgo(lead.createdAt)}
                 </p>
-                <p
-                  className="flex-1 truncate"
-                  title={`Updated: ${timeAgo(lead.updatedAt)}`}
-                >
+                <p className="flex-1 truncate" title={`Updated: ${timeAgo(lead.updatedAt)}`}>
                   Updated: {timeAgo(lead.updatedAt)}
                 </p>
               </div>

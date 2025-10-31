@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
 import {
   convertLeadToJobThunk,
   convertLeadToOpportunityThunk,
@@ -15,10 +15,10 @@ import {
   updateLeadContactThunk,
   updateLeadSourceThunk,
   updateLeadThunk,
-} from "./leadThunk";
-import { getLeadByIdThunk } from "./leadThunk";
-import { InitialState } from "./ILeadState";
-import { Status } from "@lib/constants/enum";
+} from './leadThunk';
+import { getLeadByIdThunk } from './leadThunk';
+import { InitialState } from './ILeadState';
+import { Status } from '@lib/constants/enum';
 
 const initialState: InitialState = {
   leads: [],
@@ -39,10 +39,10 @@ const initialState: InitialState = {
   },
 };
 export const leadSlice = createSlice({
-  name: "lead",
+  name: 'lead',
   initialState,
   reducers: {
-    clearLeadDetail: (state) => {
+    clearLeadDetail: state => {
       state.leadDetail = {
         lead: null,
         contacts: null,
@@ -54,8 +54,7 @@ export const leadSlice = createSlice({
       state.addInstSourceModal = action.payload;
     },
     setLeadProperty: (state, action) => {
-      const { builderId, ...propertyWithoutBuilder } = (action.payload ||
-        {}) as any;
+      const { builderId, ...propertyWithoutBuilder } = (action.payload || {}) as any;
       state.leadDetail = state.leadDetail ?? ({} as any);
       (state.leadDetail as any).property = propertyWithoutBuilder;
     },
@@ -63,36 +62,36 @@ export const leadSlice = createSlice({
       const { leadId, status, updatedAt } = action.payload;
 
       // update leads array
-      state.leads = state.leads.map((lead) =>
+      state.leads = state.leads.map(lead =>
         lead.leadId === leadId ? { ...lead, status, updatedAt } : lead
       );
     },
     removeQuotation: (state, action) => {
       state.leadDetail.createdQuotations.quotations =
         state.leadDetail.createdQuotations.quotations.filter(
-          (quotation) => quotation.quotationId !== action.payload
+          quotation => quotation.quotationId !== action.payload
         );
     },
   },
-  extraReducers: (builder) => {
-    builder.addCase(getLeadThunk.pending, (state) => {
+  extraReducers: builder => {
+    builder.addCase(getLeadThunk.pending, state => {
       state.status.leads = Status.PENDING;
     });
     builder.addCase(getLeadThunk.fulfilled, (state, action) => {
       state.leads = action.payload;
       state.status.leads = Status.SUCCESS;
     });
-    builder.addCase(getLeadThunk.rejected, (state) => {
+    builder.addCase(getLeadThunk.rejected, state => {
       state.status.leads = Status.ERROR;
     });
-    builder.addCase(getLeadByIdThunk.pending, (state) => {
+    builder.addCase(getLeadByIdThunk.pending, state => {
       state.status.leadById = Status.PENDING;
     });
     builder.addCase(getLeadByIdThunk.fulfilled, (state, action) => {
       const payload: any = action.payload;
       const prop = payload?.property;
       let normalizedProperty = prop;
-      if (prop && typeof prop === "object") {
+      if (prop && typeof prop === 'object') {
         normalizedProperty = {
           propertyId: prop.propertyId ?? prop.property_id,
           builderId: prop.builderId ?? prop.builder_id,
@@ -125,18 +124,17 @@ export const leadSlice = createSlice({
       };
       state.status.leadById = Status.SUCCESS;
     });
-    builder.addCase(getLeadByIdThunk.rejected, (state) => {
+    builder.addCase(getLeadByIdThunk.rejected, state => {
       state.status.leadById = Status.ERROR;
     });
     builder.addCase(createLeadThunk.fulfilled, (state, action) => {
       state.leads.unshift(action.payload);
     });
-    builder.addCase(updateLeadThunk.pending, (state) => {
+    builder.addCase(updateLeadThunk.pending, state => {
       state.status.updateLeadSource = Status.PENDING;
     });
     builder.addCase(updateLeadThunk.fulfilled, (state, action) => {
-      const { leadId, notes, leadSource, updatedBy, updatedAt } =
-        action.payload;
+      const { leadId, notes, leadSource, updatedBy, updatedAt } = action.payload;
       state.leadDetail.lead = action.payload;
       if (state.leads == null) {
         state.leads = [];
@@ -144,22 +142,21 @@ export const leadSlice = createSlice({
       if (state.leads.length === 0) {
         state.leads.push(action.payload);
       } else {
-        const lead = state.leads.find((item) => item.leadId === leadId);
+        const lead = state.leads.find(item => item.leadId === leadId);
         lead.notes = notes;
         lead.leadSource = leadSource;
-        lead.updatedBy = updatedBy;
+        lead.updatedBy.name = updatedBy.name;
+        lead.updatedBy.id = updatedBy.id;
         lead.updatedAt = updatedAt;
       }
       state.status.updateLeadSource = Status.SUCCESS;
     });
-    builder.addCase(updateLeadThunk.rejected, (state) => {
+    builder.addCase(updateLeadThunk.rejected, state => {
       state.status.updateLeadSource = Status.ERROR;
     });
 
     builder.addCase(leadDeleteThunk.fulfilled, (state, action) => {
-      state.leads = state.leads.filter(
-        (lead) => lead.leadId !== action.payload.leadId
-      );
+      state.leads = state.leads.filter(lead => lead.leadId !== action.payload.leadId);
       state.leadDetail = {
         lead: null,
         contacts: null,
@@ -168,13 +165,13 @@ export const leadSlice = createSlice({
       };
     });
     builder.addCase(leadConvertThunk.fulfilled, (state, action) => {
-      state.leadDetail.lead.status = "NEW";
+      state.leadDetail.lead.status = 'NEW';
       state.leadDetail.createdQuotations.quotations = [];
-      state.leads = state.leads.map((lead) => {
+      state.leads = state.leads.map(lead => {
         if (lead.leadId === action.payload.leadId) {
           return {
             ...lead,
-            status: "NEW",
+            status: 'NEW',
           };
         }
         return lead;
@@ -183,40 +180,36 @@ export const leadSlice = createSlice({
     builder.addCase(transferLeadThunk.fulfilled, (state, action) => {
       state.leadDetail.lead.assignee = action.payload?.assignee;
     });
-    builder.addCase(getQuotationsByLeadIdThunk.pending, (state) => {
+    builder.addCase(getQuotationsByLeadIdThunk.pending, state => {
       state.status.leadQuotations = Status.PENDING;
     });
     builder.addCase(getQuotationsByLeadIdThunk.fulfilled, (state, action) => {
       state.leadDetail.createdQuotations = action.payload;
       state.status.leadQuotations = Status.SUCCESS;
     });
-    builder.addCase(getQuotationsByLeadIdThunk.rejected, (state) => {
+    builder.addCase(getQuotationsByLeadIdThunk.rejected, state => {
       state.status.leadQuotations = Status.ERROR;
     });
-    builder.addCase(
-      convertLeadToOpportunityThunk.fulfilled,
-      (state, action) => {
-        state.leadDetail.lead.status = action.payload.status;
-        state.leads = state.leads.map((lead) => {
-          if (lead.leadId === action.payload.leadId) {
-            return {
-              ...lead,
-              status: action.payload.status,
-              updated_at: action.payload.updatedAt,
-            };
-          }
-          return lead;
-        });
-      }
-    );
+    builder.addCase(convertLeadToOpportunityThunk.fulfilled, (state, action) => {
+      state.leadDetail.lead.status = action.payload.status;
+      state.leads = state.leads.map(lead => {
+        if (lead.leadId === action.payload.leadId) {
+          return {
+            ...lead,
+            status: action.payload.status,
+            updated_at: action.payload.updatedAt,
+          };
+        }
+        return lead;
+      });
+    });
     builder.addCase(convertLeadToJobThunk.fulfilled, (state, action) => {
       state.leadDetail.lead.status = action.payload.payload.status;
-      state.leads = state.leads.map((lead) => {
+      state.leads = state.leads.map(lead => {
         if (lead.leadId === action.payload.payload.leadId) {
           return {
             ...lead,
-            status:
-              action.payload.payload.status === "WON" ? "JOB" : "CANCELLED",
+            status: action.payload.payload.status === 'WON' ? 'JOB' : 'CANCELLED',
             updatedAt: new Date().toISOString(),
           };
         }
@@ -228,7 +221,7 @@ export const leadSlice = createSlice({
       if (!state.leadDetail.contacts) {
         state.leadDetail.contacts = [];
       }
-      state.leadDetail.contacts = state.leadDetail.contacts.map((contact) => {
+      state.leadDetail.contacts = state.leadDetail.contacts.map(contact => {
         if (contact.leadsContactId === payload.leadsContactId) {
           return {
             ...payload,
@@ -246,14 +239,14 @@ export const leadSlice = createSlice({
       state.leadDetail.contacts.unshift(payload);
     });
 
-    builder.addCase(getLeadSourcesThunk.pending, (state) => {
+    builder.addCase(getLeadSourcesThunk.pending, state => {
       state.status.leadSources = Status.PENDING;
     });
     builder.addCase(getLeadSourcesThunk.fulfilled, (state, action) => {
       state.leadSources = action.payload;
       state.status.leadSources = Status.SUCCESS;
     });
-    builder.addCase(getLeadSourcesThunk.rejected, (state) => {
+    builder.addCase(getLeadSourcesThunk.rejected, state => {
       state.status.leadSources = Status.ERROR;
     });
 
@@ -264,7 +257,7 @@ export const leadSlice = createSlice({
     });
     builder.addCase(updateLeadSourceThunk.fulfilled, (state, action) => {
       const index = state.leadSources.findIndex(
-        (service) => service.leadSourceId === action.payload.leadSourceId
+        service => service.leadSourceId === action.payload.leadSourceId
       );
       if (index !== -1) {
         state.leadSources[index] = action.payload;
@@ -272,7 +265,7 @@ export const leadSlice = createSlice({
     });
     builder.addCase(deleteLeadSourceThunk.fulfilled, (state, action) => {
       state.leadSources = state.leadSources.filter(
-        (service) => service.leadSourceId !== action.payload
+        service => service.leadSourceId !== action.payload
       );
     });
   },

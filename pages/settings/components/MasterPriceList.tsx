@@ -1,12 +1,9 @@
-import AddMasterPricingItemModal from "@/components/common/Models/AddMasterPricingItemModel";
-import { PricingItem } from "@/components/common/PricingItem";
-import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import { Status } from "@lib/constants/enum";
-import {
-  Category,
-  Item,
-} from "@redux/feature/masterPriceList/iMasterPriceListState";
-import { toggleExpand } from "@redux/feature/masterPriceList/masterPriceListSlice";
+import AddMasterPricingItemModal from '@/components/common/Models/AddMasterPricingItemModel';
+import { PricingItem } from '@/components/common/PricingItem';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { Status } from '@lib/constants/enum';
+import { Category, Item } from '@redux/feature/masterPriceList/iMasterPriceListState';
+import { toggleExpand } from '@redux/feature/masterPriceList/masterPriceListSlice';
 import {
   createCategory,
   deleteCategory,
@@ -15,35 +12,30 @@ import {
   fetchCategoryItems,
   updateCategory,
   updateCategoryOrder,
-} from "@redux/feature/masterPriceList/masterPriceListThunk";
+} from '@redux/feature/masterPriceList/masterPriceListThunk';
 import {
   IconChevronDown,
   IconChevronUp,
+  IconDownload,
   IconEdit,
   IconGripVertical,
   IconPlus,
   IconTrash,
-} from "@tabler/icons-react";
-import { useEffect, useState } from "react";
-import { message, Spin, Empty, Tooltip, Button } from "antd";
-import ConfirmationModal from "@/components/common/ConfirmationModal";
-import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
-import { MasterPricingCategoryFields } from "@/components/formFields/MasterPricingCategoryFields";
-import {
-  DragDropContext,
-  Droppable,
-  Draggable,
-  DropResult,
-} from "react-beautiful-dnd";
+  IconUpload,
+} from '@tabler/icons-react';
+import { useEffect, useState } from 'react';
+import { message, Spin, Empty, Tooltip, Button, Select } from 'antd';
+import ConfirmationModal from '@/components/common/ConfirmationModal';
+import { CreateFormModal } from '@/components/common/Models/CreateFormModel';
+import { MasterPricingCategoryFields } from '@/components/formFields/MasterPricingCategoryFields';
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import RangeSelect from '@/components/common/custom-selects/RangeSelect';
+import DwellingTypeSelect from '@/components/common/custom-selects/DwellingTypeSelect';
 
 export const MasterPriceList = () => {
   const dispatch = useAppDispatch();
-  const { categories, status } = useAppSelector(
-    (state: any) => state.masterPriceList
-  );
-  const { selectedFilters: mplFilters } = useAppSelector(
-    (state: any) => state.masterPriceList
-  );
+  const { categories, status } = useAppSelector((state: any) => state.masterPriceList);
+  const { selectedFilters: mplFilters } = useAppSelector((state: any) => state.masterPriceList);
 
   useEffect(() => {
     if (status === Status.IDLE) {
@@ -57,7 +49,7 @@ export const MasterPriceList = () => {
   }, [categories]);
 
   const [addItemModal, setAddItemModal] = useState(false);
-  const [categoryId, setCategoryId] = useState("");
+  const [categoryId, setCategoryId] = useState('');
   const [addCategoryModal, setAddCategoryModal] = useState(false);
   const [dropDowns, setDropDowns] = useState<Record<string, boolean>>({});
   const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({});
@@ -67,7 +59,7 @@ export const MasterPriceList = () => {
     reset: false,
     save: false,
   });
-  const [deleteModal, setDeleteModal] = useState({ open: false, type: "item" });
+  const [deleteModal, setDeleteModal] = useState({ open: false, type: 'item' });
   const [editing, setEditing] = useState<boolean>(false);
   const [resetModalVisible, setResetModalVisible] = useState(false);
 
@@ -77,14 +69,14 @@ export const MasterPriceList = () => {
   };
 
   const handleExpand = async (categoryId: string, isExpanded: boolean) => {
-    setDropDowns((prev) => ({
+    setDropDowns(prev => ({
       ...prev,
       [categoryId]: !prev[categoryId],
     }));
 
     if (!isExpanded) {
       try {
-        setLoadingItems((prev) => ({ ...prev, [categoryId]: true }));
+        setLoadingItems(prev => ({ ...prev, [categoryId]: true }));
 
         dispatch(toggleExpand(categoryId));
 
@@ -98,39 +90,33 @@ export const MasterPriceList = () => {
           })
         ).unwrap();
       } catch (error: any) {
-        message.error(error || "Failed to fetch category items");
+        message.error(error || 'Failed to fetch category items');
       } finally {
-        setLoadingItems((prev) => ({ ...prev, [categoryId]: false }));
+        setLoadingItems(prev => ({ ...prev, [categoryId]: false }));
       }
     }
   };
 
   const handleAction = (action: string, categoryItem: any) => {
     setSelectedItem(categoryItem);
-    if (action === "edit") {
+    if (action === 'edit') {
       openAddItemModal(categoryItem.categoryItemId);
-    } else if (action === "delete") {
-      setDeleteModal({ open: true, type: "item" });
+    } else if (action === 'delete') {
+      setDeleteModal({ open: true, type: 'item' });
     }
   };
 
-  const handleCategoryAction = (
-    action: "edit" | "delete",
-    category: Category
-  ) => {
+  const handleCategoryAction = (action: 'edit' | 'delete', category: Category) => {
     setSelectedItem(category);
-    if (action === "edit") {
+    if (action === 'edit') {
       setEditing(true);
       setAddCategoryModal(true);
     } else {
-      setDeleteModal({ open: true, type: "category" });
+      setDeleteModal({ open: true, type: 'category' });
     }
   };
 
-  const handleAddCategorySubmit = async (values: {
-    name: string;
-    description: string;
-  }) => {
+  const handleAddCategorySubmit = async (values: { name: string; description: string }) => {
     try {
       setLoading(true);
       if (editing) {
@@ -140,16 +126,16 @@ export const MasterPriceList = () => {
             payload: { name: values.name, description: values.description },
           })
         ).unwrap();
-        message.success("Category updated successfully");
+        message.success('Category updated successfully');
       } else {
         await dispatch(
           createCategory({ name: values.name, description: values.description })
         ).unwrap();
-        message.success("Category created successfully");
+        message.success('Category created successfully');
       }
       setAddCategoryModal(false);
     } catch (error: any) {
-      message.error(error || "Failed to create category");
+      message.error(error || 'Failed to create category');
     } finally {
       setSelectedItem(null);
       setLoading(false);
@@ -159,15 +145,15 @@ export const MasterPriceList = () => {
   const handleDelete = async (type: string, id: any) => {
     setLoading(true);
     try {
-      if (type === "item") {
+      if (type === 'item') {
         await dispatch(deleteCategoryItem(id)).unwrap();
-        message.success("Category item deleted successfully");
+        message.success('Category item deleted successfully');
       } else {
         await dispatch(deleteCategory(id)).unwrap();
-        message.success("Category deleted successfully");
+        message.success('Category deleted successfully');
       }
     } catch (error: any) {
-      message.error(error || "Failed to delete category item");
+      message.error(error || 'Failed to delete category item');
     } finally {
       setDeleteModal({ open: false, type });
       setSelectedItem(null);
@@ -185,7 +171,7 @@ export const MasterPriceList = () => {
     const prevCategories = [...localCategories];
 
     // Clone categories to avoid mutation
-    const newLocalCategories = localCategories.map((c) => ({ ...c }));
+    const newLocalCategories = localCategories.map(c => ({ ...c }));
 
     // Move the dragged category in the array
     const [movedCategory] = newLocalCategories.splice(fromIndex, 1);
@@ -224,17 +210,15 @@ export const MasterPriceList = () => {
 
   const isOrderChanged = () => {
     if (localCategories?.length !== categories?.length) return true;
-    return localCategories?.some(
-      (c, idx) => c?.categoryId !== categories[idx]?.categoryId
-    );
+    return localCategories?.some((c, idx) => c?.categoryId !== categories[idx]?.categoryId);
   };
 
   const handleSaveOrder = async () => {
-    setOrderLoading((prev) => ({ ...prev, save: true }));
+    setOrderLoading(prev => ({ ...prev, save: true }));
     try {
       const payload =
         localCategories.length > 0
-          ? localCategories?.map((c) => ({
+          ? localCategories?.map(c => ({
               categoryId: c?.categoryId,
               displayOrder: c?.displayOrder,
             }))
@@ -242,31 +226,56 @@ export const MasterPriceList = () => {
 
       if (payload?.length > 0) {
         await dispatch(updateCategoryOrder({ categories: payload })).unwrap();
-        message.success("Category order updated successfully");
+        message.success('Category order updated successfully');
       }
     } catch (error) {
       setLocalCategories(categories);
-      message.error(error || "Failed to update category order");
+      message.error(error || 'Failed to update category order');
     } finally {
-      setOrderLoading((prev) => ({ ...prev, save: false }));
+      setOrderLoading(prev => ({ ...prev, save: false }));
     }
   };
 
   const handleResetOrder = () => {
-    setOrderLoading((prev) => ({ ...prev, reset: true }));
+    setOrderLoading(prev => ({ ...prev, reset: true }));
     setLocalCategories(categories);
-    message.success("Category order reset successfully");
-    setOrderLoading((prev) => ({ ...prev, reset: false }));
+    message.success('Category order reset successfully');
+    setOrderLoading(prev => ({ ...prev, reset: false }));
     setResetModalVisible(false);
   };
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-[24px]/[30px] font-black my-4 text-[var(--font-color-bl)]">
-          Master Price List
-        </h2>
+      <div className="flex justify-between mb-4">
+        <h2 className="text-2xl font-bold">Master Price List</h2>
         <div className="flex gap-2">
+          <Button>
+            Total Records
+            <div className="rounded-full w-4 h-4 text-center bg-primary text-white text-xs">7</div>
+          </Button>
+          <Button>Location</Button>
+          <Button>Master</Button>
+          <Button>Item</Button>
+          <Button icon={<IconUpload />}></Button>
+          <Button icon={<IconDownload />}></Button>
+        </div>
+      </div>
+      <div className="flex justify-between mb-4">
+        <div className="flex gap-6 ml-2">
+          <div className="flex items-center gap-1">
+            <p className="text-sm">Location</p>
+            <Select placeholder=" Please Select"></Select>
+          </div>
+          <div className="flex items-center gap-1">
+            <p className="text-sm">Range</p>
+            <RangeSelect></RangeSelect>
+          </div>
+          <div className="flex items-center gap-1">
+            <p className="text-sm w-full">Dwelling Type</p>
+            <DwellingTypeSelect></DwellingTypeSelect>
+          </div>
+        </div>
+        <div className="flex gap-2 justify-end">
           {isOrderChanged() && (
             <>
               <Button
@@ -285,11 +294,7 @@ export const MasterPriceList = () => {
           {!isOrderChanged() && (
             <Button
               type="primary"
-              disabled={
-                orderLoading.save ||
-                status == Status.PENDING ||
-                orderLoading.reset
-              }
+              disabled={orderLoading.save || status == Status.PENDING || orderLoading.reset}
               onClick={() => {
                 setEditing(false);
                 setAddCategoryModal(true);
@@ -308,15 +313,10 @@ export const MasterPriceList = () => {
       ) : localCategories.length > 0 ? (
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="categories">
-            {(provided) => (
-              <div
-                {...provided.droppableProps}
-                ref={provided.innerRef}
-                className="space-y-4"
-              >
+            {provided => (
+              <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
                 {localCategories.map((category: Category, index: number) => {
-                  const isDropdownOpen =
-                    dropDowns[category?.categoryId] || false;
+                  const isDropdownOpen = dropDowns[category?.categoryId] || false;
                   const isLoading = loadingItems[category?.categoryId] || false;
 
                   return (
@@ -325,7 +325,7 @@ export const MasterPriceList = () => {
                       draggableId={String(category?.categoryId)}
                       index={index}
                     >
-                      {(provided) => (
+                      {provided => (
                         <div
                           ref={provided.innerRef}
                           {...provided.draggableProps}
@@ -337,10 +337,7 @@ export const MasterPriceList = () => {
                             className="flex items-center justify-between px-4 py-3 cursor-pointer rounded-t-xl"
                             onClick={() =>
                               !isOrderChanged() &&
-                              handleExpand(
-                                category?.categoryId,
-                                category?.isExpanded
-                              )
+                              handleExpand(category?.categoryId, category?.isExpanded)
                             }
                           >
                             <div className="flex items-center gap-2 w-full min-w-0">
@@ -352,10 +349,7 @@ export const MasterPriceList = () => {
                                   {category?.name}
                                 </h3>
                                 {category?.description && (
-                                  <Tooltip
-                                    title={category?.description}
-                                    placement="top"
-                                  >
+                                  <Tooltip title={category?.description} placement="top">
                                     <span className="text-sm text-gray-500 truncate max-w-[200px]">
                                       {category?.description}
                                     </span>
@@ -367,7 +361,7 @@ export const MasterPriceList = () => {
                               <div className="flex gap-3 flex-shrink-0">
                                 <button
                                   className="p-2 rounded-lg hover:bg-green-50 transition"
-                                  onClick={(e) => {
+                                  onClick={e => {
                                     e.preventDefault();
                                     e.stopPropagation();
                                     openAddItemModal(category?.categoryId);
@@ -380,9 +374,9 @@ export const MasterPriceList = () => {
                                 </button>
                                 <button
                                   className="p-2 rounded-lg hover:bg-blue-50 transition"
-                                  onClick={(e) => {
+                                  onClick={e => {
                                     e.stopPropagation();
-                                    handleCategoryAction("edit", category);
+                                    handleCategoryAction('edit', category);
                                   }}
                                 >
                                   <IconEdit
@@ -392,9 +386,9 @@ export const MasterPriceList = () => {
                                 </button>
                                 <button
                                   className="p-2 rounded-lg hover:bg-red-50 transition"
-                                  onClick={(e) => {
+                                  onClick={e => {
                                     e.stopPropagation();
-                                    handleCategoryAction("delete", category);
+                                    handleCategoryAction('delete', category);
                                   }}
                                 >
                                   <IconTrash
@@ -404,11 +398,7 @@ export const MasterPriceList = () => {
                                 </button>
 
                                 <button className="mt-1 flex-shrink-0 text-gray-600 hover:text-blue-500 transition">
-                                  {isDropdownOpen ? (
-                                    <IconChevronUp />
-                                  ) : (
-                                    <IconChevronDown />
-                                  )}
+                                  {isDropdownOpen ? <IconChevronUp /> : <IconChevronDown />}
                                 </button>
                               </div>
                             )}
@@ -433,12 +423,8 @@ export const MasterPriceList = () => {
                                 </div>
                               ) : (
                                 <div className="text-center flex flex-col justify-center gap-2 p-6 border border-dashed border-gray-300 rounded-lg bg-gray-50 text-gray-500">
-                                  <p className="text-base font-medium">
-                                    No items here yet.
-                                  </p>
-                                  <p className="text-sm">
-                                    Click on the + icon to add items.
-                                  </p>
+                                  <p className="text-base font-medium">No items here yet.</p>
+                                  <p className="text-sm">Click on the + icon to add items.</p>
                                 </div>
                               )}
                             </div>
@@ -455,9 +441,7 @@ export const MasterPriceList = () => {
         </DragDropContext>
       ) : (
         <Empty
-          description={
-            <span className="text-gray-500">No Master Price found.</span>
-          }
+          description={<span className="text-gray-500">No Master Price found.</span>}
           className="py-12"
         />
       )}
@@ -484,7 +468,7 @@ export const MasterPriceList = () => {
           open={resetModalVisible}
           onClose={() => {
             setResetModalVisible(false);
-            setOrderLoading((prev) => ({ ...prev, reset: false }));
+            setOrderLoading(prev => ({ ...prev, reset: false }));
           }}
           onConfirm={handleResetOrder}
           message="Are you sure you want to reset the order?"
@@ -512,21 +496,19 @@ export const MasterPriceList = () => {
         <ConfirmationModal
           loading={loading}
           open={deleteModal.open}
-          onClose={() =>
-            setDeleteModal({ open: false, type: deleteModal.type })
-          }
+          onClose={() => setDeleteModal({ open: false, type: deleteModal.type })}
           onConfirm={() =>
             handleDelete(
               deleteModal.type,
-              deleteModal.type === "item" ? selectedItem?.categoryItemId : selectedItem?.categoryId
+              deleteModal.type === 'item' ? selectedItem?.categoryItemId : selectedItem?.categoryId
             )
           }
           type="danger"
           title="Confirm Deletion"
           message={
-            deleteModal.type === "item"
-              ? "Are you sure you want to delete this item? Deleting it will also remove it from any associated packages."
-              : "Are you sure you want to delete this category? Deleting it will also remove all the items under it and affect any places where it is used."
+            deleteModal.type === 'item'
+              ? 'Are you sure you want to delete this item? Deleting it will also remove it from any associated packages.'
+              : 'Are you sure you want to delete this category? Deleting it will also remove all the items under it and affect any places where it is used.'
           }
         />
       )}

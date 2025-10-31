@@ -1,7 +1,7 @@
-"use client";
-import React, { useState, useEffect } from "react";
-import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
-import { Button, Table, Tabs, message, Modal } from "antd";
+'use client';
+import React, { useState, useEffect } from 'react';
+import { CreateFormModal } from '@/components/common/Models/CreateFormModel';
+import { Button, Table, Tabs, message, Modal } from 'antd';
 import {
   createDwellingType,
   createRange,
@@ -11,19 +11,17 @@ import {
   getRanges,
   updateDwellingType,
   updateRange,
-} from "@redux/feature/types/typesThunk";
-import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import { IconEdit, IconTrash } from "@tabler/icons-react";
-import ConfirmationModal from "@/components/common/ConfirmationModal";
-import rangeAndDwellingTypeFields from "@/components/formFields/rangeAndDwellingTypeFields";
-import { Status } from "@lib/constants/enum";
+} from '@redux/feature/types/typesThunk';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
+import ConfirmationModal from '@/components/common/ConfirmationModal';
+import rangeAndDwellingTypeFields from '@/components/formFields/rangeAndDwellingTypeFields';
+import { Status } from '@lib/constants/enum';
 
 const RangeAndDwelling = () => {
   const dispatch = useAppDispatch();
-  const { range, dwellingType, status } = useAppSelector(
-    (state) => state.types
-  );
-  const [activeTab, setActiveTab] = useState("range");
+  const { range, dwellingType, status } = useAppSelector(state => state.types);
+  const [activeTab, setActiveTab] = useState('range');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [deleteModalVisible, setDeleteModalVisible] = useState({
@@ -44,7 +42,7 @@ const RangeAndDwelling = () => {
   //   }
   // }, [dispatch, activeTab, status.range, status.dwellingType]);
 
-  const handleEdit = (item) => {
+  const handleEdit = item => {
     setEditingItem(item);
     setIsModalVisible(true);
   };
@@ -54,14 +52,12 @@ const RangeAndDwelling = () => {
 
     try {
       setFormLoading(true);
-      if (activeTab === "range") {
+      if (activeTab === 'range') {
         await dispatch(deleteRange({ id: deleteModalVisible.id })).unwrap();
-        message.success("Range deleted successfully");
+        message.success('Range deleted successfully');
       } else {
-        await dispatch(
-          deleteDwellingType({ id: deleteModalVisible.id })
-        ).unwrap();
-        message.success("Dwelling type deleted successfully");
+        await dispatch(deleteDwellingType({ id: deleteModalVisible.id })).unwrap();
+        message.success('Dwelling type deleted successfully');
       }
       setDeleteModalVisible({ id: null, open: false });
     } catch (error: any) {
@@ -74,25 +70,21 @@ const RangeAndDwelling = () => {
   const handleSubmit = async (values: { name: string }) => {
     try {
       setFormLoading(true);
-      if (activeTab === "range") {
+      if (activeTab === 'range') {
         if (editingItem) {
-          await dispatch(
-            updateRange({ id: editingItem.id, name: values.name })
-          ).unwrap();
-          message.success("Range updated successfully");
+          await dispatch(updateRange({ id: editingItem.id, name: values.name })).unwrap();
+          message.success('Range updated successfully');
         } else {
           await dispatch(createRange({ name: values.name })).unwrap();
-          message.success("Range created successfully");
+          message.success('Range created successfully');
         }
       } else {
         if (editingItem) {
-          await dispatch(
-            updateDwellingType({ id: editingItem.id, name: values.name })
-          ).unwrap();
-          message.success("Dwelling type updated successfully");
+          await dispatch(updateDwellingType({ id: editingItem.id, name: values.name })).unwrap();
+          message.success('Dwelling type updated successfully');
         } else {
           await dispatch(createDwellingType({ name: values.name })).unwrap();
-          message.success("Dwelling type created successfully");
+          message.success('Dwelling type created successfully');
         }
       }
       setIsModalVisible(false);
@@ -106,13 +98,13 @@ const RangeAndDwelling = () => {
 
   const columns = [
     {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
     },
     {
-      title: "Actions",
-      key: "actions",
+      title: 'Actions',
+      key: 'actions',
       width: 120,
       render: (_: any, record) => (
         <div className="flex gap-2">
@@ -121,10 +113,7 @@ const RangeAndDwelling = () => {
             onClick={() => handleEdit(record)}
             aria-label="Edit"
           >
-            <IconEdit
-              size={20}
-              className="text-font-color group-hover:text-blue"
-            />
+            <IconEdit size={20} className="text-font-color group-hover:text-blue" />
           </button>
 
           <button
@@ -132,10 +121,7 @@ const RangeAndDwelling = () => {
             onClick={() => setDeleteModalVisible({ id: record.id, open: true })}
             aria-label="Delete"
           >
-            <IconTrash
-              size={20}
-              className="text-font-color group-hover:text-red-500"
-            />
+            <IconTrash size={20} className="text-font-color group-hover:text-red-500" />
           </button>
         </div>
       ),
@@ -143,7 +129,7 @@ const RangeAndDwelling = () => {
   ];
 
   const dataSource =
-    activeTab === "range"
+    activeTab === 'range'
       ? range?.map((item: any) => ({
           id: item?.rangeId,
           name: item?.name,
@@ -159,7 +145,7 @@ const RangeAndDwelling = () => {
     <div className="p-4 bg-body-color rounded-lg shadow">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">
-          Manage {activeTab === "range" ? "Ranges" : "Dwelling Types"}
+          Manage {activeTab === 'range' ? 'Ranges' : 'Dwelling Types'}
         </h2>
         <Button type="primary" onClick={() => setIsModalVisible(true)}>
           Add
@@ -168,11 +154,11 @@ const RangeAndDwelling = () => {
 
       <Tabs
         activeKey={activeTab}
-        onChange={(key) => setActiveTab(key)}
+        onChange={key => setActiveTab(key)}
         items={[
           {
-            key: "range",
-            label: "Ranges",
+            key: 'range',
+            label: 'Ranges',
             children: (
               <Table
                 columns={columns}
@@ -184,8 +170,8 @@ const RangeAndDwelling = () => {
             ),
           },
           {
-            key: "dwelling",
-            label: "Dwelling Types",
+            key: 'dwelling',
+            label: 'Dwelling Types',
             children: (
               <Table
                 columns={columns}
@@ -200,7 +186,7 @@ const RangeAndDwelling = () => {
       />
 
       <CreateFormModal
-        title={`${activeTab === "range" ? "Range" : "Dwelling Type"}`}
+        title={`${activeTab === 'range' ? 'Range' : 'Dwelling Type'}`}
         open={isModalVisible}
         initialValues={editingItem ? { name: editingItem?.name } : {}}
         fields={rangeAndDwellingTypeFields()}

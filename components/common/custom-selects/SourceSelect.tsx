@@ -1,17 +1,13 @@
-import { useAppDispatch } from "@hooks/redux";
-import CustomSelect from "./CustomSelect";
-import { useEffect, useState } from "react";
-import { message } from "antd";
-import { CustomSelectOption, CustomSelectProps } from "types/common.types";
-import { getLeadSourcesThunk } from "@redux/feature/lead/leadThunk";
-import { LeadSource } from "@redux/feature/lead/ILeadState";
-import { enumToReadable } from "@lib/utils/enumToRedable";
+import { useAppDispatch } from '@hooks/redux';
+import CustomSelect from './CustomSelect';
+import { useEffect, useState } from 'react';
+import { message } from 'antd';
+import { CustomSelectOption, CustomSelectProps } from 'types/common.types';
+import { getLeadSourcesThunk } from '@redux/feature/lead/leadThunk';
+import { LeadSource } from '@redux/feature/lead/ILeadState';
+import { enumToReadable } from '@lib/utils/enumToRedable';
 
-const SourceSelect: React.FC<CustomSelectProps> = ({
-  value,
-  onChange,
-  width,
-}) => {
+const SourceSelect: React.FC<CustomSelectProps> = ({ value, onChange, width }) => {
   const [leadSources, setLeadSources] = useState<LeadSource[]>([]);
   const dispatch = useAppDispatch();
 
@@ -21,9 +17,7 @@ const SourceSelect: React.FC<CustomSelectProps> = ({
         const response = await dispatch(getLeadSourcesThunk()).unwrap();
         setLeadSources(response || []);
       } catch (error) {
-        message.error(
-          error instanceof Error ? error.message : "Failed to fetch users"
-        );
+        message.error(error instanceof Error ? error.message : 'Failed to fetch users');
       }
     };
 
@@ -48,10 +42,7 @@ const SourceSelect: React.FC<CustomSelectProps> = ({
       showSearch
       optionFilterProp="label"
       filterOption={(input, option) =>
-        (option?.label ?? "")
-          .toString()
-          .toLowerCase()
-          .includes(input.toLowerCase())
+        (option?.label ?? '').toString().toLowerCase().includes(input.toLowerCase())
       }
     />
   );

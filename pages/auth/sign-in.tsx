@@ -1,17 +1,12 @@
-"use client";
-import React, { useState } from "react";
-import { Form, Input, Divider, message } from "antd";
-import {
-  IconBrandGoogleFilled,
-  IconEye,
-  IconEyeOff,
-  IconLoader,
-} from "@tabler/icons-react";
-import Link from "next/link";
-import SystemRoutes from "@lib/constants/Routes";
-import { useAppDispatch } from "@hooks/redux";
-import { getUserThunk, SignInThunk } from "@redux/feature/auth/authThunk";
-import { useRouter } from "next/navigation";
+'use client';
+import React, { useState } from 'react';
+import { Form, Input, Divider, message } from 'antd';
+import { IconBrandGoogleFilled, IconEye, IconEyeOff, IconLoader } from '@tabler/icons-react';
+import Link from 'next/link';
+import SystemRoutes from '@lib/constants/Routes';
+import { useAppDispatch } from '@hooks/redux';
+import { getUserThunk, SignInThunk } from '@redux/feature/auth/authThunk';
+import { useRouter } from 'next/navigation';
 
 export async function getStaticProps() {
   return {
@@ -27,7 +22,7 @@ export default function Signin() {
   const [loading, setLoading] = useState<boolean>(false);
   const dispatch = useAppDispatch();
   const router = useRouter();
- 
+
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
@@ -38,9 +33,9 @@ export default function Signin() {
       const response = await dispatch(SignInThunk(values)).unwrap();
       await dispatch(getUserThunk()).unwrap();
       message.success(response.message);
-      router.push("/");
+      router.push('/');
     } catch (error: any) {
-      message.error(error || "sign in failed");
+      message.error(error || 'sign in failed');
     } finally {
       setLoading(false);
     }
@@ -49,12 +44,8 @@ export default function Signin() {
   return (
     <>
       <div className="sm:mb-8 mb-6 text-center">
-        <div className="sm:text-[40px]/[48px] text-[30px]/[36px] font-medium mb-2">
-          Sign In
-        </div>
-        <span className="text-font-color-100 inline-block">
-          Free access to our dashboard.
-        </span>
+        <div className="sm:text-[40px]/[48px] text-[30px]/[36px] font-medium mb-2">Sign In</div>
+        <span className="text-font-color-100 inline-block">Free access to our dashboard.</span>
       </div>
       <div className="sm:mb-6 mb-4 text-center">
         <button className="btn btn-white !border-border-color">
@@ -77,8 +68,8 @@ export default function Signin() {
           label="Email"
           name="email"
           rules={[
-            { required: true, message: "Please enter your email!" },
-            { type: "email", message: "Enter a valid email!" },
+            { required: true, message: 'Please enter your email!' },
+            { type: 'email', message: 'Enter a valid email!' },
           ]}
         >
           <Input placeholder="name@example.com" />
@@ -88,10 +79,10 @@ export default function Signin() {
         <Form.Item
           label="Password"
           name="password"
-          rules={[{ required: true, message: "Please enter your password!" }]}
+          rules={[{ required: true, message: 'Please enter your password!' }]}
         >
           <Input
-            type={showPassword ? "text" : "password"}
+            type={showPassword ? 'text' : 'password'}
             placeholder="Enter the password"
             suffix={
               <span
@@ -124,7 +115,7 @@ export default function Signin() {
             disabled={loading}
             className="btn btn-secondary large w-full uppercase"
           >
-            {loading ? <IconLoader /> : ""}
+            {loading ? <IconLoader /> : ''}
             Sign In
           </button>
         </Form.Item>

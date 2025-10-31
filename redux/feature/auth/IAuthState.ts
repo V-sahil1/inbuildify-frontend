@@ -1,5 +1,4 @@
-
-export type Role = "builder" | "contractor" | "manager" | "customer";
+export type Role = 'builder' | 'contractor' | 'manager' | 'customer';
 
 export interface ApiResponse<T = any, E = any> {
   data: T;
@@ -8,7 +7,6 @@ export interface ApiResponse<T = any, E = any> {
   error?: E;
   [key: string]: any;
 }
-
 
 export interface User {
   id: string;
@@ -30,8 +28,7 @@ export interface User {
   updatedAt: string;
 }
 
-
 export interface LoginResponse {
- accessToken: string;
- refreshToken: string;
+  accessToken: string;
+  refreshToken: string;
 }

@@ -1,122 +1,117 @@
-import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import { createFacade, getFacades } from "@redux/feature/facade/facadeThunk";
-import { Button, Checkbox, Form, Modal, Tabs, Typography, message } from "antd";
-import { useEffect, useState } from "react";
-import AvailableFacadesTab from "./AvailableFacadesTab";
-import CustomFacadeForm from "./forms/CustomFacadeForm";
-import { setQuotationFacade } from "@redux/feature/quotation/quotationSlice";
-import { setSelectedFilters } from "@redux/feature/facade/facadeSlice";
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { createFacade, getFacades } from '@redux/feature/facade/facadeThunk';
+import { Button, Checkbox, Form, Modal, Tabs, Typography, message } from 'antd';
+import { useEffect, useState } from 'react';
+import AvailableFacadesTab from './AvailableFacadesTab';
+import CustomFacadeForm from './forms/CustomFacadeForm';
+import { setQuotationFacade } from '@redux/feature/quotation/quotationSlice';
+import { setSelectedFilters } from '@redux/feature/facade/facadeSlice';
 
 const { Title } = Typography;
 
 interface FacadeModalProps {
-    visible: boolean;
-    onCancel: () => void;
-    onSave: (data: any) => void;
-    selectedFacade?: any;
+  visible: boolean;
+  onCancel: () => void;
+  onSave: (data: any) => void;
+  selectedFacade?: any;
 }
 
-const FacadeModal: React.FC<FacadeModalProps> = ({
-    visible,
-    onCancel,
-    onSave,
-    selectedFacade,
-}) => {
-    const dispatch = useAppDispatch();
-    const { facades, selectedFilters } = useAppSelector((state) => state.facade);
-    const [form] = Form.useForm();
+const FacadeModal: React.FC<FacadeModalProps> = ({ visible, onCancel, onSave, selectedFacade }) => {
+  const dispatch = useAppDispatch();
+  const { facades, selectedFilters } = useAppSelector(state => state.facade);
+  const [form] = Form.useForm();
 
-    const [activeTab, setActiveTab] = useState<"available" | "custom">("available");
-    const [selected, setSelected] = useState<any>(selectedFacade || null);
-    const [formValues, setFormValues] = useState<any>(null);
-    const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<'available' | 'custom'>('available');
+  const [selected, setSelected] = useState<any>(selectedFacade || null);
+  const [formValues, setFormValues] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        // if (status === Status.IDLE) {
-        if (visible) {
-            dispatch(getFacades(selectedFilters)).unwrap().catch(console.error);
-        }
-        // }
-    }, [dispatch, visible, selectedFilters]);
+  useEffect(() => {
+    // if (status === Status.IDLE) {
+    if (visible) {
+      dispatch(getFacades(selectedFilters)).unwrap().catch(console.error);
+    }
+    // }
+  }, [dispatch, visible, selectedFilters]);
 
-    const handleSave = async () => {
-        if (activeTab === "available") {
-            if (!selected) {
-                message.warning("Please select a facade before saving.");
-                return;
-            }
-            onSave(selected);
-            dispatch(setQuotationFacade(selected));
-            onCancel();
-        } else {
-            await form.validateFields();
-            if (!formValues) {
-                message.warning("Please fill the form before saving.");
-                return;
-            }
-            try {
-                const formData = new FormData();
-                formData.append("name", formValues.name);
-                formData.append("dwelling_type", formValues.dwelling_type);
-                formData.append("image", formValues.image.fileList[0].originFileObj);
-                formData.append("standard", formValues.standard || false);
-                formData.append("upgrade", formValues.upgrade || false);
-                formData.append("cost", formValues.cost);
-                setLoading(true);
-                const response = await dispatch(createFacade(formData)).unwrap();
-                dispatch(setQuotationFacade(response));
-                setFormValues(null);
-                message.success("Facade created successfully");
-                onSave({ type: "new", facade: formValues });
-                onCancel();
-            } catch (error) {
-                message.error(`${error}` || "Failed to create facade");
-            } finally {
-                setLoading(false);
-            }
-        }
-    };
+  const handleSave = async () => {
+    if (activeTab === 'available') {
+      if (!selected) {
+        message.warning('Please select a facade before saving.');
+        return;
+      }
+      onSave(selected);
+      dispatch(setQuotationFacade(selected));
+      onCancel();
+    } else {
+      await form.validateFields();
+      if (!formValues) {
+        message.warning('Please fill the form before saving.');
+        return;
+      }
+      try {
+        const formData = new FormData();
+        formData.append('name', formValues.name);
+        formData.append('dwelling_type', formValues.dwelling_type);
+        formData.append('image', formValues.image.fileList[0].originFileObj);
+        formData.append('standard', formValues.standard || false);
+        formData.append('upgrade', formValues.upgrade || false);
+        formData.append('cost', formValues.cost);
+        setLoading(true);
+        const response = await dispatch(createFacade(formData)).unwrap();
+        dispatch(setQuotationFacade(response));
+        setFormValues(null);
+        message.success('Facade created successfully');
+        onSave({ type: 'new', facade: formValues });
+        onCancel();
+      } catch (error) {
+        message.error(`${error}` || 'Failed to create facade');
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
 
-    return (
-        <Modal
-            title={
-                <div className="bg-blue-500 text-white p-2 rounded">
-                    <Title level={4}>
-                        Facade
-                    </Title>
-                </div>
-            }
-            centered
-            open={visible}
-            onCancel={onCancel}
-            width={900}
-            footer={[
-                <Button key="cancel" onClick={onCancel}>
-                    Cancel
-                </Button>, 
-                <Button key="save" type="primary" onClick={handleSave} loading={loading}>
-                    Save
-                </Button>,
-            ]}
-            className="facade-modal"
-        >
-            <Tabs
-                activeKey={activeTab}
-                onChange={(key) => setActiveTab(key as "available" | "custom")}
-                tabBarExtraContent={activeTab === "available" && (
-                    <div className="flex gap-4">
-                        <Checkbox
-                            checked={!!selectedFilters.standard}
-                            onChange={(e) => {
-                                dispatch(setSelectedFilters({ standard: e.target.checked }));
-                                setSelected(null);
-                            }}>
-                            Standard
-                        </Checkbox>
+  return (
+    <Modal
+      title={
+        <div className="bg-blue-500 text-white p-2 rounded">
+          <Title level={4}>Facade</Title>
+        </div>
+      }
+      centered
+      open={visible}
+      onCancel={onCancel}
+      width={900}
+      footer={[
+        <Button key="cancel" onClick={onCancel}>
+          Cancel
+        </Button>,
+        <Button key="save" type="primary" onClick={handleSave} loading={loading}>
+          Save
+        </Button>,
+      ]}
+      className="facade-modal"
+    >
+      <Tabs
+        activeKey={activeTab}
+        onChange={key => setActiveTab(key as 'available' | 'custom')}
+        tabBarExtraContent={
+          activeTab === 'available' && (
+            <div className="flex gap-4">
+              <Checkbox
+                checked={!!selectedFilters.standard}
+                onChange={e => {
+                  dispatch(setSelectedFilters({ standard: e.target.checked }));
+                  setSelected(null);
+                }}
+              >
+                Standard
+              </Checkbox>
 
               <Checkbox
                 checked={!!selectedFilters.upgrade}
-                onChange={(e) => {
+                onChange={e => {
                   dispatch(setSelectedFilters({ upgrade: e.target.checked }));
                   setSelected(null);
                 }}
@@ -154,8 +149,8 @@ const FacadeModal: React.FC<FacadeModalProps> = ({
         }
         items={[
           {
-            key: "available",
-            label: "Available",
+            key: 'available',
+            label: 'Available',
             children: (
               <AvailableFacadesTab
                 facades={facades}
@@ -165,8 +160,8 @@ const FacadeModal: React.FC<FacadeModalProps> = ({
             ),
           },
           {
-            key: "custom",
-            label: "Custom",
+            key: 'custom',
+            label: 'Custom',
             children: (
               <CustomFacadeForm
                 initialValues={formValues}

@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   Form,
   Input,
@@ -13,18 +13,15 @@ import {
   Button,
   Upload,
   UploadFile,
-} from "antd";
-import { useAppDispatch } from "@hooks/redux";
+} from 'antd';
+import { useAppDispatch } from '@hooks/redux';
 import {
   createColourSubCategoryItem,
   updateColourSubCategoryItem,
-} from "@redux/feature/color/colorThunk";
-import { formDataGenerator } from "@lib/utils/formDataGenerator";
-import { SubCategoryItem } from "@redux/feature/color/iColourState";
-import {
-  nameRules,
-  optionalNotesRule,
-} from "@lib/constants/formInputValidations";
+} from '@redux/feature/color/colorThunk';
+import { formDataGenerator } from '@lib/utils/formDataGenerator';
+import { SubCategoryItem } from '@redux/feature/color/iColourState';
+import { nameRules, optionalNotesRule } from '@lib/constants/formInputValidations';
 
 interface ColorCategoryItemModalProps {
   open: boolean;
@@ -50,7 +47,7 @@ const ColorCategoryItemModel = ({
       restValues.colorSubCategoryId = selectedColorSubCategoryId;
     }
     restValues.image = values?.image[0]?.originFileObj;
-    if (costType === "standard") {
+    if (costType === 'standard') {
       restValues.standard = true;
     } else {
       restValues.upgrade = true;
@@ -66,13 +63,13 @@ const ColorCategoryItemModel = ({
             data: formData,
           })
         ).unwrap();
-        message.success("Sub category item updated successfully");
+        message.success('Sub category item updated successfully');
       } else {
         await dispatch(createColourSubCategoryItem(formData)).unwrap();
-        message.success("Sub category item created successfully");
+        message.success('Sub category item created successfully');
       }
     } catch (error) {
-      message.error(error || "Failed to create sub category item");
+      message.error(error || 'Failed to create sub category item');
     } finally {
       setLoading(false);
       handleCancel();
@@ -87,13 +84,13 @@ const ColorCategoryItemModel = ({
   const initialValues = categoryItem
     ? {
         ...categoryItem,
-        costType: categoryItem.standard ? "standard" : "upgrade",
+        costType: categoryItem.standard ? 'standard' : 'upgrade',
         image: categoryItem.image
           ? [
               {
-                uid: "-1",
-                name: "current-image",
-                status: "done",
+                uid: '-1',
+                name: 'current-image',
+                status: 'done',
                 url: categoryItem.image,
                 thumbUrl: categoryItem.image,
               } as UploadFile,
@@ -103,9 +100,7 @@ const ColorCategoryItemModel = ({
     : {};
   return (
     <Modal
-      title={
-        categoryItem ? "Update Sub category Item" : "Add Sub category Item"
-      }
+      title={categoryItem ? 'Update Sub category Item' : 'Add Sub category Item'}
       open={open}
       onCancel={handleCancel}
       footer={null}
@@ -119,10 +114,10 @@ const ColorCategoryItemModel = ({
         layout="vertical"
         onFinish={onFinish}
         style={{
-          maxWidth: "100%",
-          maxHeight: "70vh",
-          overflowY: "auto",
-          scrollbarWidth: "none",
+          maxWidth: '100%',
+          maxHeight: '70vh',
+          overflowY: 'auto',
+          scrollbarWidth: 'none',
         }}
         className="responsive-form"
         initialValues={initialValues}
@@ -137,13 +132,9 @@ const ColorCategoryItemModel = ({
             <Form.Item
               name="code"
               label="Item Code"
-              rules={[{ required: true, message: "Please enter item code" }]}
+              rules={[{ required: true, message: 'Please enter item code' }]}
             >
-              <Input
-                maxLength={100}
-                minLength={1}
-                placeholder="Enter item code"
-              />
+              <Input maxLength={100} minLength={1} placeholder="Enter item code" />
             </Form.Item>
           </Col>
         </Row>
@@ -157,7 +148,7 @@ const ColorCategoryItemModel = ({
                 minLength={1}
                 placeholder="Enter units"
                 type="number"
-                onKeyPress={(e) => {
+                onKeyPress={e => {
                   if (!/[0-9]/.test(e.key)) {
                     e.preventDefault();
                   }
@@ -170,13 +161,13 @@ const ColorCategoryItemModel = ({
               name="image"
               label="Image"
               valuePropName="fileList"
-              getValueFromEvent={(e) => {
+              getValueFromEvent={e => {
                 if (Array.isArray(e)) {
                   return e;
                 }
                 return e?.fileList;
               }}
-              rules={[{ required: true, message: "Please upload an image" }]}
+              rules={[{ required: true, message: 'Please upload an image' }]}
             >
               <Upload
                 name="image"
@@ -202,7 +193,7 @@ const ColorCategoryItemModel = ({
             <Form.Item
               name="costType"
               label="Cost Type"
-              rules={[{ required: true, message: "Please select cost type" }]}
+              rules={[{ required: true, message: 'Please select cost type' }]}
             >
               <Radio.Group>
                 <Radio value="standard">Standard</Radio>
@@ -232,12 +223,7 @@ const ColorCategoryItemModel = ({
         <Row>
           <Col span={24} className="text-right">
             <Form.Item>
-              <Button
-                type="primary"
-                htmlType="submit"
-                loading={loading}
-                disabled={loading}
-              >
+              <Button type="primary" htmlType="submit" loading={loading} disabled={loading}>
                 Save
               </Button>
             </Form.Item>

@@ -22,9 +22,7 @@ export const exportToExcel = async ({
   const worksheet = workbook.addWorksheet(sheetName);
 
   // Get headers from columnHeaders or use data keys
-  const headers = columnHeaders 
-    ? Object.values(columnHeaders)
-    : Object.keys(data[0] || {});
+  const headers = columnHeaders ? Object.values(columnHeaders) : Object.keys(data[0] || {});
 
   // Add header row with styles
   const headerRow = worksheet.addRow(headers);
@@ -33,7 +31,7 @@ export const exportToExcel = async ({
 
   // Add data rows
   data.forEach(item => {
-    const rowData = columnHeaders 
+    const rowData = columnHeaders
       ? Object.keys(columnHeaders).map(key => item[key])
       : Object.values(item);
     worksheet.addRow(rowData);
@@ -55,7 +53,9 @@ export const exportToExcel = async ({
   const buffer = await workbook.xlsx.writeBuffer();
 
   // Create blob and download
-  const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const blob = new Blob([buffer], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  });
   const url = window.URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;

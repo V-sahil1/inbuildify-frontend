@@ -1,8 +1,8 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { getUserThunk, logoutThunk, SignInThunk, updateUserThunk } from "./authThunk";
-import { Status } from "@lib/constants/enum";
-import { Role, User } from "./IAuthState";
-import { storeAuthToken, storeRefreshToken } from "@lib/constants/authToken";
+import { createSlice } from '@reduxjs/toolkit';
+import { getUserThunk, logoutThunk, SignInThunk, updateUserThunk } from './authThunk';
+import { Status } from '@lib/constants/enum';
+import { Role, User } from './IAuthState';
+import { storeAuthToken, storeRefreshToken } from '@lib/constants/authToken';
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -23,12 +23,12 @@ const initialState: AuthState = {
 };
 
 const authSlice = createSlice({
-  name: "auth",
+  name: 'auth',
   initialState,
   reducers: {
     logout: () => initialState,
   },
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     // sign in
     builder.addCase(SignInThunk.fulfilled, (state, action) => {
       storeAuthToken(action.payload.data.accessToken);
@@ -36,7 +36,7 @@ const authSlice = createSlice({
     });
 
     // get user
-    builder.addCase(getUserThunk.pending, (state) => {
+    builder.addCase(getUserThunk.pending, state => {
       state.status = Status.PENDING;
       state.error = null;
     });
@@ -52,10 +52,10 @@ const authSlice = createSlice({
     });
 
     // logout thunk
-    builder.addCase(logoutThunk.pending, (state) => {
+    builder.addCase(logoutThunk.pending, state => {
       state.status = Status.PENDING;
     });
-    builder.addCase(logoutThunk.fulfilled, (state) => {
+    builder.addCase(logoutThunk.fulfilled, state => {
       state.isAuthenticated = false;
       state.role = null;
       state.user = null;
@@ -67,7 +67,7 @@ const authSlice = createSlice({
     });
 
     // update user
-    builder.addCase(updateUserThunk.pending, (state) => {
+    builder.addCase(updateUserThunk.pending, state => {
       state.status = Status.PENDING;
     });
     builder.addCase(updateUserThunk.fulfilled, (state, action) => {
@@ -83,4 +83,3 @@ const authSlice = createSlice({
 
 export const { logout } = authSlice.actions;
 export const authReducer = authSlice.reducer;
-  

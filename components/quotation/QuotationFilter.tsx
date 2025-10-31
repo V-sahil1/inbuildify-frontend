@@ -1,53 +1,58 @@
-import { useAppDispatch, useAppSelector } from "@hooks/redux";
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
 // import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
-import { fetchFloorPlans } from "@redux/feature/floorPlan/floorPlanThunk";
-import { setSelectedFilters } from "@redux/feature/floorPlan/floorPlanSlice";
-import { useEffect, useCallback, useRef } from "react";
-import { setSelectedFilters as setFacadeFilters } from "@redux/feature/facade/facadeSlice";
-import { getFacades } from "@redux/feature/facade/facadeThunk";
-import { fetchPackages } from "@redux/feature/package/packageThunk";
-import { setSelectedFilters as setPackageFilters } from "@redux/feature/package/packageSlice";
-import { resetAllCategoriesIsExpanded, setSelectedFilters as setMplFilters } from "@redux/feature/masterPriceList/masterPriceListSlice";
-import { clearSelectedFloorplanFacadePackageReducer, setSelectedFilters as setQuotationFilters } from "@redux/feature/quotation/quotationSlice";
-import { message, Select } from "antd";
-import { mapToOptions } from "@lib/utils/rangeAndDwellingObjToOptions";
-import { Status } from "@lib/constants/enum";
-import { getDwellingTypes, getRanges } from "@redux/feature/types/typesThunk";
-import NoDataMessage from "../common/NoDataMessage";
-import SystemRoutes from "@lib/constants/Routes";
+import { fetchFloorPlans } from '@redux/feature/floorPlan/floorPlanThunk';
+import { setSelectedFilters } from '@redux/feature/floorPlan/floorPlanSlice';
+import { useEffect, useCallback, useRef } from 'react';
+import { setSelectedFilters as setFacadeFilters } from '@redux/feature/facade/facadeSlice';
+import { getFacades } from '@redux/feature/facade/facadeThunk';
+import { fetchPackages } from '@redux/feature/package/packageThunk';
+import { setSelectedFilters as setPackageFilters } from '@redux/feature/package/packageSlice';
+import {
+  resetAllCategoriesIsExpanded,
+  setSelectedFilters as setMplFilters,
+} from '@redux/feature/masterPriceList/masterPriceListSlice';
+import {
+  clearSelectedFloorplanFacadePackageReducer,
+  setSelectedFilters as setQuotationFilters,
+} from '@redux/feature/quotation/quotationSlice';
+import { message, Select } from 'antd';
+import { mapToOptions } from '@lib/utils/rangeAndDwellingObjToOptions';
+import { Status } from '@lib/constants/enum';
+import { getDwellingTypes, getRanges } from '@redux/feature/types/typesThunk';
+import NoDataMessage from '../common/NoDataMessage';
+import SystemRoutes from '@lib/constants/Routes';
 
 interface QuotationFilterProps {
   isReadOnly?: boolean;
   onFilterChange?: () => void;
 }
 
-const QuotationFilter: React.FC<QuotationFilterProps> = ({ isReadOnly = false, onFilterChange }) => {
+const QuotationFilter: React.FC<QuotationFilterProps> = ({
+  isReadOnly = false,
+  onFilterChange,
+}) => {
   const dispatch = useAppDispatch();
-  const { range, dwellingType, status } = useAppSelector(
-    (state) => state.types
-  );
+  const { range, dwellingType, status } = useAppSelector(state => state.types);
   const rangeOptions = mapToOptions(range);
   const dwellingOptions = mapToOptions(dwellingType);
-  const { selectedFilters: selectedQuotationFilters } = useAppSelector(
-    (state) => state.quotation
-  );
-  const { selectedFilters: selectedPackageFilters } = useAppSelector((state) => state.package);
+  const { selectedFilters: selectedQuotationFilters } = useAppSelector(state => state.quotation);
+  const { selectedFilters: selectedPackageFilters } = useAppSelector(state => state.package);
   const initialLoad = useRef(true);
 
   useEffect(() => {
     const fetchTypesData = async () => {
       try {
-      if (status?.range === Status.IDLE) {
-        await dispatch(getRanges()).unwrap();
+        if (status?.range === Status.IDLE) {
+          await dispatch(getRanges()).unwrap();
+        }
+        if (status?.dwellingType === Status.IDLE) {
+          await dispatch(getDwellingTypes()).unwrap();
+        }
+      } catch (error) {
+        message.error(error);
       }
-      if (status?.dwellingType === Status.IDLE) {
-        await dispatch(getDwellingTypes()).unwrap();
-      }
-    } catch (error) {
-      message.error(error);
-    }
-  };
-  fetchTypesData();
+    };
+    fetchTypesData();
   }, [dispatch]);
 
   useEffect(() => {
@@ -55,9 +60,7 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({ isReadOnly = false, o
       initialLoad.current = false;
 
       if (selectedQuotationFilters.dwelling_type) {
-        handleFloorPlanDwellingTypeChange(
-          selectedQuotationFilters.dwelling_type
-        );
+        handleFloorPlanDwellingTypeChange(selectedQuotationFilters.dwelling_type);
         handleFacadeDwellingTypeChange(selectedQuotationFilters.dwelling_type);
       }
 
@@ -70,9 +73,9 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({ isReadOnly = false, o
 
   const handleRangeChange = useCallback(
     (value: string | undefined) => {
-      const newFilters = { ...selectedQuotationFilters, range: value || "" };
+      const newFilters = { ...selectedQuotationFilters, range: value || '' };
       dispatch(setSelectedFilters(newFilters));
-      dispatch(setMplFilters({ range: value || "" }));
+      dispatch(setMplFilters({ range: value || '' }));
       dispatch(setQuotationFilters(newFilters));
 
       if (newFilters.range || newFilters.dwelling_type) {
@@ -88,13 +91,13 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({ isReadOnly = false, o
     (value: string | undefined) => {
       const newFilters = {
         ...selectedQuotationFilters,
-        dwelling_type: value || "",
+        dwelling_type: value || '',
       };
       dispatch(setSelectedFilters(newFilters));
       dispatch(
         setMplFilters({
           ...selectedQuotationFilters,
-          dwelling_type: value || "",
+          dwelling_type: value || '',
         })
       );
       dispatch(setQuotationFilters(newFilters));
@@ -113,10 +116,10 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({ isReadOnly = false, o
     (value: string | undefined) => {
       const newFilters = {
         ...selectedQuotationFilters,
-        dwelling_type: value || "",
+        dwelling_type: value || '',
       };
       dispatch(setSelectedFilters(newFilters));
-      dispatch(setMplFilters({ dwelling_type: value || "" }));
+      dispatch(setMplFilters({ dwelling_type: value || '' }));
       dispatch(setQuotationFilters(newFilters));
 
       // Only make API call if at least one filter is selected
@@ -132,7 +135,7 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({ isReadOnly = false, o
 
   const handleFacadeDwellingTypeChange = useCallback(
     (value: string | undefined) => {
-      const newFilters = { dwelling_type: value || "" };
+      const newFilters = { dwelling_type: value || '' };
       dispatch(setFacadeFilters(newFilters));
 
       // Only make API call if dwelling_type filter is selected
@@ -150,7 +153,7 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({ isReadOnly = false, o
     (value: string | undefined) => {
       const newFilters = {
         ...selectedPackageFilters,
-        dwelling_type: value || "",
+        dwelling_type: value || '',
       };
       dispatch(setPackageFilters(newFilters));
 
@@ -167,7 +170,7 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({ isReadOnly = false, o
     (value: string | undefined) => {
       const newFilters = {
         ...selectedPackageFilters,
-        range: value || "",
+        range: value || '',
       };
       dispatch(setPackageFilters(newFilters));
 
@@ -185,7 +188,7 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({ isReadOnly = false, o
   }, [dispatch]);
 
   const clearSelectedFloorplanFacadePackage = () => {
-    dispatch(clearSelectedFloorplanFacadePackageReducer())
+    dispatch(clearSelectedFloorplanFacadePackageReducer());
   };
 
   return (
@@ -199,17 +202,14 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({ isReadOnly = false, o
           allowClear
           value={selectedQuotationFilters?.range || undefined}
           notFoundContent={
-            <NoDataMessage
-              label="Range type"
-              link={SystemRoutes.DWELLING_AND_RANGE}
-            />
+            <NoDataMessage label="Range type" link={SystemRoutes.DWELLING_AND_RANGE} />
           }
-          onChange={(value) => {
-            clearSelectedFloorplanFacadePackage()
-            handleRangeChange(value)
-            handlePackageRangeChange(value)
-            dispatch(resetAllCategoriesIsExpanded())
-            onFilterChange?.() 
+          onChange={value => {
+            clearSelectedFloorplanFacadePackage();
+            handleRangeChange(value);
+            handlePackageRangeChange(value);
+            dispatch(resetAllCategoriesIsExpanded());
+            onFilterChange?.();
           }}
           options={rangeOptions}
           disabled={isReadOnly}
@@ -225,19 +225,16 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({ isReadOnly = false, o
           allowClear
           value={selectedQuotationFilters?.dwelling_type || undefined}
           notFoundContent={
-            <NoDataMessage
-              label="dwelling type"
-              link={SystemRoutes.DWELLING_AND_RANGE}
-            />
+            <NoDataMessage label="dwelling type" link={SystemRoutes.DWELLING_AND_RANGE} />
           }
-          onChange={(value) => {
-              clearSelectedFloorplanFacadePackage()
-              handleDwellingTypeChange(value),
+          onChange={value => {
+            clearSelectedFloorplanFacadePackage();
+            (handleDwellingTypeChange(value),
               handleFloorPlanDwellingTypeChange(value),
-              handleFacadeDwellingTypeChange(value);
-              handlePackageDwellingTypeChange(value)
-              dispatch(resetAllCategoriesIsExpanded())
-              onFilterChange?.() 
+              handleFacadeDwellingTypeChange(value));
+            handlePackageDwellingTypeChange(value);
+            dispatch(resetAllCategoriesIsExpanded());
+            onFilterChange?.();
           }}
           options={dwellingOptions}
           disabled={isReadOnly}

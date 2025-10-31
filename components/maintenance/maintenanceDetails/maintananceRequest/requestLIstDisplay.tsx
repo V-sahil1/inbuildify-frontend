@@ -1,12 +1,6 @@
 import React from 'react';
 import { Button, Select, Dropdown, MenuProps, Input, Checkbox } from 'antd';
-import {
-  IconDotsVertical,
-  IconPlus,
-  IconUpload,
-  IconPencil,
-  IconTrash,
-} from "@tabler/icons-react";
+import { IconDotsVertical, IconPlus, IconUpload, IconPencil, IconTrash } from '@tabler/icons-react';
 import { RequestItem } from '@redux/feature/maintenance/IMaintenanceState';
 const { Option } = Select;
 const { TextArea } = Input;
@@ -32,21 +26,20 @@ const RequestListDisplay: React.FC<RequestListDisplayProps> = ({
   handleDeleteDescription,
   handleDeleteRequest,
 }) => {
-
-  const getTaskMenuItems = (requestId: string, descIndex: number): MenuProps["items"] => [
-    { 
-      key: "1", 
-      label: "Cancel Task", 
-      onClick: () => handleDeleteDescription(requestId, descIndex) 
+  const getTaskMenuItems = (requestId: string, descIndex: number): MenuProps['items'] => [
+    {
+      key: '1',
+      label: 'Cancel Task',
+      onClick: () => handleDeleteDescription(requestId, descIndex),
     },
   ];
 
-  const getMainRequestMenuItems = (requestId: string): MenuProps["items"] => [
-    { key: "1", label: "Edit" },
-    { 
-      key: "2", 
-      label: "Delete Request", 
-      onClick: () => handleDeleteRequest(requestId) 
+  const getMainRequestMenuItems = (requestId: string): MenuProps['items'] => [
+    { key: '1', label: 'Edit' },
+    {
+      key: '2',
+      label: 'Delete Request',
+      onClick: () => handleDeleteRequest(requestId),
     },
   ];
 
@@ -61,7 +54,7 @@ const RequestListDisplay: React.FC<RequestListDisplayProps> = ({
 
   return (
     <div className="bg-white rounded-md border shadow-sm">
-      {filteredData.map((item) => (
+      {filteredData.map(item => (
         <div key={item.id} className="border-b last:border-b-0 p-3 relative">
           {/* Header */}
           <div className="flex justify-between items-center mb-2">
@@ -71,7 +64,7 @@ const RequestListDisplay: React.FC<RequestListDisplayProps> = ({
             <div className="flex items-center gap-2">
               <Select
                 value={item.status}
-                onChange={(val) => handleStatusChange(val, item.id)}
+                onChange={val => handleStatusChange(val, item.id)}
                 bordered={false}
                 className="w-24 text-sm"
               >
@@ -81,7 +74,7 @@ const RequestListDisplay: React.FC<RequestListDisplayProps> = ({
               </Select>
               <span className="text-blue-600 font-semibold">{item.amount}</span>
               {/* Main Request Dropdown */}
-              <Dropdown menu={{ items: getMainRequestMenuItems(item.id) }} trigger={["click"]}>
+              <Dropdown menu={{ items: getMainRequestMenuItems(item.id) }} trigger={['click']}>
                 <Button type="text" icon={<IconDotsVertical size={18} />} />
               </Dropdown>
               <div className="rounded-full h-8 w-8 bg-gray-200 flex items-center justify-center text-gray-600 font-medium ml-2">
@@ -132,7 +125,7 @@ const RequestListDisplay: React.FC<RequestListDisplayProps> = ({
                 <div className="flex gap-2 justify-self-end">
                   <IconUpload size={20} />
                   {/* Task Dropdown */}
-                  <Dropdown menu={{ items: getTaskMenuItems(item.id, index) }} trigger={["click"]}>
+                  <Dropdown menu={{ items: getTaskMenuItems(item.id, index) }} trigger={['click']}>
                     <Button type="text" icon={<IconDotsVertical size={18} />} />
                   </Dropdown>
                 </div>

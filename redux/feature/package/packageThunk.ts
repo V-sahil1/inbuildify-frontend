@@ -1,9 +1,9 @@
-import { createAsyncThunk } from "@reduxjs/toolkit";
-import api from "@lib/constants/api";
-import { ApiResponse } from "../auth/IAuthState";
-import API_ENDPOINTS from "@lib/constants/apiEndpoints";
-import { Item } from "../masterPriceList/iMasterPriceListState";
-import { Package } from "./IPackageState";
+import { createAsyncThunk } from '@reduxjs/toolkit';
+import api from '@lib/constants/api';
+import { ApiResponse } from '../auth/IAuthState';
+import API_ENDPOINTS from '@lib/constants/apiEndpoints';
+import { Item } from '../masterPriceList/iMasterPriceListState';
+import { Package } from './IPackageState';
 
 type createPackagePayload = {
   name: string;
@@ -21,11 +21,11 @@ type updatePackagePayload = {
 };
 
 export const fetchPackages = createAsyncThunk(
-  "packages/fetchAll",
+  'packages/fetchAll',
   async (filters: { range?: string; dwelling_type?: string } = {}, { rejectWithValue }) => {
     try {
       let url = API_ENDPOINTS.GET_PACKAGES;
-      
+
       // Add query parameters if filters are provided
       if (filters && (filters.range || filters.dwelling_type)) {
         const queryParams = new URLSearchParams();
@@ -33,7 +33,7 @@ export const fetchPackages = createAsyncThunk(
         if (filters.dwelling_type) queryParams.append('dwelling_type', filters.dwelling_type);
         url = `${API_ENDPOINTS.GET_PACKAGES}?${queryParams.toString()}`;
       }
-      
+
       const res = await api.get<ApiResponse<Package[]>>(url);
       return res.data;
     } catch (error) {
@@ -43,12 +43,10 @@ export const fetchPackages = createAsyncThunk(
 );
 
 export const fetchPackageById = createAsyncThunk(
-  "packages/fetchById",
+  'packages/fetchById',
   async (id: string, { rejectWithValue }) => {
     try {
-      const res = await api.get<ApiResponse<Package>>(
-        API_ENDPOINTS.GET_PACKAGE_BY_ID(id)
-      );
+      const res = await api.get<ApiResponse<Package>>(API_ENDPOINTS.GET_PACKAGE_BY_ID(id));
       return res.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -57,7 +55,7 @@ export const fetchPackageById = createAsyncThunk(
 );
 
 export const fetchPackageItems = createAsyncThunk(
-  "packages/fetchItems",
+  'packages/fetchItems',
   async (
     { range, dwellingType }: { range?: string; dwellingType?: string },
     { rejectWithValue }
@@ -65,9 +63,9 @@ export const fetchPackageItems = createAsyncThunk(
     try {
       let url = API_ENDPOINTS.GET_PACKAGE_ITEMS;
       const params = new URLSearchParams();
-      
-      if (range) params.append("range", range);
-      if (dwellingType) params.append("dwelling_type", dwellingType);
+
+      if (range) params.append('range', range);
+      if (dwellingType) params.append('dwelling_type', dwellingType);
 
       if (params.toString()) {
         url += `?${params.toString()}`;
@@ -82,13 +80,12 @@ export const fetchPackageItems = createAsyncThunk(
 );
 
 export const createPackage = createAsyncThunk(
-  "packages/create",
+  'packages/create',
   async (payload: createPackagePayload, { rejectWithValue }) => {
     try {
-      const res = await api.post<ApiResponse<Package>>(
-        API_ENDPOINTS.CREATE_PACKAGE,
-        { data: payload }
-      );
+      const res = await api.post<ApiResponse<Package>>(API_ENDPOINTS.CREATE_PACKAGE, {
+        data: payload,
+      });
       return res.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -97,14 +94,13 @@ export const createPackage = createAsyncThunk(
 );
 
 export const updatePackage = createAsyncThunk(
-  "packages/update",
+  'packages/update',
   async (payload: updatePackagePayload, { rejectWithValue }) => {
     try {
-      const {id, ...rest} = payload;
-      const res = await api.post<ApiResponse<Package>>(
-        API_ENDPOINTS.PACKAGE_BASE + "/" + id,
-        { data: rest }
-      );
+      const { id, ...rest } = payload;
+      const res = await api.post<ApiResponse<Package>>(API_ENDPOINTS.PACKAGE_BASE + '/' + id, {
+        data: rest,
+      });
       return res.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -112,18 +108,14 @@ export const updatePackage = createAsyncThunk(
   }
 );
 
-
 export const deletePackage = createAsyncThunk(
-  "packages/delete",
+  'packages/delete',
   async (id: string, { rejectWithValue }) => {
     try {
-      const res = await api.delete<ApiResponse<Package>>(
-        API_ENDPOINTS.PACKAGE_BASE + "/" + id
-      );
-      return {id};
+      const res = await api.delete<ApiResponse<Package>>(API_ENDPOINTS.PACKAGE_BASE + '/' + id);
+      return { id };
     } catch (error) {
       return rejectWithValue(error.message);
     }
   }
 );
-

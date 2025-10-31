@@ -1,10 +1,18 @@
+import { FilterOption } from '@/components/common/FilterTabs';
 import TimelineActionFormRenderer from '@/components/common/TimelineActionFormRenderer';
 import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineActionsBar';
 // import TimelineCard from '@/components/common/TimeLineComponents/TimelineCard';
 // import { handleSaveTimelineCard } from '@lib/utils/timelineCardUtils';
 import { Empty, MenuProps } from 'antd';
-import { ActionType, AppointmentDetails, NoteDetails, SmsDetails, TaskDetails, TimelineCardProps } from 'data/types';
-import React, { useState } from 'react'
+import {
+  ActionType,
+  AppointmentDetails,
+  NoteDetails,
+  SmsDetails,
+  TaskDetails,
+  TimelineCardProps,
+} from 'data/types';
+import React, { useState } from 'react';
 
 // const timeLineCardData: TimelineCardProps[] = [
 //     {
@@ -69,109 +77,124 @@ import React, { useState } from 'react'
 //     },
 // ];
 
-const actionItems: MenuProps["items"] = [
-    { key: "addNotes", label: "Add Notes" },
-    { key: "sendSms", label: "Send SMS" },
-    { key: "bookAppointment", label: "Book An Appointment" },
-    { key: "createTask", label: "Create Task" },
+const actionItems: MenuProps['items'] = [
+  { key: 'addNotes', label: 'Add Notes' },
+  { key: 'sendSms', label: 'Send SMS' },
+  { key: 'bookAppointment', label: 'Book Appointment' },
+  { key: 'createTask', label: 'Create Task' },
 ];
 
 const JobAction = () => {
-    const [cardsData, setCardsData] = useState<TimelineCardProps[]>([]);
-    const [activeTab, setActiveTab] = useState("All");
-    const [activeAction, setActiveAction] = useState<ActionType>(null);
-    const [editingItem, setEditingItem] = useState<{ item: TimelineCardProps; index: number } | null>(null);
+  const [cardsData, setCardsData] = useState<TimelineCardProps[]>([]);
+  const [activeTab, setActiveTab] = useState('All');
+  const [activeAction, setActiveAction] = useState<ActionType>(null);
+  const [editingItem, setEditingItem] = useState<{
+    item: TimelineCardProps;
+    index: number;
+  } | null>(null);
 
-    const handleTabChange = (tab: string) => {
-        setActiveTab(tab);
-    };
+  const tabs: FilterOption[] = [
+    { type: 'All', label: 'All', count: cardsData.length },
+    {
+      type: 'Notes',
+      label: 'Notes',
+      count: cardsData.filter(i => i.type === 'NOTES').length,
+    },
+    {
+      type: 'Sms',
+      label: 'SMS',
+      count: cardsData.filter(i => i.type === 'SMS').length,
+    },
+    {
+      type: 'Appointments',
+      label: 'Appointments',
+      count: cardsData.filter(i => i.type === 'APPOINTMENT').length,
+    },
+    {
+      type: 'Tasks',
+      label: 'Tasks',
+      count: cardsData.filter(i => i.type === 'TASK').length,
+    },
+  ];
 
-    // Edit existing timeline cards
-    const handleEdit = (item: TimelineCardProps, index: number) => {
-        setEditingItem({ item, index });
-        setActiveAction(null);
-    };
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+  };
 
-    const handleClose = () => {
-        setActiveAction(null);
-        setEditingItem(null);
-    };
+  const handleEdit = (item: TimelineCardProps, index: number) => {
+    setEditingItem({ item, index });
+    setActiveAction(null);
+  };
 
-    // Save from AddNotesCard
-    const handleSaveNote = (note: NoteDetails) => {
-        // handleSaveTimelineCard(editingItem, setCardsData, handleClose, "Notes", note);   
-    };
+  const handleClose = () => {
+    setActiveAction(null);
+    setEditingItem(null);
+  };
 
-    // Save from AddAppointmentCard
-    const handleSaveAppointment = (appointment: AppointmentDetails) => {
-        // handleSaveTimelineCard(editingItem, setCardsData, handleClose, "Appointments", appointment);
-    };
+  // Save handlers (integrate logic later)
+  const handleSaveNote = (note: NoteDetails) => {};
+  const handleSaveAppointment = (appointment: AppointmentDetails) => {};
+  const handleSaveTask = (task: TaskDetails) => {};
+  const handleSaveSms = (sms: SmsDetails) => {};
 
-    // Save from CreateTaskCard
-    const handleSaveTask = (task: TaskDetails) => {
-        // handleSaveTimelineCard(editingItem, setCardsData, handleClose, "Tasks", task);
-    };
-
-    // Save from SendSmsCard
-    const handleSaveSms = (sms: SmsDetails) => {
-        // handleSaveTimelineCard(editingItem, setCardsData, handleClose, "Sms", sms);
-    };
-    return (
-        <div className="relative p-4 mt-0 bg-card-color">
-            <div className="p-4">
-                <div className="ml-8">
-                    <TimelineActionsBar
-                        tabs={["All", "Notes", "Sms", "Appointments", "Tasks"]}
-                        activeTab={activeTab}
-                        onTabChange={handleTabChange}
-                        actionItems={actionItems}
-                        onActionSelect={(key) => {
-                            setActiveAction(key as ActionType);
-                            setEditingItem(null); // Clear editing state when starting a new action
-                        }}
-                    />
-                </div>
-            </div>
-
-            <div className="relative ">
-                {/* <div className="absolute left-[13px] top-0 bottom-0 w-[1px] bg-gray-300" /> */}
-                <div className="space-y-8">
-                    {(activeAction || editingItem) && (
-                        <TimelineActionFormRenderer
-                            activeAction={activeAction}
-                            editingItem={editingItem}
-                            handleSaveNote={handleSaveNote}
-                            handleSaveAppointment={handleSaveAppointment}
-                            handleSaveTask={handleSaveTask}
-                            handleSaveSms={handleSaveSms}
-                            handleClose={handleClose}
-                            loading={false}
-                        />
-                    )}
-
-                    {/* Timeline */}
-                    {/* {cardsData
-                        .filter((item) => item.type === activeTab || activeTab === "All")
-                        .map((item, idx) => (
-                            <TimelineCard
-                                key={idx}
-                                {...item}
-                                onEdit={(data) => handleEdit(data, idx)}
-                            />
-                        ))} */}
-
-
-                    <Empty
-                        description={
-                            activeTab === "All"
-                                ? "No data available"
-                                : `No ${activeTab} available for this tab`
-                        }
-                    />
-                </div>
-            </div>
+  return (
+    <div className="relative p-4 mt-0 bg-card-color">
+      <div className="p-4">
+        <div className="ml-8">
+          <TimelineActionsBar
+            tabs={tabs}
+            activeTab={activeTab}
+            onTabChange={handleTabChange}
+            actionItems={actionItems}
+            onActionSelect={key => {
+              setActiveAction(key as ActionType);
+              setEditingItem(null);
+            }}
+            isActionShow={true}
+            isCountShow={false}
+          />
         </div>
-    )
-}
+      </div>
 
-export default JobAction
+      <div className="relative">
+        <div className="space-y-8">
+          {(activeAction || editingItem) && (
+            <TimelineActionFormRenderer
+              activeAction={activeAction}
+              editingItem={editingItem}
+              handleSaveNote={handleSaveNote}
+              handleSaveAppointment={handleSaveAppointment}
+              handleSaveTask={handleSaveTask}
+              handleSaveSms={handleSaveSms}
+              handleClose={handleClose}
+              loading={false}
+            />
+          )}
+
+          {/* Uncomment this block once TimelineCard is ready */}
+          {/* 
+          {cardsData
+            .filter(
+              (item) => item.type === activeTab || activeTab === "All"
+            )
+            .map((item, idx) => (
+              <TimelineCard
+                key={idx}
+                {...item}
+                onEdit={(data) => handleEdit(data, idx)}
+              />
+            ))} 
+          */}
+
+          <Empty
+            description={
+              activeTab === 'All' ? 'No data available' : `No ${activeTab} available for this tab`
+            }
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default JobAction;

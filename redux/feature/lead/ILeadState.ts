@@ -1,17 +1,23 @@
-import { LeadDetails, PropertyDetails } from "data/types";
-import { QuotationResponse } from "../quotation/IQuotationState";
-import { Status } from "@lib/constants/enum";
+import { LeadDetails, PropertyDetails } from 'data/types';
+import { QuotationResponse } from '../quotation/IQuotationState';
+import { Status } from '@lib/constants/enum';
 
 export interface InitialState {
   leads: ILead[];
-  status: {leads: Status , leadSources: Status, leadById: Status, leadQuotations: Status, updateLeadSource:Status};
+  status: {
+    leads: Status;
+    leadSources: Status;
+    leadById: Status;
+    leadQuotations: Status;
+    updateLeadSource: Status;
+  };
   leadSources: LeadSource[];
   addInstSourceModal: boolean;
   leadDetail: {
     lead: ILead | null;
     contacts: ILeadContact[] | null;
     property: any | null;
-    createdQuotations:{quotations:QuotationResponse[]};
+    createdQuotations: { quotations: QuotationResponse[] };
   };
 }
 export interface ILead {
@@ -20,7 +26,7 @@ export interface ILead {
   builderId: string;
   status: string;
   leadSource: string;
-  notes?: string | null; 
+  notes?: string | null;
   leadsContactId?: string;
   leadContactId?: string;
   name?: string;
@@ -77,7 +83,6 @@ export interface leadDetail {
 export interface LeadSourceRequest {
   name: string;
 }
-
 
 export interface LeadSource {
   leadSourceId: string;

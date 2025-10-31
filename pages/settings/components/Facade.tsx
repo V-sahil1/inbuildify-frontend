@@ -1,28 +1,32 @@
-import { useAppDispatch } from "@hooks/redux";
+import { useAppDispatch } from '@hooks/redux';
 import {
   createFacade,
   deleteFacade,
   getFacades,
   updateFacade,
-} from "@redux/feature/facade/facadeThunk";
-import React, { useEffect, useState } from "react";
-import { useAppSelector } from "@hooks/redux";
-import { IFacadeState } from "@redux/feature/facade/IFacadeState";
-import Image from "next/image";
-import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
-import { facadeFields } from "@/components/formFields/facadeFields";
-import { Status } from "@lib/constants/enum";
-import { enumToReadable } from "@lib/utils/enumToRedable";
-import { Checkbox, Empty, message, Spin } from "antd";
-import { IconEdit, IconTrash } from "@tabler/icons-react";
-import ConfirmationModal from "@/components/common/ConfirmationModal";
-import { clearStandardFilter, clearUpgradeFilter, setSelectedFilters } from "@redux/feature/facade/facadeSlice";
+} from '@redux/feature/facade/facadeThunk';
+import React, { useEffect, useState } from 'react';
+import { useAppSelector } from '@hooks/redux';
+import { IFacadeState } from '@redux/feature/facade/IFacadeState';
+import Image from 'next/image';
+import { CreateFormModal } from '@/components/common/Models/CreateFormModel';
+import { facadeFields } from '@/components/formFields/facadeFields';
+import { Status } from '@lib/constants/enum';
+import { enumToReadable } from '@lib/utils/enumToRedable';
+import { Checkbox, Empty, message, Spin } from 'antd';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
+import ConfirmationModal from '@/components/common/ConfirmationModal';
+import {
+  clearStandardFilter,
+  clearUpgradeFilter,
+  setSelectedFilters,
+} from '@redux/feature/facade/facadeSlice';
 
 const Facade = () => {
   const dispatch = useAppDispatch();
-  const facades = useAppSelector((state) => state.facade.facades);
-  const status = useAppSelector((state) => state.facade.status);
-  const selectedFilters = useAppSelector((state) => state.facade.selectedFilters);
+  const facades = useAppSelector(state => state.facade.facades);
+  const status = useAppSelector(state => state.facade.status);
+  const selectedFilters = useAppSelector(state => state.facade.selectedFilters);
   const [editingFacade, setEditingFacade] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -35,7 +39,7 @@ const Facade = () => {
     try {
       await dispatch(getFacades(filters)).unwrap();
     } catch (error) {
-      message.error(error || "Failed to fetch Facades");
+      message.error(error || 'Failed to fetch Facades');
     }
   };
 
@@ -50,7 +54,7 @@ const Facade = () => {
       dispatch(clearStandardFilter());
       dispatch(clearUpgradeFilter());
     };
-  }, []); 
+  }, []);
 
   const handleOpenModal = () => {
     setIsModalVisible(true);
@@ -60,33 +64,30 @@ const Facade = () => {
     try {
       setLoading(true);
       const formData = new FormData();
-      formData.append("name", values.name);
-      formData.append("dwelling_type", values.dwelling_type);
-      formData.append("cost", values.cost);
+      formData.append('name', values.name);
+      formData.append('dwelling_type', values.dwelling_type);
+      formData.append('cost', values.cost);
 
       if (values?.image?.length > 0 && values.image[0]?.originFileObj) {
-        formData.append("image", values.image[0].originFileObj);
+        formData.append('image', values.image[0].originFileObj);
       }
 
-      formData.append("standard", values.standard || true);
-      formData.append("upgrade", values.upgrade || true);
+      formData.append('standard', values.standard || true);
+      formData.append('upgrade', values.upgrade || true);
 
       if (isEditing) {
-        await dispatch(
-          updateFacade({ data: formData, facadeId: editingFacade.facadeId })
-        ).unwrap();
-        message.success("Facade updated successfully");
+        await dispatch(updateFacade({ data: formData, facadeId: editingFacade.facadeId })).unwrap();
+        message.success('Facade updated successfully');
         setIsEditing(false);
-        setEditingFacade(null);  
+        setEditingFacade(null);
       } else {
         await dispatch(createFacade(formData)).unwrap();
-        message.success("Facade created successfully");
+        message.success('Facade created successfully');
         setEditingFacade(null);
       }
       setIsModalVisible(false);
-
     } catch (error) {
-      message.error(error || "Failed to create/update Facade");
+      message.error(error || 'Failed to create/update Facade');
     } finally {
       setLoading(false);
     }
@@ -100,9 +101,9 @@ const Facade = () => {
       name: facade?.name,
       dwelling_type: facade?.dwellingTypeName,
       logo: facade?.image,
-      standard: facade?.standard ? "TRUE" : "FALSE",
-      upgrade: facade?.upgrade ? "TRUE" : "FALSE",
-      cost: facade?.cost?.toString().split(".")[0], 
+      standard: facade?.standard ? 'TRUE' : 'FALSE',
+      upgrade: facade?.upgrade ? 'TRUE' : 'FALSE',
+      cost: facade?.cost?.toString().split('.')[0],
     };
     setEditingFacade(mappedFacade);
     setIsModalVisible(true);
@@ -113,9 +114,9 @@ const Facade = () => {
       setIsDeleting(true);
       await dispatch(deleteFacade(facadeId)).unwrap();
       setShowDeleteConfirm(true);
-      message.success("Facade deleted successfully");
+      message.success('Facade deleted successfully');
     } catch (error) {
-      message.error(error || "Failed to delete Facade");
+      message.error(error || 'Failed to delete Facade');
     } finally {
       setShowDeleteConfirm(false);
       setIsDeleting(false);
@@ -124,28 +125,24 @@ const Facade = () => {
   return (
     <div className="mt-4">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-[24px]/[30px] font-bold text-var(--font-color)">
-          Facade Management
-        </h2>
+        <h2 className="text-[24px]/[30px] font-bold text-var(--font-color)">Facade Management</h2>
         <div>
           <Checkbox
-          checked={!!selectedFilters.standard}
-          onChange={(e) => dispatch(setSelectedFilters({ standard: e.target.checked }))}
+            checked={!!selectedFilters.standard}
+            onChange={e => dispatch(setSelectedFilters({ standard: e.target.checked }))}
           >
             Standard
           </Checkbox>
-          <Checkbox
-          onChange={(e) => dispatch(setSelectedFilters({ upgrade: e.target.checked }))}
-          >
+          <Checkbox onChange={e => dispatch(setSelectedFilters({ upgrade: e.target.checked }))}>
             Upgrade
           </Checkbox>
-        <button
-          className="btn large bg-primary cursor-pointer text-white"
-          onClick={handleOpenModal}
-        >
-          Add
-        </button>
-          </div>
+          <button
+            className="btn large bg-primary cursor-pointer text-white"
+            onClick={handleOpenModal}
+          >
+            Add
+          </button>
+        </div>
       </div>
 
       {status == Status.PENDING ? (
@@ -176,7 +173,7 @@ const Facade = () => {
               </div>
 
               <Image
-                src={facade?.image ? facade?.image : ""}
+                src={facade?.image ? facade?.image : ''}
                 alt={facade?.name}
                 className="mb-4 w-[200px] h-[200px]"
                 unoptimized
@@ -187,22 +184,18 @@ const Facade = () => {
               <div className="flex  w-full rounded-lg p-4 overflow-hidden shadow-sm bg-body-color">
                 {/* Left Section */}
                 <div className="flex-1 space-y-2 pr-4">
-                  <h5 className="text-[20px]/[24px] font-bold mb-4 text-center">
-                    {facade?.name}
-                  </h5>
+                  <h5 className="text-[20px]/[24px] font-bold mb-4 text-center">{facade?.name}</h5>
                   <div className="flex justify-between">
                     <span className="font-medium">Dwelling Type :</span>
-                    <span>
-                      {enumToReadable(facade?.dwellingTypeName || "N/A")}
-                    </span>
+                    <span>{enumToReadable(facade?.dwellingTypeName || 'N/A')}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="font-medium">Upgradable :</span>
-                    <span>{facade?.upgrade ? "yes" : "no"}</span>
+                    <span>{facade?.upgrade ? 'yes' : 'no'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="font-medium">Standard :</span>
-                    <span>{facade?.standard ? "yes" : "no"}</span>
+                    <span>{facade?.standard ? 'yes' : 'no'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="font-medium">Cost :</span>
@@ -210,7 +203,7 @@ const Facade = () => {
                   </div>
                   <div className="flex justify-between gap-5">
                     <span className="font-medium">Created At :</span>
-                    <span>{facade?.createdAt?.split("T")[0]}</span>
+                    <span>{facade?.createdAt?.split('T')[0]}</span>
                   </div>
                 </div>
               </div>
@@ -238,7 +231,7 @@ const Facade = () => {
           setEditingFacade(null);
         }}
         onSubmit={handleCreateFacade}
-        fields={facadeFields({isDwellingDisable: false})}
+        fields={facadeFields({ isDwellingDisable: false })}
         loading={loading}
       />
       <ConfirmationModal

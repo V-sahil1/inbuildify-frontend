@@ -1,14 +1,13 @@
-"use client";
-import { Document, Page, Text, View, StyleSheet, Image } from "@react-pdf/renderer";
+'use client';
+import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
 
-const InvoiceReceiptPdf = ({ }) => {
-
+const InvoiceReceiptPdf = ({}) => {
   const Footer = () => (
     <View style={styles.footerWrapper} fixed>
       <View style={{ alignItems: 'center' }}>
         <Text
           style={styles.footerTopText}
-          render={({ pageNumber,totalPages }) => `Page ${pageNumber} of ${totalPages}`}
+          render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`}
         />
       </View>
     </View>
@@ -16,10 +15,7 @@ const InvoiceReceiptPdf = ({ }) => {
 
   const Header = () => (
     <View style={styles.headerContainer} fixed>
-      <Image
-        src="/company-light.png"
-        style={styles.logo}
-      />
+      <Image src="/company-light.png" style={styles.logo} />
       <View style={styles.headerTextContainer}>
         <Text style={styles.headerText}>My Home</Text>
         <Text style={styles.headerText}>9 Broadmeadows Cres</Text>
@@ -41,7 +37,7 @@ const InvoiceReceiptPdf = ({ }) => {
     <Document>
       <PageLayout>
         {/* Right Section */}
-        <View style={{ flexDirection: 'row', justifyContent: "flex-end" }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
           <View style={{ marginVertical: 20 }}>
             <View style={[Page1styles.row, styles.headerText, { justifyContent: 'flex-end' }]}>
               <Text>Receipt No : </Text>
@@ -56,7 +52,9 @@ const InvoiceReceiptPdf = ({ }) => {
         {/* Customer details */}
         <View style={{ marginLeft: 20 }}>
           <View style={[styles.secondaryText, { marginVertical: 30 }]}>
-            <View><Text style={styles.headerText}>Customer Details</Text></View>
+            <View>
+              <Text style={styles.headerText}>Customer Details</Text>
+            </View>
             <View style={Page1styles.customerRow}>
               <Text style={Page1styles.customerLabel}>Name</Text>
               <Text>: John Wick </Text>
@@ -75,7 +73,9 @@ const InvoiceReceiptPdf = ({ }) => {
             </View>
           </View>
           <View>
-            <Text style={styles.secondaryText}>This is acknowledge your payment receipt for the Receipt No MYH006644-R1</Text>
+            <Text style={styles.secondaryText}>
+              This is acknowledge your payment receipt for the Receipt No MYH006644-R1
+            </Text>
           </View>
           {/* below table info */}
           <View style={{ marginLeft: 20, marginVertical: 30 }}>
@@ -108,18 +108,16 @@ const InvoiceReceiptPdf = ({ }) => {
           </View>
           <View
             style={{
-              flexDirection: "column",
+              flexDirection: 'column',
               alignItems: 'flex-start',
             }}
           >
-            <Text style={styles.secondaryText}>
-              Terms and Conditions goes here.........
-            </Text>
+            <Text style={styles.secondaryText}>Terms and Conditions goes here.........</Text>
           </View>
         </View>
       </PageLayout>
     </Document>
-  )
+  );
 };
 
 export default InvoiceReceiptPdf;
@@ -129,49 +127,49 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 65,
     paddingHorizontal: 35,
-    backgroundColor: "#fff",
-    flexDirection: "column",
-    fontFamily: "Helvetica",
+    backgroundColor: '#fff',
+    flexDirection: 'column',
+    fontFamily: 'Helvetica',
   },
   body: { paddingTop: 10, flex: 1 },
   headerContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     paddingBottom: 6,
   },
-  logo: { width: 120, height: 50, objectFit: "contain" },
-  headerTextContainer: { flexDirection: "column", alignItems: "flex-end" },
-  headerText: { fontSize: 10, textAlign: "left", fontWeight: "bold", marginBottom: 10 },
-  secondaryText: { fontSize: 10, textAlign: "left", marginBottom: 10 },
+  logo: { width: 120, height: 50, objectFit: 'contain' },
+  headerTextContainer: { flexDirection: 'column', alignItems: 'flex-end' },
+  headerText: { fontSize: 10, textAlign: 'left', fontWeight: 'bold', marginBottom: 10 },
+  secondaryText: { fontSize: 10, textAlign: 'left', marginBottom: 10 },
   footerWrapper: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 10,
     left: 0,
     right: 0,
   },
   footerTopText: {
     fontSize: 9,
-    color: "#000",
-    textAlign: 'center'
+    color: '#000',
+    textAlign: 'center',
   },
 });
 
 const Page1styles = StyleSheet.create({
   row: {
-    flexDirection: "row",
+    flexDirection: 'row',
     marginBottom: 20,
   },
   customerRow: {
-    flexDirection: "row",
+    flexDirection: 'row',
     marginBottom: 6,
   },
-  customerLabel:{
-    width:150
+  customerLabel: {
+    width: 150,
   },
   label: {
     fontSize: 10,
-    fontWeight: "bold",
-    width: 100
+    fontWeight: 'bold',
+    width: 100,
   },
   value: {
     fontSize: 10,

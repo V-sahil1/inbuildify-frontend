@@ -3,7 +3,26 @@ import { ReactEditor } from 'slate-react';
 import { HistoryEditor } from 'slate-history';
 
 export type CustomFontFamily = 'Arial' | 'Verdana' | 'Georgia' | 'Times New Roman' | 'Courier New';
-export type CustomFontSize = '12px' | '13px' | '14px' | '15px' | '16px' | '17px' | '18px' | '19px' | '20px' | '21px' | '22px' | '23px' | '24px' | '25px' | '26px' | '27px' | '28px' | '29px' | '30px';
+export type CustomFontSize =
+  | '12px'
+  | '13px'
+  | '14px'
+  | '15px'
+  | '16px'
+  | '17px'
+  | '18px'
+  | '19px'
+  | '20px'
+  | '21px'
+  | '22px'
+  | '23px'
+  | '24px'
+  | '25px'
+  | '26px'
+  | '27px'
+  | '28px'
+  | '29px'
+  | '30px';
 export type CustomColor = string;
 
 export type CustomText = {

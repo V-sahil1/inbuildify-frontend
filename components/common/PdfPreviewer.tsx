@@ -1,19 +1,18 @@
 // components/PdfPreviewer.tsx
-"use client";
+'use client';
 
-import { pdf, DocumentProps } from "@react-pdf/renderer";
-import { ReactElement } from "react";
+import { pdf, DocumentProps } from '@react-pdf/renderer';
+import { ReactElement } from 'react';
 
 type PdfPreviewerProps = {
-  document: ReactElement<DocumentProps>; 
+  document: ReactElement<DocumentProps>;
   label?: string;
 };
 
 export default function PdfPreviewer({
-  document: PdfDocument,    
-  label = "Preview PDF",
+  document: PdfDocument,
+  label = 'Preview PDF',
 }: PdfPreviewerProps) {
-
   const handlePreview = async () => {
     try {
       // Generate PDF blob
@@ -23,12 +22,12 @@ export default function PdfPreviewer({
       const url = URL.createObjectURL(blob);
 
       // Open in new tab
-      window.open(url, "_blank");
+      window.open(url, '_blank');
 
       // Optional: revoke later to free memory
       setTimeout(() => URL.revokeObjectURL(url), 10000);
     } catch (error) {
-      console.error("Error generating PDF:", error);
+      console.error('Error generating PDF:', error);
     }
   };
 

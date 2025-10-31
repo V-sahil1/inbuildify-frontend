@@ -1,23 +1,15 @@
-import { useState } from "react";
-import dayjs from "dayjs";
-import { Dropdown, message, Modal } from "antd";
-import type { ColumnsType } from "antd/es/table";
-import {
-  IconCircleCheck,
-  IconCircleX,
-  IconDotsVertical,
-  IconLink,
-} from "@tabler/icons-react";
-import ConfirmationModal from "@/components/common/ConfirmationModal";
-import CreateTaskCard from "../common/TimeLineComponents/CreateTaskCard";
-import { useAppDispatch } from "@hooks/redux";
-import { formDataGenerator } from "@lib/utils/formDataGenerator";
-import {
-  deleteActionsThunk,
-  updateActionsThunk,
-} from "@redux/feature/action/actionThunk";
-import { JobWorkFlowChecklist } from "data/types";
-import { getIsExpiredDate } from "@lib/utils/getIsExpiredDate";
+import { useState } from 'react';
+import dayjs from 'dayjs';
+import { Dropdown, message, Modal } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import { IconCircleCheck, IconCircleX, IconDotsVertical, IconLink } from '@tabler/icons-react';
+import ConfirmationModal from '@/components/common/ConfirmationModal';
+import CreateTaskCard from '../common/TimeLineComponents/CreateTaskCard';
+import { useAppDispatch } from '@hooks/redux';
+import { formDataGenerator } from '@lib/utils/formDataGenerator';
+import { deleteActionsThunk, updateActionsThunk } from '@redux/feature/action/actionThunk';
+import { JobWorkFlowChecklist } from 'data/types';
+import { getIsExpiredDate } from '@lib/utils/getIsExpiredDate';
 
 const UserActions: React.FC<{
   user: string;
@@ -26,8 +18,7 @@ const UserActions: React.FC<{
   onDeleteRow: (deleteRecord: JobWorkFlowChecklist) => void;
 }> = ({ user, record, onUpdateRow, onDeleteRow }) => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [selectedRecord, setSelectedRecord] =
-    useState<JobWorkFlowChecklist | null>(null);
+  const [selectedRecord, setSelectedRecord] = useState<JobWorkFlowChecklist | null>(null);
   const [loading, setLoading] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const dispatch = useAppDispatch();
@@ -45,16 +36,14 @@ const UserActions: React.FC<{
   const confirmDelete = async () => {
     setLoading(true);
     try {
-      await dispatch(
-        deleteActionsThunk({ actionId: selectedRecord?.actionId })
-      ).unwrap();
-      message.success("Task deleted successfully");
+      await dispatch(deleteActionsThunk({ actionId: selectedRecord?.actionId })).unwrap();
+      message.success('Task deleted successfully');
       onDeleteRow(selectedRecord);
       setLoading(false);
       setSelectedRecord(null);
       setShowDeleteConfirm(false);
     } catch (error) {
-      message.error(error || "Failed to delete task");
+      message.error(error || 'Failed to delete task');
       setLoading(false);
     }
   };
@@ -75,9 +64,9 @@ const UserActions: React.FC<{
       setSelectedRecord(null);
       setShowEditModal(false);
       onUpdateRow(response.task);
-      message.success("Task updated successfully");
+      message.success('Task updated successfully');
     } catch (error) {
-      message.error(error || "Failed to update task");
+      message.error(error || 'Failed to update task');
     }
     setLoading(false);
   };
@@ -105,12 +94,12 @@ const UserActions: React.FC<{
           <Dropdown
             menu={{
               items: [
-                { key: "edit", label: "Edit" },
-                { key: "delete", label: "Delete" },
+                { key: 'edit', label: 'Edit' },
+                { key: 'delete', label: 'Delete' },
               ],
-              onClick: (e) => {
-                if (e.key === "edit") handleEdit(record);
-                if (e.key === "delete") handleDelete(record);
+              onClick: e => {
+                if (e.key === 'edit') handleEdit(record);
+                if (e.key === 'delete') handleDelete(record);
               },
             }}
           >
@@ -165,10 +154,10 @@ export const jobWorkflowChecklistFields = (
   onDeleteRow: (deleteRecord: JobWorkFlowChecklist) => void
 ): ColumnsType<JobWorkFlowChecklist> => [
   {
-    title: "Task",
-    dataIndex: "name",
-    key: "name",
-    width: "45%",
+    title: 'Task',
+    dataIndex: 'name',
+    key: 'name',
+    width: '45%',
     render: (text, record, index) => {
       const isExpired = getIsExpiredDate(record.dueDate, record.time);
       return (
@@ -196,9 +185,9 @@ export const jobWorkflowChecklistFields = (
   //   render: (tag) => <Tag color="blue">{tag}</Tag>,
   // },
   {
-    dataIndex: "attachment",
-    key: "attachment",
-    render: (attachment) => (
+    dataIndex: 'attachment',
+    key: 'attachment',
+    render: attachment => (
       <div className="flex items-center justify-end relative">
         {attachment && (
           <a href={attachment} target="_blank" className="hover:text-blue">
@@ -209,40 +198,36 @@ export const jobWorkflowChecklistFields = (
     ),
   },
   {
-    title: "Estimated",
-    dataIndex: "dueDate",
-    key: "dueDate",
-    width: "10%",
+    title: 'Estimated',
+    dataIndex: 'dueDate',
+    key: 'dueDate',
+    width: '10%',
     render: (date: string) => {
-      if (!date) return "-";
+      if (!date) return '-';
       return (
-        <span className="text-font-color font-medium">
-          {dayjs(date).format("MMM D, YYYY")}
-        </span>
+        <span className="text-font-color font-medium">{dayjs(date).format('MMM D, YYYY')}</span>
       );
     },
   },
   {
-    title: "Actual",
-    dataIndex: "actualDate",
-    key: "actualDate",
-    width: "10%",
+    title: 'Actual',
+    dataIndex: 'actualDate',
+    key: 'actualDate',
+    width: '10%',
     render: (date: string, record) => {
       const isExpired = getIsExpiredDate(record.dueDate, record.time);
-      const formatted = dayjs(date || new Date()).format("MMM D, YYYY");
+      const formatted = dayjs(date || new Date()).format('MMM D, YYYY');
       return (
         <div className="font-medium">
-          <span className={isExpired ? "text-red-600" : "text-green-600"}>
-            {formatted}
-          </span>
+          <span className={isExpired ? 'text-red-600' : 'text-green-600'}>{formatted}</span>
         </div>
       );
     },
   },
   {
-    dataIndex: "user",
-    key: "user",
-    width: "10%",
+    dataIndex: 'user',
+    key: 'user',
+    width: '10%',
     render: (user, record) => (
       <UserActions
         user={user}

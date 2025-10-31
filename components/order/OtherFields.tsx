@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 const OtherFields = () => {
   return (
@@ -25,15 +25,14 @@ const OtherFields = () => {
         <div className="w-full form-control">
           <label className="form-label">Shipping Instructions:</label>
           <textarea className="w-full h-16 border border-border-color rounded-[8px] p-2 resize-none"></textarea>
-          </div>
+        </div>
       </div>
       <div className="flex md:space-x-4 w-full flex-col md:flex-row">
         <div className="w-full form-control">
           <label className="form-label">Comments :</label>
           <textarea className="w-full h-16 border border-border-color rounded-[8px] p-2 resize-none"></textarea>
-          </div>
+        </div>
       </div>
-      
     </form>
   );
 };

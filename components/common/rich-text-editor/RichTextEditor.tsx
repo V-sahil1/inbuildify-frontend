@@ -1,14 +1,8 @@
-'use client'
+'use client';
 
-import React, { KeyboardEvent, MouseEvent, useCallback, useMemo } from "react";
-import {
-  Descendant,
-  Editor,
-  Element as SlateElement,
-  Transforms,
-  createEditor,
-} from "slate";
-import { withHistory } from "slate-history";
+import React, { KeyboardEvent, MouseEvent, useCallback, useMemo } from 'react';
+import { Descendant, Editor, Element as SlateElement, Transforms, createEditor } from 'slate';
+import { withHistory } from 'slate-history';
 import {
   Editable,
   RenderElementProps,
@@ -16,8 +10,8 @@ import {
   Slate,
   useSlate,
   withReact,
-} from "slate-react";
-import { Button, Toolbar } from "./components";
+} from 'slate-react';
+import { Button, Toolbar } from './components';
 import {
   CustomEditor,
   CustomElement,
@@ -27,18 +21,28 @@ import {
   CustomFontFamily,
   CustomFontSize,
   CustomText,
-} from "./custom-types.d";
-import { IconAlignCenter, IconAlignLeft, IconAlignRight, IconBold, IconItalic, IconList, IconListNumbers, IconStrikethrough, IconUnderline } from "@tabler/icons-react";
+} from './custom-types.d';
+import {
+  IconAlignCenter,
+  IconAlignLeft,
+  IconAlignRight,
+  IconBold,
+  IconItalic,
+  IconList,
+  IconListNumbers,
+  IconStrikethrough,
+  IconUnderline,
+} from '@tabler/icons-react';
 
 const HOTKEYS: Record<string, CustomTextKey> = {
-  "mod+b": "bold",
-  "mod+i": "italic",
-  "mod+u": "underline",
-  "mod+`": "code",
+  'mod+b': 'bold',
+  'mod+i': 'italic',
+  'mod+u': 'underline',
+  'mod+`': 'code',
 };
 
-const LIST_TYPES = ["numbered-list", "bulleted-list"] as const;
-const TEXT_ALIGN_TYPES = ["left", "center", "right", "justify"] as const;
+const LIST_TYPES = ['numbered-list', 'bulleted-list'] as const;
+const TEXT_ALIGN_TYPES = ['left', 'center', 'right', 'justify'] as const;
 
 type AlignType = (typeof TEXT_ALIGN_TYPES)[number];
 type ListType = (typeof LIST_TYPES)[number];
@@ -54,25 +58,19 @@ interface RichTextEditorProps {
 const RichTextEditor: React.FC<RichTextEditorProps> = ({
   value,
   onChange,
-  placeholder = "Enter your message...",
-  maxHeight = "300px",
+  placeholder = 'Enter your message...',
+  maxHeight = '300px',
 }) => {
-  const renderElement = useCallback(
-    (props: RenderElementProps) => <Element {...props} />,
-    []
-  );
-  const renderLeaf = useCallback(
-    (props: RenderLeafProps) => <Leaf {...props} />,
-    []
-  );
+  const renderElement = useCallback((props: RenderElementProps) => <Element {...props} />, []);
+  const renderLeaf = useCallback((props: RenderLeafProps) => <Leaf {...props} />, []);
   const editor = useMemo(() => withHistory(withReact(createEditor())), []);
 
   const slateValue = useMemo(() => {
     if (!value) {
       return [
         {
-          type: "paragraph" as const,
-          children: [{ text: "" }],
+          type: 'paragraph' as const,
+          children: [{ text: '' }],
         },
       ];
     }
@@ -83,24 +81,24 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         return parsed;
       }
     } catch {
-      const paragraphs = value.split("\n").map((line) => ({
-        type: "paragraph" as const,
+      const paragraphs = value.split('\n').map(line => ({
+        type: 'paragraph' as const,
         children: [{ text: line }],
       }));
 
       return paragraphs.length > 0
         ? paragraphs
         : [
-          {
-            type: "paragraph" as const,
-            children: [{ text: "" }],
-          },
-        ];
+            {
+              type: 'paragraph' as const,
+              children: [{ text: '' }],
+            },
+          ];
     }
 
     return [
       {
-        type: "paragraph" as const,
+        type: 'paragraph' as const,
         children: [{ text: value }],
       },
     ];
@@ -108,12 +106,12 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
   const handleChange = useCallback(
     (newValue: Descendant[]) => {
-      const hasFormatting = newValue.some((node) => {
-        if ("children" in node) {
+      const hasFormatting = newValue.some(node => {
+        if ('children' in node) {
           return (
-            node.type !== "paragraph" ||
-            node.children.some((child) => {
-              if ("text" in child) {
+            node.type !== 'paragraph' ||
+            node.children.some(child => {
+              if ('text' in child) {
                 return (
                   child.bold ||
                   child.italic ||
@@ -135,15 +133,13 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         onChange(JSON.stringify(newValue));
       } else {
         const textContent = newValue
-          .map((node) => {
-            if ("children" in node) {
-              return node.children
-                .map((child) => ("text" in child ? child.text : ""))
-                .join("");
+          .map(node => {
+            if ('children' in node) {
+              return node.children.map(child => ('text' in child ? child.text : '')).join('');
             }
-            return "";
+            return '';
           })
-          .join("\n");
+          .join('\n');
 
         onChange(textContent);
       }
@@ -157,14 +153,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         <Toolbar>
           <MarkButton format="bold" icon={<IconBold className="w-4 h-4" />} />
           <MarkButton format="italic" icon={<IconItalic className="w-4 h-4" />} />
-          <MarkButton
-            format="underline"
-            icon={<IconUnderline className="w-4 h-4" />}
-          />
-          <MarkButton
-            format="code"
-            icon={<IconStrikethrough className="w-4 h-4" />}
-          />
+          <MarkButton format="underline" icon={<IconUnderline className="w-4 h-4" />} />
+          <MarkButton format="code" icon={<IconStrikethrough className="w-4 h-4" />} />
           <MarkSelect<CustomFontFamily>
             format="fontFamily"
             options={['Arial', 'Verdana', 'Georgia', 'Times New Roman', 'Courier New']}
@@ -172,42 +162,50 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           />
           <MarkSelect<CustomFontSize>
             format="fontSize"
-            options={['12px', '13px', '14px', '15px', '16px', '17px', '18px', '19px', '20px', '21px', '22px', '23px', '24px', '25px', '26px', '27px', '28px', '29px', '30px']}
+            options={[
+              '12px',
+              '13px',
+              '14px',
+              '15px',
+              '16px',
+              '17px',
+              '18px',
+              '19px',
+              '20px',
+              '21px',
+              '22px',
+              '23px',
+              '24px',
+              '25px',
+              '26px',
+              '27px',
+              '28px',
+              '29px',
+              '30px',
+            ]}
             placeholder="Size"
           />
           <input
             type="color"
             value={Editor.marks(editor)?.color || '#000000'}
-            onChange={(e) => {
+            onChange={e => {
               Editor.addMark(editor, 'color', e.target.value);
             }}
             className="w-7 h-8 cursor-pointer rounded-xl"
           />
           <div className="w-px h-6 bg-gray-300 mx-2" />
           <BlockButton format="left" icon={<IconAlignLeft className="w-4 h-4" />} />
-          <BlockButton
-            format="center"
-            icon={<IconAlignCenter className="w-4 h-4" />}
-          />
-          <BlockButton
-            format="right"
-            icon={<IconAlignRight className="w-4 h-4" />}
-          />
+          <BlockButton format="center" icon={<IconAlignCenter className="w-4 h-4" />} />
+          <BlockButton format="right" icon={<IconAlignRight className="w-4 h-4" />} />
           <div className="w-px h-6 bg-gray-300 mx-2" />
-          <BlockButton
-            format="bulleted-list"
-            icon={<IconList className="w-4 h-4" />}
-          />
-          <BlockButton
-            format="numbered-list"
-            icon={<IconListNumbers className="w-4 h-4" />}
-          />
+          <BlockButton format="bulleted-list" icon={<IconList className="w-4 h-4" />} />
+          <BlockButton format="numbered-list" icon={<IconListNumbers className="w-4 h-4" />} />
         </Toolbar>
         <div
           className="p-4"
           style={{
             maxHeight: maxHeight,
-            overflowY: "auto",
+            overflowY: 'auto',
           }}
         >
           <Editable
@@ -233,15 +231,11 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 };
 
 const toggleBlock = (editor: CustomEditor, format: CustomElementFormat) => {
-  const isActive = isBlockActive(
-    editor,
-    format,
-    isAlignType(format) ? "align" : "type"
-  );
+  const isActive = isBlockActive(editor, format, isAlignType(format) ? 'align' : 'type');
   const isList = isListType(format);
 
   Transforms.unwrapNodes(editor, {
-    match: (n) =>
+    match: n =>
       !Editor.isEditor(n) &&
       SlateElement.isElement(n) &&
       isListType(n.type) &&
@@ -255,7 +249,7 @@ const toggleBlock = (editor: CustomEditor, format: CustomElementFormat) => {
     };
   } else {
     newProperties = {
-      type: isActive ? "paragraph" : isList ? "list-item" : format,
+      type: isActive ? 'paragraph' : isList ? 'list-item' : format,
     };
   }
   Transforms.setNodes<SlateElement>(editor, newProperties);
@@ -279,7 +273,7 @@ const toggleMark = (editor: CustomEditor, format: CustomTextKey) => {
 const isBlockActive = (
   editor: CustomEditor,
   format: CustomElementFormat,
-  blockType: "type" | "align" = "type"
+  blockType: 'type' | 'align' = 'type'
 ) => {
   const { selection } = editor;
   if (!selection) return false;
@@ -287,9 +281,9 @@ const isBlockActive = (
   const [match] = Array.from(
     Editor.nodes(editor, {
       at: Editor.unhangRange(editor, selection),
-      match: (n) => {
+      match: n => {
         if (!Editor.isEditor(n) && SlateElement.isElement(n)) {
-          if (blockType === "align" && isAlignElement(n)) {
+          if (blockType === 'align' && isAlignElement(n)) {
             return n.align === format;
           }
           return n.type === format;
@@ -313,7 +307,7 @@ const Element = ({ attributes, children, element }: RenderElementProps) => {
     style.textAlign = element.align as AlignType;
   }
   switch (element.type) {
-    case "block-quote":
+    case 'block-quote':
       return (
         <blockquote
           style={style}
@@ -323,31 +317,31 @@ const Element = ({ attributes, children, element }: RenderElementProps) => {
           {children}
         </blockquote>
       );
-    case "bulleted-list":
+    case 'bulleted-list':
       return (
         <ul style={style} {...attributes} className="list-disc list-inside">
           {children}
         </ul>
       );
-    case "heading-one":
+    case 'heading-one':
       return (
         <h1 style={style} {...attributes} className="text-2xl font-bold">
           {children}
         </h1>
       );
-    case "heading-two":
+    case 'heading-two':
       return (
         <h2 style={style} {...attributes} className="text-xl font-semibold">
           {children}
         </h2>
       );
-    case "list-item":
+    case 'list-item':
       return (
         <li style={style} {...attributes}>
           {children}
         </li>
       );
-    case "numbered-list":
+    case 'numbered-list':
       return (
         <ol style={style} {...attributes} className="list-decimal list-inside">
           {children}
@@ -403,8 +397,11 @@ const BlockButton = ({ format, icon }: BlockButtonProps) => {
   const editor = useSlate();
   return (
     <Button
-      active={isBlockActive(editor, format, isAlignType(format) ? "align" : "type")}
-      onMouseDown={(event: MouseEvent<HTMLSpanElement>) => { event.preventDefault(); toggleBlock(editor, format); }}
+      active={isBlockActive(editor, format, isAlignType(format) ? 'align' : 'type')}
+      onMouseDown={(event: MouseEvent<HTMLSpanElement>) => {
+        event.preventDefault();
+        toggleBlock(editor, format);
+      }}
     >
       {icon}
     </Button>
@@ -440,7 +437,7 @@ interface MarkSelectProps<T extends string> {
 const MarkSelect = <T extends string>({ format, options, placeholder }: MarkSelectProps<T>) => {
   const editor = useSlate();
   const marks = Editor.marks(editor);
-  const activeValue = marks && marks[format] ? marks[format] as T : '';
+  const activeValue = marks && marks[format] ? (marks[format] as T) : '';
 
   const handleChange = (value: T) => {
     Editor.removeMark(editor, format);
@@ -450,12 +447,14 @@ const MarkSelect = <T extends string>({ format, options, placeholder }: MarkSele
   return (
     <select
       value={activeValue}
-      onChange={(e) => handleChange(e.target.value as T)}
+      onChange={e => handleChange(e.target.value as T)}
       className="p-1 rounded border border-gray-300 max-w-[50px] focus:outline-none"
     >
       <option value="">{placeholder}</option>
-      {options.map((option) => (
-        <option key={option} value={option}>{option}</option>
+      {options.map(option => (
+        <option key={option} value={option}>
+          {option}
+        </option>
       ))}
     </select>
   );
@@ -469,10 +468,8 @@ const isListType = (format: CustomElementFormat): format is ListType => {
   return LIST_TYPES.includes(format as ListType);
 };
 
-const isAlignElement = (
-  element: CustomElement
-): element is CustomElementWithAlign => {
-  return "align" in element;
+const isAlignElement = (element: CustomElement): element is CustomElementWithAlign => {
+  return 'align' in element;
 };
 
 export default RichTextEditor;

@@ -1,14 +1,19 @@
-import { createSlice,  } from "@reduxjs/toolkit";
-import { createFloorPlan, deleteFloorPlan, fetchFloorPlans, getConditions, updateFloorPlan } from "./floorPlanThunk";
-import { Status } from "@lib/constants/enum";
-import { IFloorPlanState } from "./IFloorPlanState";
-
+import { createSlice } from '@reduxjs/toolkit';
+import {
+  createFloorPlan,
+  deleteFloorPlan,
+  fetchFloorPlans,
+  getConditions,
+  updateFloorPlan,
+} from './floorPlanThunk';
+import { Status } from '@lib/constants/enum';
+import { IFloorPlanState } from './IFloorPlanState';
 
 const floorPlanSlice = createSlice({
-  name: "floorPlan",
+  name: 'floorPlan',
   initialState: {
     floorPlans: [] as IFloorPlanState[],
-    status: {floorPlan: Status.IDLE, filters: Status.IDLE, conditions: Status.IDLE},
+    status: { floorPlan: Status.IDLE, filters: Status.IDLE, conditions: Status.IDLE },
     filters: null,
     selectedFilters: { range: '', dwelling_type: '' },
   },
@@ -19,14 +24,14 @@ const floorPlanSlice = createSlice({
   },
   extraReducers: builder => {
     builder
-      .addCase(fetchFloorPlans.pending, (state) => {
+      .addCase(fetchFloorPlans.pending, state => {
         state.status.floorPlan = Status.PENDING;
       })
       .addCase(fetchFloorPlans.fulfilled, (state, action) => {
         state.floorPlans = action.payload.floorPlans;
         state.status.floorPlan = Status.SUCCESS;
       })
-      .addCase(fetchFloorPlans.rejected, (state) => {
+      .addCase(fetchFloorPlans.rejected, state => {
         state.status.floorPlan = Status.ERROR;
       })
       .addCase(createFloorPlan.fulfilled, (state, action) => {
@@ -34,18 +39,18 @@ const floorPlanSlice = createSlice({
       })
       .addCase(getConditions.fulfilled, (state, action) => {
         state.status.conditions = Status.SUCCESS;
-        state.filters = {...state.filters, conditions: action.payload};
+        state.filters = { ...state.filters, conditions: action.payload };
       })
       .addCase(updateFloorPlan.fulfilled, (state, action) => {
-        state.floorPlans = state.floorPlans.map((floorPlan) =>
+        state.floorPlans = state.floorPlans.map(floorPlan =>
           floorPlan.floorPlanId === action.payload.floorPlanId ? action.payload : floorPlan
         );
       })
       .addCase(deleteFloorPlan.fulfilled, (state, action) => {
         state.floorPlans = state.floorPlans.filter(
-          (floorPlan) => floorPlan.floorPlanId !== action.payload
+          floorPlan => floorPlan.floorPlanId !== action.payload
         );
-      })
+      });
   },
 });
 

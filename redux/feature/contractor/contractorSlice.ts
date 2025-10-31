@@ -1,12 +1,12 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { InitialContractorState } from "./IContractorState";
-import { Status } from "@lib/constants/enum";
+import { createSlice } from '@reduxjs/toolkit';
+import { InitialContractorState } from './IContractorState';
+import { Status } from '@lib/constants/enum';
 import {
   createServiceThunk,
   deleteServiceThunk,
   getServicesThunk,
   updateServiceThunk,
-} from "./contractorThunk";
+} from './contractorThunk';
 
 const initialState: InitialContractorState = {
   services: [],
@@ -15,22 +15,22 @@ const initialState: InitialContractorState = {
 };
 
 export const contractorSlice = createSlice({
-  name: "contractor",
+  name: 'contractor',
   initialState,
   reducers: {
-      setAddServiceModal: (state, action) => {
-          state.addServiceModal = action.payload;
-        },
+    setAddServiceModal: (state, action) => {
+      state.addServiceModal = action.payload;
+    },
   },
-  extraReducers: (builder) => {
-    builder.addCase(getServicesThunk.pending, (state) => {
+  extraReducers: builder => {
+    builder.addCase(getServicesThunk.pending, state => {
       state.status = Status.PENDING;
     });
     builder.addCase(getServicesThunk.fulfilled, (state, action) => {
       state.services = action.payload;
       state.status = Status.SUCCESS;
     });
-    builder.addCase(getServicesThunk.rejected, (state) => {
+    builder.addCase(getServicesThunk.rejected, state => {
       state.status = Status.ERROR;
     });
 
@@ -39,16 +39,14 @@ export const contractorSlice = createSlice({
     });
     builder.addCase(updateServiceThunk.fulfilled, (state, action) => {
       const index = state.services.findIndex(
-        (service) => service.serviceId === action.payload.serviceId
+        service => service.serviceId === action.payload.serviceId
       );
       if (index !== -1) {
         state.services[index] = action.payload;
       }
     });
     builder.addCase(deleteServiceThunk.fulfilled, (state, action) => {
-      state.services = state.services.filter(
-        (service) => service.serviceId !== action.payload
-      );
+      state.services = state.services.filter(service => service.serviceId !== action.payload);
     });
   },
 });

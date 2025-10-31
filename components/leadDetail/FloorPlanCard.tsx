@@ -1,6 +1,6 @@
-import React from "react";
-import { Card } from "antd";
-import { IFloorPlanState } from "@redux/feature/floorPlan/IFloorPlanState";
+import React from 'react';
+import { Card } from 'antd';
+import { IFloorPlanState } from '@redux/feature/floorPlan/IFloorPlanState';
 
 interface FloorPlanCardProps {
   plan: IFloorPlanState;
@@ -8,19 +8,13 @@ interface FloorPlanCardProps {
   onClick: () => void;
 }
 
-const FloorPlanCard: React.FC<FloorPlanCardProps> = ({
-  plan,
-  isSelected,
-  onClick,
-}) => {
+const FloorPlanCard: React.FC<FloorPlanCardProps> = ({ plan, isSelected, onClick }) => {
   return (
     <Card
       className={`cursor-pointer transition-all hover:shadow-md ${
-        isSelected
-          ? "border-2 border-blue-500 bg-blue-50"
-          : "border border-gray-200"
+        isSelected ? 'border-2 border-blue-500 bg-blue-50' : 'border border-gray-200'
       }`}
-      bodyStyle={{ padding: "8px" }}
+      bodyStyle={{ padding: '8px' }}
       onClick={onClick}
     >
       <div className="text-center">

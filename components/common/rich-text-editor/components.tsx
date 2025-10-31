@@ -1,5 +1,5 @@
-import React, { PropsWithChildren } from "react";
-import { createPortal } from "react-dom";
+import React, { PropsWithChildren } from 'react';
+import { createPortal } from 'react-dom';
 
 interface BaseProps {
   className?: string;
@@ -20,44 +20,35 @@ export const Button = React.forwardRef<
     ref={ref}
     className={`
       cursor-pointer inline-block p-1 rounded transition-colors
-      ${active ? "bg-primary text-white" : "hover:bg-primary-10"}
-      ${reversed ? "text-white" : ""}
-      ${className || ""}
+      ${active ? 'bg-primary text-white' : 'hover:bg-primary-10'}
+      ${reversed ? 'text-white' : ''}
+      ${className || ''}
     `}
   />
 ));
 
-export const Icon = React.forwardRef<
-  HTMLSpanElement,
-  PropsWithChildren<BaseProps>
->(({ className, ...props }, ref) => (
-  <span
-    {...props}
-    ref={ref}
-    className={`material-icons text-lg ${className || ""}`}
-  />
-));
+export const Icon = React.forwardRef<HTMLSpanElement, PropsWithChildren<BaseProps>>(
+  ({ className, ...props }, ref) => (
+    <span {...props} ref={ref} className={`material-icons text-lg ${className || ''}`} />
+  )
+);
 
-export const Menu = React.forwardRef<
-  HTMLDivElement,
-  PropsWithChildren<BaseProps>
->(({ className, ...props }, ref) => (
-  <div {...props} ref={ref} className={`relative ${className || ""}`} />
-));
+export const Menu = React.forwardRef<HTMLDivElement, PropsWithChildren<BaseProps>>(
+  ({ className, ...props }, ref) => (
+    <div {...props} ref={ref} className={`relative ${className || ''}`} />
+  )
+);
 
 export const Portal = ({ children }: { children?: React.ReactNode }) => {
-  return typeof document === "object"
-    ? createPortal(children, document.body)
-    : null;
+  return typeof document === 'object' ? createPortal(children, document.body) : null;
 };
 
-export const Toolbar = React.forwardRef<
-  HTMLDivElement,
-  PropsWithChildren<BaseProps>
->(({ className, ...props }, ref) => (
-  <div
-    {...props}
-    ref={ref}
-    className={`flex items-center space-x-1 px-4 py-2 border-b border-gray-200 ${className || ""}`}
-  />
-));
+export const Toolbar = React.forwardRef<HTMLDivElement, PropsWithChildren<BaseProps>>(
+  ({ className, ...props }, ref) => (
+    <div
+      {...props}
+      ref={ref}
+      className={`flex items-center space-x-1 px-4 py-2 border-b border-gray-200 ${className || ''}`}
+    />
+  )
+);

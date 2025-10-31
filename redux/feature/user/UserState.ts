@@ -1,5 +1,5 @@
 // Types for contractors
-import { Status } from "@lib/constants/enum";
+import { Status } from '@lib/constants/enum';
 
 export type user = {
   usersId?: string;
@@ -13,24 +13,24 @@ export type user = {
 };
 
 export type invitedUser = {
-  inviteId?:string,
-  builderId?:string,
-  email:string,
-  role:string,
-  invitedAt?:string
-}
+  inviteId?: string;
+  builderId?: string;
+  email: string;
+  role: string;
+  invitedAt?: string;
+};
 interface Pagination {
   totalItems: number;
   totalPages: number;
   currentPage: number;
   limit: number;
 }
-export interface invitedUserResponse  {
-  users:invitedUser[];
-  pagination :Pagination
+export interface invitedUserResponse {
+  users: invitedUser[];
+  pagination: Pagination;
 }
 export type UserInitialState = {
-  users: user[],
-  invitedUsers:invitedUser[]
-  status:{users:Status,invitedUsers:Status}
+  users: user[];
+  invitedUsers: invitedUser[];
+  status: { users: Status; invitedUsers: Status };
 };

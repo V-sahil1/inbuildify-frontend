@@ -1,9 +1,9 @@
-"use client";
-import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
-import { IconEdit, IconPlus, IconTrash, IconPinned } from "@tabler/icons-react";
-import { Divider, Input } from "antd";
-import { useState } from "react";
-import { CommissionDrawer } from "./commissionDrawer";
+'use client';
+import { CreateFormModal } from '@/components/common/Models/CreateFormModel';
+import { IconEdit, IconPlus, IconTrash, IconPinned } from '@tabler/icons-react';
+import { Divider, Input } from 'antd';
+import { useState } from 'react';
+import { CommissionDrawer } from './commissionDrawer';
 
 const { TextArea } = Input;
 
@@ -16,24 +16,30 @@ interface Stage {
 
 interface Partner {
   id: string;
-  type: "Referral Partner" | "Sales Person" | "";
+  type: 'Referral Partner' | 'Sales Person' | '';
   name: string;
   stages: Stage[];
 }
 const initialPartners: Partner[] = [
   {
-    id: "1", type: "Sales Person", name: "Murthy Muthuswamy", stages: [
-      { name: "5% Deposit", total: 5000, toBePaid: 5000, paid: 5000 },
-      { name: "Base Stage", total: 5000, toBePaid: 3000, paid: 2000 },
-      { name: "Lockup", total: 10000, toBePaid: 10000, paid: 0 },
-    ]
+    id: '1',
+    type: 'Sales Person',
+    name: 'Murthy Muthuswamy',
+    stages: [
+      { name: '5% Deposit', total: 5000, toBePaid: 5000, paid: 5000 },
+      { name: 'Base Stage', total: 5000, toBePaid: 3000, paid: 2000 },
+      { name: 'Lockup', total: 10000, toBePaid: 10000, paid: 0 },
+    ],
   },
   {
-    id: "2", type: "Referral Partner", name: "Referral Partner", stages: [
-      { name: "5% Deposit", total: 5000, toBePaid: 5000, paid: 2000 },
-      { name: "Base Stage", total: 5000, toBePaid: 5000, paid: 0 },
-      { name: "Lockup Stage", total: 5000, toBePaid: 5000, paid: 0 },
-    ]
+    id: '2',
+    type: 'Referral Partner',
+    name: 'Referral Partner',
+    stages: [
+      { name: '5% Deposit', total: 5000, toBePaid: 5000, paid: 2000 },
+      { name: 'Base Stage', total: 5000, toBePaid: 5000, paid: 0 },
+      { name: 'Lockup Stage', total: 5000, toBePaid: 5000, paid: 0 },
+    ],
   },
 ];
 
@@ -51,12 +57,7 @@ export const JobCommission = () => {
     value: number;
   } | null>(null);
 
-  const openModal = (
-    partnerId: string,
-    stageIdx: number,
-    field: keyof Stage,
-    value: number
-  ) => {
+  const openModal = (partnerId: string, stageIdx: number, field: keyof Stage, value: number) => {
     setEditData({ partnerId, stageIdx, field, value });
     setIsModalOpen(true);
   };
@@ -66,21 +67,21 @@ export const JobCommission = () => {
     const { partnerId, stageIdx, field } = editData;
     const parsedValue = Number(newValue);
 
-    setPartners((prev) =>
-      prev.map((p) =>
+    setPartners(prev =>
+      prev.map(p =>
         p.id === partnerId
           ? {
-            ...p,
-            stages: p.stages.map((s, i) => {
-              if (i !== stageIdx) return s;
-              if (field === "paid") {
-                const updatedPaid = parsedValue;
-                const updatedToBePaid = Math.max(s.total - updatedPaid, 0);
-                return { ...s, paid: updatedPaid, toBePaid: updatedToBePaid };
-              }
-              return { ...s, [field]: parsedValue };
-            }),
-          }
+              ...p,
+              stages: p.stages.map((s, i) => {
+                if (i !== stageIdx) return s;
+                if (field === 'paid') {
+                  const updatedPaid = parsedValue;
+                  const updatedToBePaid = Math.max(s.total - updatedPaid, 0);
+                  return { ...s, paid: updatedPaid, toBePaid: updatedToBePaid };
+                }
+                return { ...s, [field]: parsedValue };
+              }),
+            }
           : p
       )
     );
@@ -103,7 +104,10 @@ export const JobCommission = () => {
   const remaining = totalCommission.total - totalCommission.paid;
   return (
     <div className="border rounded-lg p-4 bg-white shadow-md">
-      <button className="flex gap-2 items-end w-full justify-end" onClick={() => setOpenDrawer(true)}>
+      <button
+        className="flex gap-2 items-end w-full justify-end"
+        onClick={() => setOpenDrawer(true)}
+      >
         <IconEdit />
         Modify
       </button>
@@ -116,13 +120,12 @@ export const JobCommission = () => {
         <div>Paid ($)</div>
       </div>
 
-      {enabledPartners.map((partner) => {
-
-        const isUnnamedPartner = partner.type === "Referral Partner" && partner.name === "Referral Partner";
+      {enabledPartners.map(partner => {
+        const isUnnamedPartner =
+          partner.type === 'Referral Partner' && partner.name === 'Referral Partner';
 
         return (
           <div key={partner.id} className="mb-4">
-
             <div className="text-sm font-semibold mb-1">
               {partner.type}:
               <div className="flex items-center mt-1">
@@ -141,34 +144,27 @@ export const JobCommission = () => {
             </div>
 
             {partner.stages.map((stage, idx) => (
-              <div
-                key={idx}
-                className="grid grid-cols-4 items-center py-1 text-sm text-gray-800"
-              >
+              <div key={idx} className="grid grid-cols-4 items-center py-1 text-sm text-gray-800">
                 <div className="flex items-center pl-4">
                   <IconPinned size={14} className="mr-2" />
                   {stage.name}
                 </div>
 
-                <div>
-                  {stage.total.toLocaleString()}
-                </div>
+                <div>{stage.total.toLocaleString()}</div>
 
-                <div>
-                  {stage.toBePaid.toLocaleString()}
-                </div>
+                <div>{stage.toBePaid.toLocaleString()}</div>
 
                 <div
                   className="cursor-pointer text-blue-600 hover:underline"
-                  onClick={() => openModal(partner.id, idx, "paid", stage.paid)}
+                  onClick={() => openModal(partner.id, idx, 'paid', stage.paid)}
                 >
                   {stage.paid.toLocaleString()}
                 </div>
               </div>
             ))}
-            <Divider/>
+            <Divider />
           </div>
-        )
+        );
       })}
 
       <div className="bg-yellow-100 grid grid-cols-4 font-bold p-2 mt-2">
@@ -193,10 +189,7 @@ export const JobCommission = () => {
       ) : (
         <div className="flex flex-col gap-2 mt-2">
           <div className="flex justify-end">
-            <button
-              className="text-red-500 hover:text-red-700"
-              onClick={() => setOpenNotes(false)}
-            >
+            <button className="text-red-500 hover:text-red-700" onClick={() => setOpenNotes(false)}>
               <IconTrash size={20} />
             </button>
           </div>
@@ -222,11 +215,11 @@ export const JobCommission = () => {
           initialValues={{ value: editData.value }}
           fields={[
             {
-              name: "value",
-              label: "Paid Amount",
-              type: "number",
+              name: 'value',
+              label: 'Paid Amount',
+              type: 'number',
               placeholder: `Enter paid amount`,
-              rules: [{ required: true, message: "Value is required" }],
+              rules: [{ required: true, message: 'Value is required' }],
             },
           ]}
           onSubmit={(values: { value: number }) => handleSave(values.value)}

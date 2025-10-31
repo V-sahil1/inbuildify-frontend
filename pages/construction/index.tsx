@@ -1,10 +1,8 @@
-import ConstructionManager from '@/components/construction/ConstructionManager'
-import React from 'react'
+import ConstructionManager from '@/components/construction/ConstructionManager';
+import React from 'react';
 
 const index = () => {
-  return (
-    <ConstructionManager />
-  )
-}
+  return <ConstructionManager />;
+};
 
-export default index
+export default index;

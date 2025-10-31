@@ -1,23 +1,19 @@
-import React, { useEffect, useState } from "react";
-import { Modal, Checkbox, Button, Table, message } from "antd";
-import { QuotationResponse } from "@redux/feature/quotation/IQuotationState";
-import { getQuotationById } from "@redux/feature/quotation/quotationThunk";
-import { useAppDispatch } from "@hooks/redux";
-import { QuotationVersionBasic, QuotationVersions } from "data/types";
+import React, { useEffect, useState } from 'react';
+import { Modal, Checkbox, Button, Table, message } from 'antd';
+import { QuotationResponse } from '@redux/feature/quotation/IQuotationState';
+import { getQuotationById } from '@redux/feature/quotation/quotationThunk';
+import { useAppDispatch } from '@hooks/redux';
+import { QuotationVersionBasic, QuotationVersions } from 'data/types';
 
 const { Column } = Table;
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  quotation: QuotationResponse
+  quotation: QuotationResponse;
 }
 
-const LeadQuotationComparison: React.FC<Props> = ({
-  open,
-  onClose,
-  quotation,
-}) => {
+const LeadQuotationComparison: React.FC<Props> = ({ open, onClose, quotation }) => {
   const [selectedVersions, setSelectedVersions] = useState<QuotationVersionBasic[]>([]);
   const [quotationVersion, setQuotationVersion] = useState<QuotationVersions>({});
   const [comparisonResult, setComparisonResult] = useState<any[]>([]);
@@ -27,12 +23,10 @@ const LeadQuotationComparison: React.FC<Props> = ({
   useEffect(() => {
     async function fetchQuotation() {
       try {
-        const res = await dispatch(
-          getQuotationById(quotation.quotationId)
-        ).unwrap();
+        const res = await dispatch(getQuotationById(quotation.quotationId)).unwrap();
         setQuotationVersion(res.versions as QuotationVersions);
       } catch (error) {
-        message.error(error || "Failed to fetch quotation Version");
+        message.error(error || 'Failed to fetch quotation Version');
       }
     }
     fetchQuotation();
@@ -46,13 +40,11 @@ const LeadQuotationComparison: React.FC<Props> = ({
 
   const handleCheckboxChange = (versionId: string) => {
     if (!Array.isArray(quotation.versions)) return;
-    const version = quotation.versions.find(
-      (v) => v.quotationVersionId === versionId
-    );
+    const version = quotation.versions.find(v => v.quotationVersionId === versionId);
     if (!version) return;
-    setSelectedVersions((prev) => {
-      if (prev.some((v) => v.quotationVersionId === versionId)) {
-        return prev.filter((v) => v.quotationVersionId !== versionId);
+    setSelectedVersions(prev => {
+      if (prev.some(v => v.quotationVersionId === versionId)) {
+        return prev.filter(v => v.quotationVersionId !== versionId);
       }
       return prev.length < 2 ? [...prev, version] : prev;
     });
@@ -67,7 +59,7 @@ const LeadQuotationComparison: React.FC<Props> = ({
 
   const handleCompareClick = (shouldShowAll = showAll) => {
     if (selectedVersions.length !== 2) {
-      message.warning("Please select exactly 2 versions");
+      message.warning('Please select exactly 2 versions');
       return;
     }
 
@@ -77,20 +69,18 @@ const LeadQuotationComparison: React.FC<Props> = ({
 
     const rows: any[] = [];
     const allItemIds = new Set([
-      ...leftItems.map((i) => i.categoryItemId),
-      ...rightItems.map((i) => i.categoryItemId),
+      ...leftItems.map(i => i.categoryItemId),
+      ...rightItems.map(i => i.categoryItemId),
     ]);
 
     const formatItem = (item: any) => {
-      if (!item) return "-";
+      if (!item) return '-';
       const quantity = item?.categoryItemQuantity || 1;
       const cost = parseFloat(item?.categoryItemCost);
       const total = quantity * cost;
       return (
         <div className="text-font-color align-middle">
-          <div className="font-bold">
-            ${total?.toFixed(2)}
-          </div>
+          <div className="font-bold">${total?.toFixed(2)}</div>
           <div className="text-xs text-gray-500">
             ({quantity} × ${cost?.toFixed(2)})
           </div>
@@ -98,12 +88,16 @@ const LeadQuotationComparison: React.FC<Props> = ({
       );
     };
 
-    allItemIds.forEach((itemId) => {
-      const itemLeft = leftItems.find((i) => i?.categoryItemId === itemId);
-      const itemRight = rightItems.find((i) => i?.categoryItemId === itemId);
+    allItemIds.forEach(itemId => {
+      const itemLeft = leftItems.find(i => i?.categoryItemId === itemId);
+      const itemRight = rightItems.find(i => i?.categoryItemId === itemId);
 
-      const rawLeftValue = itemLeft ? `${itemLeft?.categoryItemQuantity || 1}x${parseFloat(itemLeft?.categoryItemCost).toFixed(2)}` : null;
-      const rawRightValue = itemRight ? `${itemRight?.categoryItemQuantity || 1}x${parseFloat(itemRight?.categoryItemCost).toFixed(2)}` : null;
+      const rawLeftValue = itemLeft
+        ? `${itemLeft?.categoryItemQuantity || 1}x${parseFloat(itemLeft?.categoryItemCost).toFixed(2)}`
+        : null;
+      const rawRightValue = itemRight
+        ? `${itemRight?.categoryItemQuantity || 1}x${parseFloat(itemRight?.categoryItemCost).toFixed(2)}`
+        : null;
 
       const isDifferent = rawLeftValue !== rawRightValue;
 
@@ -135,11 +129,11 @@ const LeadQuotationComparison: React.FC<Props> = ({
           <div className="flex flex-wrap gap-2">
             {quotation.versions &&
               Array.isArray(quotation.versions) &&
-              quotation.versions.map((v) => (
+              quotation.versions.map(v => (
                 <Checkbox
                   key={v.quotationVersionId}
                   checked={selectedVersions?.some(
-                    (sv) => sv.quotationVersionId === v.quotationVersionId
+                    sv => sv.quotationVersionId === v.quotationVersionId
                   )}
                   onChange={() => handleCheckboxChange(v.quotationVersionId)}
                 >
@@ -154,7 +148,7 @@ const LeadQuotationComparison: React.FC<Props> = ({
           </Button>
           <Checkbox
             checked={showAll}
-            onChange={(e) => {
+            onChange={e => {
               const newShowAllState = e.target.checked;
               setShowAll(newShowAllState);
               if (selectedVersions.length === 2) {
@@ -177,14 +171,9 @@ const LeadQuotationComparison: React.FC<Props> = ({
         bordered
         size="small"
         rowKey="key"
-        rowClassName={(record) => (record.isDifferent && showAll) ? 'bg-primary-10' : ''}
+        rowClassName={record => (record.isDifferent && showAll ? 'bg-primary-10' : '')}
       >
-        <Column
-          title="Items"
-          dataIndex="description"
-          key="description"
-          width="60%"
-        />
+        <Column title="Items" dataIndex="description" key="description" width="60%" />
         {selectedVersions[0] && (
           <Column
             title={

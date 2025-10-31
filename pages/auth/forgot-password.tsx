@@ -1,13 +1,13 @@
-import React, { useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { Form, Input, message } from "antd";
-import { IconLoader } from "@tabler/icons-react";
-import { auth_forgot_password } from "/public/images";
-import { ForgetPasswordThunk } from "@redux/feature/auth/authThunk";
-import { useAppDispatch } from "@hooks/redux";
-import SystemRoutes from "@lib/constants/Routes";
+import React, { useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { Form, Input, message } from 'antd';
+import { IconLoader } from '@tabler/icons-react';
+import { auth_forgot_password } from '/public/images';
+import { ForgetPasswordThunk } from '@redux/feature/auth/authThunk';
+import { useAppDispatch } from '@hooks/redux';
+import SystemRoutes from '@lib/constants/Routes';
 
 export async function getStaticProps() {
   return {
@@ -39,19 +39,14 @@ export default function ForgotPassword() {
   return (
     <>
       <div className="flex justify-center sm:mb-6 mb-4">
-        <Image
-          src={auth_forgot_password}
-          width="240"
-          height="178"
-          alt="forgot password"
-        />
+        <Image src={auth_forgot_password} width="240" height="178" alt="forgot password" />
       </div>
       <p className="sm:text-[40px]/[48px] text-[30px]/[36px] font-medium mb-2 text-center">
         Forgot password?
       </p>
       <p className="text-center sm:mb-12 mb-6 text-font-color-100">
-        Enter the email address you used when you joined and we'll send you
-        instructions to reset your password.
+        Enter the email address you used when you joined and we'll send you instructions to reset
+        your password.
       </p>
       <Form
         layout="vertical"
@@ -66,8 +61,8 @@ export default function ForgotPassword() {
           label="Email"
           name="email"
           rules={[
-            { required: true, message: "Please enter your email!" },
-            { type: "email", message: "Enter a valid email!" },
+            { required: true, message: 'Please enter your email!' },
+            { type: 'email', message: 'Enter a valid email!' },
           ]}
         >
           <Input placeholder="name@example.com" />
@@ -80,7 +75,7 @@ export default function ForgotPassword() {
             disabled={loading}
             className="btn btn-secondary large w-full uppercase"
           >
-            {loading ? <IconLoader /> : ""}
+            {loading ? <IconLoader /> : ''}
             forgot password
           </button>
         </Form.Item>

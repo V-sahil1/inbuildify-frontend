@@ -5,20 +5,20 @@ type CustomDataTableProps<T> = TableProps<T> & {
   selectedRows?: any[];
 };
 
-const CustomDataTable = <T,>({ 
-  selectedRows = [], 
+const CustomDataTable = <T,>({
+  selectedRows = [],
   conditionalRowStyles = [],
-  ...props 
+  ...props
 }: CustomDataTableProps<T>) => {
   const defaultConditionalRowStyles = [
     {
       when: (row: any) => selectedRows.some(selected => selected.name === row.name),
       style: {
         backgroundColor: 'var(--primary-10) !important',
-        color:'var(--font-color-100) !important',
+        color: 'var(--font-color-100) !important',
         '&:hover': {
-          backgroundColor: 'var(--primary-10) !important',  
-          color:'var(--font-color-100) !important',
+          backgroundColor: 'var(--primary-10) !important',
+          color: 'var(--font-color-100) !important',
         },
       },
     },
@@ -35,7 +35,10 @@ const CustomDataTable = <T,>({
         paginationPerPage={5}
         selectableRowsHighlight
         persistTableHead
-        conditionalRowStyles={[...defaultConditionalRowStyles, ...(Array.isArray(conditionalRowStyles) ? conditionalRowStyles : [])]}
+        conditionalRowStyles={[
+          ...defaultConditionalRowStyles,
+          ...(Array.isArray(conditionalRowStyles) ? conditionalRowStyles : []),
+        ]}
         noDataComponent={
           <div className="w-full !py-6 flex items-center justify-center bg-card-color text-font-color">
             <span>No data available</span>

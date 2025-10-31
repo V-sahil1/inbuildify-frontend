@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
-import TimelineCard from "../common/TimeLineComponents/TimelineCard";
-import TimelineActionsBar from "../common/TimeLineComponents/TimelineActionsBar";
-import { Empty, MenuProps, message, Spin } from "antd";
+'use client';
+import React, { useEffect, useState } from 'react';
+import TimelineCard from '../common/TimeLineComponents/TimelineCard';
+import TimelineActionsBar, { FilterOption } from '../common/TimeLineComponents/TimelineActionsBar';
+import { Empty, MenuProps, message } from 'antd';
 import {
   ActionType,
   TimelineCardProps,
@@ -9,31 +10,37 @@ import {
   AppointmentDetails,
   TaskDetails,
   SmsDetails,
-} from "data/types";
-import { handleSaveTimelineCard } from "../../lib/utils/timelineCardUtils";
-import TimelineActionFormRenderer from "../common/TimelineActionFormRenderer";
-import { useAppDispatch } from "@hooks/redux";
-import { getActionsThunk } from "@redux/feature/action/actionThunk";
+} from 'data/types';
+import { handleSaveTimelineCard } from '../../lib/utils/timelineCardUtils';
+import TimelineActionFormRenderer from '../common/TimelineActionFormRenderer';
+import { useAppDispatch } from '@hooks/redux';
+import { getActionsThunk } from '@redux/feature/action/actionThunk';
+import Loading from '../common/Loading';
 
-
-const actionItems: MenuProps["items"] = [
-  { key: "addNotes", label: "Add Notes" },
-  { key: "sendSms", label: "Send SMS" },
-  { key: "bookAppointment", label: "Book An Appointment" },
-  { key: "createTask", label: "Create Task" },
+const actionItems: MenuProps['items'] = [
+  { key: 'addNotes', label: 'Add Notes' },
+  { key: 'sendSms', label: 'Send SMS' },
+  { key: 'bookAppointment', label: 'Book An Appointment' },
+  { key: 'createTask', label: 'Create Task' },
 ];
 
-const LeadActions = ({ leadId }: { leadId: string }) => { 
-  const [cardsData, setCardsData] = useState<TimelineCardProps[]>([]);
-  const [activeTab, setActiveTab] = useState("All");
-  const [activeAction, setActiveAction] = useState<ActionType>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [formLoading, setFormLoading] = useState<boolean>(false);
-  const [editingItem, setEditingItem] = useState<{
-    item: TimelineCardProps;
-    index: number;
-  } | null>(null);
+const LeadActions = ({ leadId }: { leadId: string }) => {
   const dispatch = useAppDispatch();
+  const [cardsData, setCardsData] = useState<TimelineCardProps[]>([]);
+  const [activeTab, setActiveTab] = useState('All');
+  const [activeAction, setActiveAction] = useState<ActionType>(null);
+  const [loading, setLoading] = useState(false);
+  const [formLoading, setFormLoading] = useState(false);
+  const [editingItem, setEditingItem] = useState<{ item: TimelineCardProps; index: number } | null>(
+    null
+  );
+  const tabs: FilterOption[] = [
+    { type: 'All', label: 'All' },
+    { type: 'NOTES', label: 'Notes' },
+    { type: 'SMS', label: 'SMS' },
+    { type: 'APPOINTMENT', label: 'Appointment' },
+    { type: 'TASK', label: 'Task' },
+  ];
 
   useEffect(() => {
     async function fetchData() {
@@ -44,12 +51,12 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
         ).unwrap();
         setCardsData(res);
       } catch (error) {
-        message.error(error || "Failed to fetch actions");
+        message.error(error || 'Failed to fetch actions');
       } finally {
         setLoading(false);
       }
     }
-    if(leadId) fetchData();
+    if (leadId) fetchData();
   }, [dispatch, leadId, activeTab]);
 
   const handleTabChange = (tab: string) => {
@@ -77,7 +84,7 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
         setCardsData,
         handleClose,
         activeTab,
-        "NOTES",
+        'NOTES',
         note,
         dispatch
       );
@@ -96,7 +103,7 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
         setCardsData,
         handleClose,
         activeTab,
-        "APPOINTMENT",
+        'APPOINTMENT',
         appointment,
         dispatch
       );
@@ -115,7 +122,7 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
         setCardsData,
         handleClose,
         activeTab,
-        "TASK",
+        'TASK',
         task,
         dispatch
       );
@@ -134,7 +141,7 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
         setCardsData,
         handleClose,
         activeTab,
-        "SMS",
+        'SMS',
         sms,
         dispatch
       );
@@ -148,11 +155,11 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
       <div className="p-4">
         <div className="ml-8">
           <TimelineActionsBar
-            tabs={["All", "NOTES", "SMS", "APPOINTMENT", "TASK"]}
+            tabs={tabs}
             activeTab={activeTab}
             onTabChange={handleTabChange}
             actionItems={actionItems}
-            onActionSelect={(key) => {
+            onActionSelect={key => {
               setActiveAction(key as ActionType);
               setEditingItem(null); // Clear editing state when starting a new action
             }}
@@ -160,8 +167,9 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
         </div>
       </div>
 
-      <div className="relative ">
-        {(activeAction || editingItem) ?  <div className="absolute left-[13px] top-0 bottom-0 w-[1px] bg-gray-300" /> : cardsData && cardsData?.length > 0 && !loading &&  (
+      {/* Timeline list */}
+      <div className="relative">
+        {(activeAction || editingItem || (cardsData && cardsData.length > 0)) && (
           <div className="absolute left-[13px] top-0 bottom-0 w-[1px] bg-gray-300" />
         )}
         <div className="space-y-8">
@@ -181,7 +189,7 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
           {/* Timeline */}
           {loading ? (
             <div className="flex justify-center items-center h-64">
-              <Spin size="large" />
+              <Loading type="primary" />
             </div>
           ) : cardsData && cardsData.length > 0 ? (
             cardsData.map((item, idx) => (
@@ -190,15 +198,13 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
                 {...item}
                 createdBy={item?.createdBy}
                 item={item}
-                onEdit={(data) => handleEdit(data, idx)}
+                onEdit={data => handleEdit(data, idx)}
               />
             ))
           ) : (
             <Empty
               description={
-                activeTab === "All"
-                  ? "No data available"
-                  : `No ${activeTab} available for this tab`
+                activeTab === 'All' ? 'No data available' : `No ${activeTab} available for this tab`
               }
             />
           )}

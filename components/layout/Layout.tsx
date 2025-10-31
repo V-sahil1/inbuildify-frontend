@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
-import { useRouter } from 'next/router'
-import Footer from '../partial/Footer'
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import Footer from '../partial/Footer';
 import Header from '../partial/Header';
 import Sidebar from '../partial/Sidebar';
 
@@ -8,7 +8,7 @@ export default function Layout({ children }) {
   const router = useRouter();
   const [container, setContainer] = useState(() => {
     // Initialize state from localStorage
-    return typeof localStorage !== "undefined" && localStorage.getItem('container') === 'true';
+    return typeof localStorage !== 'undefined' && localStorage.getItem('container') === 'true';
   });
 
   useEffect(() => {
@@ -40,17 +40,32 @@ export default function Layout({ children }) {
   const toggleChat = () => setChat(prev => !prev);
 
   return (
-    <div className='admin-wrapper overflow-hidden'>
-      <div className='flex h-svh relative'>
-        <div className={`sidebar sm:w-[280px] sm:min-w-[280px] w-full px-2 py-4 overflow-y-scroll flex flex-col custom-scrollbar xl:static fixed xl:h-screen md:h-[calc(100vh-74px)] h-[calc(100vh-64px)] md:top-[74px] top-[64px] z-[11] bg-body-color xl:shadow-none transition-all duration-300 ${mobileNav ? 'shadow-shadow-lg left-0' : '-left-full'}`}>
-          <Sidebar setMobileNav={setMobileNav} note={note} toggleNote={toggleNote} chat={chat} toggleChat={toggleChat} />
+    <div className="admin-wrapper overflow-hidden">
+      <div className="flex h-svh relative">
+        <div
+          className={`sidebar sm:w-[280px] sm:min-w-[280px] w-full px-2 py-4 overflow-y-scroll flex flex-col custom-scrollbar xl:static fixed xl:h-screen md:h-[calc(100vh-74px)] h-[calc(100vh-64px)] md:top-[74px] top-[64px] z-[51] bg-body-color xl:shadow-none transition-all duration-300 ${mobileNav ? 'shadow-shadow-lg left-0' : '-left-full'}`}
+        >
+          <Sidebar
+            setMobileNav={setMobileNav}
+            note={note}
+            toggleNote={toggleNote}
+            chat={chat}
+            toggleChat={toggleChat}
+          />
         </div>
-        <div className='main flex-1 flex flex-col overflow-auto custom-scrollbar bg-body-color'>
-          <Header toggleMobileNav={toggleMobileNav} mobileNav={mobileNav} toggleNote={toggleNote} toggleChat={toggleChat} containerToggle={containerToggle} container={container} />
+        <div className="main flex-1 flex flex-col overflow-auto custom-scrollbar bg-body-color">
+          <Header
+            toggleMobileNav={toggleMobileNav}
+            mobileNav={mobileNav}
+            toggleNote={toggleNote}
+            toggleChat={toggleChat}
+            containerToggle={containerToggle}
+            container={container}
+          />
           {children}
           <Footer />
         </div>
       </div>
     </div>
-  )
+  );
 }
