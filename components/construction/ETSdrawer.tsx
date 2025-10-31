@@ -50,6 +50,7 @@ const ETSdrawer = ({ title, open, onCancel }) => {
   };
 
   function handleSubmit(values) {
+    onCancel();
     console.log(values);
   }
 
