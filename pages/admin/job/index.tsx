@@ -1,11 +1,11 @@
-import TabLayout from "@/components/common/TabLayout";
-import { tabsLabel } from "@/components/common/TabLabel";
-import { Setting } from "@/components/configurations/components/job/Setting";
-import { JobProcess } from "@/components/configurations/components/job/JobProcess";
-import { Colors } from "@/components/configurations/components/job/Colors";
-import { Workflow } from "@/components/configurations/components/job/Workflow";
-import { Invoice } from "@/components/configurations/components/job/Invoice";
-import { Variation } from "@/components/configurations/components/job/Variation";
+import TabLayout from '@/components/common/TabLayout';
+import { tabsLabel } from '@/components/common/TabLabel';
+import { Setting } from '@/components/configurations/components/job/Setting';
+import { JobProcess } from '@/components/configurations/components/job/JobProcess';
+import { Colors } from '@/components/configurations/components/job/Colors';
+import { Workflow } from '@/components/configurations/components/job/Workflow';
+import { Invoice } from '@/components/configurations/components/job/Invoice';
+import { Variation } from '@/components/configurations/components/job/Variation';
 
 const TABS = [
   {
@@ -24,18 +24,18 @@ const TABS = [
     component: Colors,
   },
   {
-    id: "workflow",
-    label: tabsLabel("Workflow", "Manage Workflow"),
+    id: 'workflow',
+    label: tabsLabel('Workflow', 'Manage Workflow'),
     component: Workflow,
   },
   {
-    id: "invoice",
-    label: tabsLabel("Invoice", "Manage Invoice and stage payments"),
+    id: 'invoice',
+    label: tabsLabel('Invoice', 'Manage Invoice and stage payments'),
     component: Invoice,
   },
   {
-    id: "variation",
-    label: tabsLabel("Variation", "Manage variation"),
+    id: 'variation',
+    label: tabsLabel('Variation', 'Manage variation'),
     component: Variation,
   },
   // {

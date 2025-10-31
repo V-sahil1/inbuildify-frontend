@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { Form, Button, Input, Space, Table, Popconfirm, Select } from "antd";
-import InputSwitch from "@/components/common/InputSwitch";
-import { ActionDialogmodel } from "@/components/common/Models/ActionDialogModel";
-import { IconEdit, IconPlus, IconTrash } from "@tabler/icons-react";
-import { variationSwitches } from "data/configuration/variationData";
-import { variationSettingFields } from "@/components/formFields/VariationSettingFields";
-import { useUsersHook } from "@hooks/useUserData";
+import React, { useEffect, useState } from 'react';
+import { Form, Button, Input, Space, Table, Popconfirm, Select } from 'antd';
+import InputSwitch from '@/components/common/InputSwitch';
+import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
+import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
+import { variationSwitches } from 'data/configuration/variationData';
+import { variationSettingFields } from '@/components/formFields/VariationSettingFields';
+import { useUsersHook } from '@hooks/useUserData';
 const { Option } = Select;
 interface Variation {
   key: string;
@@ -19,28 +19,21 @@ export const Variation = () => {
   const [isChanged, setIsChanged] = useState(false);
   const [variations, setVariations] = useState<Variation[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingVariation, setEditingVariation] = useState<Variation | null>(
-    null
-  );
+  const [editingVariation, setEditingVariation] = useState<Variation | null>(null);
   const { users } = useUsersHook();
 
-  const notifyAfterContract = Form.useWatch(
-    "notifySignedVariationAfterContract",
-    form
-  );
-  const notifySignedVariation = Form.useWatch("notifySignedVariation", form);
+  const notifyAfterContract = Form.useWatch('notifySignedVariationAfterContract', form);
+  const notifySignedVariation = Form.useWatch('notifySignedVariation', form);
 
   const handleDelete = (key: string) => {
-    setVariations(variations.filter((item) => item.key !== key));
+    setVariations(variations.filter(item => item.key !== key));
   };
 
   const handleVariationSave = (values: any) => {
     if (editingVariation) {
       setVariations(
-        variations.map((item) =>
-          item.key === editingVariation.key
-            ? { ...values, key: item.key }
-            : item
+        variations.map(item =>
+          item.key === editingVariation.key ? { ...values, key: item.key } : item
         )
       );
     } else {
@@ -51,7 +44,7 @@ export const Variation = () => {
   };
 
   const defaultValues = {
-    role: "",
+    role: '',
     amount: 0,
   };
 
@@ -61,34 +54,32 @@ export const Variation = () => {
   }, [form]);
 
   const handleValuesChange = (_, allValues) => {
-    const changed = Object.keys(allValues).some(
-      (key) => allValues[key] !== initialValues[key]
-    );
+    const changed = Object.keys(allValues).some(key => allValues[key] !== initialValues[key]);
     setIsChanged(changed);
   };
 
   const handleSave = () => {
     const values = form.getFieldsValue();
-    console.log("✅ Saved Values:", values);
+    console.log('✅ Saved Values:', values);
     setInitialValues(values);
     setIsChanged(false);
   };
 
   const columns = [
     {
-      title: "Role",
-      dataIndex: "role",
-      key: "role",
+      title: 'Role',
+      dataIndex: 'role',
+      key: 'role',
     },
     {
-      title: "Amount",
-      dataIndex: "amount",
-      key: "amount",
+      title: 'Amount',
+      dataIndex: 'amount',
+      key: 'amount',
     },
     {
-      title: "Actions",
-      key: "actions",
-      width: "10%",
+      title: 'Actions',
+      key: 'actions',
+      width: '10%',
       render: (_: any, record: Variation) => (
         <Space size="middle">
           <Button
@@ -121,35 +112,19 @@ export const Variation = () => {
         onValuesChange={handleValuesChange}
       >
         <Form.Item name="allowNotesInVariation" valuePropName="checked" noStyle>
-          <InputSwitch
-            name="allowNotesInVariation"
-            label="Allow Notes in Variation"
-          />
+          <InputSwitch name="allowNotesInVariation" label="Allow Notes in Variation" />
         </Form.Item>
 
         <Form.Item name="allowCostAdjustment" valuePropName="checked" noStyle>
-          <InputSwitch
-            name="allowCostAdjustment"
-            label="Allow Cost Adjustment"
-          />
+          <InputSwitch name="allowCostAdjustment" label="Allow Cost Adjustment" />
         </Form.Item>
 
         <Form.Item name="showNotesByDefault" valuePropName="checked" noStyle>
-          <InputSwitch
-            name="showNotesByDefault"
-            label="Show Notes in Variation by Default"
-          />
+          <InputSwitch name="showNotesByDefault" label="Show Notes in Variation by Default" />
         </Form.Item>
 
-        <Form.Item
-          name="drawingChangesRequired"
-          valuePropName="checked"
-          noStyle
-        >
-          <InputSwitch
-            name="drawingChangesRequired"
-            label="Drawing Changes Required"
-          />
+        <Form.Item name="drawingChangesRequired" valuePropName="checked" noStyle>
+          <InputSwitch name="drawingChangesRequired" label="Drawing Changes Required" />
         </Form.Item>
 
         <InputSwitch
@@ -163,11 +138,11 @@ export const Variation = () => {
             name="notifySignedVariation"
             label="Select Notification Type"
             className="ml-9"
-            rules={[{ required: true, message: "Please select a type!" }]}
+            rules={[{ required: true, message: 'Please select a type!' }]}
           >
             <Select
               placeholder="Select a type"
-              options={users.map((user) => ({
+              options={users.map(user => ({
                 label: user.name,
                 value: user.usersId,
               }))}
@@ -184,11 +159,11 @@ export const Variation = () => {
             name="notifySignedVariationAfterContract"
             label="Select Notification Type"
             className="ml-9"
-            rules={[{ required: true, message: "Please select a type!" }]}
+            rules={[{ required: true, message: 'Please select a type!' }]}
           >
             <Select
               placeholder="Select a type"
-              options={users.map((user) => ({
+              options={users.map(user => ({
                 label: user.name,
                 value: user.usersId,
               }))}
@@ -196,33 +171,21 @@ export const Variation = () => {
           </Form.Item>
         )}
 
-        <Form.Item
-          name="allowJobMoveWithPendingVariation"
-          valuePropName="checked"
-          noStyle
-        >
+        <Form.Item name="allowJobMoveWithPendingVariation" valuePropName="checked" noStyle>
           <InputSwitch
             name="allowJobMoveWithPendingVariation"
             label="Allowed to Move the Job to Construction Even there is a Pending Variation"
           />
         </Form.Item>
 
-        <Form.Item
-          name="makeRequestedByAndDelayedDaysMandatory"
-          valuePropName="checked"
-          noStyle
-        >
+        <Form.Item name="makeRequestedByAndDelayedDaysMandatory" valuePropName="checked" noStyle>
           <InputSwitch
             name="makeRequestedByAndDelayedDaysMandatory"
             label="Make Requested by and Delayed days are Mandatory"
           />
         </Form.Item>
 
-        <Form.Item
-          name="sendMailOnSelfApproval"
-          valuePropName="checked"
-          noStyle
-        >
+        <Form.Item name="sendMailOnSelfApproval" valuePropName="checked" noStyle>
           <InputSwitch
             name="sendMailOnSelfApproval"
             label="Send Mail when Variation is Self Approved"
@@ -230,11 +193,7 @@ export const Variation = () => {
           />
         </Form.Item>
 
-        <Form.Item
-          name="contractBasedVariationHeader"
-          valuePropName="checked"
-          noStyle
-        >
+        <Form.Item name="contractBasedVariationHeader" valuePropName="checked" noStyle>
           <InputSwitch
             name="contractBasedVariationHeader"
             label="Contract-Based Variation Header"
@@ -259,9 +218,8 @@ export const Variation = () => {
           <div className="flex flex-col gap-2">
             <h3 className="text-lg font-semibold">Variation approval limits</h3>
             <p>
-              Set the variation approval limits for different roles. If the
-              variation exceeds the specified amount, manager approval will be
-              required.
+              Set the variation approval limits for different roles. If the variation exceeds the
+              specified amount, manager approval will be required.
             </p>
           </div>
           <Button
@@ -276,15 +234,10 @@ export const Variation = () => {
           </Button>
         </div>
 
-        <Table
-          columns={columns}
-          dataSource={variations}
-          rowKey="key"
-          bordered
-        />
+        <Table columns={columns} dataSource={variations} rowKey="key" bordered />
 
         <ActionDialogmodel
-          title={editingVariation ? "Edit Variation" : "Add New Variation"}
+          title={editingVariation ? 'Edit Variation' : 'Add New Variation'}
           open={isModalOpen}
           onCancel={() => {
             setIsModalOpen(false);
@@ -292,7 +245,7 @@ export const Variation = () => {
           }}
           isEditing={!!editingVariation}
           onSubmit={handleVariationSave}
-          submitButtonText={editingVariation ? "Update" : "Create"}
+          submitButtonText={editingVariation ? 'Update' : 'Create'}
           initialValues={editingVariation || undefined}
           fields={variationSettingFields}
         />

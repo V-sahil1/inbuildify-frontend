@@ -83,7 +83,7 @@ export const gridMenuItems2: MenuItem[] = [
   {
     id: 1,
     icon: <IconSettings className="w-4 h-4 mr-3" />,
-    label: "Admin",
+    label: 'Admin',
     href: `${SystemRoutes.ADMIN}/general`,
   },
   // {

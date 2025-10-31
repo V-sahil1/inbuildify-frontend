@@ -224,13 +224,11 @@ const StageProgress: React.FC<StageProgressProps> = ({
         </div>
       </div>
       <div className="flex items-center gap-2">
-        {lead?.lead?.status === "JOB" && (
+        {lead?.lead?.status === 'JOB' && (
           <Button
             type="primary"
             className="btn rounded-md p-1"
-            onClick={() =>
-              router.push(`${SystemRoutes.JOB}/${lead?.lead?.leadId}`)
-            }
+            onClick={() => router.push(`${SystemRoutes.JOB}/${lead?.lead?.leadId}`)}
           >
             view job
           </Button>

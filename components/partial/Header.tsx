@@ -169,7 +169,7 @@ export default function Header({
         return (
           <CreateTaskModal
             open={true}
-            onClose={() => setCreateMenuOpen("")}
+            onClose={() => setCreateMenuOpen('')}
             title="Create Task"
             loading={false}
             onSubmit={handleTaskSubmit}
@@ -180,7 +180,7 @@ export default function Header({
         return (
           <CreateAppointmentModal
             open={true}
-            onClose={() => setCreateMenuOpen("")}
+            onClose={() => setCreateMenuOpen('')}
             title="Create Appointment"
             loading={false}
             onSubmit={handleTaskSubmit}
@@ -294,7 +294,7 @@ export default function Header({
                               {item.icon}
                               <span className="ml-2">{item.label}</span>
                             </Link>
-                          ))} 
+                          ))}
                         </div>
                       </div>
                     </div>

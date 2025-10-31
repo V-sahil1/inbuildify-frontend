@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import Link from 'next/link';
-import CompanyLogo from '../common/CompanyLogo';
 import Image from 'next/image';
 import { themeContext } from 'contexts/ThemeContext';
 

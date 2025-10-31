@@ -116,18 +116,16 @@ const JobDetailHeader = () => {
                                   >
                                     {item.hasToggle ? (
                                       <div
-                                        onMouseDown={(e) => e.stopPropagation()}
-                                        onClick={(e) => e.stopPropagation()}
+                                        onMouseDown={e => e.stopPropagation()}
+                                        onClick={e => e.stopPropagation()}
                                       >
                                         <Switch
                                           size="small"
                                           className="mr-2"
-                                          onChange={(checked) => {
+                                          onChange={checked => {
                                             console.log(
                                               `Finance Approval ${
-                                                checked
-                                                  ? "approved"
-                                                  : "not approved"
+                                                checked ? 'approved' : 'not approved'
                                               }`
                                             );
                                           }}

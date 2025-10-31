@@ -11,32 +11,32 @@ import {
   IconSettings,
   IconShoppingCart,
   IconBriefcase,
-} from "@tabler/icons-react";
+} from '@tabler/icons-react';
 
-const commonRoles = ["builder", "contractor", "customer"];
+const commonRoles = ['builder', 'contractor', 'customer'];
 export const menuList = (pathname: string) => {
-   const parts = pathname.split("/").filter(Boolean);
-  const isAdminRoute = parts[0] === "admin";
+  const parts = pathname.split('/').filter(Boolean);
+  const isAdminRoute = parts[0] === 'admin';
 
   if (isAdminRoute) {
     return [
       {
         icon: IconSettings,
-        link: "General",
+        link: 'General',
         roles: commonRoles,
         url: `/admin/general`,
       },
 
       {
         icon: IconShoppingCart,
-        link: "Sales",
+        link: 'Sales',
         roles: commonRoles,
         url: `/admin/sales`,
       },
 
       {
         icon: IconBriefcase,
-        link: "Job",
+        link: 'Job',
         roles: commonRoles,
         url: `/admin/job`,
       },
@@ -87,20 +87,20 @@ export const menuList = (pathname: string) => {
   return [
     {
       icon: IconHome,
-      link: "My Dashboard",
-      url: "/",
-      roles: ["builder", "contractor", "customer"],
+      link: 'My Dashboard',
+      url: '/',
+      roles: ['builder', 'contractor', 'customer'],
     },
     {
       icon: IconCalendar,
-      link: "Calendar",
+      link: 'Calendar',
       url: SystemRoutes.CALENDAR,
-      roles: ["builder", "contractor", "customer"],
+      roles: ['builder', 'contractor', 'customer'],
     },
     {
       icon: IconDiamond,
-      link: "Sales",
-      roles: ["builder", "contractor", "customer"],
+      link: 'Sales',
+      roles: ['builder', 'contractor', 'customer'],
       children: [
         // {
         //   link: "Dashboard",
@@ -108,49 +108,49 @@ export const menuList = (pathname: string) => {
         //   roles: ["builder", "contractor", "customer"],
         // },
         {
-          link: "Leads",
+          link: 'Leads',
           url: SystemRoutes.LEADS,
-          roles: ["builder", "contractor", "customer"],
+          roles: ['builder', 'contractor', 'customer'],
         },
         {
-          link: "Quotation",
+          link: 'Quotation',
           url: SystemRoutes.QUOTATION,
-          roles: ["builder", "contractor", "customer"],
+          roles: ['builder', 'contractor', 'customer'],
         },
         {
-          link: "Campaigns",
+          link: 'Campaigns',
           url: SystemRoutes.CAMPAIGN,
-          roles: ["builder", "contractor", "customer"],
+          roles: ['builder', 'contractor', 'customer'],
         },
         {
-          link: "HL Package",
+          link: 'HL Package',
           url: SystemRoutes.HLPACKAGE,
-          roles: ["builder", "contractor", "customer"],
+          roles: ['builder', 'contractor', 'customer'],
         },
         {
-          link: "Land",
-          url: "/land",
-          roles: ["builder", "contractor", "customer"],
+          link: 'Land',
+          url: '/land',
+          roles: ['builder', 'contractor', 'customer'],
         },
       ],
     },
     {
       icon: IconShieldCheck,
-      link: "Job",
+      link: 'Job',
       url: SystemRoutes.JOB,
-      roles: ["builder", "contractor", "customer"],
+      roles: ['builder', 'contractor', 'customer'],
     },
     {
       icon: IconCrane,
-      link: "Construction",
-      url: "/construction",
-      roles: ["builder", "contractor", "customer"],
+      link: 'Construction',
+      url: '/construction',
+      roles: ['builder', 'contractor', 'customer'],
     },
     {
       icon: IconTools,
-      link: "Maintenance",
-      url: "/maintenance",
-      roles: ["builder", "contractor", "customer"],
+      link: 'Maintenance',
+      url: '/maintenance',
+      roles: ['builder', 'contractor', 'customer'],
     },
     // {
     //   icon: IconFolderOpen,
@@ -363,15 +363,15 @@ export const menuList = (pathname: string) => {
     // },
     {
       icon: IconBuildingSkyscraper,
-      link: "Contractors",
-      url: "/contractors",
-      roles: ["builder", "contractor", "customer"],
+      link: 'Contractors',
+      url: '/contractors',
+      roles: ['builder', 'contractor', 'customer'],
     },
     {
       icon: IconSettings,
-      link: "Settings",
-      url: "/settings",
-      roles: ["builder"],
+      link: 'Settings',
+      url: '/settings',
+      roles: ['builder'],
     },
   ];
 };

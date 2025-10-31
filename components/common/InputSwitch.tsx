@@ -1,4 +1,4 @@
-import { Form, Switch, Typography } from "antd";
+import { Form, Switch, Typography } from 'antd';
 const { Text } = Typography;
 
 const InputSwitch = ({
@@ -18,9 +18,7 @@ const InputSwitch = ({
         </Form.Item>
         <div className="flex flex-col gap">
           <Text strong>{label}</Text>
-          {description && (
-            <div className="text-gray-600 text-[13px]">{description}</div>
-          )}
+          {description && <div className="text-gray-600 text-[13px]">{description}</div>}
         </div>
       </div>
     </div>

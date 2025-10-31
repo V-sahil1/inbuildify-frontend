@@ -1,21 +1,11 @@
-"use client";
-import React, { useState, useEffect, useMemo } from "react";
-import {
-  Switch,
-  Table,
-  Select,
-  Button,
-  Form,
-  Input,
-  Space,
-  UploadFile,
-} from "antd";
-import { IconEdit, IconPlus, IconTrash } from "@tabler/icons-react";
-import { ActionDialogmodel } from "@/components/common/Models/ActionDialogModel";
-import { colorSettingCustomFields } from "@/components/formFields/ColorSettingCustomFIelds";
-import { colorSettingFields } from "@/components/formFields/ColorSettingFields";
-import { ColorSettings } from "data/configuration/ColorData";
-
+'use client';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Switch, Table, Select, Button, Form, Input, Space, UploadFile } from 'antd';
+import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
+import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
+import { colorSettingCustomFields } from '@/components/formFields/ColorSettingCustomFIelds';
+import { colorSettingFields } from '@/components/formFields/ColorSettingFields';
+import { ColorSettings } from 'data/configuration/ColorData';
 
 interface CustomSection {
   key: string;
@@ -35,7 +25,6 @@ const defaultSettings = {
   landscape: true,
 };
 
-
 export const Colors: React.FC = () => {
   const [settings, setSettings] = useState(defaultSettings);
   const [initialValues] = useState(defaultSettings);
@@ -43,31 +32,26 @@ export const Colors: React.FC = () => {
   const [tableData, setTableData] = useState(ColorSettings);
   const [editingRow, setEditingRow] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [customSections, setCustomSections] = useState<CustomSection[]>(
-    initialCustomSections
-  );
+  const [customSections, setCustomSections] = useState<CustomSection[]>(initialCustomSections);
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
-  const [editingCustomSection, setEditingCustomSection] =
-    useState<CustomSection | null>(null);
+  const [editingCustomSection, setEditingCustomSection] = useState<CustomSection | null>(null);
   const [customForm] = Form.useForm();
-  const [headerText, setHeaderText] = useState("");
+  const [headerText, setHeaderText] = useState('');
   const [form] = Form.useForm();
 
   useEffect(() => {
     const changed = Object.keys(settings).some(
-      (key) =>
-        settings[key as keyof typeof settings] !==
-        initialValues[key as keyof typeof settings]
+      key => settings[key as keyof typeof settings] !== initialValues[key as keyof typeof settings]
     );
     setShowSave(changed);
   }, [settings, initialValues]);
 
   const handleSwitchChange = (key: string, value: boolean) => {
-    setSettings((prev) => ({ ...prev, [key]: value }));
+    setSettings(prev => ({ ...prev, [key]: value }));
   };
 
   const handleSaveSettings = () => {
-    console.log("Saved settings:", settings);
+    console.log('Saved settings:', settings);
     setShowSave(false);
   };
 
@@ -78,15 +62,13 @@ export const Colors: React.FC = () => {
   };
 
   const handleModalOk = () => {
-    form.validateFields().then((values) => {
-      const updated = tableData.map((item) =>
+    form.validateFields().then(values => {
+      const updated = tableData.map(item =>
         item.key === editingRow.key ? { ...item, ...values } : item
       );
 
       // sort logic
-      const sorted = [...updated].sort(
-        (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
-      );
+      const sorted = [...updated].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
 
       setTableData(sorted);
       setIsModalOpen(false);
@@ -99,8 +81,8 @@ export const Colors: React.FC = () => {
   };
 
   const handleCustomModalSave = (values: any) => {
-    console.log("Custom section saved", values);
-    setCustomSections((prev) => [
+    console.log('Custom section saved', values);
+    setCustomSections(prev => [
       ...prev,
       {
         ...values,
@@ -113,18 +95,15 @@ export const Colors: React.FC = () => {
 
   const handleEditCustomSection = (values: any) => {
     if (editingCustomSection) {
-      setCustomSections((prev) =>
-        prev.map((section) =>
+      setCustomSections(prev =>
+        prev.map(section =>
           section.key === editingCustomSection.key
             ? { ...values, key: editingCustomSection.key }
             : section
         )
       );
     } else {
-      setCustomSections((prev) => [
-        ...prev,
-        { ...values, key: Date.now().toString() },
-      ]);
+      setCustomSections(prev => [...prev, { ...values, key: Date.now().toString() }]);
     }
     setIsCustomModalOpen(false);
     setEditingCustomSection(null);
@@ -132,36 +111,32 @@ export const Colors: React.FC = () => {
   };
 
   const handleDeleteCustomSection = (key: string) => {
-    setCustomSections((prev) => prev.filter((section) => section.key !== key));
+    setCustomSections(prev => prev.filter(section => section.key !== key));
   };
 
   const handleColorUISettings = () => {
-    console.log("Color UI settings saved", headerText);
+    console.log('Color UI settings saved', headerText);
   };
   const columns = useMemo(
     () => [
-      { title: "Column Name", dataIndex: "columnName" },
+      { title: 'Column Name', dataIndex: 'columnName' },
       {
-        title: "Options",
-        dataIndex: "options",
+        title: 'Options',
+        dataIndex: 'options',
       },
       {
-        title: "Sort Order",
-        dataIndex: "sortOrder",
+        title: 'Sort Order',
+        dataIndex: 'sortOrder',
       },
       {
-        title: "Width",
-        dataIndex: "width",
+        title: 'Width',
+        dataIndex: 'width',
       },
       {
-        title: "Edit",
-        key: "edit",
+        title: 'Edit',
+        key: 'edit',
         render: (_: any, record: any) => (
-          <Button
-            icon={<IconEdit />}
-            type="link"
-            onClick={() => handleEdit(record)}
-          />
+          <Button icon={<IconEdit />} type="link" onClick={() => handleEdit(record)} />
         ),
       },
     ],
@@ -170,23 +145,23 @@ export const Colors: React.FC = () => {
 
   const customSectionColumns = [
     {
-      title: "Section Name",
-      dataIndex: "sectionName",
-      key: "sectionName",
+      title: 'Section Name',
+      dataIndex: 'sectionName',
+      key: 'sectionName',
     },
     {
-      title: "Attachments",
-      key: "attachments",
+      title: 'Attachments',
+      key: 'attachments',
       render: (record: any) => <p>{record.attachments[0].name}</p>,
     },
     {
-      title: "Sort Order",
-      dataIndex: "sortOrder",
-      key: "sortOrder",
+      title: 'Sort Order',
+      dataIndex: 'sortOrder',
+      key: 'sortOrder',
     },
     {
-      title: "Actions",
-      key: "actions",
+      title: 'Actions',
+      key: 'actions',
       render: (_: any, record: CustomSection) => (
         <Space>
           <Button
@@ -219,33 +194,31 @@ export const Colors: React.FC = () => {
           <span>Hide color item images</span>
           <Switch
             checked={settings.hideColorImages}
-            onChange={(val) => handleSwitchChange("hideColorImages", val)}
+            onChange={val => handleSwitchChange('hideColorImages', val)}
           />
         </div>
         <div className="flex items-center justify-between border p-3 rounded-md">
           <span>Hide color item Price</span>
           <Switch
             checked={settings.hideColorPrice}
-            onChange={(val) => handleSwitchChange("hideColorPrice", val)}
+            onChange={val => handleSwitchChange('hideColorPrice', val)}
           />
         </div>
         <div className="flex items-center justify-between border p-3 rounded-md">
           <span>Edit Color Code</span>
           <Switch
             checked={settings.editColorCode}
-            onChange={(val) => handleSwitchChange("editColorCode", val)}
+            onChange={val => handleSwitchChange('editColorCode', val)}
           />
         </div>
         <div className="flex items-center justify-between border p-3 rounded-md">
           <span>
             Page Orientation (PDF)
-            <span className="ml-1 text-gray-500 text-sm">
-              Landscape (Default) / Portrait
-            </span>
+            <span className="ml-1 text-gray-500 text-sm">Landscape (Default) / Portrait</span>
           </span>
           <Switch
             checked={settings.landscape}
-            onChange={(val) => handleSwitchChange("landscape", val)}
+            onChange={val => handleSwitchChange('landscape', val)}
           />
         </div>
       </div>
@@ -277,11 +250,7 @@ export const Colors: React.FC = () => {
               Note: Please don't attach password protected PDF documents
             </span>
           </div>
-          <Button
-            type="primary"
-            icon={<IconPlus size={16} />}
-            onClick={handleAddCustomSection}
-          >
+          <Button type="primary" icon={<IconPlus size={16} />} onClick={handleAddCustomSection}>
             New
           </Button>
         </div>
@@ -304,7 +273,7 @@ export const Colors: React.FC = () => {
               </label>
               <Input.TextArea
                 value={headerText}
-                onChange={(e) => setHeaderText(e.target.value)}
+                onChange={e => setHeaderText(e.target.value)}
                 rows={4}
                 maxLength={500}
                 showCount
@@ -332,16 +301,14 @@ export const Colors: React.FC = () => {
       />
 
       <ActionDialogmodel
-        title={editingCustomSection ? "Edit Section" : "Add Section"}
+        title={editingCustomSection ? 'Edit Section' : 'Add Section'}
         open={isCustomModalOpen}
         onCancel={() => {
           setIsCustomModalOpen(false);
           setEditingCustomSection(null);
           customForm.resetFields();
         }}
-        onSubmit={
-          editingCustomSection ? handleEditCustomSection : handleCustomModalSave
-        }
+        onSubmit={editingCustomSection ? handleEditCustomSection : handleCustomModalSave}
         submitButtonText="Save"
         isEditing={editingCustomSection !== null}
         initialValues={editingCustomSection || undefined}
