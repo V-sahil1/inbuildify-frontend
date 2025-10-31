@@ -115,17 +115,24 @@ const JobDetailHeader = () => {
                                     }}
                                   >
                                     {item.hasToggle ? (
-                                      <Switch
-                                        size="small"
-                                        className="mr-2"
-                                        onChange={checked => {
-                                          console.log(
-                                            `Finance Approval ${
-                                              checked ? 'approved' : 'not approved'
-                                            }`
-                                          );
-                                        }}
-                                      />
+                                      <div
+                                        onMouseDown={(e) => e.stopPropagation()}
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        <Switch
+                                          size="small"
+                                          className="mr-2"
+                                          onChange={(checked) => {
+                                            console.log(
+                                              `Finance Approval ${
+                                                checked
+                                                  ? "approved"
+                                                  : "not approved"
+                                              }`
+                                            );
+                                          }}
+                                        />
+                                      </div>
                                     ) : (
                                       <span className={`mr-2 ${item.color}`}>{item.icon}</span>
                                     )}

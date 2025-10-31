@@ -1,10 +1,10 @@
-import React, { useContext, useMemo, useState } from 'react';
-import { useRouter } from 'next/router';
-import { menuList } from './SidebarData';
-import { IconChevronRight, IconChevronsDown } from '@tabler/icons-react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { themeContext } from 'contexts/ThemeContext';
+import React, { useContext, useMemo, useState } from "react";
+import { useRouter } from "next/router";
+import { menuList } from "./SidebarData";
+import { IconChevronRight, IconChevronsDown } from "@tabler/icons-react";
+import Link from "next/link";
+import Image from "next/image";
+import { themeContext } from "contexts/ThemeContext";
 
 interface MenuDivider {
   devider?: string;
@@ -38,79 +38,52 @@ export default function Sidebar({
 }) {
   const pageUrl = useRouter().pathname;
   // const userRole = useSelector((state) => state.auth.user.role);
-  const userRole = 'builder';
+  const userRole = "builder";
   const { isDarkMode } = useContext(themeContext);
-  const filteredMenuList = useMemo(() => {
-    // Helper function with correct type annotation
-    const hasAccess = (item: SidebarMenuItem) => {
-      if (!item.roles) {
-        return true;
-      }
-      return item.roles.includes(userRole);
-    };
+  const [menuActive, setMenuActive] = useState<number>(0);
+  const [menuActiveSub, setMenuActiveSub] = useState<number>(0);
+  const router = useRouter();
+  const pathname = router.pathname;
+ const filteredMenuList = useMemo(() => {
+    const hasAccess = (item: any) =>
+      !item.roles || item.roles.includes(userRole);
 
-    // Use `map` to create a new array and handle nested filtering
-    const newMenuList = menuList
-      .map(item => {
-        // Handle divider items first, as they are a different type
-        if ('devider' in item) {
-          return item;
-        }
+    const newMenuList = menuList(pathname)
+      .map((item) => {
+        if ("devider" in item) return item;
+        if (!hasAccess(item)) return null;
 
-        // Check if the top-level item has access
-        if (!hasAccess(item)) {
-          return null; // Return null if no access to this top-level item
-        }
+        const newItem = { ...item };
 
-        // Deep clone the item to avoid mutating the original `menuList`
-        const newItem: any = { ...item };
-
-        // Check for and filter children
         if (newItem.children) {
           const filteredChildren = newItem.children
             .map((child: any) => {
-              // Check for sub-children
               if (child.children) {
-                const filteredSubChildren = child.children.filter((subChild: any) =>
-                  hasAccess(subChild)
-                );
-                // Only return the child if it has sub-children with access
-                if (filteredSubChildren.length > 0) {
-                  return { ...child, children: filteredSubChildren };
-                }
-                return null;
+                const subChildren = child.children.filter(hasAccess);
+                return subChildren.length
+                  ? { ...child, children: subChildren }
+                  : null;
               }
-              // Check access for the direct child
-              if (hasAccess(child)) {
-                return child;
-              }
-              return null;
+              return hasAccess(child) ? child : null;
             })
-            .filter(Boolean); // Filter out any null values
+            .filter(Boolean);
 
-          // Update the item's children with the filtered list
+          if (!filteredChildren.length) return null;
           newItem.children = filteredChildren;
-
-          // If after filtering children, there are none, hide the parent
-          if (filteredChildren.length === 0) {
-            return null;
-          }
         }
 
         return newItem;
       })
-      .filter(Boolean) as SidebarMenuItem[]; // Filter out nulls and assert the type
+      .filter(Boolean);
 
     return newMenuList;
-  }, [userRole]);
+  }, [pathname, userRole]);
 
-  const [menuActive, setMenuActive] = useState<number>(0);
-  const menuToggle = key => {
+  const menuToggle = (key) => {
     setMenuActive(menuActive === key ? null : key);
   };
 
-  const [menuActiveSub, setMenuActiveSub] = useState<number>(0);
-  const menuToggleSub = key => {
+  const menuToggleSub = (key) => {
     setMenuActiveSub(menuActiveSub === key ? null : key);
   };
 
@@ -119,7 +92,7 @@ export default function Sidebar({
       <div className="sidebar-header px-3 mb-6 flex items-center justify-between gap-2">
         <h4 className="sidebar-title text-[24px]/[30px] font-medium mb-0">
           <Image
-            src={isDarkMode ? '/company-dark.png' : '/company-light.png'}
+            src={isDarkMode ? "/company-dark.png" : "/company-light.png"}
             alt="logo"
             width={200}
             height={100}
@@ -137,8 +110,10 @@ export default function Sidebar({
                   menuActive === key ? 'text-secondary' : ''
                 }`}
               >
-                {'icon' in item &&
-                  React.createElement(item.icon, { className: 'stroke-[1.5] w-[22px] h-[22px]' })}
+                {"icon" in item &&
+                  React.createElement(item.icon, {
+                    className: "stroke-[1.5] w-[22px] h-[22px]",
+                  })}
                 <span className="link">{item.link}</span>
                 {menuActive === key ? (
                   <IconChevronsDown className="arrow-icon stroke-[1.5] w-[20px] h-[20px] ms-auto" />
@@ -227,12 +202,12 @@ export default function Sidebar({
                 <span className="link">{item.link}</span>
               </Link>
             </li>
-          ) : 'devider' in item ? (
+          ) : "devider" in item ? (
             <li
               key={key}
               className={`devider py-3 menu-devider uppercase text-[12px]/[15px]${
-                item.color ? ` text-${item.color}` : ''
-              }${item.fontWeight ? ` font-${item.fontWeight}` : ''}`}
+                item.color ? ` text-${item.color}` : ""
+              }${item.fontWeight ? ` font-${item.fontWeight}` : ""}`}
             >
               {item.devider}
             </li>

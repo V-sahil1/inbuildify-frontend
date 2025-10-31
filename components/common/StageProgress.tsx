@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Dropdown, message, Tag } from 'antd';
+import { Button, Dropdown, message, Tag } from 'antd';
 import { IconDots } from '@tabler/icons-react';
 import { useAppDispatch } from '@hooks/redux';
 import {
@@ -15,6 +15,7 @@ import ConfirmationModal from './ConfirmationModal';
 import transferLeadFields from '../formFields/transferLeadFields';
 import CloseLeadModal from '../leadDetail/LeadQuotations/CloseLeadModal';
 import { QuotationResponse } from '@redux/feature/quotation/IQuotationState';
+import SystemRoutes from '@lib/constants/Routes';
 
 type Step = {
   key: string;
@@ -223,6 +224,17 @@ const StageProgress: React.FC<StageProgressProps> = ({
         </div>
       </div>
       <div className="flex items-center gap-2">
+        {lead?.lead?.status === "JOB" && (
+          <Button
+            type="primary"
+            className="btn rounded-md p-1"
+            onClick={() =>
+              router.push(`${SystemRoutes.JOB}/${lead?.lead?.leadId}`)
+            }
+          >
+            view job
+          </Button>
+        )}
         {lead?.lead?.status === 'COMPLETED' && (
           <>
             <button className="btn btn-success rounded-md p-1" onClick={handleWinClick}>

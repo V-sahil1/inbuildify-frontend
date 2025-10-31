@@ -169,7 +169,7 @@ export default function Header({
         return (
           <CreateTaskModal
             open={true}
-            onClose={() => {}}
+            onClose={() => setCreateMenuOpen("")}
             title="Create Task"
             loading={false}
             onSubmit={handleTaskSubmit}
@@ -180,7 +180,7 @@ export default function Header({
         return (
           <CreateAppointmentModal
             open={true}
-            onClose={() => {}}
+            onClose={() => setCreateMenuOpen("")}
             title="Create Appointment"
             loading={false}
             onSubmit={handleTaskSubmit}
@@ -203,7 +203,7 @@ export default function Header({
           <div className="flex items-center gap-3 sm:pe-4 pe-2">
             <button
               onClick={() => router.back()}
-              className="xl:flex hidden items-center justify-center w-[36px] h-[36px] min-w-[36px] text-primary bg-primary-10 rounded-full"
+              className="sm:flex hidden items-center justify-center w-[36px] h-[36px] min-w-[36px] text-primary bg-primary-10 rounded-full"
             >
               <IconArrowBigLeftFilled
                 className={`transition-all ${
@@ -279,6 +279,8 @@ export default function Header({
                     {/* Second Section */}
                     <div className="flex-1 overflow-y-auto">
                       <div className="p-3">
+                        {/* this functionality need to add dont remove the code */}
+
                         <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 px-2">
                           Administration
                         </h3>
@@ -292,7 +294,7 @@ export default function Header({
                               {item.icon}
                               <span className="ml-2">{item.label}</span>
                             </Link>
-                          ))}
+                          ))} 
                         </div>
                       </div>
                     </div>

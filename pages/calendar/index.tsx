@@ -120,7 +120,7 @@ const CalendarView = () => {
                 { label: 'month', value: 'month' },
                 { label: 'week', value: 'week' },
                 { label: 'day', value: 'day' },
-                { label: 'list', value: 'list' },
+                // { label: 'list', value: 'list' }
               ]}
             />
           </div>
