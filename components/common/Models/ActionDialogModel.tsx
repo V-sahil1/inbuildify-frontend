@@ -1,19 +1,10 @@
-"use client";
+'use client';
 
-import { UploadFileStatus } from "antd/es/upload/interface";
-import {
-  Modal,
-  Form,
-  Input,
-  Select,
-  Radio,
-  Upload,
-  Button,
-  Switch,
-  DatePicker,
-} from "antd";
-import { UploadChangeParam } from "antd/es/upload";
-import React, { useEffect, useState } from "react";
+import { UploadFileStatus } from 'antd/es/upload/interface';
+import { Modal, Form, Input, Select, Radio, Upload, Button, Switch, DatePicker } from 'antd';
+import { UploadChangeParam } from 'antd/es/upload';
+import React, { useEffect, useState } from 'react';
+import RichTextEditorFormField from '../rich-text-editor/RichTextEditorFormField';
 
 export type FormField = {
   label: string;
@@ -24,18 +15,19 @@ export type FormField = {
   invite?: boolean;
   initialValue?: any;
   type?:
-    | "email"
-    | "phone"
-    | "text"
-    | "textarea"
-    | "select"
-    | "url"
-    | "number"
-    | "checkbox"
-    | "image"
-    | "switch"
-    | "date";
-  mode?: "tags" | "multiple";
+    | 'email'
+    | 'phone'
+    | 'text'
+    | 'textarea'
+    | 'select'
+    | 'url'
+    | 'number'
+    | 'checkbox'
+    | 'image'
+    | 'switch'
+    | 'date'
+    | 'texteditor';
+  mode?: 'tags' | 'multiple';
   options?: { value: string; label: string }[];
   button?: string;
   disableButton?: boolean;
@@ -81,12 +73,12 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
   const [switchValues, setSwitchValues] = useState({});
 
   const handleSwitchChange = (fieldName: string, checked: boolean) => {
-    setSwitchValues((prev) => ({
+    setSwitchValues(prev => ({
       ...prev,
       [fieldName]: checked,
     }));
     // Call the field's onChange if provided
-    const field = fields.find((f) => f.name === fieldName);
+    const field = fields.find(f => f.name === fieldName);
     if (field?.onChange) {
       field.onChange(checked);
     }
@@ -97,8 +89,9 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
       if (isEditing && initialValues) {
         const values = { ...initialValues };
         if (initialValues.logo) {
-          values[fields.find((f) => f.type === "image")?.name || "logo"] =
-            makeFileFromUrl(initialValues.logo);
+          values[fields.find(f => f.type === 'image')?.name || 'logo'] = makeFileFromUrl(
+            initialValues.logo
+          );
         }
         form.setFieldsValue(values);
       } else if (!isEditing) {
@@ -114,11 +107,7 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
       // Clean up image value if it's just the preview
       if (values.image && values.image.length > 0) {
         const imageField = values.image[0];
-        if (
-          imageField.status === "done" &&
-          imageField.url &&
-          !imageField.originFileObj
-        ) {
+        if (imageField.status === 'done' && imageField.url && !imageField.originFileObj) {
           // This is just a preview, not a new upload
           delete values.image;
         }
@@ -130,13 +119,13 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
     }
   };
 
-  const makeFileFromUrl = (url?: string, name: string = "image") => {
+  const makeFileFromUrl = (url?: string, name: string = 'image') => {
     if (!url) return [];
     return [
       {
-        uid: "-1",
+        uid: '-1',
         name,
-        status: "done" as UploadFileStatus,
+        status: 'done' as UploadFileStatus,
         url,
       },
     ];
@@ -156,10 +145,10 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
       <Form
         form={form}
         layout="vertical"
-        style={{ maxHeight: "70vh", overflowY: "auto", scrollbarWidth: "none" }}
+        style={{ maxHeight: '70vh', overflowY: 'auto', scrollbarWidth: 'none' }}
         onValuesChange={(_, allValues) => onValuesChange?.(allValues, form)}
       >
-        {fields.map((field) => (
+        {fields.map(field => (
           <Form.Item
             key={field.name}
             label={
@@ -170,7 +159,7 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
                     size="small"
                     type="primary"
                     disabled={field?.disableButton || false}
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation();
                       field.onClick?.();
                     }}
@@ -185,7 +174,7 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
             initialValue={field.initialValue}
             extra={field.extra}
           >
-            {field.type === "select" ? (
+            {field.type === 'select' ? (
               <Select
                 showSearch
                 placeholder={field?.placeholder}
@@ -194,12 +183,10 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
                 notFoundContent={field?.notFoundContent}
                 {...(field?.mode && { mode: field?.mode })}
               />
-            ) : field.type === "checkbox" ? (
+            ) : field.type === 'checkbox' ? (
               <Radio.Group>
                 {field.options ? (
-                  field.options.map((option) => (
-                    <Radio value={option.value}>{option.label}</Radio>
-                  ))
+                  field.options.map(option => <Radio value={option.value}>{option.label}</Radio>)
                 ) : (
                   <>
                     <Radio value="TRUE">Yes</Radio>
@@ -207,7 +194,7 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
                   </>
                 )}
               </Radio.Group>
-            ) : field.type === "image" ? (
+            ) : field.type === 'image' ? (
               <Form.Item
                 name={field.name}
                 valuePropName="fileList"
@@ -216,12 +203,10 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
                   {
                     validator: (_, value) => {
                       if (
-                        field.rules?.some(
-                          (r) => "required" in r && r.required
-                        ) &&
+                        field.rules?.some(r => 'required' in r && r.required) &&
                         (!value || value.length === 0)
                       ) {
-                        return Promise.reject(new Error("Image is required"));
+                        return Promise.reject(new Error('Image is required'));
                       }
                       return Promise.resolve();
                     },
@@ -235,59 +220,62 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
                   multiple={false}
                   maxCount={1}
                   beforeUpload={() => false}
-                  accept={field?.acceptFileType || ""}
+                  accept={field?.acceptFileType || ''}
                 >
                   <Button>Click to Upload</Button>
                 </Upload>
               </Form.Item>
-            ) : field.type === "textarea" ? (
+            ) : field.type === 'textarea' ? (
               <Input.TextArea
                 placeholder={field.placeholder}
                 disabled={field.disabled}
                 className="!resize-none"
                 rows={4}
               />
-            ) : field.type === "phone" ? (
+            ) : field.type === 'phone' ? (
               <Input
-                placeholder={field.placeholder || "Enter phone number"}
+                placeholder={field.placeholder || 'Enter phone number'}
                 disabled={field.disabled}
                 minLength={10}
                 maxLength={15}
-                onKeyPress={(e) => {
+                onKeyPress={e => {
                   if (!/[0-9]/.test(e.key)) {
                     e.preventDefault();
                   }
                 }}
               />
-            ) : field.type === "number" ? (
+            ) : field.type === 'number' ? (
               <Input
                 placeholder={field.placeholder}
                 type={field.type}
                 disabled={field.disabled}
-                onKeyPress={(e) => {
+                onKeyPress={e => {
                   if (!/[0-9]/.test(e.key)) {
                     e.preventDefault();
                   }
                 }}
               />
-            ) : field.type === "switch" ? (
+            ) : field.type === 'switch' ? (
               <Switch
                 checked={switchValues[field.name] || false}
-                onChange={(checked) => handleSwitchChange(field.name, checked)}
+                onChange={checked => handleSwitchChange(field.name, checked)}
+                onClick={field.onClick}
               />
-            ) : field.type === "date" ? (
+            ) : field.type === 'date' ? (
               <DatePicker
                 className="w-full"
-                placeholder={field.placeholder || "Select date"}
+                placeholder={field.placeholder || 'Select date'}
                 disabled={field.disabled}
                 format="YYYY-MM-DD"
               />
-            ) : (
-              <Input
-                placeholder={field.placeholder}
-                type={field.type}
-                disabled={field.disabled}
+            ) : field.type === 'texteditor' ? (
+              <RichTextEditorFormField
+                value={form.getFieldValue(field.name) || ''}
+                onChange={val => form.setFieldValue(field.name, val)}
+                maxHeight="400px"
               />
+            ) : (
+              <Input placeholder={field.placeholder} type={field.type} disabled={field.disabled} />
             )}
           </Form.Item>
         ))}

@@ -1,112 +1,129 @@
-"use client";
+'use client';
 
-import StageProgress from "@/components/common/StageProgress";
-import WorkflowSteps from "@/components/common/WorkflowSteps";
-import JobAction from "@/components/job/jobDetail/JobAction";
-import JobInvoicePayment from "@/components/job/jobDetail/Invoice-payment/JobInvoicePayment";
-import JobVariationManager from "@/components/job/jobDetail/Variation/JobVariationManager";
-import SystemRoutes from "@lib/constants/Routes";
-import { Result, Tabs } from "antd";
-import router from "next/router";
-import { JobCommission } from "@/components/job/jobDetail/comission/JobCommission";
-import JobDetailHeader from "@/components/job/jobDetail/JobDetailHeader";
-import JobCustomFields from "@/components/job/jobDetail/JobCustomFields";
-import { JobActivity } from "@/components/job/jobDetail/activity/jobActivity";
+import StageProgress from '@/components/common/StageProgress';
+import WorkflowSteps from '@/components/common/WorkflowSteps';
+import JobAction from '@/components/job/jobDetail/JobAction';
+import JobInvoicePayment from '@/components/job/jobDetail/Invoice-payment/JobInvoicePayment';
+import JobVariationManager from '@/components/job/jobDetail/Variation/JobVariationManager';
+import SystemRoutes from '@lib/constants/Routes';
+import { Result, Tabs } from 'antd';
+import router from 'next/router';
+import { JobCommission } from '@/components/job/jobDetail/comission/JobCommission';
+import JobDetailHeader from '@/components/job/jobDetail/JobDetailHeader';
+import JobCustomFields from '@/components/job/jobDetail/JobCustomFields';
+import { JobActivity } from '@/components/job/jobDetail/activity/jobActivity';
+import { useState } from 'react';
+import { ActionDialogmodel, FormField } from '@/components/common/Models/ActionDialogModel';
+import ConstructionModelFields from '@/components/formFields/constructionModel';
 const { TabPane } = Tabs;
+
+// cosnt initialValues = {
+
+// }
 
 const JobVariationData = [
   {
-    ReferenceID: "MYH00486-V1",
+    ReferenceID: 'MYH00486-V1',
     Amount: 7000.0,
-    RequestedBy: "Aman",
-    DelayedBy: "Hiren",
-    DrawingChanges: "Yes",
-    Created: { user: "MM", date: "1/1/2002" },
-    Approved: { user: "MM", date: "1/1/2002" },
-    Status: "Approved",
-    Invoice: "invoice",
-    Profile: "MM",
+    RequestedBy: 'Aman',
+    DelayedBy: 'Hiren',
+    DrawingChanges: 'Yes',
+    Created: { user: 'MM', date: '1/1/2002' },
+    Approved: { user: 'MM', date: '1/1/2002' },
+    Status: 'Approved',
+    Invoice: 'invoice',
+    Profile: 'MM',
   },
   {
-    ReferenceID: "MYH00486-V2",
+    ReferenceID: 'MYH00486-V2',
     Amount: 7000.0,
-    RequestedBy: "Aman",
-    DelayedBy: "Hiren",
-    DrawingChanges: "No",
-    Created: { user: "MM", date: "1/1/2002" },
-    Approved: { user: "MM", date: "1/1/2002" },
-    Status: "Approved",
-    Invoice: "invoice",
-    Profile: "A",
+    RequestedBy: 'Aman',
+    DelayedBy: 'Hiren',
+    DrawingChanges: 'No',
+    Created: { user: 'MM', date: '1/1/2002' },
+    Approved: { user: 'MM', date: '1/1/2002' },
+    Status: 'Approved',
+    Invoice: 'invoice',
+    Profile: 'A',
   },
   {
-    ReferenceID: "MYH00486-V3",
+    ReferenceID: 'MYH00486-V3',
     Amount: 7000.0,
-    RequestedBy: "Aman",
-    DelayedBy: "Hiren",
-    DrawingChanges: "Yes",
-    Created: { user: "MM", date: "1/1/2002" },
-    Approved: { user: "MM", date: "1/1/2002" },
-    Status: "Draft",
-    Invoice: "invoice",
-    Profile: "A",
+    RequestedBy: 'Aman',
+    DelayedBy: 'Hiren',
+    DrawingChanges: 'Yes',
+    Created: { user: 'MM', date: '1/1/2002' },
+    Approved: { user: 'MM', date: '1/1/2002' },
+    Status: 'Draft',
+    Invoice: 'invoice',
+    Profile: 'A',
   },
 ];
 
 export default function JobDetail() {
   const { id } = router.query;
+  const [isConstructionModelOpen, setConstructionModelOpen] = useState(false);
+  const [constructionReady, setConstructionReady] = useState(false);
   const workFlowSteps = [
     {
-      key: "Sales",
-      label: "Sales",
-      status: "Closed",
-      color: "bg-green-600",
-      icon: "MM",
-      date: "12/03/2025",
+      key: 'Sales',
+      label: 'Sales',
+      status: 'Closed',
+      color: 'bg-green-600',
+      icon: 'MM',
+      date: '12/03/2025',
       onClick: () => router.push(`${SystemRoutes.LEADS}/${id}`),
     },
     {
-      key: "preconstruction",
-      label: "Preconstruction",
-      status: "Completed",
-      color: "bg-green-300",
-      icon: "2",
-      date: "12/03/2025",
+      key: 'preconstruction',
+      label: 'Preconstruction',
+      status: 'Completed',
+      color: 'bg-green-300',
+      icon: '2',
+      date: '12/03/2025',
       onClick: () => {
         router.push(`/${SystemRoutes.JOB_PRECONSTRUCTION}/${id}`);
       },
     },
     {
-      key: "Color",
-      label: "Color",
-      status: "Started",
-      color: "bg-cyan-500",
-      icon: "MM",
-      date: "12/03/2025",
+      key: 'Color',
+      label: 'Color',
+      status: 'Started',
+      color: 'bg-cyan-500',
+      icon: 'MM',
+      date: '12/03/2025',
       onClick: () => {
         router.push(`/${SystemRoutes.JOB}/colour/${id}`);
       },
     },
     {
-      key: "Construction",
-      label: "Construction",
-      status: "Under Construction",
-      color: "bg-cyan-300",
-      icon: "4",
-      date: "",
-      onClick: () => {},
+      key: 'Construction',
+      label: 'Construction',
+      status: 'Under Construction',
+      color: 'bg-cyan-300',
+      icon: '4',
+      date: '',
+      onClick: () => {
+        constructionReady
+          ? router.push(`/${SystemRoutes.CONSTRUCTION}/${id}`)
+          : setConstructionModelOpen(true);
+      },
     },
     {
-      key: "Maintenance",
-      label: "Maintenance",
-      status: "",
-      color: "bg-gray-200",
-      icon: "5",
-      date: "",
+      key: 'Maintenance',
+      label: 'Maintenance',
+      status: '',
+      color: 'bg-gray-200',
+      icon: '5',
+      date: '',
       onClick: () => {},
     },
   ];
-
+  function handleSubmit(values) {
+    setConstructionReady(true);
+    setConstructionModelOpen(false);
+    console.log('constructionmodel', values);
+  }
   return (
     <>
       <div className="m-3">
@@ -120,7 +137,7 @@ export default function JobDetail() {
         <Tabs
           defaultActiveKey="action"
           type="card"
-          tabBarStyle={{ margin: "0px", marginRight: "10px" }}
+          tabBarStyle={{ margin: '0px', marginRight: '10px' }}
           tabBarGutter={10}
           size="large"
         >
@@ -153,6 +170,15 @@ export default function JobDetail() {
           </TabPane>
         </Tabs>
       </div>
+      <ActionDialogmodel
+        title="Ready for Construction"
+        open={isConstructionModelOpen}
+        onCancel={() => {
+          setConstructionModelOpen(false);
+        }}
+        onSubmit={handleSubmit}
+        fields={ConstructionModelFields()}
+      ></ActionDialogmodel>
     </>
   );
 }
