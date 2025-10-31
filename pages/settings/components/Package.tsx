@@ -1,16 +1,21 @@
-import React, { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import { Empty, Spin } from "antd";
-import { createPackage, fetchPackages, updatePackage, deletePackage } from "@redux/feature/package/packageThunk";
-import { Status } from "@lib/constants/enum";
-import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
-import { packageFields } from "@/components/formFields/packageFields";
-import { RootState } from "@redux/feature/store";
-import { PackageItem } from "@/components/package/PackageItem";
-import { Package as IPackage } from "@redux/feature/package/IPackageState";
-import { message } from "antd";
-import AddMasterPricingItemModal from "@/components/common/Models/AddMasterPricingItemModel";
-import { setAddInstItemModal } from "@redux/feature/package/packageSlice";
+import React, { useEffect, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { Empty, Spin } from 'antd';
+import {
+  createPackage,
+  fetchPackages,
+  updatePackage,
+  deletePackage,
+} from '@redux/feature/package/packageThunk';
+import { Status } from '@lib/constants/enum';
+import { CreateFormModal } from '@/components/common/Models/CreateFormModel';
+import { packageFields } from '@/components/formFields/packageFields';
+import { RootState } from '@redux/feature/store';
+import { PackageItem } from '@/components/package/PackageItem';
+import { Package as IPackage } from '@redux/feature/package/IPackageState';
+import { message } from 'antd';
+import AddMasterPricingItemModal from '@/components/common/Models/AddMasterPricingItemModel';
+import { setAddInstItemModal } from '@redux/feature/package/packageSlice';
 
 const Package = () => {
   const dispatch = useAppDispatch();
@@ -20,14 +25,14 @@ const Package = () => {
   const { addInstItemModal } = useAppSelector((state: RootState) => state.package);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingPackage, setEditingPackage] = useState<IPackage | null>(null);
-  const [formValues, setFormValues] = useState<{range?: string; dwelling?: string}>({}); // For Diabling Select of items based on range and dwelling type
+  const [formValues, setFormValues] = useState<{ range?: string; dwelling?: string }>({}); // For Diabling Select of items based on range and dwelling type
 
   useEffect(() => {
     if (getAllStatus === Status.IDLE) {
       dispatch(fetchPackages(undefined)).unwrap();
     }
   }, [dispatch, getAllStatus]);
-  
+
   const handleOpenModal = () => {
     setFormValues({});
     setEditingPackage(null);
@@ -38,8 +43,12 @@ const Package = () => {
     // const { range, dwelling, ...payload } = values; //Removed range and dwelling from payload
     try {
       if (editingPackage) {
-        const categoryId = values.categoryItemIds?.map((item: any) => item.value ? item.value : item);
-        await dispatch(updatePackage({ id: editingPackage.packageId, ...values, categoryItemIds: categoryId })).unwrap();
+        const categoryId = values.categoryItemIds?.map((item: any) =>
+          item.value ? item.value : item
+        );
+        await dispatch(
+          updatePackage({ id: editingPackage.packageId, ...values, categoryItemIds: categoryId })
+        ).unwrap();
         message.success('Package updated successfully');
       } else {
         await dispatch(createPackage(values)).unwrap();
@@ -48,7 +57,7 @@ const Package = () => {
       setIsModalVisible(false);
       setEditingPackage(null);
     } catch (error) {
-      console.error("Error saving package:", error);
+      console.error('Error saving package:', error);
       message.error(error || 'Failed to save package');
     }
   };
@@ -59,9 +68,9 @@ const Package = () => {
       categoryItemIds: pkg.categoryItems?.map(item => {
         return {
           label: item.desc,
-          value: item.id
+          value: item.id,
         };
-      })
+      }),
     };
     // Set the selected values for range and dwelling when editing
     if (pkg.range && pkg.dwelling) {
@@ -80,7 +89,7 @@ const Package = () => {
       await dispatch(deletePackage(packageId)).unwrap();
       message.success('Package deleted successfully');
     } catch (error) {
-      console.error("Error deleting package:", error);
+      console.error('Error deleting package:', error);
       message.error(error?.response?.data?.message || 'Failed to delete package');
     }
   };
@@ -96,9 +105,11 @@ const Package = () => {
 
     if (!packages || packages.length === 0) {
       return (
-        <Empty 
+        <Empty
           description={
-            <span className="text-gray-500">No packages found. Create your first package to get started.</span>
+            <span className="text-gray-500">
+              No packages found. Create your first package to get started.
+            </span>
           }
           className="py-12"
         />
@@ -107,15 +118,15 @@ const Package = () => {
 
     return (
       <div className="space-y-4">
-        {packages?.map((pkg) => (
-          <PackageItem 
-            key={pkg.packageId} 
-            pkg={pkg} 
+        {packages?.map(pkg => (
+          <PackageItem
+            key={pkg.packageId}
+            pkg={pkg}
             onEdit={handleEditPackage}
             onDelete={handleDeletePackage}
             isDeleting={itemStatus === Status.PENDING}
           />
-        ))} 
+        ))}
       </div>
     );
   };
@@ -132,9 +143,9 @@ const Package = () => {
           Add
         </button>
       </div>
-      
+
       {renderContent()}
-      
+
       <CreateFormModal
         title={editingPackage ? 'Package' : 'New Package'}
         open={isModalVisible}
@@ -165,15 +176,17 @@ const Package = () => {
           } else {
             setFormValues(allValues);
           }
-        }} 
+        }}
       />
 
-      {addInstItemModal && <AddMasterPricingItemModal
-        open={addInstItemModal}
-        onClose={() => dispatch(setAddInstItemModal(false))}
-        preselectedRange={formValues?.range}
-        preselectedDwelling={formValues?.dwelling}
-      />}
+      {addInstItemModal && (
+        <AddMasterPricingItemModal
+          open={addInstItemModal}
+          onClose={() => dispatch(setAddInstItemModal(false))}
+          preselectedRange={formValues?.range}
+          preselectedDwelling={formValues?.dwelling}
+        />
+      )}
     </div>
   );
 };

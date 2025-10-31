@@ -1,18 +1,7 @@
-import React from "react";
-import {
-  Card,
-  Typography,
-  Button,
-  Space,
-  Input,
-  Switch,
-  Upload,
-  Form,
-  Radio,
-  Select,
-} from "antd";
-import { IconPlus } from "@tabler/icons-react";
-import { useUsersHook } from "@hooks/useUserData";
+import React from 'react';
+import { Card, Typography, Button, Space, Input, Switch, Upload, Form, Radio, Select } from 'antd';
+import { IconPlus } from '@tabler/icons-react';
+import { useUsersHook } from '@hooks/useUserData';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -46,12 +35,12 @@ export const TemplateColorItemCard: React.FC<TemplateColorItemCardProps> = ({
   const { users } = useUsersHook();
   return (
     <div className="space-y-4">
-      {items.map((item) => (
-        <Card key={item.id} className="mb-4" bodyStyle={{ padding: "16px" }}>
+      {items.map(item => (
+        <Card key={item.id} className="mb-4" bodyStyle={{ padding: '16px' }}>
           <div className="flex items-start gap-4">
             <div className="w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
               <img
-                src={item.image || "/images/placeholder.png"}
+                src={item.image || '/images/placeholder.png'}
                 alt={item.name}
                 className="w-full h-full object-cover"
               />
@@ -69,7 +58,7 @@ export const TemplateColorItemCard: React.FC<TemplateColorItemCardProps> = ({
                     ) : (
                       <Select
                         placeholder="Select Supplier"
-                        options={users.map((user) => ({
+                        options={users.map(user => ({
                           value: user.usersId,
                           label: user.name,
                         }))}
@@ -82,10 +71,8 @@ export const TemplateColorItemCard: React.FC<TemplateColorItemCardProps> = ({
                   <Text className="text-sm block">Item Code</Text>
                   <Input
                     placeholder=""
-                    value={item.itemCode || ""}
-                    onChange={(e) =>
-                      onUpdateItem(item.id, "itemCode", e.target.value)
-                    }
+                    value={item.itemCode || ''}
+                    onChange={e => onUpdateItem(item.id, 'itemCode', e.target.value)}
                     className="mt-2 border-0 border-b border-gray-300 rounded-none focus:ring-0 text-sm"
                   />
                 </div>
@@ -94,10 +81,8 @@ export const TemplateColorItemCard: React.FC<TemplateColorItemCardProps> = ({
                   <Text className="text-sm block">Units</Text>
                   <Input
                     placeholder=""
-                    value={item.units || ""}
-                    onChange={(e) =>
-                      onUpdateItem(item.id, "units", e.target.value)
-                    }
+                    value={item.units || ''}
+                    onChange={e => onUpdateItem(item.id, 'units', e.target.value)}
                     className="mt-2 border-0 border-b border-gray-300 rounded-none focus:ring-0 text-sm"
                   />
                 </div>
@@ -107,10 +92,8 @@ export const TemplateColorItemCard: React.FC<TemplateColorItemCardProps> = ({
                 <div>
                   <Text className="text-sm block">Description</Text>
                   <TextArea
-                    value={item.description || ""}
-                    onChange={(e) =>
-                      onUpdateItem(item.id, "description", e.target.value)
-                    }
+                    value={item.description || ''}
+                    onChange={e => onUpdateItem(item.id, 'description', e.target.value)}
                     placeholder=""
                     autoSize={{ minRows: 1, maxRows: 1 }}
                     className="mt-2 border-0 border-b border-gray-300 rounded-none focus:ring-0 text-sm"
@@ -120,10 +103,8 @@ export const TemplateColorItemCard: React.FC<TemplateColorItemCardProps> = ({
                 <div>
                   <Text className="text-sm block">Features</Text>
                   <TextArea
-                    value={item.features || ""}
-                    onChange={(e) =>
-                      onUpdateItem(item.id, "features", e.target.value)
-                    }
+                    value={item.features || ''}
+                    onChange={e => onUpdateItem(item.id, 'features', e.target.value)}
                     placeholder=""
                     autoSize={{ minRows: 1, maxRows: 1 }}
                     className="mt-2 border-0 border-b border-gray-300 rounded-none focus:ring-0 text-sm"
@@ -145,7 +126,7 @@ export const TemplateColorItemCard: React.FC<TemplateColorItemCardProps> = ({
           </div>
         </Card>
       ))}
-      <Card className="mb-4" bodyStyle={{ padding: "16px" }}>
+      <Card className="mb-4" bodyStyle={{ padding: '16px' }}>
         <Form>
           <Title level={4} className="!mb-2 text-base">
             {templateName}

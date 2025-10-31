@@ -1,5 +1,5 @@
-import React from "react";
-import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
+import React from 'react';
+import { Tab, TabList, TabPanel, Tabs } from 'react-tabs';
 import {
   IconFileTypeDoc,
   IconFileTypePdf,
@@ -8,7 +8,7 @@ import {
   IconUserFilled,
   IconUsersGroup,
   IconX,
-} from "@tabler/icons-react";
+} from '@tabler/icons-react';
 import {
   avatar1,
   avatar2,
@@ -19,9 +19,9 @@ import {
   avatar7,
   avatar8,
   project_team,
-} from "/public/images";
-import Link from "next/link";
-import Image from "next/image";
+} from '/public/images';
+import Link from 'next/link';
+import Image from 'next/image';
 
 export default function NewProject({
   newProjectSidebar,
@@ -34,15 +34,11 @@ export default function NewProject({
     <>
       <div
         className={`fixed top-0 bg-card-color z-[5] h-svh w-full max-w-[500px] transition-all duration-200 ${
-          newProjectSidebar
-            ? "ltr:left-0 rtl:right-0"
-            : "ltr:-left-full rtl:-right-full"
+          newProjectSidebar ? 'ltr:left-0 rtl:right-0' : 'ltr:-left-full rtl:-right-full'
         }`}
       >
         <div className="md:px-6 px-4 md:py-4 py-3 flex items-center justify-between gap-15 border-b border-border-color">
-          <div className="text-[20px]/[30px] font-medium">
-            Setup New Project
-          </div>
+          <div className="text-[20px]/[30px] font-medium">Setup New Project</div>
           <button onClick={toggleNewProject}>
             <IconX />
           </button>
@@ -79,11 +75,8 @@ export default function NewProject({
               <TabPanel>
                 <h6 className="font-semibold mb-1">Project Type</h6>
                 <p className="small text-font-color-100 mb-4">
-                  If you need more info, please check out{" "}
-                  <Link
-                    href="#"
-                    className="text-primary transition-all hover:text-secondary"
-                  >
+                  If you need more info, please check out{' '}
+                  <Link href="#" className="text-primary transition-all hover:text-secondary">
                     FAQ Page
                   </Link>
                 </p>
@@ -93,8 +86,7 @@ export default function NewProject({
                     <span className="flex flex-col text-left gap-1">
                       <span className="font-medium">Personal Project</span>
                       <span className="text-font-color-100">
-                        For smaller business, with simple salaries and pay
-                        schedules.
+                        For smaller business, with simple salaries and pay schedules.
                       </span>
                     </span>
                   </button>
@@ -103,16 +95,14 @@ export default function NewProject({
                     <span className="flex flex-col text-left gap-1">
                       <span className="font-medium">Team Project</span>
                       <span className="text-font-color-100">
-                        For growing business who wants to create a rewarding
-                        place to work.
+                        For growing business who wants to create a rewarding place to work.
                       </span>
                     </span>
                   </button>
                 </div>
                 <h6 className="font-semibold mb-1">Project Details</h6>
                 <p className="small text-font-color-100 mb-4">
-                  It is a long established fact that a reader will be distracted
-                  by luno.
+                  It is a long established fact that a reader will be distracted by luno.
                 </p>
                 <div className="floating-form-control mb-10">
                   <select className="form-select">
@@ -156,28 +146,14 @@ export default function NewProject({
                   <p className="text-font-color-100">Allow Notifications *</p>
                   <div className="flex gap-4">
                     <div className="form-check">
-                      <input
-                        type="checkbox"
-                        id="phoneNoti"
-                        className="form-check-input"
-                      />
-                      <label
-                        className="form-check-label !text-[16px]/[24px]"
-                        htmlFor="phoneNoti"
-                      >
+                      <input type="checkbox" id="phoneNoti" className="form-check-input" />
+                      <label className="form-check-label !text-[16px]/[24px]" htmlFor="phoneNoti">
                         Phone
                       </label>
                     </div>
                     <div className="form-check">
-                      <input
-                        type="checkbox"
-                        id="emailNoti"
-                        className="form-check-input"
-                      />
-                      <label
-                        className="form-check-label !text-[16px]/[24px]"
-                        htmlFor="emailNoti"
-                      >
+                      <input type="checkbox" id="emailNoti" className="form-check-input" />
+                      <label className="form-check-label !text-[16px]/[24px]" htmlFor="emailNoti">
                         Email
                       </label>
                     </div>
@@ -192,11 +168,8 @@ export default function NewProject({
               <TabPanel>
                 <h6 className="font-semibold mb-1">Build a Team</h6>
                 <p className="small text-font-color-100 mb-4">
-                  If you need more info, please check out{" "}
-                  <Link
-                    href="#"
-                    className="text-primary transition-all hover:text-secondary"
-                  >
+                  If you need more info, please check out{' '}
+                  <Link href="#" className="text-primary transition-all hover:text-secondary">
                     Project Guidelines
                   </Link>
                 </p>
@@ -213,11 +186,7 @@ export default function NewProject({
                 </div>
                 <h6 className="font-semibold mb-1">Team Members</h6>
                 <div className="form-check form-switch mb-6">
-                  <input
-                    type="checkbox"
-                    id="addUserByTeam"
-                    className="form-check-input"
-                  />
+                  <input type="checkbox" id="addUserByTeam" className="form-check-input" />
                   <label
                     className="form-check-label !text-[16px]/[24px] text-font-color-100"
                     htmlFor="addUserByTeam"
@@ -325,9 +294,7 @@ export default function NewProject({
                     <div className="flex items-center gap-2 justify-between w-full truncate">
                       <div className="truncate">
                         <p className="truncate">Chris Fox</p>
-                        <p className="text-[14px]/[20px] text-font-color-100 truncate">
-                          Designer
-                        </p>
+                        <p className="text-[14px]/[20px] text-font-color-100 truncate">Designer</p>
                       </div>
                       <select className="form-select cursor-pointer rounded-full bg-card-color py-[6px] ps-15 pe-30 text-[14px]/[20px] appearance-none border border-border-color focus:outline-0 focus:border-primary">
                         <option defaultValue="">Owner</option>
@@ -369,9 +336,7 @@ export default function NewProject({
                     <div className="flex items-center gap-2 justify-between w-full truncate">
                       <div className="truncate">
                         <p className="truncate">Chris Fox</p>
-                        <p className="text-[14px]/[20px] text-font-color-100 truncate">
-                          QA
-                        </p>
+                        <p className="text-[14px]/[20px] text-font-color-100 truncate">QA</p>
                       </div>
                       <select className="form-select cursor-pointer rounded-full bg-card-color py-[6px] ps-15 pe-30 text-[14px]/[20px] appearance-none border border-border-color focus:outline-0 focus:border-primary">
                         <option defaultValue="">Owner</option>
@@ -415,10 +380,7 @@ export default function NewProject({
                   <label className="form-label small text-font-color-100">
                     Upload up to 10 files
                   </label>
-                  <input
-                    className="form-input !p-0 cursor-pointer"
-                    type="file"
-                  />
+                  <input className="form-input !p-0 cursor-pointer" type="file" />
                 </div>
                 <p className="mb-2">Already Uploaded File</p>
                 <ul className="md:-mx-6 -mx-4 mb-6">
@@ -473,19 +435,12 @@ export default function NewProject({
                   If you need more info, please check how to create project
                 </p>
                 <div className="my-12 flex flex-wrap items-stretch gap-2 justify-center">
-                  <button className="btn bg-body-color uppercase large">
-                    Create New Project
-                  </button>
+                  <button className="btn bg-body-color uppercase large">Create New Project</button>
                   <button className="btn bg-secondary text-white uppercase large">
                     View Project
                   </button>
                 </div>
-                <Image
-                  src={project_team}
-                  alt="Project Team"
-                  width="787"
-                  height="428"
-                />
+                <Image src={project_team} alt="Project Team" width="787" height="428" />
               </TabPanel>
             </div>
           </Tabs>

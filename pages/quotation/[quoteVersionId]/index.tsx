@@ -1,10 +1,8 @@
-import React from 'react'
-import QuotationManager from '@/components/quotation/QuotationManager'
+import React from 'react';
+import QuotationManager from '@/components/quotation/QuotationManager';
 
 const index = () => {
-  return (
-    <QuotationManager />
-  )
-}
+  return <QuotationManager />;
+};
 
-export default index
+export default index;

@@ -1,6 +1,6 @@
-import React from "react";
-import { Button, Space } from "antd";
-import { IconCheck, IconEye, IconPencil, IconX, IconDeviceFloppy } from "@tabler/icons-react";
+import React from 'react';
+import { Button, Space } from 'antd';
+import { IconCheck, IconEye, IconPencil, IconX, IconDeviceFloppy } from '@tabler/icons-react';
 
 interface FooterActionsProps {
   expiryDate?: string;
@@ -27,74 +27,69 @@ const FooterActions: React.FC<FooterActionsProps> = ({
   onPreview,
   loading,
   previewLoading,
-  disableAction
+  disableAction,
 }) => {
   return (
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Space>
-            {quoteVersionId ? (
-              isEditMode ? (
-                <>
-                  <Button
-                    type="primary"
-                    icon={<IconDeviceFloppy size={16} />}
-                    onClick={onSave}
-                    loading={loading}
-                    disabled={disableAction}
-                  >
-                    Save Changes
-                  </Button>
-                  <Button
-                    icon={<IconX size={16} />}
-                    onClick={onCancel}
-                    disabled={loading}
-                  >
-                    Cancel
-                  </Button>
-                </>
-              ) : (
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-4">
+        <Space>
+          {quoteVersionId ? (
+            isEditMode ? (
+              <>
                 <Button
                   type="primary"
-                  icon={<IconPencil size={16} />}
-                  onClick={onEdit}
+                  icon={<IconDeviceFloppy size={16} />}
+                  onClick={onSave}
+                  loading={loading}
                   disabled={disableAction}
                 >
-                  Modify Quotation
+                  Save Changes
                 </Button>
-              )
+                <Button icon={<IconX size={16} />} onClick={onCancel} disabled={loading}>
+                  Cancel
+                </Button>
+              </>
             ) : (
               <Button
                 type="primary"
-                icon={<IconCheck size={16} />}
-                onClick={onSave}
-                loading={loading}
+                icon={<IconPencil size={16} />}
+                onClick={onEdit}
                 disabled={disableAction}
               >
-                Create Quotation
+                Modify Quotation
               </Button>
-            )}
-            <Button 
-              icon={<IconEye size={16} />} 
-              onClick={onPreview} 
-              disabled={(disableAction && !isEditMode) || previewLoading} 
-              loading={previewLoading}
+            )
+          ) : (
+            <Button
+              type="primary"
+              icon={<IconCheck size={16} />}
+              onClick={onSave}
+              loading={loading}
+              disabled={disableAction}
             >
-              Preview
+              Create Quotation
             </Button>
-          </Space>
-        </div>
+          )}
+          <Button
+            icon={<IconEye size={16} />}
+            onClick={onPreview}
+            disabled={(disableAction && !isEditMode) || previewLoading}
+            loading={previewLoading}
+          >
+            Preview
+          </Button>
+        </Space>
+      </div>
 
-        <div className="flex items-center gap-8">
-          {/* <div className="text-sm">
+      <div className="flex items-center gap-8">
+        {/* <div className="text-sm">
             Expiry date: <span className="font-medium">{expiryDate}</span>
           </div> */}
-          <div className="text-2xl font-bold">
-            Total:{" "}
-            <span className="text-green-600">${total.toLocaleString()}</span>
-          </div>
+        <div className="text-2xl font-bold">
+          Total: <span className="text-green-600">${total.toLocaleString()}</span>
         </div>
       </div>
+    </div>
   );
 };
 

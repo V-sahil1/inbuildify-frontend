@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { Modal, Button, Input, Form, Typography, message } from "antd";
-import { useRouter } from "next/router";
-import { useAppDispatch } from "@hooks/redux";
-import { convertLeadToOpportunityThunk } from "@redux/feature/lead/leadThunk";
+import React, { useState } from 'react';
+import { Modal, Button, Input, Form, Typography, message } from 'antd';
+import { useRouter } from 'next/router';
+import { useAppDispatch } from '@hooks/redux';
+import { convertLeadToOpportunityThunk } from '@redux/feature/lead/leadThunk';
 
 const { TextArea } = Input;
 const { Text } = Typography;
@@ -13,11 +13,7 @@ interface ConvertLeadModalProps {
   leadId: string;
 }
 
-const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
-  visible,
-  onCancel,
-  leadId,
-}) => {
+const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({ visible, onCancel, leadId }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -27,7 +23,7 @@ const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
       setLoading(true);
       const res = await dispatch(convertLeadToOpportunityThunk(leadId)).unwrap();
       if (res.leadId) {
-        message.success("Lead converted to opportunity successfully");
+        message.success('Lead converted to opportunity successfully');
       }
       // const currentQuery = { ...router.query };
       // currentQuery.type = "opportunity";
@@ -39,7 +35,7 @@ const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
       onCancel();
     } catch (error) {
       message.error(`Failed to convert lead to opportunity ${error}`);
-      console.error("Error converting lead:", error);
+      console.error('Error converting lead:', error);
     } finally {
       setLoading(false);
     }
@@ -55,12 +51,7 @@ const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
         <Button key="cancel" onClick={onCancel} disabled={loading}>
           Cancel
         </Button>,
-        <Button
-          key="convert"
-          type="primary"
-          onClick={handleConvert}
-          loading={loading}
-        >
+        <Button key="convert" type="primary" onClick={handleConvert} loading={loading}>
           Yes, Convert
         </Button>,
       ]}
@@ -72,7 +63,7 @@ const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
           rules={[
             {
               max: 1000,
-              message: "Notes cannot exceed 1000 characters",
+              message: 'Notes cannot exceed 1000 characters',
             },
           ]}
         >
@@ -81,12 +72,11 @@ const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
             placeholder="Add any notes about this conversion (max 1000 characters)"
             maxLength={1000}
             showCount
-            style={{resize:'none'}}
+            style={{ resize: 'none' }}
           />
         </Form.Item>
         <Text type="secondary">
-          This action will convert the lead to an opportunity and cannot be
-          undone.
+          This action will convert the lead to an opportunity and cannot be undone.
         </Text>
       </Form>
     </Modal>

@@ -1,16 +1,16 @@
-import { Form, Modal, Select, Input, Row, Col, message } from "antd";
-import { useCountryHook } from "@hooks/useLocationHook";
-import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import { getStatesByCountryIdThunk } from "@redux/feature/location/locationThunk";
+import { Form, Modal, Select, Input, Row, Col, message } from 'antd';
+import { useCountryHook } from '@hooks/useLocationHook';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { getStatesByCountryIdThunk } from '@redux/feature/location/locationThunk';
 
 export const JobPrivateInspectionModal = ({ open, onCancel }) => {
   const [form] = Form.useForm();
   const { countries } = useCountryHook();
-  const { states } = useAppSelector((state) => state.location);
+  const { states } = useAppSelector(state => state.location);
   const dispatch = useAppDispatch();
 
-  const onFinish = (values) => {
-    console.log("Received values of form (Submit Successful):", values);
+  const onFinish = values => {
+    console.log('Received values of form (Submit Successful):', values);
     onCancel();
   };
 
@@ -18,7 +18,7 @@ export const JobPrivateInspectionModal = ({ open, onCancel }) => {
     try {
       await dispatch(getStatesByCountryIdThunk(value));
     } catch (error) {
-      message.error(error || "Failed to fetch states");
+      message.error(error || 'Failed to fetch states');
     }
   };
 
@@ -32,18 +32,13 @@ export const JobPrivateInspectionModal = ({ open, onCancel }) => {
       centered
       width={900}
     >
-      <Form
-        layout="vertical"
-        onFinish={onFinish}
-        form={form}
-        style={{ marginTop: 20 }}
-      >
+      <Form layout="vertical" onFinish={onFinish} form={form} style={{ marginTop: 20 }}>
         <Row gutter={24}>
           <Col span={8}>
             <Form.Item
               name="contactName"
               label="Contact Name"
-              rules={[{ required: true, message: "Contact Name is required" }]}
+              rules={[{ required: true, message: 'Contact Name is required' }]}
             >
               <Input />
             </Form.Item>
@@ -58,8 +53,8 @@ export const JobPrivateInspectionModal = ({ open, onCancel }) => {
               name="email"
               label="Email"
               rules={[
-                { required: true, message: "Email is required" },
-                { type: "email", message: "Please enter a valid email" },
+                { required: true, message: 'Email is required' },
+                { type: 'email', message: 'Please enter a valid email' },
               ]}
             >
               <Input />
@@ -76,10 +71,10 @@ export const JobPrivateInspectionModal = ({ open, onCancel }) => {
           <Col span={8}>
             <Form.Item name="country" label="Country">
               <Select
-                onChange={(value) => {
+                onChange={value => {
                   handleCountryChange(value);
                 }}
-                options={countries?.map((country) => ({
+                options={countries?.map(country => ({
                   value: country.countryId,
                   label: country.name,
                 }))}
@@ -89,7 +84,7 @@ export const JobPrivateInspectionModal = ({ open, onCancel }) => {
           <Col span={8}>
             <Form.Item name="stateRegion" label="State / Region">
               <Select
-                options={states.map((state) => ({
+                options={states.map(state => ({
                   value: state.stateId,
                   label: state.name,
                 }))}
@@ -136,8 +131,7 @@ export const JobPrivateInspectionModal = ({ open, onCancel }) => {
       </Form>
 
       <p className="text-red-500">
-        Please update Construction Type to select Private Inspection applicable
-        stages
+        Please update Construction Type to select Private Inspection applicable stages
       </p>
     </Modal>
   );

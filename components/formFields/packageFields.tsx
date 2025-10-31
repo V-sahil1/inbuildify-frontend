@@ -1,25 +1,28 @@
-import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
-import { CreateFormField } from "../common/Models/CreateFormModel";
-import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import { useEffect, useState } from "react";
-import { RootState } from "@redux/feature/store";
-import { Status } from "@lib/constants/enum";
-import { fetchPackageItems } from "@redux/feature/package/packageThunk";
-import { Item } from "@redux/feature/masterPriceList/iMasterPriceListState";
-import { setAddInstItemModal } from "@redux/feature/package/packageSlice";
-import NoDataMessage from "../common/NoDataMessage";
-import SystemRoutes from "@lib/constants/Routes";
-import { costRules, settingNameRules } from "@lib/constants/formInputValidations";
+import { enumArrayToOptions } from '@lib/utils/enumArrayToOptionsConvert';
+import { CreateFormField } from '../common/Models/CreateFormModel';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { useEffect, useState } from 'react';
+import { RootState } from '@redux/feature/store';
+import { Status } from '@lib/constants/enum';
+import { fetchPackageItems } from '@redux/feature/package/packageThunk';
+import { Item } from '@redux/feature/masterPriceList/iMasterPriceListState';
+import { setAddInstItemModal } from '@redux/feature/package/packageSlice';
+import NoDataMessage from '../common/NoDataMessage';
+import SystemRoutes from '@lib/constants/Routes';
+import { costRules, settingNameRules } from '@lib/constants/formInputValidations';
 
-export const packageFields = ( selectedValues?: { range?: string; dwelling?: string }): CreateFormField[] => {
-  const {range , dwellingType} = useAppSelector((state) => state.types);
+export const packageFields = (selectedValues?: {
+  range?: string;
+  dwelling?: string;
+}): CreateFormField[] => {
+  const { range, dwellingType } = useAppSelector(state => state.types);
   const items = useAppSelector((state: RootState) => state.package.items);
   const dispatch = useAppDispatch();
 
   function mapToAntdOptions(items: Item[]) {
     return items?.map(item => ({
-      label: item.description,   // what to display
-      value: item.categoryItemId // what to capture
+      label: item.description, // what to display
+      value: item.categoryItemId, // what to capture
     }));
   }
 
@@ -27,73 +30,72 @@ export const packageFields = ( selectedValues?: { range?: string; dwelling?: str
   useEffect(() => {
     if (selectedValues?.range && selectedValues?.dwelling) {
       try {
-        dispatch(fetchPackageItems({range: selectedValues.range,dwellingType: selectedValues.dwelling,})
+        dispatch(
+          fetchPackageItems({ range: selectedValues.range, dwellingType: selectedValues.dwelling })
         );
       } catch (error) {
-        console.error("🚀 ~ packageFields ~ error:", error)
+        console.error('🚀 ~ packageFields ~ error:', error);
       }
     }
   }, [selectedValues?.range, selectedValues?.dwelling, dispatch]);
 
   const handleAddItem = () => {
     dispatch(setAddInstItemModal(true));
-  }
+  };
 
-  const rangeOptions = range?.map((range) => ({
+  const rangeOptions = range?.map(range => ({
     label: range?.name,
     value: range?.name,
   }));
-  const dwellingTypeOptions = dwellingType?.map((dwellingType) => ({
+  const dwellingTypeOptions = dwellingType?.map(dwellingType => ({
     label: dwellingType?.name,
     value: dwellingType?.name,
   }));
 
   return [
     {
-      label: "Name",
-      name: "name",
-      type: "text",
-      placeholder: "Package Name",
+      label: 'Name',
+      name: 'name',
+      type: 'text',
+      placeholder: 'Package Name',
       rules: settingNameRules,
     },
     {
-      label: "Range",
-      name: "range",
-      type: "select",
+      label: 'Range',
+      name: 'range',
+      type: 'select',
       options: rangeOptions,
-      notFoundContent: (
-        <NoDataMessage label="range" link={SystemRoutes.DWELLING_AND_RANGE} />
-      ),
-      placeholder: "Select Range",
+      notFoundContent: <NoDataMessage label="range" link={SystemRoutes.DWELLING_AND_RANGE} />,
+      placeholder: 'Select Range',
     },
     {
-      label: "Dwelling Type",
-      name: "dwelling",
-      type: "select",
+      label: 'Dwelling Type',
+      name: 'dwelling',
+      type: 'select',
       options: dwellingTypeOptions,
       notFoundContent: (
         <NoDataMessage label="dwelling type" link={SystemRoutes.DWELLING_AND_RANGE} />
       ),
-      placeholder: "Select Dwelling Type",
+      placeholder: 'Select Dwelling Type',
     },
     {
-      label: "Items",
-      name: "categoryItemIds",
-      type: "select",
-      mode:"multiple",
+      label: 'Items',
+      name: 'categoryItemIds',
+      type: 'select',
+      mode: 'multiple',
       options: options,
-      placeholder: "Select Items",
-      rules: [{ required: true, message: "Please select a range" }],
-      button:"Add Item",
+      placeholder: 'Select Items',
+      rules: [{ required: true, message: 'Please select a range' }],
+      button: 'Add Item',
       disableButton: !selectedValues?.range || !selectedValues?.dwelling,
       disabled: !selectedValues?.range || !selectedValues?.dwelling,
       onClick: handleAddItem,
     },
     {
-      label: "Total Amount",
-      name: "amount",
-      type: "number",
-      placeholder: "3200",
+      label: 'Total Amount',
+      name: 'amount',
+      type: 'number',
+      placeholder: '3200',
       rules: [...costRules],
     },
   ];

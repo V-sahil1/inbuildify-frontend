@@ -1,17 +1,14 @@
-
-import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import { Status } from "@lib/constants/enum";
-import { fetchCategories } from "@redux/feature/masterPriceList/masterPriceListThunk";
-import { RootState } from "@redux/feature/store";
-import { IconPlus } from "@tabler/icons-react"
-import { Button, Drawer, message } from "antd"
-import { useEffect } from "react";
-import PriceListItemPanel from "../PricelistItemPanel";
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { Status } from '@lib/constants/enum';
+import { fetchCategories } from '@redux/feature/masterPriceList/masterPriceListThunk';
+import { RootState } from '@redux/feature/store';
+import { IconPlus } from '@tabler/icons-react';
+import { Button, Drawer, message } from 'antd';
+import { useEffect } from 'react';
+import PriceListItemPanel from '../PricelistItemPanel';
 
 const PriceListDrawer = ({ title, open, onClose }) => {
-  const { categories, status } = useAppSelector(
-    (state: RootState) => state.masterPriceList
-  );
+  const { categories, status } = useAppSelector((state: RootState) => state.masterPriceList);
   const { items } = useAppSelector((state: RootState) => state.quotation);
   const dispatch = useAppDispatch();
 
@@ -19,9 +16,9 @@ const PriceListDrawer = ({ title, open, onClose }) => {
     const fetchCategoriesData = async () => {
       try {
         const res = await dispatch(fetchCategories()).unwrap();
-        console.log("response", res);
+        console.log('response', res);
       } catch (e) {
-        message.error(e || "Failed to fetch categories");
+        message.error(e || 'Failed to fetch categories');
       }
     };
     if (status === Status.IDLE) {
@@ -35,21 +32,28 @@ const PriceListDrawer = ({ title, open, onClose }) => {
         <div className="flex justify-between mb-3">
           <div className="flex gap-2">
             <Button>Show All</Button>
-            <Button>Selected Items <div className="rounded-full w-6 h-6 text-center"> {(items?.length ?? 0)}</div></Button>
-            <div className="flex"> <Button className="rounded-none">Extra <div className="rounded-full w-6 h-6 text-center">0</div></Button>
-              <Button className="rounded-none"><IconPlus size={15} /></Button></div>
+            <Button>
+              Selected Items{' '}
+              <div className="rounded-full w-6 h-6 text-center"> {items?.length ?? 0}</div>
+            </Button>
+            <div className="flex">
+              {' '}
+              <Button className="rounded-none">
+                Extra <div className="rounded-full w-6 h-6 text-center">0</div>
+              </Button>
+              <Button className="rounded-none">
+                <IconPlus size={15} />
+              </Button>
+            </div>
           </div>
           <p>House Price: $35,000</p>
         </div>
         <div>
-          <PriceListItemPanel
-            categories={categories}
-            itemsLoading={false}
-          />
+          <PriceListItemPanel categories={categories} itemsLoading={false} />
         </div>
       </div>
     </Drawer>
-  )
-}
+  );
+};
 
-export default PriceListDrawer
+export default PriceListDrawer;

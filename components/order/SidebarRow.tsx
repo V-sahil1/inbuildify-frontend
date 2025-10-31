@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 
 export function SidebarRow({
   label,
@@ -22,11 +22,7 @@ export function SidebarRow({
   }, [value]);
   return (
     <div className="flex justify-between gap-1 w-full">
-      <span
-        className={`${
-          isHighLightedText ? " font-bold" : "text-font-color-100"
-        }  w-1/2`}
-      >
+      <span className={`${isHighLightedText ? ' font-bold' : 'text-font-color-100'}  w-1/2`}>
         {label}
       </span>
 
@@ -39,10 +35,10 @@ export function SidebarRow({
           ref={textRef}
           className={
             isHighLightedText
-              ? "block truncate border-t font-bold cursor-default"
-              : "block truncate text-font-color-100  cursor-default"
+              ? 'block truncate border-t font-bold cursor-default'
+              : 'block truncate text-font-color-100  cursor-default'
           }
-          style={{ width: "max-content" }}
+          style={{ width: 'max-content' }}
         >
           {value}
         </span>
@@ -55,19 +51,19 @@ export function SidebarRow({
               exit={{ opacity: 0, scale: 0.95, y: 8 }}
               transition={{ duration: 0.2 }}
               style={{
-                position: "absolute",
-                top: "-30px",
-                right: "0",
-                width: "max-content",
-                maxWidth: "20rem",
-                backgroundColor: "black",
-                color: "white",
-                fontSize: "12px",
-                padding: "0.3rem 0.7rem",
-                borderRadius: "0.5rem",
-                boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                position: 'absolute',
+                top: '-30px',
+                right: '0',
+                width: 'max-content',
+                maxWidth: '20rem',
+                backgroundColor: 'black',
+                color: 'white',
+                fontSize: '12px',
+                padding: '0.3rem 0.7rem',
+                borderRadius: '0.5rem',
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
                 zIndex: 10,
-                pointerEvents: "none",
+                pointerEvents: 'none',
               }}
             >
               {value}

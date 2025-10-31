@@ -1,40 +1,22 @@
-import React, { useState } from "react";
-import {
-  Card,
-  Col,
-  Row,
-  Table,
-  Tag,
-  Button,
-  Space,
-  Dropdown,
-  message,
-  Modal,
-} from "antd";
-import {
-  IconDots,
-  IconFileInvoice,
-  IconPlus,
-  IconReceipt2,
-  IconWallet,
-} from "@tabler/icons-react";
-import { InvoiceForm } from "./InvoiceForm";
-import InvoicePdf from "@/components/common/Invoicepdf";
-import { usePdf } from "@hooks/usePdf";
-import InvoiceReceiptPdf from "@/components/common/InvoiceReceiptPdf";
-import StatusTracker, { Stage } from "@/components/common/StatusTracker";
-import { JobinvoiceData } from "data/sampleData";
-import { ActionDialogmodel } from "@/components/common/Models/ActionDialogModel";
-
+import React, { useState } from 'react';
+import { Card, Col, Row, Table, Tag, Button, Space, Dropdown, message, Modal } from 'antd';
+import { IconDots, IconFileInvoice, IconPlus, IconReceipt2, IconWallet } from '@tabler/icons-react';
+import { InvoiceForm } from './InvoiceForm';
+import InvoicePdf from '@/components/common/Invoicepdf';
+import { usePdf } from '@hooks/usePdf';
+import InvoiceReceiptPdf from '@/components/common/InvoiceReceiptPdf';
+import StatusTracker, { Stage } from '@/components/common/StatusTracker';
+import { JobinvoiceData } from 'data/sampleData';
+import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 
 const summaryData = [
-  { title: "Total Cost", value: 450280.0, icon: <IconWallet /> },
-  { title: "Invoice Generated", value: 35600.45, icon: <IconFileInvoice /> },
-  { title: "Payment Received", value: -45000.0, icon: <IconReceipt2 /> },
+  { title: 'Total Cost', value: 450280.0, icon: <IconWallet /> },
+  { title: 'Invoice Generated', value: 35600.45, icon: <IconFileInvoice /> },
+  { title: 'Payment Received', value: -45000.0, icon: <IconReceipt2 /> },
 ];
 
 const JobInvoicePayment: React.FC = () => {
-  const [formMode, setFormMode] = useState<"create" | "edit" | null>(null);
+  const [formMode, setFormMode] = useState<'create' | 'edit' | null>(null);
   const [editingRecord, setEditingRecord] = useState<any>(null);
   const [isContractDetailsModalVisible, setIsContractDetailsModalVisible] = useState<boolean>();
   const [showContractNotice, setShowContractNotice] = useState(true);
@@ -42,98 +24,91 @@ const JobInvoicePayment: React.FC = () => {
   const invoicePdf = usePdf(InvoicePdf);
   const invoiceReceiptPdf = usePdf(InvoiceReceiptPdf);
   const statusColors: Record<string, string> = {
-    OVERDUE: "red",
-    DRAFT: "default",
-    PAID: "green",
+    OVERDUE: 'red',
+    DRAFT: 'default',
+    PAID: 'green',
   };
-  const handleFinish = (values: any, mode: "create" | "edit") => {
-    if (mode === "create") {
-      setInvoices([
-        ...invoices,
-        { id: `MYH00${invoices.length + 1}`, ...values, status: "DRAFT" },
-      ]);
-      message.success("Invoice created!");
+  const handleFinish = (values: any, mode: 'create' | 'edit') => {
+    if (mode === 'create') {
+      setInvoices([...invoices, { id: `MYH00${invoices.length + 1}`, ...values, status: 'DRAFT' }]);
+      message.success('Invoice created!');
     } else {
-      setInvoices(
-        invoices.map((inv) =>
-          inv.id === editingRecord.id ? { ...inv, ...values } : inv
-        )
-      );
-      message.success("Invoice updated!");
+      setInvoices(invoices.map(inv => (inv.id === editingRecord.id ? { ...inv, ...values } : inv)));
+      message.success('Invoice updated!');
     }
     setFormMode(null);
     setEditingRecord(null);
   };
 
   const handleDelete = (record: any) => {
-    setInvoices(invoices.filter((inv) => inv.id !== record.id));
-    message.success("Invoice deleted!");
-  }
+    setInvoices(invoices.filter(inv => inv.id !== record.id));
+    message.success('Invoice deleted!');
+  };
   const handleContractDetails = () => {
     setIsContractDetailsModalVisible(true);
-  }
+  };
 
   const handleResendInvoice = (record: any) => {
-    message.success("Resend invoice!");
-  }
+    message.success('Resend invoice!');
+  };
 
   const handleSendReceipt = (record: any) => {
-    message.success("Send Receipt!");
-  }
+    message.success('Send Receipt!');
+  };
 
   const handleSyncToXero = (record: any) => {
-    message.success("Synk To Xero!");
-  }
+    message.success('Synk To Xero!');
+  };
 
   const [stages, setStages] = useState<Stage[]>([
     {
       id: 1,
-      title: "Create Invoice",
-      status: "active",
+      title: 'Create Invoice',
+      status: 'active',
       buttons: [
         {
-          label: "Edit Invoice",
-          type: "primary",
+          label: 'Edit Invoice',
+          type: 'primary',
           onClick: () => handleStageClick(2),
         },
       ],
     },
     {
       id: 2,
-      title: "Send Invoice",
-      status: "disabled",
+      title: 'Send Invoice',
+      status: 'disabled',
       buttons: [
         {
-          label: "Send",
-          type: "primary",
+          label: 'Send',
+          type: 'primary',
           onClick: () => handleStageClick(3),
         },
         {
-          label: "Skip Sending",
+          label: 'Skip Sending',
           onClick: () => handleStageClick(3),
         },
       ],
     },
     {
       id: 3,
-      title: "Record Payment",
-      status: "disabled",
+      title: 'Record Payment',
+      status: 'disabled',
       buttons: [
         {
-          label: "Record Payment",
-          type: "primary",
+          label: 'Record Payment',
+          type: 'primary',
           onClick: () => handleStageClick(4),
         },
       ],
     },
     {
       id: 4,
-      title: "Send Receipt",
-      status: "disabled",
+      title: 'Send Receipt',
+      status: 'disabled',
       buttons: [
         {
-          label: "Send Receipt",
-          type: "primary",
+          label: 'Send Receipt',
+          type: 'primary',
           onClick: () => handleStageClick(5),
         },
       ],
@@ -141,122 +116,116 @@ const JobInvoicePayment: React.FC = () => {
   ]);
 
   const handleStageClick = (clickedId: number) => {
-    setStages((prevStages) =>
-      prevStages.map((stage) => {
-        if (stage.status === "completed") return stage;
+    setStages(prevStages =>
+      prevStages.map(stage => {
+        if (stage.status === 'completed') return stage;
 
-        if (stage.id < clickedId) return { ...stage, status: "completed" };
-        if (stage.id === clickedId) return { ...stage, status: "active" };
-        return { ...stage, status: "disabled" };
+        if (stage.id < clickedId) return { ...stage, status: 'completed' };
+        if (stage.id === clickedId) return { ...stage, status: 'active' };
+        return { ...stage, status: 'disabled' };
       })
     );
   };
 
   const columns = [
-    { title: "Invoice ID", dataIndex: "id" },
-    { title: "Description", dataIndex: "desc" },
+    { title: 'Invoice ID', dataIndex: 'id' },
+    { title: 'Description', dataIndex: 'desc' },
     {
-      title: "Invoice ($)",
-      dataIndex: "amount",
+      title: 'Invoice ($)',
+      dataIndex: 'amount',
       render: (val: number, record: any) => (
         <Space direction="vertical" size={0}>
-          <span>{typeof val === "number" ? val.toFixed(2) : "—"}</span>
+          <span>{typeof val === 'number' ? val.toFixed(2) : '—'}</span>
           <Tag>{record.date}</Tag>
         </Space>
       ),
     },
     {
-      title: "Payment ($)",
-      dataIndex: "payment",
+      title: 'Payment ($)',
+      dataIndex: 'payment',
       render: (val: number, record: any) => (
         <Space direction="vertical" size={0}>
-          <span>{typeof val === "number" ? val.toFixed(2) : "—"}</span>
+          <span>{typeof val === 'number' ? val.toFixed(2) : '—'}</span>
           {val !== 0 && <Tag>{record.date}</Tag>}
         </Space>
       ),
     },
     {
-      title: "Status",
-      dataIndex: "status",
-      render: (status: string) => (
-        <Tag color={statusColors[status]}>{status}</Tag>
-      ),
+      title: 'Status',
+      dataIndex: 'status',
+      render: (status: string) => <Tag color={statusColors[status]}>{status}</Tag>,
     },
     {
-      title: "Modify",
+      title: 'Modify',
       render: (_: any, record: any) => {
-        const isPaid = record.status === "PAID";
+        const isPaid = record.status === 'PAID';
         const menuItems = isPaid
           ? [
-            {
-              key: "edit",
-              label: "Edit",
-              onClick: () => {
-                setFormMode("edit");
-                setEditingRecord(record);
+              {
+                key: 'edit',
+                label: 'Edit',
+                onClick: () => {
+                  setFormMode('edit');
+                  setEditingRecord(record);
+                },
               },
-            },
-            {
-              key: "delete",
-              label: "Delete",
-              onClick: () => handleDelete(record),
-            },
-            {
-              key: "PreviewInvoice",
-              label: "Preview Invoice",
-              onClick: invoicePdf.previewPdf,
-            },
-            {
-              key: "PreviewReceipt",
-              label: "Preview Receipt",
-              onClick: invoiceReceiptPdf.previewPdf,
-            },
-            {
-              key: "ResendInvoice",
-              label: "Reset Invoice",
-              onClick: () => handleResendInvoice(record),
-            },
-            {
-              key: "SendReceipt",
-              label: "Send Receipt",
-              onClick: () => handleSendReceipt(record),
-            },
-            {
-              key: "SyncToXero",
-              label: "Sync To Xero",
-              onClick: () => handleSyncToXero(record),
-            },
-          ]
+              {
+                key: 'delete',
+                label: 'Delete',
+                onClick: () => handleDelete(record),
+              },
+              {
+                key: 'PreviewInvoice',
+                label: 'Preview Invoice',
+                onClick: invoicePdf.previewPdf,
+              },
+              {
+                key: 'PreviewReceipt',
+                label: 'Preview Receipt',
+                onClick: invoiceReceiptPdf.previewPdf,
+              },
+              {
+                key: 'ResendInvoice',
+                label: 'Reset Invoice',
+                onClick: () => handleResendInvoice(record),
+              },
+              {
+                key: 'SendReceipt',
+                label: 'Send Receipt',
+                onClick: () => handleSendReceipt(record),
+              },
+              {
+                key: 'SyncToXero',
+                label: 'Sync To Xero',
+                onClick: () => handleSyncToXero(record),
+              },
+            ]
           : [
-            {
-              key: "delete",
-              label: "Delete",
-              onClick: () => handleDelete(record),
-            },
-          ];
+              {
+                key: 'delete',
+                label: 'Delete',
+                onClick: () => handleDelete(record),
+              },
+            ];
 
         return (
-          <Dropdown
-            menu={{ items: menuItems }}
-            trigger={["click"]}
-          >
+          <Dropdown menu={{ items: menuItems }} trigger={['click']}>
             <Button type="text" icon={<IconDots size={18} />} />
           </Dropdown>
         );
       },
-    }
-
+    },
   ];
 
   return (
     <Card>
       <Row gutter={[16, 16]} align="middle">
-        {summaryData.map((s) => (
+        {summaryData.map(s => (
           <Col xs={24} sm={12} md={8} lg={6} key={s.title}>
             <Card
               style={{
-                background: "linear-gradient(180deg, var(--card-color), var(--primary-10))",
-                border: "none",
+                background: 'linear-gradient(180deg, var(--card-color), var(--primary-10))',
+                border: 'none',
               }}
             >
               <Space direction="vertical" size="small">
@@ -275,7 +244,7 @@ const JobInvoicePayment: React.FC = () => {
           <Card
             className="border border-dashed flex cursor-pointer items-center justify-center bg-body-color hover:border hover:border-primary hover:text-primary transition duration-150"
             onClick={() => {
-              setFormMode("create");
+              setFormMode('create');
               setEditingRecord(null);
             }}
           >
@@ -294,12 +263,12 @@ const JobInvoicePayment: React.FC = () => {
               className="text-blue underline cursor-pointer"
               onClick={() => {
                 setIsContractDetailsModalVisible(true);
-
               }}
             >
               click here
             </a>
-            &nbsp;to provide the dates. Note: On providing the date, stage payment invoices will be created.
+            &nbsp;to provide the dates. Note: On providing the date, stage payment invoices will be
+            created.
           </span>
         </Row>
       )}
@@ -311,15 +280,10 @@ const JobInvoicePayment: React.FC = () => {
             className="shadow-sm border border-gray-100"
             bodyStyle={{ padding: 16 }}
           >
-            <Table
-              dataSource={invoices}
-              columns={columns}
-              pagination={false}
-              rowKey="id"
-            />
+            <Table dataSource={invoices} columns={columns} pagination={false} rowKey="id" />
           </Card>
         </Col>
-{/* //show this component when new invoice in successfully created according to selected options the table view is also getting changed*/}
+        {/* //show this component when new invoice in successfully created according to selected options the table view is also getting changed*/}
         <Col xs={24} md={10} lg={10}>
           <Card
             title="Invoice Workflow"
@@ -327,9 +291,9 @@ const JobInvoicePayment: React.FC = () => {
             bodyStyle={{ padding: 16 }}
           >
             <StatusTracker
-              stages={stages.map((stage) => ({
+              stages={stages.map(stage => ({
                 ...stage,
-                buttons: stage.status === "disabled" ? [] : stage.buttons,
+                buttons: stage.status === 'disabled' ? [] : stage.buttons,
               }))}
             />
           </Card>
@@ -338,7 +302,7 @@ const JobInvoicePayment: React.FC = () => {
 
       {/* Invoice Modal */}
       <Modal
-        title={formMode === "edit" ? "Edit Invoice" : "Create Invoice"}
+        title={formMode === 'edit' ? 'Edit Invoice' : 'Create Invoice'}
         open={formMode !== null}
         onCancel={() => setFormMode(null)}
         footer={null}
@@ -346,7 +310,7 @@ const JobInvoicePayment: React.FC = () => {
         {formMode && (
           <InvoiceForm
             mode={formMode}
-            initialValues={formMode === "edit" ? editingRecord : undefined}
+            initialValues={formMode === 'edit' ? editingRecord : undefined}
             onFinish={handleFinish}
           />
         )}
@@ -358,27 +322,26 @@ const JobInvoicePayment: React.FC = () => {
         isEditing={true}
         fields={[
           {
-            name: "prepareddate",
-            label: "Prepared date",
-            type: "date" as const,
-            extra: ''
+            name: 'prepareddate',
+            label: 'Prepared date',
+            type: 'date' as const,
+            extra: '',
           },
           {
-            name: "signeddate",
-            label: "Signed date",
-            type: "date" as const,
+            name: 'signeddate',
+            label: 'Signed date',
+            type: 'date' as const,
           },
         ]}
         onSubmit={() => {
           setIsContractDetailsModalVisible(false);
-          message.success("Contract details saved successfully!");
+          message.success('Contract details saved successfully!');
           setShowContractNotice(false);
         }}
         submitButtonText="Confirm"
       />
     </Card>
   );
-
 };
 
 export default JobInvoicePayment;

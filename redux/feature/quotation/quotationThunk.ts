@@ -1,19 +1,23 @@
-import { createAsyncThunk } from "@reduxjs/toolkit";
-import { ApiResponse } from "../auth/IAuthState";
-import API_ENDPOINTS from "@lib/constants/apiEndpoints";
-import api from "@lib/constants/api";
-import { QuotationItemPayload, QuotationResponse } from "./IQuotationState";
+import { createAsyncThunk } from '@reduxjs/toolkit';
+import { ApiResponse } from '../auth/IAuthState';
+import API_ENDPOINTS from '@lib/constants/apiEndpoints';
+import api from '@lib/constants/api';
+import { QuotationItemPayload, QuotationResponse } from './IQuotationState';
 
 export const createQuotation = createAsyncThunk(
-  "quotation/create",
-  async (payload: {quoteId?: string , quotationPayload: QuotationItemPayload}, { rejectWithValue }) => {
+  'quotation/create',
+  async (
+    payload: { quoteId?: string; quotationPayload: QuotationItemPayload },
+    { rejectWithValue }
+  ) => {
     try {
-      const {quoteId, quotationPayload} = payload;
-      const apiEndpoint = quoteId ? API_ENDPOINTS.QUOTATION_BASE + "/" + quoteId + "/version" : API_ENDPOINTS.QUOTATION_BASE;
-      const res = await api.post<ApiResponse<QuotationResponse>>(
-        apiEndpoint,
-        { data: quotationPayload }
-      );
+      const { quoteId, quotationPayload } = payload;
+      const apiEndpoint = quoteId
+        ? API_ENDPOINTS.QUOTATION_BASE + '/' + quoteId + '/version'
+        : API_ENDPOINTS.QUOTATION_BASE;
+      const res = await api.post<ApiResponse<QuotationResponse>>(apiEndpoint, {
+        data: quotationPayload,
+      });
       return res.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -22,11 +26,11 @@ export const createQuotation = createAsyncThunk(
 );
 
 export const getQuotationById = createAsyncThunk(
-  "quotation/getById",
+  'quotation/getById',
   async (id: string, { rejectWithValue }) => {
     try {
       const res = await api.get<ApiResponse<QuotationResponse>>(
-        API_ENDPOINTS.QUOTATION_BASE + "/" + id
+        API_ENDPOINTS.QUOTATION_BASE + '/' + id
       );
       return res.data;
     } catch (error) {
@@ -36,11 +40,11 @@ export const getQuotationById = createAsyncThunk(
 );
 
 export const getQuotationVersionById = createAsyncThunk(
-  "quotation/getVersionById",
+  'quotation/getVersionById',
   async (id: string, { rejectWithValue }) => {
     try {
       const res = await api.get<ApiResponse<QuotationResponse>>(
-        API_ENDPOINTS.QUOTATION_VERSION + "/" + id
+        API_ENDPOINTS.QUOTATION_VERSION + '/' + id
       );
       return res.data;
     } catch (error) {
@@ -50,10 +54,10 @@ export const getQuotationVersionById = createAsyncThunk(
 );
 
 export const deleteQuotation = createAsyncThunk(
-  "lead/deleteQuotation",
+  'lead/deleteQuotation',
   async (quotationId: string, { rejectWithValue }) => {
     try {
-       await api.delete<ApiResponse>(`${API_ENDPOINTS.QUOTATION_BASE}/${quotationId}`);
+      await api.delete<ApiResponse>(`${API_ENDPOINTS.QUOTATION_BASE}/${quotationId}`);
       return quotationId;
     } catch (error) {
       return rejectWithValue(error.message);

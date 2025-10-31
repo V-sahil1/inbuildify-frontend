@@ -1,47 +1,47 @@
-import React, { useState } from "react";
-import { Button, Table, Form, Select, Space, Typography, message } from "antd";
-import { IconCheck, IconEdit, IconPlus, IconX } from "@tabler/icons-react";
-import { useUsersHook } from "@hooks/useUserData";
+import React, { useState } from 'react';
+import { Button, Table, Form, Select, Space, Typography, message } from 'antd';
+import { IconCheck, IconEdit, IconPlus, IconX } from '@tabler/icons-react';
+import { useUsersHook } from '@hooks/useUserData';
 import {
   RoleAndMappingData,
   RoleMapping,
   rolesOfRoleMapping,
   typeOptionsOfRoleMapping,
-} from "data/configuration/ConfigrationData";
+} from 'data/configuration/ConfigrationData';
 
 const { Title, Text } = Typography;
 
 const RoleAndUser: React.FC = () => {
   const [form] = Form.useForm();
   const [data, setData] = useState<RoleMapping[]>(RoleAndMappingData);
-  const [editingKey, setEditingKey] = useState<string | number>("");
-  const [taskManager, setTaskManager] = useState("Murthy Muthuswamy");
+  const [editingKey, setEditingKey] = useState<string | number>('');
+  const [taskManager, setTaskManager] = useState('Murthy Muthuswamy');
   const { users } = useUsersHook();
 
   const isEditing = (record: RoleMapping) => record.id === editingKey;
 
   const handleAdd = () => {
     if (editingKey) {
-      message.warning("Please save or cancel the current edit first.");
+      message.warning('Please save or cancel the current edit first.');
       return;
     }
 
     const newKey = Date.now();
     const newRow: RoleMapping = {
       id: newKey,
-      type: "--",
+      type: '--',
       role: rolesOfRoleMapping[0],
       user: users[0]?.name,
     };
 
-    setData((prev) => [newRow, ...prev]);
+    setData(prev => [newRow, ...prev]);
     setEditingKey(newKey);
     form.setFieldsValue(newRow);
   };
 
   const handleEdit = (record: RoleMapping) => {
     if (editingKey) {
-      message.warning("Please save or cancel the current edit first.");
+      message.warning('Please save or cancel the current edit first.');
       return;
     }
     setEditingKey(record.id);
@@ -53,7 +53,7 @@ const RoleAndUser: React.FC = () => {
       const row = (await form.validateFields()) as RoleMapping;
 
       const newData = [...data];
-      const index = newData.findIndex((item) => key === item.id);
+      const index = newData.findIndex(item => key === item.id);
 
       if (index > -1) {
         const item = newData[index];
@@ -64,85 +64,80 @@ const RoleAndUser: React.FC = () => {
         });
 
         setData(newData);
-        setEditingKey("");
+        setEditingKey('');
         message.success(
           item?.isNew
-            ? "New role mapping added successfully."
-            : "Role mapping updated successfully."
+            ? 'New role mapping added successfully.'
+            : 'Role mapping updated successfully.'
         );
       } else {
         newData.push(row);
         setData(newData);
-        setEditingKey("");
+        setEditingKey('');
       }
     } catch (errInfo) {
-      console.error("Validate Failed:", errInfo);
+      console.error('Validate Failed:', errInfo);
     }
   };
 
   const handleCancel = () => {
-    const item = data.find((i) => i.id === editingKey);
+    const item = data.find(i => i.id === editingKey);
     if (item && item.isNew) {
-      setData(data.filter((i) => i.id !== editingKey));
+      setData(data.filter(i => i.id !== editingKey));
     }
-    setEditingKey("");
+    setEditingKey('');
     form.resetFields();
   };
 
   const columns = [
     {
-      title: "S.No",
-      dataIndex: "id",
+      title: 'S.No',
+      dataIndex: 'id',
       width: 70,
       render: (_, __, index) => index + 1,
     },
     {
-      title: "Type",
-      dataIndex: "type",
+      title: 'Type',
+      dataIndex: 'type',
       onCell: (record: RoleMapping) => ({
         record,
         editing: isEditing(record),
-        dataIndex: "type",
-        title: "Type",
+        dataIndex: 'type',
+        title: 'Type',
         inputOptions: typeOptionsOfRoleMapping,
       }),
-      render: (text) => text || "--",
+      render: text => text || '--',
     },
     {
-      title: "Role",
-      dataIndex: "role",
+      title: 'Role',
+      dataIndex: 'role',
       onCell: (record: RoleMapping) => ({
         record,
         editing: isEditing(record),
-        dataIndex: "role",
-        title: "Role",
-        inputOptions: rolesOfRoleMapping.map((r) => ({ label: r, value: r })),
+        dataIndex: 'role',
+        title: 'Role',
+        inputOptions: rolesOfRoleMapping.map(r => ({ label: r, value: r })),
       }),
     },
     {
-      title: "User",
-      dataIndex: "user",
+      title: 'User',
+      dataIndex: 'user',
       onCell: (record: RoleMapping) => ({
         record,
         editing: isEditing(record),
-        dataIndex: "user",
-        title: "User",
-        inputOptions: users?.map((u) => ({ label: u.name, value: u.name })),
+        dataIndex: 'user',
+        title: 'User',
+        inputOptions: users?.map(u => ({ label: u.name, value: u.name })),
       }),
     },
     {
       title: (
-        <Button
-          type="primary"
-          icon={<IconPlus />}
-          onClick={handleAdd}
-          disabled={!!editingKey}
-        >
+        <Button type="primary" icon={<IconPlus />} onClick={handleAdd} disabled={!!editingKey}>
           New
         </Button>
       ),
-      key: "actions",
-      align: "right" as const,
+      key: 'actions',
+      align: 'right' as const,
       width: 100,
       render: (_: any, record: RoleMapping) => {
         const editing = isEditing(record);
@@ -154,12 +149,7 @@ const RoleAndUser: React.FC = () => {
               size="small"
               onClick={() => handleSave(record.id)}
             />
-            <Button
-              icon={<IconX />}
-              danger
-              size="small"
-              onClick={handleCancel}
-            />
+            <Button icon={<IconX />} danger size="small" onClick={handleCancel} />
           </Space>
         ) : (
           <Button
@@ -185,14 +175,14 @@ const RoleAndUser: React.FC = () => {
               Task Manager
             </Title>
             <Text type="secondary">
-              Task Manager will be mapped as assigned user in case any user not
-              mapped or mapped user is inactive.
+              Task Manager will be mapped as assigned user in case any user not mapped or mapped
+              user is inactive.
             </Text>
           </div>
           <div className="w-full md:w-1/2">
             <Select
               onChange={setTaskManager}
-              options={users?.map((u) => ({ label: u.name, value: u.usersId }))}
+              options={users?.map(u => ({ label: u.name, value: u.usersId }))}
               className="w-full"
               placeholder="Select a Task Manager"
             />
@@ -206,7 +196,7 @@ const RoleAndUser: React.FC = () => {
         <Form form={form} component={false}>
           <Table
             dataSource={data}
-            columns={columns.map((col) => {
+            columns={columns.map(col => {
               if (!col.onCell) {
                 return col;
               }
@@ -217,17 +207,17 @@ const RoleAndUser: React.FC = () => {
                   const editing = isEditing(record as RoleMapping);
                   if (editing) {
                     const inputOptions =
-                      col.dataIndex === "type"
+                      col.dataIndex === 'type'
                         ? typeOptionsOfRoleMapping
-                        : col.dataIndex === "role"
-                        ? rolesOfRoleMapping.map((r) => ({
-                            label: r,
-                            value: r,
-                          }))
-                        : users?.map((u) => ({
-                            label: u.name,
-                            value: u.usersId,
-                          }));
+                        : col.dataIndex === 'role'
+                          ? rolesOfRoleMapping.map(r => ({
+                              label: r,
+                              value: r,
+                            }))
+                          : users?.map(u => ({
+                              label: u.name,
+                              value: u.usersId,
+                            }));
 
                     return (
                       <Form.Item

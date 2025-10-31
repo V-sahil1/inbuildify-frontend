@@ -4,8 +4,15 @@ import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineA
 // import TimelineCard from '@/components/common/TimeLineComponents/TimelineCard';
 // import { handleSaveTimelineCard } from '@lib/utils/timelineCardUtils';
 import { Empty, MenuProps } from 'antd';
-import { ActionType, AppointmentDetails, NoteDetails, SmsDetails, TaskDetails, TimelineCardProps } from 'data/types';
-import React, { useState } from 'react'
+import {
+  ActionType,
+  AppointmentDetails,
+  NoteDetails,
+  SmsDetails,
+  TaskDetails,
+  TimelineCardProps,
+} from 'data/types';
+import React, { useState } from 'react';
 
 // const timeLineCardData: TimelineCardProps[] = [
 //     {
@@ -70,16 +77,16 @@ import React, { useState } from 'react'
 //     },
 // ];
 
-const actionItems: MenuProps["items"] = [
-  { key: "addNotes", label: "Add Notes" },
-  { key: "sendSms", label: "Send SMS" },
-  { key: "bookAppointment", label: "Book Appointment" },
-  { key: "createTask", label: "Create Task" },
+const actionItems: MenuProps['items'] = [
+  { key: 'addNotes', label: 'Add Notes' },
+  { key: 'sendSms', label: 'Send SMS' },
+  { key: 'bookAppointment', label: 'Book Appointment' },
+  { key: 'createTask', label: 'Create Task' },
 ];
 
 const JobAction = () => {
   const [cardsData, setCardsData] = useState<TimelineCardProps[]>([]);
-  const [activeTab, setActiveTab] = useState("All");
+  const [activeTab, setActiveTab] = useState('All');
   const [activeAction, setActiveAction] = useState<ActionType>(null);
   const [editingItem, setEditingItem] = useState<{
     item: TimelineCardProps;
@@ -87,26 +94,26 @@ const JobAction = () => {
   } | null>(null);
 
   const tabs: FilterOption[] = [
-    { type: "All", label: "All", count: cardsData.length },
+    { type: 'All', label: 'All', count: cardsData.length },
     {
-      type: "Notes",
-      label: "Notes",
-      count: cardsData.filter((i) => i.type === "NOTES").length,
+      type: 'Notes',
+      label: 'Notes',
+      count: cardsData.filter(i => i.type === 'NOTES').length,
     },
     {
-      type: "Sms",
-      label: "SMS",
-      count: cardsData.filter((i) => i.type === "SMS").length,
+      type: 'Sms',
+      label: 'SMS',
+      count: cardsData.filter(i => i.type === 'SMS').length,
     },
     {
-      type: "Appointments",
-      label: "Appointments",
-      count: cardsData.filter((i) => i.type === "APPOINTMENT").length,
+      type: 'Appointments',
+      label: 'Appointments',
+      count: cardsData.filter(i => i.type === 'APPOINTMENT').length,
     },
     {
-      type: "Tasks",
-      label: "Tasks",
-      count: cardsData.filter((i) => i.type === "TASK").length,
+      type: 'Tasks',
+      label: 'Tasks',
+      count: cardsData.filter(i => i.type === 'TASK').length,
     },
   ];
 
@@ -139,7 +146,7 @@ const JobAction = () => {
             activeTab={activeTab}
             onTabChange={handleTabChange}
             actionItems={actionItems}
-            onActionSelect={(key) => {
+            onActionSelect={key => {
               setActiveAction(key as ActionType);
               setEditingItem(null);
             }}
@@ -181,9 +188,7 @@ const JobAction = () => {
 
           <Empty
             description={
-              activeTab === "All"
-                ? "No data available"
-                : `No ${activeTab} available for this tab`
+              activeTab === 'All' ? 'No data available' : `No ${activeTab} available for this tab`
             }
           />
         </div>

@@ -1,25 +1,27 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import { message, Steps, Table, Typography } from "antd";
-import StageProgress from "@/components/common/StageProgress";
-import { jobWorkflowChecklistFields } from "@/components/formFields/jobWorkflowChecklistFields";
-import TimelineActionsBar,{FilterOption} from "@/components/common/TimeLineComponents/TimelineActionsBar";
-import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import { Status } from "@lib/constants/enum";
+'use client';
+import React, { useEffect, useState } from 'react';
+import { message, Steps, Table, Typography } from 'antd';
+import StageProgress from '@/components/common/StageProgress';
+import { jobWorkflowChecklistFields } from '@/components/formFields/jobWorkflowChecklistFields';
+import TimelineActionsBar, {
+  FilterOption,
+} from '@/components/common/TimeLineComponents/TimelineActionsBar';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { Status } from '@lib/constants/enum';
 import {
   fetchWorkflowProcess,
   fetchWorkflowProcessTasksForJob,
-} from "@redux/feature/workflow/workflowThunk";
-import router from "next/router";
-import { JobWorkFlowChecklist } from "data/types";
-import Loading from "@/components/common/Loading";
+} from '@redux/feature/workflow/workflowThunk';
+import router from 'next/router';
+import { JobWorkFlowChecklist } from 'data/types';
+import Loading from '@/components/common/Loading';
 const ClickableStep = ({ title, isCurrent, onClick }) => {
   return (
     <div
       onClick={onClick}
       style={{
-        cursor: "pointer",
-        fontWeight: isCurrent ? "bold" : "normal",
+        cursor: 'pointer',
+        fontWeight: isCurrent ? 'bold' : 'normal',
       }}
     >
       <h3>{title}</h3>
@@ -29,28 +31,24 @@ const ClickableStep = ({ title, isCurrent, onClick }) => {
 const index = () => {
   const { id } = router.query as { id: string };
   const [activeStep, setActiveStep] = useState(0);
-  const [activeTab, setActiveTab] = useState("Own");
+  const [activeTab, setActiveTab] = useState('Own');
   const [finishedSteps, setFinishedSteps] = useState<number[]>([]);
   const [workflowProcessTasks, setWorkflowProcessTasks] = useState([]);
   const [loading, setLoading] = useState(false);
-  const { workflowProcess, status } = useAppSelector((state) => state.workflow);
+  const { workflowProcess, status } = useAppSelector(state => state.workflow);
   const dispatch = useAppDispatch();
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
   };
 
   const handleUpdateRow = (updatedRecord: JobWorkFlowChecklist) => {
-    setWorkflowProcessTasks((prev) =>
-      prev.map((r) =>
-        r.actionId === updatedRecord.actionId ? updatedRecord : r
-      )
+    setWorkflowProcessTasks(prev =>
+      prev.map(r => (r.actionId === updatedRecord.actionId ? updatedRecord : r))
     );
   };
 
   const handleDeleteRow = (deleteRecord: JobWorkFlowChecklist) => {
-    setWorkflowProcessTasks((prev) =>
-      prev.filter((r) => r.actionId !== deleteRecord.actionId)
-    );
+    setWorkflowProcessTasks(prev => prev.filter(r => r.actionId !== deleteRecord.actionId));
   };
   const fetchWorkflow = async () => {
     try {
@@ -98,8 +96,8 @@ const index = () => {
   }, [currentStepId]);
 
   const tabs: FilterOption[] = [
-    { type: "Own", label: "Own", count: 5 },
-    { type: "All", label: "All", count: 12 },
+    { type: 'Own', label: 'Own', count: 5 },
+    { type: 'All', label: 'All', count: 12 },
   ];
 
   return (
@@ -131,14 +129,14 @@ const index = () => {
         </div>
       </div>
 
-        <div className="m-3">
-          <Steps current={activeStep} labelPlacement="vertical">
-            {workflowProcess.map((step, index) => {
-              const status = finishedSteps.includes(index)
-                ? "finish"
-                : index === activeStep
-                ? "process"
-                : "wait";
+      <div className="m-3">
+        <Steps current={activeStep} labelPlacement="vertical">
+          {workflowProcess.map((step, index) => {
+            const status = finishedSteps.includes(index)
+              ? 'finish'
+              : index === activeStep
+                ? 'process'
+                : 'wait';
 
             return (
               <Steps.Step
@@ -158,21 +156,19 @@ const index = () => {
       </div>
 
       <div>
-        <Typography.Title className="!text-lg m-10">
-          {currentStepTitle}
-        </Typography.Title>
+        <Typography.Title className="!text-lg m-10">{currentStepTitle}</Typography.Title>
         <div className="overflow-x-auto">
           {loading ? (
             <div className="flex justify-center items-center h-[200px]">
               <Loading type="primary" />
             </div>
           ) : (
-          <Table
-            dataSource={workflowProcessTasks}
-            columns={jobWorkflowChecklistFields(handleUpdateRow,handleDeleteRow)}
-            pagination={{ pageSize: 10 }}
-            rowKey="actionId"
-          />
+            <Table
+              dataSource={workflowProcessTasks}
+              columns={jobWorkflowChecklistFields(handleUpdateRow, handleDeleteRow)}
+              pagination={{ pageSize: 10 }}
+              rowKey="actionId"
+            />
           )}
         </div>
       </div>

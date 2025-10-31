@@ -1,4 +1,4 @@
-import { Status } from "@lib/constants/enum";
+import { Status } from '@lib/constants/enum';
 
 export interface SubCategory {
   colorSubCategoryId: string;
@@ -12,8 +12,8 @@ export interface SubCategory {
   updatedAt: string;
 }
 
-export interface ColorCategory { 
-  colorCategoryId: string; 
+export interface ColorCategory {
+  colorCategoryId: string;
   name: string;
   description: string;
   createdAt: string;

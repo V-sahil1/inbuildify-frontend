@@ -1,30 +1,28 @@
-"use client";
-import { Divider, message } from "antd";
-import { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "@hooks/redux";
+'use client';
+import { Divider, message } from 'antd';
+import { useEffect, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { getLeadSourcesThunk, updateLeadThunk } from '@redux/feature/lead/leadThunk';
+import { Status } from '@lib/constants/enum';
+import { RootState } from '@redux/feature/store';
+import LeadUpdateDetail from '../leadDetail/LeadUpdateDetail';
+import EditableField from './EditableField';
+import { notesRules, leadSourceRules } from '@lib/constants/formInputValidations';
+import { mapToOptions } from '@lib/utils/rangeAndDwellingObjToOptions';
+import { IconCirclePlus } from '@tabler/icons-react';
+import HouseLandPopover from '../common/HLPopover';
+import LeadSourceDetailsDrawer from '../common/LeadSourceDetailDrawer';
 import {
-  getLeadSourcesThunk,
-  updateLeadThunk,
-} from "@redux/feature/lead/leadThunk";
-import { Status } from "@lib/constants/enum";
-import { RootState } from "@redux/feature/store";
-import LeadUpdateDetail from "../leadDetail/LeadUpdateDetail";
-import EditableField from "./EditableField";
-import {
-  notesRules,
-  leadSourceRules,
-} from "@lib/constants/formInputValidations";
-import { mapToOptions } from "@lib/utils/rangeAndDwellingObjToOptions";
-import { IconCirclePlus } from "@tabler/icons-react";
-import HouseLandPopover from "../common/HLPopover";
-import LeadSourceDetailsDrawer from "../common/LeadSourceDetailDrawer";
-import { ClientTypeOptions, PurposeOptions, RatingOptions, RegionOptions, YesNoOptions } from "data/options";
+  ClientTypeOptions,
+  PurposeOptions,
+  RatingOptions,
+  RegionOptions,
+  YesNoOptions,
+} from 'data/options';
 
 export const LeadSource = () => {
   const dispatch = useAppDispatch();
-  const { leadDetail, leadSources } = useAppSelector(
-    (state: RootState) => state.lead
-  );
+  const { leadDetail, leadSources } = useAppSelector((state: RootState) => state.lead);
   const updateLeadStatusState = useAppSelector(
     (state: RootState) => state.lead.status.updateLeadSource
   );
@@ -46,15 +44,13 @@ export const LeadSource = () => {
     budgetHL: false,
   });
 
-  const getLeadSourceStatus = useAppSelector(
-    (state: RootState) => state.lead.status.leadSources
-  );
+  const getLeadSourceStatus = useAppSelector((state: RootState) => state.lead.status.leadSources);
 
   const LeadSourceOptions = mapToOptions(leadSources);
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isDrawerOpenwithAbnAcn, setIsDrawerOpenwithAbnAcn] = useState(false);
-  const [drawerTitle, setDrawerTitle] = useState("");
+  const [drawerTitle, setDrawerTitle] = useState('');
 
   useEffect(() => {
     async function fetchLeadSource() {
@@ -62,7 +58,7 @@ export const LeadSource = () => {
         try {
           await dispatch(getLeadSourcesThunk()).unwrap();
         } catch (error) {
-          message.error(error || "Failed to fetch lead sources");
+          message.error(error || 'Failed to fetch lead sources');
         }
       }
     }
@@ -70,8 +66,8 @@ export const LeadSource = () => {
   }, [getLeadSourceStatus, dispatch]);
 
   const handleSave = (values: any) => {
-    message.success("Field saved successfully!");
-    setIsLeadEditing((prev) => {
+    message.success('Field saved successfully!');
+    setIsLeadEditing(prev => {
       const reset: typeof prev = {} as typeof prev;
       for (const key in prev) reset[key] = false;
       return reset;
@@ -89,18 +85,16 @@ export const LeadSource = () => {
           },
         })
       ).unwrap();
-      message.success("Lead updated successfully");
-      setIsLeadEditing((prev) => ({
+      message.success('Lead updated successfully');
+      setIsLeadEditing(prev => ({
         ...prev,
         leadSource: false,
         notes: false,
       }));
     } catch (error) {
-      message.error(error || "Failed to update lead");
+      message.error(error || 'Failed to update lead');
     }
   };
-
-  
 
   const openDrawer = (title: string) => {
     setDrawerTitle(title);
@@ -110,7 +104,7 @@ export const LeadSource = () => {
     setDrawerTitle(title);
     setIsDrawerOpenwithAbnAcn(true);
   };
-  
+
   const closeDrawer = () => {
     setIsDrawerOpen(false);
     setIsDrawerOpenwithAbnAcn(false);
@@ -139,7 +133,7 @@ export const LeadSource = () => {
           setIsLeadEditing={setIsLeadEditing}
           loading={updateLeadStatusState === Status.PENDING}
           options={LeadSourceOptions}
-          initialValues={{ leadSource: leadDetail.lead?.leadSource || "" }}
+          initialValues={{ leadSource: leadDetail.lead?.leadSource || '' }}
           type="Select"
           onSave={handleLeadSourceEdit}
         />
@@ -152,7 +146,7 @@ export const LeadSource = () => {
           isleadEditing={isLeadEditing.notes}
           setIsLeadEditing={setIsLeadEditing}
           loading={updateLeadStatusState === Status.PENDING}
-          initialValues={{ notes: leadDetail.lead?.notes || "" }}
+          initialValues={{ notes: leadDetail.lead?.notes || '' }}
           type="TextArea"
           onSave={handleLeadSourceEdit}
         />
@@ -241,28 +235,16 @@ export const LeadSource = () => {
               <IconCirclePlus /> House and Land Package
             </button>
           </HouseLandPopover>
-          <button
-            className="flex gap-2"
-            onClick={() => openDrawerWithAbnAcn("Company Details")}
-          >
+          <button className="flex gap-2" onClick={() => openDrawerWithAbnAcn('Company Details')}>
             <IconCirclePlus /> Company Details
           </button>
-          <button
-            className="flex gap-2"
-            onClick={() => openDrawer("Conveyancer / Solicitor")}
-          >
+          <button className="flex gap-2" onClick={() => openDrawer('Conveyancer / Solicitor')}>
             <IconCirclePlus /> Conveyancer / Solicitor
           </button>
-          <button
-            className="flex gap-2"
-            onClick={() => openDrawer("Mortgage Broker")}
-          >
+          <button className="flex gap-2" onClick={() => openDrawer('Mortgage Broker')}>
             <IconCirclePlus /> Mortgage Broker
           </button>
-          <button
-            className="flex gap-2"
-            onClick={() => openDrawer("Bank / Financer")}
-          >
+          <button className="flex gap-2" onClick={() => openDrawer('Bank / Financer')}>
             <IconCirclePlus /> Bank / Financer
           </button>
         </div>
@@ -332,18 +314,9 @@ export const LeadSource = () => {
         </div>
         <Divider className="bg-border-color my-3" />
 
-        <LeadUpdateDetail
-          label="Assignee"
-          value={leadDetail.lead?.assignee?.name}
-        />
-        <LeadUpdateDetail
-          label="Created by"
-          value={leadDetail.lead?.createdBy?.name}
-        />
-        <LeadUpdateDetail
-          label="Updated by"
-          value={leadDetail.lead?.updatedBy?.name}
-        />
+        <LeadUpdateDetail label="Assignee" value={leadDetail.lead?.assignee?.name} />
+        <LeadUpdateDetail label="Created by" value={leadDetail.lead?.createdBy?.name} />
+        <LeadUpdateDetail label="Updated by" value={leadDetail.lead?.updatedBy?.name} />
       </div>
 
       <div className="flex-1 md:mt-[0px] lg:mt-7">
@@ -354,15 +327,11 @@ export const LeadSource = () => {
 
         <LeadUpdateDetail
           label="Created"
-          value={new Date(
-            leadDetail.lead?.createdAt
-          ).toLocaleDateString()}
+          value={new Date(leadDetail.lead?.createdAt).toLocaleDateString()}
         />
         <LeadUpdateDetail
           label="Updated"
-          value={new Date(
-            leadDetail.lead?.updatedAt
-          ).toLocaleDateString()}
+          value={new Date(leadDetail.lead?.updatedAt).toLocaleDateString()}
         />
       </div>
 

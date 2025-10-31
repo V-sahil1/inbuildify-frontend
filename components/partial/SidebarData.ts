@@ -1,4 +1,4 @@
-import SystemRoutes from "@lib/constants/Routes";
+import SystemRoutes from '@lib/constants/Routes';
 import {
   IconHome,
   IconBuildingSkyscraper,
@@ -10,123 +10,123 @@ import {
   IconShieldCheck,
   IconFolderOpen,
   IconChartHistogram,
-} from "@tabler/icons-react";
-const commonRoles = ["builder", "contractor", "customer"];
+} from '@tabler/icons-react';
+const commonRoles = ['builder', 'contractor', 'customer'];
 export const menuList = [
   {
     icon: IconHome,
-    link: "My Dashboard",
-    url: "/",
-    roles: ["builder", "contractor", "customer"],
+    link: 'My Dashboard',
+    url: '/',
+    roles: ['builder', 'contractor', 'customer'],
   },
   {
     icon: IconCalendar,
-    link: "Calendar",
+    link: 'Calendar',
     url: SystemRoutes.CALENDAR,
-    roles: ["builder", "contractor", "customer"],
+    roles: ['builder', 'contractor', 'customer'],
   },
   {
     icon: IconDiamond,
-    link: "Sales",
-    roles: ["builder", "contractor", "customer"],
+    link: 'Sales',
+    roles: ['builder', 'contractor', 'customer'],
     children: [
       {
-        link: "Dashboard",
-        url: "/dashboard",
-        roles: ["builder", "contractor", "customer"],
+        link: 'Dashboard',
+        url: '/dashboard',
+        roles: ['builder', 'contractor', 'customer'],
       },
       {
-        link: "Leads",
+        link: 'Leads',
         url: SystemRoutes.LEADS,
-        roles: ["builder", "contractor", "customer"],
+        roles: ['builder', 'contractor', 'customer'],
       },
       {
-        link: "Quotation",
+        link: 'Quotation',
         url: SystemRoutes.QUOTATION,
-        roles: ["builder", "contractor", "customer"],
+        roles: ['builder', 'contractor', 'customer'],
       },
       {
-        link: "Campaigns",
+        link: 'Campaigns',
         url: SystemRoutes.CAMPAIGN,
-        roles: ["builder", "contractor", "customer"],
+        roles: ['builder', 'contractor', 'customer'],
       },
       {
-        link: "HL Package",
+        link: 'HL Package',
         url: SystemRoutes.HLPACKAGE,
-        roles: ["builder", "contractor", "customer"],
+        roles: ['builder', 'contractor', 'customer'],
       },
       {
-        link: "Land",
-        url: "/land",
-        roles: ["builder", "contractor", "customer"],
+        link: 'Land',
+        url: '/land',
+        roles: ['builder', 'contractor', 'customer'],
       },
     ],
   },
   {
     icon: IconShieldCheck,
-    link: "Job",
+    link: 'Job',
     url: SystemRoutes.JOB,
-    roles: ["builder", "contractor", "customer"],
+    roles: ['builder', 'contractor', 'customer'],
   },
   {
     icon: IconCrane,
-    link: "Construction",
-    url: "/construction",
-    roles: ["builder", "contractor", "customer"],
+    link: 'Construction',
+    url: '/construction',
+    roles: ['builder', 'contractor', 'customer'],
   },
   {
     icon: IconTools,
-    link: "Maintenance",
-    url: "/maintenance",
-    roles: ["builder", "contractor", "customer"],
+    link: 'Maintenance',
+    url: '/maintenance',
+    roles: ['builder', 'contractor', 'customer'],
   },
   {
     icon: IconFolderOpen,
-    link: "S Drive",
-    url: "/sdrive",
-    roles: ["builder"],
+    link: 'S Drive',
+    url: '/sdrive',
+    roles: ['builder'],
   },
   {
     icon: IconChartHistogram,
-    link: "Reports",
+    link: 'Reports',
     roles: commonRoles,
     children: [
       {
-        link: "Sales",
+        link: 'Sales',
         roles: commonRoles,
         children: [
           {
-            link: "Lead / Focus Report",
+            link: 'Lead / Focus Report',
             url: `/sales/lead-focus`,
             roles: commonRoles,
           },
           {
-            link: "Quotation Report",
+            link: 'Quotation Report',
             url: `/sales/quotation`,
             roles: commonRoles,
           },
           {
-            link: "Floor Plan & Facade Report",
+            link: 'Floor Plan & Facade Report',
             url: `/sales/floorplan-facade`,
             roles: commonRoles,
           },
           {
-            link: "Performance Report",
+            link: 'Performance Report',
             url: `/sales/performance`,
             roles: commonRoles,
           },
           {
-            link: "Agent Summary Report",
+            link: 'Agent Summary Report',
             url: `/sales/agent-summary`,
             roles: commonRoles,
           },
           {
-            link: "No Action Leads Report",
+            link: 'No Action Leads Report',
             url: `/sales/no-action-leads`,
             roles: commonRoles,
           },
           {
-            link: "Commission Report",
+            link: 'Commission Report',
             url: `/sales/commission`,
             roles: commonRoles,
           },
@@ -134,11 +134,11 @@ export const menuList = [
       },
 
       {
-        link: "Workflow",
+        link: 'Workflow',
         roles: commonRoles,
         children: [
           {
-            link: "WorkFlow Status Report",
+            link: 'WorkFlow Status Report',
             url: `/workflow/status`,
             roles: commonRoles,
           },
@@ -146,113 +146,113 @@ export const menuList = [
       },
 
       {
-        link: "Job",
+        link: 'Job',
         roles: commonRoles,
         children: [
           {
-            link: "Customer Status Report",
+            link: 'Customer Status Report',
             url: `/job/customer-status`,
             roles: commonRoles,
           },
           {
-            link: "Job Status Report",
+            link: 'Job Status Report',
             url: `/job/job-status`,
             roles: commonRoles,
           },
           {
-            link: "No action Jobs Report",
+            link: 'No action Jobs Report',
             url: `/job/no-action-jobs`,
             roles: commonRoles,
           },
           {
-            link: "Contract Report",
+            link: 'Contract Report',
             url: `/job/contract`,
             roles: commonRoles,
           },
           {
-            link: "Invoices & Payments Report",
-            url: "/job/invoices-payments",
+            link: 'Invoices & Payments Report',
+            url: '/job/invoices-payments',
             roles: commonRoles,
           },
           {
-            link: "Commission Report",
+            link: 'Commission Report',
             url: `/job/commission`,
             roles: commonRoles,
           },
           {
-            link: "Cost Summary Report",
+            link: 'Cost Summary Report',
             url: `/job/cost-summary`,
             roles: commonRoles,
           },
           {
-            link: "Land Title Forecast Report",
+            link: 'Land Title Forecast Report',
             url: `/job/land-title-forecast`,
             roles: commonRoles,
           },
 
           {
-            link: "Variation Report",
+            link: 'Variation Report',
             url: `/variation`,
             roles: commonRoles,
           },
           {
-            link: "Delay / Extension Notice Report",
+            link: 'Delay / Extension Notice Report',
             url: `/delay-extension-notice`,
             roles: commonRoles,
           },
           {
-            link: "Survey Report",
+            link: 'Survey Report',
             url: `/survey`,
             roles: commonRoles,
           },
         ],
       },
       {
-        link: "Construction",
+        link: 'Construction',
         roles: commonRoles,
         children: [
           {
-            link: "Construction Report",
+            link: 'Construction Report',
             url: `/construction/base`,
             roles: commonRoles,
           },
           {
-            link: "Construction Detailed Report",
+            link: 'Construction Detailed Report',
             url: `/construction/detailed`,
             roles: commonRoles,
           },
           {
-            link: "Claims Report",
+            link: 'Claims Report',
             url: `/construction/claims`,
             roles: commonRoles,
           },
           {
-            link: "Supplier and Trades Report",
+            link: 'Supplier and Trades Report',
             url: `/construction/supplier-trades`,
             roles: commonRoles,
           },
           {
-            link: "Agent Summary Report",
+            link: 'Agent Summary Report',
             url: `/construction/agent-summary`,
             roles: commonRoles,
           },
           {
-            link: "Site Supervisor Report",
+            link: 'Site Supervisor Report',
             url: `/construction/site-supervisor`,
             roles: commonRoles,
           },
           {
-            link: "Site Supervisor OH&S Report",
+            link: 'Site Supervisor OH&S Report',
             url: `/construction/site-supervisor-ohs`,
             roles: commonRoles,
           },
           {
-            link: "Site Supervisor Notes Report",
+            link: 'Site Supervisor Notes Report',
             url: `/construction/site-supervisor-notes`,
             roles: commonRoles,
           },
           {
-            link: "ETS Report",
+            link: 'ETS Report',
             url: `/construction/ets`,
             roles: commonRoles,
           },
@@ -260,16 +260,16 @@ export const menuList = [
       },
 
       {
-        link: "Maintenance",
+        link: 'Maintenance',
         roles: commonRoles,
         children: [
           {
-            link: "Maintenance Report",
+            link: 'Maintenance Report',
             url: `/maintenance/base`,
             roles: commonRoles,
           },
           {
-            link: "Maintenance Detailed Report",
+            link: 'Maintenance Detailed Report',
             url: `/maintenance/detailed`,
             roles: commonRoles,
           },
@@ -277,11 +277,11 @@ export const menuList = [
       },
 
       {
-        link: "Others",
+        link: 'Others',
         roles: commonRoles,
         children: [
           {
-            link: "Utilization Graph",
+            link: 'Utilization Graph',
             url: `/others/utilization-graph`,
             roles: commonRoles,
           },
@@ -291,81 +291,81 @@ export const menuList = [
   },
   {
     icon: IconChartHistogram,
-    link: "Configuration",
+    link: 'Configuration',
     roles: commonRoles,
     children: [
       {
-        link: "General",
+        link: 'General',
         roles: commonRoles,
         url: `/configuration/general`,
       },
 
       {
-        link: "Sales",
+        link: 'Sales',
         roles: commonRoles,
         url: `/configuration/sales`,
       },
 
       {
-        link: "Job",
+        link: 'Job',
         roles: commonRoles,
         url: `/configuration/job`,
       },
       {
-        link: "Construction",
+        link: 'Construction',
         roles: commonRoles,
         url: `/configuration/construction`,
       },
 
       {
-        link: "Maintenance",
+        link: 'Maintenance',
         roles: commonRoles,
         url: `/configuration/maintenance`,
       },
-       {
-        link: "Document",
+      {
+        link: 'Document',
         roles: commonRoles,
         url: `/configuration/document`,
       },
-       {
-        link: "Integration",
+      {
+        link: 'Integration',
         roles: commonRoles,
         url: `/configuration/integration`,
       },
       {
-        link: "Templates",
+        link: 'Templates',
         roles: commonRoles,
         url: `/configuration/templates`,
       },
       {
-        link: "Scheduler",
+        link: 'Scheduler',
         roles: commonRoles,
         url: `/configuration/scheduler`,
       },
-       {
-        link: "Portal",
+      {
+        link: 'Portal',
         roles: commonRoles,
         url: `/configuration/portal`,
       },
 
       {
-        link: "Others",
+        link: 'Others',
         roles: commonRoles,
         url: `/configuration/others`,
       },
     ],
   },
-  
+
   {
     icon: IconBuildingSkyscraper,
-    link: "Settings",
-    url: "/settings",
-    roles: ["builder"],
+    link: 'Settings',
+    url: '/settings',
+    roles: ['builder'],
   },
   {
     icon: IconBuildingSkyscraper,
-    link: "Contractors",
-    url: "/contractors",
-    roles: ["builder", "contractor", "customer"],
+    link: 'Contractors',
+    url: '/contractors',
+    roles: ['builder', 'contractor', 'customer'],
   },
 ];

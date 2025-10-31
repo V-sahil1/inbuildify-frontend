@@ -1,4 +1,4 @@
-import { Steps } from "antd";
+import { Steps } from 'antd';
 
 type step = {
   title: string | React.ReactNode;
@@ -10,14 +10,14 @@ type CustomStepsPropsType = {
   steps: step[];
   currentValue: number;
   setCurrent: (value) => void;
-  titlePlacement?: "horizontal" | "vertical";
+  titlePlacement?: 'horizontal' | 'vertical';
 };
 
 const CustomSteps: React.FC<CustomStepsPropsType> = ({
   steps,
   currentValue,
   setCurrent,
-  titlePlacement = "horizontal"
+  titlePlacement = 'horizontal',
 }) => {
   return (
     <div>
@@ -25,7 +25,7 @@ const CustomSteps: React.FC<CustomStepsPropsType> = ({
         <Steps
           labelPlacement={titlePlacement}
           current={currentValue}
-          onChange={(value) => setCurrent(value)}
+          onChange={value => setCurrent(value)}
           items={steps}
         />
       </div>

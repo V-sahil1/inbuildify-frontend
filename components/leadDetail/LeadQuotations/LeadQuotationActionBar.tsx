@@ -1,27 +1,24 @@
-import React from "react";
-import { Input, Select, Button } from "antd";
-import {
-  IconSortAscending2,
-  IconSortDescending2,
-} from "@tabler/icons-react";
-import { QuotationStatus } from "data/types";
+import React from 'react';
+import { Input, Select, Button } from 'antd';
+import { IconSortAscending2, IconSortDescending2 } from '@tabler/icons-react';
+import { QuotationStatus } from 'data/types';
 const { Search } = Input;
 
 interface LeadQuotationActionBarProps {
   quotationId?: string;
   status?: QuotationStatus;
-  sortOrder?: "asc" | "desc";
+  sortOrder?: 'asc' | 'desc';
 
   onSearch?: (value: string) => void;
   onStatusChange?: (value: QuotationStatus) => void;
-  onSortChange?: (order: "asc" | "desc") => void;
+  onSortChange?: (order: 'asc' | 'desc') => void;
   onReset?: () => void;
 }
 
 const LeadQuotationActionBar: React.FC<LeadQuotationActionBarProps> = ({
   quotationId,
-  status = "all",
-  sortOrder = "desc",
+  status = 'all',
+  sortOrder = 'desc',
   onSearch,
   onStatusChange,
   onSortChange,
@@ -42,10 +39,10 @@ const LeadQuotationActionBar: React.FC<LeadQuotationActionBarProps> = ({
           onChange={onStatusChange}
           defaultValue="all"
           options={[
-            { label: "All Status", value: "all" },
-            { label: "Approved", value: "approved" },
-            { label: "Pending", value: "pending" },
-            { label: "Rejected", value: "rejected" },
+            { label: 'All Status', value: 'all' },
+            { label: 'Approved', value: 'approved' },
+            { label: 'Pending', value: 'pending' },
+            { label: 'Rejected', value: 'rejected' },
           ]}
         />
         <Button onClick={onReset} className="text-primary cursor-pointer">
@@ -55,8 +52,8 @@ const LeadQuotationActionBar: React.FC<LeadQuotationActionBarProps> = ({
 
       {/* Right Section: Sort */}
       <Button
-        icon={sortOrder === "asc" ? <IconSortAscending2 /> : <IconSortDescending2 />}
-        onClick={() => onSortChange?.(sortOrder === "asc" ? "desc" : "asc")}
+        icon={sortOrder === 'asc' ? <IconSortAscending2 /> : <IconSortDescending2 />}
+        onClick={() => onSortChange?.(sortOrder === 'asc' ? 'desc' : 'asc')}
       >
         Sort by Created At
       </Button>

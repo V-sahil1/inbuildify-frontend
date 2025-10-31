@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { Typography, Empty, Pagination } from "antd";
-import FloorPlanCard from "./FloorPlanCard";
-import { IFloorPlanState } from "@redux/feature/floorPlan/IFloorPlanState";
-import PlanDetailsGrid from "./PlanDetailsGrid";
+import React, { useState } from 'react';
+import { Typography, Empty, Pagination } from 'antd';
+import FloorPlanCard from './FloorPlanCard';
+import { IFloorPlanState } from '@redux/feature/floorPlan/IFloorPlanState';
+import PlanDetailsGrid from './PlanDetailsGrid';
 
 const PAGE_SIZE = 8;
 const { Title } = Typography;
@@ -34,7 +34,7 @@ const AvailablePlansTab: React.FC<AvailablePlansTabProps> = ({
       {/* Left side - Floor plan grid */}
       <div className="flex-1 pr-4">
         <div className="grid grid-cols-4 gap-3 mb-4">
-          {currentPlans.map((plan) => (
+          {currentPlans.map(plan => (
             <FloorPlanCard
               key={plan.floorPlanId}
               plan={plan}
@@ -44,18 +44,16 @@ const AvailablePlansTab: React.FC<AvailablePlansTabProps> = ({
           ))}
         </div>
 
-        {
-          plans.length > PAGE_SIZE && (
-            <Pagination
-              current={page}
-              pageSize={PAGE_SIZE}
-              total={plans.length}
-              onChange={(p) => setPage(p)}
-              align="center"
-              size="small"
-            />
-          )
-        }
+        {plans.length > PAGE_SIZE && (
+          <Pagination
+            current={page}
+            pageSize={PAGE_SIZE}
+            total={plans.length}
+            onChange={p => setPage(p)}
+            align="center"
+            size="small"
+          />
+        )}
         {/* <div className="text-center">
           <Button type="link" className="text-blue-500">
             Click here to add floorplan
@@ -65,9 +63,7 @@ const AvailablePlansTab: React.FC<AvailablePlansTabProps> = ({
         {/* Floor Plan Details */}
         {selectedPlan && (
           <div className="mt-6">
-            <Title level={5}>
-              Floor Plan Details
-            </Title>
+            <Title level={5}>Floor Plan Details</Title>
             <PlanDetailsGrid details={selectedPlan} />
           </div>
         )}
@@ -77,19 +73,13 @@ const AvailablePlansTab: React.FC<AvailablePlansTabProps> = ({
       {selectedPlan && (
         <div className="pl-4 border-l border-gray-200 w-2/4">
           <div className="text-center mb-4">
-            <Title level={4}>
-              {selectedPlan.name}
-            </Title>
+            <Title level={4}>{selectedPlan.name}</Title>
             <div className="text-sm text-gray-500">
               {selectedPlan.rangeName} • {selectedPlan.dwellingTypeName}
             </div>
           </div>
           <div className="bg-gray-50 p-4 rounded-lg">
-            <img
-              src={selectedPlan.image}
-              alt={selectedPlan.name}
-              className="size-full rounded"
-            />
+            <img src={selectedPlan.image} alt={selectedPlan.name} className="size-full rounded" />
           </div>
         </div>
       )}

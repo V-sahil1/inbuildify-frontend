@@ -17,7 +17,7 @@ const categoryColors: Record<string, string> = {
   Maintenance: 'bg-red-600',
   ReferralPartner: 'bg-gray-700',
   Today: 'bg-yellow-200',
-  Holiday: 'bg-red-500'
+  Holiday: 'bg-red-500',
 };
 
 const WeekView = ({ currentDate, events, onEventClick }: WeekViewProps) => {
@@ -47,11 +47,16 @@ const WeekView = ({ currentDate, events, onEventClick }: WeekViewProps) => {
           {weekDays.map(day => {
             const isToday = day.isSame(dayjs(), 'day');
             return (
-              <div key={day.toString()} className="border-b border-r border-gray-200 p-2 text-center">
+              <div
+                key={day.toString()}
+                className="border-b border-r border-gray-200 p-2 text-center"
+              >
                 <div className={`font-medium ${isToday ? 'text-blue-600' : 'text-gray-700'}`}>
                   {day.format('ddd')}
                 </div>
-                <div className={`text-2xl ${isToday ? 'text-blue-600 font-bold' : 'text-gray-700'}`}>
+                <div
+                  className={`text-2xl ${isToday ? 'text-blue-600 font-bold' : 'text-gray-700'}`}
+                >
                   {day.date()}
                 </div>
               </div>
@@ -63,8 +68,17 @@ const WeekView = ({ currentDate, events, onEventClick }: WeekViewProps) => {
       <div className="flex">
         <div className="w-16 flex-shrink-0">
           {hours.map(hour => (
-            <div key={hour} className="h-24 border-b border-gray-200 pr-2 pt-1 text-right text-xs text-gray-500">
-              {hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`}
+            <div
+              key={hour}
+              className="h-24 border-b border-gray-200 pr-2 pt-1 text-right text-xs text-gray-500"
+            >
+              {hour === 0
+                ? '12 AM'
+                : hour < 12
+                  ? `${hour} AM`
+                  : hour === 12
+                    ? '12 PM'
+                    : `${hour - 12} PM`}
             </div>
           ))}
         </div>

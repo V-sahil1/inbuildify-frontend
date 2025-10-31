@@ -1,7 +1,7 @@
-import { PricingItem } from "@/components/common/PricingItem";
-import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import { Status } from "@lib/constants/enum";
-import { Item } from "@redux/feature/masterPriceList/iMasterPriceListState";
+import { PricingItem } from '@/components/common/PricingItem';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { Status } from '@lib/constants/enum';
+import { Item } from '@redux/feature/masterPriceList/iMasterPriceListState';
 import {
   IconChevronDown,
   IconChevronUp,
@@ -9,19 +9,14 @@ import {
   IconGripVertical,
   IconPlus,
   IconTrash,
-} from "@tabler/icons-react";
-import { useEffect, useState } from "react";
-import { message, Spin, Empty, Tooltip, Button } from "antd";
-import ConfirmationModal from "@/components/common/ConfirmationModal";
-import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
-import { MasterPricingCategoryFields } from "@/components/formFields/MasterPricingCategoryFields";
-import {
-  DragDropContext,
-  Droppable,
-  Draggable,
-  DropResult,
-} from "react-beautiful-dnd";
-import { WorkflowProcessTaskFields } from "@/components/formFields/WorkflowProcessTaskFields";
+} from '@tabler/icons-react';
+import { useEffect, useState } from 'react';
+import { message, Spin, Empty, Tooltip, Button } from 'antd';
+import ConfirmationModal from '@/components/common/ConfirmationModal';
+import { CreateFormModal } from '@/components/common/Models/CreateFormModel';
+import { MasterPricingCategoryFields } from '@/components/formFields/MasterPricingCategoryFields';
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import { WorkflowProcessTaskFields } from '@/components/formFields/WorkflowProcessTaskFields';
 import {
   createWorkflowProcess,
   createWorkflowProcessTask,
@@ -32,16 +27,14 @@ import {
   updateWorkflowProcess,
   updateWorkflowProcessOrder,
   updateWorkflowProcessTask,
-} from "@redux/feature/workflow/workflowThunk";
-import { WorkflowProcess } from "@redux/feature/workflow/iWorkflowState";
-import { toggleExpandWorkflowProcess } from "@redux/feature/workflow/workflowSlice";
-import { formDataGenerator } from "@lib/utils/formDataGenerator"; 
+} from '@redux/feature/workflow/workflowThunk';
+import { WorkflowProcess } from '@redux/feature/workflow/iWorkflowState';
+import { toggleExpandWorkflowProcess } from '@redux/feature/workflow/workflowSlice';
+import { formDataGenerator } from '@lib/utils/formDataGenerator';
 
 export const WorkflowProcessPage = () => {
   const dispatch = useAppDispatch();
-  const { workflowProcess, status } = useAppSelector(
-    (state: any) => state.workflow
-  );
+  const { workflowProcess, status } = useAppSelector((state: any) => state.workflow);
   useEffect(() => {
     if (status === Status.IDLE) {
       dispatch(fetchWorkflowProcess());
@@ -53,10 +46,9 @@ export const WorkflowProcessPage = () => {
     setLocalWorkflowProcess(workflowProcess);
   }, [workflowProcess]);
 
-  const [workflowProcessId, setWorkflowProcessId] = useState("");
+  const [workflowProcessId, setWorkflowProcessId] = useState('');
   const [addWorkflowProcessModal, setAddWorkflowProcessModal] = useState(false);
-  const [addWorkflowProcessTaskModal, setAddWorkflowProcessTaskModal] =
-    useState(false);
+  const [addWorkflowProcessTaskModal, setAddWorkflowProcessTaskModal] = useState(false);
   const [dropDowns, setDropDowns] = useState<Record<string, boolean>>({});
   const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({});
   const [selectedItem, setSelectedItem] = useState<any>();
@@ -65,7 +57,7 @@ export const WorkflowProcessPage = () => {
     reset: false,
     save: false,
   });
-  const [deleteModal, setDeleteModal] = useState({ open: false, type: "workflowProcessTask" });
+  const [deleteModal, setDeleteModal] = useState({ open: false, type: 'workflowProcessTask' });
   const [editing, setEditing] = useState<boolean>(false);
   const [resetModalVisible, setResetModalVisible] = useState(false);
 
@@ -74,18 +66,15 @@ export const WorkflowProcessPage = () => {
     setWorkflowProcessId(workflowProcessId);
   };
 
-  const handleExpand = async (
-    workflowProcessId: string,
-    isExpanded: boolean
-  ) => {
-    setDropDowns((prev) => ({
+  const handleExpand = async (workflowProcessId: string, isExpanded: boolean) => {
+    setDropDowns(prev => ({
       ...prev,
       [workflowProcessId]: !prev[workflowProcessId],
     }));
 
     if (!isExpanded) {
       try {
-        setLoadingItems((prev) => ({ ...prev, [workflowProcessId]: true }));
+        setLoadingItems(prev => ({ ...prev, [workflowProcessId]: true }));
         dispatch(toggleExpandWorkflowProcess(workflowProcessId));
 
         await dispatch(
@@ -94,42 +83,37 @@ export const WorkflowProcessPage = () => {
           })
         ).unwrap();
       } catch (error: any) {
-        message.error(error || "Failed to fetch workflow process tasks");
+        message.error(error || 'Failed to fetch workflow process tasks');
       } finally {
-        setLoadingItems((prev) => ({ ...prev, [workflowProcessId]: false }));
+        setLoadingItems(prev => ({ ...prev, [workflowProcessId]: false }));
       }
     }
   };
 
   const handleWorkflowProcessTaskAction = (action: string, workflowProcessTask: any) => {
     setSelectedItem(workflowProcessTask);
-    if (action === "edit") {
+    if (action === 'edit') {
       setEditing(true);
-      openAddWorkflowProcessTaskModal(
-        workflowProcessTask.workflowProcessTaskId
-      );
-    } else if (action === "delete") {
-      setDeleteModal({ open: true, type: "workflowProcessTask" });
+      openAddWorkflowProcessTaskModal(workflowProcessTask.workflowProcessTaskId);
+    } else if (action === 'delete') {
+      setDeleteModal({ open: true, type: 'workflowProcessTask' });
     }
   };
 
   const handleWorkflowProcessAction = (
-    action: "edit" | "delete",
+    action: 'edit' | 'delete',
     workflowProcess: WorkflowProcess
   ) => {
     setSelectedItem(workflowProcess);
-    if (action === "edit") {
+    if (action === 'edit') {
       setEditing(true);
       setAddWorkflowProcessModal(true);
     } else {
-      setDeleteModal({ open: true, type: "workflowProcess" });
+      setDeleteModal({ open: true, type: 'workflowProcess' });
     }
   };
 
-  const handleAddWorkflowProcessSubmit = async (values: {
-    name: string;
-    description: string;
-  }) => {
+  const handleAddWorkflowProcessSubmit = async (values: { name: string; description: string }) => {
     try {
       setLoading(true);
       if (editing) {
@@ -140,7 +124,7 @@ export const WorkflowProcessPage = () => {
           })
         ).unwrap();
         setEditing(false);
-        message.success("Workflow process updated successfully");
+        message.success('Workflow process updated successfully');
       } else {
         await dispatch(
           createWorkflowProcess({
@@ -148,18 +132,18 @@ export const WorkflowProcessPage = () => {
             description: values.description,
           })
         ).unwrap();
-        message.success("Workflow process created successfully");
+        message.success('Workflow process created successfully');
       }
       setAddWorkflowProcessModal(false);
     } catch (error: any) {
-      message.error(error || "Failed to create workflow process");
+      message.error(error || 'Failed to create workflow process');
     } finally {
       setSelectedItem(null);
       setLoading(false);
     }
   };
 
-  const handleAddWorkflowProcessTaskSubmit = async (values) => {
+  const handleAddWorkflowProcessTaskSubmit = async values => {
     let image = null;
     if (!editing) {
       values.workflow_process_id = workflowProcessId;
@@ -177,15 +161,15 @@ export const WorkflowProcessPage = () => {
             data: formData,
           })
         ).unwrap();
-        message.success("Workflow process updated successfully");
+        message.success('Workflow process updated successfully');
         setEditing(false);
       } else {
         await dispatch(createWorkflowProcessTask(formData)).unwrap();
-        message.success("Workflow process task created successfully");
+        message.success('Workflow process task created successfully');
       }
       setAddWorkflowProcessTaskModal(false);
     } catch (error: any) {
-      message.error(error || "Failed to create workflow process task");
+      message.error(error || 'Failed to create workflow process task');
     } finally {
       setSelectedItem(null);
       setLoading(false);
@@ -194,17 +178,15 @@ export const WorkflowProcessPage = () => {
   const handleDelete = async (type: string, id: any) => {
     setLoading(true);
     try {
-      if (type === "workflowProcessTask") {
-        await dispatch(
-          deleteWorkflowProcessTask({ workflowProcessTaskId: id })
-        ).unwrap();
-        message.success("Workflow process item deleted successfully");
+      if (type === 'workflowProcessTask') {
+        await dispatch(deleteWorkflowProcessTask({ workflowProcessTaskId: id })).unwrap();
+        message.success('Workflow process item deleted successfully');
       } else {
         await dispatch(deleteWorkflowProcess(id)).unwrap();
-        message.success("Workflow process deleted successfully");
+        message.success('Workflow process deleted successfully');
       }
     } catch (error: any) {
-      message.error(error || "Failed to delete workflow process");
+      message.error(error || 'Failed to delete workflow process');
     } finally {
       setDeleteModal({ open: false, type });
       setSelectedItem(null);
@@ -219,7 +201,7 @@ export const WorkflowProcessPage = () => {
     const toIndex = result.destination.index;
 
     // Clone categories to avoid mutation
-    const newLocalWorkflowProcess = localWorkflowProcess.map((c) => ({ ...c }));
+    const newLocalWorkflowProcess = localWorkflowProcess.map(c => ({ ...c }));
 
     // Move the dragged category in the array
     const [movedCategory] = newLocalWorkflowProcess.splice(fromIndex, 1);
@@ -259,41 +241,38 @@ export const WorkflowProcessPage = () => {
   const isOrderChanged = () => {
     if (localWorkflowProcess?.length !== workflowProcess?.length) return true;
     return localWorkflowProcess?.some(
-      (c, idx) =>
-        c?.workflowProcessId !== workflowProcess[idx]?.workflowProcessId
+      (c, idx) => c?.workflowProcessId !== workflowProcess[idx]?.workflowProcessId
     );
   };
 
   const handleSaveOrder = async () => {
-    setOrderLoading((prev) => ({ ...prev, save: true }));
+    setOrderLoading(prev => ({ ...prev, save: true }));
     try {
       const payload =
         localWorkflowProcess.length > 0
-          ? localWorkflowProcess?.map((w) => ({
+          ? localWorkflowProcess?.map(w => ({
               workflowProcessId: w?.workflowProcessId,
               displayOrder: w?.displayOrder,
             }))
           : [];
 
       if (payload?.length > 0) {
-        await dispatch(
-          updateWorkflowProcessOrder({ workflowProcesses: payload })
-        ).unwrap();
-        message.success("Workflow Process order updated successfully");
+        await dispatch(updateWorkflowProcessOrder({ workflowProcesses: payload })).unwrap();
+        message.success('Workflow Process order updated successfully');
       }
     } catch (error) {
       setLocalWorkflowProcess(workflowProcess);
-      message.error(error || "Failed to update workflow process order");
+      message.error(error || 'Failed to update workflow process order');
     } finally {
-      setOrderLoading((prev) => ({ ...prev, save: false }));
+      setOrderLoading(prev => ({ ...prev, save: false }));
     }
   };
 
   const handleResetOrder = () => {
-    setOrderLoading((prev) => ({ ...prev, reset: true }));
+    setOrderLoading(prev => ({ ...prev, reset: true }));
     setLocalWorkflowProcess(workflowProcess);
-    message.success("Workflow Process order reset successfully");
-    setOrderLoading((prev) => ({ ...prev, reset: false }));
+    message.success('Workflow Process order reset successfully');
+    setOrderLoading(prev => ({ ...prev, reset: false }));
     setResetModalVisible(false);
   };
 
@@ -322,11 +301,7 @@ export const WorkflowProcessPage = () => {
           {!isOrderChanged() && (
             <Button
               type="primary"
-              disabled={
-                orderLoading.save ||
-                status == Status.PENDING ||
-                orderLoading.reset
-              }
+              disabled={orderLoading.save || status == Status.PENDING || orderLoading.reset}
               onClick={() => {
                 setEditing(false);
                 setAddWorkflowProcessModal(true);
@@ -345,159 +320,132 @@ export const WorkflowProcessPage = () => {
       ) : localWorkflowProcess.length > 0 ? (
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="categories">
-            {(provided) => (
-              <div
-                {...provided.droppableProps}
-                ref={provided.innerRef}
-                className="space-y-4"
-              >
-                {localWorkflowProcess.map(
-                  (workflowProcess: WorkflowProcess, index: number) => {
-                    const isDropdownOpen =
-                      dropDowns[workflowProcess?.workflowProcessId] || false;
-                    const isLoading =
-                      loadingItems[workflowProcess?.workflowProcessId] || false;
+            {provided => (
+              <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
+                {localWorkflowProcess.map((workflowProcess: WorkflowProcess, index: number) => {
+                  const isDropdownOpen = dropDowns[workflowProcess?.workflowProcessId] || false;
+                  const isLoading = loadingItems[workflowProcess?.workflowProcessId] || false;
 
-                    return (
-                      <Draggable
-                        key={workflowProcess?.workflowProcessId}
-                        draggableId={String(workflowProcess?.workflowProcessId)}
-                        index={index}
-                      >
-                        {(provided) => (
+                  return (
+                    <Draggable
+                      key={workflowProcess?.workflowProcessId}
+                      draggableId={String(workflowProcess?.workflowProcessId)}
+                      index={index}
+                    >
+                      {provided => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          className="bg-white shadow-md rounded-xl border border-gray-200 transition hover:shadow-lg"
+                        >
+                          {/* Header */}
                           <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className="bg-white shadow-md rounded-xl border border-gray-200 transition hover:shadow-lg"
+                            className="flex items-center justify-between px-4 py-3 cursor-pointer rounded-t-xl"
+                            onClick={() =>
+                              !isOrderChanged() &&
+                              handleExpand(
+                                workflowProcess?.workflowProcessId,
+                                workflowProcess?.isExpanded
+                              )
+                            }
                           >
-                            {/* Header */}
-                            <div
-                              className="flex items-center justify-between px-4 py-3 cursor-pointer rounded-t-xl"
-                              onClick={() =>
-                                !isOrderChanged() &&
-                                handleExpand(
-                                  workflowProcess?.workflowProcessId,
-                                  workflowProcess?.isExpanded
-                                )
-                              }
-                            >
-                              <div className="flex items-center gap-2 w-full min-w-0">
-                                <button className="mt-1 flex-shrink-0 text-gray-600 hover:text-blue-500 transition cursor-grab">
-                                  <IconGripVertical size={24} />
-                                </button>
-                                <div className="min-w-0">
-                                  <h3 className="text-lg font-semibold text-gray-800 break-words">
-                                    {workflowProcess?.name}
-                                  </h3>
-                                  {workflowProcess?.description && (
-                                    <Tooltip
-                                      title={workflowProcess?.description}
-                                      placement="top"
-                                    >
-                                      <span className="text-sm text-gray-500 truncate max-w-[200px]">
-                                        {workflowProcess?.description}
-                                      </span>
-                                    </Tooltip>
-                                  )}
-                                </div>
-                              </div>
-                              {!isOrderChanged() && (
-                                <div className="flex gap-3 flex-shrink-0">
-                                  <button
-                                    className="p-2 rounded-lg hover:bg-green-50 transition"
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      openAddWorkflowProcessTaskModal(
-                                        workflowProcess?.workflowProcessId
-                                      );
-                                    }}
-                                  >
-                                    <IconPlus
-                                      size={18}
-                                      className="text-gray-600 hover:text-green-600"
-                                    />
-                                  </button>
-                                  <button
-                                    className="p-2 rounded-lg hover:bg-blue-50 transition"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleWorkflowProcessAction(
-                                        "edit",
-                                        workflowProcess
-                                      );
-                                    }}
-                                  >
-                                    <IconEdit
-                                      size={18}
-                                      className="text-gray-600 hover:text-blue-600"
-                                    />
-                                  </button>
-                                  <button
-                                    className="p-2 rounded-lg hover:bg-red-50 transition"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleWorkflowProcessAction(
-                                        "delete",
-                                        workflowProcess
-                                      );
-                                    }}
-                                  >
-                                    <IconTrash
-                                      size={18}
-                                      className="text-gray-600 hover:text-red-600"
-                                    />
-                                  </button>
-
-                                  <button className="mt-1 flex-shrink-0 text-gray-600 hover:text-blue-500 transition">
-                                    {isDropdownOpen ? (
-                                      <IconChevronUp />
-                                    ) : (
-                                      <IconChevronDown />
-                                    )}
-                                  </button>
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Dropdown */}
-                            {isDropdownOpen && (
-                              <div className="px-4 pb-4">
-                                {isLoading ? (
-                                  <div className="flex justify-center items-center py-10 gap-4 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 h-[85px]">
-                                    <Spin size="large" />
-                                  </div>
-                                ) : workflowProcess?.tasks?.length > 0 ? (
-                                  <div className="mt-2 max-h-[300px] overflow-y-auto space-y-2 pr-2">
-                                    {workflowProcess?.tasks?.map(
-                                      (item: Item) => (
-                                        <PricingItem
-                                          key={item?.categoryItemId}
-                                          item={item}
-                                          handleClick={handleWorkflowProcessTaskAction}
-                                        />
-                                      )
-                                    )}
-                                  </div>
-                                ) : (
-                                  <div className="text-center flex flex-col justify-center gap-2 p-6 border border-dashed border-gray-300 rounded-lg bg-gray-50 text-gray-500">
-                                    <p className="text-base font-medium">
-                                      No Task here yet.
-                                    </p>
-                                    <p className="text-sm">
-                                      Click on the + icon to add Task.
-                                    </p>
-                                  </div>
+                            <div className="flex items-center gap-2 w-full min-w-0">
+                              <button className="mt-1 flex-shrink-0 text-gray-600 hover:text-blue-500 transition cursor-grab">
+                                <IconGripVertical size={24} />
+                              </button>
+                              <div className="min-w-0">
+                                <h3 className="text-lg font-semibold text-gray-800 break-words">
+                                  {workflowProcess?.name}
+                                </h3>
+                                {workflowProcess?.description && (
+                                  <Tooltip title={workflowProcess?.description} placement="top">
+                                    <span className="text-sm text-gray-500 truncate max-w-[200px]">
+                                      {workflowProcess?.description}
+                                    </span>
+                                  </Tooltip>
                                 )}
+                              </div>
+                            </div>
+                            {!isOrderChanged() && (
+                              <div className="flex gap-3 flex-shrink-0">
+                                <button
+                                  className="p-2 rounded-lg hover:bg-green-50 transition"
+                                  onClick={e => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    openAddWorkflowProcessTaskModal(
+                                      workflowProcess?.workflowProcessId
+                                    );
+                                  }}
+                                >
+                                  <IconPlus
+                                    size={18}
+                                    className="text-gray-600 hover:text-green-600"
+                                  />
+                                </button>
+                                <button
+                                  className="p-2 rounded-lg hover:bg-blue-50 transition"
+                                  onClick={e => {
+                                    e.stopPropagation();
+                                    handleWorkflowProcessAction('edit', workflowProcess);
+                                  }}
+                                >
+                                  <IconEdit
+                                    size={18}
+                                    className="text-gray-600 hover:text-blue-600"
+                                  />
+                                </button>
+                                <button
+                                  className="p-2 rounded-lg hover:bg-red-50 transition"
+                                  onClick={e => {
+                                    e.stopPropagation();
+                                    handleWorkflowProcessAction('delete', workflowProcess);
+                                  }}
+                                >
+                                  <IconTrash
+                                    size={18}
+                                    className="text-gray-600 hover:text-red-600"
+                                  />
+                                </button>
+
+                                <button className="mt-1 flex-shrink-0 text-gray-600 hover:text-blue-500 transition">
+                                  {isDropdownOpen ? <IconChevronUp /> : <IconChevronDown />}
+                                </button>
                               </div>
                             )}
                           </div>
-                        )}
-                      </Draggable>
-                    );
-                  }
-                )}
+
+                          {/* Dropdown */}
+                          {isDropdownOpen && (
+                            <div className="px-4 pb-4">
+                              {isLoading ? (
+                                <div className="flex justify-center items-center py-10 gap-4 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 h-[85px]">
+                                  <Spin size="large" />
+                                </div>
+                              ) : workflowProcess?.tasks?.length > 0 ? (
+                                <div className="mt-2 max-h-[300px] overflow-y-auto space-y-2 pr-2">
+                                  {workflowProcess?.tasks?.map((item: Item) => (
+                                    <PricingItem
+                                      key={item?.categoryItemId}
+                                      item={item}
+                                      handleClick={handleWorkflowProcessTaskAction}
+                                    />
+                                  ))}
+                                </div>
+                              ) : (
+                                <div className="text-center flex flex-col justify-center gap-2 p-6 border border-dashed border-gray-300 rounded-lg bg-gray-50 text-gray-500">
+                                  <p className="text-base font-medium">No Task here yet.</p>
+                                  <p className="text-sm">Click on the + icon to add Task.</p>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </Draggable>
+                  );
+                })}
                 {provided.placeholder}
               </div>
             )}
@@ -505,9 +453,7 @@ export const WorkflowProcessPage = () => {
         </DragDropContext>
       ) : (
         <Empty
-          description={
-            <span className="text-gray-500">No Workflow Process found.</span>
-          }
+          description={<span className="text-gray-500">No Workflow Process found.</span>}
           className="py-12"
         />
       )}
@@ -535,7 +481,7 @@ export const WorkflowProcessPage = () => {
           open={resetModalVisible}
           onClose={() => {
             setResetModalVisible(false);
-            setOrderLoading((prev) => ({ ...prev, reset: false }));
+            setOrderLoading(prev => ({ ...prev, reset: false }));
           }}
           onConfirm={handleResetOrder}
           message="Are you sure you want to reset the order?"
@@ -568,13 +514,11 @@ export const WorkflowProcessPage = () => {
         <ConfirmationModal
           loading={loading}
           open={deleteModal.open}
-          onClose={() =>
-            setDeleteModal({ open: false, type: deleteModal.type })
-          }
+          onClose={() => setDeleteModal({ open: false, type: deleteModal.type })}
           onConfirm={() =>
             handleDelete(
               deleteModal.type,
-              deleteModal.type === "workflowProcessTask"
+              deleteModal.type === 'workflowProcessTask'
                 ? selectedItem?.workflowProcessTaskId
                 : selectedItem?.workflowProcessId
             )
@@ -582,9 +526,9 @@ export const WorkflowProcessPage = () => {
           type="danger"
           title="Confirm Deletion"
           message={
-            deleteModal.type === "workflowProcessTask"
-              ? "Are you sure you want to delete this Process Task? Deleting it will also remove it from any associated packages."
-              : "Are you sure you want to delete this Workflow Process? Deleting it will also remove all the tasks under it and affect any places where it is used."
+            deleteModal.type === 'workflowProcessTask'
+              ? 'Are you sure you want to delete this Process Task? Deleting it will also remove it from any associated packages.'
+              : 'Are you sure you want to delete this Workflow Process? Deleting it will also remove all the tasks under it and affect any places where it is used.'
           }
         />
       )}

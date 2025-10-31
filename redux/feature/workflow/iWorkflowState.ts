@@ -4,7 +4,7 @@ export interface Task {
   name: string;
   description: string;
   attachment: string;
-  timespent: number; 
+  timespent: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -20,11 +20,11 @@ export interface WorkflowProcess {
   tasks: Task[] | null;
   isExpanded: boolean;
   loadingItems: boolean;
-} 
+}
 
 export interface RequestTask {
   workflowProcessId: string;
   description: string;
   sort_order?: number;
-  range?: string; 
+  range?: string;
 }

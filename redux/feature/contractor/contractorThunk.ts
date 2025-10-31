@@ -1,16 +1,11 @@
-import { createAsyncThunk } from "@reduxjs/toolkit";
-import api from "@lib/constants/api";
-import API_ENDPOINTS from "@lib/constants/apiEndpoints";
-import { ApiResponse } from "../auth/IAuthState";
-import {
-  ContractorRequest,
-  ContractorResponse,
-  Service,
-  ServiceRequest,
-} from "./IContractorState";
+import { createAsyncThunk } from '@reduxjs/toolkit';
+import api from '@lib/constants/api';
+import API_ENDPOINTS from '@lib/constants/apiEndpoints';
+import { ApiResponse } from '../auth/IAuthState';
+import { ContractorRequest, ContractorResponse, Service, ServiceRequest } from './IContractorState';
 
 export const createContractorThunk = createAsyncThunk(
-  "contractor/create",
+  'contractor/create',
   async (
     payload: {
       email: string;
@@ -34,7 +29,7 @@ export const createContractorThunk = createAsyncThunk(
 );
 
 export const getContractorsThunk = createAsyncThunk(
-  "contractor/getAll",
+  'contractor/getAll',
   async (_, { rejectWithValue }) => {
     try {
       const response: ApiResponse<ContractorResponse> = await api.get(
@@ -48,7 +43,7 @@ export const getContractorsThunk = createAsyncThunk(
 );
 
 export const getContractorByIdThunk = createAsyncThunk(
-  "contractor/delete",
+  'contractor/delete',
   async (contractorId: string, { rejectWithValue }) => {
     try {
       const response: ApiResponse<any> = await api.get(
@@ -62,7 +57,7 @@ export const getContractorByIdThunk = createAsyncThunk(
 );
 
 export const updateContractorThunk = createAsyncThunk(
-  "contractor/update",
+  'contractor/update',
   async (
     {
       contractorId,
@@ -94,7 +89,7 @@ export const updateContractorThunk = createAsyncThunk(
 );
 
 export const deleteContractorThunk = createAsyncThunk(
-  "contractor/delete",
+  'contractor/delete',
   async (contractorId: string, { rejectWithValue }) => {
     try {
       const response: ApiResponse<ContractorRequest> = await api.delete(
@@ -108,12 +103,10 @@ export const deleteContractorThunk = createAsyncThunk(
 );
 
 export const getServicesThunk = createAsyncThunk(
-  "contractor/getAll",
+  'contractor/getAll',
   async (_, { rejectWithValue }) => {
     try {
-      const response: ApiResponse<Service[]> = await api.get(
-        API_ENDPOINTS.SERVICE_BASE
-      );
+      const response: ApiResponse<Service[]> = await api.get(API_ENDPOINTS.SERVICE_BASE);
       return response.data;
     } catch (err: any) {
       return rejectWithValue(err.message);
@@ -123,13 +116,12 @@ export const getServicesThunk = createAsyncThunk(
 
 // ---- Create ----
 export const createServiceThunk = createAsyncThunk(
-  "service/create",
+  'service/create',
   async (payload: ServiceRequest, { rejectWithValue }) => {
     try {
-      const response: ApiResponse<Service> = await api.post(
-        API_ENDPOINTS.SERVICE_BASE,
-        { data: payload }
-      );
+      const response: ApiResponse<Service> = await api.post(API_ENDPOINTS.SERVICE_BASE, {
+        data: payload,
+      });
       return response.data;
     } catch (err: any) {
       return rejectWithValue(err.message);
@@ -139,15 +131,12 @@ export const createServiceThunk = createAsyncThunk(
 
 // ---- Update ----
 export const updateServiceThunk = createAsyncThunk(
-  "service/update",
-  async (
-    { serviceId, service }: { serviceId: string; service: string },
-    { rejectWithValue }
-  ) => {
+  'service/update',
+  async ({ serviceId, service }: { serviceId: string; service: string }, { rejectWithValue }) => {
     try {
       const response: ApiResponse<Service> = await api.put(
         `${API_ENDPOINTS.SERVICE_BASE}/${serviceId}`,
-        { data: {service} }
+        { data: { service } }
       );
       return response.data;
     } catch (err: any) {
@@ -158,7 +147,7 @@ export const updateServiceThunk = createAsyncThunk(
 
 // ---- Delete ----
 export const deleteServiceThunk = createAsyncThunk(
-  "service/delete",
+  'service/delete',
   async (serviceId: string, { rejectWithValue }) => {
     try {
       const response: ApiResponse<Service> = await api.delete(

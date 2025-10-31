@@ -1,5 +1,5 @@
-import { Modal } from "antd";
-import AddAppointmentCard from "../TimeLineComponents/AddAppointmentCard";
+import { Modal } from 'antd';
+import AddAppointmentCard from '../TimeLineComponents/AddAppointmentCard';
 
 export const CreateAppointmentModal = ({
   open,

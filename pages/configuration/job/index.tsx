@@ -12,13 +12,13 @@ import { Colors } from "@/components/configurations/components/job/Colors";
 
 const TABS = [
   {
-    id: "settings",
-    label: tabsLabel("Settings", "Job Settings"),
+    id: 'settings',
+    label: tabsLabel('Settings', 'Job Settings'),
     component: Setting,
   },
   {
-    id: "job-process",
-    label: tabsLabel("Job Process", "Configure job Stages"),
+    id: 'job-process',
+    label: tabsLabel('Job Process', 'Configure job Stages'),
     component: JobProcess,
   },
   {
@@ -32,13 +32,13 @@ const TABS = [
     component: SurveyorsDetails,
   },
   {
-    id: "custom-fields",
-    label: tabsLabel("Custom Fields", "Customize the required fields"),
+    id: 'custom-fields',
+    label: tabsLabel('Custom Fields', 'Customize the required fields'),
     component: CustomFields,
   },
   {
-    id: "notes-tag",
-    label: tabsLabel("Notes Tag", "Add tags to category the notes"),
+    id: 'notes-tag',
+    label: tabsLabel('Notes Tag', 'Add tags to category the notes'),
     component: NotesTag,
   },
   {
@@ -47,13 +47,13 @@ const TABS = [
     component: Checklist,
   },
   {
-    id: "role-and-user-mapping",
-    label: tabsLabel("Role and User Mapping", "set default user each role"),
+    id: 'role-and-user-mapping',
+    label: tabsLabel('Role and User Mapping', 'set default user each role'),
     component: RoleAndUser,
   },
   {
-    id: "password-policy",
-    label: tabsLabel("Password Policy", "Password privacy settings"),
+    id: 'password-policy',
+    label: tabsLabel('Password Policy', 'Password privacy settings'),
     component: PasswordPolicy,
   },
 ];

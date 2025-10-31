@@ -1,23 +1,23 @@
-"use client";
-import React, { useState, useEffect } from "react";
-import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
-import { Button, Table, message } from "antd";
-import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import { IconEdit, IconTrash } from "@tabler/icons-react";
-import ConfirmationModal from "@/components/common/ConfirmationModal";
-import rangeAndDwellingTypeFields from "@/components/formFields/rangeAndDwellingTypeFields";
+'use client';
+import React, { useState, useEffect } from 'react';
+import { CreateFormModal } from '@/components/common/Models/CreateFormModel';
+import { Button, Table, message } from 'antd';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
+import ConfirmationModal from '@/components/common/ConfirmationModal';
+import rangeAndDwellingTypeFields from '@/components/formFields/rangeAndDwellingTypeFields';
 import {
   createLeadSourceThunk,
   deleteLeadSourceThunk,
   getLeadSourcesThunk,
   updateLeadSourceThunk,
-} from "@redux/feature/lead/leadThunk";
-import { Status } from "@lib/constants/enum";
+} from '@redux/feature/lead/leadThunk';
+import { Status } from '@lib/constants/enum';
 
 const LeadSource = () => {
   const dispatch = useAppDispatch();
-  const { leadSources } = useAppSelector((state) => state.lead);
-  const status = useAppSelector((state) => state.lead.status.leadSources);
+  const { leadSources } = useAppSelector(state => state.lead);
+  const status = useAppSelector(state => state.lead.status.leadSources);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [deleteModalVisible, setDeleteModalVisible] = useState({
@@ -26,7 +26,7 @@ const LeadSource = () => {
   });
   const [formLoading, setFormLoading] = useState(false);
 
-  const handleEdit = (item) => {
+  const handleEdit = item => {
     setEditingItem(item);
     setIsModalVisible(true);
   };
@@ -36,7 +36,7 @@ const LeadSource = () => {
       try {
         await dispatch(getLeadSourcesThunk()).unwrap();
       } catch (error) {
-        message.error(error || "failed to fetch the Lead sources");
+        message.error(error || 'failed to fetch the Lead sources');
       }
     }
     if (status === Status.IDLE) {
@@ -51,7 +51,7 @@ const LeadSource = () => {
       setFormLoading(true);
 
       await dispatch(deleteLeadSourceThunk(deleteModalVisible.id)).unwrap();
-      message.success("Lead source deleted successfully");
+      message.success('Lead source deleted successfully');
 
       setDeleteModalVisible({ id: null, open: false });
     } catch (error: any) {
@@ -72,10 +72,10 @@ const LeadSource = () => {
             payload: { name: values.name },
           })
         ).unwrap();
-        message.success("Lead source updated successfully");
+        message.success('Lead source updated successfully');
       } else {
         await dispatch(createLeadSourceThunk({ name: values.name })).unwrap();
-        message.success("Lead source created successfully");
+        message.success('Lead source created successfully');
       }
 
       setIsModalVisible(false);
@@ -89,13 +89,13 @@ const LeadSource = () => {
 
   const columns = [
     {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
     },
     {
-      title: "Actions",
-      key: "actions",
+      title: 'Actions',
+      key: 'actions',
       width: 120,
       render: (_: any, record) => (
         <div className="flex gap-2">
@@ -109,9 +109,7 @@ const LeadSource = () => {
             type="text"
             danger
             icon={<IconTrash />}
-            onClick={() =>
-              setDeleteModalVisible({ id: record.leadSourceId, open: true })
-            }
+            onClick={() => setDeleteModalVisible({ id: record.leadSourceId, open: true })}
             aria-label="Delete"
           />
         </div>

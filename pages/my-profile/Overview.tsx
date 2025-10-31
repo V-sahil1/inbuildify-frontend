@@ -1,9 +1,16 @@
-import { useState } from "react";
-import { Avatar, Button, Card, message } from "antd";
+import { useState } from 'react';
+import { Avatar, Button, Card, message } from 'antd';
 // import type { UploadProps } from 'antd';
-import { useAppSelector } from "@hooks/redux";
-import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
-import { IconBuildingBroadcastTower, IconEdit, IconMail, IconPhone, IconTag, IconUser } from "@tabler/icons-react";
+import { useAppSelector } from '@hooks/redux';
+import { CreateFormModal } from '@/components/common/Models/CreateFormModel';
+import {
+  IconBuildingBroadcastTower,
+  IconEdit,
+  IconMail,
+  IconPhone,
+  IconTag,
+  IconUser,
+} from '@tabler/icons-react';
 
 interface UserProfile {
   name: string;
@@ -15,14 +22,14 @@ interface UserProfile {
 }
 
 export default function Overview() {
-  const { user } = useAppSelector((state) => state.auth);
+  const { user } = useAppSelector(state => state.auth);
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState<UserProfile>({
     name: user?.name || '',
     email: user?.email || '',
     phone: '',
     firmName: '',
-    slogan: ''
+    slogan: '',
   });
 
   const handleEditSubmit = (values: UserProfile) => {
@@ -34,46 +41,46 @@ export default function Overview() {
 
   const profileFields = [
     {
-      label: "Name",
-      name: "name",
-      type: "text" as const,
-      placeholder: "Enter your full name",
-      rules: [{ required: true, message: "Please enter your name" }],
+      label: 'Name',
+      name: 'name',
+      type: 'text' as const,
+      placeholder: 'Enter your full name',
+      rules: [{ required: true, message: 'Please enter your name' }],
     },
     {
-      label: "Email",
-      name: "email",
-      type: "email" as const,
-      placeholder: "Enter your email",
+      label: 'Email',
+      name: 'email',
+      type: 'email' as const,
+      placeholder: 'Enter your email',
       rules: [
-        { required: true, message: "Please enter your email" },
-        { type: "email", message: "Please enter a valid email" },
+        { required: true, message: 'Please enter your email' },
+        { type: 'email', message: 'Please enter a valid email' },
       ],
     },
     {
-      label: "Phone",
-      name: "phone",
-      type: "phone" as const,
-      placeholder: "Enter your phone number",
-      rules: [{ required: true, message: "Please enter your phone number" }],
+      label: 'Phone',
+      name: 'phone',
+      type: 'phone' as const,
+      placeholder: 'Enter your phone number',
+      rules: [{ required: true, message: 'Please enter your phone number' }],
     },
     {
-      label: "Firm Name",
-      name: "firmName",
-      type: "text" as const,
-      placeholder: "Enter your firm name",
-      rules: [{ required: true, message: "Please enter your firm name" }],
+      label: 'Firm Name',
+      name: 'firmName',
+      type: 'text' as const,
+      placeholder: 'Enter your firm name',
+      rules: [{ required: true, message: 'Please enter your firm name' }],
     },
     {
-      label: "Slogan",
-      name: "slogan",
-      type: "text" as const,
-      placeholder: "Enter your firm slogan",
+      label: 'Slogan',
+      name: 'slogan',
+      type: 'text' as const,
+      placeholder: 'Enter your firm slogan',
     },
     {
-      label: "Logo",
-      name: "logo",
-      type: "image" as const,
+      label: 'Logo',
+      name: 'logo',
+      type: 'image' as const,
     },
   ];
 
@@ -81,11 +88,7 @@ export default function Overview() {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h5 className="text-2xl font-semibold">Profile Overview</h5>
-        <Button 
-          type="primary" 
-          icon={<IconEdit />}
-          onClick={() => setIsEditing(true)}
-        >
+        <Button type="primary" icon={<IconEdit />} onClick={() => setIsEditing(true)}>
           Edit Profile
         </Button>
       </div>
@@ -93,16 +96,9 @@ export default function Overview() {
       <Card className="max-w-3xl mx-auto">
         <div className="flex flex-col md:flex-row gap-8">
           <div className="flex flex-col items-center">
-            <Avatar 
-              size={120} 
-              icon={<IconUser />} 
-              src={profileData?.logo}
-              className="mb-4"
-            />
+            <Avatar size={120} icon={<IconUser />} src={profileData?.logo} className="mb-4" />
             <h2 className="text-xl font-semibold">{profileData?.name}</h2>
-            {profileData?.firmName && (
-              <p className="text-gray-600">{profileData?.firmName}</p>
-            )}
+            {profileData?.firmName && <p className="text-gray-600">{profileData?.firmName}</p>}
           </div>
 
           <div className="flex-1">

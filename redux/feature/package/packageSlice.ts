@@ -1,14 +1,14 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { Status } from "@lib/constants/enum";
-import { Package } from "./IPackageState";
+import { createSlice } from '@reduxjs/toolkit';
+import { Status } from '@lib/constants/enum';
+import { Package } from './IPackageState';
 import {
   createPackage,
   deletePackage,
   fetchPackageItems,
   fetchPackages,
   updatePackage,
-} from "./packageThunk";
-import { Item } from "../masterPriceList/iMasterPriceListState";
+} from './packageThunk';
+import { Item } from '../masterPriceList/iMasterPriceListState';
 
 interface PackageState {
   packages: Package[] | null;
@@ -27,91 +27,89 @@ const initialState: PackageState = {
 };
 
 const packageSlice = createSlice({
-  name: "package",
+  name: 'package',
   initialState,
   reducers: {
     setSelectedFilters: (state, action) => {
       state.selectedFilters = { ...state.selectedFilters, ...action.payload };
     },
-    clearFilters: (state) => {
+    clearFilters: state => {
       state.selectedFilters = { range: '', dwelling_type: '' };
     },
     setAddInstItemModal: (state, action) => {
       state.addInstItemModal = action.payload;
     },
     addPackageItems: (state, action) => {
-      if(state.items === null){
+      if (state.items === null) {
         state.items = [];
       }
       state.items = [action.payload, ...state.items];
     },
     removePackageItems: (state, action) => {
       state.items = state.items?.filter(
-        (item) => item.categoryItemId !== action.payload.categoryItemId
+        item => item.categoryItemId !== action.payload.categoryItemId
       );
       if (state.packages) {
-        state.packages = state.packages.map((pkg) => ({
+        state.packages = state.packages.map(pkg => ({
           ...pkg,
           categoryItems:
-            pkg.categoryItems?.filter(
-              (item) => item.id !== action.payload.categoryItemId
-            ) || [],
+            pkg.categoryItems?.filter(item => item.id !== action.payload.categoryItemId) || [],
         }));
       }
     },
   },
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     //get
-    builder.addCase(fetchPackages.pending, (state) => {
+    builder.addCase(fetchPackages.pending, state => {
       state.status.packages = Status.PENDING;
     });
     builder.addCase(fetchPackages.fulfilled, (state, action) => {
       state.status.packages = Status.SUCCESS;
       state.packages = action.payload;
     });
-    builder.addCase(fetchPackages.rejected, (state) => {
+    builder.addCase(fetchPackages.rejected, state => {
       state.status.packages = Status.ERROR;
     });
     //create
-    builder.addCase(createPackage.pending, (state) => {
+    builder.addCase(createPackage.pending, state => {
       state.status.item = Status.PENDING;
     });
     builder.addCase(createPackage.fulfilled, (state, action) => {
       state.status.item = Status.SUCCESS;
       state.packages.unshift(action.payload);
     });
-    builder.addCase(createPackage.rejected, (state) => {
+    builder.addCase(createPackage.rejected, state => {
       state.status.item = Status.ERROR;
     });
     //update
-    builder.addCase(updatePackage.pending, (state) => {
+    builder.addCase(updatePackage.pending, state => {
       state.status.item = Status.PENDING;
     });
     builder.addCase(updatePackage.fulfilled, (state, action) => {
       state.status.item = Status.SUCCESS;
-      state.packages = state.packages?.map((pkg) => {
+      state.packages = state.packages?.map(pkg => {
         if (pkg.packageId === action.payload.packageId) {
           return action.payload;
         }
         return pkg;
       });
     });
-    builder.addCase(updatePackage.rejected, (state) => {
+    builder.addCase(updatePackage.rejected, state => {
       state.status.item = Status.ERROR;
     });
     //delete
-    builder.addCase(deletePackage.pending, (state) => {
+    builder.addCase(deletePackage.pending, state => {
       state.status.item = Status.PENDING;
     });
     builder.addCase(deletePackage.fulfilled, (state, action) => {
       state.status.item = Status.SUCCESS;
-      state.packages = state.packages?.filter((pkg) => pkg.packageId !== action.payload.id);
+      state.packages = state.packages?.filter(pkg => pkg.packageId !== action.payload.id);
     });
-    builder.addCase(deletePackage.rejected, (state) => {
+    builder.addCase(deletePackage.rejected, state => {
       state.status.item = Status.ERROR;
-    }); 
+    });
     //get items
-    builder.addCase(fetchPackageItems.pending, (state) => {
+    builder.addCase(fetchPackageItems.pending, state => {
       state.status.items = Status.PENDING;
     });
     builder.addCase(fetchPackageItems.fulfilled, (state, action) => {
@@ -132,7 +130,7 @@ const packageSlice = createSlice({
 
       state.status.items = Status.SUCCESS;
     });
-    builder.addCase(fetchPackageItems.rejected, (state) => {
+    builder.addCase(fetchPackageItems.rejected, state => {
       state.status.items = Status.ERROR;
     });
   },

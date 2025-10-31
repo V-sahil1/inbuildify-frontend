@@ -1,5 +1,5 @@
-import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import { Status } from "@lib/constants/enum";
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { Status } from '@lib/constants/enum';
 import {
   CityNameRules,
   emailRules,
@@ -8,30 +8,15 @@ import {
   optionalAddressRules,
   optionalPhoneRule,
   phoneRules,
-} from "@lib/constants/formInputValidations";
+} from '@lib/constants/formInputValidations';
 import {
   getCountriesThunk,
   getStatesByCountryIdThunk,
-} from "@redux/feature/location/locationThunk";
-import { RootState } from "@redux/feature/store";
-import {
-  IconChevronLeft,
-  IconMail,
-  IconPhone,
-  IconPlus,
-  IconUserCheck,
-} from "@tabler/icons-react";
-import {
-  Button,
-  Card,
-  Form,
-  Input,
-  message,
-  Modal,
-  Select,
-  Switch,
-} from "antd";
-import { useEffect, useMemo, useState } from "react";
+} from '@redux/feature/location/locationThunk';
+import { RootState } from '@redux/feature/store';
+import { IconChevronLeft, IconMail, IconPhone, IconPlus, IconUserCheck } from '@tabler/icons-react';
+import { Button, Card, Form, Input, message, Modal, Select, Switch } from 'antd';
+import { useEffect, useMemo, useState } from 'react';
 
 const { Option } = Select;
 
@@ -42,14 +27,12 @@ const LeadDetailsForm: React.FC<any> = ({
   initialValues = {},
   onCancel,
   onSubmit,
-}) => { 
+}) => {
   const [form] = Form.useForm();
   const [showContactForm, setShowContactForm] = useState(false);
   const [hideAddressForm, setHideAddressForm] = useState(true);
   const [selectedCountryId, setSelectedCountryId] = useState<string>();
-  const { countries, states, status } = useAppSelector(
-    (state: RootState) => state.location
-  );
+  const { countries, states, status } = useAppSelector((state: RootState) => state.location);
   const dispatch = useAppDispatch();
 
   const countryMap = useMemo(
@@ -70,16 +53,16 @@ const LeadDetailsForm: React.FC<any> = ({
     [states]
   );
 
-  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+  const isAuthenticated = useAppSelector(state => state.auth.isAuthenticated);
 
   useEffect(() => {
     const loadCountries = async () => {
       if (!isAuthenticated) return;
-      
+
       try {
         await dispatch(getCountriesThunk()).unwrap();
       } catch (error) {
-          message.error(error?.message || "Failed to fetch countries");
+        message.error(error?.message || 'Failed to fetch countries');
       }
     };
 
@@ -90,12 +73,12 @@ const LeadDetailsForm: React.FC<any> = ({
 
   const handleCountryChange = async (countryId: string) => {
     if (!isAuthenticated) return;
-    
+
     setSelectedCountryId(countryId);
     try {
       await dispatch(getStatesByCountryIdThunk(countryId)).unwrap();
     } catch (error) {
-      message.error(error?.message || "Failed to fetch states");
+      message.error(error?.message || 'Failed to fetch states');
     }
   };
 
@@ -142,14 +125,14 @@ const LeadDetailsForm: React.FC<any> = ({
   //   }
   // }, [open, isEditing, initialValues, form]);
 
-  const handleContactBackClick = () =>{
-    setShowContactForm(false)
+  const handleContactBackClick = () => {
+    setShowContactForm(false);
     form.setFieldsValue(initialValues);
-  }
+  };
   useEffect(() => {
     if (open) {
-        form.resetFields();
-        form.setFieldsValue(initialValues);
+      form.resetFields();
+      form.setFieldsValue(initialValues);
       setHideAddressForm(true);
     }
   }, [open]);
@@ -157,14 +140,12 @@ const LeadDetailsForm: React.FC<any> = ({
   const handleOk = async () => {
     try {
       const values = await form.validateFields();
-      const country = values.countryId
-        ? countryMap[values.countryId]
-        : undefined;
+      const country = values.countryId ? countryMap[values.countryId] : undefined;
       const state = values.stateId ? stateMap[values.stateId] : undefined;
 
       let payload: any = {
         ...values,
-        type: showContactForm ? "add" : "update",
+        type: showContactForm ? 'add' : 'update',
       };
 
       if (country) payload.country = country;
@@ -182,18 +163,16 @@ const LeadDetailsForm: React.FC<any> = ({
         };
       }
 
-      Object.keys(payload).forEach(
-        (key) => payload[key] === undefined && delete payload[key]
-      );
+      Object.keys(payload).forEach(key => payload[key] === undefined && delete payload[key]);
 
       const { countryId, stateId, ...rest } = payload;
       await onSubmit(rest);
-      setShowContactForm(false)
+      setShowContactForm(false);
     } catch (err) {
       if (err.errorFields) {
-        message.error("Please fill all required fields");
+        message.error('Please fill all required fields');
       } else {
-        message.error("An error occurred. Please try again.");
+        message.error('An error occurred. Please try again.');
       }
     }
     // finally{
@@ -218,30 +197,32 @@ const LeadDetailsForm: React.FC<any> = ({
           <div>
             <h1 className="text-left">Contact Details</h1>
           </div>
-          {showContactForm ? 
-          <Button
-            type="primary"
-            icon={<IconChevronLeft />}
-            onClick={handleContactBackClick}
-            className="mr-6"
-          >
-            Back
-          </Button>
-           :   <Button
-            type="primary"
-            icon={<IconPlus />}
-            onClick={handleContactClick}
-            className="mr-6"
-          >
-            Contact
-          </Button>}
+          {showContactForm ? (
+            <Button
+              type="primary"
+              icon={<IconChevronLeft />}
+              onClick={handleContactBackClick}
+              className="mr-6"
+            >
+              Back
+            </Button>
+          ) : (
+            <Button
+              type="primary"
+              icon={<IconPlus />}
+              onClick={handleContactClick}
+              className="mr-6"
+            >
+              Contact
+            </Button>
+          )}
         </div>
       }
       open={open}
       onOk={handleOk}
       centered
       onCancel={handleCancel}
-      okText={showContactForm ? "Add" : isEditing ? "Update" : "Create"}
+      okText={showContactForm ? 'Add' : isEditing ? 'Update' : 'Create'}
       className="p-6 max-w-4xl mx-auto md:min-w-[800px] h-[70vh] flex flex-col"
       confirmLoading={loading}
     >
@@ -250,11 +231,7 @@ const LeadDetailsForm: React.FC<any> = ({
           <Form.Item label="Name" name="name" rules={nameRules}>
             <Input placeholder="Enter full name" />
           </Form.Item>
-          <Form.Item
-            label="Email"
-            name="email"
-            rules={emailRules}
-          >
+          <Form.Item label="Email" name="email" rules={emailRules}>
             <Input type="email" placeholder="Enter email" />
           </Form.Item>
 
@@ -264,7 +241,7 @@ const LeadDetailsForm: React.FC<any> = ({
               placeholder="1234567890"
               minLength={10}
               maxLength={15}
-              onKeyPress={(e) => {
+              onKeyPress={e => {
                 if (!/[0-9]/.test(e.key)) {
                   e.preventDefault();
                 }
@@ -278,7 +255,7 @@ const LeadDetailsForm: React.FC<any> = ({
               placeholder="1234567890 (optional)"
               minLength={10}
               maxLength={15}
-              onKeyPress={(e) => {
+              onKeyPress={e => {
                 if (!/[0-9]/.test(e.key)) {
                   e.preventDefault();
                 }
@@ -295,13 +272,8 @@ const LeadDetailsForm: React.FC<any> = ({
                 initialValue={true}
               >
                 <div className="flex items-center gap-2">
-                  <Switch
-                    checked={hideAddressForm}
-                    onChange={handleAddressToggle}
-                  />
-                  <span>
-                    {hideAddressForm ? "Show" : "Hide"} address fields
-                  </span>
+                  <Switch checked={hideAddressForm} onChange={handleAddressToggle} />
+                  <span>{hideAddressForm ? 'Show' : 'Hide'} address fields</span>
                 </div>
               </Form.Item>
             </div>
@@ -313,19 +285,11 @@ const LeadDetailsForm: React.FC<any> = ({
                 <Input placeholder="Enter address line 1" />
               </Form.Item>
 
-              <Form.Item
-                label="Address 2"
-                name="address2"
-                rules={optionalAddressRules}
-              >
+              <Form.Item label="Address 2" name="address2" rules={optionalAddressRules}>
                 <Input placeholder="Enter address line 2" />
               </Form.Item>
 
-              <Form.Item
-                label="City / Suburb"
-                name="city"
-                rules={CityNameRules}
-              >
+              <Form.Item label="City / Suburb" name="city" rules={CityNameRules}>
                 <Input placeholder="Enter city/suburb" />
               </Form.Item>
 
@@ -333,14 +297,14 @@ const LeadDetailsForm: React.FC<any> = ({
                 label="Zip / Postal Code"
                 name="zip"
                 rules={[
-                  { required: true, message: "Please enter postal code" },
-                  {max: 4, message: "Postal code must be at most 4 characters"}
+                  { required: true, message: 'Please enter postal code' },
+                  { max: 4, message: 'Postal code must be at most 4 characters' },
                 ]}
               >
                 <Input
                   placeholder="Enter zip/postal code"
                   type="number"
-                  onKeyPress={(e) => {
+                  onKeyPress={e => {
                     if (!/[0-9]/.test(e.key)) {
                       e.preventDefault();
                     }
@@ -351,17 +315,17 @@ const LeadDetailsForm: React.FC<any> = ({
               <Form.Item
                 label="Country"
                 name="countryId"
-                rules={[{ required: true, message: "Please select country" }]}
+                rules={[{ required: true, message: 'Please select country' }]}
               >
                 <Select
                   placeholder="Select country"
-                  onChange={(value) => {
+                  onChange={value => {
                     form.setFieldsValue({ stateId: undefined });
                     handleCountryChange(value);
                   }}
                   loading={status === Status.PENDING}
                 >
-                  {countries?.map((country) => (
+                  {countries?.map(country => (
                     <Option key={country.countryId} value={country.countryId}>
                       {country.name}
                     </Option>
@@ -372,19 +336,14 @@ const LeadDetailsForm: React.FC<any> = ({
               <Form.Item
                 label="State / Region"
                 name="stateId"
-              rules={[
-                { required: true, message: "Please select state/region" },
-              ]}
-            >
-              <Select
-                loading={status === Status.PENDING}
-                disabled={!selectedCountryId}
+                rules={[{ required: true, message: 'Please select state/region' }]}
               >
-                {states.map((state) => (
-                  <Option key={state.stateId} value={state.stateId}>
-                    {state.name}
-                  </Option>
-                ))}
+                <Select loading={status === Status.PENDING} disabled={!selectedCountryId}>
+                  {states.map(state => (
+                    <Option key={state.stateId} value={state.stateId}>
+                      {state.name}
+                    </Option>
+                  ))}
                 </Select>
               </Form.Item>
             </>
@@ -393,12 +352,8 @@ const LeadDetailsForm: React.FC<any> = ({
               <Card className="w-full rounded-lg shadow-sm">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full items-center">
                   <div className="col-span-1">
-                    <h3 className="font-semibold text-[16px]">
-                      {initialValues?.name}
-                    </h3>
-                    <p className="text-gray-600 text-sm">
-                      {initialValues?.address}
-                    </p>
+                    <h3 className="font-semibold text-[16px]">{initialValues?.name}</h3>
+                    <p className="text-gray-600 text-sm">{initialValues?.address}</p>
                   </div>
 
                   <div className="col-span-1">

@@ -52,7 +52,7 @@ const DateFilterDropdown: React.FC<DateFilterDropdownProps> = ({ onFilter, onCle
         value={selectedFilter}
         onChange={handleChange}
         placeholder="Select date"
-        style={{width:'100%'}}
+        style={{ width: '100%' }}
       >
         {filterOptions.map(option => (
           <Option key={option.value} value={option.value}>
@@ -69,19 +69,14 @@ const DateFilterDropdown: React.FC<DateFilterDropdownProps> = ({ onFilter, onCle
           <Button key="cancel" onClick={() => setIsModalOpen(false)}>
             Cancel
           </Button>,
-          <Button
-            key="apply"
-            type="primary"
-            onClick={handleCustomFilter}
-            disabled={!customDates}
-          >
+          <Button key="apply" type="primary" onClick={handleCustomFilter} disabled={!customDates}>
             Apply
           </Button>,
         ]}
       >
         <RangePicker
           style={{ width: '100%' }}
-          onChange={(dates) => setCustomDates(dates as [Dayjs, Dayjs])}
+          onChange={dates => setCustomDates(dates as [Dayjs, Dayjs])}
         />
       </Modal>
     </>

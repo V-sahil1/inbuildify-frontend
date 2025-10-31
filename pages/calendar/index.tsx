@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Button, Select, Segmented } from 'antd'; 
+import { Button, Select, Segmented } from 'antd';
 import type { Dayjs } from 'dayjs';
-import dayjs from 'dayjs'; 
+import dayjs from 'dayjs';
 import { dummyEvents, Event } from '@/components/calendar/data';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import EventModal from '@/components/calendar/EventModal';
@@ -82,13 +82,22 @@ const CalendarView = () => {
 
           <div className="flex items-center gap-4">
             <div className="flex gap-2">
-              <Button type={selectedUser === 'Default' ? 'primary' : 'default'} onClick={() => setSelectedUser('Default')}>
+              <Button
+                type={selectedUser === 'Default' ? 'primary' : 'default'}
+                onClick={() => setSelectedUser('Default')}
+              >
                 Default
               </Button>
-              <Button type={selectedUser === 'Job' ? 'primary' : 'default'} onClick={() => setSelectedUser('Job')}>
+              <Button
+                type={selectedUser === 'Job' ? 'primary' : 'default'}
+                onClick={() => setSelectedUser('Job')}
+              >
                 Job
               </Button>
-              <Button type={selectedUser === 'Supplier' ? 'default' : 'default'} onClick={() => setSelectedUser('Supplier')}>
+              <Button
+                type={selectedUser === 'Supplier' ? 'default' : 'default'}
+                onClick={() => setSelectedUser('Supplier')}
+              >
                 Supplier
               </Button>
             </div>
@@ -106,12 +115,12 @@ const CalendarView = () => {
 
             <Segmented
               value={viewType}
-              onChange={(value) => setViewType(value as ViewType)}
+              onChange={value => setViewType(value as ViewType)}
               options={[
                 { label: 'month', value: 'month' },
                 { label: 'week', value: 'week' },
                 { label: 'day', value: 'day' },
-                { label: 'list', value: 'list' }
+                { label: 'list', value: 'list' },
               ]}
             />
           </div>
@@ -119,17 +128,21 @@ const CalendarView = () => {
       </div>
 
       <div className="p-6">
-        {viewType === 'month' && <MonthView currentDate={currentDate} events={events} onEventClick={handleEventClick} />}
-        {viewType === 'week' && <WeekView currentDate={currentDate} events={events} onEventClick={handleEventClick} />}
-        {viewType === 'day' && <DayView currentDate={currentDate} events={events} onEventClick={handleEventClick} />}
-        {viewType === 'list' && <MonthView currentDate={currentDate} events={events} onEventClick={handleEventClick} />}
+        {viewType === 'month' && (
+          <MonthView currentDate={currentDate} events={events} onEventClick={handleEventClick} />
+        )}
+        {viewType === 'week' && (
+          <WeekView currentDate={currentDate} events={events} onEventClick={handleEventClick} />
+        )}
+        {viewType === 'day' && (
+          <DayView currentDate={currentDate} events={events} onEventClick={handleEventClick} />
+        )}
+        {viewType === 'list' && (
+          <MonthView currentDate={currentDate} events={events} onEventClick={handleEventClick} />
+        )}
       </div>
 
-      <EventModal
-        event={selectedEvent}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-      />
+      <EventModal event={selectedEvent} isOpen={isModalOpen} onClose={handleCloseModal} />
 
       <div className="fixed bottom-6 left-6 flex items-center gap-4 bg-white p-4 rounded-lg shadow-lg border border-gray-200">
         <div className="flex items-center gap-6">

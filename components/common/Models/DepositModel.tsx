@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
-import { Button, Form, Input, Select, Switch, Modal, DatePicker } from "antd";
-import dayjs, { Dayjs } from "dayjs";
-import { IconCalendar } from "@tabler/icons-react";
-import { paymentOptions } from "data/options";
+import { useState, useEffect } from 'react';
+import { Button, Form, Input, Select, Switch, Modal, DatePicker } from 'antd';
+import dayjs, { Dayjs } from 'dayjs';
+import { IconCalendar } from '@tabler/icons-react';
+import { paymentOptions } from 'data/options';
 
 const { Option } = Select;
 
@@ -32,7 +32,7 @@ const DepositModel = ({
   onSubmit,
   loading = false,
   initialValues,
-  title = "Capture Deposit",
+  title = 'Capture Deposit',
 }: DepositModelProps) => {
   const [form] = Form.useForm();
   const [isPaid, setIsPaid] = useState<boolean>(false);
@@ -58,7 +58,7 @@ const DepositModel = ({
   const onFormFinish = (values: any) => {
     const formattedValues = {
       ...values,
-      date: values.date ? values.date.format("YYYY-MM-DD") : undefined,
+      date: values.date ? values.date.format('YYYY-MM-DD') : undefined,
     };
     onSubmit(formattedValues);
   };
@@ -78,52 +78,36 @@ const DepositModel = ({
         <Button key="cancel" onClick={handleCancel}>
           Cancel
         </Button>,
-        <Button
-          key="submit"
-          type="primary"
-          loading={loading}
-          onClick={() => form.submit()}
-        >
-          {initialValues?.id ? "Update" : "Save"} Deposit
+        <Button key="submit" type="primary" loading={loading} onClick={() => form.submit()}>
+          {initialValues?.id ? 'Update' : 'Save'} Deposit
         </Button>,
       ]}
     >
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={onFormFinish}
-        initialValues={{ isPaid: false }}
-      >
+      <Form form={form} layout="vertical" onFinish={onFormFinish} initialValues={{ isPaid: false }}>
         <Form.Item
           label="Deposit Amount"
           name="amount"
-          rules={[{ required: true, message: "Please enter deposit amount" }]}
+          rules={[{ required: true, message: 'Please enter deposit amount' }]}
         >
-          <Input prefix={"$"} type="number" placeholder="Enter amount" />
+          <Input prefix={'$'} type="number" placeholder="Enter amount" />
         </Form.Item>
 
         <Form.Item
           label="Deposit Date"
           name="date"
-          rules={[{ required: true, message: "Please select deposit date" }]}
+          rules={[{ required: true, message: 'Please select deposit date' }]}
         >
-          <DatePicker
-            style={{ width: "100%" }}
-            suffixIcon={<IconCalendar />}
-            format="DD/MM/YYYY"
-          />
+          <DatePicker style={{ width: '100%' }} suffixIcon={<IconCalendar />} format="DD/MM/YYYY" />
         </Form.Item>
 
         {isPaid && (
           <Form.Item
             label="Payment Method"
             name="paymentMethod"
-            rules={[
-              { required: true, message: "Please select payment method" },
-            ]}
+            rules={[{ required: true, message: 'Please select payment method' }]}
           >
             <Select placeholder="Select payment method">
-              {paymentOptions.map((option) => (
+              {paymentOptions.map(option => (
                 <Option key={option.value} value={option.value}>
                   {option.label}
                 </Option>
@@ -135,7 +119,7 @@ const DepositModel = ({
         <Form.Item
           label="Reference Number"
           name="referenceNumber"
-          rules={[{ required: true, message: "Please enter reference number" }]}
+          rules={[{ required: true, message: 'Please enter reference number' }]}
         >
           <Input placeholder="Enter reference number" />
         </Form.Item>
@@ -144,14 +128,10 @@ const DepositModel = ({
           <Input.TextArea rows={3} placeholder="Add any additional notes" />
         </Form.Item>
 
-        <Form.Item
-          name="isPaid"
-          label="Send Invoice to Customer"
-          valuePropName="checked"
-        >
+        <Form.Item name="isPaid" label="Send Invoice to Customer" valuePropName="checked">
           <Switch
             checked={isPaid}
-            onChange={(checked) => {
+            onChange={checked => {
               setIsPaid(checked);
               if (!checked) {
                 form.setFieldsValue({ paymentMode: undefined });

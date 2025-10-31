@@ -4,16 +4,16 @@ const AmountsEditor = () => {
       <div className="space-y-3">
         {/* Row */}
         {[
-          ["Order Amount", true],
-          ["S & H", false],
-          ["Sales Taxes", false],
-          ["Discount/Add. Chgs.", false],
-          ["Total Amount", true],
-          ["Amount Paid", false],
-          ["Net Due", true],
-          ["Balance Due (US)", false],
-          ["Int. Decl. Value", false],
-          ["Insurance", false],
+          ['Order Amount', true],
+          ['S & H', false],
+          ['Sales Taxes', false],
+          ['Discount/Add. Chgs.', false],
+          ['Total Amount', true],
+          ['Amount Paid', false],
+          ['Net Due', true],
+          ['Balance Due (US)', false],
+          ['Int. Decl. Value', false],
+          ['Insurance', false],
         ].map(([label, isDisabled]) => (
           <div
             className="flex items-center justify-between gap-2 form-control"

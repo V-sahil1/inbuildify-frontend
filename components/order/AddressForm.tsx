@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import FormDetails from "./FormDetails";
-import { motion, AnimatePresence } from "framer-motion";
-import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
+import React, { useState } from 'react';
+import FormDetails from './FormDetails';
+import { motion, AnimatePresence } from 'framer-motion';
+import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 
 const AddressForm = ({
   title,
@@ -19,7 +19,7 @@ const AddressForm = ({
   openNewTaskModal?: () => void;
   rightButtonIcon?: React.ReactNode;
   shippingIcon?: React.ReactNode;
-    isExpanded?: boolean;
+  isExpanded?: boolean;
   toggleExpand?: () => void;
 }) => {
   return (
@@ -43,8 +43,8 @@ const AddressForm = ({
               type="button"
               aria-label={rightButtonText}
               className="rounded-full hover:bg-hover-color focus-visible:outline focus-visible:ring-2 focus-visible:ring-primary"
-              onClick={(e) => {
-                e.stopPropagation(); 
+              onClick={e => {
+                e.stopPropagation();
                 openNewTaskModal?.();
               }}
             >
@@ -65,12 +65,13 @@ const AddressForm = ({
           <motion.div
             key="content"
             initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
+            animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3 }}
             style={{
-            display:"flex",flex:"1"
-             }}
+              display: 'flex',
+              flex: '1',
+            }}
           >
             <div className="card bg-card-color rounded-xl p-4 flex-1">
               <FormDetails />

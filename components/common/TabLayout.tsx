@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import React from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { Tabs, Tab, TabList, TabPanel } from "react-tabs";
-import Breadcrumb from "@/components/common/Breadcrumb";
+import React from 'react';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { Tabs, Tab, TabList, TabPanel } from 'react-tabs';
+import Breadcrumb from '@/components/common/Breadcrumb';
 
 interface TabItem {
   id: string;
@@ -24,13 +24,13 @@ export default function TabLayout({ tabs, breadcrumbBase, className }: TabLayout
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const tabId = searchParams.get("tab") || tabs[0]?.id;
-  const selectedIndex = tabs.findIndex((tab) => tab.id === tabId);
+  const tabId = searchParams.get('tab') || tabs[0]?.id;
+  const selectedIndex = tabs.findIndex(tab => tab.id === tabId);
 
   const handleTabSelect = (index: number) => {
     const selectedTabId = tabs[index].id;
     const params = new URLSearchParams(searchParams.toString());
-    params.set("tab", selectedTabId);
+    params.set('tab', selectedTabId);
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
@@ -41,7 +41,7 @@ export default function TabLayout({ tabs, breadcrumbBase, className }: TabLayout
 
   return (
     <Tabs
-      className={`flex ${className || ""}`}
+      className={`flex ${className || ''}`}
       selectedIndex={selectedIndex}
       onSelect={handleTabSelect}
       forceRenderTabPanel
@@ -54,7 +54,7 @@ export default function TabLayout({ tabs, breadcrumbBase, className }: TabLayout
         left-0 rtl:right-0`}
       >
         <TabList>
-          {tabs.map((tab) => {
+          {tabs.map(tab => {
             const Icon = tab.icon;
             return (
               <Tab
@@ -74,20 +74,18 @@ export default function TabLayout({ tabs, breadcrumbBase, className }: TabLayout
         className="flex-1 md:p-4 sm:px-3 py-4 
         xl:h-[calc(100svh-148px)] md:h-[calc(100svh-144px)] sm:h-[calc(100svh-176px)] 
         overflow-auto"
-        style={{ scrollbarWidth: "none" }}
+        style={{ scrollbarWidth: 'none' }}
       >
         <div className="container-fluid">
-         {breadcrumbBase && <div className="flex items-center justify-between gap-4">
-            <Breadcrumb breadcrumbItem={breadcrumbItems} />
-          </div>}
+          {breadcrumbBase && (
+            <div className="flex items-center justify-between gap-4">
+              <Breadcrumb breadcrumbItem={breadcrumbItems} />
+            </div>
+          )}
 
           {tabs.map((tab, index) => {
             const TabComponent = tab.component;
-            return (
-              <TabPanel key={tab.id}>
-                {selectedIndex === index && <TabComponent />}
-              </TabPanel>
-            );
+            return <TabPanel key={tab.id}>{selectedIndex === index && <TabComponent />}</TabPanel>;
           })}
         </div>
       </div>

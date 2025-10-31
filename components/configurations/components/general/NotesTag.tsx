@@ -1,23 +1,8 @@
-"use client";
-import React, { useState } from "react";
-import {
-  Button,
-  Input,
-  Table,
-  Space,
-  Form,
-  Popconfirm,
-  Card,
-  ColorPicker,
-} from "antd";
-import {
-  IconEdit,
-  IconTrash,
-  IconCheck,
-  IconX,
-  IconPlus,
-} from "@tabler/icons-react";
-import { notesTagData } from "data/configuration/ConfigrationData";
+'use client';
+import React, { useState } from 'react';
+import { Button, Input, Table, Space, Form, Popconfirm, Card, ColorPicker } from 'antd';
+import { IconEdit, IconTrash, IconCheck, IconX, IconPlus } from '@tabler/icons-react';
+import { notesTagData } from 'data/configuration/ConfigrationData';
 
 type TagRow = {
   id: number;
@@ -28,7 +13,7 @@ type TagRow = {
 };
 
 const NotesTag: React.FC = () => {
-  const [selectedSection, setSelectedSection] = useState("lead");
+  const [selectedSection, setSelectedSection] = useState('lead');
   const [form] = Form.useForm();
   const [editingRow, setEditingRow] = useState<TagRow | null>(null);
 
@@ -37,9 +22,9 @@ const NotesTag: React.FC = () => {
   const handleAdd = () => {
     const newRow: TagRow = {
       id: Date.now(),
-      name: "",
-      backgroundColor: "#1677ff",
-      fontColor: "#ffffff",
+      name: '',
+      backgroundColor: '#1677ff',
+      fontColor: '#ffffff',
       isNew: true,
     };
     setEditingRow(newRow);
@@ -55,7 +40,7 @@ const NotesTag: React.FC = () => {
       if (editingRow.isNew) {
         newList.unshift({ ...values, id: editingRow.id });
       } else {
-        const idx = newList.findIndex((i) => i.id === editingRow.id);
+        const idx = newList.findIndex(i => i.id === editingRow.id);
         if (idx >= 0) newList[idx] = { ...editingRow, ...values };
       }
 
@@ -78,7 +63,7 @@ const NotesTag: React.FC = () => {
   };
 
   const handleDelete = (id: number) => {
-    const updated = (sectionData[selectedSection] || []).filter((i) => i.id !== id);
+    const updated = (sectionData[selectedSection] || []).filter(i => i.id !== id);
     setSectionData({ ...sectionData, [selectedSection]: updated });
   };
 
@@ -92,7 +77,7 @@ const NotesTag: React.FC = () => {
     name,
     record,
   }: {
-    name: "backgroundColor" | "fontColor";
+    name: 'backgroundColor' | 'fontColor';
     record: TagRow;
   }) => {
     const isEditing = editingRow?.id === record.id;
@@ -105,19 +90,19 @@ const NotesTag: React.FC = () => {
           <div className="flex items-center gap-2">
             <ColorPicker
               value={currentValue}
-              onChange={(color) => {
+              onChange={color => {
                 const hex = color.toHexString().toUpperCase();
                 form.setFieldValue(name, hex);
               }}
             />
             <Input
               value={currentValue}
-              onChange={(e) => {
-                let v = e.target.value || "";
-                if (v && !v.startsWith("#")) v = "#" + v;
+              onChange={e => {
+                let v = e.target.value || '';
+                if (v && !v.startsWith('#')) v = '#' + v;
                 form.setFieldValue(name, v.toUpperCase());
               }}
-              style={{ width: 90, textTransform: "uppercase" }}
+              style={{ width: 90, textTransform: 'uppercase' }}
             />
           </div>
         </Form.Item>
@@ -137,8 +122,8 @@ const NotesTag: React.FC = () => {
 
   const columns = [
     {
-      title: "Name",
-      dataIndex: "name",
+      title: 'Name',
+      dataIndex: 'name',
       render: (_: any, record: TagRow) =>
         editingRow?.id === record.id ? (
           <Form.Item name="name" rules={[{ required: true }]} style={{ margin: 0 }}>
@@ -149,13 +134,13 @@ const NotesTag: React.FC = () => {
         ),
     },
     {
-      title: "Background Color",
-      dataIndex: "backgroundColor",
+      title: 'Background Color',
+      dataIndex: 'backgroundColor',
       render: (_: any, record: TagRow) => <ColorCell name="backgroundColor" record={record} />,
     },
     {
-      title: "Font Color",
-      dataIndex: "fontColor",
+      title: 'Font Color',
+      dataIndex: 'fontColor',
       render: (_: any, record: TagRow) => <ColorCell name="fontColor" record={record} />,
     },
     {
@@ -173,7 +158,12 @@ const NotesTag: React.FC = () => {
       render: (_: any, record: TagRow) =>
         editingRow?.id === record.id ? (
           <Space>
-            <Button icon={<IconCheck size={16} />} type="primary" size="small" onClick={handleSave} />
+            <Button
+              icon={<IconCheck size={16} />}
+              type="primary"
+              size="small"
+              onClick={handleSave}
+            />
             <Button icon={<IconX size={16} />} danger size="small" onClick={handleCancel} />
           </Space>
         ) : (

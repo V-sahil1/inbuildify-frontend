@@ -1,6 +1,6 @@
-import { ContentCard } from "@/components/common/card/ContentCard";
-import { UserInfoCard } from "@/components/common/card/UserInfoCard";
-import { IconPlus, IconX } from "@tabler/icons-react";
+import { ContentCard } from '@/components/common/card/ContentCard';
+import { UserInfoCard } from '@/components/common/card/UserInfoCard';
+import { IconPlus, IconX } from '@tabler/icons-react';
 import {
   Form,
   Input,
@@ -15,76 +15,69 @@ import {
   Button,
   Space,
   Modal,
-} from "antd";
-import {
-  dummyBuilderData,
-  dummyPurchaserData,
-} from "data/buildingcontractData";
-import React from "react";
+} from 'antd';
+import { dummyBuilderData, dummyPurchaserData } from 'data/buildingcontractData';
+import React from 'react';
 
 const { Option } = Select;
 const { TextArea } = Input;
 
 // Define a style for form section headings
 const sectionStyle = {
-  fontSize: "20px",
-  fontWeight: "bold",
-  margin: "30px 0 15px 0",
-  borderBottom: "2px solid #eee",
-  paddingBottom: "5px",
+  fontSize: '20px',
+  fontWeight: 'bold',
+  margin: '30px 0 15px 0',
+  borderBottom: '2px solid #eee',
+  paddingBottom: '5px',
 };
 
 const BuildingContractForm = () => {
   const [form] = Form.useForm();
   const [isModalVisible, setIsModalVisible] = React.useState(false);
 
-  const onFinish = (values) => {
-    console.log("Received values of form: ", values);
+  const onFinish = values => {
+    console.log('Received values of form: ', values);
   };
 
   const defaultPaymentStages = [
-    { key: "deposit", stage: "Deposit", percent: 5 },
-    { key: "base", stage: "Base Stage", percent: 10 },
-    { key: "frame", stage: "Frame Stage", percent: 15 },
-    { key: "lockup", stage: "Lock-Up Stage", percent: 35 },
-    { key: "fixing", stage: "Fixing Stage", percent: 25 },
-    { key: "completion", stage: "Completion", percent: 10 },
+    { key: 'deposit', stage: 'Deposit', percent: 5 },
+    { key: 'base', stage: 'Base Stage', percent: 10 },
+    { key: 'frame', stage: 'Frame Stage', percent: 15 },
+    { key: 'lockup', stage: 'Lock-Up Stage', percent: 35 },
+    { key: 'fixing', stage: 'Fixing Stage', percent: 25 },
+    { key: 'completion', stage: 'Completion', percent: 10 },
   ];
 
   const paymentColumns = [
     {
-      title: "Stage",
-      dataIndex: "stage",
-      key: "stage",
-      width: "30%",
-      render: (text) => <strong>{text}</strong>,
+      title: 'Stage',
+      dataIndex: 'stage',
+      key: 'stage',
+      width: '30%',
+      render: text => <strong>{text}</strong>,
     },
     {
-      title: "Percentage Of Contract Price %",
-      dataIndex: "percent",
-      key: "percent",
-      width: "35%",
+      title: 'Percentage Of Contract Price %',
+      dataIndex: 'percent',
+      key: 'percent',
+      width: '35%',
       render: (_, record) => (
         <Form.Item
-          name={["progressPayment", record.key, "percent"]}
+          name={['progressPayment', record.key, 'percent']}
           initialValue={record.percent}
           noStyle
         >
-          <InputNumber
-            min={0}
-            max={100}
-            style={{ width: "100%", textAlign: "center" }}
-          />
+          <InputNumber min={0} max={100} style={{ width: '100%', textAlign: 'center' }} />
         </Form.Item>
       ),
     },
     {
-      title: "$ Amount",
-      dataIndex: "amount",
-      key: "amount",
-      width: "35%",
+      title: '$ Amount',
+      dataIndex: 'amount',
+      key: 'amount',
+      width: '35%',
       render: (_, record) => (
-        <Form.Item name={["progressPayment", record.key, "amount"]} noStyle>
+        <Form.Item name={['progressPayment', record.key, 'amount']} noStyle>
           <Input prefix="$" placeholder="Amount" />
         </Form.Item>
       ),
@@ -99,17 +92,17 @@ const BuildingContractForm = () => {
         onFinish={onFinish}
         layout="vertical"
         initialValues={{
-          companyName: "My Home",
-          abn: "82 156 644 478",
-          surveyorName: "Parvaiz Azad Zai",
-          siteAddress: "Lot 89, 09 In numquam provident, Ex qui quia aut a",
-          insurerState: "Australian Capital Territory",
-          depositPaid: "8,000",
-          progressMethod: "method1",
-          purchaser1FullName: "john wick",
+          companyName: 'My Home',
+          abn: '82 156 644 478',
+          surveyorName: 'Parvaiz Azad Zai',
+          siteAddress: 'Lot 89, 09 In numquam provident, Ex qui quia aut a',
+          insurerState: 'Australian Capital Territory',
+          depositPaid: '8,000',
+          progressMethod: 'method1',
+          purchaser1FullName: 'john wick',
           builderWitnessSame: true,
         }}
-        style={{ padding: "20px", backgroundColor: "#fff" }}
+        style={{ padding: '20px', backgroundColor: '#fff' }}
       >
         {/* --- CUSTOMER DETAILS (Continued from first image) --- */}
         <div style={sectionStyle}>Customer Details</div>
@@ -130,31 +123,28 @@ const BuildingContractForm = () => {
         <div style={sectionStyle}>Building Period (Days)</div>
         <Row gutter={24}>
           <Col span={5}>
-            <Form.Item
-              name="actualBuildingPeriod"
-              label="Actual Building Period"
-            >
-              <InputNumber min={0} style={{ width: "100%" }} />
+            <Form.Item name="actualBuildingPeriod" label="Actual Building Period">
+              <InputNumber min={0} style={{ width: '100%' }} />
             </Form.Item>
           </Col>
           <Col span={5}>
             <Form.Item name="delayWeather" label="Delay Weather">
-              <InputNumber min={0} style={{ width: "100%" }} />
+              <InputNumber min={0} style={{ width: '100%' }} />
             </Form.Item>
           </Col>
           <Col span={5}>
             <Form.Item name="delayBreaks" label="Delay Breaks">
-              <InputNumber min={0} style={{ width: "100%" }} />
+              <InputNumber min={0} style={{ width: '100%' }} />
             </Form.Item>
           </Col>
           <Col span={5}>
             <Form.Item name="delayNature" label="Delay Nature">
-              <InputNumber min={0} style={{ width: "100%" }} />
+              <InputNumber min={0} style={{ width: '100%' }} />
             </Form.Item>
           </Col>
           <Col span={4}>
             <Form.Item name="totalBuildingPeriod" label="Total Building Period">
-              <InputNumber min={0} style={{ width: "100%" }} />
+              <InputNumber min={0} style={{ width: '100%' }} />
             </Form.Item>
           </Col>
         </Row>
@@ -172,31 +162,22 @@ const BuildingContractForm = () => {
           </Col>
           <Col span={6}>
             <Form.Item name="specPagesCount" label="Spec Pages Count">
-              <InputNumber min={0} style={{ width: "100%" }} />
+              <InputNumber min={0} style={{ width: '100%' }} />
             </Form.Item>
           </Col>
           <Col span={6}>
-            <Form.Item
-              name="numberOfPagesOfPlans"
-              label="Number Of Pages Of Plans"
-            >
-              <InputNumber min={0} style={{ width: "100%" }} />
+            <Form.Item name="numberOfPagesOfPlans" label="Number Of Pages Of Plans">
+              <InputNumber min={0} style={{ width: '100%' }} />
             </Form.Item>
           </Col>
           <Col span={6}>
-            <Form.Item
-              name="payingPlanningApproval"
-              label="Paying Planning Approval"
-            >
+            <Form.Item name="payingPlanningApproval" label="Paying Planning Approval">
               <Input />
             </Form.Item>
           </Col>
           <Col span={6}>
-            <Form.Item
-              name="planningApprovalDays"
-              label="Planning Approval Days"
-            >
-              <InputNumber min={0} style={{ width: "100%" }} />
+            <Form.Item name="planningApprovalDays" label="Planning Approval Days">
+              <InputNumber min={0} style={{ width: '100%' }} />
             </Form.Item>
           </Col>
           <Col span={6}>
@@ -206,25 +187,22 @@ const BuildingContractForm = () => {
           </Col>
           <Col span={6}>
             <Form.Item name="builderPermitDays" label="Builder Permit Days">
-              <InputNumber min={0} style={{ width: "100%" }} />
+              <InputNumber min={0} style={{ width: '100%' }} />
             </Form.Item>
           </Col>
           <Col span={6}>
-            <Form.Item
-              name="contractEndedPercent"
-              label="Contract Ended Percent"
-            >
+            <Form.Item name="contractEndedPercent" label="Contract Ended Percent">
               <InputNumber
                 min={0}
                 max={100}
                 //   formatter={(value) => `${value}%`}
-                style={{ width: "100%" }}
+                style={{ width: '100%' }}
               />
             </Form.Item>
           </Col>
           <Col span={6}>
             <Form.Item name="progressPaymentDays" label="Progress Payment Days">
-              <InputNumber min={0} style={{ width: "100%" }} />
+              <InputNumber min={0} style={{ width: '100%' }} />
             </Form.Item>
           </Col>
           <Col span={6}>
@@ -243,7 +221,7 @@ const BuildingContractForm = () => {
                 min={0}
                 max={100}
                 //   formatter={(value) => `${value}%`}
-                style={{ width: "100%" }}
+                style={{ width: '100%' }}
               />
             </Form.Item>
           </Col>
@@ -254,7 +232,7 @@ const BuildingContractForm = () => {
           </Col>
           <Col span={6}>
             <Form.Item name="bedroom" label="Bedroom">
-              <InputNumber min={1} style={{ width: "100%" }} />
+              <InputNumber min={1} style={{ width: '100%' }} />
             </Form.Item>
           </Col>
         </Row>
@@ -273,16 +251,13 @@ const BuildingContractForm = () => {
             </Form.Item>
           </Col>
           <Col span={6}>
-            <Form.Item
-              name="lendingFinanceAmount"
-              label="Lending Finance Amount"
-            >
+            <Form.Item name="lendingFinanceAmount" label="Lending Finance Amount">
               <Input prefix="$" />
             </Form.Item>
           </Col>
           <Col span={6}>
             <Form.Item name="lendingApprovalDays" label="Lending Approval Days">
-              <InputNumber min={0} style={{ width: "100%" }} />
+              <InputNumber min={0} style={{ width: '100%' }} />
             </Form.Item>
           </Col>
         </Row>
@@ -308,9 +283,7 @@ const BuildingContractForm = () => {
           <Col span={6}>
             <Form.Item name="insurerState" label="State">
               <Select>
-                <Option value="Australian Capital Territory">
-                  Australian Capital Territory
-                </Option>
+                <Option value="Australian Capital Territory">Australian Capital Territory</Option>
                 <Option value="New South Wales">New South Wales</Option>
               </Select>
             </Form.Item>
@@ -376,10 +349,7 @@ const BuildingContractForm = () => {
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item
-              name="planOfSubdivisionNumber"
-              label="Plan Of Subdivision Number"
-            >
+            <Form.Item name="planOfSubdivisionNumber" label="Plan Of Subdivision Number">
               <Input />
             </Form.Item>
           </Col>
@@ -407,16 +377,13 @@ const BuildingContractForm = () => {
             </Form.Item>
           </Col>
           <Col span={6}>
-            <Form.Item
-              name="contractPriceIncludingGST"
-              label="Contract Price Including GST"
-            >
+            <Form.Item name="contractPriceIncludingGST" label="Contract Price Including GST">
               <Input prefix="$" />
             </Form.Item>
           </Col>
           <Col span={6}>
             <Form.Item name="monthsPriceFixed" label="Months Price Fixed">
-              <InputNumber min={0} style={{ width: "100%" }} />
+              <InputNumber min={0} style={{ width: '100%' }} />
             </Form.Item>
           </Col>
         </Row>
@@ -454,9 +421,7 @@ const BuildingContractForm = () => {
             // The summary row (TOTAL CONTRACT PRICE)
             <Table.Summary.Row>
               <Table.Summary.Cell index={0} colSpan={2}>
-                <strong>
-                  TOTAL CONTRACT PRICE ($) / 100% (Including Deposit)
-                </strong>
+                <strong>TOTAL CONTRACT PRICE ($) / 100% (Including Deposit)</strong>
               </Table.Summary.Cell>
               <Table.Summary.Cell index={2}>
                 <Form.Item name="totalContractPriceSummary" noStyle>
@@ -464,7 +429,7 @@ const BuildingContractForm = () => {
                     prefix="$"
                     disabled
                     placeholder="Calculated Total"
-                    style={{ textAlign: "right" }}
+                    style={{ textAlign: 'right' }}
                   />
                 </Form.Item>
               </Table.Summary.Cell>
@@ -523,17 +488,14 @@ const BuildingContractForm = () => {
           <Form.Item noStyle shouldUpdate>
             {({ getFieldValue }) => {
               // Get the value of the Switch field
-              const isGuarantorSigned = getFieldValue("builderWitnessSame");
+              const isGuarantorSigned = getFieldValue('builderWitnessSame');
               if (isGuarantorSigned === true) {
                 return (
                   <Col span={12}>
                     <h3>Builder Witness Details:</h3>
                     <Row gutter={24}>
                       <Col span={12}>
-                        <Form.Item
-                          name="builderWitnessFullName"
-                          label="Full Name"
-                        >
+                        <Form.Item name="builderWitnessFullName" label="Full Name">
                           <Input />
                         </Form.Item>
                       </Col>
@@ -547,21 +509,18 @@ const BuildingContractForm = () => {
                       <div
                         style={{
                           height: 50,
-                          border: "1px dashed #ccc",
+                          border: '1px dashed #ccc',
                           borderRadius: 4,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          color: "#999",
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#999',
                         }}
                       >
                         Signature Block Placeholder
                       </div>
                     </Form.Item>
-                    <Form.Item
-                      name="builderWitnessAddress"
-                      label="Witness Address"
-                    >
+                    <Form.Item name="builderWitnessAddress" label="Witness Address">
                       <TextArea rows={4} />
                     </Form.Item>
                   </Col>
@@ -586,7 +545,7 @@ const BuildingContractForm = () => {
 
           <Form.Item noStyle shouldUpdate>
             {({ getFieldValue }) => {
-              const isGuarantorSigned = getFieldValue("guarantorSignature");
+              const isGuarantorSigned = getFieldValue('guarantorSignature');
 
               if (isGuarantorSigned === true) {
                 return (
@@ -602,19 +561,13 @@ const BuildingContractForm = () => {
                       </Form.Item>
                     </Col>
                     <Col span={6}>
-                      <Form.Item
-                        name="lendingFinanceAmount"
-                        label="Lending Finance Amount"
-                      >
+                      <Form.Item name="lendingFinanceAmount" label="Lending Finance Amount">
                         <Input prefix="$" />
                       </Form.Item>
                     </Col>
                     <Col span={6}>
-                      <Form.Item
-                        name="lendingApprovalDays"
-                        label="Lending Approval Days"
-                      >
-                        <InputNumber min={0} style={{ width: "100%" }} />
+                      <Form.Item name="lendingApprovalDays" label="Lending Approval Days">
+                        <InputNumber min={0} style={{ width: '100%' }} />
                       </Form.Item>
                     </Col>
                   </>
@@ -627,11 +580,11 @@ const BuildingContractForm = () => {
         <Row gutter={24}>
           <Col className="flex gap-4">
             <Form.Item name="contractSignedDate" label="Contract Signed Date:">
-              <DatePicker style={{ width: "100%" }} />
+              <DatePicker style={{ width: '100%' }} />
             </Form.Item>
 
             <Form.Item name="contractExpiryDate" label="Contract Expiry Date:">
-              <DatePicker style={{ width: "100%" }} />
+              <DatePicker style={{ width: '100%' }} />
             </Form.Item>
           </Col>
         </Row>
@@ -642,25 +595,15 @@ const BuildingContractForm = () => {
           {(fields, { add, remove }) => (
             <>
               {fields.map(({ key, name, fieldKey, ...restField }) => (
-                <div
-                    key={key} 
-                  className="flex items-start mb-2 p-3 border border-gray-300 rounded"
-               
-                >
+                <div key={key} className="flex items-start mb-2 p-3 border border-gray-300 rounded">
                   <Form.Item
                     {...restField}
-                    name={[name, "description"]}
-                    fieldKey={[fieldKey, "description"]}
+                    name={[name, 'description']}
+                    fieldKey={[fieldKey, 'description']}
                     className="flex-grow m-0"
-                    
-                    style={{ width: "100%" }} 
+                    style={{ width: '100%' }}
                   >
-                    <TextArea
-                      placeholder="Description..."
-                      rows={3}
-                      
-                      className="w-full"
-                    />
+                    <TextArea placeholder="Description..." rows={3} className="w-full" />
                   </Form.Item>
 
                   <IconX
@@ -674,7 +617,7 @@ const BuildingContractForm = () => {
                 onClick={() => add()}
                 block
                 icon={<IconPlus />}
-                className="mb-5" 
+                className="mb-5"
               >
                 Add Special Condition
               </Button>

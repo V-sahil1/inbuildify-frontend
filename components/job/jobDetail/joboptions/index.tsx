@@ -1,27 +1,27 @@
-import { ActionDialogmodel } from "@/components/common/Models/ActionDialogModel";
-import { JobRoleAssignUserModal } from "./JobRoleAssignUserModel";
-import { JobPrivateInspectionModal } from "./JobPrivateInspectionModal";
-import { jobAddressFields } from "@/components/formFields/jobAddressFields";
-import { jobPciHandoverDatesFields } from "@/components/formFields/jobpciHandoverDatesFields";
-import { jobPermitDatesFields } from "@/components/formFields/jobpermitDatesFields";
-import { JobChangeStatusModel } from "./JobChangeStatusModel";
-import JobDocumentModal from "./JobDocumentModal";
-import CustomerFeedback from "./CustomerFeedback";
-import DelayExtensionNotice from "./DelayExtensionNotice";
-import MailSendModal from "@/components/common/Models/MailSendModal";
-import { useAppSelector } from "@hooks/redux";
-import { jobTransferFields } from "@/components/formFields/jobTransferFIelds";
-import { useUsersHook } from "@hooks/useUserData";
+import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
+import { JobRoleAssignUserModal } from './JobRoleAssignUserModel';
+import { JobPrivateInspectionModal } from './JobPrivateInspectionModal';
+import { jobAddressFields } from '@/components/formFields/jobAddressFields';
+import { jobPciHandoverDatesFields } from '@/components/formFields/jobpciHandoverDatesFields';
+import { jobPermitDatesFields } from '@/components/formFields/jobpermitDatesFields';
+import { JobChangeStatusModel } from './JobChangeStatusModel';
+import JobDocumentModal from './JobDocumentModal';
+import CustomerFeedback from './CustomerFeedback';
+import DelayExtensionNotice from './DelayExtensionNotice';
+import MailSendModal from '@/components/common/Models/MailSendModal';
+import { useAppSelector } from '@hooks/redux';
+import { jobTransferFields } from '@/components/formFields/jobTransferFIelds';
+import { useUsersHook } from '@hooks/useUserData';
 
 export const jobOptionRenderer = ({ activeAction, onCancel, open }) => {
-  const { leadDetail } = useAppSelector((state) => state.lead);
+  const { leadDetail } = useAppSelector(state => state.lead);
   const { users } = useUsersHook();
   const jobTransferField = jobTransferFields();
 
   //   add all the submit logic here
 
   switch (activeAction) {
-    case "commencementLetter":
+    case 'commencementLetter':
       return (
         <MailSendModal
           open={open}
@@ -30,13 +30,13 @@ export const jobOptionRenderer = ({ activeAction, onCancel, open }) => {
           title="Commencement Letter"
         />
       );
-    case "delayExtensionNotice":
+    case 'delayExtensionNotice':
       return <DelayExtensionNotice open={open} onCancel={onCancel} />;
-    case "customerFeedback":
+    case 'customerFeedback':
       return <CustomerFeedback open={open} onCancel={onCancel} />;
-    case "jobDocument":
+    case 'jobDocument':
       return <JobDocumentModal open={open} onCancel={onCancel} />;
-    case "transferJob":
+    case 'transferJob':
       return (
         <ActionDialogmodel
           title="Transfer Job"
@@ -46,9 +46,9 @@ export const jobOptionRenderer = ({ activeAction, onCancel, open }) => {
           fields={jobTransferField}
         />
       );
-    case "changeStatus":
+    case 'changeStatus':
       return <JobChangeStatusModel open={open} onCancel={onCancel} />;
-    case "permitDates":
+    case 'permitDates':
       return (
         <ActionDialogmodel
           title="Permit Received Date / Site start Date"
@@ -59,7 +59,7 @@ export const jobOptionRenderer = ({ activeAction, onCancel, open }) => {
           fields={jobPermitDatesFields()}
         />
       );
-    case "pciHandoverDates":
+    case 'pciHandoverDates':
       return (
         <ActionDialogmodel
           headerMessage="Are you sure you want to mark this job as completed?"
@@ -71,9 +71,9 @@ export const jobOptionRenderer = ({ activeAction, onCancel, open }) => {
           fields={jobPciHandoverDatesFields()}
         />
       );
-    case "privateInspection":
+    case 'privateInspection':
       return <JobPrivateInspectionModal open={open} onCancel={onCancel} />;
-    case "jobAddress":
+    case 'jobAddress':
       return (
         // in this component there is state/region field currently we cant get states without the country and when we can then add the options in the fields file
         <ActionDialogmodel
@@ -85,7 +85,7 @@ export const jobOptionRenderer = ({ activeAction, onCancel, open }) => {
           fields={jobAddressFields()}
         />
       );
-    case "landTitle":
+    case 'landTitle':
       return (
         <ActionDialogmodel
           title="Land Title Details"
@@ -95,26 +95,26 @@ export const jobOptionRenderer = ({ activeAction, onCancel, open }) => {
           onSubmit={onCancel}
           fields={[
             {
-              label: "Title Status",
-              name: "titleStatus",
-              type: "select",
+              label: 'Title Status',
+              name: 'titleStatus',
+              type: 'select',
               options: [
-                { label: "Estimated", value: "estimated" },
-                { label: "Titled", value: "titled" },
-                { label: "Confirmed", value: "confirmed" },
+                { label: 'Estimated', value: 'estimated' },
+                { label: 'Titled', value: 'titled' },
+                { label: 'Confirmed', value: 'confirmed' },
               ],
-              rules: [{ required: true, message: "Title Status is required" }],
+              rules: [{ required: true, message: 'Title Status is required' }],
             },
             {
-              label: "Title Date",
-              name: "titleDate",
-              type: "date",
-              rules: [{ required: true, message: "Title Date is required" }],
+              label: 'Title Date',
+              name: 'titleDate',
+              type: 'date',
+              rules: [{ required: true, message: 'Title Date is required' }],
             },
           ]}
         />
       );
-    case "contractDate":
+    case 'contractDate':
       return (
         <ActionDialogmodel
           title="Contract Details"
@@ -124,21 +124,21 @@ export const jobOptionRenderer = ({ activeAction, onCancel, open }) => {
           onSubmit={onCancel}
           fields={[
             {
-              label: "Prepared Date",
-              name: "preparedDate",
-              type: "date",
-              rules: [{ required: true, message: "Prepared Date is required" }],
+              label: 'Prepared Date',
+              name: 'preparedDate',
+              type: 'date',
+              rules: [{ required: true, message: 'Prepared Date is required' }],
             },
             {
-              label: "Signed Date",
-              name: "signedDate",
-              type: "date",
-              rules: [{ required: true, message: "Signed Date is required" }],
+              label: 'Signed Date',
+              name: 'signedDate',
+              type: 'date',
+              rules: [{ required: true, message: 'Signed Date is required' }],
             },
           ]}
         />
       );
-    case "referenceId":
+    case 'referenceId':
       return (
         <ActionDialogmodel
           title="Change Reference ID"
@@ -149,22 +149,22 @@ export const jobOptionRenderer = ({ activeAction, onCancel, open }) => {
           onSubmit={onCancel}
           fields={[
             {
-              label: "Customer Reference ID",
-              name: "referenceId",
-              type: "text",
+              label: 'Customer Reference ID',
+              name: 'referenceId',
+              type: 'text',
               rules: [
                 {
                   required: true,
-                  message: "Customer Reference ID is required",
+                  message: 'Customer Reference ID is required',
                 },
               ],
             },
           ]}
         />
       );
-    case "assignRoleUser":
+    case 'assignRoleUser':
       return <JobRoleAssignUserModal open={open} onCancel={onCancel} />;
-    case "changeBuilder":
+    case 'changeBuilder':
       return (
         // here in the select only builder user is coming and this component will be hidden based on the condition check the video job detail menu video from time 57:00
         <ActionDialogmodel
@@ -175,19 +175,19 @@ export const jobOptionRenderer = ({ activeAction, onCancel, open }) => {
           onSubmit={onCancel}
           fields={[
             {
-              label: "Builder",
-              name: "builder",
-              type: "select",
-              options: users?.map((user) => ({
+              label: 'Builder',
+              name: 'builder',
+              type: 'select',
+              options: users?.map(user => ({
                 label: user.name,
                 value: user.usersId,
               })),
-              rules: [{ required: true, message: "Builder is required" }],
+              rules: [{ required: true, message: 'Builder is required' }],
             },
           ]}
         />
       );
-    case "changeLeadName":
+    case 'changeLeadName':
       return (
         // initialvalue is dynamically seted but the due to direct redrirecting to this route from the lead page so lead detail api not called so not setting the initial value
         <ActionDialogmodel
@@ -199,20 +199,20 @@ export const jobOptionRenderer = ({ activeAction, onCancel, open }) => {
           initialValues={{ leadName: leadDetail?.lead?.name }}
           fields={[
             {
-              label: "Lead Name",
-              name: "leadName",
-              type: "text",
+              label: 'Lead Name',
+              name: 'leadName',
+              type: 'text',
               rules: [
                 {
                   required: true,
-                  message: "Lead Name is required",
+                  message: 'Lead Name is required',
                 },
               ],
             },
           ]}
         />
       );
-    case "sketchNumber":
+    case 'sketchNumber':
       return (
         <ActionDialogmodel
           title="Sketch Number"
@@ -223,13 +223,13 @@ export const jobOptionRenderer = ({ activeAction, onCancel, open }) => {
           onSubmit={onCancel}
           fields={[
             {
-              label: "Sketch Number",
-              name: "sketchNumber",
-              type: "text",
+              label: 'Sketch Number',
+              name: 'sketchNumber',
+              type: 'text',
               rules: [
                 {
                   required: true,
-                  message: "Sketch Number is required",
+                  message: 'Sketch Number is required',
                 },
               ],
             },

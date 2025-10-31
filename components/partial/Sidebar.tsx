@@ -1,13 +1,10 @@
-import React, { useContext ,useMemo, useState } from "react";
-import { useRouter } from "next/router";
-import { menuList } from "./SidebarData";
-import {
-  IconChevronRight,
-  IconChevronsDown,
-} from "@tabler/icons-react";
-import Link from "next/link";
-import Image from "next/image";
-import { themeContext } from "contexts/ThemeContext";
+import React, { useContext, useMemo, useState } from 'react';
+import { useRouter } from 'next/router';
+import { menuList } from './SidebarData';
+import { IconChevronRight, IconChevronsDown } from '@tabler/icons-react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { themeContext } from 'contexts/ThemeContext';
 
 interface MenuDivider {
   devider?: string;
@@ -18,7 +15,7 @@ interface MenuDivider {
   icon?: React.ComponentType<{ className?: string }>;
   children?: MenuItem[];
   roles?: string[];
-};
+}
 
 interface MenuItem {
   link?: string;
@@ -26,7 +23,7 @@ interface MenuItem {
   icon?: React.ComponentType<{ className?: string }>;
   children?: MenuItem[];
   roles?: string[];
-};
+}
 
 type SidebarMenuItem = MenuDivider | MenuItem;
 
@@ -42,7 +39,7 @@ export default function Sidebar({
   const pageUrl = useRouter().pathname;
   // const userRole = useSelector((state) => state.auth.user.role);
   const userRole = 'builder';
-  const {isDarkMode}=useContext(themeContext)
+  const { isDarkMode } = useContext(themeContext);
   const filteredMenuList = useMemo(() => {
     // Helper function with correct type annotation
     const hasAccess = (item: SidebarMenuItem) => {
@@ -53,62 +50,67 @@ export default function Sidebar({
     };
 
     // Use `map` to create a new array and handle nested filtering
-    const newMenuList = menuList.map(item => {
-      // Handle divider items first, as they are a different type
-      if ('devider' in item) {
-        return item;
-      }
+    const newMenuList = menuList
+      .map(item => {
+        // Handle divider items first, as they are a different type
+        if ('devider' in item) {
+          return item;
+        }
 
-      // Check if the top-level item has access
-      if (!hasAccess(item)) {
-        return null; // Return null if no access to this top-level item
-      }
+        // Check if the top-level item has access
+        if (!hasAccess(item)) {
+          return null; // Return null if no access to this top-level item
+        }
 
-      // Deep clone the item to avoid mutating the original `menuList`
-      const newItem:any = { ...item };
+        // Deep clone the item to avoid mutating the original `menuList`
+        const newItem: any = { ...item };
 
-      // Check for and filter children
-      if (newItem.children) {
-        const filteredChildren = newItem.children.map((child:any) => {
-          // Check for sub-children
-          if (child.children) {
-            const filteredSubChildren = child.children.filter((subChild:any) => hasAccess(subChild));
-            // Only return the child if it has sub-children with access
-            if (filteredSubChildren.length > 0) {
-              return { ...child, children: filteredSubChildren };
-            }
+        // Check for and filter children
+        if (newItem.children) {
+          const filteredChildren = newItem.children
+            .map((child: any) => {
+              // Check for sub-children
+              if (child.children) {
+                const filteredSubChildren = child.children.filter((subChild: any) =>
+                  hasAccess(subChild)
+                );
+                // Only return the child if it has sub-children with access
+                if (filteredSubChildren.length > 0) {
+                  return { ...child, children: filteredSubChildren };
+                }
+                return null;
+              }
+              // Check access for the direct child
+              if (hasAccess(child)) {
+                return child;
+              }
+              return null;
+            })
+            .filter(Boolean); // Filter out any null values
+
+          // Update the item's children with the filtered list
+          newItem.children = filteredChildren;
+
+          // If after filtering children, there are none, hide the parent
+          if (filteredChildren.length === 0) {
             return null;
           }
-          // Check access for the direct child
-          if (hasAccess(child)) {
-            return child;
-          }
-          return null;
-        }).filter(Boolean); // Filter out any null values
-
-        // Update the item's children with the filtered list
-        newItem.children = filteredChildren;
-
-        // If after filtering children, there are none, hide the parent
-        if (filteredChildren.length === 0) {
-          return null;
         }
-      }
 
-      return newItem;
-    }).filter(Boolean) as SidebarMenuItem[]; // Filter out nulls and assert the type
+        return newItem;
+      })
+      .filter(Boolean) as SidebarMenuItem[]; // Filter out nulls and assert the type
 
     return newMenuList;
   }, [userRole]);
 
-
   const [menuActive, setMenuActive] = useState<number>(0);
-  const menuToggle = (key) => {
+  const menuToggle = key => {
     setMenuActive(menuActive === key ? null : key);
   };
 
   const [menuActiveSub, setMenuActiveSub] = useState<number>(0);
-  const menuToggleSub = (key) => {
+  const menuToggleSub = key => {
     setMenuActiveSub(menuActiveSub === key ? null : key);
   };
 
@@ -116,24 +118,27 @@ export default function Sidebar({
     <>
       <div className="sidebar-header px-3 mb-6 flex items-center justify-between gap-2">
         <h4 className="sidebar-title text-[24px]/[30px] font-medium mb-0">
-          <Image src={isDarkMode ? "/company-dark.png" : "/company-light.png"}
-alt="logo" width={200} height={100} />
+          <Image
+            src={isDarkMode ? '/company-dark.png' : '/company-light.png'}
+            alt="logo"
+            width={200}
+            height={100}
+          />
         </h4>
       </div>
       {/* <Search /> */}
       <ul className="sidebar-list px-3 mb-4 main-menu">
         {filteredMenuList.map((item: SidebarMenuItem, key: number) =>
-          "link" in item && item?.children ? (
+          'link' in item && item?.children ? (
             <li key={key} className="sidebar-listitem">
               <button
                 onClick={() => menuToggle(key)}
                 className={`sidebar-list-button flex items-center gap-10 w-full py-10 transition-all hover:text-secondary ${
-                  menuActive === key ? "text-secondary" : ""
+                  menuActive === key ? 'text-secondary' : ''
                 }`}
               >
-                {"icon" in item && (
-                  React.createElement(item.icon, { className: "stroke-[1.5] w-[22px] h-[22px]" })
-                )}
+                {'icon' in item &&
+                  React.createElement(item.icon, { className: 'stroke-[1.5] w-[22px] h-[22px]' })}
                 <span className="link">{item.link}</span>
                 {menuActive === key ? (
                   <IconChevronsDown className="arrow-icon stroke-[1.5] w-[20px] h-[20px] ms-auto" />
@@ -143,7 +148,7 @@ alt="logo" width={200} height={100} />
               </button>
               <ul
                 className={`sidebar-sublist ps-30 relative before:absolute before:h-full before:w-[1px] ltr:before:left-10 rtl:before:right-10 before:top-0 before:bg-secondary ${
-                  menuActive === key ? "block" : "hidden"
+                  menuActive === key ? 'block' : 'hidden'
                 }`}
               >
                 {item.children.map((res, key) =>
@@ -152,9 +157,7 @@ alt="logo" width={200} height={100} />
                       <button
                         onClick={() => menuToggleSub(key)}
                         className={`flex items-center gap-10 w-full py-2 text-[14px]/[20px] relative before:hidden before:absolute before:rounded-full before:h-[9px] before:w-[9px] ltr:before:left-[-24px] rtl:before:right-[-24px] before:top-[50%] before:translate-y-[-50%] before:bg-secondary hover:text-secondary hover:before:block transition-all ${
-                          menuActiveSub === key
-                            ? "text-secondary before:!block"
-                            : ""
+                          menuActiveSub === key ? 'text-secondary before:!block' : ''
                         }`}
                       >
                         <span>{res.link}</span>
@@ -166,7 +169,7 @@ alt="logo" width={200} height={100} />
                       </button>
                       <ul
                         className={`ps-30 relative before:absolute before:h-full before:w-[1px] ltr:before:left-10 rtl:before:right-10 before:top-0 before:bg-secondary ${
-                          menuActiveSub === key ? "block" : "hidden"
+                          menuActiveSub === key ? 'block' : 'hidden'
                         }`}
                       >
                         {res.children.map((sub, key) => (
@@ -177,9 +180,7 @@ alt="logo" width={200} height={100} />
                                 window.innerWidth < 1200 && setMobileNav(false);
                               }}
                               className={`py-1 text-[14px]/[20px] flex relative before:hidden before:absolute before:rounded-full before:h-[9px] before:w-[9px] ltr:before:left-[-24px] rtl:before:right-[-24px] before:top-[50%] before:translate-y-[-50%] before:bg-secondary hover:text-secondary hover:before:block transition-all ${
-                                pageUrl === sub.url
-                                  ? "text-secondary before:!block"
-                                  : ""
+                                pageUrl === sub.url ? 'text-secondary before:!block' : ''
                               }`}
                             >
                               {sub.link}
@@ -196,9 +197,7 @@ alt="logo" width={200} height={100} />
                           window.innerWidth < 1200 && setMobileNav(false);
                         }}
                         className={`py-1 text-[14px]/[20px] flex relative before:hidden before:absolute before:rounded-full before:h-[9px] before:w-[9px] ltr:before:left-[-24px] rtl:before:right-[-24px] before:top-[50%] before:translate-y-[-50%] before:bg-secondary hover:text-secondary hover:before:block transition-all ${
-                          pageUrl === res.url
-                            ? "text-secondary before:!block"
-                            : ""
+                          pageUrl === res.url ? 'text-secondary before:!block' : ''
                         }`}
                       >
                         {res.link}
@@ -216,7 +215,7 @@ alt="logo" width={200} height={100} />
                   window.innerWidth < 1200 && setMobileNav(false);
                 }}
                 className={`sidebar-list-link flex items-center gap-10 w-full py-2 transition-all hover:text-secondary ${
-                  pageUrl === item.url ? "text-secondary" : ""
+                  pageUrl === item.url ? 'text-secondary' : ''
                 }`}
               >
                 {item?.icon ? (
@@ -232,9 +231,9 @@ alt="logo" width={200} height={100} />
             <li
               key={key}
               className={`devider py-3 menu-devider uppercase text-[12px]/[15px]${
-                  item.color ? ` text-${item.color}` : ""
-                }${item.fontWeight ? ` font-${item.fontWeight}` : ""}`}
-              >
+                item.color ? ` text-${item.color}` : ''
+              }${item.fontWeight ? ` font-${item.fontWeight}` : ''}`}
+            >
               {item.devider}
             </li>
           ) : null

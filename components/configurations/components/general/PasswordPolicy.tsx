@@ -1,11 +1,11 @@
-import React from "react";
-import { Form, InputNumber, Button } from "antd";
+import React from 'react';
+import { Form, InputNumber, Button } from 'antd';
 
 export const PasswordPolicy: React.FC = () => {
   const [form] = Form.useForm();
 
   const onFinish = (values: any) => {
-    console.log("Saved Password Policy:", values);
+    console.log('Saved Password Policy:', values);
   };
 
   return (
@@ -29,21 +29,15 @@ export const PasswordPolicy: React.FC = () => {
           <Form.Item
             label="Expires (in days)"
             name="expiresInDays"
-            rules={[{ required: true, message: "Please enter number of days" }]}
+            rules={[{ required: true, message: 'Please enter number of days' }]}
           >
-            <InputNumber
-              min={1}
-              addonAfter="days"
-              className="w-full rounded-lg shadow-sm"
-            />
+            <InputNumber min={1} addonAfter="days" className="w-full rounded-lg shadow-sm" />
           </Form.Item>
 
           <Form.Item
             label="Number of invalid attempts"
             name="invalidAttempts"
-            rules={[
-              { required: true, message: "Please enter number of attempts" },
-            ]}
+            rules={[{ required: true, message: 'Please enter number of attempts' }]}
           >
             <InputNumber min={1} className="w-full rounded-lg shadow-sm" />
           </Form.Item>
@@ -51,19 +45,15 @@ export const PasswordPolicy: React.FC = () => {
           <Form.Item
             label="Display alert from number of days"
             name="alertDays"
-            rules={[{ required: true, message: "Please enter number of days" }]}
+            rules={[{ required: true, message: 'Please enter number of days' }]}
           >
-            <InputNumber
-              min={1}
-              addonAfter="days"
-              className="w-full rounded-lg shadow-sm"
-            />
+            <InputNumber min={1} addonAfter="days" className="w-full rounded-lg shadow-sm" />
           </Form.Item>
 
           <Form.Item
             label="Number of passwords stored in history"
             name="passwordHistory"
-            rules={[{ required: true, message: "Please enter a number" }]}
+            rules={[{ required: true, message: 'Please enter a number' }]}
           >
             <InputNumber min={1} className="w-full rounded-lg shadow-sm" />
           </Form.Item>
@@ -72,11 +62,7 @@ export const PasswordPolicy: React.FC = () => {
             wrapperCol={{ xs: 24, md: { offset: 10, span: 14 } }}
             className="pt-4 w-full flex justify-end  items-center pr-40 "
           >
-            <Button
-              type="primary"
-              htmlType="submit"
-              className="rounded-lg font-semibold"
-            >
+            <Button type="primary" htmlType="submit" className="rounded-lg font-semibold">
               Save Policy
             </Button>
           </Form.Item>

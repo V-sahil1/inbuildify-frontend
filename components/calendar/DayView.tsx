@@ -17,7 +17,7 @@ const categoryColors: Record<string, string> = {
   Maintenance: 'bg-red-600',
   ReferralPartner: 'bg-gray-700',
   Today: 'bg-yellow-200 text-gray-800',
-  Holiday: 'bg-red-500'
+  Holiday: 'bg-red-500',
 };
 
 const DayView = ({ currentDate, events, onEventClick }: DayViewProps) => {
@@ -33,7 +33,7 @@ const DayView = ({ currentDate, events, onEventClick }: DayViewProps) => {
       return (
         eventStart.isSame(currentDate, 'day') &&
         (eventStart.hour() === hour ||
-         (eventStart.isBefore(slotEnd) && eventEnd.isAfter(slotStart)))
+          (eventStart.isBefore(slotEnd) && eventEnd.isAfter(slotStart)))
       );
     });
   };
@@ -44,9 +44,11 @@ const DayView = ({ currentDate, events, onEventClick }: DayViewProps) => {
         <div className="w-24 flex-shrink-0"></div>
         <div className="flex-1 p-4 text-center">
           <div className="text-sm text-gray-600">{currentDate.format('dddd')}</div>
-          <div className={`text-3xl font-semibold ${
-            currentDate.isSame(dayjs(), 'day') ? 'text-blue-600' : 'text-gray-800'
-          }`}>
+          <div
+            className={`text-3xl font-semibold ${
+              currentDate.isSame(dayjs(), 'day') ? 'text-blue-600' : 'text-gray-800'
+            }`}
+          >
             {currentDate.format('MMMM D, YYYY')}
           </div>
         </div>
@@ -55,8 +57,17 @@ const DayView = ({ currentDate, events, onEventClick }: DayViewProps) => {
       <div className="flex">
         <div className="w-24 flex-shrink-0">
           {hours.map(hour => (
-            <div key={hour} className="h-32 border-b border-gray-200 pr-3 pt-2 text-right text-sm text-gray-600">
-              {hour === 0 ? '12:00 AM' : hour < 12 ? `${hour}:00 AM` : hour === 12 ? '12:00 PM' : `${hour - 12}:00 PM`}
+            <div
+              key={hour}
+              className="h-32 border-b border-gray-200 pr-3 pt-2 text-right text-sm text-gray-600"
+            >
+              {hour === 0
+                ? '12:00 AM'
+                : hour < 12
+                  ? `${hour}:00 AM`
+                  : hour === 12
+                    ? '12:00 PM'
+                    : `${hour - 12}:00 PM`}
             </div>
           ))}
         </div>
@@ -87,7 +98,8 @@ const DayView = ({ currentDate, events, onEventClick }: DayViewProps) => {
                           <div className="flex-1">
                             <div className="font-semibold text-base mb-1">{event.title}</div>
                             <div className="text-sm opacity-90 mb-2">
-                              {eventStart.format('h:mm A')} - {eventEnd.format('h:mm A')} ({duration} min)
+                              {eventStart.format('h:mm A')} - {eventEnd.format('h:mm A')} (
+                              {duration} min)
                             </div>
                             {event.description && (
                               <div className="text-sm opacity-80">{event.description}</div>

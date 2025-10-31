@@ -1,27 +1,24 @@
-import { IconArrowUp, IconPaperclip } from "@tabler/icons-react";
-import { Button, Dropdown, Input } from "antd";
-import RichTextEditor from "../common/rich-text-editor/RichTextEditor";
-import { useState } from "react";
-import {
-  CreateFormField,
-  CreateFormModal,
-} from "../common/Models/CreateFormModel";
+import { IconArrowUp, IconPaperclip } from '@tabler/icons-react';
+import { Button, Dropdown, Input } from 'antd';
+import RichTextEditor from '../common/rich-text-editor/RichTextEditor';
+import { useState } from 'react';
+import { CreateFormField, CreateFormModal } from '../common/Models/CreateFormModel';
 
 const CampaignDetail = ({ current, setCurrent }) => {
-  const [editedContent, setEditedContent] = useState("");
+  const [editedContent, setEditedContent] = useState('');
   const [footerOpen, setFooterOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("Email");
+  const [activeTab, setActiveTab] = useState('Email');
   const fields: CreateFormField[] = [
-    { label: "Footer Name", name: "footerName", type: "text" },
-    { label: "Footer Content", name: "footerContent", type: "textEditor" },
-    { label: "Set Background Color", name: "backgroundColor", type: "color" },
-    { label: "Set as Default", name: "default", type: "switch" },
+    { label: 'Footer Name', name: 'footerName', type: 'text' },
+    { label: 'Footer Content', name: 'footerContent', type: 'textEditor' },
+    { label: 'Set Background Color', name: 'backgroundColor', type: 'color' },
+    { label: 'Set as Default', name: 'default', type: 'switch' },
   ];
   const initialValues = {
-    footerName: "hiiii",
-    footerContent: "ok",
-    backgroundColor: "#3548D5",
-    default: "true",
+    footerName: 'hiiii',
+    footerContent: 'ok',
+    backgroundColor: '#3548D5',
+    default: 'true',
   };
   return (
     <div>
@@ -41,19 +38,19 @@ const CampaignDetail = ({ current, setCurrent }) => {
             <div className="w-[500px]">
               <Button
                 className={` ${
-                  activeTab === "Email" ? "bg-primary" : "bg-white text-primary"
+                  activeTab === 'Email' ? 'bg-primary' : 'bg-white text-primary'
                 } rounded-none`}
                 type="primary"
-                onClick={() => setActiveTab("Email")}
+                onClick={() => setActiveTab('Email')}
               >
                 Email
               </Button>
               <Button
                 className={` ${
-                  activeTab === "SMS" ? "bg-primary" : "bg-white text-primary"
+                  activeTab === 'SMS' ? 'bg-primary' : 'bg-white text-primary'
                 } rounded-none`}
                 type="primary"
-                onClick={() => setActiveTab("SMS")}
+                onClick={() => setActiveTab('SMS')}
               >
                 SMS
               </Button>
@@ -72,8 +69,8 @@ const CampaignDetail = ({ current, setCurrent }) => {
                   menu={{
                     items: [
                       {
-                        key: "Insert Contact Name",
-                        label: "Insert Contact Name",
+                        key: 'Insert Contact Name',
+                        label: 'Insert Contact Name',
                         onClick: () => {},
                       },
                     ],
@@ -92,11 +89,7 @@ const CampaignDetail = ({ current, setCurrent }) => {
             <p className="w-[200px]">Attachment</p>
             <Button icon={<IconPaperclip size={15} />} />
           </div>
-          <RichTextEditor
-            value={editedContent}
-            onChange={setEditedContent}
-            maxHeight="400px"
-          />
+          <RichTextEditor value={editedContent} onChange={setEditedContent} maxHeight="400px" />
         </div>
       </div>
       <div className="flex justify-between mx-3">
@@ -113,7 +106,7 @@ const CampaignDetail = ({ current, setCurrent }) => {
         title="Footer"
         open={footerOpen}
         onCancel={() => setFooterOpen(false)}
-        onSubmit={(values) => {
+        onSubmit={values => {
           console.log(values);
         }}
         fields={fields}

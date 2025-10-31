@@ -11,7 +11,7 @@ interface CategorySidebarProps {
 const CategorySidebar: React.FC<CategorySidebarProps> = ({
   categories,
   selectedCategory,
-  onCategorySelect
+  onCategorySelect,
 }) => {
   // useEffect(() => {
   //   if (categories.length > 0 && !selectedCategory) {

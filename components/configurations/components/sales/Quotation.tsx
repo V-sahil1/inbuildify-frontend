@@ -1,15 +1,7 @@
-"use client";
+'use client';
 
-import React from "react";
-import {
-  Form,
-  Switch,
-  InputNumber,
-  Input,
-  Button,
-  Divider,
-  Select,
-} from "antd";
+import React from 'react';
+import { Form, Switch, InputNumber, Input, Button, Divider, Select } from 'antd';
 
 export const Quotation: React.FC = () => {
   const [form] = Form.useForm();
@@ -33,21 +25,16 @@ export const Quotation: React.FC = () => {
     enableEstimatedPriceRange: false,
     estimatedPriceRange: 16.0,
     quotationValidity: 60,
-    extendValidity: "",
+    extendValidity: '',
   };
 
   const handleSubmit = (values: any) => {
-    console.log("✅ Submitted Settings:", values);
+    console.log('✅ Submitted Settings:', values);
   };
 
   return (
     <div className=" rounded-lg shadow-sm">
-      <Form
-        form={form}
-        layout="vertical"
-        initialValues={initialValues}
-        onFinish={handleSubmit}
-      >
+      <Form form={form} layout="vertical" initialValues={initialValues} onFinish={handleSubmit}>
         {/* --- Switch Settings Section --- */}
         <Form.Item
           label="Allow 'Save as New Version' Option in Quotation"
@@ -92,35 +79,19 @@ export const Quotation: React.FC = () => {
           <Switch />
         </Form.Item>
 
-        <Form.Item
-          label="Enable Dwelling Size"
-          name="enableDwellingSize"
-          valuePropName="checked"
-        >
+        <Form.Item label="Enable Dwelling Size" name="enableDwellingSize" valuePropName="checked">
           <Switch />
         </Form.Item>
 
-        <Form.Item
-          label="Enable Builder Cost"
-          name="enableBuilderCost"
-          valuePropName="checked"
-        >
+        <Form.Item label="Enable Builder Cost" name="enableBuilderCost" valuePropName="checked">
           <Switch />
         </Form.Item>
 
-        <Form.Item
-          label="Allow Notes in Quotation"
-          name="allowNotes"
-          valuePropName="checked"
-        >
+        <Form.Item label="Allow Notes in Quotation" name="allowNotes" valuePropName="checked">
           <Switch />
         </Form.Item>
 
-        <Form.Item
-          label="Allow Cost Adjustment"
-          name="allowCostAdjustment"
-          valuePropName="checked"
-        >
+        <Form.Item label="Allow Cost Adjustment" name="allowCostAdjustment" valuePropName="checked">
           <Switch />
         </Form.Item>
 
@@ -186,11 +157,8 @@ export const Quotation: React.FC = () => {
         {/* Conditional Field: Estimated Price Range */}
         <Form.Item shouldUpdate noStyle>
           {({ getFieldValue }) =>
-            getFieldValue("enableEstimatedPriceRange") && (
-              <Form.Item
-                label="Estimated Price Range (%)"
-                name="estimatedPriceRange"
-              >
+            getFieldValue('enableEstimatedPriceRange') && (
+              <Form.Item label="Estimated Price Range (%)" name="estimatedPriceRange">
                 <InputNumber min={0} max={100} />
               </Form.Item>
             )
@@ -199,10 +167,7 @@ export const Quotation: React.FC = () => {
 
         <Divider />
 
-        <Form.Item
-          label="Quotation Validity (in days)"
-          name="quotationValidity"
-        >
+        <Form.Item label="Quotation Validity (in days)" name="quotationValidity">
           <InputNumber min={0} />
         </Form.Item>
 
@@ -225,16 +190,12 @@ export const Quotation: React.FC = () => {
             >
               <Input />
             </Form.Item>
-            <Form.Item
-              className="w-full"
-              label="Default Pricelist"
-              name="defaultPricelist"
-            >
+            <Form.Item className="w-full" label="Default Pricelist" name="defaultPricelist">
               <Select
                 showSearch
                 options={[
-                  { value: "base-price", label: "Base Price" },
-                  { value: "site-cost", label: "Site cost" },
+                  { value: 'base-price', label: 'Base Price' },
+                  { value: 'site-cost', label: 'Site cost' },
                 ]}
               />
             </Form.Item>

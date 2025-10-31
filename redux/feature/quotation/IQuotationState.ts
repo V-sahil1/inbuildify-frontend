@@ -1,8 +1,8 @@
-import { PropertyDetails, QuotationVersion } from "data/types";
-import { ILeadContact } from "../lead/ILeadState";
-import { IFloorPlanState } from "../floorPlan/IFloorPlanState";
-import { IFacadeState } from "../facade/IFacadeState";
-import { Package } from "../package/IPackageState";
+import { PropertyDetails, QuotationVersion } from 'data/types';
+import { ILeadContact } from '../lead/ILeadState';
+import { IFloorPlanState } from '../floorPlan/IFloorPlanState';
+import { IFacadeState } from '../facade/IFacadeState';
+import { Package } from '../package/IPackageState';
 export interface QuotationItem {
   price: number;
   total: number;
@@ -43,7 +43,7 @@ export interface QuotationResponse {
     name: string;
   };
   versions?: Record<string, QuotationVersion[]>;
-  items?:QuotationVersion[];
+  items?: QuotationVersion[];
 }
 
 export type QuotationItemPayload = {

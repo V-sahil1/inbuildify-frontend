@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import { Collapse, Button, Tag, Space, Checkbox, Tooltip, Popconfirm, message } from 'antd';
-import { IconPlus, IconPaperclip, IconMessage, IconDotsVertical, IconInfoSmall } from '@tabler/icons-react';
+import {
+  IconPlus,
+  IconPaperclip,
+  IconMessage,
+  IconDotsVertical,
+  IconInfoSmall,
+} from '@tabler/icons-react';
 import AssignSupervisorDropdown from '@/components/construction/assignSupervisorModal';
 import StageProgress from '@/components/common/StageProgress';
 import { INITIAL_STAGES_DATA, jobStatusStage, jobStatusTask } from 'data/jobStatusTaskData';
@@ -14,7 +20,7 @@ const JobStatusTaskManager = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState("All");
+  const [activeTab, setActiveTab] = useState('All');
 
   const isAllTasksCompleted = (tasks: jobStatusTask[]) =>
     tasks.length > 0 && tasks.every(task => task.status === 'completed');
@@ -25,7 +31,13 @@ const JobStatusTaskManager = () => {
     setStagesData(prev =>
       prev.map(stage =>
         stage.id === stageId
-          ? { ...stage, tasks: stage.tasks.map(task => ({ ...task, status: checked ? 'completed' : 'pending' })) }
+          ? {
+              ...stage,
+              tasks: stage.tasks.map(task => ({
+                ...task,
+                status: checked ? 'completed' : 'pending',
+              })),
+            }
           : stage
       )
     );
@@ -36,7 +48,12 @@ const JobStatusTaskManager = () => {
     setStagesData(prev =>
       prev.map(stage =>
         stage.id === stageId
-          ? { ...stage, tasks: stage.tasks.map(task => task.id === taskId ? { ...task, status: checked ? 'completed' : 'pending' } : task) }
+          ? {
+              ...stage,
+              tasks: stage.tasks.map(task =>
+                task.id === taskId ? { ...task, status: checked ? 'completed' : 'pending' } : task
+              ),
+            }
           : stage
       )
     );
@@ -46,7 +63,9 @@ const JobStatusTaskManager = () => {
     setStagesData(prev =>
       prev.map(stage => ({
         ...stage,
-        tasks: stage.tasks.map(task => task.id === taskId ? { ...task, supervisor: newSupervisor } : task)
+        tasks: stage.tasks.map(task =>
+          task.id === taskId ? { ...task, supervisor: newSupervisor } : task
+        ),
       }))
     );
   };
@@ -61,15 +80,15 @@ const JobStatusTaskManager = () => {
   };
 
   const allTasks = stagesData.flatMap(stage => stage.tasks);
-  const pendingCount = allTasks.filter(t => t.status === "pending").length;
-  const completedCount = allTasks.filter(t => t.status === "completed").length;
-  const notApplicableCount = allTasks.filter(t => t.status === "notapplicable").length;
+  const pendingCount = allTasks.filter(t => t.status === 'pending').length;
+  const completedCount = allTasks.filter(t => t.status === 'completed').length;
+  const notApplicableCount = allTasks.filter(t => t.status === 'notapplicable').length;
 
   const tabs = [
-    { type: "All", label: "All", count: allTasks.length },
-    { type: "Pending", label: "Pending", count: pendingCount },
-    { type: "Completed", label: "Completed", count: completedCount },
-    { type: "Not Applicable", label: "Not Applicable", count: notApplicableCount },
+    { type: 'All', label: 'All', count: allTasks.length },
+    { type: 'Pending', label: 'Pending', count: pendingCount },
+    { type: 'Completed', label: 'Completed', count: completedCount },
+    { type: 'Not Applicable', label: 'Not Applicable', count: notApplicableCount },
   ];
 
   const TaskRow = ({ task, stage }: { task: jobStatusTask; stage: jobStatusStage }) => (
@@ -82,7 +101,9 @@ const JobStatusTaskManager = () => {
         <span className="font-normal text-sm">{task.task}</span>
       </div>
       <div className="sm:w-44 w-full flex justify-between sm:justify-center">
-        <Tag color="orange" className="rounded">{task.assignee}</Tag>
+        <Tag color="orange" className="rounded">
+          {task.assignee}
+        </Tag>
       </div>
       <div className="sm:w-32 w-full text-left sm:text-center">
         <span className="text-sm">{task.estimated}</span>
@@ -96,7 +117,9 @@ const JobStatusTaskManager = () => {
       </div>
       <div className="sm:w-32 w-full text-left sm:text-center">
         {/* Only show Actual if task is completed */}
-        <span className={`text-sm ${task.status === 'completed' && task.actual ? 'text-red-500' : ''}`}>
+        <span
+          className={`text-sm ${task.status === 'completed' && task.actual ? 'text-red-500' : ''}`}
+        >
           {task.status === 'completed' ? task.actual : ''}
         </span>
       </div>
@@ -133,18 +156,23 @@ const JobStatusTaskManager = () => {
             onConfirm={e => {
               e?.stopPropagation();
               setStagesData(prev =>
-                prev.map(s => s.id === stage.id ? { ...s, included: true } : s)
+                prev.map(s => (s.id === stage.id ? { ...s, included: true } : s))
               );
-              message.success("Stage included successfully!");
+              message.success('Stage included successfully!');
             }}
             okText="Yes"
             cancelText="No"
             placement="bottom"
           >
-            <Button size="small" type='primary' onClick={e => e.stopPropagation()}>Include<IconInfoSmall /></Button>
+            <Button size="small" type="primary" onClick={e => e.stopPropagation()}>
+              Include
+              <IconInfoSmall />
+            </Button>
           </Popconfirm>
         ) : (
-          <Button size="small" type='primary' onClick={e => e.stopPropagation()}>Skip Stage</Button>
+          <Button size="small" type="primary" onClick={e => e.stopPropagation()}>
+            Skip Stage
+          </Button>
         )}
       </div>
 
@@ -154,11 +182,16 @@ const JobStatusTaskManager = () => {
       </div>
       <div className="sm:w-12 flex justify-start sm:justify-center">
         <Popconfirm
-          title={<div className='flex flex-col gap-4'>
-            <span>Are you sure you want to update the stage?</span>
-            <span>Note: this will mark all tasks as completed <br /> and move the job to the next page.</span>
-          </div>}
-          onConfirm={(e) => {
+          title={
+            <div className="flex flex-col gap-4">
+              <span>Are you sure you want to update the stage?</span>
+              <span>
+                Note: this will mark all tasks as completed <br /> and move the job to the next
+                page.
+              </span>
+            </div>
+          }
+          onConfirm={e => {
             e.stopPropagation();
             confirmHeaderChange(stage.id, !isAllTasksCompleted(stage.tasks));
           }}
@@ -225,10 +258,7 @@ const JobStatusTaskManager = () => {
         />
       </div>
 
-      <Collapse
-        expandIconPosition="start"
-        className="bg-transparent border-none"
-      >
+      <Collapse expandIconPosition="start" className="bg-transparent border-none">
         {stagesData.map(stage => (
           <Panel
             header={panelHeader(stage)}

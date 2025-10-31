@@ -1,13 +1,13 @@
-"use client";
-import { Form, Input, Select, Upload, Button } from "antd";
-import { IconUpload } from "@tabler/icons-react";
-import { stateRegionOptions, timezoneOptions } from "data/options"; 
+'use client';
+import { Form, Input, Select, Upload, Button } from 'antd';
+import { IconUpload } from '@tabler/icons-react';
+import { stateRegionOptions, timezoneOptions } from 'data/options';
 
 const CompanyDetails = () => {
   const [form] = Form.useForm();
 
   const onFinish = (values: any) => {
-    console.log("Form values:", values);
+    console.log('Form values:', values);
   };
 
   return (
@@ -17,17 +17,17 @@ const CompanyDetails = () => {
         layout="vertical"
         onFinish={onFinish}
         initialValues={{
-          companyName: "My Home",
-          abn: "82 156 644 478",
-          timezoneName: "GMT+10",
-          address1: "9 Broadmeadows Cres",
-          citySuburb: "Bohle Plains",
-          stateRegion: "Victoria",
-          zipPostalCode: "4817",
-          country: "Australia",
-          accountName: "My Home Pty Ltd",
-          accountNumber: "034 567",
-          accountBSB: "12345678",
+          companyName: 'My Home',
+          abn: '82 156 644 478',
+          timezoneName: 'GMT+10',
+          address1: '9 Broadmeadows Cres',
+          citySuburb: 'Bohle Plains',
+          stateRegion: 'Victoria',
+          zipPostalCode: '4817',
+          country: 'Australia',
+          accountName: 'My Home Pty Ltd',
+          accountNumber: '034 567',
+          accountBSB: '12345678',
         }}
         className="space-y-10"
       >

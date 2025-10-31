@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from "react";
-import { Modal, Tabs, Button, Typography, Spin } from "antd";
-import { Plan } from "data/types";
-import AvailablePlansTab from "./AvailablePlansTab";
-import CustomPlanTab from "./CustomPlanTab";
-import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import { fetchFloorPlans } from "@redux/feature/floorPlan/floorPlanThunk";
-import { setQuotationPlan } from "@redux/feature/quotation/quotationSlice";
+import React, { useState, useEffect } from 'react';
+import { Modal, Tabs, Button, Typography, Spin } from 'antd';
+import { Plan } from 'data/types';
+import AvailablePlansTab from './AvailablePlansTab';
+import CustomPlanTab from './CustomPlanTab';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { fetchFloorPlans } from '@redux/feature/floorPlan/floorPlanThunk';
+import { setQuotationPlan } from '@redux/feature/quotation/quotationSlice';
 import { Status } from '@lib/constants/enum';
-import { RootState } from "@redux/feature/store";
+import { RootState } from '@redux/feature/store';
+import Loading from '../common/Loading';
 
 const { Title } = Typography;
 
@@ -25,9 +26,9 @@ const FloorPlanModal: React.FC<FloorPlanModalProps> = ({
   selectedPlan,
 }) => {
   const dispatch = useAppDispatch();
-  const {floorPlans, status, filters} = useAppSelector((state: RootState) => state.floorPlan);
-  
-  const [activeTab, setActiveTab] = useState<"available" | "custom">("available");
+  const { floorPlans, status, filters } = useAppSelector((state: RootState) => state.floorPlan);
+
+  const [activeTab, setActiveTab] = useState<'available' | 'custom'>('available');
   const [selectedFloorPlan, setSelectedFloorPlan] = useState<Plan | null>(selectedPlan || null);
 
   // Update local state when selectedPlan prop changes
@@ -36,10 +37,10 @@ const FloorPlanModal: React.FC<FloorPlanModalProps> = ({
   }, [selectedPlan]);
 
   useEffect(() => {
-    if (status.floorPlan === Status.IDLE) { 
-      dispatch(fetchFloorPlans(undefined)).unwrap()
+    if (status.floorPlan === Status.IDLE) {
+      dispatch(fetchFloorPlans(undefined)).unwrap();
     }
-  }, [dispatch, status, filters])
+  }, [dispatch, status, filters]);
 
   const handleSave = () => {
     if (selectedFloorPlan) {
@@ -71,7 +72,7 @@ const FloorPlanModal: React.FC<FloorPlanModalProps> = ({
       width={1000}
       footer={
         <>
-          <Button key="save" type="primary" hidden={activeTab === "custom"} onClick={handleSave}>
+          <Button key="save" type="primary" hidden={activeTab === 'custom'} onClick={handleSave}>
             Save
           </Button>
         </>
@@ -80,17 +81,17 @@ const FloorPlanModal: React.FC<FloorPlanModalProps> = ({
     >
       {isLoading ? (
         <div className="flex items-center justify-center h-96">
-          <Spin size="large" />
+          <Loading type="primary" />
         </div>
       ) : (
         <Tabs
           activeKey={activeTab}
-          onChange={(key) => setActiveTab(key as "available" | "custom")}
+          onChange={key => setActiveTab(key as 'available' | 'custom')}
           className="custom-tabs"
           items={[
             {
-              key: "available",
-              label: "Available",
+              key: 'available',
+              label: 'Available',
               children: (
                 <AvailablePlansTab
                   plans={floorPlans}
@@ -100,11 +101,9 @@ const FloorPlanModal: React.FC<FloorPlanModalProps> = ({
               ),
             },
             {
-              key: "custom",
-              label: "Custom",
-              children: (
-                <CustomPlanTab onCancel={handleCancel}/>
-              ),
+              key: 'custom',
+              label: 'Custom',
+              children: <CustomPlanTab onCancel={handleCancel} />,
             },
           ]}
         />

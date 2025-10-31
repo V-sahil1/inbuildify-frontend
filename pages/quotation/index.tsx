@@ -1,24 +1,19 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
-import { useRouter } from "next/router";
-import { usePathname, useSearchParams } from "next/navigation";
-import { Table, Input, Space, Dropdown, Switch, Button, Tooltip } from "antd";
-import type { ColumnsType } from "antd/es/table";
-import { debounce } from "lodash";
-import {
-  IconFilter,
-  IconDownload,
-  IconShare3,
-  IconCopy,
-} from "@tabler/icons-react";
-import { exportToExcel } from "@lib/utils/exportToExcel";
-import DateFilterDropdown from "@/components/common/custom-selects/DateFilterDropdown";
-import AssigneeSelect from "@/components/common/custom-selects/AssigneeSelect";
-import TooltipButton from "@/components/common/TooltipButtton";
-import { QuotationDataType, quotationDummyData } from "data/quotationlistData";
-import CustomAvtar from "@/components/common/CustomAvtar";
-import Link from "next/link";
-import TimelineActionsBar from "@/components/common/TimeLineComponents/TimelineActionsBar";
-import HLPackageCopyModal from "@/components/common/Models/HLPackageCopyModal";
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useRouter } from 'next/router';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { Table, Input, Space, Dropdown, Switch, Button, Tooltip } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import { debounce } from 'lodash';
+import { IconFilter, IconDownload, IconShare3, IconCopy } from '@tabler/icons-react';
+import { exportToExcel } from '@lib/utils/exportToExcel';
+import DateFilterDropdown from '@/components/common/custom-selects/DateFilterDropdown';
+import AssigneeSelect from '@/components/common/custom-selects/AssigneeSelect';
+import TooltipButton from '@/components/common/TooltipButtton';
+import { QuotationDataType, quotationDummyData } from 'data/quotationlistData';
+import CustomAvtar from '@/components/common/CustomAvtar';
+import Link from 'next/link';
+import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineActionsBar';
+import HLPackageCopyModal from '@/components/common/Models/HLPackageCopyModal';
 
 const QuotationPage: React.FC = () => {
   const router = useRouter();
@@ -33,13 +28,13 @@ const QuotationPage: React.FC = () => {
     propertyAddress: string;
     assignee: string;
   }>({
-    refrenceId: searchParams.get("refrenceId") || "",
-    customerName: searchParams.get("customerName") || "",
-    contactAddress: searchParams.get("contactAddress") || "",
-    approver: searchParams.get("approver") || "",
-    created: searchParams.get("created") || "",
-    propertyAddress: searchParams.get("propertyAddress") || "",
-    assignee: searchParams.get("assignee") || "",
+    refrenceId: searchParams.get('refrenceId') || '',
+    customerName: searchParams.get('customerName') || '',
+    contactAddress: searchParams.get('contactAddress') || '',
+    approver: searchParams.get('approver') || '',
+    created: searchParams.get('created') || '',
+    propertyAddress: searchParams.get('propertyAddress') || '',
+    assignee: searchParams.get('assignee') || '',
   });
   const [showBlocked, setShowBlocked] = useState(false);
   const [isCopyModalOpen, setIsCopyModalOpen] = useState(false);
@@ -64,7 +59,7 @@ const QuotationPage: React.FC = () => {
 
   const handleFilterChange = useCallback(
     (updates: Partial<typeof filters>) => {
-      setFilters((prev) => {
+      setFilters(prev => {
         const newFilters = { ...prev, ...updates };
         debouncedUpdateURL(newFilters);
         return newFilters;
@@ -81,24 +76,24 @@ const QuotationPage: React.FC = () => {
 
   const handleExport = (data: QuotationDataType[]) => {
     const column = {
-      refrenceId: "Refrence ID",
-      CustomerName: "Customer Name",
-      contactAddress: "Contact Address",
-      approver: "Approver",
-      created: "Created At",
-      propertyAddress: "Property Address",
-      assignee: "Assignee",
+      refrenceId: 'Refrence ID',
+      CustomerName: 'Customer Name',
+      contactAddress: 'Contact Address',
+      approver: 'Approver',
+      created: 'Created At',
+      propertyAddress: 'Property Address',
+      assignee: 'Assignee',
     };
     exportToExcel({
       data,
-      fileName: "Jobs",
-      sheetName: "Jobs",
+      fileName: 'Jobs',
+      sheetName: 'Jobs',
       columnHeaders: column,
     });
   };
 
   const handleFilterTabChange = (selectedType: string) => {
-    console.log("Selected filter:", selectedType);
+    console.log('Selected filter:', selectedType);
     setActiveFilter(filterOptions.find(f => f.type === selectedType) || activeFilter);
     // You can call your API or set state here
   };
@@ -110,14 +105,12 @@ const QuotationPage: React.FC = () => {
           <span>Refrence ID</span>
           <Input
             value={filters.refrenceId}
-            onChange={(e) =>
-              handleFilterChange({ ...filters, refrenceId: e.target.value })
-            }
+            onChange={e => handleFilterChange({ ...filters, refrenceId: e.target.value })}
           />
         </div>
       ),
-      dataIndex: "slugId",
-      key: "slugId",
+      dataIndex: 'slugId',
+      key: 'slugId',
       width: 250,
     },
     {
@@ -126,14 +119,12 @@ const QuotationPage: React.FC = () => {
           <span>Customer Name</span>
           <Input
             value={filters.customerName}
-            onChange={(e) =>
-              handleFilterChange({ ...filters, customerName: e.target.value })
-            }
+            onChange={e => handleFilterChange({ ...filters, customerName: e.target.value })}
           />
         </div>
       ),
-      dataIndex: "customerName",
-      key: "customerName",
+      dataIndex: 'customerName',
+      key: 'customerName',
       width: 250,
     },
     {
@@ -142,7 +133,7 @@ const QuotationPage: React.FC = () => {
           <span>Property Address</span>
           <Input
             value={filters.propertyAddress}
-            onChange={(e) =>
+            onChange={e =>
               handleFilterChange({
                 ...filters,
                 propertyAddress: e.target.value,
@@ -151,8 +142,8 @@ const QuotationPage: React.FC = () => {
           />
         </div>
       ),
-      dataIndex: "propertyAdress",
-      key: "propertyAdress",
+      dataIndex: 'propertyAdress',
+      key: 'propertyAdress',
       width: 200,
     },
     {
@@ -161,7 +152,7 @@ const QuotationPage: React.FC = () => {
           <span>Contact Address</span>
           <Input
             value={filters.contactAddress}
-            onChange={(e) =>
+            onChange={e =>
               handleFilterChange({
                 ...filters,
                 contactAddress: e.target.value,
@@ -170,8 +161,8 @@ const QuotationPage: React.FC = () => {
           />
         </div>
       ),
-      dataIndex: "contactAddress",
-      key: "contactAddress",
+      dataIndex: 'contactAddress',
+      key: 'contactAddress',
       width: 200,
     },
     {
@@ -180,22 +171,20 @@ const QuotationPage: React.FC = () => {
           <span>Created</span>
           <DateFilterDropdown
             onFilter={(type, dates) => {
-              const dateString = dates
-                ? `${dates[0].toISOString()},${dates[1].toISOString()}`
-                : "";
+              const dateString = dates ? `${dates[0].toISOString()},${dates[1].toISOString()}` : '';
               handleFilterChange({ ...filters, created: dateString });
             }}
             onClear={() => {
-              console.log("Cleared date filter");
-              handleFilterChange({ ...filters, created: "" });
+              console.log('Cleared date filter');
+              handleFilterChange({ ...filters, created: '' });
             }}
           />
         </div>
       ),
-      dataIndex: "createdAt",
-      key: "createdAt",
+      dataIndex: 'createdAt',
+      key: 'createdAt',
       width: 150,
-      render: (date) => new Date(date).toLocaleDateString(),
+      render: date => new Date(date).toLocaleDateString(),
     },
     {
       title: (
@@ -203,16 +192,14 @@ const QuotationPage: React.FC = () => {
           <span>Approver</span>
           <AssigneeSelect
             value={filters.approver}
-            onChange={(value) =>
-              handleFilterChange({ ...filters, approver: value })
-            }
+            onChange={value => handleFilterChange({ ...filters, approver: value })}
           />
         </div>
       ),
-      dataIndex: "approver",
-      key: "approver",
+      dataIndex: 'approver',
+      key: 'approver',
       width: 200,
-      render: (approver) => (
+      render: approver => (
         <div className="flex justify-between items-center">
           <CustomAvtar label={approver?.name} />
         </div>
@@ -224,24 +211,24 @@ const QuotationPage: React.FC = () => {
           <span>Assignee</span>
           <AssigneeSelect
             value={filters.assignee}
-            onChange={(value) =>
-              handleFilterChange({ ...filters, assignee: value })
-            }
+            onChange={value => handleFilterChange({ ...filters, assignee: value })}
           />
         </div>
       ),
-      dataIndex: "assignee",
-      key: "assignee",
+      dataIndex: 'assignee',
+      key: 'assignee',
       width: 200,
-      render: (assignee) => (
+      render: assignee => (
         <div className="flex justify-between items-center">
           <CustomAvtar label={assignee?.name} />
           <div className="flex gap-3">
             <Tooltip title="Copy Quotation">
               <IconCopy
                 size={15}
-                onClick={(e) =>{e.stopPropagation() 
-                  setIsCopyModalOpen(true)} }
+                onClick={e => {
+                  e.stopPropagation();
+                  setIsCopyModalOpen(true);
+                }}
                 className="cursor-pointer"
               />
             </Tooltip>
@@ -254,34 +241,34 @@ const QuotationPage: React.FC = () => {
     },
   ];
   type FilterType =
-    | "all"
-    | "draft"
-    | "approved"
-    | "modified"
-    | "pendingApproval"
-    | "cancelled"
-    | "expired";
+    | 'all'
+    | 'draft'
+    | 'approved'
+    | 'modified'
+    | 'pendingApproval'
+    | 'cancelled'
+    | 'expired';
   const [activeFilter, setActiveFilter] = useState<{
     type: FilterType;
     label: string;
     count?: number;
-  }>({ type: "all", label: "All" });
+  }>({ type: 'all', label: 'All' });
   const filterOptions: Array<{
     type: FilterType;
     label: string;
     count: number;
   }> = [
-    { type: "all", label: "All", count: quotationDummyData.length },
-    { type: "draft", label: "Draft", count: quotationDummyData.length },
-    { type: "approved", label: "Approved", count: quotationDummyData.length },
-    { type: "modified", label: "Modified", count: quotationDummyData.length },
+    { type: 'all', label: 'All', count: quotationDummyData.length },
+    { type: 'draft', label: 'Draft', count: quotationDummyData.length },
+    { type: 'approved', label: 'Approved', count: quotationDummyData.length },
+    { type: 'modified', label: 'Modified', count: quotationDummyData.length },
     {
-      type: "pendingApproval",
-      label: "Pending Approval",
+      type: 'pendingApproval',
+      label: 'Pending Approval',
       count: quotationDummyData.length,
     },
-    { type: "cancelled", label: "Cancelled", count: quotationDummyData.length },
-    { type: "expired", label: "Expired", count: quotationDummyData.length },
+    { type: 'cancelled', label: 'Cancelled', count: quotationDummyData.length },
+    { type: 'expired', label: 'Expired', count: quotationDummyData.length },
   ];
 
   return (
@@ -300,17 +287,14 @@ const QuotationPage: React.FC = () => {
         <Space>
           <Button>Filtered Records: {quotationDummyData.length}</Button>
           <Dropdown
-            trigger={["click"]}
+            trigger={['click']}
             menu={{
               items: [
                 {
-                  key: "1",
+                  key: '1',
                   label: (
                     <Space>
-                      <Switch
-                        checked={showBlocked}
-                        onChange={(val) => setShowBlocked(val)}
-                      />
+                      <Switch checked={showBlocked} onChange={val => setShowBlocked(val)} />
                       <span>Show Blocklisted Quotations</span>
                     </Space>
                   ),
@@ -339,11 +323,11 @@ const QuotationPage: React.FC = () => {
         }}
       />
       <HLPackageCopyModal
-                title="Copy Quation"
-                open={isCopyModalOpen}
-                onCancel={() => setIsCopyModalOpen(false)}
-                onOk={() => { }}
-            />
+        title="Copy Quation"
+        open={isCopyModalOpen}
+        onCancel={() => setIsCopyModalOpen(false)}
+        onOk={() => {}}
+      />
     </div>
   );
 };

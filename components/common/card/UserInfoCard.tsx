@@ -1,10 +1,5 @@
-import {
-  IconArrowsDiagonal,
-  IconMail,
-  IconPhone,
-  IconUserCheck,
-} from "@tabler/icons-react";
-import { Button } from "antd";
+import { IconArrowsDiagonal, IconMail, IconPhone, IconUserCheck } from '@tabler/icons-react';
+import { Button } from 'antd';
 
 export const UserInfoCard = ({
   initialValues,

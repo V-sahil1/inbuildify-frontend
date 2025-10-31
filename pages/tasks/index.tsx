@@ -1,21 +1,21 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
-import { useRouter } from "next/router";
-import { Table, Input, Button, Space } from "antd";
-import { IconFilter, IconDownload, IconBell, IconExternalLink } from "@tabler/icons-react";
-import { debounce } from "lodash";
-import { exportToExcel } from "@lib/utils/exportToExcel";
-import DateFilterDropdown from "@/components/common/custom-selects/DateFilterDropdown";
-import PrioritySelect from "@/components/common/custom-selects/PrioritySelect";
-import StatusSelect from "@/components/common/custom-selects/StatusSelect";
-import type { ColumnsType } from "antd/es/table";
-import { data, DataType } from "data/tasklistData";
-import { Dayjs } from "dayjs";
-import SystemRoutes from "@lib/constants/Routes";
-import AssigneeSelect from "@/components/common/custom-selects/AssigneeSelect";
-import CustomAvtar from "@/components/common/CustomAvtar";
-import Link from "next/link";
-import TimelineActionsBar from "@/components/common/TimeLineComponents/TimelineActionsBar";
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/router';
+import { Table, Input, Button, Space } from 'antd';
+import { IconFilter, IconDownload, IconBell, IconExternalLink } from '@tabler/icons-react';
+import { debounce } from 'lodash';
+import { exportToExcel } from '@lib/utils/exportToExcel';
+import DateFilterDropdown from '@/components/common/custom-selects/DateFilterDropdown';
+import PrioritySelect from '@/components/common/custom-selects/PrioritySelect';
+import StatusSelect from '@/components/common/custom-selects/StatusSelect';
+import type { ColumnsType } from 'antd/es/table';
+import { data, DataType } from 'data/tasklistData';
+import { Dayjs } from 'dayjs';
+import SystemRoutes from '@lib/constants/Routes';
+import AssigneeSelect from '@/components/common/custom-selects/AssigneeSelect';
+import CustomAvtar from '@/components/common/CustomAvtar';
+import Link from 'next/link';
+import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineActionsBar';
 
 const TaskTable: React.FC = () => {
   const router = useRouter();
@@ -30,13 +30,13 @@ const TaskTable: React.FC = () => {
     status: string;
     assignedTo: string;
   }>({
-    name: searchParams.get("name") || "",
-    contactName: searchParams.get("contactName") || "",
-    phone: searchParams.get("phone") || "",
-    dueDate: searchParams.get("dueDate") || "",
-    priority: searchParams.get("priority") || "",
-    status: searchParams.get("status") || "",
-    assignedTo: searchParams.get("assignedTo") || "",
+    name: searchParams.get('name') || '',
+    contactName: searchParams.get('contactName') || '',
+    phone: searchParams.get('phone') || '',
+    dueDate: searchParams.get('dueDate') || '',
+    priority: searchParams.get('priority') || '',
+    status: searchParams.get('status') || '',
+    assignedTo: searchParams.get('assignedTo') || '',
   });
 
   const debouncedUpdateURL = useMemo(
@@ -59,7 +59,7 @@ const TaskTable: React.FC = () => {
 
   const handleFilterChange = useCallback(
     (updates: Partial<typeof filters>) => {
-      setFilters((prev) => {
+      setFilters(prev => {
         const newFilters = { ...prev, ...updates };
         debouncedUpdateURL(newFilters);
         return newFilters;
@@ -76,24 +76,24 @@ const TaskTable: React.FC = () => {
 
   const handleExport = (data: DataType[]) => {
     const column = {
-      name: "Name",
-      contactName: "Contact Name",
-      phone: "Phone",
-      dueDate: "Due Date",
-      priority: "Priority",
-      status: "Status",
-      assignedTo: "Assignee",
+      name: 'Name',
+      contactName: 'Contact Name',
+      phone: 'Phone',
+      dueDate: 'Due Date',
+      priority: 'Priority',
+      status: 'Status',
+      assignedTo: 'Assignee',
     };
     exportToExcel({
       data,
-      fileName: "TaskList",
-      sheetName: "TaskList",
+      fileName: 'TaskList',
+      sheetName: 'TaskList',
       columnHeaders: column,
     });
   };
 
   const handleFilterTabChange = (selectedType: string) => {
-    console.log("Selected filter:", selectedType);
+    console.log('Selected filter:', selectedType);
     setActiveFilter(filterOptions.find(f => f.type === selectedType) || activeFilter);
     // You can call your API or set state here
   };
@@ -105,14 +105,12 @@ const TaskTable: React.FC = () => {
           <span>Name</span>
           <Input
             value={filters.name}
-            onChange={(e) =>
-              handleFilterChange({ ...filters, name: e.target.value })
-            }
+            onChange={e => handleFilterChange({ ...filters, name: e.target.value })}
           />
         </div>
       ),
-      dataIndex: "name",
-      key: "name",
+      dataIndex: 'name',
+      key: 'name',
       width: 250,
     },
     {
@@ -121,14 +119,12 @@ const TaskTable: React.FC = () => {
           <span>Contact Name</span>
           <Input
             value={filters.contactName}
-            onChange={(e) =>
-              handleFilterChange({ ...filters, contactName: e.target.value })
-            }
+            onChange={e => handleFilterChange({ ...filters, contactName: e.target.value })}
           />
         </div>
       ),
-      dataIndex: "contactName",
-      key: "contactName",
+      dataIndex: 'contactName',
+      key: 'contactName',
       width: 200,
     },
     {
@@ -137,14 +133,12 @@ const TaskTable: React.FC = () => {
           <span>Phone</span>
           <Input
             value={filters.phone}
-            onChange={(e) =>
-              handleFilterChange({ ...filters, phone: e.target.value })
-            }
+            onChange={e => handleFilterChange({ ...filters, phone: e.target.value })}
           />
         </div>
       ),
-      dataIndex: "phone",
-      key: "phone",
+      dataIndex: 'phone',
+      key: 'phone',
       width: 150,
     },
     {
@@ -153,22 +147,20 @@ const TaskTable: React.FC = () => {
           <span>Due Date</span>
           <DateFilterDropdown
             onFilter={(type, dates) => {
-              const dateString = dates
-                ? `${dates[0].toISOString()},${dates[1].toISOString()}`
-                : "";
+              const dateString = dates ? `${dates[0].toISOString()},${dates[1].toISOString()}` : '';
               handleFilterChange({ ...filters, dueDate: dateString });
             }}
             onClear={() => {
-              console.log("Cleared date filter");
-              handleFilterChange({ ...filters, dueDate: "" });
+              console.log('Cleared date filter');
+              handleFilterChange({ ...filters, dueDate: '' });
             }}
           />
         </div>
       ),
-      dataIndex: "dueDate",
-      key: "dueDate",
+      dataIndex: 'dueDate',
+      key: 'dueDate',
       width: 150,
-      render: (date) => new Date(date).toLocaleDateString(),
+      render: date => new Date(date).toLocaleDateString(),
     },
     {
       title: (
@@ -176,14 +168,12 @@ const TaskTable: React.FC = () => {
           <span>Priority</span>
           <PrioritySelect
             value={filters.priority}
-            onChange={(value) =>
-              handleFilterChange({ ...filters, priority: value })
-            }
+            onChange={value => handleFilterChange({ ...filters, priority: value })}
           />
         </div>
       ),
-      dataIndex: "priority",
-      key: "priority",
+      dataIndex: 'priority',
+      key: 'priority',
       width: 150,
     },
     {
@@ -192,14 +182,12 @@ const TaskTable: React.FC = () => {
           <span>Status</span>
           <StatusSelect
             value={filters.status}
-            onChange={(value) =>
-              handleFilterChange({ ...filters, status: value })
-            }
+            onChange={value => handleFilterChange({ ...filters, status: value })}
           />
         </div>
       ),
-      dataIndex: "status",
-      key: "status",
+      dataIndex: 'status',
+      key: 'status',
       width: 120,
     },
     {
@@ -208,54 +196,44 @@ const TaskTable: React.FC = () => {
           <span>Assignee</span>
           <AssigneeSelect
             value={filters.assignedTo}
-            onChange={(value) =>
-              handleFilterChange({ ...filters, assignedTo: value })
-            }
+            onChange={value => handleFilterChange({ ...filters, assignedTo: value })}
           />
         </div>
       ),
-      dataIndex: "assignedTo",
-      key: "assignedTo",
+      dataIndex: 'assignedTo',
+      key: 'assignedTo',
       width: 200,
       render: (_, record) => (
         <div className="flex justify-between items-center">
           <CustomAvtar label={record.assignedTo} />
-          <Link
-            href={`job/jobStatus/${record.key}`}
-          >
+          <Link href={`job/jobStatus/${record.key}`}>
             <IconExternalLink size={22} className="cursor-pointer text-blue" />
           </Link>
         </div>
       ),
     },
   ];
-  type FilterType =
-    | "today"
-    | "tomorrow"
-    | "this-week"
-    | "next-week"
-    | "overdue"
-    | "pending";
+  type FilterType = 'today' | 'tomorrow' | 'this-week' | 'next-week' | 'overdue' | 'pending';
   const [activeFilter, setActiveFilter] = useState<{
     type: FilterType;
     label: string;
     count?: number;
-  }>({ type: "today", label: "Today" });
+  }>({ type: 'today', label: 'Today' });
 
   const filterOptions: Array<{
     type: FilterType;
     label: string;
     count: number;
   }> = [
-    { type: "today", label: "Today", count: data.length },
-    { type: "tomorrow", label: "Tomorrow", count: data.length },
-    { type: "this-week", label: "This Week", count: data.length },
-    { type: "next-week", label: "Next Week", count: data.length },
-    { type: "overdue", label: "Overdue", count: data.length },
+    { type: 'today', label: 'Today', count: data.length },
+    { type: 'tomorrow', label: 'Tomorrow', count: data.length },
+    { type: 'this-week', label: 'This Week', count: data.length },
+    { type: 'next-week', label: 'Next Week', count: data.length },
+    { type: 'overdue', label: 'Overdue', count: data.length },
     {
-      type: "pending",
-      label: "Pending",
-      count: data.filter((d) => d.status === "pending").length,
+      type: 'pending',
+      label: 'Pending',
+      count: data.filter(d => d.status === 'pending').length,
     },
   ];
 
@@ -296,7 +274,7 @@ const TaskTable: React.FC = () => {
         columns={columns}
         dataSource={data}
         rowSelection={{
-          type: "checkbox",
+          type: 'checkbox',
         }}
         pagination={{
           pageSize: 10,

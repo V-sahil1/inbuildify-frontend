@@ -1,15 +1,7 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import {
-  Table,
-  Input,
-  Button,
-  Tooltip,
-  message,
-  Space,
-  Popconfirm,
-} from "antd";
+import React, { useState } from 'react';
+import { Table, Input, Button, Tooltip, message, Space, Popconfirm } from 'antd';
 import {
   IconTrash,
   IconPlus,
@@ -17,9 +9,9 @@ import {
   IconX,
   IconInfoCircle,
   IconPencil,
-} from "@tabler/icons-react";
-import ConfirmationModal from "@/components/common/ConfirmationModal";
-import { DwellingTypeData } from "data/configuration/leadsourceData";
+} from '@tabler/icons-react';
+import ConfirmationModal from '@/components/common/ConfirmationModal';
+import { DwellingTypeData } from 'data/configuration/leadsourceData';
 
 interface DwellingType {
   id: number;
@@ -36,7 +28,7 @@ export const DwellingType: React.FC = () => {
 
   const [isModalOpen, setIsModalOpen] = useState<{
     open: boolean;
-    type: "activate" | "deactivate" | null;
+    type: 'activate' | 'deactivate' | null;
     row: DwellingType | null;
   }>({
     open: false,
@@ -48,11 +40,11 @@ export const DwellingType: React.FC = () => {
   const handleAdd = () => {
     const newRow: DwellingType = {
       id: -Date.now(), // temporary negative ID
-      name: "",
+      name: '',
       isActive: true,
       isDraft: true,
     };
-    setData((prev) => [newRow, ...prev]); // add at top
+    setData(prev => [newRow, ...prev]); // add at top
     setEditingId(newRow.id);
     setEditingRow(newRow);
     setIsAdding(true);
@@ -65,8 +57,8 @@ export const DwellingType: React.FC = () => {
   };
 
   const saveEdit = (id: number) => {
-    if (!editingRow.name || editingRow.name.trim() === "") {
-      message.error("Dwelling Type cannot be empty");
+    if (!editingRow.name || editingRow.name.trim() === '') {
+      message.error('Dwelling Type cannot be empty');
       return;
     }
 
@@ -78,23 +70,23 @@ export const DwellingType: React.FC = () => {
       isDraft: false,
     };
 
-    setData((prev) => {
+    setData(prev => {
       if (isNew) {
-        const filtered = prev.filter((item) => item.id !== id);
+        const filtered = prev.filter(item => item.id !== id);
         return [newItem, ...filtered];
       }
-      return prev.map((p) => (p.id === id ? { ...p, ...newItem } : p));
+      return prev.map(p => (p.id === id ? { ...p, ...newItem } : p));
     });
 
     setEditingId(null);
     setEditingRow({});
     setIsAdding(false);
-    message.success("Changes saved successfully");
+    message.success('Changes saved successfully');
   };
 
   const cancelEdit = () => {
     if (isAdding && editingId) {
-      setData((prev) => prev.filter((item) => item.id !== editingId));
+      setData(prev => prev.filter(item => item.id !== editingId));
       setIsAdding(false);
     }
     setEditingId(null);
@@ -103,30 +95,26 @@ export const DwellingType: React.FC = () => {
 
   // === ACTIVATE / DEACTIVATE ===
   const openDeactivateModal = (row: DwellingType) => {
-    setIsModalOpen({ open: true, type: "deactivate", row });
+    setIsModalOpen({ open: true, type: 'deactivate', row });
   };
 
   const openActivateModal = (row: DwellingType) => {
-    setIsModalOpen({ open: true, type: "activate", row });
+    setIsModalOpen({ open: true, type: 'activate', row });
   };
 
   const handleDeactivateConfirm = () => {
     const row = isModalOpen.row;
     if (!row) return;
-    setData((prev) =>
-      prev.map((p) => (p.id === row.id ? { ...p, isActive: false } : p))
-    );
-    message.success("Item deactivated");
+    setData(prev => prev.map(p => (p.id === row.id ? { ...p, isActive: false } : p)));
+    message.success('Item deactivated');
     setIsModalOpen({ open: false, type: null, row: null });
   };
 
   const handleActivateConfirm = () => {
     const row = isModalOpen.row;
     if (!row) return;
-    setData((prev) =>
-      prev.map((p) => (p.id === row.id ? { ...p, isActive: true } : p))
-    );
-    message.success("Item activated");
+    setData(prev => prev.map(p => (p.id === row.id ? { ...p, isActive: true } : p)));
+    message.success('Item activated');
     setIsModalOpen({ open: false, type: null, row: null });
   };
 
@@ -141,8 +129,8 @@ export const DwellingType: React.FC = () => {
           </Tooltip>
         </div>
       ),
-      dataIndex: "name",
-      key: "name",
+      dataIndex: 'name',
+      key: 'name',
       render: (_: any, record: DwellingType) => {
         const isEditing = editingId === record.id;
         if (!record.isActive) {
@@ -151,9 +139,7 @@ export const DwellingType: React.FC = () => {
         return isEditing ? (
           <Input
             value={editingRow.name}
-            onChange={(e) =>
-              setEditingRow((prev) => ({ ...prev, name: e.target.value }))
-            }
+            onChange={e => setEditingRow(prev => ({ ...prev, name: e.target.value }))}
           />
         ) : (
           record.name
@@ -161,7 +147,7 @@ export const DwellingType: React.FC = () => {
       },
     },
     {
-      title: "",
+      title: '',
       width: 160,
       render: (_: any, row: DwellingType) => {
         const inactive = row.isActive === false;
@@ -229,10 +215,7 @@ export const DwellingType: React.FC = () => {
                 cancelText="Cancel"
                 placement="top"
               >
-                <Button
-                  type="text"
-                  icon={<IconTrash size={18} className="text-red-500" />}
-                />
+                <Button type="text" icon={<IconTrash size={18} className="text-red-500" />} />
               </Popconfirm>
             </Space>
           </div>
@@ -255,38 +238,24 @@ export const DwellingType: React.FC = () => {
         </Button>
       </div>
 
-      <Table
-        pagination={false}
-        columns={columns}
-        dataSource={data}
-        rowKey="id"
-        size="middle"
-      />
+      <Table pagination={false} columns={columns} dataSource={data} rowKey="id" size="middle" />
 
       <ConfirmationModal
         open={isModalOpen.open}
         onClose={() => setIsModalOpen({ open: false, row: null, type: null })}
         onConfirm={
-          isModalOpen.type === "activate"
-            ? handleActivateConfirm
-            : handleDeactivateConfirm
+          isModalOpen.type === 'activate' ? handleActivateConfirm : handleDeactivateConfirm
         }
-        title={
-          isModalOpen.type === "activate"
-            ? "Activate this item?"
-            : "Deactivate this item?"
-        }
+        title={isModalOpen.type === 'activate' ? 'Activate this item?' : 'Deactivate this item?'}
         message={
           isModalOpen.row
             ? `Are you sure you want to ${
-                isModalOpen.type === "activate" ? "activate" : "deactivate"
+                isModalOpen.type === 'activate' ? 'activate' : 'deactivate'
               } "${isModalOpen.row.name}"?`
-            : "Confirm Action"
+            : 'Confirm Action'
         }
-        type={isModalOpen.type === "activate" ? "success" : "warning"}
-        confirmText={
-          isModalOpen.type === "activate" ? "Activate" : "Deactivate"
-        }
+        type={isModalOpen.type === 'activate' ? 'success' : 'warning'}
+        confirmText={isModalOpen.type === 'activate' ? 'Activate' : 'Deactivate'}
       />
     </div>
   );

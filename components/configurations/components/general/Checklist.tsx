@@ -1,14 +1,12 @@
-import React, { useState } from "react";
-import { Table, Input, Select, Button, Space, Popconfirm, Drawer } from "antd";
+import React, { useState } from 'react';
+import { Table, Input, Select, Button, Space, Popconfirm, Drawer } from 'antd';
+import { IconCheck, IconTrash, IconEdit, IconPlus, IconX } from '@tabler/icons-react';
 import {
-  IconCheck,
-  IconTrash,
-  IconEdit,
-  IconPlus,
-  IconX,
-} from "@tabler/icons-react";
-import { checklistData, checklistFunctionalityOptions, checklistScreenOptions } from "data/configuration/ConfigrationData";
-import ChecklistDrawer from "../ChecklistDrawer";
+  checklistData,
+  checklistFunctionalityOptions,
+  checklistScreenOptions,
+} from 'data/configuration/ConfigrationData';
+import ChecklistDrawer from '../ChecklistDrawer';
 
 const Checklist = () => {
   const [data, setData] = useState(checklistData || []);
@@ -18,14 +16,14 @@ const Checklist = () => {
   const [isDrawerVisible, setIsDrawerVisible] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<any>(null);
   const [formRow, setFormRow] = useState({
-    name: "",
-    screen: "",
-    functionality: "",
+    name: '',
+    screen: '',
+    functionality: '',
   });
 
   const handleAddNew = () => {
     setIsAdding(true);
-    setFormRow({ name: "", screen: "", functionality: "" });
+    setFormRow({ name: '', screen: '', functionality: '' });
   };
 
   const handleSaveNew = () => {
@@ -48,9 +46,7 @@ const Checklist = () => {
   };
 
   const handleSaveEdit = (id: number) => {
-    setData(
-      data.map((item) => (item.id === id ? { ...item, ...formRow } : item))
-    );
+    setData(data.map(item => (item.id === id ? { ...item, ...formRow } : item)));
     setEditingId(null);
   };
 
@@ -59,7 +55,7 @@ const Checklist = () => {
   };
 
   const handleDelete = (id: number) => {
-    setData(data.filter((item) => item.id !== id));
+    setData(data.filter(item => item.id !== id));
   };
 
   const handleRowClick = (record: any) => {
@@ -69,15 +65,15 @@ const Checklist = () => {
 
   const columns = [
     {
-      title: "Checklist Name",
-      dataIndex: "name",
-      key: "name",
+      title: 'Checklist Name',
+      dataIndex: 'name',
+      key: 'name',
       render: (text: string, record: any, index: number) => {
         if (isAdding && index === 0 && !record.id) {
           return (
             <Input
               value={formRow.name}
-              onChange={(e) => setFormRow({ ...formRow, name: e.target.value })}
+              onChange={e => setFormRow({ ...formRow, name: e.target.value })}
             />
           );
         }
@@ -85,7 +81,7 @@ const Checklist = () => {
           return (
             <Input
               value={formRow.name}
-              onChange={(e) => setFormRow({ ...formRow, name: e.target.value })}
+              onChange={e => setFormRow({ ...formRow, name: e.target.value })}
             />
           );
         }
@@ -93,9 +89,9 @@ const Checklist = () => {
       },
     },
     {
-      title: "Screen",
-      dataIndex: "screen",
-      key: "screen",
+      title: 'Screen',
+      dataIndex: 'screen',
+      key: 'screen',
       render: (text: string, record: any, index: number) => {
         if (isAdding && index === 0 && !record.id) {
           return (
@@ -103,8 +99,8 @@ const Checklist = () => {
             <Select
               value={formRow.screen}
               options={checklistScreenOptions}
-              style={{ width: "100%" }}
-              onChange={(val) => setFormRow({ ...formRow, screen: val })}
+              style={{ width: '100%' }}
+              onChange={val => setFormRow({ ...formRow, screen: val })}
             />
           );
         }
@@ -113,8 +109,8 @@ const Checklist = () => {
             <Select
               value={formRow.screen}
               options={checklistScreenOptions}
-              style={{ width: "100%" }}
-              onChange={(val) => setFormRow({ ...formRow, screen: val })}
+              style={{ width: '100%' }}
+              onChange={val => setFormRow({ ...formRow, screen: val })}
             />
           );
         }
@@ -122,17 +118,17 @@ const Checklist = () => {
       },
     },
     {
-      title: "Functionality",
-      dataIndex: "functionality",
-      key: "functionality",
+      title: 'Functionality',
+      dataIndex: 'functionality',
+      key: 'functionality',
       render: (text: string, record: any, index: number) => {
         if (isAdding && index === 0 && !record.id) {
           return (
             <Select
               value={formRow.functionality}
               options={checklistFunctionalityOptions}
-              style={{ width: "100%" }}
-              onChange={(val) => setFormRow({ ...formRow, functionality: val })}
+              style={{ width: '100%' }}
+              onChange={val => setFormRow({ ...formRow, functionality: val })}
             />
           );
         }
@@ -141,8 +137,8 @@ const Checklist = () => {
             <Select
               value={formRow.functionality}
               options={checklistFunctionalityOptions}
-              style={{ width: "100%" }}
-              onChange={(val) => setFormRow({ ...formRow, functionality: val })}
+              style={{ width: '100%' }}
+              onChange={val => setFormRow({ ...formRow, functionality: val })}
             />
           );
         }
@@ -150,20 +146,14 @@ const Checklist = () => {
       },
     },
     {
-      key: "actions",
+      key: 'actions',
       render: (_: any, record: any, index: number) => {
-        const iconStyle = { cursor: "pointer" };
+        const iconStyle = { cursor: 'pointer' };
         if (isAdding && index === 0 && !record.id) {
           return (
             <Space>
-              <IconCheck
-                onClick={handleSaveNew}
-                style={{ color: "green", ...iconStyle }}
-              />
-              <IconX
-                onClick={handleCancelNew}
-                style={{ color: "red", ...iconStyle }}
-              />
+              <IconCheck onClick={handleSaveNew} style={{ color: 'green', ...iconStyle }} />
+              <IconX onClick={handleCancelNew} style={{ color: 'red', ...iconStyle }} />
             </Space>
           );
         }
@@ -173,19 +163,16 @@ const Checklist = () => {
             <Space>
               <IconCheck
                 onClick={() => handleSaveEdit(record.id)}
-                style={{ color: "green", ...iconStyle }}
+                style={{ color: 'green', ...iconStyle }}
               />
-              <IconX
-                onClick={handleCancelEdit}
-                style={{ color: "red", ...iconStyle }}
-              />
+              <IconX onClick={handleCancelEdit} style={{ color: 'red', ...iconStyle }} />
             </Space>
           );
         }
 
         return (
           <Space>
-            <IconPlus style={{ color: "green", ...iconStyle }} />
+            <IconPlus style={{ color: 'green', ...iconStyle }} />
             <IconEdit onClick={() => handleEdit(record)} style={iconStyle} />
             <Popconfirm
               title="Delete this checklist?"
@@ -194,7 +181,7 @@ const Checklist = () => {
               cancelText="No"
               okButtonProps={{ danger: true }}
             >
-              <IconTrash style={{ color: "red", ...iconStyle }} />
+              <IconTrash style={{ color: 'red', ...iconStyle }} />
             </Popconfirm>
           </Space>
         );
@@ -202,19 +189,12 @@ const Checklist = () => {
     },
   ];
 
-  const tableData = isAdding ? [{ key: "new", ...formRow }, ...data] : data;
+  const tableData = isAdding ? [{ key: 'new', ...formRow }, ...data] : data;
 
   return (
     <div>
-      <div
-        style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}
-      >
-        <Button
-          type="primary"
-          icon={<IconPlus />}
-          onClick={handleAddNew}
-          disabled={isAdding}
-        >
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
+        <Button type="primary" icon={<IconPlus />} onClick={handleAddNew} disabled={isAdding}>
           New
         </Button>
       </div>
@@ -226,8 +206,8 @@ const Checklist = () => {
       <Table
         columns={columns}
         dataSource={tableData}
-        onRow={(record) => ({
-          onClick: (e) => {
+        onRow={record => ({
+          onClick: e => {
             e.preventDefault();
             handleRowClick(record);
           },

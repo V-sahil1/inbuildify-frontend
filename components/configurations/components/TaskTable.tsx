@@ -1,25 +1,10 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import {
-  Button,
-  Modal,
-  Input,
-  Form,
-  Space,
-  Tooltip,
-  message,
-  Select,
-  InputNumber,
-} from "antd";
+import React, { useState } from 'react';
+import { Button, Modal, Input, Form, Space, Tooltip, message, Select, InputNumber } from 'antd';
 const { Option } = Select;
-import {
-  IconPlus,
-  IconEdit,
-  IconTrash,
-  IconArrowRight,
-} from "@tabler/icons-react";
-import { PredecessorTable } from "./PredecessorTable";
+import { IconPlus, IconEdit, IconTrash, IconArrowRight } from '@tabler/icons-react';
+import { PredecessorTable } from './PredecessorTable';
 
 type Task = {
   id: string;
@@ -54,14 +39,14 @@ interface TaskTableProps {
 
 const INITIAL_TASKS: Task[] = [
   {
-    id: "t1",
-    name: "Verify with customer",
+    id: 't1',
+    name: 'Verify with customer',
     duration: 1,
-    assignee: "My Home Admin",
-    folder: "Sales Folder",
+    assignee: 'My Home Admin',
+    folder: 'Sales Folder',
     sort: 1,
-    predecessorTask: [{ id: "p1", name: "Quotation Approval", sort: 1 }],
-    children: [{ id: "1-1", name: "Call and verify", sort: 1 }],
+    predecessorTask: [{ id: 'p1', name: 'Quotation Approval', sort: 1 }],
+    children: [{ id: '1-1', name: 'Call and verify', sort: 1 }],
   },
 ];
 
@@ -73,13 +58,11 @@ const sortAndReindexTasks = (arr: Task[]) =>
     .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0))
     .map((t, i) => ({ ...t, sort: i + 1 }));
 
-const SAMPLE_ASSIGNEES = ["My Home Admin", "John Doe", "Sales Rep"];
-const SAMPLE_FOLDERS = ["Sales Folder", "Marketing", "Default"];
+const SAMPLE_ASSIGNEES = ['My Home Admin', 'John Doe', 'Sales Rep'];
+const SAMPLE_FOLDERS = ['Sales Folder', 'Marketing', 'Default'];
 
 export const TaskTable: React.FC<TaskTableProps> = ({ currentStep }) => {
-  const [tasks, setTasks] = useState<Task[]>(
-    sortAndReindexTasks(INITIAL_TASKS)
-  );
+  const [tasks, setTasks] = useState<Task[]>(sortAndReindexTasks(INITIAL_TASKS));
 
   const [taskModalOpen, setTaskModalOpen] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
@@ -117,9 +100,9 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep }) => {
   const handleTaskSave = async () => {
     try {
       const values = await taskForm.validateFields();
-      const name = (values.name || "").trim();
+      const name = (values.name || '').trim();
       if (!name) {
-        message.error("Task name is required");
+        message.error('Task name is required');
         return;
       }
 
@@ -130,8 +113,7 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep }) => {
       // Count active tasks (all in local)
       const activeCount = tasks.length + (editingTaskId ? 0 : 0);
 
-      if (desiredSort > activeCount)
-        desiredSort = activeCount + (editingTaskId ? 0 : 1);
+      if (desiredSort > activeCount) desiredSort = activeCount + (editingTaskId ? 0 : 1);
 
       if (!editingTaskId) {
         // create
@@ -151,24 +133,20 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep }) => {
         };
 
         // insert at desiredSort position; reindex all sorts
-        setTasks((prev) => {
+        setTasks(prev => {
           const list = prev.slice().sort((a, b) => a.sort - b.sort);
           const pos = Math.max(1, Math.min(desiredSort, list.length + 1));
-          const newList = [
-            ...list.slice(0, pos - 1),
-            newTask,
-            ...list.slice(pos - 1),
-          ];
+          const newList = [...list.slice(0, pos - 1), newTask, ...list.slice(pos - 1)];
           return sortAndReindexTasks(newList);
         });
 
-        message.success("Task created");
+        message.success('Task created');
       } else {
         // update existing
-        setTasks((prev) => {
+        setTasks(prev => {
           // update fields and move to new position if sort changed
           const list = prev.slice().sort((a, b) => a.sort - b.sort);
-          const idx = list.findIndex((t) => t.id === editingTaskId);
+          const idx = list.findIndex(t => t.id === editingTaskId);
           if (idx === -1) return prev;
           const updated: Task = {
             ...list[idx],
@@ -189,15 +167,11 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep }) => {
           // remove the item
           const others = list.filter((_, i) => i !== idx);
           const pos = Math.max(1, Math.min(desiredSort, others.length + 1));
-          const newList = [
-            ...others.slice(0, pos - 1),
-            updated,
-            ...others.slice(pos - 1),
-          ];
+          const newList = [...others.slice(0, pos - 1), updated, ...others.slice(pos - 1)];
           return sortAndReindexTasks(newList);
         });
 
-        message.success("Task updated");
+        message.success('Task updated');
       }
 
       // close modal & reset
@@ -216,25 +190,23 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep }) => {
       name: values.name,
       sort: values.sort,
     };
-    setPredecessors((prev) => [...prev, newPredecessor]);
+    setPredecessors(prev => [...prev, newPredecessor]);
   };
 
   const handleEditPredecessor = (id: string, updates: Partial<Predecessor>) => {
-    setPredecessors((prev) =>
-      prev.map((pred) => (pred.id === id ? { ...pred, ...updates } : pred))
-    );
+    setPredecessors(prev => prev.map(pred => (pred.id === id ? { ...pred, ...updates } : pred)));
   };
 
   const handleDeletePredecessor = (id: string) => {
-    setPredecessors((prev) => prev.filter((pred) => pred.id !== id));
+    setPredecessors(prev => prev.filter(pred => pred.id !== id));
   };
 
   const handleDeleteTask = (id: string) => {
-    setTasks((prev) => {
-      const filtered = prev.filter((t) => t.id !== id);
+    setTasks(prev => {
+      const filtered = prev.filter(t => t.id !== id);
       return sortAndReindexTasks(filtered);
     });
-    message.success("Task deleted");
+    message.success('Task deleted');
   };
 
   const handleAddChild = (taskId: string) => {
@@ -244,8 +216,8 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep }) => {
   };
 
   const handleEditChild = (taskId: string, childId: string) => {
-    const task = tasks.find((t) => t.id === taskId);
-    const subTask = task?.children?.find((c) => c.id === childId);
+    const task = tasks.find(t => t.id === taskId);
+    const subTask = task?.children?.find(c => c.id === childId);
 
     if (subTask) {
       setSelectedTaskId(taskId);
@@ -259,18 +231,16 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep }) => {
   };
 
   const handleSaveChild = () => {
-    form.validateFields().then((values) => {
-      setTasks((prev) =>
-        prev.map((task) => {
+    form.validateFields().then(values => {
+      setTasks(prev =>
+        prev.map(task => {
           if (task.id !== selectedTaskId) return task;
 
           const updatedChildren = task.children ? [...task.children] : [];
 
           if (editingSubId) {
             // Update existing sub-task
-            const index = updatedChildren.findIndex(
-              (c) => c.id === editingSubId
-            );
+            const index = updatedChildren.findIndex(c => c.id === editingSubId);
             if (index !== -1) {
               updatedChildren[index] = {
                 ...updatedChildren[index],
@@ -299,12 +269,12 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep }) => {
   };
 
   const handleDeleteChild = (parentId: string, childId: string) => {
-    setTasks((prev) =>
-      prev.map((task) =>
+    setTasks(prev =>
+      prev.map(task =>
         task.id === parentId
           ? {
               ...task,
-              children: task.children?.filter((c) => c.id !== childId),
+              children: task.children?.filter(c => c.id !== childId),
             }
           : task
       )
@@ -327,29 +297,25 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep }) => {
               <table className="w-full table-fixed">
                 <thead className="ant-table-thead">
                   <tr>
-                    <th style={{ width: "25%" }}>Task Name</th>
-                    <th style={{ width: "10%" }}>Duration</th>
-                    <th style={{ width: "30%" }}>Predecessor Task</th>
-                    <th style={{ width: "20%" }}>Assignee</th>
-                    <th style={{ width: "8%" }}>Sort</th>
-                    <th style={{ width: "10%" }} className="text-center">
+                    <th style={{ width: '25%' }}>Task Name</th>
+                    <th style={{ width: '10%' }}>Duration</th>
+                    <th style={{ width: '30%' }}>Predecessor Task</th>
+                    <th style={{ width: '20%' }}>Assignee</th>
+                    <th style={{ width: '8%' }}>Sort</th>
+                    <th style={{ width: '10%' }} className="text-center">
                       Actions
                     </th>
                   </tr>
                 </thead>
 
                 <tbody className="ant-table-tbody">
-                  {tasks.map((task) => (
+                  {tasks.map(task => (
                     <React.Fragment key={task.id}>
                       {/* Parent Row */}
                       <tr className="hover:bg-gray-50">
                         <td className="font-medium pl-2">{task.name}</td>
                         <td className="text-center">{task.duration}</td>
-                        <td>
-                          {task.predecessorTask
-                            ?.map((p) => p.name)
-                            .join(", ") || "-"}
-                        </td>
+                        <td>{task.predecessorTask?.map(p => p.name).join(', ') || '-'}</td>
                         <td>{task.assignee}</td>
                         <td className="text-center">{task.sort}</td>
                         <td className="text-right pr-2">
@@ -379,16 +345,11 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep }) => {
                         </td>
                       </tr>
 
-                      {task.children?.map((child) => (
-                        <tr
-                          key={child.id}
-                          className="bg-gray-100 border-t border-gray-200"
-                        >
+                      {task.children?.map(child => (
+                        <tr key={child.id} className="bg-gray-100 border-t border-gray-200">
                           <td className="pl-8 flex items-center gap-2">
                             <IconArrowRight size={16} />
-                            <span className="font-medium text-gray-700">
-                              {child.name}
-                            </span>
+                            <span className="font-medium text-gray-700">{child.name}</span>
                           </td>
                           <td className="text-center">{child.sort}</td>
                           <td colSpan={2}></td>
@@ -399,18 +360,14 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep }) => {
                                 <Button
                                   type="text"
                                   icon={<IconEdit size={18} />}
-                                  onClick={() =>
-                                    handleEditChild(task.id, child.id)
-                                  }
+                                  onClick={() => handleEditChild(task.id, child.id)}
                                 />
                               </Tooltip>
                               <Tooltip title="Delete">
                                 <Button
                                   type="text"
                                   icon={<IconTrash size={18} />}
-                                  onClick={() =>
-                                    handleDeleteChild(task.id, child.id)
-                                  }
+                                  onClick={() => handleDeleteChild(task.id, child.id)}
                                 />
                               </Tooltip>
                             </Space>
@@ -426,31 +383,25 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep }) => {
         </div>
 
         <Modal
-          title={`${editingSubId ? "Edit Sub Task" : "Add Sub Task"}`}
+          title={`${editingSubId ? 'Edit Sub Task' : 'Add Sub Task'}`}
           open={isModalOpen}
           onCancel={() => setIsModalOpen(false)}
           onOk={handleSaveChild}
           okText="Save"
           centered
         >
-          <Form
-            form={form}
-            layout="vertical"
-            initialValues={{ name: "", sort: 1 }}
-          >
+          <Form form={form} layout="vertical" initialValues={{ name: '', sort: 1 }}>
             <Form.Item
               name="name"
               label="Task Name"
-              rules={[
-                { required: true, message: "Please enter sub task name" },
-              ]}
+              rules={[{ required: true, message: 'Please enter sub task name' }]}
             >
               <Input placeholder="Enter sub task name" />
             </Form.Item>
             <Form.Item
               name="sort"
               label="Sort"
-              rules={[{ required: true, message: "Please enter sort number" }]}
+              rules={[{ required: true, message: 'Please enter sort number' }]}
             >
               <Input type="number" min={1} />
             </Form.Item>
@@ -465,7 +416,7 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep }) => {
             taskForm.resetFields();
             setPredecessors([]);
           }}
-          title={editingTaskId ? "Edit Task" : "New Task"}
+          title={editingTaskId ? 'Edit Task' : 'New Task'}
           width={800}
           okText="Save"
           onOk={handleTaskSave}
@@ -475,7 +426,7 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep }) => {
             <Form.Item
               label="Task Name"
               name="name"
-              rules={[{ required: true, message: "Please enter task name" }]}
+              rules={[{ required: true, message: 'Please enter task name' }]}
             >
               <Input placeholder="Enter task name" />
             </Form.Item>
@@ -483,7 +434,7 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep }) => {
             <div className="grid grid-cols-3 gap-4">
               <Form.Item label="Assignee" name="assignee">
                 <Select placeholder="Select Assignee">
-                  {SAMPLE_ASSIGNEES.map((a) => (
+                  {SAMPLE_ASSIGNEES.map(a => (
                     <Option value={a} key={a}>
                       {a}
                     </Option>
@@ -493,7 +444,7 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep }) => {
 
               <Form.Item label="Folder Name" name="folder">
                 <Select placeholder="Select Folder">
-                  {SAMPLE_FOLDERS.map((f) => (
+                  {SAMPLE_FOLDERS.map(f => (
                     <Option value={f} key={f}>
                       {f}
                     </Option>
@@ -502,13 +453,13 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep }) => {
               </Form.Item>
 
               <Form.Item label="Sort" name="sort">
-                <InputNumber min={1} style={{ width: "100%" }} />
+                <InputNumber min={1} style={{ width: '100%' }} />
               </Form.Item>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <Form.Item label="No of Days" name="duration">
-                <InputNumber min={1} style={{ width: "100%" }} />
+                <InputNumber min={1} style={{ width: '100%' }} />
               </Form.Item>
 
               <Form.Item label="Info" name="info">
@@ -528,11 +479,7 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep }) => {
                 </Form.Item>
                 <span>Milestone</span>
 
-                <Form.Item
-                  name="attachmentMandatory"
-                  valuePropName="checked"
-                  noStyle
-                >
+                <Form.Item name="attachmentMandatory" valuePropName="checked" noStyle>
                   <input type="checkbox" />
                 </Form.Item>
                 <span>Attachment Mandatory</span>

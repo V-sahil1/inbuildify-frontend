@@ -1,9 +1,9 @@
-"use client";
-import { FC } from "react";
-import { Button, Form, Input, Select } from "antd";
-import { SmsDetails } from "data/types";
-import { useAppSelector } from "@hooks/redux";
-import { descriptionRules } from "@lib/constants/formInputValidations";
+'use client';
+import { FC } from 'react';
+import { Button, Form, Input, Select } from 'antd';
+import { SmsDetails } from 'data/types';
+import { useAppSelector } from '@hooks/redux';
+import { descriptionRules } from '@lib/constants/formInputValidations';
 const { TextArea } = Input;
 interface SendSmsCardProps {
   onSave: (sms: SmsDetails) => void;
@@ -12,21 +12,16 @@ interface SendSmsCardProps {
   initialData?: SmsDetails;
 }
 
-const SendSmsCard: FC<SendSmsCardProps> = ({
-  onSave,
-  onCancel,
-  loading,
-  initialData,
-}) => {
+const SendSmsCard: FC<SendSmsCardProps> = ({ onSave, onCancel, loading, initialData }) => {
   const [form] = Form.useForm();
-  const { leadDetail } = useAppSelector((state) => state.lead);
-  const recipientOptions = leadDetail.contacts.map((contact) => ({
+  const { leadDetail } = useAppSelector(state => state.lead);
+  const recipientOptions = leadDetail.contacts.map(contact => ({
     label: contact.name,
     value: contact.leadsContactId,
   }));
 
-  const handleFinish = async (values) => {
-    values.type = "SMS";
+  const handleFinish = async values => {
+    values.type = 'SMS';
     if (initialData) {
       values.actionId = initialData.actionId;
       values.action_type_id = initialData?.smsId;
@@ -36,17 +31,12 @@ const SendSmsCard: FC<SendSmsCardProps> = ({
   };
 
   return (
-    <Form
-      form={form}
-      layout="vertical"
-      onFinish={handleFinish}
-      className="flex flex-col gap-3"
-    >
+    <Form form={form} layout="vertical" onFinish={handleFinish} className="flex flex-col gap-3">
       <Form.Item
         label="Recipient"
         name="recipient"
-        rules={[{ required: true, message: "Please select recipient(s)" }]}
-        initialValue={initialData?.recipient?.map((recipient) => recipient.id)}
+        rules={[{ required: true, message: 'Please select recipient(s)' }]}
+        initialValue={initialData?.recipient?.map(recipient => recipient.id)}
       >
         <Select
           mode="multiple"
@@ -62,7 +52,7 @@ const SendSmsCard: FC<SendSmsCardProps> = ({
         rules={descriptionRules}
         initialValue={initialData?.message}
       >
-        <TextArea rows={4} placeholder="Type your SMS message" className="!resize-none"/>
+        <TextArea rows={4} placeholder="Type your SMS message" className="!resize-none" />
       </Form.Item>
 
       <div className="flex gap-3 justify-end">

@@ -1,5 +1,5 @@
-"use client";
-import { FC, useState } from "react";
+'use client';
+import { FC, useState } from 'react';
 import {
   IconCalendar,
   IconMessage,
@@ -11,18 +11,13 @@ import {
   IconPencil,
   IconCalendarCancel,
   IconCaretDown,
-} from "@tabler/icons-react";
-import { TimelineCardProps } from "data/types";
-import {
-  AppointmentDetails,
-  TaskDetails,
-  NoteDetails,
-  SmsDetails,
-} from "data/types";
-import dayjs from "dayjs";
-import { useAppSelector } from "@hooks/redux";
-import { formatApiDate, timeAgo } from "@lib/utils/timeAgo";
-import { Button, Tooltip, Input, Switch, Upload, Popconfirm, Dropdown, Menu } from "antd";
+} from '@tabler/icons-react';
+import { TimelineCardProps } from 'data/types';
+import { AppointmentDetails, TaskDetails, NoteDetails, SmsDetails } from 'data/types';
+import dayjs from 'dayjs';
+import { useAppSelector } from '@hooks/redux';
+import { formatApiDate, timeAgo } from '@lib/utils/timeAgo';
+import { Button, Tooltip, Input, Switch, Upload, Popconfirm, Dropdown, Menu } from 'antd';
 
 const { TextArea } = Input;
 
@@ -35,16 +30,16 @@ const TimelineCard: FC<TimelineCardProps> = ({
   children,
   item,
 }) => {
-  const { leadDetail } = useAppSelector((state) => state.lead);
-  const { users } = useAppSelector((state) => state.user);
+  const { leadDetail } = useAppSelector(state => state.lead);
+  const { users } = useAppSelector(state => state.user);
 
   const [showReply, setShowReply] = useState(false);
-  const [replyText, setReplyText] = useState("");
+  const [replyText, setReplyText] = useState('');
   const [replies, setReplies] = useState<string[]>([]);
   const [sendToCustomer, setSendToCustomer] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [isCanceled, setIsCanceled] = useState(false);
-  const [taskStatus, setTaskStatus] = useState<string>("In Progress");
+  const [taskStatus, setTaskStatus] = useState<string>('In Progress');
 
   const handleSaveReply = () => {
     if (replyText.trim()) {
@@ -57,13 +52,13 @@ const TimelineCard: FC<TimelineCardProps> = ({
         setReplies([...replies, replyText.trim()]);
       }
     }
-    setReplyText("");
+    setReplyText('');
     setShowReply(false);
     setSendToCustomer(false);
   };
 
   const handleCancelReply = () => {
-    setReplyText("");
+    setReplyText('');
     setShowReply(false);
     setSendToCustomer(false);
     setEditingIndex(null);
@@ -71,63 +66,59 @@ const TimelineCard: FC<TimelineCardProps> = ({
 
   const handleCancelAction = () => {
     setIsCanceled(true);
-    if (item?.type === "APPOINTMENT" && onReschedule) {
+    if (item?.type === 'APPOINTMENT' && onReschedule) {
       onReschedule();
     }
   };
 
   const getTitle = () => {
     switch (item?.type) {
-      case "NOTES":
+      case 'NOTES':
         return (item?.notes[0] as NoteDetails)?.message;
-      case "APPOINTMENT":
+      case 'APPOINTMENT':
         return (item?.appointment[0] as AppointmentDetails)?.title;
-      case "TASK":
+      case 'TASK':
         return (item?.task[0] as TaskDetails)?.name;
-      case "SMS":
+      case 'SMS':
         return `${(item?.sms[0] as SmsDetails)?.message}`;
       default:
-        return "";
+        return '';
     }
   };
 
   const getDescription = () => {
     switch (item?.type) {
-      case "APPOINTMENT":
+      case 'APPOINTMENT':
         return (item?.appointment[0] as AppointmentDetails)?.notes;
-      case "TASK":
+      case 'TASK':
         return (item?.task[0] as TaskDetails)?.description;
-      case "SMS": {
+      case 'SMS': {
         const sms = item?.sms?.[0] as SmsDetails;
         type Recipient = string | { id: string; name: string };
-        const recipientNames = (
-          Array.isArray(sms?.recipient) ? sms?.recipient : []
-        )
+        const recipientNames = (Array.isArray(sms?.recipient) ? sms?.recipient : [])
           .map((r: Recipient) => {
-            if (typeof r === "string") {
-              const contact = leadDetail?.contacts?.find(
-                (c) => c?.leadsContactId === r
-              );
+            if (typeof r === 'string') {
+              const contact = leadDetail?.contacts?.find(c => c?.leadsContactId === r);
               return contact?.name;
-            } else if (typeof r === "object" && r?.name) {
+            } else if (typeof r === 'object' && r?.name) {
               return r?.name;
             }
             return null;
           })
           .filter(Boolean)
-          .join(", ");
-        return `${recipientNames ? ` (To: ${recipientNames})` : ""}`;
+          .join(', ');
+        return `${recipientNames ? ` (To: ${recipientNames})` : ''}`;
       }
       default:
-        return "";
+        return '';
     }
   };
 
   const getTags = () => {
-    if (item?.type === "NOTES" && (item?.notes?.[0] as NoteDetails)?.tags) {
-      return (item.notes[0] as NoteDetails).tags.map((tag) => tag.name);
+    if (item?.type === 'NOTES' && (item?.notes?.[0] as NoteDetails)?.tags) {
+      return (item.notes[0] as NoteDetails).tags.map(tag => tag.name);
     }
-    if (item?.type === "TASK" && (item?.task?.[0] as TaskDetails)?.priority) {
+    if (item?.type === 'TASK' && (item?.task?.[0] as TaskDetails)?.priority) {
       return [`Priority: ${(item.task[0] as TaskDetails).priority}`];
     }
     return [];
@@ -135,13 +126,13 @@ const TimelineCard: FC<TimelineCardProps> = ({
 
   const getIcon = () => {
     switch (type) {
-      case "NOTES":
+      case 'NOTES':
         return <IconMessage size={18} />;
-      case "APPOINTMENT":
+      case 'APPOINTMENT':
         return <IconCalendar size={18} />;
-      case "TASK":
+      case 'TASK':
         return <IconListCheck size={18} />;
-      case "SMS":
+      case 'SMS':
         return <IconDeviceMobileMessage size={18} />;
       default:
         return <IconMessage size={18} />;
@@ -161,24 +152,20 @@ const TimelineCard: FC<TimelineCardProps> = ({
   };
 
   const renderButtons = () => {
-    if ((item?.type === "APPOINTMENT" || item?.type === "TASK") && isCanceled) {
+    if ((item?.type === 'APPOINTMENT' || item?.type === 'TASK') && isCanceled) {
       return (
-        <span className="px-2 py-1 bg-gray-200 text-gray-600 text-xs rounded-md">
-          Canceled
-        </span>
+        <span className="px-2 py-1 bg-gray-200 text-gray-600 text-xs rounded-md">Canceled</span>
       );
     }
 
     return (
       <>
         {onEdit && (
-          <button
-            onClick={() => onEdit({ item, type: item.type } as TimelineCardProps)}
-          >
+          <button onClick={() => onEdit({ item, type: item.type } as TimelineCardProps)}>
             <IconEdit size={18} />
           </button>
         )}
-        {(item?.type === "APPOINTMENT" || item?.type === "TASK") && (
+        {(item?.type === 'APPOINTMENT' || item?.type === 'TASK') && (
           <Popconfirm
             title="Do you want to cancel?"
             okText="Yes"
@@ -206,14 +193,16 @@ const TimelineCard: FC<TimelineCardProps> = ({
       <div className="flex-1 bg-body-color rounded-lg shadow-sm border border-border-color p-4">
         <div className="mb-2 flex items-center justify-between gap-2">
           <div className="flex flex-wrap gap-2">
-            {getTags().slice(0, 5).map((tag, idx) => (
-              <span
-                key={idx}
-                className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-md"
-              >
-                {tag}
-              </span>
-            ))}
+            {getTags()
+              .slice(0, 5)
+              .map((tag, idx) => (
+                <span
+                  key={idx}
+                  className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-md"
+                >
+                  {tag}
+                </span>
+              ))}
             {getTags().length > 5 && (
               <Tooltip
                 color="var(--card-color)"
@@ -241,11 +230,11 @@ const TimelineCard: FC<TimelineCardProps> = ({
               <span
                 className={`px-2 py-1 text-xs rounded-md ${
                   {
-                    NOTES: "bg-gray-300 text-blue-700",
-                    TASK: "bg-green-100 text-green-700",
-                    SMS: "bg-yellow-100 text-yellow-700",
-                    APPOINTMENT: "bg-red-100 text-red-700",
-                  }[item?.type] || "bg-gray-100 text-gray-700"
+                    NOTES: 'bg-gray-300 text-blue-700',
+                    TASK: 'bg-green-100 text-green-700',
+                    SMS: 'bg-yellow-100 text-yellow-700',
+                    APPOINTMENT: 'bg-red-100 text-red-700',
+                  }[item?.type] || 'bg-gray-100 text-gray-700'
                 }`}
               >
                 {item?.type}
@@ -260,9 +249,7 @@ const TimelineCard: FC<TimelineCardProps> = ({
         </div>
 
         <div className="flex items-center justify-between gap-3">
-          <h3 className="font-medium text-font-color text-base sm:text-lg">
-            {getTitle()}
-          </h3>
+          <h3 className="font-medium text-font-color text-base sm:text-lg">{getTitle()}</h3>
         </div>
 
         <>
@@ -276,7 +263,7 @@ const TimelineCard: FC<TimelineCardProps> = ({
               }
             </p>
           )}
-          {item?.type === "NOTES" && item?.notes?.length > 0 && (
+          {item?.type === 'NOTES' && item?.notes?.length > 0 && (
             <div className="text-xs text-font-color-100 space-y-1 mt-2">
               {/* {(item?.notes?.[0] as NoteDetails)?.attachment &&
                 (item?.notes?.[0] as NoteDetails)?.attachment!.length > 0 && (
@@ -294,18 +281,14 @@ const TimelineCard: FC<TimelineCardProps> = ({
               )}
               {(item?.notes?.[0] as NoteDetails)?.createFollowUpTask && (
                 <p>
-                  <strong>Create Follow-up:</strong> Yes{" "}
-                  {formatApiDate(
-                    (item?.notes?.[0] as NoteDetails)?.task?.dueDate
-                  ) &&
-                    `(Due: ${
-                      (item?.notes?.[0] as NoteDetails)?.task?.dueDate
-                    })`}
+                  <strong>Create Follow-up:</strong> Yes{' '}
+                  {formatApiDate((item?.notes?.[0] as NoteDetails)?.task?.dueDate) &&
+                    `(Due: ${(item?.notes?.[0] as NoteDetails)?.task?.dueDate})`}
                 </p>
               )}
-              {typeof (item?.notes?.[0] as NoteDetails)?.attachment === "string" && (
+              {typeof (item?.notes?.[0] as NoteDetails)?.attachment === 'string' && (
                 <p className="p-0">
-                  <strong>Attachments:</strong>{" "}
+                  <strong>Attachments:</strong>{' '}
                   <Button
                     type="link"
                     href={String((item?.notes?.[0] as NoteDetails)?.attachment)}
@@ -319,82 +302,74 @@ const TimelineCard: FC<TimelineCardProps> = ({
               )}
             </div>
           )}
-          {item?.type === "APPOINTMENT" && (item?.appointment?.[0] as AppointmentDetails) && (
+          {item?.type === 'APPOINTMENT' && (item?.appointment?.[0] as AppointmentDetails) && (
             <div className="text-xs text-font-color-100 space-y-1 mt-2">
               <p>
-                <strong>Date:</strong>{" "}
+                <strong>Date:</strong>{' '}
                 {renderCanceledText(
-                  formatApiDate((item?.appointment?.[0] as AppointmentDetails)?.date) || " "
+                  formatApiDate((item?.appointment?.[0] as AppointmentDetails)?.date) || ' '
                 )}
               </p>
               <p>
-                <strong>Time:</strong>{" "}
+                <strong>Time:</strong>{' '}
                 {renderCanceledText(
-                  `${(item?.appointment?.[0] as AppointmentDetails)?.startTime || "-"} - ${(item?.appointment?.[0] as AppointmentDetails)?.endTime || "-"}`
+                  `${(item?.appointment?.[0] as AppointmentDetails)?.startTime || '-'} - ${(item?.appointment?.[0] as AppointmentDetails)?.endTime || '-'}`
                 )}
               </p>
               <p>
-                <strong>Location:</strong>{" "}
-                {(item?.appointment[0] as AppointmentDetails)?.location || "-"}
+                <strong>Location:</strong>{' '}
+                {(item?.appointment[0] as AppointmentDetails)?.location || '-'}
               </p>
               <p>
-                <strong>User:</strong>{" "}
+                <strong>User:</strong>{' '}
                 {(() => {
                   const selectedIds =
-                    (item?.appointment?.[0] as AppointmentDetails)
-                      ?.selectUsers || [];
+                    (item?.appointment?.[0] as AppointmentDetails)?.selectUsers || [];
                   const userNames = Array.isArray(selectedIds)
                     ? selectedIds
-                        .map((id) => {
-                          const found = users.find((u) => u.usersId === id.id);
+                        .map(id => {
+                          const found = users.find(u => u.usersId === id.id);
                           return found?.name;
                         })
                         .filter(Boolean)
-                        .join(", ")
-                    : "-";
-                  return userNames || "-";
+                        .join(', ')
+                    : '-';
+                  return userNames || '-';
                 })()}
               </p>
               <p>
-                <strong>Send to Customer:</strong>{" "}
-                {(item?.appointment[0] as AppointmentDetails)?.sendToCustomer
-                  ? "Yes"
-                  : "No"}
+                <strong>Send to Customer:</strong>{' '}
+                {(item?.appointment[0] as AppointmentDetails)?.sendToCustomer ? 'Yes' : 'No'}
               </p>
             </div>
           )}
-          {item?.type === "TASK" && (item.task[0] as TaskDetails) && (
+          {item?.type === 'TASK' && (item.task[0] as TaskDetails) && (
             <div className="text-xs text-font-color-100 space-y-1 mt-2">
               <p>
-                <strong>Due Date:</strong>{" "}
+                <strong>Due Date:</strong>{' '}
                 {renderCanceledText(
-                  item.task[0]?.dueDate
-                    ? dayjs(item.task[0].dueDate).format("YYYY-MM-DD")
-                    : "-"
+                  item.task[0]?.dueDate ? dayjs(item.task[0].dueDate).format('YYYY-MM-DD') : '-'
                 )}
               </p>
               <p>
-                <strong>Time:</strong>{" "}
-                {renderCanceledText((item.task[0] as TaskDetails)?.time || "-")}
+                <strong>Time:</strong>{' '}
+                {renderCanceledText((item.task[0] as TaskDetails)?.time || '-')}
               </p>
               <p>
-                <strong>Priority:</strong>{" "}
-                {(item?.task[0] as TaskDetails)?.priority || "-"}
+                <strong>Priority:</strong> {(item?.task[0] as TaskDetails)?.priority || '-'}
               </p>
               <p>
-                <strong>Assignee:</strong>{" "}
+                <strong>Assignee:</strong>{' '}
                 {(() => {
                   const assigneeId = (item?.task?.[0] as TaskDetails)?.assignee;
-                  if (!assigneeId) return "-";
-                  const assigneeUser = users.find(
-                    (u) => u.usersId === assigneeId.id
-                  );
-                  return assigneeUser?.name || "-";
+                  if (!assigneeId) return '-';
+                  const assigneeUser = users.find(u => u.usersId === assigneeId.id);
+                  return assigneeUser?.name || '-';
                 })()}
               </p>
               {item?.task[0]?.attachment && (
                 <p>
-                  <strong>Attachments:</strong>{" "}
+                  <strong>Attachments:</strong>{' '}
                   <Button
                     type="link"
                     href={String((item?.task[0] as TaskDetails)?.attachment)}
@@ -420,7 +395,7 @@ const TimelineCard: FC<TimelineCardProps> = ({
                     {editingIndex === i ? (
                       <Input
                         value={replyText}
-                        onChange={(e) => setReplyText(e.target.value)}
+                        onChange={e => setReplyText(e.target.value)}
                         size="small"
                         className="h-9"
                       />
@@ -430,11 +405,7 @@ const TimelineCard: FC<TimelineCardProps> = ({
                   </div>
                   <div>
                     {editingIndex === i ? (
-                      <Button
-                        type="link"
-                        onClick={handleSaveReply}
-                        className="p-0 !text-primary"
-                      >
+                      <Button type="link" onClick={handleSaveReply} className="p-0 !text-primary">
                         Save
                       </Button>
                     ) : (
@@ -453,8 +424,7 @@ const TimelineCard: FC<TimelineCardProps> = ({
                 </div>
                 {(createdAt || item?.createdAt) && createdBy?.name && (
                   <p className="text-xs text-font-color-100">
-                    {createdBy?.name} created{" "}
-                    {timeAgo(createdAt || item?.createdAt)}
+                    {createdBy?.name} created {timeAgo(createdAt || item?.createdAt)}
                   </p>
                 )}
               </div>
@@ -464,13 +434,12 @@ const TimelineCard: FC<TimelineCardProps> = ({
         <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           {(createdAt || item?.createdAt) && createdBy?.name && (
             <p className="text-xs text-font-color-100">
-              {createdBy?.name} created{" "}
-              {timeAgo(createdAt || item?.createdAt)}
+              {createdBy?.name} created {timeAgo(createdAt || item?.createdAt)}
             </p>
           )}
 
           <div className="flex gap-3">
-            {item?.type === "TASK" && !isCanceled && (
+            {item?.type === 'TASK' && !isCanceled && (
               <Dropdown overlay={statusMenu} trigger={['click']}>
                 <a className="flex items-center gap-1">
                   <div>{taskStatus}</div> <IconCaretDown size={16} />
@@ -481,7 +450,7 @@ const TimelineCard: FC<TimelineCardProps> = ({
           </div>
         </div>
 
-        {item?.type === "NOTES" && (
+        {item?.type === 'NOTES' && (
           <div className="mt-2 border-t pt-2">
             {!showReply && (
               <Button
@@ -497,7 +466,7 @@ const TimelineCard: FC<TimelineCardProps> = ({
               <div className="flex flex-col gap-2">
                 <TextArea
                   value={replyText}
-                  onChange={(e) => setReplyText(e.target.value)}
+                  onChange={e => setReplyText(e.target.value)}
                   rows={2}
                   placeholder="Type your reply..."
                 />
@@ -516,11 +485,11 @@ const TimelineCard: FC<TimelineCardProps> = ({
                     Send this reply to customer
                     <Switch
                       checked={sendToCustomer}
-                      onChange={(checked) => setSendToCustomer(checked)}
+                      onChange={checked => setSendToCustomer(checked)}
                     />
                     <Button onClick={handleCancelReply}>Cancel</Button>
                     <Button type="primary" onClick={handleSaveReply}>
-                      {sendToCustomer ? "Send" : "Save"}
+                      {sendToCustomer ? 'Send' : 'Save'}
                     </Button>
                   </div>
                 </div>

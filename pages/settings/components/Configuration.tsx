@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Card, Form, Input, Button, Typography, Alert } from "antd";
+import { useState } from 'react';
+import { Card, Form, Input, Button, Typography, Alert } from 'antd';
 
 const { Text, Paragraph } = Typography;
 
@@ -28,11 +28,7 @@ export const Configuration = () => {
             type="info"
             showIcon
           />
-          <Button
-            type="primary"
-            className="mt-4"
-            onClick={() => setIsEditing(true)}
-          >
+          <Button type="primary" className="mt-4" onClick={() => setIsEditing(true)}>
             Add Email Configuration
           </Button>
         </Card>
@@ -43,9 +39,7 @@ export const Configuration = () => {
           <Paragraph>
             <Text strong>Configured Email:</Text> {configuredEmail}
           </Paragraph>
-          <Paragraph type="secondary">
-            Your emails will be sent using this configuration.
-          </Paragraph>
+          <Paragraph type="secondary">Your emails will be sent using this configuration.</Paragraph>
           <Button type="link" onClick={() => setIsEditing(true)}>
             Edit Configuration
           </Button>
@@ -59,10 +53,10 @@ export const Configuration = () => {
               label="Email"
               name="email"
               rules={[
-                { required: true, message: "Email is required" },
-                { type: "email", message: "Enter a valid email" },
+                { required: true, message: 'Email is required' },
+                { type: 'email', message: 'Enter a valid email' },
               ]}
-              initialValue={configuredEmail || ""}
+              initialValue={configuredEmail || ''}
             >
               <Input placeholder="you@example.com" />
             </Form.Item>
@@ -70,14 +64,14 @@ export const Configuration = () => {
             <Form.Item
               label="Password / App Password"
               name="password"
-              rules={[{ required: true, message: "Password is required" }]}
+              rules={[{ required: true, message: 'Password is required' }]}
             >
               <Input.Password placeholder="Enter your email password or app password" />
             </Form.Item>
 
             <div className="flex gap-2">
               <Button type="primary" htmlType="submit">
-                {configuredEmail ? "Update" : "Save"}
+                {configuredEmail ? 'Update' : 'Save'}
               </Button>
               <Button onClick={() => setIsEditing(false)}>Cancel</Button>
             </div>

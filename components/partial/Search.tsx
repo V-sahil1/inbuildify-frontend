@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import React, { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 export default function Search() {
   // search bar open
   const [searchBar, setSearchBar] = useState(false);
@@ -19,9 +19,9 @@ export default function Search() {
         setSearchBar(false);
       }
     };
-    document.addEventListener("click", handleClickOutside);
+    document.addEventListener('click', handleClickOutside);
     return () => {
-      document.removeEventListener("click", handleClickOutside);
+      document.removeEventListener('click', handleClickOutside);
     };
   }, [searchBar]);
 
@@ -33,19 +33,15 @@ export default function Search() {
         placeholder="Enter your search key word"
         onClick={toggleSearchBar}
         className={`w-full py-[6px] px-[12px] bg-card-color rounded-md border border-border-color focus:outline-0 ${
-          searchBar ? "z-[5] " : ""
+          searchBar ? 'z-[5] ' : ''
         }`}
       />
       <div
         className={`bg-card-color border border-dashed border-border-color text-font-color xl:absolute fixed xl:left-[23px] left-[20px] xl:top-[115px] top-[190px] z-[5] xl:w-[50%] w-[calc(100%-60px)] rounded-xl p-6 transition-all duration-300 origin-top ${
-          searchBar
-            ? "opacity-1 visible scale-y-100"
-            : "opacity-0 invisible scale-y-0"
+          searchBar ? 'opacity-1 visible scale-y-100' : 'opacity-0 invisible scale-y-0'
         }`}
       >
-        <p className="text-font-color-100 text-[14px]/[20px] mb-3 uppercase">
-          RECENT SEARCHES
-        </p>
+        <p className="text-font-color-100 text-[14px]/[20px] mb-3 uppercase">RECENT SEARCHES</p>
         <div className="flex gap-2 mb-6 overflow-x-auto ">
           <Link
             href="#"
@@ -78,9 +74,7 @@ export default function Search() {
             University Admin
           </Link>
         </div>
-        <p className="text-font-color-100 text-[14px]/[20px] mb-3 uppercase">
-          SUGGESTIONS
-        </p>
+        <p className="text-font-color-100 text-[14px]/[20px] mb-3 uppercase">SUGGESTIONS</p>
         <div className="flex flex-col border border-border-color rounded-xl overflow-hidden">
           <Link
             href="#"
@@ -88,8 +82,7 @@ export default function Search() {
           >
             <div className="font-bold mb-5">Cras justo odio</div>
             <p className="text-[14px]/[20px] text-font-color-100">
-              Lorem Ipsum is simply dummy text of the printing and typesetting
-              industry.
+              Lorem Ipsum is simply dummy text of the printing and typesetting industry.
             </p>
           </Link>
           <Link
@@ -116,8 +109,7 @@ export default function Search() {
           >
             <div className="font-bold mb-5">DataTables for jQuery</div>
             <p className="text-[14px]/[20px] text-font-color-100">
-              Lorem Ipsum is simply dummy text of the printing and typesetting
-              industry.
+              Lorem Ipsum is simply dummy text of the printing and typesetting industry.
             </p>
           </Link>
           <Link href="#" className="py-10 px-15 transition hover:bg-primary-10">

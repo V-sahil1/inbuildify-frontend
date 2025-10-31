@@ -1,7 +1,7 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { ICountryResponse, IStateResponse } from "./ILocationState";
-import { getCountriesThunk, getStatesByCountryIdThunk } from "./locationThunk";
-import { Status } from "@lib/constants/enum";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { ICountryResponse, IStateResponse } from './ILocationState';
+import { getCountriesThunk, getStatesByCountryIdThunk } from './locationThunk';
+import { Status } from '@lib/constants/enum';
 
 export interface ILocationState {
   countries: ICountryResponse[];
@@ -18,17 +18,17 @@ const initialState: ILocationState = {
 };
 
 const locationSlice = createSlice({
-  name: "location",
+  name: 'location',
   initialState,
   reducers: {
     clearLocationState: () => initialState,
-    clearStates: (state) => {
+    clearStates: state => {
       state.states = [];
     },
   },
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     // Get Countries
-    builder.addCase(getCountriesThunk.pending, (state) => {
+    builder.addCase(getCountriesThunk.pending, state => {
       state.status = Status.PENDING;
       state.error = null;
     });
@@ -45,7 +45,7 @@ const locationSlice = createSlice({
     });
 
     // Get States by Country ID
-    builder.addCase(getStatesByCountryIdThunk.pending, (state) => {
+    builder.addCase(getStatesByCountryIdThunk.pending, state => {
       state.status = Status.PENDING;
       state.error = null;
     });

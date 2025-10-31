@@ -1,8 +1,8 @@
-import { Package } from "@redux/feature/package/IPackageState";
-import { IconChevronDown, IconEdit, IconTrash } from "@tabler/icons-react";
-import { Tooltip } from "antd";
-import { useState } from "react";
-import ConfirmationModal from "../common/ConfirmationModal";
+import { Package } from '@redux/feature/package/IPackageState';
+import { IconChevronDown, IconEdit, IconTrash } from '@tabler/icons-react';
+import { Tooltip } from 'antd';
+import { useState } from 'react';
+import ConfirmationModal from '../common/ConfirmationModal';
 
 interface PackageItemProps {
   pkg: Package;
@@ -11,12 +11,7 @@ interface PackageItemProps {
   isDeleting?: boolean;
 }
 
-export const PackageItem = ({
-  pkg,
-  onEdit,
-  onDelete,
-  isDeleting = false,
-}: PackageItemProps) => {
+export const PackageItem = ({ pkg, onEdit, onDelete, isDeleting = false }: PackageItemProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -34,7 +29,7 @@ export const PackageItem = ({
         </div>
         <div className="flex items-center space-x-2">
           <button
-            onClick={(e) => {
+            onClick={e => {
               e.stopPropagation();
               onEdit(pkg);
             }}
@@ -45,7 +40,7 @@ export const PackageItem = ({
           </button>
 
           <button
-            onClick={(e) => {
+            onClick={e => {
               e.stopPropagation();
               setShowDeleteConfirm(true);
             }}
@@ -58,9 +53,9 @@ export const PackageItem = ({
 
           <IconChevronDown
             className={`w-5 h-5 text-gray-400 transition-transform ${
-              isExpanded ? "rotate-180" : ""
+              isExpanded ? 'rotate-180' : ''
             }`}
-            onClick={(e) => {
+            onClick={e => {
               e.stopPropagation();
               setIsExpanded(!isExpanded);
             }}
@@ -85,11 +80,8 @@ export const PackageItem = ({
         <div className="p-4 border-t border-border-color">
           <ul className="space-y-2">
             {pkg?.categoryItems?.length > 0 ? (
-              pkg?.categoryItems?.map((item) => (
-                <li
-                  key={item.id}
-                  className="flex justify-between py-2 border-b border-gray-300 "
-                >
+              pkg?.categoryItems?.map(item => (
+                <li key={item.id} className="flex justify-between py-2 border-b border-gray-300 ">
                   <Tooltip title={item.desc}>
                     <span className="line-clamp-1 word-wrap">{item.desc}</span>
                   </Tooltip>

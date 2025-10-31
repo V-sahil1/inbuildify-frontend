@@ -1,33 +1,29 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   IconMoonStars,
   IconLayoutGrid,
   IconUser,
   IconArrowBigLeftFilled,
   IconPlus,
-} from "@tabler/icons-react";
-import { profile_av } from "../../public/images";
-import Link from "next/link";
-import Image from "next/image";
-import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import { logoutThunk } from "@redux/feature/auth/authThunk";
-import { message } from "antd";
-import { useRouter } from "next/navigation";
-import SystemRoutes from "@lib/constants/Routes";
-import ConfirmationModal from "../common/ConfirmationModal";
-import { persister, RootState } from "@redux/feature/store";
-import { logout } from "@redux/feature/auth/authSlice";
-import { themeContext } from "contexts/ThemeContext";
-import {
-  createMenuGridItems,
-  gridMenuItems,
-  gridMenuItems2,
-} from "data/headerMenuConstants";
-import { CreateFormModal } from "../common/Models/CreateFormModel";
-import leadCreateFields from "../formFields/LeadCreateFields";
-import { JobCreationModal } from "../common/Models/JobModal";
-import { CreateTaskModal } from "../common/Models/CreatetaskModel";
-import { CreateAppointmentModal } from "../common/Models/createAppointementModel";
+} from '@tabler/icons-react';
+import { profile_av } from '../../public/images';
+import Link from 'next/link';
+import Image from 'next/image';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { logoutThunk } from '@redux/feature/auth/authThunk';
+import { message } from 'antd';
+import { useRouter } from 'next/navigation';
+import SystemRoutes from '@lib/constants/Routes';
+import ConfirmationModal from '../common/ConfirmationModal';
+import { persister, RootState } from '@redux/feature/store';
+import { logout } from '@redux/feature/auth/authSlice';
+import { themeContext } from 'contexts/ThemeContext';
+import { createMenuGridItems, gridMenuItems, gridMenuItems2 } from 'data/headerMenuConstants';
+import { CreateFormModal } from '../common/Models/CreateFormModel';
+import leadCreateFields from '../formFields/LeadCreateFields';
+import { JobCreationModal } from '../common/Models/JobModal';
+import { CreateTaskModal } from '../common/Models/CreatetaskModel';
+import { CreateAppointmentModal } from '../common/Models/createAppointementModel';
 
 export default function Header({
   toggleMobileNav,
@@ -53,42 +49,36 @@ export default function Header({
   const gridDropdownRef = useRef<HTMLDivElement>(null);
   const createDropdownRef = useRef<HTMLDivElement>(null);
   const [isLogoutLoading, setIsLogoutLoading] = useState<boolean>(false);
-  const [createMenuOpen, setCreateMenuOpen] = useState<string>("");
+  const [createMenuOpen, setCreateMenuOpen] = useState<string>('');
   const leadfields = leadCreateFields({
     isEmailDisable: false,
   });
   const dispatch = useAppDispatch();
   const router = useRouter();
   useEffect(() => {
-    const sidebarElement = document.querySelector(".admin-wrapper");
+    const sidebarElement = document.querySelector('.admin-wrapper');
     if (sidebarElement) {
       if (miniSidebar) {
-        sidebarElement.classList.add("mini-sidebar");
+        sidebarElement.classList.add('mini-sidebar');
       } else {
-        sidebarElement.classList.remove("mini-sidebar");
+        sidebarElement.classList.remove('mini-sidebar');
       }
     }
   }, [miniSidebar]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (
-        gridDropdownRef.current &&
-        !gridDropdownRef.current.contains(event.target as Node)
-      ) {
+      if (gridDropdownRef.current && !gridDropdownRef.current.contains(event.target as Node)) {
         setIsGridDropdownOpen(false);
       }
 
-      if (
-        createDropdownRef.current &&
-        !createDropdownRef.current.contains(event.target as Node)
-      ) {
+      if (createDropdownRef.current && !createDropdownRef.current.contains(event.target as Node)) {
         setIsCreateDropdownOpen(false);
       }
     }
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
 
@@ -100,9 +90,9 @@ export default function Header({
     setIsCreateDropdownOpen(!isCreateDropdownOpen);
   };
   // light dark mode
-  const {toggleTheme} = useContext(themeContext);
+  const { toggleTheme } = useContext(themeContext);
   const toggleDarkMode = () => {
-   toggleTheme()
+    toggleTheme();
   };
 
   // page header setting
@@ -123,9 +113,9 @@ export default function Header({
         setSearchBar(false);
       }
     };
-    document.addEventListener("click", handleClickOutside);
+    document.addEventListener('click', handleClickOutside);
     return () => {
-      document.removeEventListener("click", handleClickOutside);
+      document.removeEventListener('click', handleClickOutside);
     };
   }, [searchBar]);
 
@@ -146,36 +136,36 @@ export default function Header({
   };
 
   const handleJobSubmit = () => {
-    setCreateMenuOpen("");
+    setCreateMenuOpen('');
   };
 
   const handleTaskSubmit = () => {
-    setCreateMenuOpen("");
+    setCreateMenuOpen('');
   };
   const renderCreateModal = () => {
     switch (createMenuOpen) {
-      case "lead":
+      case 'lead':
         return (
           <CreateFormModal
             title="Lead"
             open={true}
             loading={false}
-            onCancel={() => setCreateMenuOpen("")}
+            onCancel={() => setCreateMenuOpen('')}
             onSubmit={() => {}}
             fields={leadfields}
           />
         );
-      case "job":
+      case 'job':
         return (
           <JobCreationModal
             open={true}
             isEditing={false}
             initialValues={undefined}
-            onClose={() => setCreateMenuOpen("")}
+            onClose={() => setCreateMenuOpen('')}
             onSubmit={handleJobSubmit}
           />
         );
-      case "task":
+      case 'task':
         return (
           <CreateTaskModal
             open={true}
@@ -186,7 +176,7 @@ export default function Header({
             initialData={undefined}
           />
         );
-      case "appointment":
+      case 'appointment':
         return (
           <CreateAppointmentModal
             open={true}
@@ -206,7 +196,7 @@ export default function Header({
     <>
       <div
         className={`md:py-4 md:px-6 sm:p-3 py-3 border-b-4 border-card-color bg-body-color ${
-          headerFix ? "sticky top-0 z-[11] xl:shadow-none shadow-lg" : ""
+          headerFix ? 'sticky top-0 z-[11] xl:shadow-none shadow-lg' : ''
         }`}
       >
         <div className="container-fluid flex items-center">
@@ -217,9 +207,7 @@ export default function Header({
             >
               <IconArrowBigLeftFilled
                 className={`transition-all ${
-                  miniSidebar
-                    ? "rotate-180 rtl:rotate-0"
-                    : "rotate-0 rtl:rotate-180"
+                  miniSidebar ? 'rotate-180 rtl:rotate-0' : 'rotate-0 rtl:rotate-180'
                 }`}
               />
             </button>
@@ -227,9 +215,7 @@ export default function Header({
               <Image src="/company-light.webp" alt="logo" width={100} height={100} />
          </Link>   */}
           </div>
-          <div className="relative px-4 flex-1 md:block hidden">
-            {/* <TopMenuBar /> */}
-          </div>
+          <div className="relative px-4 flex-1 md:block hidden">{/* <TopMenuBar /> */}</div>
           <div className="flex items-center ms-auto">
             <div className="relative" ref={createDropdownRef}>
               <button
@@ -245,7 +231,7 @@ export default function Header({
                       CREATE
                     </div>
                     <div className="grid grid-cols-2 gap-1">
-                      {createMenuGridItems.map((item) => (
+                      {createMenuGridItems.map(item => (
                         <button
                           key={item.id}
                           onClick={() => setCreateMenuOpen(item?.key)}
@@ -277,7 +263,7 @@ export default function Header({
                         Quick Links
                       </h3>
                       <div className="grid grid-cols-3 gap-2">
-                        {gridMenuItems.map((item) => (
+                        {gridMenuItems.map(item => (
                           <Link
                             key={item.id}
                             href={item.href}
@@ -297,7 +283,7 @@ export default function Header({
                           Administration
                         </h3>
                         <div className="grid grid-cols-3 gap-2">
-                          {gridMenuItems2.map((item) => (
+                          {gridMenuItems2.map(item => (
                             <Link
                               key={item.id}
                               href={item.href}
@@ -333,9 +319,7 @@ export default function Header({
               <div className="bg-card-color text-font-color rounded-xl overflow-hidden md:w-[240px] w-[calc(100%-30px)] shadow-shadow-lg md:absolute fixed md:right-0 right-15 md:top-full top-[55px] origin-top-right z-[1] opacity-0 invisible scale-0 transition-all duration-300 group-hover:opacity-100 group-hover:visible group-hover:scale-100">
                 <div className="p-4 border-b border-border-color">
                   <div className="font-semibold">{user?.name}</div>
-                  <div className="text-font-color-100 truncate">
-                    {user?.email}
-                  </div>
+                  <div className="text-font-color-100 truncate">{user?.email}</div>
                 </div>
                 <div className="p-1 m-1 custom-scrollbar overflow-auto max-h-[calc(80svh-163px)]">
                   <Link
@@ -366,7 +350,7 @@ export default function Header({
             </button> */}
             <button
               className={`md:py-2 md:px-3 p-2 hover:bg-primary-10 transition-all duration-300 xl:hidden hamburger-menu ${
-                mobileNav ? "opened" : ""
+                mobileNav ? 'opened' : ''
               }`}
               onClick={toggleMobileNav}
             >

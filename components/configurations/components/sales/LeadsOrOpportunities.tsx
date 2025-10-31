@@ -1,20 +1,9 @@
-"use client";
-import React from "react";
-import {
-  Form,
-  Switch,
-  Input,
-  Select,
-  Radio,
-  Button,
-  Row,
-  Col,
-  Typography,
-  Tooltip,
-} from "antd";
-import { IconInfoCircle } from "@tabler/icons-react";
-import { leadMandatoryOption } from "data/configuration/salesData";
-import { rolesOfRoleMapping } from "data/configuration/ConfigrationData";
+'use client';
+import React from 'react';
+import { Form, Switch, Input, Select, Radio, Button, Row, Col, Typography, Tooltip } from 'antd';
+import { IconInfoCircle } from '@tabler/icons-react';
+import { leadMandatoryOption } from 'data/configuration/salesData';
+import { rolesOfRoleMapping } from 'data/configuration/ConfigrationData';
 
 const { Title, Text } = Typography;
 
@@ -22,7 +11,7 @@ export const LeadsOrOpportunities: React.FC = () => {
   const [form] = Form.useForm();
 
   const onFinish = (values: any) => {
-    console.log("Saved:", values);
+    console.log('Saved:', values);
   };
 
   return (
@@ -35,10 +24,10 @@ export const LeadsOrOpportunities: React.FC = () => {
           allowDuplicateLead: true,
           sendEmailOnLeadCreate: true,
           showCommonFolders: true,
-          mandatoryOption: "Email and Phone are mandatory",
-          salesWonText: "Won",
+          mandatoryOption: 'Email and Phone are mandatory',
+          salesWonText: 'Won',
           roles: undefined,
-          houseSizeUnit: "sq",
+          houseSizeUnit: 'sq',
         }}
       >
         <div className="mb-6 space-y-4">
@@ -74,8 +63,8 @@ export const LeadsOrOpportunities: React.FC = () => {
               <div>
                 <Text strong>Show Common Folders</Text>
                 <div className="text-gray-500 text-xs">
-                  When turned On, shows the common folders under the documents
-                  section of the Lead / Opportunity page
+                  When turned On, shows the common folders under the documents section of the Lead /
+                  Opportunity page
                 </div>
               </div>
             }
@@ -95,18 +84,15 @@ export const LeadsOrOpportunities: React.FC = () => {
             <Form.Item
               label={
                 <div className="flex gap-2">
-                  Mandatory Option for Lead{" "}
+                  Mandatory Option for Lead{' '}
                   <Tooltip title="Lead fields that must be filled">
-                    <IconInfoCircle style={{ color: "#1890ff" }} />
+                    <IconInfoCircle style={{ color: '#1890ff' }} />
                   </Tooltip>
                 </div>
               }
               name="mandatoryOption"
             >
-              <Select
-                placeholder="Choose Mandatory Option"
-                options={leadMandatoryOption}
-              />
+              <Select placeholder="Choose Mandatory Option" options={leadMandatoryOption} />
             </Form.Item>
 
             <Form.Item label="Sales Won Button Text" name="salesWonText">
@@ -118,16 +104,16 @@ export const LeadsOrOpportunities: React.FC = () => {
             <Form.Item
               label={
                 <div className="flex gap-2">
-                  Roles for Sales Person{" "}
+                  Roles for Sales Person{' '}
                   <Tooltip title="Choose which roles apply for salesperson">
-                    <IconInfoCircle style={{ color: "#1890ff" }} />
+                    <IconInfoCircle style={{ color: '#1890ff' }} />
                   </Tooltip>
                 </div>
               }
               name="roles"
             >
               <Select placeholder="Choose Roles" mode="multiple" showSearch>
-                {rolesOfRoleMapping.map((role) => (
+                {rolesOfRoleMapping.map(role => (
                   <Select.Option key={role} value={role}>
                     {role}
                   </Select.Option>
@@ -138,9 +124,9 @@ export const LeadsOrOpportunities: React.FC = () => {
             <Form.Item
               label={
                 <div className="flex gap-2">
-                  Unit for House Size{" "}
+                  Unit for House Size{' '}
                   <Tooltip title="Select measurement unit">
-                    <IconInfoCircle style={{ color: "#1890ff" }} />
+                    <IconInfoCircle style={{ color: '#1890ff' }} />
                   </Tooltip>
                 </div>
               }

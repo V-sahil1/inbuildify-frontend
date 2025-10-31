@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { Modal, Button } from "antd";
+import React, { useEffect, useState } from 'react';
+import { Modal, Button } from 'antd';
 import {
   IconCheck,
   IconInfoCircleFilled,
   IconAlertSquare,
   IconX,
   IconAlertCircle,
-} from "@tabler/icons-react";
-import { motion, AnimatePresence } from "framer-motion";
+} from '@tabler/icons-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface ConfirmationModalProps {
   open: boolean;
@@ -15,59 +15,51 @@ interface ConfirmationModalProps {
   onConfirm: () => void;
   title?: string;
   message: string | React.ReactNode;
-  type?: "success" | "info" | "warning" | "danger";
+  type?: 'success' | 'info' | 'warning' | 'danger';
   confirmText?: string;
   cancelText?: string;
   loading?: boolean;
-  maxWidth?: "xs" | "sm" | "md" | "lg" | "xl" | false;
+  maxWidth?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | false;
 }
 
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   open,
   onClose,
   onConfirm,
-  title = "Are you sure?",
+  title = 'Are you sure?',
   message,
-  type = "info",
-  confirmText = "Confirm",
-  cancelText = "Cancel",
+  type = 'info',
+  confirmText = 'Confirm',
+  cancelText = 'Cancel',
   loading = false,
-  maxWidth = "sm",
+  maxWidth = 'sm',
 }) => {
   const getConfig = () => {
-    const baseClasses = "p-3 rounded-full mb-6 shadow-lg";
+    const baseClasses = 'p-3 rounded-full mb-6 shadow-lg';
     switch (type) {
-      case "success":
+      case 'success':
         return {
           icon: (
             <div className={`${baseClasses} bg-green-100`}>
-              <IconCheck
-                size={40}
-                className="text-green-600"
-                strokeWidth={2.5}
-              />
+              <IconCheck size={40} className="text-green-600" strokeWidth={2.5} />
             </div>
           ),
           btnClass:
-            "bg-green-600 hover:bg-green-700 text-white border-none hover:shadow-lg transition-all duration-200",
-          borderColor: "border-green-100",
+            'bg-green-600 hover:bg-green-700 text-white border-none hover:shadow-lg transition-all duration-200',
+          borderColor: 'border-green-100',
         };
-      case "warning":
+      case 'warning':
         return {
           icon: (
             <div className={`${baseClasses} bg-amber-100`}>
-              <IconAlertSquare
-                size={40}
-                className="text-amber-600"
-                strokeWidth={2}
-              />
+              <IconAlertSquare size={40} className="text-amber-600" strokeWidth={2} />
             </div>
           ),
           btnClass:
-            "bg-amber-500 hover:bg-amber-600 text-white border-none hover:shadow-lg transition-all duration-200",
-          borderColor: "border-amber-100",
+            'bg-amber-500 hover:bg-amber-600 text-white border-none hover:shadow-lg transition-all duration-200',
+          borderColor: 'border-amber-100',
         };
-      case "danger":
+      case 'danger':
         return {
           icon: (
             <div className={`${baseClasses} bg-red-100`}>
@@ -75,10 +67,10 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             </div>
           ),
           btnClass:
-            "bg-red-600 hover:bg-red-700 text-white border-none hover:shadow-lg transition-all duration-200",
-          borderColor: "border-red-100",
+            'bg-red-600 hover:bg-red-700 text-white border-none hover:shadow-lg transition-all duration-200',
+          borderColor: 'border-red-100',
         };
-      case "info":
+      case 'info':
       default:
         return {
           icon: (
@@ -87,8 +79,8 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             </div>
           ),
           btnClass:
-            "!bg-blue-500 hover:!bg-blue-600 text-secondary border hover:shadow-md active:!bg-blue-700 transition-all duration-200 shadow-sm",
-          borderColor: "border-blue-100",
+            '!bg-blue-500 hover:!bg-blue-600 text-secondary border hover:shadow-md active:!bg-blue-700 transition-all duration-200 shadow-sm',
+          borderColor: 'border-blue-100',
         };
     }
   };
@@ -96,17 +88,17 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   const { icon, btnClass, borderColor } = getConfig();
 
   const modalWidth =
-    maxWidth === "xs"
+    maxWidth === 'xs'
       ? 360
-      : maxWidth === "sm"
-      ? 480
-      : maxWidth === "md"
-      ? 720
-      : maxWidth === "lg"
-      ? 960
-      : maxWidth === "xl"
-      ? 1200
-      : 500;
+      : maxWidth === 'sm'
+        ? 480
+        : maxWidth === 'md'
+          ? 720
+          : maxWidth === 'lg'
+            ? 960
+            : maxWidth === 'xl'
+              ? 1200
+              : 500;
 
   const handleClose = () => {
     setTimeout(onClose, 200); // Wait for animation to complete
@@ -127,12 +119,12 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
       className="confirmation-modal"
       styles={{
         content: {
-          borderRadius: "16px",
-          overflow: "hidden",
-          padding: "0",
+          borderRadius: '16px',
+          overflow: 'hidden',
+          padding: '0',
         },
         body: {
-          padding: "0",
+          padding: '0',
         },
       }}
     >
@@ -160,7 +152,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
               animate={{ scale: 1, opacity: 1 }}
               transition={{
                 delay: 0.1,
-                type: "spring",
+                type: 'spring',
                 stiffness: 500,
                 damping: 20,
               }}
@@ -174,7 +166,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.15 }}
             >
-              {typeof message === "string" ? <p>{message}</p> : message}
+              {typeof message === 'string' ? <p>{message}</p> : message}
             </motion.h3>
 
             {/* <motion.div 

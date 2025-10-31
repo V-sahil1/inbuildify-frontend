@@ -1,5 +1,10 @@
 import { Modal, Tag } from 'antd';
-import { IconCircleCheckFilled, IconCircleFilled, IconClock, IconCalendar } from '@tabler/icons-react';
+import {
+  IconCircleCheckFilled,
+  IconCircleFilled,
+  IconClock,
+  IconCalendar,
+} from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import { Event } from './data';
 
@@ -17,7 +22,7 @@ const categoryColors: Record<string, string> = {
   Maintenance: 'red',
   ReferralPartner: 'default',
   Today: 'gold',
-  Holiday: 'magenta'
+  Holiday: 'magenta',
 };
 
 const EventModal = ({ event, isOpen, onClose }: EventModalProps) => {
@@ -81,9 +86,7 @@ const EventModal = ({ event, isOpen, onClose }: EventModalProps) => {
             <IconCalendar className="text-lg text-gray-500 mt-1" />
             <div>
               <div className="text-sm font-medium text-gray-600">End Date & Time</div>
-              <div className="text-base text-gray-800">
-                {endTime.format('dddd, MMMM D, YYYY')}
-              </div>
+              <div className="text-base text-gray-800">{endTime.format('dddd, MMMM D, YYYY')}</div>
               <div className="text-base text-gray-800 font-semibold">
                 {endTime.format('h:mm A')}
               </div>

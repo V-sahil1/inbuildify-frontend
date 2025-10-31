@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from 'next/link';
 
 interface NoDataMessageProps {
   label: string;
@@ -12,7 +12,7 @@ const NoDataMessage = ({ label, link }: NoDataMessageProps) => {
       <p className="whitespace-normal">
         <Link href={link} className="text-primary hover:underline">
           Click here
-        </Link>{" "}
+        </Link>{' '}
         to create {label}
       </p>
     </div>

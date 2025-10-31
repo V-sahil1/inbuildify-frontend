@@ -1,21 +1,21 @@
-import { ActionDialogmodel } from "@/components/common/Models/ActionDialogModel";
-import { IconFileTypeXml, IconPlus, IconTrash } from "@tabler/icons-react";
-import { Avatar, Button, Drawer, Space, Table, Tag, Typography } from "antd";
-import { TemplateData, templateDummyData } from "data/delayExtentionDummyData";
-import { JobCustomerFeedbackOptions } from "data/options";
+import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
+import { IconFileTypeXml, IconPlus, IconTrash } from '@tabler/icons-react';
+import { Avatar, Button, Drawer, Space, Table, Tag, Typography } from 'antd';
+import { TemplateData, templateDummyData } from 'data/delayExtentionDummyData';
+import { JobCustomerFeedbackOptions } from 'data/options';
 const { Text } = Typography;
-import { useState } from "react";
+import { useState } from 'react';
 
-const getStatusColor = (status: TemplateData["status"]) => {
+const getStatusColor = (status: TemplateData['status']) => {
   switch (status) {
-    case "Requested":
-      return "cyan";
-    case "Completed":
-      return "green";
-    case "Pending":
-      return "gold";
+    case 'Requested':
+      return 'cyan';
+    case 'Completed':
+      return 'green';
+    case 'Pending':
+      return 'gold';
     default:
-      return "default";
+      return 'default';
   }
 };
 
@@ -28,15 +28,15 @@ export default function CustomerFeedback({
 }) {
   const [addModalOpen, setAddModalOpen] = useState(false);
   const handleCustomerFeedback = () => {
-    console.log("Customer Feedback");
+    console.log('Customer Feedback');
   };
 
   // 3. Define the Table Columns
   const columns = [
     {
-      title: "Template",
-      dataIndex: "template",
-      key: "template",
+      title: 'Template',
+      dataIndex: 'template',
+      key: 'template',
       // Custom rendering to include the icon
       render: (text: string) => (
         <Space>
@@ -44,59 +44,56 @@ export default function CustomerFeedback({
           <Text strong>{text}</Text>
         </Space>
       ),
-      width: "25%",
+      width: '25%',
     },
     {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      render: (status: TemplateData["status"]) => (
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status: TemplateData['status']) => (
         <Tag color={getStatusColor(status)} className="font-medium">
           {status.toUpperCase()}
         </Tag>
       ),
-      width: "15%",
+      width: '15%',
     },
     {
-      title: "Requested By",
-      dataIndex: "requestedByInitials",
-      key: "requestedByInitials",
+      title: 'Requested By',
+      dataIndex: 'requestedByInitials',
+      key: 'requestedByInitials',
       render: (text: string, record: TemplateData) => (
         <div className="flex flex-col items-center gap-2">
-          <Avatar
-            size="small"
-            style={{ backgroundColor: "#ccc", color: "#666" }}
-          >
+          <Avatar size="small" style={{ backgroundColor: '#ccc', color: '#666' }}>
             {text}
           </Avatar>
           <Text className="text-sm">{record.requestedByDate}</Text>
         </div>
       ),
-      width: "20%",
+      width: '20%',
     },
     {
-      title: "Submitted By",
-      dataIndex: "submittedBy",
-      key: "submittedBy",
-      render: (text: string) => <Text className="text-sm">{text || "-"}</Text>,
-      width: "20%",
+      title: 'Submitted By',
+      dataIndex: 'submittedBy',
+      key: 'submittedBy',
+      render: (text: string) => <Text className="text-sm">{text || '-'}</Text>,
+      width: '20%',
     },
     {
-      title: "Comments",
-      dataIndex: "comments",
-      key: "comments",
-      render: (text: string) => <Text className="text-sm">{text || "-"}</Text>,
-      width: "15%",
+      title: 'Comments',
+      dataIndex: 'comments',
+      key: 'comments',
+      render: (text: string) => <Text className="text-sm">{text || '-'}</Text>,
+      width: '15%',
     },
     {
-      title: "",
-      key: "action",
-      width: "5%",
+      title: '',
+      key: 'action',
+      width: '5%',
       render: (text: string, record: TemplateData) => (
         <IconTrash
           className="text-gray-400 hover:text-red-500 cursor-pointer"
           size={18}
-          onClick={() => console.log("Remove item:", record.key)}
+          onClick={() => console.log('Remove item:', record.key)}
         />
       ),
     },
@@ -108,18 +105,14 @@ export default function CustomerFeedback({
         title={
           <div className=" flex items-center justify-between">
             <p className="text-lg font-semibold">Customer Feedback History</p>
-            <Button
-              type="primary"
-              icon={<IconPlus />}
-              onClick={() => setAddModalOpen(true)}
-            >
+            <Button type="primary" icon={<IconPlus />} onClick={() => setAddModalOpen(true)}>
               Add
             </Button>
           </div>
         }
         width={800}
         open={open}
-        style={{ padding: "0px" }}
+        style={{ padding: '0px' }}
         onClose={onCancel}
       >
         <Table
@@ -138,12 +131,12 @@ export default function CustomerFeedback({
         title="Customer Feedback"
         fields={[
           {
-            label: "Template",
-            name: "template",
-            type: "select",
-            placeholder: "Select Template",
+            label: 'Template',
+            name: 'template',
+            type: 'select',
+            placeholder: 'Select Template',
             options: JobCustomerFeedbackOptions,
-            extra: "1. Rate quality from 1 to 5 stars?",
+            extra: '1. Rate quality from 1 to 5 stars?',
           },
         ]}
         onSubmit={handleCustomerFeedback}

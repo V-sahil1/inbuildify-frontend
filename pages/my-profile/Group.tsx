@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { IconDots, IconX } from "@tabler/icons-react";
+import React, { useState } from 'react';
+import { IconDots, IconX } from '@tabler/icons-react';
 import {
   avatar1,
   avatar10,
@@ -11,8 +11,8 @@ import {
   avatar7,
   avatar8,
   avatar9,
-} from "/public/images";
-import Image from "next/image";
+} from '/public/images';
+import Image from 'next/image';
 
 export default function Group() {
   const [createGroupSidebar, setCreateGroupSidebar] = useState(false);
@@ -37,8 +37,8 @@ export default function Group() {
             onClick={toggleCreateGroupSidebar}
             className={`border border-current text-grey rounded-md text-[14px]/[20px] py-2 px-3 flex items-center gap-4 font-semibold cursor-pointer transition-all duration-300 after:fixed after:z-[4] after:w-full after:h-full after:left-0 after:top-0 after:bg-black-50 after:backdrop-blur-[2px] after:transition-all after:duration-500 after:ease-in-out ${
               createGroupSidebar
-                ? "after:opacity-1 after:visible after:overflow-auto"
-                : "after:opacity-0 after:invisible after:overflow-hidden"
+                ? 'after:opacity-1 after:visible after:overflow-auto'
+                : 'after:opacity-0 after:invisible after:overflow-hidden'
             }`}
           >
             <span>Create Group</span>
@@ -82,9 +82,7 @@ export default function Group() {
           </div>
           <div className="text-center mt-auto">
             <p>Out Sourcing</p>
-            <p className="text-font-color-100 text-[14px]/[20px]">
-              16 Contacts
-            </p>
+            <p className="text-font-color-100 text-[14px]/[20px]">16 Contacts</p>
           </div>
         </div>
         <div className="card overflow-hidden bg-card-color rounded-xl relative md:p-6 p-4 flex flex-col border border-dashed border-border-color">
@@ -116,9 +114,7 @@ export default function Group() {
           </div>
           <div className="text-center mt-auto">
             <p>Management</p>
-            <p className="text-font-color-100 text-[14px]/[20px]">
-              11 Contacts
-            </p>
+            <p className="text-font-color-100 text-[14px]/[20px]">11 Contacts</p>
           </div>
         </div>
         <div className="card overflow-hidden bg-card-color rounded-xl relative md:p-6 p-4 flex flex-col border border-dashed border-border-color">
@@ -157,9 +153,7 @@ export default function Group() {
           </div>
           <div className="text-center mt-auto">
             <p>Sold Properties</p>
-            <p className="text-font-color-100 text-[14px]/[20px]">
-              106 Contacts
-            </p>
+            <p className="text-font-color-100 text-[14px]/[20px]">106 Contacts</p>
           </div>
         </div>
         <div className="card overflow-hidden bg-card-color rounded-xl relative md:p-6 p-4 flex flex-col border border-dashed border-border-color">
@@ -180,9 +174,7 @@ export default function Group() {
           </div>
           <div className="text-center mt-auto">
             <p>San Fransisco</p>
-            <p className="text-font-color-100 text-[14px]/[20px]">
-              126 Contacts
-            </p>
+            <p className="text-font-color-100 text-[14px]/[20px]">126 Contacts</p>
           </div>
         </div>
         <div className="card overflow-hidden bg-card-color rounded-xl relative md:p-6 p-4 flex flex-col border border-dashed border-border-color">
@@ -221,9 +213,7 @@ export default function Group() {
           </div>
           <div className="text-center mt-auto">
             <p>Los Angeles</p>
-            <p className="text-font-color-100 text-[14px]/[20px]">
-              84 Contacts
-            </p>
+            <p className="text-font-color-100 text-[14px]/[20px]">84 Contacts</p>
           </div>
         </div>
         <div className="card overflow-hidden bg-card-color rounded-xl relative md:p-6 p-4 flex flex-col border border-dashed border-border-color">
@@ -262,9 +252,7 @@ export default function Group() {
           </div>
           <div className="text-center mt-auto">
             <p>Colleagues</p>
-            <p className="text-font-color-100 text-[14px]/[20px]">
-              245 Contacts
-            </p>
+            <p className="text-font-color-100 text-[14px]/[20px]">245 Contacts</p>
           </div>
         </div>
         <div className="card overflow-hidden bg-card-color rounded-xl relative md:p-6 p-4 flex flex-col border border-dashed border-border-color">
@@ -285,9 +273,7 @@ export default function Group() {
           </div>
           <div className="text-center mt-auto">
             <p>San Fransisco</p>
-            <p className="text-font-color-100 text-[14px]/[20px]">
-              126 Contacts
-            </p>
+            <p className="text-font-color-100 text-[14px]/[20px]">126 Contacts</p>
           </div>
         </div>
         <div className="card overflow-hidden bg-card-color rounded-xl relative md:p-6 p-4 flex flex-col border border-dashed border-border-color">
@@ -326,17 +312,13 @@ export default function Group() {
           </div>
           <div className="text-center mt-auto">
             <p>Los Angeles</p>
-            <p className="text-font-color-100 text-[14px]/[20px]">
-              84 Contacts
-            </p>
+            <p className="text-font-color-100 text-[14px]/[20px]">84 Contacts</p>
           </div>
         </div>
       </div>
       <div
         className={`fixed top-0 bg-card-color z-[5] h-svh w-full max-w-[400px] transition-all duration-200 ${
-          createGroupSidebar
-            ? "ltr:right-0 rtl:left-0"
-            : "ltr:-right-full rtl:-left-full"
+          createGroupSidebar ? 'ltr:right-0 rtl:left-0' : 'ltr:-right-full rtl:-left-full'
         }`}
       >
         <div className="p-4 flex items-center justify-between gap-15">
@@ -348,17 +330,11 @@ export default function Group() {
         <div className="p-4 h-[calc(100svh-62px)] overflow-auto custom-scrollbar">
           <p className="mb-6">
             <strong>Note : </strong>
-            It is a long established fact that a reader will be distracted by
-            the readable.
+            It is a long established fact that a reader will be distracted by the readable.
           </p>
           <div className="p-4 rounded-xl border border-dashed border-border-color">
             <div className="floating-form-control mb-4">
-              <input
-                type="text"
-                id="groupName"
-                className="form-input"
-                placeholder="Group Name"
-              />
+              <input type="text" id="groupName" className="form-input" placeholder="Group Name" />
               <label htmlFor="groupName" className="form-label">
                 Group Name
               </label>
@@ -403,9 +379,7 @@ export default function Group() {
               />
               <div className="flex-1">
                 <p>Chris Fox</p>
-                <div className="text-[14px]/[20px] text-font-color-100">
-                  21 mutual connections
-                </div>
+                <div className="text-[14px]/[20px] text-font-color-100">21 mutual connections</div>
               </div>
               <button className="btn btn-success">Add</button>
             </li>
@@ -419,9 +393,7 @@ export default function Group() {
               />
               <div className="flex-1">
                 <p>Marshall Nichols</p>
-                <div className="text-[14px]/[20px] text-font-color-100">
-                  5 mutual connections
-                </div>
+                <div className="text-[14px]/[20px] text-font-color-100">5 mutual connections</div>
               </div>
               <button className="bg-danger text-white p-1 rounded-full">
                 <IconX className="w-[16px] h-[16px] min-w-[16px]" />
@@ -437,9 +409,7 @@ export default function Group() {
               />
               <div className="flex-1">
                 <p>Marshall Nichols</p>
-                <div className="text-[14px]/[20px] text-font-color-100">
-                  5 mutual connections
-                </div>
+                <div className="text-[14px]/[20px] text-font-color-100">5 mutual connections</div>
               </div>
               <button className="btn btn-success">Add</button>
             </li>
@@ -453,9 +423,7 @@ export default function Group() {
               />
               <div className="flex-1">
                 <p>Marshall Nichols</p>
-                <div className="text-[14px]/[20px] text-font-color-100">
-                  5 mutual connections
-                </div>
+                <div className="text-[14px]/[20px] text-font-color-100">5 mutual connections</div>
               </div>
               <button className="btn btn-success">Add</button>
             </li>
@@ -469,9 +437,7 @@ export default function Group() {
               />
               <div className="flex-1">
                 <p>Marshall Nichols</p>
-                <div className="text-[14px]/[20px] text-font-color-100">
-                  5 mutual connections
-                </div>
+                <div className="text-[14px]/[20px] text-font-color-100">5 mutual connections</div>
               </div>
               <button className="btn btn-success">Add</button>
             </li>
@@ -485,9 +451,7 @@ export default function Group() {
               />
               <div className="flex-1">
                 <p>Orlando Lentz</p>
-                <div className="text-[14px]/[20px] text-font-color-100">
-                  9 mutual connections
-                </div>
+                <div className="text-[14px]/[20px] text-font-color-100">9 mutual connections</div>
               </div>
               <button className="bg-danger text-white p-1 rounded-full">
                 <IconX className="w-[16px] h-[16px] min-w-[16px]" />
@@ -503,9 +467,7 @@ export default function Group() {
               />
               <div className="flex-1">
                 <p>Alexander</p>
-                <div className="text-[14px]/[20px] text-font-color-100">
-                  18 mutual connections
-                </div>
+                <div className="text-[14px]/[20px] text-font-color-100">18 mutual connections</div>
               </div>
               <button className="bg-danger text-white p-1 rounded-full">
                 <IconX className="w-[16px] h-[16px] min-w-[16px]" />

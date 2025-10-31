@@ -12,11 +12,7 @@ interface PrioritySelectProps {
   width?: number | string;
 }
 
-const PrioritySelect: React.FC<PrioritySelectProps> = ({ 
-  value, 
-  onChange,
-  width = 120 
-}) => {
+const PrioritySelect: React.FC<PrioritySelectProps> = ({ value, onChange, width = 120 }) => {
   return (
     <CustomSelect
       value={value}

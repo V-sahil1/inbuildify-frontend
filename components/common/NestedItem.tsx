@@ -1,4 +1,4 @@
-import { SubCategory } from "@redux/feature/color/iColourState";
+import { SubCategory } from '@redux/feature/color/iColourState';
 import {
   IconChevronDown,
   IconChevronUp,
@@ -6,10 +6,10 @@ import {
   IconLink,
   IconPlus,
   IconTrash,
-} from "@tabler/icons-react";
-import { Tooltip } from "antd";
-import { useState } from "react";
-import Loading from "@/components/common/Loading";
+} from '@tabler/icons-react';
+import { Tooltip } from 'antd';
+import { useState } from 'react';
+import Loading from '@/components/common/Loading';
 
 interface NestedItemProps {
   item: SubCategory;
@@ -52,37 +52,37 @@ export const NestedItem = ({
         <div className="flex items-center gap-2">
           {onAdd && (
             <Tooltip title="Add item">
-            <button
-              className="p-1 rounded-md hover:bg-gray-100"
-              onClick={(e) => {
-                e.stopPropagation();
-                onAdd();
-              }}
-            >
-              <IconPlus size={18} className="text-gray-600" />
-            </button>
+              <button
+                className="p-1 rounded-md hover:bg-gray-100"
+                onClick={e => {
+                  e.stopPropagation();
+                  onAdd();
+                }}
+              >
+                <IconPlus size={18} className="text-gray-600" />
+              </button>
             </Tooltip>
           )}
           <Tooltip title="Edit">
-          <button
-            className="p-1 rounded-md hover:bg-gray-100"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleClick("edit", item, actionType);
-            }}
-          >
-            <IconEdit size={18} className="text-gray-600" />
-          </button>
+            <button
+              className="p-1 rounded-md hover:bg-gray-100"
+              onClick={e => {
+                e.stopPropagation();
+                handleClick('edit', item, actionType);
+              }}
+            >
+              <IconEdit size={18} className="text-gray-600" />
+            </button>
           </Tooltip>
           <Tooltip title="Delete">
-          <button
-            className="p-1 rounded-md hover:bg-red-50"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleClick("delete", item, actionType);
-            }}
-          >
-            <IconTrash size={18} className="text-red-500" />
+            <button
+              className="p-1 rounded-md hover:bg-red-50"
+              onClick={e => {
+                e.stopPropagation();
+                handleClick('delete', item, actionType);
+              }}
+            >
+              <IconTrash size={18} className="text-red-500" />
             </button>
           </Tooltip>
           <button className="p-1">
@@ -99,7 +99,7 @@ export const NestedItem = ({
             </div>
           ) : subItems?.length > 0 ? (
             <div className="space-y-2">
-              {subItems.map((subItem) => (
+              {subItems.map(subItem => (
                 <div
                   key={subItem.id}
                   className="bg-white p-3 rounded-md border border-gray-200 flex items-center justify-between"
@@ -110,28 +110,25 @@ export const NestedItem = ({
                       <Tooltip title="view attachment">
                         <button
                           className="rounded-md p-1 group"
-                          onClick={() => window.open(subItem.image, "_blank")}
+                          onClick={() => window.open(subItem.image, '_blank')}
                         >
-                          <IconLink
-                            size={20}
-                            className="text-font-color group-hover:text-blue"
-                          />
+                          <IconLink size={20} className="text-font-color group-hover:text-blue" />
                         </button>
                       </Tooltip>
                     )}
                     <button
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation();
-                        handleClick("edit", subItem, "subCategoryItem");
+                        handleClick('edit', subItem, 'subCategoryItem');
                       }}
                       className="p-1 hover:bg-gray-100 rounded"
                     >
                       <IconEdit size={16} className="text-gray-600" />
                     </button>
                     <button
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation();
-                        handleClick("delete", subItem, "subCategoryItem",);
+                        handleClick('delete', subItem, 'subCategoryItem');
                       }}
                       className="p-1 hover:bg-red-50 rounded"
                     >

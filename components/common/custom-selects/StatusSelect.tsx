@@ -12,11 +12,7 @@ interface StatusSelectProps {
   width?: number | string;
 }
 
-const StatusSelect: React.FC<StatusSelectProps> = ({ 
-  value, 
-  onChange,
-  width
-}) => {
+const StatusSelect: React.FC<StatusSelectProps> = ({ value, onChange, width }) => {
   return (
     <CustomSelect
       value={value}

@@ -1,24 +1,24 @@
-"use client";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { Input, Select, Button, Dropdown, Popover, Switch, Modal } from "antd";
-import { IconDotsVertical, IconExternalLink, IconFilter } from "@tabler/icons-react";
-import dayjs, { Dayjs } from "dayjs";
-import { debounce } from "lodash";
-import SystemRoutes from "@lib/constants/Routes";
-import { Construction } from "@redux/feature/construction/IConstructionState";
-import AssignSupervisorDropdown from "../construction/assignSupervisorModal";
-import AssigneeSelect from "../common/custom-selects/AssigneeSelect";
-import DateFilterDropdown from "../common/custom-selects/DateFilterDropdown";
-import ConfirmationModal from "../common/ConfirmationModal";
-import { ActionDialogmodel } from "../common/Models/ActionDialogModel";
+'use client';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { Input, Select, Button, Dropdown, Popover, Switch, Modal } from 'antd';
+import { IconDotsVertical, IconExternalLink, IconFilter } from '@tabler/icons-react';
+import dayjs, { Dayjs } from 'dayjs';
+import { debounce } from 'lodash';
+import SystemRoutes from '@lib/constants/Routes';
+import { Construction } from '@redux/feature/construction/IConstructionState';
+import AssignSupervisorDropdown from '../construction/assignSupervisorModal';
+import AssigneeSelect from '../common/custom-selects/AssigneeSelect';
+import DateFilterDropdown from '../common/custom-selects/DateFilterDropdown';
+import ConfirmationModal from '../common/ConfirmationModal';
+import { ActionDialogmodel } from '../common/Models/ActionDialogModel';
 
 type DateRange = [Dayjs, Dayjs] | null;
 
 export const FILTER_DEFINITIONS = [
-  { label: "Not able to see in video", key: "notAbleToSeeInVideo" },
-  { label: "Has Private Inspector", key: "hasPrivateInspector" },
-  { label: "Has Options", key: "hasOptions" },
+  { label: 'Not able to see in video', key: 'notAbleToSeeInVideo' },
+  { label: 'Has Private Inspector', key: 'hasPrivateInspector' },
+  { label: 'Has Options', key: 'hasOptions' },
 ];
 
 export const FilterPopover = ({
@@ -33,7 +33,7 @@ export const FilterPopover = ({
       content={
         <div className="flex flex-col gap-4 w-64">
           <h3 className="font-semibold text-sm">Filters</h3>
-          {FILTER_DEFINITIONS.map((filter) => (
+          {FILTER_DEFINITIONS.map(filter => (
             <div key={filter.key} className="flex items-center justify-between">
               <span className="text-sm">{filter.label}</span>
               <Switch
@@ -52,19 +52,16 @@ export const FilterPopover = ({
       placement="bottomRight"
       trigger="hover"
     >
-      <Button
-        type="text"
-        icon={<IconFilter size={25} />}
-      />
+      <Button type="text" icon={<IconFilter size={25} />} />
     </Popover>
   );
 };
 
 const ALL_CONSTUCTION_STATUSES = [
-  { key: "readyforconstruction", label: "Ready For Construction" },
-  { key: "underconstruction", label: "Under Construction" },
-  { key: "completed", label: "Completed" },
-  { key: "onhold", label: "On Hold" },
+  { key: 'readyforconstruction', label: 'Ready For Construction' },
+  { key: 'underconstruction', label: 'Under Construction' },
+  { key: 'completed', label: 'Completed' },
+  { key: 'onhold', label: 'On Hold' },
 ];
 
 export const useConstructionTableLogic = ({
@@ -85,18 +82,22 @@ export const useConstructionTableLogic = ({
   const [isRevertModalVisible, setIsRevertModalVisible] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [isStatusChangeModalVisible, setIsStatusChangeModalVisible] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState<{ jobId: string; statusKey: string; statusLabel: string } | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<{
+    jobId: string;
+    statusKey: string;
+    statusLabel: string;
+  } | null>(null);
 
   const [filters, setFilters] = useState({
-    id: searchParams.get("id") || "",
-    customerName: searchParams.get("customerName") || "",
-    jobAddress: searchParams.get("jobAddress") || "",
-    jobType: searchParams.get("jobType") || "",
-    builderName: searchParams.get("builderName") || "All",
-    currentStage: searchParams.get("currentStage") || "All",
+    id: searchParams.get('id') || '',
+    customerName: searchParams.get('customerName') || '',
+    jobAddress: searchParams.get('jobAddress') || '',
+    jobType: searchParams.get('jobType') || '',
+    builderName: searchParams.get('builderName') || 'All',
+    currentStage: searchParams.get('currentStage') || 'All',
     dueDate: null as DateRange,
-    siteSupervisor: searchParams.get("siteSupervisor") || "All",
-    status: searchParams.get("status") || "All",
+    siteSupervisor: searchParams.get('siteSupervisor') || 'All',
+    status: searchParams.get('status') || 'All',
   });
 
   const debouncedUpdateURL = useMemo(
@@ -104,7 +105,7 @@ export const useConstructionTableLogic = ({
       debounce((newFilters: typeof filters) => {
         const params = new URLSearchParams(searchParams.toString());
         Object.entries(newFilters).forEach(([key, value]) => {
-          if (value && value !== "All") params.set(key, typeof value === "string" ? value : "");
+          if (value && value !== 'All') params.set(key, typeof value === 'string' ? value : '');
           else params.delete(key);
         });
         router.replace(`${pathname}?${params.toString()}`);
@@ -114,7 +115,7 @@ export const useConstructionTableLogic = ({
 
   const handleFilterChange = useCallback(
     (updates: Partial<typeof filters>) => {
-      setFilters((prev) => {
+      setFilters(prev => {
         const newFilters = { ...prev, ...updates };
         debouncedUpdateURL(newFilters);
         return newFilters;
@@ -122,7 +123,6 @@ export const useConstructionTableLogic = ({
     },
     [debouncedUpdateURL]
   );
-
 
   useEffect(() => () => debouncedUpdateURL.cancel(), [debouncedUpdateURL]);
 
@@ -144,7 +144,6 @@ export const useConstructionTableLogic = ({
       handleStatusChange(selectedStatus.jobId, selectedStatus.statusKey);
       setIsStatusChangeModalVisible(false);
       setSelectedStatus(null);
-
     }
   };
 
@@ -154,8 +153,8 @@ export const useConstructionTableLogic = ({
   };
 
   const constructionColumns = useMemo(() => {
-    const uniqueBuilders = ["All", "Builder1", "Builder2"];
-    const uniqueStages = ["All", "Stage1", "Stage2"];
+    const uniqueBuilders = ['All', 'Builder1', 'Builder2'];
+    const uniqueStages = ['All', 'Stage1', 'Stage2'];
 
     return [
       {
@@ -165,12 +164,12 @@ export const useConstructionTableLogic = ({
             <Input
               placeholder="Search ID"
               value={filters.id}
-              onChange={(e) => handleFilterChange({ id: e.target.value })}
+              onChange={e => handleFilterChange({ id: e.target.value })}
             />
           </div>
         ),
-        dataIndex: "id",
-        key: "id",
+        dataIndex: 'id',
+        key: 'id',
         width: 150,
         render: (id: number) => <span className="font-semibold">{id}</span>,
       },
@@ -181,12 +180,12 @@ export const useConstructionTableLogic = ({
             <Input
               placeholder="Search Customer"
               value={filters.customerName}
-              onChange={(e) => handleFilterChange({ customerName: e.target.value })}
+              onChange={e => handleFilterChange({ customerName: e.target.value })}
             />
           </div>
         ),
-        dataIndex: "customerName",
-        key: "customerName",
+        dataIndex: 'customerName',
+        key: 'customerName',
         width: 180,
       },
       {
@@ -196,12 +195,12 @@ export const useConstructionTableLogic = ({
             <Input
               placeholder="Search Address"
               value={filters.jobAddress}
-              onChange={(e) => handleFilterChange({ jobAddress: e.target.value })}
+              onChange={e => handleFilterChange({ jobAddress: e.target.value })}
             />
           </div>
         ),
-        dataIndex: "jobAddress",
-        key: "jobAddress",
+        dataIndex: 'jobAddress',
+        key: 'jobAddress',
         width: 220,
       },
       {
@@ -211,12 +210,12 @@ export const useConstructionTableLogic = ({
             <Input
               placeholder="Search Job Type"
               value={filters.jobType}
-              onChange={(e) => handleFilterChange({ jobType: e.target.value })}
+              onChange={e => handleFilterChange({ jobType: e.target.value })}
             />
           </div>
         ),
-        dataIndex: "jobType",
-        key: "jobType",
+        dataIndex: 'jobType',
+        key: 'jobType',
         width: 180,
       },
       {
@@ -225,9 +224,9 @@ export const useConstructionTableLogic = ({
             <span className="font-semibold">Builder</span>
             <Select
               value={filters.builderName}
-              onChange={(val) => handleFilterChange({ builderName: val })}
+              onChange={val => handleFilterChange({ builderName: val })}
             >
-              {uniqueBuilders.map((b) => (
+              {uniqueBuilders.map(b => (
                 <Select.Option key={b} value={b}>
                   {b}
                 </Select.Option>
@@ -235,8 +234,8 @@ export const useConstructionTableLogic = ({
             </Select>
           </div>
         ),
-        dataIndex: "builderName",
-        key: "builderName",
+        dataIndex: 'builderName',
+        key: 'builderName',
         width: 150,
       },
       {
@@ -245,9 +244,9 @@ export const useConstructionTableLogic = ({
             <span className="font-semibold">Current Stage</span>
             <Select
               value={filters.currentStage}
-              onChange={(val) => handleFilterChange({ currentStage: val })}
+              onChange={val => handleFilterChange({ currentStage: val })}
             >
-              {uniqueStages.map((s) => (
+              {uniqueStages.map(s => (
                 <Select.Option key={s} value={s}>
                   {s}
                 </Select.Option>
@@ -255,8 +254,8 @@ export const useConstructionTableLogic = ({
             </Select>
           </div>
         ),
-        dataIndex: "currentStage",
-        key: "currentStage",
+        dataIndex: 'currentStage',
+        key: 'currentStage',
         width: 150,
       },
       {
@@ -267,20 +266,20 @@ export const useConstructionTableLogic = ({
               onFilter={(type, dates) => {
                 const dateString = dates
                   ? `${dates[0].toISOString()},${dates[1].toISOString()}`
-                  : "";
+                  : '';
                 handleFilterChange({ ...filters, dueDate: dates });
               }}
               onClear={() => {
-                console.log("Cleared date filter");
+                console.log('Cleared date filter');
                 handleFilterChange({ ...filters, dueDate: null });
               }}
             />
           </div>
         ),
-        dataIndex: "dueDate",
-        key: "dueDate",
+        dataIndex: 'dueDate',
+        key: 'dueDate',
         width: 160,
-        render: (date: string) => (date ? dayjs(date).format("YYYY-MM-DD") : ""),
+        render: (date: string) => (date ? dayjs(date).format('YYYY-MM-DD') : ''),
       },
       {
         title: (
@@ -288,45 +287,45 @@ export const useConstructionTableLogic = ({
             <span className="font-semibold">Site Supervisor</span>
             <AssigneeSelect
               value={filters.siteSupervisor}
-              onChange={(value) => handleFilterChange({ siteSupervisor: value })}
+              onChange={value => handleFilterChange({ siteSupervisor: value })}
             />
           </div>
         ),
-        dataIndex: "siteSupervisor",
-        key: "siteSupervisor",
+        dataIndex: 'siteSupervisor',
+        key: 'siteSupervisor',
         width: 180,
         render: (supervisor: string, record: Construction) => {
           const currentStatusKey = record.status.toLowerCase();
 
-          const statusChangeItems = ALL_CONSTUCTION_STATUSES
-            .filter((item) => item.key !== currentStatusKey)
-            .map((item) => ({
-              key: item.key,
-              label: item.label,
-            }));
+          const statusChangeItems = ALL_CONSTUCTION_STATUSES.filter(
+            item => item.key !== currentStatusKey
+          ).map(item => ({
+            key: item.key,
+            label: item.label,
+          }));
 
           const handleMenuClick = (e: any) => {
-            console.log("Menu clicked:", e.key);
+            console.log('Menu clicked:', e.key);
 
             const statusItem = ALL_CONSTUCTION_STATUSES.find(item => item.key === e.key);
             if (statusItem) {
-              console.log("Status change detected:", statusItem);
+              console.log('Status change detected:', statusItem);
               setSelectedStatus({
                 jobId: record.id.toString(),
                 statusKey: statusItem.key,
-                statusLabel: statusItem.label
+                statusLabel: statusItem.label,
               });
               setIsStatusChangeModalVisible(true);
               return;
             }
 
-            if (e.key === "revert") {
-              console.log("Revert clicked");
+            if (e.key === 'revert') {
+              console.log('Revert clicked');
               setSelectedJobId(record.id.toString());
               setIsRevertModalVisible(true);
             }
-            if (e.key === "export") {
-              console.log("Export clicked");
+            if (e.key === 'export') {
+              console.log('Export clicked');
               handleExport?.(record.id.toString());
             }
           };
@@ -334,37 +333,35 @@ export const useConstructionTableLogic = ({
           const actionMenu = {
             items: [
               {
-                key: "changestatusto_header",
-                label: "Change status to:",
+                key: 'changestatusto_header',
+                label: 'Change status to:',
                 type: 'group' as const,
                 children: statusChangeItems,
               },
               { type: 'divider' as const },
               {
-                key: "assign_header",
-                label: "Assign:",
+                key: 'assign_header',
+                label: 'Assign:',
                 type: 'group' as const,
                 children: [
                   {
-                    key: "Admincoordinator", label: "Admin Coordinator"
-                  }
+                    key: 'Admincoordinator',
+                    label: 'Admin Coordinator',
+                  },
                 ],
               },
               { type: 'divider' as const },
-              { key: "revert", label: "Revert to Construction" },
-              { key: "export", label: "Export" },
+              { key: 'revert', label: 'Revert to Construction' },
+              { key: 'export', label: 'Export' },
             ],
             onClick: handleMenuClick,
           };
 
           return (
-            <div
-              className="flex items-center justify-between"
-              onClick={(e) => e.stopPropagation()}
-            >
+            <div className="flex items-center justify-between" onClick={e => e.stopPropagation()}>
               <AssignSupervisorDropdown
                 assignedSupervisor={supervisor}
-                onAssign={(newSupervisor) =>
+                onAssign={newSupervisor =>
                   handleSupervisorAssign(record.id.toString(), newSupervisor)
                 }
               />
@@ -376,9 +373,9 @@ export const useConstructionTableLogic = ({
                   type="text"
                   className="hover:text-primary"
                   icon={<IconExternalLink size={22} />}
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation();
-                    window.open(`/${SystemRoutes.CONSTRUCTION}/${record.id}`, "_blank");
+                    window.open(`/${SystemRoutes.CONSTRUCTION}/${record.id}`, '_blank');
                   }}
                 />
               </div>
@@ -387,7 +384,17 @@ export const useConstructionTableLogic = ({
         },
       },
     ];
-  }, [filters, handleFilterChange, handleSupervisorAssign, handleStatusChange, handleExport, setIsStatusChangeModalVisible, setSelectedStatus, setIsRevertModalVisible, setSelectedJobId]);
+  }, [
+    filters,
+    handleFilterChange,
+    handleSupervisorAssign,
+    handleStatusChange,
+    handleExport,
+    setIsStatusChangeModalVisible,
+    setSelectedStatus,
+    setIsRevertModalVisible,
+    setSelectedJobId,
+  ]);
 
   const RevertModal = () => (
     <ConfirmationModal
@@ -397,7 +404,10 @@ export const useConstructionTableLogic = ({
       type="warning"
       message={
         <div className="felx felx-col">
-          <p>Reverting this record will delete all information added after moved from construction. Once deleted, you can't retrieve back the details.</p>
+          <p>
+            Reverting this record will delete all information added after moved from construction.
+            Once deleted, you can't retrieve back the details.
+          </p>
           <p>Are you sure you want to Revert from constuction?</p>
         </div>
       }
@@ -417,11 +427,11 @@ export const useConstructionTableLogic = ({
         isEditing={true}
         fields={[
           {
-            name: "comments",
-            label: "Comments",
-            type: "textarea" as const,
-            placeholder: "Enter comments...",
-          }
+            name: 'comments',
+            label: 'Comments',
+            type: 'textarea' as const,
+            placeholder: 'Enter comments...',
+          },
         ]}
         onSubmit={handleStatusChangeConfirm}
         submitButtonText="confirm"
@@ -434,6 +444,6 @@ export const useConstructionTableLogic = ({
     handleFilterChange,
     constructionColumns,
     RevertModal,
-    StatusChangeModal
+    StatusChangeModal,
   };
 };

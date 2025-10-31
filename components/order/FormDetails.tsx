@@ -1,12 +1,12 @@
-import React, { useState } from "react";
-import CustomSelect from "../common/CustomSelect";
+import React, { useState } from 'react';
+import CustomSelect from '../common/CustomSelect';
 
 const FormDetails = () => {
-  const [country, setCountry] = useState("");
+  const [country, setCountry] = useState('');
   const countryOptions = [
-    { label: "United States", value: "United States" },
-    { label: "United Kingdom", value: "United Kingdom" },
-    { label: "Canada", value: "Canada" },
+    { label: 'United States', value: 'United States' },
+    { label: 'United Kingdom', value: 'United Kingdom' },
+    { label: 'Canada', value: 'Canada' },
   ];
   return (
     <form action="" className="space-y-4">
@@ -54,7 +54,7 @@ const FormDetails = () => {
             value={country}
             onChange={setCountry}
             placeholder="Select Country"
-          />  
+          />
         </div>
       </div>
       <div className="flex md:space-x-4 w-full flex-col md:flex-row gap-4 md:gap-0">

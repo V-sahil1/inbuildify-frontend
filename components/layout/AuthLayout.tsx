@@ -1,18 +1,14 @@
-import React, { useEffect } from "react";
+import React, { useEffect } from 'react';
 import {
   IconBrandFacebookFilled,
   IconBrandGithubFilled,
   IconBrandTwitterFilled,
   IconBrandYoutubeFilled,
-} from "@tabler/icons-react";
-import Link from "next/link"; 
-import Image from "next/image";
+} from '@tabler/icons-react';
+import Link from 'next/link';
+import Image from 'next/image';
 
-export default function AuthLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className='admin-wrapper min-h-svh py-6 px-4 flex items-center justify-center bg-body-color after:fixed after:w-full after:h-full after:start-0 after:top-0 after:opacity-90 after:bg-[url("/images/auth.png")]'>
       <div className="container-fluid">
@@ -22,23 +18,14 @@ export default function AuthLayout({
               <div className="mb-4">
                 <Image src="/company-light.webp" alt="logo" width={300} height={100} />
               </div>
-              <p className="mb-12 text-[32px]/[40px] font-medium">
-                Build digital products with:
-              </p>
+              <p className="mb-12 text-[32px]/[40px] font-medium">Build digital products with:</p>
               <div className="mb-8">
                 <p className="text-[24px]/[30px] mb-2">All-in-one tool</p>
-                <p>
-                  Amazing Features to make your life easier & work efficient
-                </p>
+                <p>Amazing Features to make your life easier & work efficient</p>
               </div>
               <div className="mb-12">
-                <p className="text-[24px]/[30px] mb-2">
-                  Easily add & manage your services
-                </p>
-                <p>
-                  It brings together your tasks, projects, timelines, files and
-                  more
-                </p>
+                <p className="text-[24px]/[30px] mb-2">Easily add & manage your services</p>
+                <p>It brings together your tasks, projects, timelines, files and more</p>
               </div>
               <div className="flex flex-wrap gap-4 mb-4">
                 <Link href="#" className="transition-all hover:text-primary">

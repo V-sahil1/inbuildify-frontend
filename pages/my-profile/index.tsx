@@ -1,26 +1,26 @@
-import React, { useState } from "react";
-import Breadcrumb from "@/components/common/Breadcrumb";
-import WelcomeHeader from "@/components/common/WelcomeHeader";
-import { profile_av } from "/public/images";
-import Image from "next/image";
-import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
-import { profileFields } from "@/components/formFields/profileFields";
-import { IconEdit } from "@tabler/icons-react";
-import { updateUserThunk } from "@redux/feature/auth/authThunk";
-import { message } from "antd";
+import React, { useState } from 'react';
+import Breadcrumb from '@/components/common/Breadcrumb';
+import WelcomeHeader from '@/components/common/WelcomeHeader';
+import { profile_av } from '/public/images';
+import Image from 'next/image';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { CreateFormModal } from '@/components/common/Models/CreateFormModel';
+import { profileFields } from '@/components/formFields/profileFields';
+import { IconEdit } from '@tabler/icons-react';
+import { updateUserThunk } from '@redux/feature/auth/authThunk';
+import { message } from 'antd';
 
 export default function MyProfile() {
-  const { user } = useAppSelector((state) => state.auth);
+  const { user } = useAppSelector(state => state.auth);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
   const breadcrumbItem = [
     {
-      name: "App",
+      name: 'App',
     },
     {
-      name: "My Contact",
+      name: 'My Contact',
     },
   ];
 
@@ -36,20 +36,20 @@ export default function MyProfile() {
     try {
       setLoading(true);
       const formData = new FormData();
-      formData.append("firm_name", values.firmName);
-      formData.append("slogan", values.slogan);
-      formData.append("name", values.name);
-      formData.append("phone", values.phone);
-      formData.append("license_number", values.license_number);
-      formData.append("abn_number", values.abn_number);
+      formData.append('firm_name', values.firmName);
+      formData.append('slogan', values.slogan);
+      formData.append('name', values.name);
+      formData.append('phone', values.phone);
+      formData.append('license_number', values.license_number);
+      formData.append('abn_number', values.abn_number);
       if (values?.logo?.length > 0 && values.logo[0]?.originFileObj) {
-        formData.append("image", values.logo[0].originFileObj);
+        formData.append('image', values.logo[0].originFileObj);
       }
       const response = await dispatch(updateUserThunk(formData)).unwrap();
       message.success(response.message);
       setIsEditModalOpen(false);
     } catch (error) {
-      message.error(error || "Failed to update profile");
+      message.error(error || 'Failed to update profile');
     } finally {
       setLoading(false);
     }

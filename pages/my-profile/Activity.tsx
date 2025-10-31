@@ -1,7 +1,7 @@
-import React from "react";
-import { avatar1, avatar2, avatar3, avatar4, avatar6 } from "/public/images";
-import Link from "next/link";
-import Image from "next/image";
+import React from 'react';
+import { avatar1, avatar2, avatar3, avatar4, avatar6 } from '/public/images';
+import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Activity() {
   return (
@@ -18,22 +18,18 @@ export default function Activity() {
           />
           <div>
             <p className="mb-1">
-              Gerald Vaughn changed the status to QA on{" "}
-              <strong>MA-86 - Retargeting Ads</strong>
+              Gerald Vaughn changed the status to QA on <strong>MA-86 - Retargeting Ads</strong>
             </p>
             <p className="small text-font-color-100">
-              New Dashboard Design - 9:24PM by{" "}
-              <Link
-                href="#"
-                className="text-primary transition-all hover:text-secondary"
-              >
+              New Dashboard Design - 9:24PM by{' '}
+              <Link href="#" className="text-primary transition-all hover:text-secondary">
                 <strong>You</strong>
               </Link>
             </p>
             <div className="md:p-4 md:mt-4 p-3 sm:mt-3 border border-dashed border-border-color rounded-xl">
               <p>
-                I've prepared all sizes for you. Can you take a look tonight so
-                we can prepare my final invoice?
+                I've prepared all sizes for you. Can you take a look tonight so we can prepare my
+                final invoice?
               </p>
             </div>
           </div>
@@ -48,15 +44,12 @@ export default function Activity() {
           />
           <div>
             <p className="mb-1">
-              Gerald Vaughn commented on{" "}
+              Gerald Vaughn commented on{' '}
               <strong>DA-459 - Mediation: Demand Source Logo Size</strong>
             </p>
             <p className="small text-font-color-100">
-              Portfolio Updates for Jason Carroll - 7:12PM by{" "}
-              <Link
-                href="#"
-                className="text-primary transition-all hover:text-secondary"
-              >
+              Portfolio Updates for Jason Carroll - 7:12PM by{' '}
+              <Link href="#" className="text-primary transition-all hover:text-secondary">
                 <strong>Orlando</strong>
               </Link>
             </p>
@@ -72,15 +65,11 @@ export default function Activity() {
           />
           <div>
             <p className="mb-1">
-              Gerald Vaughn changed the status to QA on{" "}
-              <strong>MA-45 - Finish Prototype</strong>
+              Gerald Vaughn changed the status to QA on <strong>MA-45 - Finish Prototype</strong>
             </p>
             <p className="small text-font-color-100">
-              New Dashboard Design - 11:30AM by{" "}
-              <Link
-                href="#"
-                className="text-primary transition-all hover:text-secondary"
-              >
+              New Dashboard Design - 11:30AM by{' '}
+              <Link href="#" className="text-primary transition-all hover:text-secondary">
                 <strong>You</strong>
               </Link>
             </p>
@@ -96,28 +85,20 @@ export default function Activity() {
           />
           <div>
             <p className="mb-1">
-              Create new module development team for{" "}
-              <Link
-                href="#"
-                className="text-primary transition-all hover:text-secondary"
-              >
+              Create new module development team for{' '}
+              <Link href="#" className="text-primary transition-all hover:text-secondary">
                 MA-86
-              </Link>{" "}
+              </Link>{' '}
               stocks for our Instagram channel
             </p>
             <p className="small text-font-color-100">
-              ReactJs, Nodejs - 7:58AM by{" "}
-              <Link
-                href="#"
-                className="text-primary transition-all hover:text-secondary"
-              >
+              ReactJs, Nodejs - 7:58AM by{' '}
+              <Link href="#" className="text-primary transition-all hover:text-secondary">
                 <strong>You</strong>
               </Link>
             </p>
             <div className="md:p-4 md:mt-4 p-3 sm:mt-3 border border-dashed border-border-color rounded-xl">
-              <p>
-                What do you think about these? Should I continue in this style?
-              </p>
+              <p>What do you think about these? Should I continue in this style?</p>
             </div>
             <div className="flex gap-1 items-center mt-4">
               <span className="me-2">Team :</span>
@@ -170,22 +151,18 @@ export default function Activity() {
           />
           <div>
             <p className="mb-1">
-              update new source code on GitHub{" "}
-              <strong>MA-78 - Retargeting React Webapp</strong>
+              update new source code on GitHub <strong>MA-78 - Retargeting React Webapp</strong>
             </p>
             <p className="small text-font-color-100">
-              New Dashboard Design - 9:24PM by{" "}
-              <Link
-                href="#"
-                className="text-primary transition-all hover:text-secondary"
-              >
+              New Dashboard Design - 9:24PM by{' '}
+              <Link href="#" className="text-primary transition-all hover:text-secondary">
                 <strong>Chris</strong>
               </Link>
             </p>
             <div className="md:p-4 md:mt-4 p-3 mt-3 rounded-xl border border-dashed border-success bg-success-50 text-success">
               <p>
-                I've prepared all sizes for you. Can you take a look tonight so
-                we can prepare my final invoice?
+                I've prepared all sizes for you. Can you take a look tonight so we can prepare my
+                final invoice?
               </p>
             </div>
           </div>

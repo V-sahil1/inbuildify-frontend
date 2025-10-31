@@ -1,16 +1,14 @@
-"use client";
-import React from "react";
-import { Form, Input, Select, Upload, Button } from "antd";
-import { IconUpload } from "@tabler/icons-react";
-import { stateRegionOptions } from "data/options";
-
-
+'use client';
+import React from 'react';
+import { Form, Input, Select, Upload, Button } from 'antd';
+import { IconUpload } from '@tabler/icons-react';
+import { stateRegionOptions } from 'data/options';
 
 const BuilderDetails = () => {
   const [form] = Form.useForm();
 
   const onFinish = (values: any) => {
-    console.log("Form values:", values);
+    console.log('Form values:', values);
   };
 
   return (
@@ -20,7 +18,7 @@ const BuilderDetails = () => {
         layout="vertical"
         onFinish={onFinish}
         initialValues={{
-          country: "Australia",
+          country: 'Australia',
         }}
         className="space-y-10"
       >
@@ -48,19 +46,13 @@ const BuilderDetails = () => {
           <Form.Item label="Register Number" name="registerNumber">
             <Input />
           </Form.Item>
-          <Form.Item
-            label="Registered Building Practitioner"
-            name="registeredBuildingPractitioner"
-          >
+          <Form.Item label="Registered Building Practitioner" name="registeredBuildingPractitioner">
             <Input />
           </Form.Item>
           <Form.Item label="Practitioner Reg No" name="practitionerRegNo">
             <Input />
           </Form.Item>
-          <Form.Item
-            label="Builders Name (Licensed)"
-            name="buildersNameLicensed"
-          >
+          <Form.Item label="Builders Name (Licensed)" name="buildersNameLicensed">
             <Input />
           </Form.Item>
         </div>

@@ -22,7 +22,7 @@ export const leadDetails: LeadDetails = {
   zipCode: '3029',
   source: 'Online',
   status: 'Active',
-  notes: 'No notes'
+  notes: 'No notes',
 };
 
 // export const propertyDetails: PropertyDetails = {
@@ -46,10 +46,10 @@ export const leadDetails: LeadDetails = {
 // ];
 
 // export const availablePackages: Package[] = [
-//   { 
-//     packageId: '1', 
-//     name: 'Premium Pack', 
-//     amount: "5000", 
+//   {
+//     packageId: '1',
+//     name: 'Premium Pack',
+//     amount: "5000",
 //     categoryItemDescriptions: [
 //        'High-end wooden flooring',
 //        'Premium ceramic tiles for bathroom',
@@ -309,7 +309,6 @@ export const leadDetails: LeadDetails = {
 //   },
 // ];
 
-
 export const WorkStepsChecklist = [
   {
     title: 'Deposite',
@@ -473,45 +472,44 @@ export const WorkStepsChecklist = [
   },
 ];
 
-
 export const JobVariationData: JobVariationDataType[] = [
   {
-      ReferenceID: 'MYH00486-V1',
-      Amount: 7000.00,
-      RequestedBy: 'Aman',
-      DelayedBy: 'Hiren',
-      DrawingChanges: "Yes",
-      Created: { user: 'MM', date: "1/1/2002" },
-      Approved: { user: 'MM', date: "1/1/2002" },
-      Status: 'Approved',
-      Invoice: 'invoice',
-      Profile: 'MM'
+    ReferenceID: 'MYH00486-V1',
+    Amount: 7000.0,
+    RequestedBy: 'Aman',
+    DelayedBy: 'Hiren',
+    DrawingChanges: 'Yes',
+    Created: { user: 'MM', date: '1/1/2002' },
+    Approved: { user: 'MM', date: '1/1/2002' },
+    Status: 'Approved',
+    Invoice: 'invoice',
+    Profile: 'MM',
   },
   {
-      ReferenceID: 'MYH00486-V2',
-      Amount: 7000.00,
-      RequestedBy: 'Aman',
-      DelayedBy: 'Hiren',
-      DrawingChanges: "No",
-      Created: { user: 'MM', date: "1/1/2002" },
-      Approved: { user: 'MM', date: "1/1/2002" },
-      Status: 'Approved',
-      Invoice: 'invoice',
-      Profile: 'A'
+    ReferenceID: 'MYH00486-V2',
+    Amount: 7000.0,
+    RequestedBy: 'Aman',
+    DelayedBy: 'Hiren',
+    DrawingChanges: 'No',
+    Created: { user: 'MM', date: '1/1/2002' },
+    Approved: { user: 'MM', date: '1/1/2002' },
+    Status: 'Approved',
+    Invoice: 'invoice',
+    Profile: 'A',
   },
   {
-      ReferenceID: 'MYH00486-V3',
-      Amount: 7000.00,
-      RequestedBy: 'Aman',
-      DelayedBy: 'Hiren',
-      DrawingChanges: "Yes",
-      Created: { user: 'MM', date: "1/1/2002" },
-      Approved: { user: 'MM', date: "1/1/2002" },
-      Status: 'Draft',
-      Invoice: 'invoice',
-      Profile: 'A'
+    ReferenceID: 'MYH00486-V3',
+    Amount: 7000.0,
+    RequestedBy: 'Aman',
+    DelayedBy: 'Hiren',
+    DrawingChanges: 'Yes',
+    Created: { user: 'MM', date: '1/1/2002' },
+    Approved: { user: 'MM', date: '1/1/2002' },
+    Status: 'Draft',
+    Invoice: 'invoice',
+    Profile: 'A',
   },
-]
+];
 
 export const JobVariationCreateTableData: JobVariationItems[] = [
   {
@@ -521,8 +519,8 @@ export const JobVariationCreateTableData: JobVariationItems[] = [
     cost: 'Cost',
     drawingChanges: false,
     quantity: 2,
-    price: 2.10,
-    total: 4.20,
+    price: 2.1,
+    total: 4.2,
   },
   {
     key: '2',
@@ -531,14 +529,14 @@ export const JobVariationCreateTableData: JobVariationItems[] = [
     cost: 'Cost',
     drawingChanges: false,
     quantity: 4,
-    price: 4.10,
-    total: 16.40,
+    price: 4.1,
+    total: 16.4,
   },
 ];
 
 export const ConstructionDashboardData: Construction[] = [
   {
-    id: "MK102CH2DSF",
+    id: 'MK102CH2DSF',
     customerName: 'John Doe',
     jobAddress: '123 Main St',
     builderName: 'My Home',
@@ -549,7 +547,7 @@ export const ConstructionDashboardData: Construction[] = [
     status: 'readyforconstruction',
   },
   {
-    id: "MK103CH2DSF",
+    id: 'MK103CH2DSF',
     customerName: 'Lionel Messi',
     jobAddress: '123 Main St',
     builderName: 'PWC',
@@ -560,7 +558,7 @@ export const ConstructionDashboardData: Construction[] = [
     status: 'underconstruction',
   },
   {
-    id: "MK104CH2DSFSF",
+    id: 'MK104CH2DSFSF',
     customerName: 'Bill Gates',
     jobAddress: '123 Main St',
     builderName: 'Sahara',
@@ -571,7 +569,7 @@ export const ConstructionDashboardData: Construction[] = [
     status: 'completed',
   },
   {
-    id: "JKSADHF3JKHH",
+    id: 'JKSADHF3JKHH',
     customerName: 'Ronaldo',
     jobAddress: '123 Main St',
     builderName: 'Sahara',
@@ -582,7 +580,7 @@ export const ConstructionDashboardData: Construction[] = [
     status: 'onhold',
   },
   {
-    id: "JKSADHF3JKHHSDFS",
+    id: 'JKSADHF3JKHHSDFS',
     customerName: 'Ronaldo',
     jobAddress: '123 Main St',
     builderName: 'Sahara',
@@ -593,7 +591,7 @@ export const ConstructionDashboardData: Construction[] = [
     status: 'onhold',
   },
   {
-    id: "JKSADHF3JKHHSDF",
+    id: 'JKSADHF3JKHHSDF',
     customerName: 'Ronaldo',
     jobAddress: '123 Main St',
     builderName: 'Sahara',
@@ -603,87 +601,83 @@ export const ConstructionDashboardData: Construction[] = [
     siteSupervisor: '',
     status: 'onhold',
   },
-]
+];
 
 export const MaintenanceDashboardData: Maintenance[] = [
   {
-    id: "MK102CH2DSF",
+    id: 'MK102CH2DSF',
     customerName: 'John Doe',
     jobAddress: '123 Main St',
     startDate: '14-02-2024',
-    endDate :'15-04-2025',
-    Supervisor:'',
-    status : 'readyformaintenance'
+    endDate: '15-04-2025',
+    Supervisor: '',
+    status: 'readyformaintenance',
   },
   {
-    id: "MK202CH2DDX",
+    id: 'MK202CH2DDX',
     customerName: 'Messi',
     jobAddress: '234 Main St',
     startDate: '25-04-2024',
-    endDate :'07-06-2025',
-    Supervisor:'',
-    status : 'completed'
+    endDate: '07-06-2025',
+    Supervisor: '',
+    status: 'completed',
   },
   {
-    id: "MK647JB5HFS",
+    id: 'MK647JB5HFS',
     customerName: 'ronaldo',
     jobAddress: '456 Main St',
     startDate: '15-06-2024',
-    endDate :'23-08-2025',
-    Supervisor:'',
-    status : "completed"
-  },
-]
-
-export const maintenanceRequestData: RequestItem[] = [
-  {
-    id: "1",
-    reference: "MYH00664-MR2",
-    descriptions: [
-      { title: "Oil Change" },
-      { title: "Brakes" },
-    ],
-    supplier: "another",
-    start: "",
-    finish: "",
-    complete: "",
-    status: "Pending",
-    amount: "$0.00",
+    endDate: '23-08-2025',
+    Supervisor: '',
+    status: 'completed',
   },
 ];
 
+export const maintenanceRequestData: RequestItem[] = [
+  {
+    id: '1',
+    reference: 'MYH00664-MR2',
+    descriptions: [{ title: 'Oil Change' }, { title: 'Brakes' }],
+    supplier: 'another',
+    start: '',
+    finish: '',
+    complete: '',
+    status: 'Pending',
+    amount: '$0.00',
+  },
+];
 
 export const JobinvoiceData: any[] = [
   {
-    id: "MYH00486-I2",
-    desc: "2nd deposit",
+    id: 'MYH00486-I2',
+    desc: '2nd deposit',
     amount: 35600.45,
     payment: 0.0,
-    status: "OVERDUE",
-    date: "17-07-2023",
+    status: 'OVERDUE',
+    date: '17-07-2023',
   },
   {
-    id: "MYH00486-I4",
-    desc: "base invoice",
+    id: 'MYH00486-I4',
+    desc: 'base invoice',
     amount: 45000.0,
     payment: 0.0,
-    status: "DRAFT",
-    date: "06-08-2023",
+    status: 'DRAFT',
+    date: '06-08-2023',
   },
   {
-    id: "MYH00486-I1",
-    desc: "Initial Deposit",
+    id: 'MYH00486-I1',
+    desc: 'Initial Deposit',
     amount: 5000.0,
     payment: 5000.0,
-    status: "PAID",
-    date: "27-06-2023",
+    status: 'PAID',
+    date: '27-06-2023',
   },
   {
-    id: "MYH00486-I3",
-    desc: "Returns",
+    id: 'MYH00486-I3',
+    desc: 'Returns',
     amount: -50000.0,
     payment: -50000.0,
-    status: "PAID",
-    date: "31-07-2023",
+    status: 'PAID',
+    date: '31-07-2023',
   },
 ];

@@ -1,30 +1,30 @@
-import React, { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
-import { ApexOptions } from "apexcharts";
+import React, { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
+import { ApexOptions } from 'apexcharts';
 
-const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
+const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 interface DynamicHorizontalChartProps {
   title: string;
   categories: string[];
   seriesData: number[];
   chartType?:
-    | "area"
-    | "line"
-    | "bar"
-    | "pie"
-    | "donut"
-    | "radialBar"
-    | "scatter"
-    | "bubble"
-    | "heatmap"
-    | "candlestick"
-    | "boxPlot"
-    | "radar"
-    | "polarArea"
-    | "rangeBar"
-    | "rangeArea"
-    | "treemap";
+    | 'area'
+    | 'line'
+    | 'bar'
+    | 'pie'
+    | 'donut'
+    | 'radialBar'
+    | 'scatter'
+    | 'bubble'
+    | 'heatmap'
+    | 'candlestick'
+    | 'boxPlot'
+    | 'radar'
+    | 'polarArea'
+    | 'rangeBar'
+    | 'rangeArea'
+    | 'treemap';
   horizontal?: boolean; // only relevant for bar charts
   colors?: string[];
   onBarClick?: (category: string) => void;
@@ -32,16 +32,16 @@ interface DynamicHorizontalChartProps {
 }
 
 const defaultColors = [
-  "#3B82F6",
-  "#10B981",
-  "#F59E0B",
-  "#EF4444",
-  "#6B7280",
-  "#8B5CF6",
-  "#EC4899",
-  "#F97316",
-  "#14B8A6",
-  "#EAB308",
+  '#3B82F6',
+  '#10B981',
+  '#F59E0B',
+  '#EF4444',
+  '#6B7280',
+  '#8B5CF6',
+  '#EC4899',
+  '#F97316',
+  '#14B8A6',
+  '#EAB308',
 ];
 
 const DynamicHorizontalChart: React.FC<DynamicHorizontalChartProps> = ({
@@ -66,7 +66,7 @@ const DynamicHorizontalChart: React.FC<DynamicHorizontalChartProps> = ({
     series: [{ name: title, data: seriesData }],
     options: {
       chart: {
-        type: chartType || "bar",
+        type: chartType || 'bar',
         height,
         toolbar: { show: false },
         events: {
@@ -79,27 +79,27 @@ const DynamicHorizontalChart: React.FC<DynamicHorizontalChartProps> = ({
       },
       plotOptions: {
         bar:
-          chartType === "bar"
+          chartType === 'bar'
             ? {
                 horizontal,
-                barHeight: "70%",
+                barHeight: '70%',
                 distributed: true,
                 borderRadius: 4,
-                dataLabels: { position: "top" },
+                dataLabels: { position: 'top' },
               }
             : undefined,
       },
       colors: chartColors,
       dataLabels: {
-        enabled: chartType === "bar",
-        textAnchor: "start",
-        style: { colors: ["#000"], fontSize: "12px", fontWeight: "normal" },
+        enabled: chartType === 'bar',
+        textAnchor: 'start',
+        style: { colors: ['#000'], fontSize: '12px', fontWeight: 'normal' },
         formatter: (_val: any, opt: any) => categories[opt.dataPointIndex],
         offsetX: 10,
       },
       xaxis: {
         categories,
-        labels: { show: chartType === "bar" },
+        labels: { show: chartType === 'bar' },
         axisBorder: { show: false },
         axisTicks: { show: false },
       },
@@ -111,7 +111,7 @@ const DynamicHorizontalChart: React.FC<DynamicHorizontalChartProps> = ({
   });
 
   useEffect(() => {
-    setChartData((prev) => ({
+    setChartData(prev => ({
       ...prev,
       series: [{ ...prev.series[0], data: seriesData }],
       options: {
@@ -125,7 +125,7 @@ const DynamicHorizontalChart: React.FC<DynamicHorizontalChartProps> = ({
     <div className="bg-white p-4 rounded-lg shadow mb-6">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold">{title}</h3>
-        {chartType === "bar" && (
+        {chartType === 'bar' && (
           <div className="flex space-x-2">
             {categories.map((cat, idx) => (
               <div key={cat} className="flex items-center">
@@ -139,7 +139,7 @@ const DynamicHorizontalChart: React.FC<DynamicHorizontalChartProps> = ({
           </div>
         )}
       </div>
-      {typeof window !== "undefined" && (
+      {typeof window !== 'undefined' && (
         <div className="h-64">
           <Chart
             options={chartData.options}

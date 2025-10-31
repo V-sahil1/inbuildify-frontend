@@ -1,6 +1,6 @@
-import { enumToReadable } from "@lib/utils/enumToRedable";
-import { IconEdit, IconLink, IconTrash } from "@tabler/icons-react";
-import { Tag, Tooltip } from "antd";
+import { enumToReadable } from '@lib/utils/enumToRedable';
+import { IconEdit, IconLink, IconTrash } from '@tabler/icons-react';
+import { Tag, Tooltip } from 'antd';
 
 interface PricingItemProps {
   item: any;
@@ -19,11 +19,8 @@ export const PricingItem = ({ item, handleClick }: PricingItemProps) => {
         </div>
         <div className="mb-2 font-medium flex gap-10 text-[16px] break-all">
           <Tooltip title={item?.shortDescription || item?.description}>
-            {" "}
-            <p className="line-clamp-2">
-              {" "}
-              {item?.shortDescription || item?.description}{" "}
-            </p>
+            {' '}
+            <p className="line-clamp-2"> {item?.shortDescription || item?.description} </p>
           </Tooltip>
         </div>
         {item?.timespent && <p>Time spent: {item?.timespent} days</p>}
@@ -33,61 +30,50 @@ export const PricingItem = ({ item, handleClick }: PricingItemProps) => {
               <p>{item?.costType}</p>
             </Tag>
           )}
-          {item?.dwellingTypeName && item?.dwellingTypeName !== "NONE" && (
+          {item?.dwellingTypeName && item?.dwellingTypeName !== 'NONE' && (
             <Tag color="blue" className="text-[10px]">
               <p>{enumToReadable(item?.dwellingTypeName).toUpperCase()}</p>
             </Tag>
           )}
-          {item?.costOption && item?.costOption !== "NONE" && (
+          {item?.costOption && item?.costOption !== 'NONE' && (
             <Tag color="red" className="text-[10px]">
               <p>{enumToReadable(item?.costOption).toUpperCase()}</p>
             </Tag>
           )}
-          {item?.status && item?.status !== "NONE" && (
+          {item?.status && item?.status !== 'NONE' && (
             <Tag color="purple" className="text-[10px]">
               <p>{enumToReadable(item?.status).toUpperCase()}</p>
             </Tag>
           )}
-          {item.showInHlPackage &&
-            item?.rangeName &&
-            item?.rangeName !== "NONE" && (
-              <Tag color="orange" className="text-[10px]">
-                <p>{enumToReadable(item?.rangeName).toUpperCase()}</p>
-              </Tag>
-            )}
+          {item.showInHlPackage && item?.rangeName && item?.rangeName !== 'NONE' && (
+            <Tag color="orange" className="text-[10px]">
+              <p>{enumToReadable(item?.rangeName).toUpperCase()}</p>
+            </Tag>
+          )}
         </div>
       </div>
 
       <div className="flex gap-4">
         {(item?.attachment || item?.image) && (
           <Tooltip title="View attachment">
-          <button
+            <button
               type="button"
-            className="rounded-md p-1 group"
-            onClick={() => {
+              className="rounded-md p-1 group"
+              onClick={() => {
                 const url = item.attachment || item.image;
-                if (url) window.open(url, "_blank");
+                if (url) window.open(url, '_blank');
               }}
-          >
-            <IconLink
-              size={20}
-              className="text-font-color group-hover:text-blue"
-            />
-          </button>
+            >
+              <IconLink size={20} className="text-font-color group-hover:text-blue" />
+            </button>
           </Tooltip>
         )}
 
-        <button className="rounded-md p-1 group" onClick={() => handleClick("edit", item)}>
-          <IconEdit
-            size={20}
-            className="text-font-color group-hover:text-blue"
-          />
+        <button className="rounded-md p-1 group" onClick={() => handleClick('edit', item)}>
+          <IconEdit size={20} className="text-font-color group-hover:text-blue" />
         </button>
-        <button className="rounded-md p-1 group" onClick={() => handleClick("delete", item)}>
-          <IconTrash
-            size={20}
-            className="text-font-color group-hover:text-red-500"
-          />
+        <button className="rounded-md p-1 group" onClick={() => handleClick('delete', item)}>
+          <IconTrash size={20} className="text-font-color group-hover:text-red-500" />
         </button>
       </div>
     </div>

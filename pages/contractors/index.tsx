@@ -1,15 +1,7 @@
-import React, { useEffect, useMemo, useState } from "react";
-import {
-  Button,
-  Form,
-  Table,
-  Typography,
-  message,
-  Spin,
-  Tooltip,
-} from "antd";
-import type { TableColumnsType } from "antd";
-import { useAppDispatch, useAppSelector } from "@hooks/redux";
+import React, { useEffect, useMemo, useState } from 'react';
+import { Button, Form, Table, Typography, message, Spin, Tooltip } from 'antd';
+import type { TableColumnsType } from 'antd';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import {
   createContractorThunk,
   createServiceThunk,
@@ -18,17 +10,14 @@ import {
   getContractorsThunk,
   getServicesThunk,
   updateContractorThunk,
-} from "@redux/feature/contractor/contractorThunk";
-import {
-  ContractorResponse,
-  Service,
-} from "@redux/feature/contractor/IContractorState";
-import { DetailModal } from "@/components/common/DetailModal";
-import ConfirmationModal from "@/components/common/ConfirmationModal";
-import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
-import contractorFields from "@/components/formFields/contractorFields";
-import rangeAndDwellingTypeFields from "@/components/formFields/rangeAndDwellingTypeFields";
-import { setAddServiceModal } from "@redux/feature/contractor/contractorSlice";
+} from '@redux/feature/contractor/contractorThunk';
+import { ContractorResponse, Service } from '@redux/feature/contractor/IContractorState';
+import { DetailModal } from '@/components/common/DetailModal';
+import ConfirmationModal from '@/components/common/ConfirmationModal';
+import { CreateFormModal } from '@/components/common/Models/CreateFormModel';
+import contractorFields from '@/components/formFields/contractorFields';
+import rangeAndDwellingTypeFields from '@/components/formFields/rangeAndDwellingTypeFields';
+import { setAddServiceModal } from '@redux/feature/contractor/contractorSlice';
 
 type Contractor = {
   contractorId: string;
@@ -56,18 +45,13 @@ const ContractorPage = () => {
   const [loading, setLoading] = useState({
     contractors: false,
     services: false,
-    });
+  });
   const dispatch = useAppDispatch();
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [selectedContractor, setSelectedContractor] =
-    useState<Contractor | null>(null);
+  const [selectedContractor, setSelectedContractor] = useState<Contractor | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
-  const [services, setServices] = useState<{ label: string; value: string }[]>(
-    []
-  );
-  const addServiceModal = useAppSelector(
-    (state) => state.contractor.addServiceModal
-  );
+  const [services, setServices] = useState<{ label: string; value: string }[]>([]);
+  const addServiceModal = useAppSelector(state => state.contractor.addServiceModal);
 
   useEffect(() => {
     setLoading({
@@ -75,30 +59,30 @@ const ContractorPage = () => {
       services: false,
     });
     const fetchContractorData = async () => {
-    await dispatch(getContractorsThunk())
-      .unwrap()
-      .then((res: ContractorResponse) => {
-        // const mappedContractors: Contractor[] = res.map(contractor => ({
-        //   key: contractor.contractorId,
-        //   fullName: contractor.name,
-        //   email: contractor.email,
-        //   phone: contractor.phone,
-        //   address: contractor.address,
-        // }));
-        setContractors(res);
-      })
-      .catch((err) => {
-        message.error(err || "Failed to fetch contractors");
-      })
-      .finally(() => {
-        setLoading({
-          contractors: false,
-          services: false,
+      await dispatch(getContractorsThunk())
+        .unwrap()
+        .then((res: ContractorResponse) => {
+          // const mappedContractors: Contractor[] = res.map(contractor => ({
+          //   key: contractor.contractorId,
+          //   fullName: contractor.name,
+          //   email: contractor.email,
+          //   phone: contractor.phone,
+          //   address: contractor.address,
+          // }));
+          setContractors(res);
+        })
+        .catch(err => {
+          message.error(err || 'Failed to fetch contractors');
+        })
+        .finally(() => {
+          setLoading({
+            contractors: false,
+            services: false,
+          });
         });
-      });
-    }
-    fetchContractorData(); 
-  }, [dispatch])
+    };
+    fetchContractorData();
+  }, [dispatch]);
 
   const handleOpenModal = () => {
     setIsEditing(false);
@@ -128,15 +112,14 @@ const ContractorPage = () => {
       if (res) {
         message.success(res.message);
         setIsDeleteModalOpen({ open: false, recordId: null });
-        setContractors((prev) => prev.filter((c) => c.contractorId !== key));
+        setContractors(prev => prev.filter(c => c.contractorId !== key));
       }
     } catch (err) {
-      message.error(err || "Failed to delete the Contractor");
+      message.error(err || 'Failed to delete the Contractor');
     } finally {
       setIsDeleteLoading(false);
     }
   };
-
 
   const handleSubmit = async (values: any) => {
     await form.validateFields();
@@ -146,20 +129,20 @@ const ContractorPage = () => {
         services: false,
       });
       if (isEditing && editingKey) {
-        // Update existing contractor 
+        // Update existing contractor
         const payload = {
           name: values.name,
           phone: values.phone,
           address: values.address,
           service: values.service,
         };
-        const res = await dispatch(updateContractorThunk({ contractorId: editingKey, payload })).unwrap();
+        const res = await dispatch(
+          updateContractorThunk({ contractorId: editingKey, payload })
+        ).unwrap();
 
         if (res) {
           setContractors(prev =>
-            prev.map(c =>
-              c.contractorId === editingKey ? { ...c, ...values } : c
-            )
+            prev.map(c => (c.contractorId === editingKey ? { ...c, ...values } : c))
           );
           message.success(res.message);
         }
@@ -184,7 +167,7 @@ const ContractorPage = () => {
             address: data.address,
             service: data.service,
           };
-          setContractors((prev) => [newContractor, ...prev]);
+          setContractors(prev => [newContractor, ...prev]);
           message.success(res.message);
         }
       }
@@ -194,7 +177,7 @@ const ContractorPage = () => {
       setIsEditing(false);
       setEditingKey(null);
     } catch (err) {
-      message.error(err || "Failed to create contractor");
+      message.error(err || 'Failed to create contractor');
     } finally {
       setLoading({
         contractors: false,
@@ -223,11 +206,11 @@ const ContractorPage = () => {
         setSelectedContractor(response.data);
       }
     } catch (error) {
-      message.error(error || "Failed to fetch contractor details:");
+      message.error(error || 'Failed to fetch contractor details:');
     } finally {
       setLoadingDetails(false);
     }
-  }; 
+  };
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -237,21 +220,22 @@ const ContractorPage = () => {
       });
       try {
         const services = await dispatch(getServicesThunk()).unwrap();
-        const mappedServices = services?.map((service: Service) => ({
-          label: service.service,
-          value: service.service,
-        })) || [];
+        const mappedServices =
+          services?.map((service: Service) => ({
+            label: service.service,
+            value: service.service,
+          })) || [];
         setServices(mappedServices);
       } catch (error) {
-        message.error(error || "Failed to fetch services");
-      }finally{
+        message.error(error || 'Failed to fetch services');
+      } finally {
         setLoading({
           contractors: false,
           services: false,
         });
       }
     };
-    
+
     fetchServices();
   }, [dispatch]);
 
@@ -263,7 +247,7 @@ const ContractorPage = () => {
       });
 
       await dispatch(createServiceThunk({ service: values.name })).unwrap();
-      message.success("Service added successfully");
+      message.success('Service added successfully');
       setIsModalOpen(true);
     } catch (error: any) {
       message.error(error);
@@ -279,43 +263,46 @@ const ContractorPage = () => {
   const columns: TableColumnsType<Contractor> = useMemo(
     () => [
       {
-        title: "Full Name",
-        dataIndex: "name",
-        key: "name",
+        title: 'Full Name',
+        dataIndex: 'name',
+        key: 'name',
       },
       {
-        title: "Email",
-        dataIndex: "email",
-        key: "email",
+        title: 'Email',
+        dataIndex: 'email',
+        key: 'email',
       },
       {
-        title: "Phone",
-        dataIndex: "phone",
-        key: "phone",
+        title: 'Phone',
+        dataIndex: 'phone',
+        key: 'phone',
       },
       {
-        title: "Address",
-        dataIndex: "address",
-        key: "address",
+        title: 'Address',
+        dataIndex: 'address',
+        key: 'address',
         width: 200,
         render: (_, record) => (
-          <Tooltip title={record.address}> <p className="line-clamp-2">{record?.address}</p></Tooltip>
-        )
+          <Tooltip title={record.address}>
+            {' '}
+            <p className="line-clamp-2">{record?.address}</p>
+          </Tooltip>
+        ),
       },
       {
-        title: "Service",
-        dataIndex: "service",
-        key: "service",
+        title: 'Service',
+        dataIndex: 'service',
+        key: 'service',
       },
       {
-        title: "Actions",
-        key: "actions",
+        title: 'Actions',
+        key: 'actions',
         render: (_, record) => (
           <div className="flex gap-2">
             <Button
               type="link"
-              onClick={(e) => {
-                e.stopPropagation(); 
+              onClick={e => {
+                e.stopPropagation();
                 handleEdit(record);
               }}
             >
@@ -324,8 +311,8 @@ const ContractorPage = () => {
             <Button
               type="link"
               danger
-              onClick={(e) => {
-                e.stopPropagation(); 
+              onClick={e => {
+                e.stopPropagation();
                 setIsDeleteModalOpen({
                   open: true,
                   recordId: record.contractorId,
@@ -345,10 +332,7 @@ const ContractorPage = () => {
     <div className="p-4">
       <div className="w-full">
         <div className="flex items-center justify-between mb-4">
-          <Typography.Title
-            level={4}
-            style={{ margin: 0, color: "var(--font-color)" }}
-          >
+          <Typography.Title level={4} style={{ margin: 0, color: 'var(--font-color)' }}>
             Contractors
           </Typography.Title>
           <button
@@ -366,9 +350,9 @@ const ContractorPage = () => {
             dataSource={contractors}
             pagination={{ pageSize: 10 }}
             loading={false}
-            scroll={{ x: "max-content" }}
-            onRow={(record) => ({
-              style: { cursor: "pointer" },
+            scroll={{ x: 'max-content' }}
+            onRow={record => ({
+              style: { cursor: 'pointer' },
               onClick: () => handleRowClick(record),
             })}
           />
@@ -401,18 +385,16 @@ const ContractorPage = () => {
           onCancel={() => setIsViewModalOpen(false)}
           data={selectedContractor}
           fields={[
-            { label: "Full Name", key: "name" },
-            { label: "Email", key: "email", isLink: "email" },
-            { label: "Phone", key: "phone", isLink: "phone" },
-            { label: "Address", key: "address" },
+            { label: 'Full Name', key: 'name' },
+            { label: 'Email', key: 'email', isLink: 'email' },
+            { label: 'Phone', key: 'phone', isLink: 'phone' },
+            { label: 'Address', key: 'address' },
           ]}
         />
         {isDeleteModalOpen.open && (
           <ConfirmationModal
             open={isDeleteModalOpen.open}
-            onClose={() =>
-              setIsDeleteModalOpen({ open: false, recordId: null })
-            }
+            onClose={() => setIsDeleteModalOpen({ open: false, recordId: null })}
             onConfirm={() => handleDelete(isDeleteModalOpen.recordId)}
             // title="Delete"
             message="Are you sure you want to delete this contractor?"

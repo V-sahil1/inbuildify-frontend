@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Popover, Input, List, message } from "antd";
-import { IconSearch } from "@tabler/icons-react";
-import { data } from "data/hlpackageData";
+import { useState } from 'react';
+import { Popover, Input, List, message } from 'antd';
+import { IconSearch } from '@tabler/icons-react';
+import { data } from 'data/hlpackageData';
 
 const HouseLandPopover = ({ children }: { children: React.ReactNode }) => {
   const [openPopover, setOpenPopover] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredPackages = data.filter((pkg) =>
+  const filteredPackages = data.filter(pkg =>
     pkg.packages.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -22,7 +22,7 @@ const HouseLandPopover = ({ children }: { children: React.ReactNode }) => {
             <Input
               size="small"
               placeholder="Search.."
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={e => setSearchTerm(e.target.value)}
               value={searchTerm}
               className="border-none bg-transparent shadow-none focus:ring-0"
             />
@@ -32,7 +32,7 @@ const HouseLandPopover = ({ children }: { children: React.ReactNode }) => {
             size="small"
             className="overflow-y-auto"
             dataSource={filteredPackages}
-            renderItem={(item) => (
+            renderItem={item => (
               <List.Item
                 className="cursor-pointer hover:bg-gray-100"
                 onClick={() => {

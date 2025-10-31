@@ -1,10 +1,9 @@
-
-import { IconCloudUpload, IconRefresh, IconX } from "@tabler/icons-react";
-import React, { useState, useEffect } from "react";
-import ReactDataTable from "react-data-table-component";
-import { useMemo } from "react";
-import Drawer from "@/components/common/Drawer";
-import CustomSelect from "@/components/common/CustomSelect";
+import { IconCloudUpload, IconRefresh, IconX } from '@tabler/icons-react';
+import React, { useState, useEffect } from 'react';
+import ReactDataTable from 'react-data-table-component';
+import { useMemo } from 'react';
+import Drawer from '@/components/common/Drawer';
+import CustomSelect from '@/components/common/CustomSelect';
 
 const ItemSelectorModal = ({
   isOpen,
@@ -22,30 +21,30 @@ const ItemSelectorModal = ({
   const [showZeroQty, setShowZeroQty] = useState(false);
   const [data, setData] = useState<any[]>(rowData);
   const [isSuccessBtnDisabled, setIsSuccessBtnDisabled] = useState(true);
-const [warehouse, setWarehouse] = useState("");
-const warehouseOptions = [
-  { label: "Warehouse: All", value: "all" },
-  { label: "Warehouse: A", value: "a" },
-  { label: "Warehouse: B", value: "b" },
-]
-useEffect(() => {
-  const isValid = data.some(
-    (item) =>
-      item.authQty !== "" &&
-      item.unitPrice !== "" &&
-      !isNaN(Number(item.authQty)) &&
-      !isNaN(Number(item.unitPrice)) &&
-      Number(item.authQty) > 0 &&
-      Number(item.unitPrice) > 0
-  );
-  setIsSuccessBtnDisabled(!isValid);
-}, [data]);
+  const [warehouse, setWarehouse] = useState('');
+  const warehouseOptions = [
+    { label: 'Warehouse: All', value: 'all' },
+    { label: 'Warehouse: A', value: 'a' },
+    { label: 'Warehouse: B', value: 'b' },
+  ];
+  useEffect(() => {
+    const isValid = data.some(
+      item =>
+        item.authQty !== '' &&
+        item.unitPrice !== '' &&
+        !isNaN(Number(item.authQty)) &&
+        !isNaN(Number(item.unitPrice)) &&
+        Number(item.authQty) > 0 &&
+        Number(item.unitPrice) > 0
+    );
+    setIsSuccessBtnDisabled(!isValid);
+  }, [data]);
 
   // useEffect(() => {
   //   const filtered = rowData.filter(
   //     (item) =>
   //       item.authQty === "" ||
-  //       item.unitPrice === "" || 
+  //       item.unitPrice === "" ||
   //       isNaN(Number(item.authQty)) ||
   //       isNaN(Number(item.unitPrice))
   //   );
@@ -53,35 +52,31 @@ useEffect(() => {
   // }, [rowData]);
 
   const handleInputChange = (index: number, key: string, value: string) => {
-    setData((prev) => {
+    setData(prev => {
       const updated = [...prev];
       updated[index] = { ...updated[index], [key]: value };
       return updated;
     });
   };
-  
-  
 
   const columnDefs = useMemo(
     () => [
       {
-        name: "#",
-        selector: (row) => row.name,
-        width: "150px",
+        name: '#',
+        selector: row => row.name,
+        width: '150px',
       },
       {
-        name: "Item# / Description",
-        selector: (row) => row.title,
-        width: "250px",
-        cell: (row) => (
-          <span className="text-blue-700 cursor-pointer hover:underline">
-            {row.description}
-          </span>
+        name: 'Item# / Description',
+        selector: row => row.title,
+        width: '250px',
+        cell: row => (
+          <span className="text-blue-700 cursor-pointer hover:underline">{row.description}</span>
         ),
       },
       {
-        name: "Qty",
-        selector: (row) => row.authQty,
+        name: 'Qty',
+        selector: row => row.authQty,
         center: true,
         cell: (row, index) => (
           <div className="flex gap-2 form-control">
@@ -89,31 +84,29 @@ useEffect(() => {
               type="number"
               className="w-full form-input"
               value={row.authQty}
-              onChange={(e) => handleInputChange(index, "authQty", e.target.value)}
+              onChange={e => handleInputChange(index, 'authQty', e.target.value)}
             />
           </div>
         ),
       },
       {
-        name: "Unit Price",
-        selector: (row) => row.unitPrice,
+        name: 'Unit Price',
+        selector: row => row.unitPrice,
         cell: (row, index) => (
           <div className="flex gap-2 form-control">
             <input
               type="number"
               className="w-full form-input"
               value={row.unitPrice}
-              onChange={(e) => handleInputChange(index, "unitPrice", e.target.value)}
+              onChange={e => handleInputChange(index, 'unitPrice', e.target.value)}
             />
           </div>
         ),
       },
       {
-        name: "Net Available",
-        selector: (row) => row.netAvailable,
-        cell: (row) => (
-          <div className="whitespace-pre-line text-sm">{row.netAvailable}</div>
-        ),
+        name: 'Net Available',
+        selector: row => row.netAvailable,
+        cell: row => <div className="whitespace-pre-line text-sm">{row.netAvailable}</div>,
       },
     ],
     [data]
@@ -127,10 +120,10 @@ useEffect(() => {
         header="Items"
         isSuccessBtnDisabled={isSuccessBtnDisabled}
         onSuccess={() => {
-          const updatedItems = rowData.map((item) => {
-            const updated = data.find((d) => d.name === item.name);
+          const updatedItems = rowData.map(item => {
+            const updated = data.find(d => d.name === item.name);
             return updated ? { ...item, ...updated } : item;
-          })
+          });
           onSuccess(updatedItems);
           onClose();
         }}
@@ -198,5 +191,3 @@ useEffect(() => {
 };
 
 export default ItemSelectorModal;
-
-

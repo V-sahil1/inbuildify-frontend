@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import { Switch, Button, Typography, message } from "antd";
+import React, { useState, useEffect } from 'react';
+import { Switch, Button, Typography, message } from 'antd';
 
 const { Text } = Typography;
 
@@ -29,12 +29,12 @@ export const HouseAndLandPackage: React.FC = () => {
   const handleSave = async () => {
     try {
       // await api.post('/settings/include-facade-cost', { includeFacadeCost });
-      console.log("Saving setting:", includeFacadeCost);
-      message.success("Setting saved successfully");
+      console.log('Saving setting:', includeFacadeCost);
+      message.success('Setting saved successfully');
       setInitialValue(includeFacadeCost);
       setIsChanged(false);
     } catch {
-      message.error("Failed to save setting");
+      message.error('Failed to save setting');
     }
   };
 

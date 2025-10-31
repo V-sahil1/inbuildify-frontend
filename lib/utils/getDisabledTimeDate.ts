@@ -1,24 +1,22 @@
-import dayjs from "dayjs";
+import dayjs from 'dayjs';
 
 export const disablePastDates = (current: dayjs.Dayjs) => {
-  return current && current < dayjs().startOf("day");
+  return current && current < dayjs().startOf('day');
 };
 
 export const getDisabledTime = (date: dayjs.Dayjs | null) => {
   if (!date) return {};
   const now = dayjs();
 
-  if (date.isSame(now, "day")) {
+  if (date.isSame(now, 'day')) {
     return {
       disabledHours: () =>
-        Array.from({ length: 24 }, (_, i) => (i < now.hour() ? i : -1)).filter(
-          (i) => i !== -1
-        ),
+        Array.from({ length: 24 }, (_, i) => (i < now.hour() ? i : -1)).filter(i => i !== -1),
       disabledMinutes: (selectedHour: number) => {
         if (selectedHour === now.hour()) {
-          return Array.from({ length: 60 }, (_, i) =>
-            i < now.minute() ? i : -1
-          ).filter((i) => i !== -1);
+          return Array.from({ length: 60 }, (_, i) => (i < now.minute() ? i : -1)).filter(
+            i => i !== -1
+          );
         }
         return [];
       },
@@ -27,7 +25,6 @@ export const getDisabledTime = (date: dayjs.Dayjs | null) => {
 
   return {};
 };
-
 
 export const getEndDisabledTime = (
   selectedDate: dayjs.Dayjs | null,
@@ -43,7 +40,7 @@ export const getEndDisabledTime = (
   let minMinute = startTime.minute();
 
   // If selecting today, also respect current time
-  if (selectedDate.isSame(now, "day")) {
+  if (selectedDate.isSame(now, 'day')) {
     if (now.hour() > minHour) {
       minHour = now.hour();
       minMinute = now.minute();
@@ -53,16 +50,12 @@ export const getEndDisabledTime = (
   }
 
   return {
-    disabledHours: () =>
-      Array.from({ length: 24 }, (_, i) => i).filter((h) => h < minHour),
+    disabledHours: () => Array.from({ length: 24 }, (_, i) => i).filter(h => h < minHour),
     disabledMinutes: (hour: number) => {
       if (hour === minHour) {
-        return Array.from({ length: 60 }, (_, i) => i).filter(
-          (m) => m <= minMinute
-        );
+        return Array.from({ length: 60 }, (_, i) => i).filter(m => m <= minMinute);
       }
       return [];
     },
   };
 };
-

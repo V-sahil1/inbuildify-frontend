@@ -4,7 +4,6 @@ import isBetween from 'dayjs/plugin/isBetween';
 import { Event } from './data';
 import { IconCircleCheckFilled, IconCircleFilled } from '@tabler/icons-react';
 
-
 dayjs.extend(isBetween);
 
 interface MonthViewProps {
@@ -21,7 +20,7 @@ const categoryColors: Record<string, string> = {
   Maintenance: 'bg-red-600',
   ReferralPartner: 'bg-gray-700',
   Today: 'bg-yellow-200',
-  Holiday: 'bg-red-500'
+  Holiday: 'bg-red-500',
 };
 
 const MonthView = ({ currentDate, events, onEventClick }: MonthViewProps) => {
@@ -62,7 +61,7 @@ const MonthView = ({ currentDate, events, onEventClick }: MonthViewProps) => {
       </div>
 
       <div className="grid grid-cols-7">
-        {weeks.map((week, weekIndex) => (
+        {weeks.map((week, weekIndex) =>
           week.map((day, dayIndex) => {
             const dayEvents = getEventsForDate(day);
             const isCurrentMonth = day.month() === currentDate.month();
@@ -75,9 +74,11 @@ const MonthView = ({ currentDate, events, onEventClick }: MonthViewProps) => {
                   !isCurrentMonth ? 'bg-gray-50' : ''
                 }`}
               >
-                <div className={`text-sm mb-1 ${
-                  isCurrentMonth ? 'text-gray-700' : 'text-gray-400'
-                } ${isToday ? 'font-bold text-blue-600' : ''}`}>
+                <div
+                  className={`text-sm mb-1 ${
+                    isCurrentMonth ? 'text-gray-700' : 'text-gray-400'
+                  } ${isToday ? 'font-bold text-blue-600' : ''}`}
+                >
                   {day.date()}
                 </div>
 
@@ -106,15 +107,13 @@ const MonthView = ({ currentDate, events, onEventClick }: MonthViewProps) => {
                     );
                   })}
                   {dayEvents.length > 3 && (
-                    <div className="text-xs text-gray-500 px-2">
-                      +{dayEvents.length - 3} more
-                    </div>
+                    <div className="text-xs text-gray-500 px-2">+{dayEvents.length - 3} more</div>
                   )}
                 </div>
               </div>
             );
           })
-        ))}
+        )}
       </div>
     </div>
   );

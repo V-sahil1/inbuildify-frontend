@@ -1,19 +1,19 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
-import { useRouter } from "next/router";
-import { usePathname, useSearchParams } from "next/navigation";
-import { Table, Input, Space, Dropdown, Switch, Button } from "antd";
-import type { ColumnsType } from "antd/es/table";
-import { debounce } from "lodash";
-import { IconFilter, IconDownload, IconExternalLink } from "@tabler/icons-react";
-import { exportToExcel } from "@lib/utils/exportToExcel";
-import DateFilterDropdown from "@/components/common/custom-selects/DateFilterDropdown";
-import AssigneeSelect from "@/components/common/custom-selects/AssigneeSelect";
-import TooltipButton from "@/components/common/TooltipButtton";
-import DynamicHorizontalChart from "@/components/common/charts/DynamicHorizontalChart";
-import { JobDataType, jobDummyData } from "data/joblistData";
-import CustomAvtar from "@/components/common/CustomAvtar";
-import Link from "next/link";
-import TimelineActionsBar from "@/components/common/TimeLineComponents/TimelineActionsBar";
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useRouter } from 'next/router';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { Table, Input, Space, Dropdown, Switch, Button } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import { debounce } from 'lodash';
+import { IconFilter, IconDownload, IconExternalLink } from '@tabler/icons-react';
+import { exportToExcel } from '@lib/utils/exportToExcel';
+import DateFilterDropdown from '@/components/common/custom-selects/DateFilterDropdown';
+import AssigneeSelect from '@/components/common/custom-selects/AssigneeSelect';
+import TooltipButton from '@/components/common/TooltipButtton';
+import DynamicHorizontalChart from '@/components/common/charts/DynamicHorizontalChart';
+import { JobDataType, jobDummyData } from 'data/joblistData';
+import CustomAvtar from '@/components/common/CustomAvtar';
+import Link from 'next/link';
+import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineActionsBar';
 
 const JobPage: React.FC = () => {
   const router = useRouter();
@@ -28,13 +28,13 @@ const JobPage: React.FC = () => {
     titled: string;
     consultant: string;
   }>({
-    refrenceId: searchParams.get("refrenceId") || "",
-    customerName: searchParams.get("customerName") || "",
-    jobAddress: searchParams.get("jobAddress") || "",
-    estateName: searchParams.get("estateName") || "",
-    created: searchParams.get("created") || "",
-    titled: searchParams.get("titled") || "",
-    consultant: searchParams.get("consultant") || "",
+    refrenceId: searchParams.get('refrenceId') || '',
+    customerName: searchParams.get('customerName') || '',
+    jobAddress: searchParams.get('jobAddress') || '',
+    estateName: searchParams.get('estateName') || '',
+    created: searchParams.get('created') || '',
+    titled: searchParams.get('titled') || '',
+    consultant: searchParams.get('consultant') || '',
   });
   const [showBlocked, setShowBlocked] = useState(false);
   const [currentBar, setCurrentBar] = useState<string>();
@@ -59,7 +59,7 @@ const JobPage: React.FC = () => {
 
   const handleFilterChange = useCallback(
     (updates: Partial<typeof filters>) => {
-      setFilters((prev) => {
+      setFilters(prev => {
         const newFilters = { ...prev, ...updates };
         debouncedUpdateURL(newFilters);
         return newFilters;
@@ -76,30 +76,30 @@ const JobPage: React.FC = () => {
 
   const handleExport = (data: JobDataType[]) => {
     const column = {
-      refrenceId: "Refrence ID",
-      CustomerName: "Customer Name",
-      jobAddress: "Job Address",
-      created: "Created At",
-      titled: "Titled At",
-      estateName: "Estate Name",
-      consultant: "Consultant",
+      refrenceId: 'Refrence ID',
+      CustomerName: 'Customer Name',
+      jobAddress: 'Job Address',
+      created: 'Created At',
+      titled: 'Titled At',
+      estateName: 'Estate Name',
+      consultant: 'Consultant',
     };
     exportToExcel({
       data,
-      fileName: "Jobs",
-      sheetName: "Jobs",
+      fileName: 'Jobs',
+      sheetName: 'Jobs',
       columnHeaders: column,
     });
   };
 
   const handleFilterTabChange = (selectedType: string) => {
-    console.log("Selected filter:", selectedType);
+    console.log('Selected filter:', selectedType);
     setActiveFilter(filterOptions.find(f => f.type === selectedType) || activeFilter);
     // You can call your API or set state here
   };
 
   const handleBarClick = (status: string) => {
-    console.log("status", status);
+    console.log('status', status);
     setCurrentBar(status);
   };
 
@@ -110,14 +110,12 @@ const JobPage: React.FC = () => {
           <span>Refrence ID</span>
           <Input
             value={filters.refrenceId}
-            onChange={(e) =>
-              handleFilterChange({ ...filters, refrenceId: e.target.value })
-            }
+            onChange={e => handleFilterChange({ ...filters, refrenceId: e.target.value })}
           />
         </div>
       ),
-      dataIndex: "slugId",
-      key: "slugId",
+      dataIndex: 'slugId',
+      key: 'slugId',
       width: 250,
     },
     {
@@ -126,14 +124,12 @@ const JobPage: React.FC = () => {
           <span>Customer Name</span>
           <Input
             value={filters.customerName}
-            onChange={(e) =>
-              handleFilterChange({ ...filters, customerName: e.target.value })
-            }
+            onChange={e => handleFilterChange({ ...filters, customerName: e.target.value })}
           />
         </div>
       ),
-      dataIndex: "customerName",
-      key: "customerName",
+      dataIndex: 'customerName',
+      key: 'customerName',
       width: 250,
     },
     {
@@ -142,7 +138,7 @@ const JobPage: React.FC = () => {
           <span>Job Address</span>
           <Input
             value={filters.jobAddress}
-            onChange={(e) =>
+            onChange={e =>
               handleFilterChange({
                 ...filters,
                 jobAddress: e.target.value,
@@ -151,8 +147,8 @@ const JobPage: React.FC = () => {
           />
         </div>
       ),
-      dataIndex: "jobAddress",
-      key: "jobAddress",
+      dataIndex: 'jobAddress',
+      key: 'jobAddress',
       width: 200,
     },
 
@@ -162,22 +158,20 @@ const JobPage: React.FC = () => {
           <span>Created Date</span>
           <DateFilterDropdown
             onFilter={(type, dates) => {
-              const dateString = dates
-                ? `${dates[0].toISOString()},${dates[1].toISOString()}`
-                : "";
+              const dateString = dates ? `${dates[0].toISOString()},${dates[1].toISOString()}` : '';
               handleFilterChange({ ...filters, created: dateString });
             }}
             onClear={() => {
-              console.log("Cleared date filter");
-              handleFilterChange({ ...filters, created: "" });
+              console.log('Cleared date filter');
+              handleFilterChange({ ...filters, created: '' });
             }}
           />
         </div>
       ),
-      dataIndex: "createdAt",
-      key: "createdAt",
+      dataIndex: 'createdAt',
+      key: 'createdAt',
       width: 150,
-      render: (date) => new Date(date).toLocaleDateString(),
+      render: date => new Date(date).toLocaleDateString(),
     },
     {
       title: (
@@ -185,22 +179,20 @@ const JobPage: React.FC = () => {
           <span>Title Date</span>
           <DateFilterDropdown
             onFilter={(type, dates) => {
-              const dateString = dates
-                ? `${dates[0].toISOString()},${dates[1].toISOString()}`
-                : "";
+              const dateString = dates ? `${dates[0].toISOString()},${dates[1].toISOString()}` : '';
               handleFilterChange({ ...filters, titled: dateString });
             }}
             onClear={() => {
-              console.log("Cleared date filter");
-              handleFilterChange({ ...filters, titled: "" });
+              console.log('Cleared date filter');
+              handleFilterChange({ ...filters, titled: '' });
             }}
           />
         </div>
       ),
-      dataIndex: "titledAt",
-      key: "titledAt",
+      dataIndex: 'titledAt',
+      key: 'titledAt',
       width: 150,
-      render: (date) => new Date(date).toLocaleDateString(),
+      render: date => new Date(date).toLocaleDateString(),
     },
     {
       title: (
@@ -208,7 +200,7 @@ const JobPage: React.FC = () => {
           <span>Estate Name</span>
           <Input
             value={filters.estateName}
-            onChange={(e) =>
+            onChange={e =>
               handleFilterChange({
                 ...filters,
                 estateName: e.target.value,
@@ -217,8 +209,8 @@ const JobPage: React.FC = () => {
           />
         </div>
       ),
-      dataIndex: "estateName",
-      key: "estateName",
+      dataIndex: 'estateName',
+      key: 'estateName',
       width: 200,
     },
     {
@@ -227,44 +219,39 @@ const JobPage: React.FC = () => {
           <span>Consultant</span>
           <AssigneeSelect
             value={filters.consultant}
-            onChange={(value) =>
-              handleFilterChange({ ...filters, consultant: value })
-            }
+            onChange={value => handleFilterChange({ ...filters, consultant: value })}
           />
         </div>
       ),
-      dataIndex: "consultant",
-      key: "consultant",
+      dataIndex: 'consultant',
+      key: 'consultant',
       width: 200,
-      render: (consultant) => (
+      render: consultant => (
         <div className="flex justify-between items-center">
           <CustomAvtar label={consultant?.name} />
-          <Link href="#"><IconExternalLink size={22} className="cursor-pointer text-blue" /></Link>
+          <Link href="#">
+            <IconExternalLink size={22} className="cursor-pointer text-blue" />
+          </Link>
         </div>
       ),
     },
   ];
-  type FilterType =
-    | "inProgress"
-    | "completed"
-    | "onHold"
-    | "cancelled"
-    | "archieved";
-const [activeFilter, setActiveFilter] = useState<{
-        type: FilterType;
-        label: string;
-        count?: number;
-    }>({ type: "inProgress", label: "In Progress" });
+  type FilterType = 'inProgress' | 'completed' | 'onHold' | 'cancelled' | 'archieved';
+  const [activeFilter, setActiveFilter] = useState<{
+    type: FilterType;
+    label: string;
+    count?: number;
+  }>({ type: 'inProgress', label: 'In Progress' });
   const filterOptions: Array<{
     type: FilterType;
     label: string;
     count: number;
   }> = [
-    { type: "inProgress", label: "In Progress", count: jobDummyData.length },
-    { type: "completed", label: "Completed", count: jobDummyData.length },
-    { type: "onHold", label: "On Hold", count: jobDummyData.length },
-    { type: "cancelled", label: "Cancelled", count: jobDummyData.length },
-    { type: "archieved", label: "Archieved", count: jobDummyData.length },
+    { type: 'inProgress', label: 'In Progress', count: jobDummyData.length },
+    { type: 'completed', label: 'Completed', count: jobDummyData.length },
+    { type: 'onHold', label: 'On Hold', count: jobDummyData.length },
+    { type: 'cancelled', label: 'Cancelled', count: jobDummyData.length },
+    { type: 'archieved', label: 'Archieved', count: jobDummyData.length },
   ];
 
   return (
@@ -272,28 +259,25 @@ const [activeFilter, setActiveFilter] = useState<{
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Job List</h1>
         <div className="flex w-full md:w-[60%] ml-[20%] ">
-                    <TimelineActionsBar
-                        tabs={filterOptions.map(f => ({ type: f.type, label: f.label, count: f.count }))}
-                        activeTab={activeFilter.type}
-                        onTabChange={handleFilterTabChange}
-                        isActionShow={false}
-                        isCountShow={true}
-                    />  
-                </div>
+          <TimelineActionsBar
+            tabs={filterOptions.map(f => ({ type: f.type, label: f.label, count: f.count }))}
+            activeTab={activeFilter.type}
+            onTabChange={handleFilterTabChange}
+            isActionShow={false}
+            isCountShow={true}
+          />
+        </div>
         <Space>
           <Button>Filtered Records: {jobDummyData.length}</Button>
           <Dropdown
-            trigger={["click"]}
+            trigger={['click']}
             menu={{
               items: [
                 {
-                  key: "1",
+                  key: '1',
                   label: (
                     <Space>
-                      <Switch
-                        checked={showBlocked}
-                        onChange={(val) => setShowBlocked(val)}
-                      />
+                      <Switch checked={showBlocked} onChange={val => setShowBlocked(val)} />
                       <span>Show Blocklisted Leads</span>
                     </Space>
                   ),
@@ -314,18 +298,12 @@ const [activeFilter, setActiveFilter] = useState<{
       </div>
       <DynamicHorizontalChart
         title="Job Status Overview"
-        categories={[
-          "In Progress",
-          "Completed",
-          "On Hold",
-          "Cancelled",
-          "Archived",
-        ]}
+        categories={['In Progress', 'Completed', 'On Hold', 'Cancelled', 'Archived']}
         chartType="bar"
         seriesData={[40, 7, 3, 80, 9]}
         onBarClick={handleBarClick}
       />
-      <p className="my-4">{currentBar && "Job status: " + currentBar}</p>
+      <p className="my-4">{currentBar && 'Job status: ' + currentBar}</p>
       <Table
         columns={columns}
         dataSource={jobDummyData}

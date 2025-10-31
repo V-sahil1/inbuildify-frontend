@@ -1,26 +1,24 @@
-import React, { useEffect, useState } from "react";
-import { IFloorPlanState } from "@redux/feature/floorPlan/IFloorPlanState";
+import React, { useEffect, useState } from 'react';
+import { IFloorPlanState } from '@redux/feature/floorPlan/IFloorPlanState';
 import {
   createFloorPlan,
   deleteFloorPlan,
   fetchFloorPlans,
   updateFloorPlan,
-} from "@redux/feature/floorPlan/floorPlanThunk";
-import { useAppDispatch, useAppSelector } from "@hooks/redux";
-import Image from "next/image";
-import { Divider, Empty, Spin, message } from "antd";
-import { CreateFormModal } from "@/components/common/Models/CreateFormModel";
-import { floorPlanFields } from "@/components/formFields/floorPlanFields";
-import { Status } from "@lib/constants/enum";
-import { RootState } from "@redux/feature/store";
-import { IconEdit, IconTrash } from "@tabler/icons-react";
-import ConfirmationModal from "@/components/common/ConfirmationModal";
+} from '@redux/feature/floorPlan/floorPlanThunk';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import Image from 'next/image';
+import { Divider, Empty, Spin, message } from 'antd';
+import { CreateFormModal } from '@/components/common/Models/CreateFormModel';
+import { floorPlanFields } from '@/components/formFields/floorPlanFields';
+import { Status } from '@lib/constants/enum';
+import { RootState } from '@redux/feature/store';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
+import ConfirmationModal from '@/components/common/ConfirmationModal';
 
 const FloorPlan = () => {
   const dispatch = useAppDispatch();
-  const floorPlans = useAppSelector(
-    (state: RootState) => state.floorPlan.floorPlans
-  );
+  const floorPlans = useAppSelector((state: RootState) => state.floorPlan.floorPlans);
   const [editingFloorPlan, setEditingFloorPlan] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -36,7 +34,7 @@ const FloorPlan = () => {
       try {
         await dispatch(fetchFloorPlans(undefined)).unwrap();
       } catch (error) {
-        message.error(error || "Failed to fetch Floor Plans");
+        message.error(error || 'Failed to fetch Floor Plans');
       }
     };
     if (status?.floorPlan === Status.IDLE) {
@@ -52,21 +50,21 @@ const FloorPlan = () => {
     try {
       setLoading(true);
       const formData = new FormData();
-      formData.append("name", values.name);
-      formData.append("range", values.range);
-      formData.append("dwelling_type", values.dwelling_type);
-      formData.append("beds", values.beds);
-      formData.append("bath", values.bath);
-      formData.append("car_park", values.car_park);
-      formData.append("width_meter", values.width_meter);
-      formData.append("depth_meter", values.depth_meter);
-      formData.append("dwelling", values.dwelling);
-      formData.append("garage", values.garage);
-      formData.append("porch", values.porch);
-      formData.append("alfresco", values.alfresco);
-      formData.append("total_sqft", values.total_sqft);
+      formData.append('name', values.name);
+      formData.append('range', values.range);
+      formData.append('dwelling_type', values.dwelling_type);
+      formData.append('beds', values.beds);
+      formData.append('bath', values.bath);
+      formData.append('car_park', values.car_park);
+      formData.append('width_meter', values.width_meter);
+      formData.append('depth_meter', values.depth_meter);
+      formData.append('dwelling', values.dwelling);
+      formData.append('garage', values.garage);
+      formData.append('porch', values.porch);
+      formData.append('alfresco', values.alfresco);
+      formData.append('total_sqft', values.total_sqft);
       if (values?.image?.length > 0) {
-        formData.append("image", values?.image[0]?.originFileObj);
+        formData.append('image', values?.image[0]?.originFileObj);
       }
       if (isEditing) {
         const response = await dispatch(
@@ -76,14 +74,14 @@ const FloorPlan = () => {
           })
         ).unwrap();
         setIsModalVisible(false);
-        message.success("Floor Plan updated successfully");
+        message.success('Floor Plan updated successfully');
       } else {
         await dispatch(createFloorPlan(formData)).unwrap();
         setIsModalVisible(false);
-        message.success("Floor Plan created successfully");
+        message.success('Floor Plan created successfully');
       }
     } catch (error) {
-      message.error(error || "Failed to create Floor Plan");
+      message.error(error || 'Failed to create Floor Plan');
     } finally {
       setLoading(false);
     }
@@ -116,9 +114,9 @@ const FloorPlan = () => {
     try {
       setIsDeleting(true);
       await dispatch(deleteFloorPlan(floorPlanId)).unwrap();
-      message.success("Floor Plan deleted successfully");
+      message.success('Floor Plan deleted successfully');
     } catch (error) {
-      message.error(error || "Failed to delete Floor Plan");
+      message.error(error || 'Failed to delete Floor Plan');
     } finally {
       setIsDeleting(false);
       setShowDeleteConfirm(false);
@@ -153,7 +151,7 @@ const FloorPlan = () => {
               <div className="absolute inset-0 bg-black-50 bg-opacity-50 backdrop-blur-sm rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4 z-10">
                 <button
                   className="p-2 bg-white bg-opacity-80 text-black rounded-full hover:bg-opacity-100 transition-all duration-200"
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation();
                     handleEdit(floorPlan);
                   }}
@@ -162,7 +160,7 @@ const FloorPlan = () => {
                 </button>
                 <button
                   className="p-2 bg-white bg-opacity-80 rounded-full hover:bg-opacity-100 transition-all duration-200"
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation();
                     setShowDeleteConfirm(true);
                     setFloorPlanId(floorPlan.floorPlanId);
@@ -172,42 +170,38 @@ const FloorPlan = () => {
                 </button>
               </div>
               <Image
-                src={floorPlan?.image || "/placeholder.png"} // make sure placeholder.png exists in /public
-                alt={floorPlan?.name || "Floor Plan"}
+                src={floorPlan?.image || '/placeholder.png'} // make sure placeholder.png exists in /public
+                alt={floorPlan?.name || 'Floor Plan'}
                 className="mb-6 w-[200px] h-[200px] object-contain"
                 width={200}
                 height={200}
                 unoptimized
               />
 
-              <h5 className="text-[20px]/[24px] font-bold mb-2 text-center">
-                {floorPlan?.name}
-              </h5>
-              <p className="text-font-color-100 mb-4 text-center">
-                {floorPlan?.rangeName}
-              </p>
+              <h5 className="text-[20px]/[24px] font-bold mb-2 text-center">{floorPlan?.name}</h5>
+              <p className="text-font-color-100 mb-4 text-center">{floorPlan?.rangeName}</p>
               <div className="flex  w-full rounded-lg p-4 overflow- bg-body-color">
                 {/* Left Section */}
                 <div className="flex-1 space-y-2 ">
                   <div className="flex justify-between text-md  md:text-sm ">
                     <span>Beds :</span>
-                    <span>{floorPlan?.beds || "N/A"}</span>
+                    <span>{floorPlan?.beds || 'N/A'}</span>
                   </div>
                   <div className="flex justify-between text-md  md:text-sm ">
                     <span>Bath :</span>
-                    <span>{floorPlan?.bath || "N/A"}</span>
+                    <span>{floorPlan?.bath || 'N/A'}</span>
                   </div>
                   <div className="flex justify-between text-md  md:text-sm ">
                     <span>Car Park :</span>
-                    <span>{floorPlan?.carPark || "N/A"}</span>
+                    <span>{floorPlan?.carPark || 'N/A'}</span>
                   </div>
                   <div className="flex justify-between text-md  md:text-sm ">
                     <span>Width M :</span>
-                    <span>{floorPlan?.widthMeter || "N/A"}</span>
+                    <span>{floorPlan?.widthMeter || 'N/A'}</span>
                   </div>
                   <div className="flex justify-between text-md   md:text-sm ">
                     <span>Depth M :</span>
-                    <span>{floorPlan?.depthMeter || "N/A"}</span>
+                    <span>{floorPlan?.depthMeter || 'N/A'}</span>
                   </div>
                 </div>
 
@@ -218,23 +212,23 @@ const FloorPlan = () => {
                 <div className="flex-1 space-y-2 ">
                   <div className="flex justify-between text-md  md:text-sm">
                     <span>Dwelling :</span>
-                    <span>{floorPlan?.dwelling || "N/A"}</span>
+                    <span>{floorPlan?.dwelling || 'N/A'}</span>
                   </div>
                   <div className="flex justify-between text-md  md:text-sm">
                     <span>Garage :</span>
-                    <span>{floorPlan?.garage || "N/A"}</span>
+                    <span>{floorPlan?.garage || 'N/A'}</span>
                   </div>
                   <div className="flex justify-between text-md  md:text-sm">
                     <span>Porch :</span>
-                    <span>{floorPlan?.porch || "N/A"}</span>
+                    <span>{floorPlan?.porch || 'N/A'}</span>
                   </div>
                   <div className="flex justify-between text-md  md:text-sm">
                     <span>Alfresco :</span>
-                    <span>{floorPlan?.alfresco || "N/A"}</span>
+                    <span>{floorPlan?.alfresco || 'N/A'}</span>
                   </div>
                   <div className="flex justify-between text-md  md:text-sm">
                     <span>SQFT :</span>
-                    <span>{floorPlan?.totalSqft || "N/A"}</span>
+                    <span>{floorPlan?.totalSqft || 'N/A'}</span>
                   </div>
                 </div>
               </div>

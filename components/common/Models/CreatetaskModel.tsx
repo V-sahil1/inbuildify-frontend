@@ -1,5 +1,5 @@
-import { Modal } from "antd";
-import CreateTaskCard from "../TimeLineComponents/CreateTaskCard";
+import { Modal } from 'antd';
+import CreateTaskCard from '../TimeLineComponents/CreateTaskCard';
 
 export const CreateTaskModal = ({
   open,

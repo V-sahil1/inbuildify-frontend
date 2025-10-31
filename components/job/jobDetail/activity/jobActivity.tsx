@@ -1,15 +1,10 @@
-"use client";
-import React, { useState } from "react";
-import { Card, Typography, Tag, Input, Button } from "antd";
-import {
-  IconMail,
-  IconSearch,
-  IconFilter,
-  IconArrowsDiagonal,
-} from "@tabler/icons-react";
+'use client';
+import React, { useState } from 'react';
+import { Card, Typography, Tag, Input, Button } from 'antd';
+import { IconMail, IconSearch, IconFilter, IconArrowsDiagonal } from '@tabler/icons-react';
 import TimelineActionsBar, {
   FilterOption,
-} from "@/components/common/TimeLineComponents/TimelineActionsBar";
+} from '@/components/common/TimeLineComponents/TimelineActionsBar';
 
 const { Text, Title } = Typography;
 
@@ -18,7 +13,7 @@ interface EmailItem {
   date: string;
   time: string;
   sender: string;
-  status: "Sent" | "Delivered";
+  status: 'Sent' | 'Delivered';
   subject: string;
   body: string;
   recipient: string;
@@ -26,29 +21,29 @@ interface EmailItem {
 
 const emailData: EmailItem[] = [
   {
-    id: "1",
-    date: "30-09-2025",
-    time: "1:11PM",
-    sender: "jacob@insimplify.com.au",
-    status: "Sent",
-    subject: "Extension Notice – Weather",
-    body: "Lot 28 Ballarat Street, Epping: Extension Notice",
-    recipient: "Murthy Muthuswamy",
+    id: '1',
+    date: '30-09-2025',
+    time: '1:11PM',
+    sender: 'jacob@insimplify.com.au',
+    status: 'Sent',
+    subject: 'Extension Notice – Weather',
+    body: 'Lot 28 Ballarat Street, Epping: Extension Notice',
+    recipient: 'Murthy Muthuswamy',
   },
   {
-    id: "2",
-    date: "30-09-2025",
-    time: "1:06PM",
-    sender: "sales@insimplify.com.au",
-    status: "Delivered",
-    subject: "Book Supplier",
-    body: "Lot 28 Ballarat Street, Epping - Contribution tax assessment with Water Authority",
-    recipient: "Murthy Muthuswamy",
+    id: '2',
+    date: '30-09-2025',
+    time: '1:06PM',
+    sender: 'sales@insimplify.com.au',
+    status: 'Delivered',
+    subject: 'Book Supplier',
+    body: 'Lot 28 Ballarat Street, Epping - Contribution tax assessment with Water Authority',
+    recipient: 'Murthy Muthuswamy',
   },
 ];
 
-const getStatusTag = (status: "Sent" | "Delivered") => {
-  const color = status === "Delivered" ? "green" : "blue";
+const getStatusTag = (status: 'Sent' | 'Delivered') => {
+  const color = status === 'Delivered' ? 'green' : 'blue';
   return (
     <Tag color={color} className="flex items-center w-fit">
       {status}
@@ -57,12 +52,12 @@ const getStatusTag = (status: "Sent" | "Delivered") => {
 };
 
 export const JobActivity: React.FC = () => {
-  const [activeTab, setActiveTab] = useState("Own");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState('Own');
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Filter emailData based on search term
   const filteredEmails = emailData.filter(
-    (item) =>
+    item =>
       item.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.body.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.sender.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -70,8 +65,8 @@ export const JobActivity: React.FC = () => {
   );
 
   const tabs: FilterOption[] = [
-    { type: "Own", label: "Own", count: 2 },
-    { type: "All", label: "All", count: 2 },
+    { type: 'Own', label: 'Own', count: 2 },
+    { type: 'All', label: 'All', count: 2 },
   ];
 
   return (
@@ -81,7 +76,7 @@ export const JobActivity: React.FC = () => {
         <TimelineActionsBar
           tabs={tabs}
           activeTab={activeTab}
-          onTabChange={(tab) => setActiveTab(tab)}
+          onTabChange={tab => setActiveTab(tab)}
           isActionShow={false}
           isCountShow={true}
         />
@@ -91,7 +86,7 @@ export const JobActivity: React.FC = () => {
             prefix={<IconSearch size={16} />}
             placeholder="Search by type, subject, sender & recipient email ID's..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={e => setSearchTerm(e.target.value)}
             className="w-full sm:w-[300px] lg:w-[400px]"
           />
           <Button icon={<IconFilter size={20} />} />
@@ -103,7 +98,7 @@ export const JobActivity: React.FC = () => {
         {/* Vertical timeline line */}
         <div className="absolute top-1 bottom-0 left-[140px] w-0.5 bg-primary-10 z-0 m-0.5" />
 
-        {filteredEmails.map((item) => (
+        {filteredEmails.map(item => (
           <div key={item.id} className="relative flex items-start mb-8">
             {/* Date & Time */}
             <div className="flex flex-col items-end w-36 pr-8 flex-shrink-0">
@@ -127,16 +122,10 @@ export const JobActivity: React.FC = () => {
 
             {/* Email Card */}
             <div className="flex-grow pl-5 -mt-2">
-              <Card
-                size="small"
-                className="shadow-sm bg-card-color hover:bg-body-color"
-              >
+              <Card size="small" className="shadow-sm bg-card-color hover:bg-body-color">
                 <div className="flex justify-between mb-2 mr-[40%]">
                   <div>
-                    <Title
-                      level={5}
-                      className="!m-0 !mb-1 text-base font-medium text-gray-800"
-                    >
+                    <Title level={5} className="!m-0 !mb-1 text-base font-medium text-gray-800">
                       {item.subject}
                     </Title>
                     <Text className="text-gray-500 text-sm">{item.body}</Text>
@@ -158,9 +147,7 @@ export const JobActivity: React.FC = () => {
         ))}
 
         {filteredEmails.length === 0 && (
-          <div className="text-center text-gray-500 py-10">
-            No matching records found.
-          </div>
+          <div className="text-center text-gray-500 py-10">No matching records found.</div>
         )}
       </div>
     </Card>

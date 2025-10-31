@@ -1,22 +1,9 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import {
-  Form,
-  Input,
-  Select,
-  Button,
-  Table,
-  Space,
-  Popconfirm,
-  message,
-} from "antd";
-import {
-  IconEdit,
-  IconTrash,
-  IconPlus,
-} from "@tabler/icons-react";
-import { stateRegionOptions } from "data/options";
+import React, { useState } from 'react';
+import { Form, Input, Select, Button, Table, Space, Popconfirm, message } from 'antd';
+import { IconEdit, IconTrash, IconPlus } from '@tabler/icons-react';
+import { stateRegionOptions } from 'data/options';
 
 const SurveyorsDetails = () => {
   const [form] = Form.useForm();
@@ -29,11 +16,11 @@ const SurveyorsDetails = () => {
       const updated = [...data];
       updated[editingIndex] = values;
       setData(updated);
-      message.success("Surveyor details updated successfully!");
+      message.success('Surveyor details updated successfully!');
       setEditingIndex(null);
     } else {
       setData([...data, values]);
-      message.success("Surveyor details saved successfully!");
+      message.success('Surveyor details saved successfully!');
     }
     form.resetFields();
     setIsFormVisible(false);
@@ -48,34 +35,28 @@ const SurveyorsDetails = () => {
   const handleDelete = (index: number) => {
     const updated = data.filter((_, i) => i !== index);
     setData(updated);
-    message.success("Surveyor removed!");
+    message.success('Surveyor removed!');
     if (updated.length === 0) setIsFormVisible(true);
   };
 
   const columns = [
-    { title: "Name", dataIndex: "surveyorName", key: "surveyorName" },
+    { title: 'Name', dataIndex: 'surveyorName', key: 'surveyorName' },
     {
-      title: "Address",
+      title: 'Address',
       render: (_: any, record: any) =>
-        `${record.address1 || ""}${record.address2 ? ", " + record.address2 : ""
-        }, ${record.citySuburb || ""}`,
+        `${record.address1 || ''}${
+          record.address2 ? ', ' + record.address2 : ''
+        }, ${record.citySuburb || ''}`,
     },
-    { title: "Email", dataIndex: "email", key: "email" },
-    { title: "Phone", dataIndex: "phone", key: "phone" },
+    { title: 'Email', dataIndex: 'email', key: 'email' },
+    { title: 'Phone', dataIndex: 'phone', key: 'phone' },
     {
-      title: "",
-      key: "actions",
+      title: '',
+      key: 'actions',
       render: (_: any, record: any, index: number) => (
         <Space>
-          <Button
-            type="text"
-            icon={<IconEdit />}
-            onClick={() => handleEdit(record, index)}
-          />
-          <Popconfirm
-            title="Are you sure to delete?"
-            onConfirm={() => handleDelete(index)}
-          >
+          <Button type="text" icon={<IconEdit />} onClick={() => handleEdit(record, index)} />
+          <Popconfirm title="Are you sure to delete?" onConfirm={() => handleDelete(index)}>
             <Button type="text" danger icon={<IconTrash />} />
           </Popconfirm>
         </Space>
@@ -87,9 +68,7 @@ const SurveyorsDetails = () => {
     <div className="p-6">
       {isFormVisible ? (
         <>
-          <h2 className="text-xl font-semibold border-b pb-2">
-            Surveyor Details
-          </h2>
+          <h2 className="text-xl font-semibold border-b pb-2">Surveyor Details</h2>
           <Form
             form={form}
             layout="vertical"
@@ -99,75 +78,63 @@ const SurveyorsDetails = () => {
             <Form.Item
               label="Surveyor Name"
               name="surveyorName"
-              rules={[{ required: true, message: "Enter Surveyor Name" }]}
+              rules={[{ required: true, message: 'Enter Surveyor Name' }]}
             >
               <Input />
             </Form.Item>
-
             <Form.Item
               label="Email"
               name="email"
-              rules={[{ required: true, message: "Enter Email" }]}
+              rules={[{ required: true, message: 'Enter Email' }]}
             >
               <Input />
             </Form.Item>
-
             <Form.Item
               label="Phone"
               name="phone"
-              rules={[{ required: true, message: "Enter Phone Number" }]}
+              rules={[{ required: true, message: 'Enter Phone Number' }]}
             >
               <Input />
             </Form.Item>
-
             <Form.Item label="ABN" name="abn">
               <Input />
             </Form.Item>
-
             <Form.Item label="Register Number" name="registerNumber">
               <Input />
             </Form.Item>
-
             <div></div> {/* spacer */}
-
             <Form.Item
               label="Address1"
               name="address1"
-              rules={[{ required: true, message: "Enter Address1" }]}
+              rules={[{ required: true, message: 'Enter Address1' }]}
             >
               <Input />
             </Form.Item>
-
             <Form.Item label="Address2" name="address2">
               <Input />
             </Form.Item>
-
             <Form.Item
               label="City / Suburb"
               name="citySuburb"
-              rules={[{ required: true, message: "Enter City / Suburb" }]}
+              rules={[{ required: true, message: 'Enter City / Suburb' }]}
             >
               <Input />
             </Form.Item>
-
             <Form.Item
               label="State / Region"
               name="stateRegion"
-              rules={[{ required: true, message: "Select State / Region" }]}
+              rules={[{ required: true, message: 'Select State / Region' }]}
             >
               <Select options={stateRegionOptions} placeholder="Please Select" />
             </Form.Item>
-
             <Form.Item
               label="Zip / Postal Code"
               name="zipPostalCode"
-              rules={[{ required: true, message: "Enter Zip / Postal Code" }]}
+              rules={[{ required: true, message: 'Enter Zip / Postal Code' }]}
             >
               <Input />
             </Form.Item>
-
             <div></div> {/* spacer */}
-
             <div className="col-span-3 flex justify-end gap-4 pt-4">
               <Button
                 onClick={() => {
@@ -205,7 +172,7 @@ const SurveyorsDetails = () => {
             dataSource={data}
             columns={columns}
             pagination={false}
-            rowKey={(record) => record.email || record.phone}
+            rowKey={record => record.email || record.phone}
           />
         </>
       )}

@@ -1,5 +1,5 @@
-"use client";
-import React, { useState, useEffect } from "react";
+'use client';
+import React, { useState, useEffect } from 'react';
 import {
   Drawer,
   Form,
@@ -11,15 +11,9 @@ import {
   Space,
   Popconfirm,
   message,
-} from "antd";
-import {
-  IconCheck,
-  IconEdit,
-  IconPlus,
-  IconX,
-  IconTrash,
-} from "@tabler/icons-react";
-import { checklistDrawerData } from "data/configuration/ConfigrationData";
+} from 'antd';
+import { IconCheck, IconEdit, IconPlus, IconX, IconTrash } from '@tabler/icons-react';
+import { checklistDrawerData } from 'data/configuration/ConfigrationData';
 
 interface ChecklistDrawerProps {
   open: boolean;
@@ -27,19 +21,15 @@ interface ChecklistDrawerProps {
   record: any | null;
 }
 
-const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({
-  open,
-  onClose,
-  record,
-}) => {
+const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({ open, onClose, record }) => {
   const [form] = Form.useForm();
   const [filters, setFilters] = useState({
-    constructionType: "Double Storey",
-    stage: "Base Stage",
+    constructionType: 'Double Storey',
+    stage: 'Base Stage',
   });
 
   const [data, setData] = useState<any[]>([]);
-  const [editingKey, setEditingKey] = useState<string>("");
+  const [editingKey, setEditingKey] = useState<string>('');
   const [newItem, setNewItem] = useState(false);
 
   useEffect(() => {
@@ -49,27 +39,23 @@ const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({
   }, [record]);
 
   const handleChange = (key: string, field: string, value: any) => {
-    setData((prev) =>
-      prev.map((item) =>
-        item.key === key ? { ...item, [field]: value } : item
-      )
-    );
+    setData(prev => prev.map(item => (item.key === key ? { ...item, [field]: value } : item)));
   };
 
   const handleAddNew = () => {
     if (newItem) return;
     const newRow = {
-      key: "new",
+      key: 'new',
       sno: data.length + 1,
-      description: "",
+      description: '',
       notes: false,
       required: false,
-      type: "Checkbox",
+      type: 'Checkbox',
       sort: data.length + 1,
     };
     setData([...data, newRow]);
     setNewItem(true);
-    setEditingKey("new");
+    setEditingKey('new');
   };
 
   const handleEdit = (key: string) => {
@@ -77,86 +63,82 @@ const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({
   };
 
   const handleSave = (key: string) => {
-    if (key === "new") {
+    if (key === 'new') {
       const newKey = Date.now().toString();
-      const updated = data.map((d) =>
-        d.key === "new" ? { ...d, key: newKey } : d
-      );
+      const updated = data.map(d => (d.key === 'new' ? { ...d, key: newKey } : d));
       setData(updated);
       setNewItem(false);
     }
-    setEditingKey("");
-    message.success("Saved successfully");
+    setEditingKey('');
+    message.success('Saved successfully');
   };
 
   const handleCancel = (key: string) => {
-    if (key === "new") {
-      setData((prev) => prev.filter((item) => item.key !== "new"));
+    if (key === 'new') {
+      setData(prev => prev.filter(item => item.key !== 'new'));
       setNewItem(false);
     }
-    setEditingKey("");
+    setEditingKey('');
   };
 
   const handleDelete = (key: string) => {
-    setData((prev) => prev.filter((item) => item.key !== key));
-    message.success("Deleted successfully");
+    setData(prev => prev.filter(item => item.key !== key));
+    message.success('Deleted successfully');
   };
 
   const columns = [
     {
-      title: "Description",
-      dataIndex: "description",
-      align: "left" as const,
+      title: 'Description',
+      dataIndex: 'description',
+      align: 'left' as const,
       render: (_: any, record: any) =>
         editingKey === record.key ? (
           <Input
             placeholder="Enter description"
             value={record.description}
-            onChange={(e) =>
-              handleChange(record.key, "description", e.target.value)
-            }
+            onChange={e => handleChange(record.key, 'description', e.target.value)}
           />
         ) : (
           record.description
         ),
     },
     {
-      title: "Notes",
-      dataIndex: "notes",
-      align: "center" as const,
+      title: 'Notes',
+      dataIndex: 'notes',
+      align: 'center' as const,
       render: (_: any, record: any) => (
         <Switch
           checked={record.notes}
-          onChange={(val) => handleChange(record.key, "notes", val)}
+          onChange={val => handleChange(record.key, 'notes', val)}
           disabled={editingKey !== record.key}
         />
       ),
     },
     {
-      title: "Required",
-      dataIndex: "required",
-      align: "center" as const,
+      title: 'Required',
+      dataIndex: 'required',
+      align: 'center' as const,
       render: (_: any, record: any) => (
         <Switch
           checked={record.required}
-          onChange={(val) => handleChange(record.key, "required", val)}
+          onChange={val => handleChange(record.key, 'required', val)}
           disabled={editingKey !== record.key}
         />
       ),
     },
     {
-      title: "Type",
-      dataIndex: "type",
+      title: 'Type',
+      dataIndex: 'type',
       render: (_: any, record: any) =>
         editingKey === record.key ? (
           <Select
-            style={{ width: "100%" }}
+            style={{ width: '100%' }}
             value={record.type}
-            onChange={(val) => handleChange(record.key, "type", val)}
+            onChange={val => handleChange(record.key, 'type', val)}
             options={[
-              { label: "Checkbox", value: "Checkbox" },
-              { label: "Text", value: "Text" },
-              { label: "Number", value: "Number" },
+              { label: 'Checkbox', value: 'Checkbox' },
+              { label: 'Text', value: 'Text' },
+              { label: 'Number', value: 'Number' },
             ]}
           />
         ) : (
@@ -164,36 +146,36 @@ const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({
         ),
     },
     {
-      title: "Sort",
-      dataIndex: "sort",
-      width: "10%",
+      title: 'Sort',
+      dataIndex: 'sort',
+      width: '10%',
       render: (_: any, record: any) =>
         editingKey === record.key ? (
           <Input
             type="number"
             value={record.sort}
-            onChange={(e) => handleChange(record.key, "sort", e.target.value)}
+            onChange={e => handleChange(record.key, 'sort', e.target.value)}
           />
         ) : (
           record.sort
         ),
     },
     {
-      title: "Actions",
-      width: "12%",
-      align: "center",
+      title: 'Actions',
+      width: '12%',
+      align: 'center',
       render: (_: any, record: any) => {
         if (editingKey === record.key) {
           return (
             <Space>
               <Button
                 type="text"
-                icon={<IconCheck style={{ color: "green" }} />}
+                icon={<IconCheck style={{ color: 'green' }} />}
                 onClick={() => handleSave(record.key)}
               />
               <Button
                 type="text"
-                icon={<IconX style={{ color: "red" }} />}
+                icon={<IconX style={{ color: 'red' }} />}
                 onClick={() => handleCancel(record.key)}
               />
             </Space>
@@ -204,7 +186,7 @@ const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({
           <Space>
             <Button
               type="text"
-              icon={<IconEdit style={{ color: "blue" }} />}
+              icon={<IconEdit style={{ color: 'blue' }} />}
               onClick={() => handleEdit(record.key)}
             />
             <Popconfirm
@@ -214,10 +196,7 @@ const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({
               onConfirm={() => handleDelete(record.key)}
               okButtonProps={{ danger: true }}
             >
-              <Button
-                type="text"
-                icon={<IconTrash style={{ color: "red" }} />}
-              />
+              <Button type="text" icon={<IconTrash style={{ color: 'red' }} />} />
             </Popconfirm>
           </Space>
         );
@@ -227,9 +206,9 @@ const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({
 
   return (
     <Drawer
-      title={record ? `Checklist Items - ${record.name}` : "Checklist Items"}
+      title={record ? `Checklist Items - ${record.name}` : 'Checklist Items'}
       placement="right"
-      width={"60%"}
+      width={'60%'}
       onClose={onClose}
       open={open}
     >
@@ -238,14 +217,12 @@ const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({
           <Select
             style={{ width: 200 }}
             value={filters.constructionType}
-            onChange={(val) =>
-              setFilters((p) => ({ ...p, constructionType: val }))
-            }
+            onChange={val => setFilters(p => ({ ...p, constructionType: val }))}
             // this will be removed with api call dynamic data
             options={[
-              { label: "Single Storey", value: "Single Storey" },
-              { label: "Double Storey", value: "Double Storey" },
-              { label: "Apartment", value: "Apartment" },
+              { label: 'Single Storey', value: 'Single Storey' },
+              { label: 'Double Storey', value: 'Double Storey' },
+              { label: 'Apartment', value: 'Apartment' },
             ]}
           />
         </Form.Item>
@@ -254,12 +231,12 @@ const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({
           <Select
             style={{ width: 200 }}
             value={filters.stage}
-            onChange={(val) => setFilters((p) => ({ ...p, stage: val }))}
+            onChange={val => setFilters(p => ({ ...p, stage: val }))}
             // this will be removed with api call dynamic data
             options={[
-              { label: "Base Stage", value: "Base Stage" },
-              { label: "Fixing Stage", value: "Fixing Stage" },
-              { label: "Final Stage", value: "Final Stage" },
+              { label: 'Base Stage', value: 'Base Stage' },
+              { label: 'Fixing Stage', value: 'Fixing Stage' },
+              { label: 'Final Stage', value: 'Final Stage' },
             ]}
           />
         </Form.Item>
@@ -268,7 +245,7 @@ const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({
           type="primary"
           icon={<IconPlus />}
           onClick={handleAddNew}
-          style={{ marginLeft: "auto" }}
+          style={{ marginLeft: 'auto' }}
         >
           New
         </Button>

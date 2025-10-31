@@ -1,7 +1,7 @@
-import dayjs from "dayjs";
+import dayjs from 'dayjs';
 import type { Rule } from 'antd/es/form';
 export const passwordRules = [
-  { required: true, message: "Password is required" },
+  { required: true, message: 'Password is required' },
   {
     validator: (_: any, value: string) => {
       if (!value) return Promise.resolve();
@@ -13,21 +13,19 @@ export const passwordRules = [
       const hasLower = /[a-z]/.test(value);
 
       if (!hasMinLength) {
-        return Promise.reject("Password must be at least 8 characters long");
+        return Promise.reject('Password must be at least 8 characters long');
       }
       if (!hasNumber) {
-        return Promise.reject("Password must contain at least one number");
+        return Promise.reject('Password must contain at least one number');
       }
       if (!hasSpecial) {
-        return Promise.reject(
-          "Password must contain at least one special symbol (not '.')"
-        );
+        return Promise.reject("Password must contain at least one special symbol (not '.')");
       }
       if (!hasUpper) {
-        return Promise.reject("Password must contain an uppercase letter");
+        return Promise.reject('Password must contain an uppercase letter');
       }
       if (!hasLower) {
-        return Promise.reject("Password must contain a lowercase letter");
+        return Promise.reject('Password must contain a lowercase letter');
       }
 
       return Promise.resolve();
@@ -36,17 +34,18 @@ export const passwordRules = [
 ];
 
 export const nameRules = [
-  { required: true, message: "Please enter name" },
+  { required: true, message: 'Please enter name' },
   {
     validator: (_: any, value: string) => {
-      if (!value) return Promise.resolve(); 
-      const cleaned = value.trim().replace(/\s+/g, " "); 
-      const lettersOnly = cleaned.replace(/\s/g, ""); 
-      const isValid = /^[a-zA-Z\s]+$/.test(cleaned) && lettersOnly.length >= 2 && lettersOnly.length <= 100;
+      if (!value) return Promise.resolve();
+      const cleaned = value.trim().replace(/\s+/g, ' ');
+      const lettersOnly = cleaned.replace(/\s/g, '');
+      const isValid =
+        /^[a-zA-Z\s]+$/.test(cleaned) && lettersOnly.length >= 2 && lettersOnly.length <= 100;
 
       if (!isValid) {
         return Promise.reject(
-          "Name must be at least 2 letters and at most 100 letters and can only contain letters and spaces"
+          'Name must be at least 2 letters and at most 100 letters and can only contain letters and spaces'
         );
       }
       return Promise.resolve();
@@ -55,56 +54,54 @@ export const nameRules = [
 ];
 
 export const emailRules: Rule[] = [
-  { required: true, message: "Please enter email" },
-  { type: "email", message: "Please enter a valid email" },
+  { required: true, message: 'Please enter email' },
+  { type: 'email', message: 'Please enter a valid email' },
 ];
 
 export const phoneRules = [
-  { required: true, message: "Please enter phone" },
+  { required: true, message: 'Please enter phone' },
   {
     pattern: /^\d{10,15}$/,
-    message: "Phone number must be number and between 10 to 15 digits",
+    message: 'Phone number must be number and between 10 to 15 digits',
   },
 ];
 
-export const leadSourceRules = [
-  { required: true, message: "Please enter lead source" },
-];
+export const leadSourceRules = [{ required: true, message: 'Please enter lead source' }];
 
 export const addressRules = [
-  { required: true, message: "Please enter address" },
-  { min: 10, message: "Address must be at least 10 characters" },
-  { max: 500, message: "Address must be at most 500 characters" },
+  { required: true, message: 'Please enter address' },
+  { min: 10, message: 'Address must be at least 10 characters' },
+  { max: 500, message: 'Address must be at most 500 characters' },
 ];
 
 const noWhitespace = {
   validator: (_: any, value: string) => {
     if (value && !value.trim()) {
-      return Promise.reject("Input cannot be only whitespace");
+      return Promise.reject('Input cannot be only whitespace');
     }
     return Promise.resolve();
   },
 };
 
 export const taskNameRules = [
-  { required: true, message: "Please enter title" },
-  { min: 2, message: "Title must be at least 2 characters" },
-  { max: 80, message: "Title must be at most 80 characters" },
+  { required: true, message: 'Please enter title' },
+  { min: 2, message: 'Title must be at least 2 characters' },
+  { max: 80, message: 'Title must be at most 80 characters' },
 ];
 
 export const descriptionRules = [
   {
     validator: (_: any, value: string) => {
       if (!value || !value.trim()) {
-        return Promise.reject("Please enter description");
+        return Promise.reject('Please enter description');
       }
 
       const trimmed = value.trim();
       if (trimmed.length < 5) {
-        return Promise.reject("Description must be at least 5 characters");
+        return Promise.reject('Description must be at least 5 characters');
       }
       if (trimmed.length > 500) {
-        return Promise.reject("Description must be at most 500 characters");
+        return Promise.reject('Description must be at most 500 characters');
       }
 
       return Promise.resolve();
@@ -114,23 +111,23 @@ export const descriptionRules = [
 
 export const optionalDescriptionRules = [
   {
-    validator: (_: any, value: string) => { 
+    validator: (_: any, value: string) => {
       if (!value) {
         return Promise.resolve();
       }
 
       const trimmed = value.trim();
- 
+
       if (!trimmed) {
-        return Promise.reject("Description cannot be only spaces");
+        return Promise.reject('Description cannot be only spaces');
       }
 
       if (trimmed.length < 5) {
-        return Promise.reject("Description must be at least 5 characters");
+        return Promise.reject('Description must be at least 5 characters');
       }
 
       if (trimmed.length > 500) {
-        return Promise.reject("Description must be at most 500 characters");
+        return Promise.reject('Description must be at most 500 characters');
       }
 
       return Promise.resolve();
@@ -139,63 +136,57 @@ export const optionalDescriptionRules = [
 ];
 
 export const dueDateRules = [
-  { required: true, message: "Due date is required" },
+  { required: true, message: 'Due date is required' },
   {
     validator: (_: any, value: any) => {
       if (!value) return Promise.resolve();
-      const isValid = dayjs(value, "YYYY-MM-DD", true).isValid();
-      return isValid
-        ? Promise.resolve()
-        : Promise.reject("Date must be in format YYYY-MM-DD");
+      const isValid = dayjs(value, 'YYYY-MM-DD', true).isValid();
+      return isValid ? Promise.resolve() : Promise.reject('Date must be in format YYYY-MM-DD');
     },
   },
 ];
 
 export const timeRules = [
-  { required: true, message: "Time is required" },
+  { required: true, message: 'Time is required' },
   {
     validator: (_: any, value: any) => {
       if (!value) return Promise.resolve();
-      const isValid = dayjs(value, "HH:mm", true).isValid();
-      return isValid
-        ? Promise.resolve()
-        : Promise.reject("Time must be in format HH:mm");
+      const isValid = dayjs(value, 'HH:mm', true).isValid();
+      return isValid ? Promise.resolve() : Promise.reject('Time must be in format HH:mm');
     },
   },
 ];
 
-export const priorityRules = [
-  { required: true, message: "Priority is required" },
-];
+export const priorityRules = [{ required: true, message: 'Priority is required' }];
 
-export const roleRules = [{ required: true, message: "Please select a role" }];
+export const roleRules = [{ required: true, message: 'Please select a role' }];
 
 export const abnRules = [
-  { required: true, message: "Please enter your ABN number" },
+  { required: true, message: 'Please enter your ABN number' },
   {
     pattern: /^[0-9]{11}$/,
-    message: "ABN number must be exactly 11 digits",
+    message: 'ABN number must be exactly 11 digits',
   },
-]
-  
-export const licenseRules =  [
-  { required: true, message: "Please enter your license number" },
+];
+
+export const licenseRules = [
+  { required: true, message: 'Please enter your license number' },
   {
     pattern: /^[0-9]{6,12}$/,
-    message: "License number must be between 6 and 12 digits",
+    message: 'License number must be between 6 and 12 digits',
   },
-]
+];
 
 export const numberRules = [
-  { required: true, message: "Please enter a number" },
-  { pattern: /^\d+(\.\d+)?$/, message: "Please enter a valid number" },
-]
+  { required: true, message: 'Please enter a number' },
+  { pattern: /^\d+(\.\d+)?$/, message: 'Please enter a valid number' },
+];
 
 export const OptionalNumberRules = [
   {
     pattern: /^\d+(\.\d+)?$/,
-    message: "Value cannot be negative or contain a minus sign"
-  }
+    message: 'Value cannot be negative or contain a minus sign',
+  },
 ];
 
 export const optionalAddressRules = [
@@ -203,15 +194,15 @@ export const optionalAddressRules = [
     validateFirst: true,
     validator: (_: any, value: string) => {
       if (!value) {
-        return Promise.resolve(); 
+        return Promise.resolve();
       }
-      
+
       if (value.length < 2) {
-        return Promise.reject("Address must be at least 2 letters");
+        return Promise.reject('Address must be at least 2 letters');
       }
-      
+
       if (value.length >= 255) {
-        return Promise.reject("Address must be at most 255 letters");
+        return Promise.reject('Address must be at most 255 letters');
       }
       return Promise.resolve();
     },
@@ -222,10 +213,10 @@ export const optionalNameRules = [
   {
     validator: (_: any, value: string) => {
       if (value.length > 255) {
-        return Promise.reject("Name must be at most 255 letters");
+        return Promise.reject('Name must be at most 255 letters');
       }
       if (value.length <= 0) {
-        return Promise.reject("Please enter a name");
+        return Promise.reject('Please enter a name');
       }
       return Promise.resolve();
     },
@@ -238,8 +229,8 @@ export const optionalEmailRule = [
       if (!value) return Promise.resolve(); // empty is ok
       const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       return regex.test(value)
-      ? Promise.resolve()
-      : Promise.reject(new Error("Please enter a valid email address"));
+        ? Promise.resolve()
+        : Promise.reject(new Error('Please enter a valid email address'));
     },
   },
 ];
@@ -248,10 +239,10 @@ export const optionalPhoneRule = [
   {
     validator: (_: any, value: string) => {
       if (!value) return Promise.resolve(); // empty is ok
-      const regex = /^\d{10,15}$/; 
+      const regex = /^\d{10,15}$/;
       return regex.test(value)
-      ? Promise.resolve()
-      : Promise.reject(new Error("Phone number must be number and between 10 to 15 digits"));
+        ? Promise.resolve()
+        : Promise.reject(new Error('Phone number must be number and between 10 to 15 digits'));
     },
   },
 ];
@@ -259,18 +250,14 @@ export const optionalPhoneRule = [
 export const optionalNotesRule = [
   {
     validator: (_: any, value: string) => {
-      if (!value) return Promise.resolve();  
+      if (!value) return Promise.resolve();
       const trimmed = value.trim();
-      if (trimmed.length === 0) return Promise.resolve(); 
+      if (trimmed.length === 0) return Promise.resolve();
       if (trimmed.length < 2) {
-        return Promise.reject(
-          new Error("Notes should be at least 2 characters")
-        );
+        return Promise.reject(new Error('Notes should be at least 2 characters'));
       }
       if (trimmed.length > 500) {
-        return Promise.reject(
-          new Error("Notes cannot be more than 500 characters")
-        );
+        return Promise.reject(new Error('Notes cannot be more than 500 characters'));
       }
       return Promise.resolve();
     },
@@ -278,12 +265,12 @@ export const optionalNotesRule = [
 ];
 
 export const locationRules = [
-  { required: true, message: "Please enter location" },
+  { required: true, message: 'Please enter location' },
   {
-    validator: (_: any, value:string) =>
+    validator: (_: any, value: string) =>
       value && value.length > 200
-    ? Promise.reject(new Error("Location cannot exceed 200 characters"))
-    : Promise.resolve(),
+        ? Promise.reject(new Error('Location cannot exceed 200 characters'))
+        : Promise.resolve(),
   },
 ];
 
@@ -292,29 +279,31 @@ export const notesRules = [
     validator: (_: any, value: string) => {
       const isValid = /^[a-zA-Z0-9\s.,]{2,500}$/.test(value.trim());
       if (!isValid) {
-        return Promise.reject("Notes must be at least 2 characters and doesn't contain special character");
+        return Promise.reject(
+          "Notes must be at least 2 characters and doesn't contain special character"
+        );
       }
       return Promise.resolve();
-    }
-  }
-]
+    },
+  },
+];
 
-export const acceptOnlyImageRule = ".jpeg,.jpg,.png,.gif,.webp"
+export const acceptOnlyImageRule = '.jpeg,.jpg,.png,.gif,.webp';
 
 export const costRules = [
-  { required: true, message: "Please enter cost" },
+  { required: true, message: 'Please enter cost' },
   numberRules,
   {
     validator: (_: any, value: number) => {
       if (value === undefined || value === null) return Promise.resolve();
-      
+
       if (value > 1000000) {
-        return Promise.reject("Cost must not exceed 10,00,000");
+        return Promise.reject('Cost must not exceed 10,00,000');
       }
       if (value < 0) {
-        return Promise.reject("Cost must be greater than 0");
+        return Promise.reject('Cost must be greater than 0');
       }
-      
+
       return Promise.resolve();
     },
   },
@@ -325,16 +314,15 @@ export const rangeRules = [
   {
     validator: (_: any, value: number) => {
       if (value === undefined || value === null) return Promise.resolve();
-      
+
       if (value > 100000) {
-        return Promise.reject("Range must not exceed 100,000");
+        return Promise.reject('Range must not exceed 100,000');
       }
-      
+
       return Promise.resolve();
     },
   },
 ];
-
 
 export const getRangeStartRules = (form: any, name: number): Rule[] => [
   {
@@ -342,12 +330,12 @@ export const getRangeStartRules = (form: any, name: number): Rule[] => [
       if (value === undefined || value === null) return Promise.resolve();
 
       if (value > 100000) {
-        return Promise.reject("Range must not exceed 100,000");
+        return Promise.reject('Range must not exceed 100,000');
       }
 
-      const end = form.getFieldValue(["ranges", name, "range_end"]);
+      const end = form.getFieldValue(['ranges', name, 'range_end']);
       if (end !== undefined && value >= end) {
-        return Promise.reject("Range Start must be less than Range End");
+        return Promise.reject('Range Start must be less than Range End');
       }
 
       return Promise.resolve();
@@ -361,12 +349,12 @@ export const getRangeEndRules = (form: any, name: number): Rule[] => [
       if (value === undefined || value === null) return Promise.resolve();
 
       if (value > 100000) {
-        return Promise.reject("Range must not exceed 100,000");
+        return Promise.reject('Range must not exceed 100,000');
       }
 
-      const start = form.getFieldValue(["ranges", name, "range_start"]);
+      const start = form.getFieldValue(['ranges', name, 'range_start']);
       if (start !== undefined && value <= start) {
-        return Promise.reject("Range End must be greater than Range Start");
+        return Promise.reject('Range End must be greater than Range Start');
       }
 
       return Promise.resolve();
@@ -378,44 +366,44 @@ export const settingNameRules = [
   {
     validator: (_: any, value: string) => {
       if (!value) {
-        return Promise.reject("Please enter a name");
+        return Promise.reject('Please enter a name');
       }
       const pattern = /^[a-zA-Z0-9\s]+$/;
       if (!pattern.test(value)) {
-        return Promise.reject("Name can only contain letters, numbers, and spaces");
+        return Promise.reject('Name can only contain letters, numbers, and spaces');
       }
-      
+
       if (value.length < 2) {
-        return Promise.reject("Name must be at least 2 letters");
+        return Promise.reject('Name must be at least 2 letters');
       }
-      
+
       if (value.length > 225) {
-        return Promise.reject("Name must be at most 225 letters");
+        return Promise.reject('Name must be at most 225 letters');
       }
-      
+
       return Promise.resolve();
     },
   },
 ];
 
 export const leadAddressRules = [
-  { 
-    required: true, 
-    message: "Please enter Address" 
+  {
+    required: true,
+    message: 'Please enter Address',
   },
   {
     validateFirst: true,
     validator: (_: any, value: string) => {
       if (!value) {
-        return Promise.resolve(); 
+        return Promise.resolve();
       }
-      
+
       if (value.length < 2) {
-        return Promise.reject("Address must be at least 2 letters");
+        return Promise.reject('Address must be at least 2 letters');
       }
-      
+
       if (value && value.length > 255) {
-        return Promise.reject("Address must be at most 255 letters");
+        return Promise.reject('Address must be at most 255 letters');
       }
       return Promise.resolve();
     },
@@ -423,22 +411,19 @@ export const leadAddressRules = [
 ];
 
 export const CityNameRules = [
-  { required: true, message: "Please enter city name" },
+  { required: true, message: 'Please enter city name' },
   {
     validator: (_: any, value: string) => {
-      if (!value) return Promise.resolve(); 
-      const cleaned = value.trim().replace(/\s+/g, " "); 
-      const lettersOnly = cleaned.replace(/\s/g, ""); 
-      const isValid = /^[a-zA-Z\s]+$/.test(cleaned) && lettersOnly.length <= 100 && lettersOnly.length >= 1;
-      if(value.length >= 100){
-         return Promise.reject(
-          "City name must be less then 100 character"
-        );
+      if (!value) return Promise.resolve();
+      const cleaned = value.trim().replace(/\s+/g, ' ');
+      const lettersOnly = cleaned.replace(/\s/g, '');
+      const isValid =
+        /^[a-zA-Z\s]+$/.test(cleaned) && lettersOnly.length <= 100 && lettersOnly.length >= 1;
+      if (value.length >= 100) {
+        return Promise.reject('City name must be less then 100 character');
       }
       if (!isValid) {
-        return Promise.reject(
-          "City name must be valid string"
-        );
+        return Promise.reject('City name must be valid string');
       }
       return Promise.resolve();
     },
@@ -449,37 +434,36 @@ export const firmSloganRules = [
   {
     validator: (_: any, value: string) => {
       if (!value) {
-        return Promise.reject("Please enter your firm slogan");
+        return Promise.reject('Please enter your firm slogan');
       }
       if (!/^[a-zA-Z\s]+$/.test(value)) {
-        return Promise.reject("Slogan must contain only letters and spaces");
+        return Promise.reject('Slogan must contain only letters and spaces');
       }
       if (value.length < 2) {
-        return Promise.reject("Slogan must be at least 2 characters");
+        return Promise.reject('Slogan must be at least 2 characters');
       }
       if (value.length > 500) {
-        return Promise.reject("Slogan must be at most 500 characters");
+        return Promise.reject('Slogan must be at most 500 characters');
       }
       return Promise.resolve();
     },
   },
 ];
 
-
 export const firmNameRules = [
   {
     validator: (_: any, value: string) => {
       if (!value) {
-        return Promise.reject("Please enter your firm name");
+        return Promise.reject('Please enter your firm name');
       }
       if (!/^[a-zA-Z\s]+$/.test(value)) {
-        return Promise.reject("Firm name must contain only letters and spaces");
+        return Promise.reject('Firm name must contain only letters and spaces');
       }
       if (value.length < 2) {
-        return Promise.reject("Firm name must be at least 2 characters");
+        return Promise.reject('Firm name must be at least 2 characters');
       }
       if (value.length > 255) {
-        return Promise.reject("Firm name must be at most 255 characters");
+        return Promise.reject('Firm name must be at most 255 characters');
       }
       return Promise.resolve();
     },

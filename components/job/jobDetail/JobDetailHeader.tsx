@@ -1,14 +1,10 @@
-import {
-  IconDotsVertical,
-  IconList,
-  IconUserSquareRounded,
-} from "@tabler/icons-react";
-import { Button, Modal, Switch, Tag } from "antd";
-import { useEffect, useState } from "react";
-import JobChecklist from "./JobChecklist";
-import { JobOptions } from "data/options";
-import { useRouter } from "next/navigation";
-import { jobOptionRenderer } from "./joboptions";
+import { IconDotsVertical, IconList, IconUserSquareRounded } from '@tabler/icons-react';
+import { Button, Modal, Switch, Tag } from 'antd';
+import { useEffect, useState } from 'react';
+import JobChecklist from './JobChecklist';
+import { JobOptions } from 'data/options';
+import { useRouter } from 'next/navigation';
+import { jobOptionRenderer } from './joboptions';
 const JobDetailHeader = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isChecklistDreawerOpen, setChecklistDrawerOpen] = useState(false);
@@ -22,22 +18,18 @@ const JobDetailHeader = () => {
   };
   const summaryItems = {
     costItems: [
-      { key: "Quotation", value: "450280.00" },
-      { key: "Colors", value: "" },
-      { key: "Contract Cost", value: "450280.00" },
+      { key: 'Quotation', value: '450280.00' },
+      { key: 'Colors', value: '' },
+      { key: 'Contract Cost', value: '450280.00' },
     ],
     paymentItems: [
-      { key: "MYH0046-I1 Initial Deposit", value: "5000.00" },
-      { key: "MYH0046-I3 Returns", value: "-50000.00" },
+      { key: 'MYH0046-I1 Initial Deposit', value: '5000.00' },
+      { key: 'MYH0046-I3 Returns', value: '-50000.00' },
     ],
   };
 
-  const quickUpdateSection = JobOptions.find(
-    (section) => section.title === "Job Information"
-  );
-  const otherSections = JobOptions.filter(
-    (section) => section.title !== "Job Information"
-  );
+  const quickUpdateSection = JobOptions.find(section => section.title === 'Job Information');
+  const otherSections = JobOptions.filter(section => section.title !== 'Job Information');
 
   useEffect(() => {
     const handleClickOutside = () => {
@@ -46,13 +38,13 @@ const JobDetailHeader = () => {
       }
     };
 
-    document.addEventListener("click", handleClickOutside);
+    document.addEventListener('click', handleClickOutside);
     return () => {
-      document.removeEventListener("click", handleClickOutside);
+      document.removeEventListener('click', handleClickOutside);
     };
   }, [isDropdownOpen]);
 
-  const handleOptionClick = (item) => {
+  const handleOptionClick = item => {
     setDropdownOpen(false);
     setActiveAction(item.key);
     setJobOptionModalOpen(true);
@@ -71,31 +63,21 @@ const JobDetailHeader = () => {
             </div>
           </div>
           <div className="border-l-2 pl-2">
-            <div className="text-base font-semibold flex items-center">
-              My Home
-            </div>
+            <div className="text-base font-semibold flex items-center">My Home</div>
             <div className="mt-1">Builder</div>
           </div>
-          <div
-            className="border-l-2 pl-2 cursor-pointer"
-            onClick={() => setIsModalOpen(true)}
-          >
-            <div className="flex text-base font-semibold text-blue">
-              $ 495,280.00
-            </div>
+          <div className="border-l-2 pl-2 cursor-pointer" onClick={() => setIsModalOpen(true)}>
+            <div className="flex text-base font-semibold text-blue">$ 495,280.00</div>
             <div>
               Balance to be paid <Tag color="orange">Finance Pending</Tag>
             </div>
           </div>
           <div className="flex gap-2 relative">
-            <Button
-              icon={<IconList />}
-              onClick={() => setChecklistDrawerOpen(true)}
-            ></Button>
+            <Button icon={<IconList />} onClick={() => setChecklistDrawerOpen(true)}></Button>
 
             <Button
               icon={<IconDotsVertical />}
-              onClick={(e) => {
+              onClick={e => {
                 e.stopPropagation();
                 setDropdownOpen(!isDropdownOpen);
               }}
@@ -104,13 +86,13 @@ const JobDetailHeader = () => {
             {isDropdownOpen && (
               <div
                 className="absolute right-0 top-10 z-50 bg-white border border-gray-200 shadow-xl rounded-lg w-[500px] p-4"
-                onClick={(e) => e.stopPropagation()}
+                onClick={e => e.stopPropagation()}
               >
                 <div className="grid grid-cols-2 gap-4">
                   {isDropdownOpen && (
                     <div
                       className="absolute right-0 top-10 z-50 bg-white border border-gray-200 shadow-xl rounded-lg w-[500px] p-4"
-                      onClick={(e) => e.stopPropagation()}
+                      onClick={e => e.stopPropagation()}
                     >
                       <div className="flex">
                         {/* Left side - First 3 sections */}
@@ -136,24 +118,18 @@ const JobDetailHeader = () => {
                                       <Switch
                                         size="small"
                                         className="mr-2"
-                                        onChange={(checked) => {
+                                        onChange={checked => {
                                           console.log(
                                             `Finance Approval ${
-                                              checked
-                                                ? "approved"
-                                                : "not approved"
+                                              checked ? 'approved' : 'not approved'
                                             }`
                                           );
                                         }}
                                       />
                                     ) : (
-                                      <span className={`mr-2 ${item.color}`}>
-                                        {item.icon}
-                                      </span>
+                                      <span className={`mr-2 ${item.color}`}>{item.icon}</span>
                                     )}
-                                    <span className="text-sm text-gray-700">
-                                      {item.label}
-                                    </span>
+                                    <span className="text-sm text-gray-700">{item.label}</span>
                                   </div>
                                 ))}
                               </div>
@@ -172,27 +148,21 @@ const JobDetailHeader = () => {
                                 {quickUpdateSection.title}
                               </h4>
                               <div className="space-y-1">
-                                {quickUpdateSection.items.map(
-                                  (item, itemIndex) => (
-                                    <div
-                                      key={itemIndex}
-                                      className="flex items-center p-2 rounded hover:bg-gray-50 cursor-pointer"
-                                      onClick={() => {
-                                        handleOptionClick(item);
-                                        if (item.href) {
-                                          router.push(item.href);
-                                        }
-                                      }}
-                                    >
-                                      <span className={`mr-2 ${item.color}`}>
-                                        {item.icon}
-                                      </span>
-                                      <span className="text-sm text-gray-700">
-                                        {item.label}
-                                      </span>
-                                    </div>
-                                  )
-                                )}
+                                {quickUpdateSection.items.map((item, itemIndex) => (
+                                  <div
+                                    key={itemIndex}
+                                    className="flex items-center p-2 rounded hover:bg-gray-50 cursor-pointer"
+                                    onClick={() => {
+                                      handleOptionClick(item);
+                                      if (item.href) {
+                                        router.push(item.href);
+                                      }
+                                    }}
+                                  >
+                                    <span className={`mr-2 ${item.color}`}>{item.icon}</span>
+                                    <span className="text-sm text-gray-700">{item.label}</span>
+                                  </div>
+                                ))}
                               </div>
                             </div>
                           )}
@@ -205,20 +175,17 @@ const JobDetailHeader = () => {
             )}
           </div>
         </div>
-        <JobChecklist
-          open={isChecklistDreawerOpen}
-          onClose={() => setChecklistDrawerOpen(false)}
-        />
+        <JobChecklist open={isChecklistDreawerOpen} onClose={() => setChecklistDrawerOpen(false)} />
         {jobOptionRenderer({
           activeAction,
           onCancel: () => setJobOptionModalOpen(false),
           open: isJobOptionModalOpen,
         })}
         <Modal
-          title={"Cost Summary"}
+          title={'Cost Summary'}
           onOk={handleClose}
           onCancel={handleClose}
-          cancelButtonProps={{ style: { display: "none" } }}
+          cancelButtonProps={{ style: { display: 'none' } }}
           centered
           open={isModalOpen}
         >

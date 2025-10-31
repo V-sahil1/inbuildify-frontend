@@ -6,7 +6,15 @@ export interface Event {
   description: string;
   start_time: string;
   end_time: string;
-  category: 'General' | 'Sales' | 'Job' | 'Construction' | 'Maintenance' | 'ReferralPartner' | 'Today' | 'Holiday';
+  category:
+    | 'General'
+    | 'Sales'
+    | 'Job'
+    | 'Construction'
+    | 'Maintenance'
+    | 'ReferralPartner'
+    | 'Today'
+    | 'Holiday';
   type: 'Appointment' | 'Task';
 }
 
@@ -18,7 +26,7 @@ export const dummyEvents: Event[] = [
     start_time: dayjs('2025-10-01').hour(9).minute(0).toISOString(),
     end_time: dayjs('2025-10-03').hour(17).minute(0).toISOString(),
     category: 'Construction',
-    type: 'Appointment'
+    type: 'Appointment',
   },
   {
     id: '2',
@@ -27,7 +35,7 @@ export const dummyEvents: Event[] = [
     start_time: dayjs('2025-10-01').hour(10).minute(0).toISOString(),
     end_time: dayjs('2025-10-01').hour(12).minute(0).toISOString(),
     category: 'Job',
-    type: 'Task'
+    type: 'Task',
   },
   {
     id: '3',
@@ -36,7 +44,7 @@ export const dummyEvents: Event[] = [
     start_time: dayjs('2025-10-05').hour(8).minute(0).toISOString(),
     end_time: dayjs('2025-10-11').hour(18).minute(0).toISOString(),
     category: 'Construction',
-    type: 'Appointment'
+    type: 'Appointment',
   },
   {
     id: '4',
@@ -45,7 +53,7 @@ export const dummyEvents: Event[] = [
     start_time: dayjs('2025-10-09').hour(9).minute(0).toISOString(),
     end_time: dayjs('2025-10-09').hour(15).minute(0).toISOString(),
     category: 'Maintenance',
-    type: 'Appointment'
+    type: 'Appointment',
   },
   {
     id: '5',
@@ -54,7 +62,7 @@ export const dummyEvents: Event[] = [
     start_time: dayjs('2025-10-09').hour(14).minute(0).toISOString(),
     end_time: dayjs('2025-10-09').hour(15).minute(0).toISOString(),
     category: 'Job',
-    type: 'Task'
+    type: 'Task',
   },
   {
     id: '6',
@@ -63,7 +71,7 @@ export const dummyEvents: Event[] = [
     start_time: dayjs('2025-10-09').hour(16).minute(0).toISOString(),
     end_time: dayjs('2025-10-09').hour(17).minute(30).toISOString(),
     category: 'Job',
-    type: 'Task'
+    type: 'Task',
   },
   {
     id: '7',
@@ -72,7 +80,7 @@ export const dummyEvents: Event[] = [
     start_time: dayjs('2025-10-12').hour(8).minute(0).toISOString(),
     end_time: dayjs('2025-10-12').hour(12).minute(0).toISOString(),
     category: 'Construction',
-    type: 'Appointment'
+    type: 'Appointment',
   },
   {
     id: '8',
@@ -81,7 +89,7 @@ export const dummyEvents: Event[] = [
     start_time: dayjs('2025-10-27').hour(10).minute(0).toISOString(),
     end_time: dayjs('2025-10-27').hour(11).minute(0).toISOString(),
     category: 'Job',
-    type: 'Task'
+    type: 'Task',
   },
   {
     id: '9',
@@ -90,7 +98,7 @@ export const dummyEvents: Event[] = [
     start_time: dayjs('2025-10-29').hour(9).minute(0).toISOString(),
     end_time: dayjs('2025-10-29').hour(10).minute(0).toISOString(),
     category: 'Job',
-    type: 'Task'
+    type: 'Task',
   },
   {
     id: '10',
@@ -99,7 +107,7 @@ export const dummyEvents: Event[] = [
     start_time: dayjs('2025-10-30').hour(11).minute(0).toISOString(),
     end_time: dayjs('2025-10-30').hour(12).minute(0).toISOString(),
     category: 'Job',
-    type: 'Task'
+    type: 'Task',
   },
   {
     id: '11',
@@ -108,7 +116,7 @@ export const dummyEvents: Event[] = [
     start_time: dayjs('2025-11-03').hour(0).minute(0).toISOString(),
     end_time: dayjs('2025-11-03').hour(23).minute(59).toISOString(),
     category: 'Holiday',
-    type: 'Appointment'
+    type: 'Appointment',
   },
   {
     id: '12',
@@ -117,7 +125,7 @@ export const dummyEvents: Event[] = [
     start_time: dayjs('2025-11-05').hour(14).minute(0).toISOString(),
     end_time: dayjs('2025-11-05').hour(15).minute(0).toISOString(),
     category: 'Job',
-    type: 'Task'
+    type: 'Task',
   },
   {
     id: '13',
@@ -126,7 +134,7 @@ export const dummyEvents: Event[] = [
     start_time: dayjs('2025-11-06').hour(10).minute(0).toISOString(),
     end_time: dayjs('2025-11-06').hour(11).minute(30).toISOString(),
     category: 'Job',
-    type: 'Task'
+    type: 'Task',
   },
   {
     id: '14',
@@ -135,7 +143,7 @@ export const dummyEvents: Event[] = [
     start_time: dayjs('2025-10-14').hour(10).minute(0).toISOString(),
     end_time: dayjs('2025-10-14').hour(11).minute(30).toISOString(),
     category: 'General',
-    type: 'Appointment'
+    type: 'Appointment',
   },
   {
     id: '15',
@@ -144,7 +152,7 @@ export const dummyEvents: Event[] = [
     start_time: dayjs('2025-10-14').hour(14).minute(0).toISOString(),
     end_time: dayjs('2025-10-14').hour(16).minute(0).toISOString(),
     category: 'Sales',
-    type: 'Appointment'
+    type: 'Appointment',
   },
   {
     id: '16',
@@ -153,6 +161,6 @@ export const dummyEvents: Event[] = [
     start_time: dayjs('2025-10-14').hour(8).minute(0).toISOString(),
     end_time: dayjs('2025-10-14').hour(10).minute(0).toISOString(),
     category: 'Construction',
-    type: 'Appointment'
-  }
+    type: 'Appointment',
+  },
 ];

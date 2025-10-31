@@ -1,11 +1,15 @@
-"use client";
-import { Card, Table, Tag } from "antd";
-import React, { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import SystemRoutes from "@lib/constants/Routes";
-import { getStatus } from "@lib/utils/constructionStatusCards";
-import { ConstructionDashboardData } from "data/sampleData";
-import { FILTER_DEFINITIONS, FilterPopover, useConstructionTableLogic } from "../formFields/constuctionField";
+'use client';
+import { Card, Table, Tag } from 'antd';
+import React, { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import SystemRoutes from '@lib/constants/Routes';
+import { getStatus } from '@lib/utils/constructionStatusCards';
+import { ConstructionDashboardData } from 'data/sampleData';
+import {
+  FILTER_DEFINITIONS,
+  FilterPopover,
+  useConstructionTableLogic,
+} from '../formFields/constuctionField';
 
 const ConstructionManager = () => {
   const router = useRouter();
@@ -25,15 +29,14 @@ const ConstructionManager = () => {
     );
   };
 
-  const handleStatusChange = (jobId: string | number, newStatusKey: string) => {
-  };
+  const handleStatusChange = (jobId: string | number, newStatusKey: string) => {};
 
   const handleRevertFromConstruction = (jobId: string) => {
-    console.log("Reverting job from construction:", jobId);
+    console.log('Reverting job from construction:', jobId);
   };
 
   const handleExport = (jobId: string) => {
-    console.log("Exporting job:", jobId);
+    console.log('Exporting job:', jobId);
   };
 
   const {
@@ -41,19 +44,22 @@ const ConstructionManager = () => {
     handleFilterChange,
     constructionColumns: columns,
     RevertModal,
-    StatusChangeModal
+    StatusChangeModal,
   } = useConstructionTableLogic({
     handleSupervisorAssign,
     handleStatusChange,
     handleRevertFromConstruction,
-    handleExport
+    handleExport,
   });
 
   const statusCounts = useMemo(() => {
-    return constructionData.reduce((acc, item) => {
-      acc[item.status] = (acc[item.status] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    return constructionData.reduce(
+      (acc, item) => {
+        acc[item.status] = (acc[item.status] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
   }, [constructionData]);
 
   const filteredData = useMemo(() => {
@@ -63,10 +69,10 @@ const ConstructionManager = () => {
         item.customerName.toLowerCase().includes(filters.customerName.toLowerCase()) &&
         item.jobAddress.toLowerCase().includes(filters.jobAddress.toLowerCase()) &&
         item.jobType.toLowerCase().includes(filters.jobType.toLowerCase()) &&
-        (filters.builderName === "All" || item.builderName === filters.builderName) &&
-        (filters.currentStage === "All" || item.currentStage === filters.currentStage) &&
-        (filters.siteSupervisor === "All" || item.siteSupervisor === filters.siteSupervisor) &&
-        (filters.status === "All" || item.status === filters.status)
+        (filters.builderName === 'All' || item.builderName === filters.builderName) &&
+        (filters.currentStage === 'All' || item.currentStage === filters.currentStage) &&
+        (filters.siteSupervisor === 'All' || item.siteSupervisor === filters.siteSupervisor) &&
+        (filters.status === 'All' || item.status === filters.status)
       );
     });
   }, [constructionData, filters]);
@@ -78,9 +84,7 @@ const ConstructionManager = () => {
         <h1 className="text-2xl font-bold mt-4">Construction Dashboard</h1>
         <FilterPopover
           toggledFilters={toggledFilters}
-          setToggledFilters={(updated) =>
-            setToggledFilters(prev => ({ ...prev, ...updated }))
-          }
+          setToggledFilters={updated => setToggledFilters(prev => ({ ...prev, ...updated }))}
         />
       </div>
 
@@ -92,7 +96,7 @@ const ConstructionManager = () => {
           return (
             <Card
               key={status}
-              className={`min-w-[250px] flex-1 cursor-pointer transition-shadow ${isActive ? "shadow-md" : "shadow-sm"}`}
+              className={`min-w-[250px] flex-1 cursor-pointer transition-shadow ${isActive ? 'shadow-md' : 'shadow-sm'}`}
               style={{ borderLeft: `4px solid ${color}` }}
               onClick={() => handleFilterChange({ status })}
             >
@@ -109,26 +113,24 @@ const ConstructionManager = () => {
       {/* Active filter tags */}
       <div className="pl-4 pr-4 flex items-center gap-2">
         {FILTER_DEFINITIONS.map(
-          (filter) =>
+          filter =>
             toggledFilters[filter.key] && (
               <Tag
                 key={filter.key}
                 closable
                 color="orange"
-                onClose={() =>
-                  setToggledFilters(prev => ({ ...prev, [filter.key]: false }))
-                }
+                onClose={() => setToggledFilters(prev => ({ ...prev, [filter.key]: false }))}
                 className="text-base"
               >
                 {filter.label}
               </Tag>
             )
         )}
-        {filters.status !== "All" && (
+        {filters.status !== 'All' && (
           <Tag
             closable
             color="blue"
-            onClose={() => handleFilterChange({ status: "All" })}
+            onClose={() => handleFilterChange({ status: 'All' })}
             className="text-base"
           >
             {filters.status}
@@ -145,7 +147,7 @@ const ConstructionManager = () => {
           size="small"
           pagination={{ pageSize: 10 }}
           scroll={{ x: true }}
-          onRow={(record) => ({
+          onRow={record => ({
             onClick: () => router.push(`/${SystemRoutes.CONSTRUCTION}/${record.id}`),
           })}
         />

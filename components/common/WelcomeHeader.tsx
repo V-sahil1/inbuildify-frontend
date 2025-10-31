@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   IconChevronDown,
   IconChevronUp,
@@ -6,24 +6,16 @@ import {
   IconFileText,
   IconMailFilled,
   IconShare,
-} from "@tabler/icons-react";
-import { useAppSelector } from "@hooks/redux";
+} from '@tabler/icons-react';
+import { useAppSelector } from '@hooks/redux';
 
-export default function WelcomeHeader({
-  report,
-  income,
-}: {
-  report?: boolean;
-  income?: boolean;
-}) {
-  const { user } = useAppSelector((state) => state.auth);
+export default function WelcomeHeader({ report, income }: { report?: boolean; income?: boolean }) {
+  const { user } = useAppSelector(state => state.auth);
 
   return (
     <div className="flex md:items-center md:justify-between md:flex-row flex-col gap-15 mb-6">
       <div>
-        <p className="text-[20px]/[24px] font-black mb-1">
-          Welcome back, {user?.name}!
-        </p>
+        <p className="text-[20px]/[24px] font-black mb-1">Welcome back, {user?.name}!</p>
         {/* <p className='text-[14px]/[20px] font-medium text-font-color-100'>
                     You have 12 new messages and 7 new notifications.
                 </p> */}
@@ -102,7 +94,7 @@ export default function WelcomeHeader({
           </div>
         </div>
       ) : (
-        ""
+        ''
       )}
     </div>
   );

@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import { Modal, Input, Button, Form, Select } from "antd";
-import RichTextEditor from "../rich-text-editor/RichTextEditor";
+import React, { useState } from 'react';
+import { Modal, Input, Button, Form, Select } from 'antd';
+import RichTextEditor from '../rich-text-editor/RichTextEditor';
 
 interface MailSendModalProps {
   open: boolean;
@@ -16,22 +16,22 @@ const MailSendModal: React.FC<MailSendModalProps> = ({
   open,
   onCancel,
   onSend,
-  title = "Send Mail",
+  title = 'Send Mail',
   initialValue,
 }) => {
   const [form] = Form.useForm();
   const [toEmails, setToEmails] = useState<string[]>([]);
-  const [inputValue, setInputValue] = useState("");
-  const [editedContent, setEditedContent] = useState("");
+  const [inputValue, setInputValue] = useState('');
+  const [editedContent, setEditedContent] = useState('');
 
   const handleInputConfirm = () => {
     const email = inputValue.trim();
 
     if (email && !toEmails.includes(email)) {
-      setToEmails((prev) => [...prev, email]);
+      setToEmails(prev => [...prev, email]);
     }
 
-    setInputValue("");
+    setInputValue('');
   };
 
   const handleEmailsChange = (values: string[]) => {
@@ -48,16 +48,17 @@ const MailSendModal: React.FC<MailSendModalProps> = ({
       .then(() => {
         onSend({
           to: toEmails,
-          subject: form.getFieldValue("subject"),
+          subject: form.getFieldValue('subject'),
           content: editedContent,
         });
+        console.log('text editor content', editedContent);
         form.resetFields();
         setToEmails([]);
-        setEditedContent("");
-        setInputValue("");
+        setEditedContent('');
+        setInputValue('');
       })
-      .catch((err) => {
-        console.log("Validation failed", err);
+      .catch(err => {
+        console.log('Validation failed', err);
       });
   };
 
@@ -81,20 +82,18 @@ const MailSendModal: React.FC<MailSendModalProps> = ({
           label="To"
           name="to"
           initialValue={initialValue?.to}
-          rules={[
-            { required: true, message: "Please add at least one recipient" },
-          ]}
+          rules={[{ required: true, message: 'Please add at least one recipient' }]}
         >
           <Select
             mode="tags"
             placeholder="Enter recipient(s)"
-            style={{ width: "100%" }}
+            style={{ width: '100%' }}
             value={toEmails}
             onChange={handleEmailsChange}
-            tokenSeparators={[",", ";"]}
+            tokenSeparators={[',', ';']}
             onSearch={handleSearch}
-            onInputKeyDown={(e) => {
-              if (e.key === "Enter") {
+            onInputKeyDown={e => {
+              if (e.key === 'Enter') {
                 handleInputConfirm();
               }
             }}
@@ -105,17 +104,13 @@ const MailSendModal: React.FC<MailSendModalProps> = ({
         <Form.Item
           label="Subject"
           name="subject"
-          rules={[{ required: true, message: "Please enter subject" }]}
+          rules={[{ required: true, message: 'Please enter subject' }]}
           initialValue={initialValue?.subject}
         >
           <Input placeholder="Enter subject" />
         </Form.Item>
 
-        <Form.Item
-          label="Message"
-          name="message"
-          initialValue={initialValue?.content}
-        >
+        <Form.Item label="Message" name="message" initialValue={initialValue?.content}>
           <RichTextEditor
             value={editedContent}
             onChange={setEditedContent}

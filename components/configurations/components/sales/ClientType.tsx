@@ -1,15 +1,7 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import {
-  Table,
-  Input,
-  Button,
-  Tooltip,
-  message,
-  Space,
-  Popconfirm,
-} from "antd";
+import React, { useState } from 'react';
+import { Table, Input, Button, Tooltip, message, Space, Popconfirm } from 'antd';
 import {
   IconTrash,
   IconPlus,
@@ -17,9 +9,9 @@ import {
   IconX,
   IconInfoCircle,
   IconPencil,
-} from "@tabler/icons-react";
-import ConfirmationModal from "@/components/common/ConfirmationModal";
-import { clientTypeData } from "data/configuration/leadsourceData";
+} from '@tabler/icons-react';
+import ConfirmationModal from '@/components/common/ConfirmationModal';
+import { clientTypeData } from 'data/configuration/leadsourceData';
 
 interface ClientType {
   id: number;
@@ -37,7 +29,7 @@ export const ClientType: React.FC = () => {
 
   const [isModalOpen, setIsModalOpen] = useState<{
     open: boolean;
-    type: "activate" | "deactivate" | null;
+    type: 'activate' | 'deactivate' | null;
     row: ClientType | null;
   }>({
     open: false,
@@ -46,26 +38,17 @@ export const ClientType: React.FC = () => {
   });
 
   // Utility: ensure list is sorted by sort asc
-  const sorted = (list: ClientType[]) =>
-    [...list].sort((a, b) => a.sort - b.sort);
+  const sorted = (list: ClientType[]) => [...list].sort((a, b) => a.sort - b.sort);
 
   // Utility: insert a new item at desiredSort (1-indexed). If desiredSort > length -> append.
-  const insertAtSort = (
-    prev: ClientType[],
-    newItem: ClientType,
-    desiredSort?: number
-  ) => {
+  const insertAtSort = (prev: ClientType[], newItem: ClientType, desiredSort?: number) => {
     const list = sorted(prev);
     const maxPos = list.length + 1;
     const pos = Math.min(
       Math.max(1, Number.isFinite(desiredSort as number) ? (desiredSort as number) : 1),
       maxPos
     );
-    const newList = [
-      ...list.slice(0, pos - 1),
-      newItem,
-      ...list.slice(pos - 1),
-    ];
+    const newList = [...list.slice(0, pos - 1), newItem, ...list.slice(pos - 1)];
     return newList.map((item, idx) => ({ ...item, sort: idx + 1 }));
   };
 
@@ -77,7 +60,7 @@ export const ClientType: React.FC = () => {
     desiredSort?: number
   ) => {
     const list = sorted(prev);
-    const idx = list.findIndex((i) => i.id === id);
+    const idx = list.findIndex(i => i.id === id);
     if (idx === -1) return prev;
     const item = { ...list[idx], ...updates };
     // remove the item
@@ -99,8 +82,8 @@ export const ClientType: React.FC = () => {
 
   // Save edit (with new insertion/reorder logic)
   const saveEdit = (id: number) => {
-    if (!editingRow.type || editingRow.type.trim() === "") {
-      message.error("Client Type cannot be empty");
+    if (!editingRow.type || editingRow.type.trim() === '') {
+      message.error('Client Type cannot be empty');
       return;
     }
 
@@ -118,17 +101,17 @@ export const ClientType: React.FC = () => {
         isDraft: false,
       } as ClientType;
 
-      setData((prev) => {
+      setData(prev => {
         // remove temporary negative id if present, then insert at position
-        const prevClean = prev.filter((item) => item.id !== id);
+        const prevClean = prev.filter(item => item.id !== id);
         return insertAtSort(prevClean, newItem, newItem.sort);
       });
 
       setIsAdding(false);
     } else {
       // Existing item: update fields and if sort changed or provided, move accordingly
-      setData((prev) => {
-        const current = prev.find((p) => p.id === id);
+      setData(prev => {
+        const current = prev.find(p => p.id === id);
         if (!current) return prev;
 
         const updatedFields: Partial<ClientType> = {
@@ -137,27 +120,24 @@ export const ClientType: React.FC = () => {
         };
 
         // If sort provided and different, move item
-        if (
-          Number.isFinite(desiredSort) &&
-          desiredSort !== current.sort
-        ) {
+        if (Number.isFinite(desiredSort) && desiredSort !== current.sort) {
           return moveExistingItem(prev, id, updatedFields, desiredSort);
         }
 
         // Otherwise just update the item in place (keep sort)
-        return prev.map((p) => (p.id === id ? { ...p, ...updatedFields } : p));
+        return prev.map(p => (p.id === id ? { ...p, ...updatedFields } : p));
       });
     }
 
     setEditingId(null);
     setEditingRow({});
-    message.success("Changes saved successfully");
+    message.success('Changes saved successfully');
   };
 
   // Cancel edit (remove temporary row if adding)
   const cancelEdit = () => {
     if (isAdding && editingId) {
-      setData((prev) => prev.filter((item) => item.id !== editingId));
+      setData(prev => prev.filter(item => item.id !== editingId));
       setIsAdding(false);
     }
     setEditingId(null);
@@ -168,13 +148,13 @@ export const ClientType: React.FC = () => {
   const handleAdd = () => {
     const newRow: ClientType = {
       id: -Date.now(), // temporary negative ID
-      type: "",
+      type: '',
       sort: 1,
       isActive: true,
       isDraft: true,
     };
     // Insert at start temporarily so user can edit; final position will be decided on save based on the sort value.
-    setData((prev) => [newRow, ...prev]);
+    setData(prev => [newRow, ...prev]);
     setEditingId(newRow.id);
     setEditingRow(newRow);
     setIsAdding(true);
@@ -182,20 +162,18 @@ export const ClientType: React.FC = () => {
 
   // Modal openers
   const openDeactivateModal = (row: ClientType) =>
-    setIsModalOpen({ open: true, type: "deactivate", row });
+    setIsModalOpen({ open: true, type: 'deactivate', row });
 
   const openActivateModal = (row: ClientType) =>
-    setIsModalOpen({ open: true, type: "activate", row });
+    setIsModalOpen({ open: true, type: 'activate', row });
 
   // Confirm modal actions
   const handleDeactivateConfirm = () => {
     const row = isModalOpen.row;
     if (!row) return;
 
-    setData((prev) =>
-      prev.map((p) => (p.id === row.id ? { ...p, isActive: false } : p))
-    );
-    message.success("Item deactivated");
+    setData(prev => prev.map(p => (p.id === row.id ? { ...p, isActive: false } : p)));
+    message.success('Item deactivated');
     setIsModalOpen({ open: false, type: null, row: null });
   };
 
@@ -203,17 +181,15 @@ export const ClientType: React.FC = () => {
     const row = isModalOpen.row;
     if (!row) return;
 
-    setData((prev) =>
-      prev.map((p) => (p.id === row.id ? { ...p, isActive: true } : p))
-    );
-    message.success("Item activated");
+    setData(prev => prev.map(p => (p.id === row.id ? { ...p, isActive: true } : p)));
+    message.success('Item activated');
     setIsModalOpen({ open: false, type: null, row: null });
   };
 
   // Sort change handler (updates editingRow.sort)
   const handleSortChange = (value: number | string) => {
     const num = Number(value);
-    setEditingRow((prev) => ({
+    setEditingRow(prev => ({
       ...prev,
       sort: isNaN(num) ? undefined : num,
     }));
@@ -230,8 +206,8 @@ export const ClientType: React.FC = () => {
           </Tooltip>
         </div>
       ),
-      dataIndex: "type",
-      key: "type",
+      dataIndex: 'type',
+      key: 'type',
       render: (_: any, record: ClientType) => {
         const isEditing = editingId === record.id;
         if (!record.isActive) {
@@ -240,9 +216,7 @@ export const ClientType: React.FC = () => {
         return isEditing ? (
           <Input
             value={editingRow.type}
-            onChange={(e) =>
-              setEditingRow((prev) => ({ ...prev, type: e.target.value }))
-            }
+            onChange={e => setEditingRow(prev => ({ ...prev, type: e.target.value }))}
           />
         ) : (
           record.type
@@ -258,7 +232,7 @@ export const ClientType: React.FC = () => {
           </Tooltip>
         </div>
       ),
-      dataIndex: "sort",
+      dataIndex: 'sort',
       width: 120,
       render: (sort: number, record: ClientType) => {
         const isEditing = editingId === record.id;
@@ -268,15 +242,15 @@ export const ClientType: React.FC = () => {
         return (
           <Input
             type="number"
-            value={isEditing ? (editingRow.sort ?? "") : sort}
-            onChange={(e) => isEditing && handleSortChange(e.target.value)}
+            value={isEditing ? (editingRow.sort ?? '') : sort}
+            onChange={e => isEditing && handleSortChange(e.target.value)}
             disabled={!isEditing}
           />
         );
       },
     },
     {
-      title: "",
+      title: '',
       width: 160,
       render: (_: any, row: ClientType) => {
         const inactive = row.isActive === false;
@@ -335,8 +309,7 @@ export const ClientType: React.FC = () => {
                     Are you sure you want to delete the Client Type?
                     <br />
                     <span className="text-red-500">
-                      Note: Already used this Client Type, so please inactivate
-                      the Client Type.
+                      Note: Already used this Client Type, so please inactivate the Client Type.
                     </span>
                   </div>
                 }
@@ -345,10 +318,7 @@ export const ClientType: React.FC = () => {
                 cancelText="Cancel"
                 placement="top"
               >
-                <Button
-                  type="text"
-                  icon={<IconTrash size={18} className="text-red-500" />}
-                />
+                <Button type="text" icon={<IconTrash size={18} className="text-red-500" />} />
               </Popconfirm>
             </Space>
           </div>
@@ -383,28 +353,22 @@ export const ClientType: React.FC = () => {
         open={isModalOpen.open}
         onClose={() => setIsModalOpen({ open: false, row: null, type: null })}
         onConfirm={
-          isModalOpen.type === "activate"
-            ? handleActivateConfirm
-            : handleDeactivateConfirm
+          isModalOpen.type === 'activate' ? handleActivateConfirm : handleDeactivateConfirm
         }
         title={
-          isModalOpen.type === "activate"
-            ? "Activate Client Type?"
-            : "Deactivate Client Type?"
+          isModalOpen.type === 'activate' ? 'Activate Client Type?' : 'Deactivate Client Type?'
         }
         message={
           isModalOpen.row
             ? `Are you sure you want to ${
-                isModalOpen.type === "activate" ? "activate" : "deactivate"
+                isModalOpen.type === 'activate' ? 'activate' : 'deactivate'
               } "${isModalOpen.row.type}"? This will ${
-                isModalOpen.type === "activate" ? "activate" : "deactivate"
+                isModalOpen.type === 'activate' ? 'activate' : 'deactivate'
               } it.`
-            : "Confirm Action"
+            : 'Confirm Action'
         }
-        type={isModalOpen.type === "activate" ? "success" : "warning"}
-        confirmText={
-          isModalOpen.type === "activate" ? "Activate" : "Deactivate"
-        }
+        type={isModalOpen.type === 'activate' ? 'success' : 'warning'}
+        confirmText={isModalOpen.type === 'activate' ? 'Activate' : 'Deactivate'}
       />
     </div>
   );

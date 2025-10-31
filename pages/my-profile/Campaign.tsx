@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import CampaignBody from "@/pages/app/campaign/CampaignBody";
+import React, { useEffect, useState } from 'react';
+import CampaignBody from '@/pages/app/campaign/CampaignBody';
 
 export default function Campaign() {
   const [campaignsModal, setCampaignsModal] = useState<boolean>(false);
@@ -7,9 +7,7 @@ export default function Campaign() {
     setCampaignsModal(!campaignsModal);
   };
   useEffect(() => {
-    document.body.classList[campaignsModal ? "add" : "remove"](
-      "overflow-hidden"
-    );
+    document.body.classList[campaignsModal ? 'add' : 'remove']('overflow-hidden');
   }, [campaignsModal]);
 
   return (
@@ -20,10 +18,7 @@ export default function Campaign() {
           Create new campaign
         </button>
       </div>
-      <CampaignBody
-        openCampaignsModal={openCampaignsModal}
-        campaignsModal={campaignsModal}
-      />
+      <CampaignBody openCampaignsModal={openCampaignsModal} campaignsModal={campaignsModal} />
     </>
   );
 }

@@ -1,7 +1,7 @@
-import { Button, Space, Table, Popconfirm, Form } from "antd";
-import { IconEdit, IconTrash } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
-import { ActionDialogmodel } from "@/components/common/Models/ActionDialogModel";
+import { Button, Space, Table, Popconfirm, Form } from 'antd';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { useEffect, useState } from 'react';
+import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 
 export const PredecessorTable = ({
   predecessors,
@@ -22,7 +22,7 @@ export const PredecessorTable = ({
 
   useEffect(() => {
     if (editingId) {
-      const predecessor = predecessors.find((p) => p.id === editingId);
+      const predecessor = predecessors.find(p => p.id === editingId);
       if (predecessor) {
         setEditingProcessor({ name: predecessor.name, sort: predecessor.sort });
       }
@@ -65,11 +65,11 @@ export const PredecessorTable = ({
         pagination={false}
         rowKey="id"
         columns={[
-          { title: "Name", dataIndex: "name", key: "name" },
-          { title: "Sort", dataIndex: "sort", key: "sort", width: 100 },
+          { title: 'Name', dataIndex: 'name', key: 'name' },
+          { title: 'Sort', dataIndex: 'sort', key: 'sort', width: 100 },
           {
-            title: "Actions",
-            key: "actions",
+            title: 'Actions',
+            key: 'actions',
             width: 120,
             render: (_: any, rec: any) => (
               <Space>
@@ -80,10 +80,7 @@ export const PredecessorTable = ({
                     handleEdit(rec);
                   }}
                 />
-                <Popconfirm
-                  title="Remove predecessor?"
-                  onConfirm={() => onDelete(rec.id)}
-                >
+                <Popconfirm title="Remove predecessor?" onConfirm={() => onDelete(rec.id)}>
                   <Button type="text" icon={<IconTrash size={16} />} />
                 </Popconfirm>
               </Space>
@@ -93,7 +90,7 @@ export const PredecessorTable = ({
       />
 
       <ActionDialogmodel
-        title={`${editingId ? "Edit" : "Add"} Predecessor`}
+        title={`${editingId ? 'Edit' : 'Add'} Predecessor`}
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         isEditing={!!editingId}
@@ -101,14 +98,14 @@ export const PredecessorTable = ({
         onSubmit={handleSubmit}
         fields={[
           {
-            name: "name",
-            label: "Name",
-            type: "text",
+            name: 'name',
+            label: 'Name',
+            type: 'text',
           },
           {
-            name: "sort",
-            label: "Sort",
-            type: "number",
+            name: 'sort',
+            label: 'Sort',
+            type: 'number',
           },
         ]}
       />
