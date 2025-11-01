@@ -70,7 +70,7 @@ export default function CampaignFilter() {
           </div>
         </div>
         <div className="bg-body-color p-3 mb-3">
-          <p className="mb-2">Filter Options</p>
+          <p className="mb-2 font-medium">Filter Options</p>
           <div className="flex justify-between text-sm">
             {filterCheckBoxData.map(item => (
               <div>

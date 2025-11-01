@@ -149,6 +149,7 @@ const ConstructionManager = () => {
           scroll={{ x: true }}
           onRow={record => ({
             onClick: () => router.push(`/${SystemRoutes.CONSTRUCTION}/${record.id}`),
+            style: { cursor: 'pointer' },
           })}
         />
       </div>

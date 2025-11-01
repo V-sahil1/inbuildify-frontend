@@ -1,7 +1,7 @@
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import { delayExtensionNoticeFields } from '@/components/formFields/delayExtensionNoticeFields';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { Avatar, Button, Drawer, Space, Table, Tag, Typography } from 'antd';
+import { Avatar, Button, Drawer, Popconfirm, Space, Table, Tag, Typography } from 'antd';
 import { dummyData, NoticeData } from 'data/delayExtentionDummyData';
 const { Text } = Typography;
 
@@ -17,6 +17,11 @@ export default function DelayExtensionNotice({
   const [addModalOpen, setAddModalOpen] = useState(false);
   const handleDelayExtensionNotice = () => {
     console.log('Delay Extension Notice');
+    setAddModalOpen(false);
+  };
+
+  const handleDelete = (key: string) => {
+    console.log('Delete item:', key);
   };
 
   // 3. Define the Table Columns
@@ -93,11 +98,18 @@ export default function DelayExtensionNotice({
       key: 'action',
       width: 40,
       render: (text: string, record: NoticeData) => (
-        <IconTrash
-          className="text-gray-400 hover:text-red-500 cursor-pointer"
-          size={18}
-          onClick={() => console.log('Remove item:', record.key)} // Replace with actual remove logic
-        />
+        <Popconfirm
+          title="Are you sure to delete this task?"
+          onConfirm={() => handleDelete(record.key)}
+          okText="Yes"
+          cancelText="No"
+        >
+          <IconTrash
+            className="text-gray-400 hover:text-red-500 cursor-pointer"
+            size={18}
+            onClick={() => console.log('Remove item:', record.key)} // Replace with actual remove logic
+          />
+        </Popconfirm>
       ),
     },
   ];

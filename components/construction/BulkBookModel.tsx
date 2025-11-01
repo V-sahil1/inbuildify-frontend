@@ -56,6 +56,7 @@ const BulkBookModel = ({
   async function handleSubmit() {
     const values = await form.validateFields();
     editCheckStatus(values);
+    onCancel();
     console.log('book', values);
   }
   return (
@@ -100,18 +101,20 @@ const BulkBookModel = ({
               </div>
             ))}
           </div>
-          <div className="flex justify-end gap-2 mt-3">
-            <Button>Cancel</Button>
-            <Popconfirm
-              title="Are you sure you want to book the suppliers?"
-              onConfirm={handleSubmit}
-              onCancel={() => {}}
-              okText="Yes"
-              cancelText="No"
-            >
-              <Button>Book</Button>
-            </Popconfirm>
-          </div>
+          {checkItems.length > 0 && (
+            <div className="flex justify-end gap-2 mt-3">
+              <Button>Cancel</Button>
+              <Popconfirm
+                title="Are you sure you want to book the suppliers?"
+                onConfirm={handleSubmit}
+                onCancel={() => {}}
+                okText="Yes"
+                cancelText="No"
+              >
+                <Button>Book</Button>
+              </Popconfirm>
+            </div>
+          )}
         </Form>
       </div>
     </Drawer>

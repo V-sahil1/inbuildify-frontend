@@ -141,11 +141,13 @@ const HLPackageDetail = () => {
             className="w-full"
             options={options}
             onChange={onChange}
-            placeholder="Please Select Option"
+            placeholder="Please Select Option "
           ></Select>
         </Form.Item>
       ) : (
-        <p onClick={onClick}>{form.getFieldValue(name)}</p>
+        <p onClick={onClick} className="cursor-pointer">
+          {form.getFieldValue(name)}
+        </p>
       )}
     </div>
   );
@@ -206,7 +208,7 @@ const HLPackageDetail = () => {
             <div className="flex">
               <div className="flex-1">
                 <ContentCard title="Title">
-                  <p className="p-4 text-sm">new</p>
+                  <p className="p-4 text-sm">new HL Package</p>
                 </ContentCard>
                 <ContentCard title="Lot">
                   <div className=" p-4 text-sm ">
@@ -250,7 +252,7 @@ const HLPackageDetail = () => {
                         </div>
                       </div>
                     ) : (
-                      <div className="text-blue min-h-[135px] flex justify-center items-center">
+                      <div className="text-blue min-h-[135px] flex justify-center items-center cursor-pointer">
                         <div>
                           <p onClick={() => setLandLotOpen(true)}>Create Lot</p>
                           <p>Link Lot</p>
@@ -350,7 +352,9 @@ const HLPackageDetail = () => {
                         </div>
                       </>
                     ) : (
-                      <div className="text-center mt-[100px] text-blue">Select Floor Plan</div>
+                      <div className="text-center mt-[100px] text-blue cursor-pointer">
+                        Select Floor Plan
+                      </div>
                     )}
                   </div>
                 </ContentCard>
@@ -371,7 +375,9 @@ const HLPackageDetail = () => {
                         </div>
                       </div>
                     ) : (
-                      <div className="text-center mt-[100px] text-blue">Select Facade</div>
+                      <div className="text-center mt-[100px] text-blue cursor-pointer">
+                        Select Facade
+                      </div>
                     )}
                   </div>
                 </ContentCard>
@@ -430,7 +436,7 @@ const HLPackageDetail = () => {
                       <p className="text-xs">Group</p>
                     </div>
                   ) : (
-                    <p className="text-blue" onClick={() => setGroupEditOpen(true)}>
+                    <p className="text-blue cursor-pointer" onClick={() => setGroupEditOpen(true)}>
                       Choose Group
                     </p>
                   )}
@@ -552,7 +558,9 @@ const HLPackageDetail = () => {
         title="Custom Section"
         open={customSectionModalOpen}
         onCancel={() => setCustomSectionModalOpen(false)}
-        onSubmit={() => {}}
+        onSubmit={() => {
+          setCustomSectionModalOpen(false);
+        }}
         fields={CustomSectionField}
       />
       <PriceListDrawer

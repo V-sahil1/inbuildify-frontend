@@ -112,8 +112,8 @@ export function OHShistoryDrawer({ open, onCancel }) {
       {addList.supplier && (
         <div className="mt-2 text-center">
           <Select
-            placeholder="Please Select"
-            options={[{ label: 'a1', value: 'a1' }]}
+            placeholder="Select Supplier"
+            options={[{ label: 'supplier1', value: 'supplier1' }]}
             onChange={value => setSupplier(prev => ({ ...prev, value: value }))}
           />
         </div>

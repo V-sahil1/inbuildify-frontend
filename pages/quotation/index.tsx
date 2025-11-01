@@ -14,6 +14,7 @@ import CustomAvtar from '@/components/common/CustomAvtar';
 import Link from 'next/link';
 import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineActionsBar';
 import HLPackageCopyModal from '@/components/common/Models/HLPackageCopyModal';
+import SystemRoutes from '@lib/constants/Routes';
 
 const QuotationPage: React.FC = () => {
   const router = useRouter();
@@ -321,12 +322,20 @@ const QuotationPage: React.FC = () => {
           showSizeChanger: true,
           showQuickJumper: true,
         }}
+        onRow={record => ({
+          onClick: () => {
+            // router.push(`${SystemRoutes.QUOTATION}/${record.slugId}`);
+          },
+          style: { cursor: 'pointer' },
+        })}
       />
       <HLPackageCopyModal
         title="Copy Quation"
         open={isCopyModalOpen}
         onCancel={() => setIsCopyModalOpen(false)}
-        onOk={() => {}}
+        onOk={() => {
+          setIsCopyModalOpen(false);
+        }}
       />
     </div>
   );

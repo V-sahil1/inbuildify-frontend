@@ -50,6 +50,7 @@ const ETSdrawer = ({ title, open, onCancel }) => {
   };
 
   function handleSubmit(values) {
+    onCancel();
     console.log(values);
   }
 
@@ -234,7 +235,7 @@ const ETSdrawer = ({ title, open, onCancel }) => {
               accept=".jpg,.jpeg,.png,.gif,.webp"
               listType="picture"
             >
-              <Button className="mt-3" icon={<IconUpload />}>
+              <Button className="mt-3 cursor-pointer" icon={<IconUpload />}>
                 Attach Files
               </Button>
             </Upload>

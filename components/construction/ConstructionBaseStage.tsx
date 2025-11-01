@@ -153,6 +153,7 @@ const ConstructionBaseStage = ({ setCurrent }) => {
   );
 
   function handleClaimSubmit(values) {
+    setClaimOpen(false);
     console.log('claim', values);
   }
   return (
@@ -241,8 +242,8 @@ const ConstructionBaseStage = ({ setCurrent }) => {
               type="primary"
               className="text-xs"
               onClick={() => {
-                // setCurrent(prev => prev + 1);
-                setfinalConfirmation(true);
+                setCurrent(prev => prev + 1);
+                // setfinalConfirmation(true);
               }}
             >
               Move to Next Page
@@ -321,7 +322,9 @@ const ConstructionBaseStage = ({ setCurrent }) => {
       <MailSendModal
         open={sendEmailOpen}
         onCancel={() => setsendEmailOpen(false)}
-        onSend={() => {}}
+        onSend={() => {
+          setsendEmailOpen(false);
+        }}
       />
       <BulkBookModel
         title="Bulk Book"
@@ -377,7 +380,9 @@ const ConstructionBaseStage = ({ setCurrent }) => {
         title="Confirmation"
         open={finalConfirmationOpen}
         onClose={() => setfinalConfirmation(false)}
-        onSubmit={() => {}}
+        onSubmit={() => {
+          setfinalConfirmation(false);
+        }}
         okText="Complete Job"
         content={finalConfirmationContent}
       />

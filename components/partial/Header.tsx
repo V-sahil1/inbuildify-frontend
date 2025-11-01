@@ -151,7 +151,9 @@ export default function Header({
             open={true}
             loading={false}
             onCancel={() => setCreateMenuOpen('')}
-            onSubmit={() => {}}
+            onSubmit={() => {
+              setCreateMenuOpen('');
+            }}
             fields={leadfields}
           />
         );

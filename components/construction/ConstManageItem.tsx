@@ -1,5 +1,5 @@
 import { IconCheck, IconPencil, IconTrash, IconX } from '@tabler/icons-react';
-import { Button, Form, Input, Select, Tag } from 'antd';
+import { Button, Form, Input, Popconfirm, Select, Tag } from 'antd';
 import { useState } from 'react';
 
 export function CostManageItem({ onRemove, index, form, onConfirm, onSubmit }) {
@@ -21,7 +21,6 @@ export function CostManageItem({ onRemove, index, form, onConfirm, onSubmit }) {
       </div>
       <div className="table-cell text-center p-3 ">
         <Form.Item name={['items', index, 'getPrefrence']}>
-          {/* gst prefrence options are notshown in video */}
           <Select
             options={[
               { label: 'With GST', value: 'included' },
@@ -80,7 +79,16 @@ export function CostManageItem({ onRemove, index, form, onConfirm, onSubmit }) {
               />
             }
           />
-          <Button type="text" icon={<IconTrash size={20} color="red" onClick={onRemove} />} />
+          <Popconfirm
+            title="Delete the item"
+            description="Are you sure to delete this item?"
+            onConfirm={onRemove}
+            okText="Yes"
+            cancelText="No"
+          >
+            {' '}
+            <Button type="text" icon={<IconTrash size={20} color="red" />} />
+          </Popconfirm>
         </div>
       ) : (
         <div className="flex gap-3 text-center p-3 align-middle">
@@ -97,7 +105,7 @@ export function CostManageItem({ onRemove, index, form, onConfirm, onSubmit }) {
               />
             }
           />
-          <Button type="text" icon={<IconX size={20} color="red" onClick={onRemove} />} />
+          <Button type="text" icon={<IconX size={20} color="red" />} onClick={onRemove} />
         </div>
       )}
     </div>

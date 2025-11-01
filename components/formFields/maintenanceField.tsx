@@ -274,7 +274,7 @@ export const useMaintenanceTableLogic = ({
                   icon={<IconExternalLink size={22} />}
                   onClick={e => {
                     e.stopPropagation();
-                    window.open(`/${SystemRoutes.CONSTRUCTION}/${record.id}`, '_blank');
+                    router.push(`${SystemRoutes.CONSTRUCTION}/${record.id}`);
                   }}
                 />
               </div>

@@ -107,6 +107,7 @@ const CampaignDetail = ({ current, setCurrent }) => {
         open={footerOpen}
         onCancel={() => setFooterOpen(false)}
         onSubmit={values => {
+          setFooterOpen(false);
           console.log(values);
         }}
         fields={fields}

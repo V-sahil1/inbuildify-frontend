@@ -1,5 +1,11 @@
-import { IconDotsVertical, IconList, IconUserSquareRounded } from '@tabler/icons-react';
-import { Button, Modal, Switch, Tag } from 'antd';
+import {
+  IconDotsVertical,
+  IconList,
+  IconMail,
+  IconPhone,
+  IconUserSquareRounded,
+} from '@tabler/icons-react';
+import { Button, Modal, Popover, Switch, Tag } from 'antd';
 import { useEffect, useState } from 'react';
 import JobChecklist from './JobChecklist';
 import { JobOptions } from 'data/options';
@@ -49,18 +55,33 @@ const JobDetailHeader = () => {
     setActiveAction(item.key);
     setJobOptionModalOpen(true);
   };
-
+  const popOverContent = (
+    <div className="p-2">
+      <p className="my-2">Murthy</p>
+      <p className="my-2"> Lot 300 Tallis Cct,Tarneit,VIC,5345</p>
+      <p className="flex items-center gap-1 my-2">
+        <IconPhone size={15} />
+        7863625436
+      </p>
+      <p className="flex items-center gap-1 my-2">
+        <IconMail size={15} />
+        murthy@mailinator.com
+      </p>
+    </div>
+  );
   return (
     <>
       <div className="w-full pr-[100px]">
         <div className="flex justify-between w-full text-sm m-3">
-          <div className="border-l-2 pl-2">
-            <div className="flex gap-2 items-center text-base font-semibold text-blue">
-              Murthy <IconUserSquareRounded color="var(--blue)" size={20} />
-            </div>
-            <div className="flex items-center gap-1">
-              Lot 300 Tallis Cct,Tarneit,VIC,5345<Tag color="green">Titled</Tag>
-            </div>
+          <div className="border-l-2 pl-2 cursor-pointer">
+            <Popover content={popOverContent}>
+              <div className="flex gap-2 items-center text-base font-semibold text-blue">
+                Murthy <IconUserSquareRounded color="var(--blue)" size={20} />
+              </div>
+              <div className="flex items-center gap-1">
+                Lot 300 Tallis Cct,Tarneit,VIC,5345<Tag color="green">Titled</Tag>
+              </div>
+            </Popover>
           </div>
           <div className="border-l-2 pl-2">
             <div className="text-base font-semibold flex items-center">My Home</div>
@@ -85,13 +106,13 @@ const JobDetailHeader = () => {
             />
             {isDropdownOpen && (
               <div
-                className="absolute right-0 top-10 z-50 bg-white border border-gray-200 shadow-xl rounded-lg w-[500px] p-4"
+                className="absolute right-0 top-10 z-50  rounded-lg w-[500px] p-4"
                 onClick={e => e.stopPropagation()}
               >
                 <div className="grid grid-cols-2 gap-4">
                   {isDropdownOpen && (
                     <div
-                      className="absolute right-0 top-10 z-50 bg-white border border-gray-200 shadow-xl rounded-lg w-[500px] p-4"
+                      className="absolute right-0 top-10 z-50 bg-white rounded-lg w-[500px] p-4"
                       onClick={e => e.stopPropagation()}
                     >
                       <div className="flex">

@@ -130,9 +130,7 @@ const CostManageModal = ({ title, open, onCancel }) => {
                   ))}
                 </div>
               ) : (
-                <div>
-                  <Empty />
-                </div>
+                <div>{/* no data found */}</div>
               )}
             </div>
           </div>

@@ -14,6 +14,7 @@ import { JobDataType, jobDummyData } from 'data/joblistData';
 import CustomAvtar from '@/components/common/CustomAvtar';
 import Link from 'next/link';
 import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineActionsBar';
+import SystemRoutes from '@lib/constants/Routes';
 
 const JobPage: React.FC = () => {
   const router = useRouter();
@@ -257,8 +258,8 @@ const JobPage: React.FC = () => {
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Job List</h1>
-        <div className="flex w-full md:w-[60%] ml-[20%] ">
+        <div className="text-md md:text-2xl font-bold">Job List</div>
+        <div className="flex">
           <TimelineActionsBar
             tabs={filterOptions.map(f => ({ type: f.type, label: f.label, count: f.count }))}
             activeTab={activeFilter.type}
@@ -312,6 +313,12 @@ const JobPage: React.FC = () => {
           showSizeChanger: true,
           showQuickJumper: true,
         }}
+        onRow={record => ({
+          onClick: () => {
+            router.push(`${SystemRoutes.JOB}/${record.slugId}`);
+          },
+          style: { cursor: 'pointer' },
+        })}
       />
     </div>
   );

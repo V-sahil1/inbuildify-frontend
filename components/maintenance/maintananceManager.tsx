@@ -207,7 +207,8 @@ const MaintenanceManager = () => {
           pagination={{ pageSize: 10 }}
           scroll={{ x: 1400 }}
           onRow={record => ({
-            onClick: () => router.push(`/${SystemRoutes.MAINTENANCE}/${record.id}`),
+            onClick: () => router.push(`${SystemRoutes.MAINTENANCE}/${record.id}`),
+            style: { cursor: 'pointer' },
           })}
         />
       </div>

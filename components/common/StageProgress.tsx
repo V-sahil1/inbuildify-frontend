@@ -178,7 +178,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
   };
 
   return (
-    <div className="flex items-center justify-between flex-wrap gap-2 w-[300px]">
+    <div className="flex items-center justify-between flex-wrap gap-2 min-w-[300px] ">
       <div className="flex flex-col gap-2">
         {/* Info */}
         <div className="flex items-center gap-2">

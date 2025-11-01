@@ -49,7 +49,7 @@ const ConstructionTimeline = ({ current_value, setCurrent, steps }) => {
           onChange={handleChange}
         />
       </div>
-      <div className="flex justify-between">
+      {/* <div className="flex justify-between">
         <DescriptionTab
           est_date="13-04-2022"
           est_days="1 days"
@@ -86,7 +86,7 @@ const ConstructionTimeline = ({ current_value, setCurrent, steps }) => {
           act_date="13-04-2022"
           act_days="1 days"
         />
-      </div>
+      </div> */}
     </div>
   );
 };

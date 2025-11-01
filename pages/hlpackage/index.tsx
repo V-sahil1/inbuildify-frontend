@@ -274,6 +274,7 @@ export default function HLPackages() {
   };
 
   const handleNewPackageSubmit = () => {
+    setIsModalOpen(false);
     // create new package
   };
 
@@ -329,7 +330,9 @@ export default function HLPackages() {
         title="Copy Package"
         open={isCopyModalOpen}
         onCancel={() => setIsCopyModalOpen(false)}
-        onOk={() => {}}
+        onOk={() => {
+          setIsCopyModalOpen(false);
+        }}
       />
     </div>
   );

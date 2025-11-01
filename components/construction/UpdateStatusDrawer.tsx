@@ -57,11 +57,12 @@ export function UpdateStatusDrawer({ open, onCancel, checkItems }) {
             </div>
           ))}
         </div>
-        <div className="mt-3 justify-end flex gap-2">
+        {/* currently commented the button because no data to show here  */}
+        {/* <div className="mt-3 justify-end flex gap-2">
           <Button>Cancel</Button>
           <Button type="primary">Mark As Applicable</Button>
           <Button type="primary">Mark As Not Applicable</Button>
-        </div>
+        </div> */}
       </div>
     </Drawer>
   );
