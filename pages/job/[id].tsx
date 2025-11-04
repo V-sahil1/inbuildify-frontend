@@ -11,10 +11,11 @@ import router from 'next/router';
 import { JobCommission } from '@/components/job/jobDetail/comission/JobCommission';
 import JobDetailHeader from '@/components/job/jobDetail/JobDetailHeader';
 import JobCustomFields from '@/components/job/jobDetail/JobCustomFields';
-import { JobActivity } from '@/components/job/jobDetail/activity/jobActivity';
 import { useState } from 'react';
 import { ActionDialogmodel, FormField } from '@/components/common/Models/ActionDialogModel';
 import ConstructionModelFields from '@/components/formFields/constructionModel';
+import ActivityCard from '@/components/common/ActivityCard';
+import { EmailData, filterTabs } from 'data/activityData';
 const { TabPane } = Tabs;
 
 // cosnt initialValues = {
@@ -166,7 +167,7 @@ export default function JobDetail() {
             <JobCustomFields />
           </TabPane>
           <TabPane tab="Activity" key="Activity">
-            <JobActivity />
+            <ActivityCard data={EmailData} tabs={filterTabs} />
           </TabPane>
         </Tabs>
       </div>

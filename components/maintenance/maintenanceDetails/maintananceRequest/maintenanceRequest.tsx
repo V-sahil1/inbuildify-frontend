@@ -3,7 +3,9 @@ import React, { useState, useMemo } from 'react';
 import { Button, Input, Select, Popover, Radio } from 'antd';
 import { IconBell, IconPlus, IconSend, IconTrash, IconPaperclip } from '@tabler/icons-react';
 import RequestListDisplay from './requestLIstDisplay';
+import NotifyModal from './NotifyModal';
 import { maintenanceRequestData } from 'data/sampleData';
+import MailSendModal from '@/components/common/Models/MailSendModal';
 const { Option } = Select;
 
 interface DescriptionNote {
@@ -24,18 +26,17 @@ interface RequestItem {
 
 const RequestList: React.FC = () => {
   const [data, setData] = useState<RequestItem[]>(maintenanceRequestData);
-
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [newRequestDescriptions, setNewRequestDescriptions] = useState<string[]>(['']);
-
-  const [openNotes, setOpenNotes] = useState<Record<string, boolean>>({});
-  const [openDescriptionNotes, setOpenDescriptionNotes] = useState<
-    Record<string, Record<number, boolean>>
-  >({});
-
   const [isReminderPopoverVisible, setIsReminderPopoverVisible] = useState(false);
   const [reminderOption, setReminderOption] = useState('Pending');
   const hasPendingRequests = useMemo(() => data.some(item => item.status === 'Pending'), [data]);
+
+  const [notifyModalVisible, setNotifyModalVisible] = useState(false);
+  const [notifyType, setNotifyType] = useState<'Start' | 'Completed'>('Start');
+  const [taskStatus, setTaskStatus] = useState<'All' | 'Pending' | 'Completed'>('Pending');
+  const [selectedRequests, setSelectedRequests] = useState<string[]>([]);
+  const [mailModalVisible, setMailModalVisible] = useState(false);
 
   const [filters, setFilters] = useState({
     reference: '',
@@ -46,56 +47,20 @@ const RequestList: React.FC = () => {
     status: '',
   });
 
-  const handleStatusChange = (newStatus: string, requestId: string) => {
-    setData(prev => prev.map(req => (req.id === requestId ? { ...req, status: newStatus } : req)));
-  };
-
-  const handleToggleNotes = (requestId: string) => {
-    setOpenNotes(prev => ({
-      ...prev,
-      [requestId]: !prev[requestId],
-    }));
-  };
-
-  const handleToggleDescriptionNotes = (requestId: string, descIndex: number) => {
-    setOpenDescriptionNotes(prev => ({
-      ...prev,
-      [requestId]: {
-        ...prev[requestId],
-        [descIndex]: !prev[requestId]?.[descIndex],
-      },
-    }));
-  };
-
-  const handleDeleteRequest = (requestId: string) => {
-    setData(prev => prev.filter(req => req.id !== requestId));
-  };
-
-  const handleDeleteDescription = (requestId: string, descIndex: number) => {
-    setData(prev =>
-      prev.map(req => {
-        if (req.id !== requestId) return req;
-        return {
-          ...req,
-          descriptions: req.descriptions.filter((_, i) => i !== descIndex),
-        };
-      })
-    );
-  };
-
-  const handleFilterChange = (field: string, value: any) => {
-    setFilters(prev => ({ ...prev, [field]: value }));
-  };
-
-  const filteredData = data.filter(
-    item =>
-      (!filters.reference ||
-        item.reference.toLowerCase().includes(filters.reference.toLowerCase())) &&
-      (!filters.supplier || item.supplier.toLowerCase().includes(filters.supplier.toLowerCase())) &&
-      (!filters.status || item.status === filters.status) &&
-      (!filters.start || item.start === filters.start) &&
-      (!filters.finish || item.finish === filters.finish) &&
-      (!filters.complete || item.complete === filters.complete)
+  const filteredData = useMemo(
+    () =>
+      data.filter(
+        item =>
+          (!filters.reference ||
+            item.reference.toLowerCase().includes(filters.reference.toLowerCase())) &&
+          (!filters.supplier ||
+            item.supplier.toLowerCase().includes(filters.supplier.toLowerCase())) &&
+          (!filters.status || item.status === filters.status) &&
+          (!filters.start || item.start === filters.start) &&
+          (!filters.finish || item.finish === filters.finish) &&
+          (!filters.complete || item.complete === filters.complete)
+      ),
+    [data, filters]
   );
 
   const handleNewRequest = () => {
@@ -118,15 +83,12 @@ const RequestList: React.FC = () => {
       status: 'Pending',
       amount: '$0.00',
     };
-
     setData(prev => [...prev, newRequestItem]);
     setIsFormVisible(false);
-    setNewRequestDescriptions(['']);
   };
 
   const handleCancel = () => {
     setIsFormVisible(false);
-    setNewRequestDescriptions(['']);
   };
 
   const handleAddDescriptionRow = () => {
@@ -139,9 +101,10 @@ const RequestList: React.FC = () => {
 
   const handleRemoveDescriptionRow = (index: number) => {
     setNewRequestDescriptions(prev => prev.filter((_, i) => i !== index));
-    if (newRequestDescriptions.length === 1) {
-      setNewRequestDescriptions(['']);
-    }
+  };
+
+  const handleFilterChange = (field: string, value: any) => {
+    setFilters(prev => ({ ...prev, [field]: value }));
   };
 
   const handleReminderOk = () => {
@@ -167,9 +130,15 @@ const RequestList: React.FC = () => {
     </div>
   );
 
+  const handleSaveNext = () => {
+    console.log('Notify:', notifyType, taskStatus, selectedRequests);
+    setNotifyModalVisible(false);
+    setMailModalVisible(true);
+  };
+
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      {/* HEADER */}
+    <div className="p-6 bg-card-color min-h-screen">
+      {/* Top Action Buttons */}
       <div className="flex justify-end items-center mb-4">
         <div className="flex gap-2">
           <Popover
@@ -184,10 +153,13 @@ const RequestList: React.FC = () => {
           <Button type="primary" icon={<IconPlus size={16} />} onClick={handleNewRequest}>
             New Request
           </Button>
-          <Button icon={<IconSend size={16} />}>Notify</Button>
+          <Button icon={<IconSend size={16} />} onClick={() => setNotifyModalVisible(true)}>
+            Notify
+          </Button>
         </div>
       </div>
 
+      {/* 🔍 Filter Bar */}
       <div className="flex gap-2 bg-white rounded-md p-3 text-sm font-medium mb-4 items-end">
         <div className="flex flex-col flex-1">
           <span className="mb-1 text-gray-600 font-semibold text-xs">Reference No</span>
@@ -247,13 +219,13 @@ const RequestList: React.FC = () => {
         </div>
       </div>
 
-      {/* NEW REQUEST FORM */}
+      {/* 📝 New Request Form */}
       {isFormVisible && (
         <div className="bg-white rounded-md border shadow-sm mb-4">
           <div className="flex justify-between items-center py-2 px-4 bg-gray-100 rounded-t-md">
             <h2 className="text-xl font-semibold">
-              <span className="bg-cyan-400 text-white text-xs font-semibold px-2 py-1 rounded w-fit">
-                MYH00664-MRX (New)
+              <span className="bg-primary text-white text-xs font-semibold px-2 py-1 rounded">
+                MYH00664-MR (New)
               </span>
             </h2>
             <div className="flex gap-2">
@@ -264,61 +236,50 @@ const RequestList: React.FC = () => {
             </div>
           </div>
           <div className="p-4">
-            {/* Form Header */}
-            <div className="flex items-center font-bold text-gray-600 border-b pb-2 mb-2 text-sm">
-              <div className="w-[50px] text-left">S.No</div>
-              <div className="flex-1 text-left">Description</div>
-              <div className="w-[100px] flex justify-end">Attachment</div>
-              <div
-                className="w-[80px] flex justify-end items-center text-blue-600 cursor-pointer"
-                onClick={handleAddDescriptionRow}
-              >
-                <IconPlus size={16} className="mr-1" /> Task
-              </div>
-            </div>
-
-            {newRequestDescriptions.map((description, index) => (
-              <div
-                key={index}
-                className="flex items-start text-sm gap-4 mb-2 pt-2 border-b border-gray-100 last:border-b-0"
-              >
-                <span className="font-semibold text-left w-[50px] pt-1">{index + 1}.</span>
+            {newRequestDescriptions.map((desc, index) => (
+              <div key={index} className="flex items-start text-sm gap-4 mb-2 pt-2">
+                <span className="font-semibold w-[50px] pt-1">{index + 1}.</span>
                 <div className="flex-1 flex flex-col">
                   <Input.TextArea
                     rows={2}
-                    placeholder=""
-                    maxLength={500}
-                    showCount
-                    className="w-full"
-                    value={description}
+                    value={desc}
                     onChange={e => handleDescriptionChange(index, e.target.value)}
                   />
                 </div>
-                <div className="w-[100px] flex items-center justify-end gap-2 pt-1">
-                  <IconPaperclip size={17} className="cursor-pointer text-blue-500" />
-                </div>
-                <div className="w-[80px] flex items-center justify-end gap-2 pt-1">
-                  <IconTrash
-                    size={17}
-                    className="cursor-pointer text-red-500"
-                    onClick={() => handleRemoveDescriptionRow(index)}
-                  />
-                </div>
+                <IconPaperclip size={17} className="cursor-pointer text-blue-500" />
+                <IconTrash
+                  size={17}
+                  className="cursor-pointer text-red-500"
+                  onClick={() => handleRemoveDescriptionRow(index)}
+                />
               </div>
             ))}
+            <div
+              className="text-blue-600 cursor-pointer mt-2 flex items-center gap-1"
+              onClick={handleAddDescriptionRow}
+            >
+              <IconPlus size={16} /> Task
+            </div>
           </div>
         </div>
       )}
 
-      <RequestListDisplay
-        filteredData={filteredData}
-        handleStatusChange={handleStatusChange}
-        openNotes={openNotes}
-        handleToggleNotes={handleToggleNotes}
-        openDescriptionNotes={openDescriptionNotes}
-        handleToggleDescriptionNotes={handleToggleDescriptionNotes}
-        handleDeleteDescription={handleDeleteDescription}
-        handleDeleteRequest={handleDeleteRequest}
+      <RequestListDisplay data={filteredData} setData={setData} />
+
+      <NotifyModal
+        open={notifyModalVisible}
+        onCancel={() => setNotifyModalVisible(false)}
+        onSave={handleSaveNext}
+        data={filteredData}
+      />
+
+      <MailSendModal
+        open={mailModalVisible}
+        onCancel={() => setMailModalVisible(false)}
+        onSend={data => {
+          console.log('Mail data:', data);
+          setMailModalVisible(false);
+        }}
       />
     </div>
   );

@@ -2,7 +2,8 @@ import { Result, Tabs } from 'antd';
 import ConstructionFrameStage from './ConstructionFrameStage';
 import ConstructionBaseStage from './ConstructionBaseStage';
 import LeadActions from '../leadDetail/LeadActions';
-import ConstructionActivity from './ConstructionActivity';
+import ActivityCard from '../common/ActivityCard';
+import { EmailData, filterTabs } from 'data/activityData';
 
 const ConstructionTabs = ({ current_value, setCurrent }) => {
   const items = [
@@ -94,7 +95,7 @@ const ConstructionTabs = ({ current_value, setCurrent }) => {
     {
       key: '5',
       label: 'Activity',
-      children: <ConstructionActivity />,
+      children: <ActivityCard data={EmailData} tabs={filterTabs} />,
     },
     {
       key: '6',

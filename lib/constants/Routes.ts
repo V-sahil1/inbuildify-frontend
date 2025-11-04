@@ -31,6 +31,7 @@ class SystemRoutes {
   public static HLPACKAGE = `/hlpackage`;
   public static CAMPAIGN = `/campaigns`;
   public static ADMIN = `/admin`;
+  public static EMAIL_ACTIVITIES = `/activities`;
 }
 
 export default SystemRoutes;

@@ -39,6 +39,8 @@ import ConfirmationModal from '@/components/common/ConfirmationModal';
 import { deleteQuotation } from '@redux/feature/quotation/quotationThunk';
 import { removeQuotation } from '@redux/feature/lead/leadSlice';
 import DepositModel from '@/components/common/Models/DepositModel';
+import ActivityCard from '@/components/common/ActivityCard';
+import { EmailData, filterTabs } from 'data/activityData';
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -66,7 +68,7 @@ export interface Package {
 
 function App() {
   const router = useRouter();
-  const searchParams = useSearchParams();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConvertModalVisible, setIsConvertModalVisible] = useState(false);
   const [isEditLeadModalVisible, setIsEditLeadModalVisible] = useState(false);
@@ -494,12 +496,7 @@ function App() {
               <LeadQuotations />
             </TabPane>
             <TabPane tab="Activity" key="Activity">
-              <div className="bg-card-color">
-                <Result
-                  title="Activity Functionality coming soon"
-                  subTitle="Please check back later"
-                />
-              </div>
+              <ActivityCard data={EmailData} tabs={filterTabs} />
             </TabPane>
           </Tabs>
         </div>

@@ -5,6 +5,7 @@ import {
   IconUser,
   IconArrowBigLeftFilled,
   IconPlus,
+  IconMail,
 } from '@tabler/icons-react';
 import { profile_av } from '../../public/images';
 import Link from 'next/link';
@@ -194,6 +195,20 @@ export default function Header({
     }
   };
 
+  const profileMenuItems = [
+    {
+      id: 'profile',
+      label: 'My Profile',
+      href: SystemRoutes.MY_PROFILE,
+      icon: <IconUser className="w-[16px] h-[16px]" />,
+    },
+    {
+      id: 'email',
+      label: 'Email Activity',
+      href: SystemRoutes.EMAIL_ACTIVITIES,
+      icon: <IconMail className="w-[16px] h-[16px]" />,
+    },
+  ];
   return (
     <>
       <div
@@ -326,17 +341,16 @@ export default function Header({
                   <div className="text-font-color-100 truncate">{user?.email}</div>
                 </div>
                 <div className="p-1 m-1 custom-scrollbar overflow-auto max-h-[calc(80svh-163px)]">
-                  <Link
-                    href={SystemRoutes.MY_PROFILE}
-                    className="py-2 px-4 flex items-center gap-3"
-                  >
-                    <IconUser className="w-[16px] h-[16px]" />
-                    My Profile
-                  </Link>
-                  {/* <Link href={SystemRoutes.SETTING} className="py-2 px-4 flex items-center gap-3">
-                    <IconSettings className="w-[16px] h-[16px]" />
-                    Settings
-                  </Link> */}
+                  {profileMenuItems.map(item => (
+                    <Link
+                      key={item.id}
+                      href={item.href}
+                      className="py-2 px-4 flex items-center gap-3 hover:bg-gray-50 transition-colors rounded-md"
+                    >
+                      {item.icon}
+                      <span>{item.label}</span>
+                    </Link>
+                  ))}
                 </div>
                 <button
                   onClick={() => setIsLogoutModalOpen(true)}

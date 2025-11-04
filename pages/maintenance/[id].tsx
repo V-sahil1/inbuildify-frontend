@@ -1,8 +1,10 @@
 'use client';
 
+import ActivityCard from '@/components/common/ActivityCard';
 import StageProgress from '@/components/common/StageProgress';
 import RequestList from '@/components/maintenance/maintenanceDetails/maintananceRequest/maintenanceRequest';
 import { Result, Tabs } from 'antd';
+import { EmailData, filterTabs } from 'data/activityData';
 const { TabPane } = Tabs;
 
 const Index = () => {
@@ -52,12 +54,7 @@ const Index = () => {
             </div>
           </TabPane>
           <TabPane tab="Activity" key="activity">
-            <div className="bg-card-color">
-              <Result
-                title="Activity Functionality coming soon"
-                subTitle="Please check back later"
-              />
-            </div>
+            <ActivityCard data={EmailData} tabs={filterTabs} />
           </TabPane>
         </Tabs>
       </div>
