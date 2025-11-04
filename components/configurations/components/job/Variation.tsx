@@ -3,10 +3,8 @@ import { Form, Button, Input, Space, Table, Popconfirm, Select } from 'antd';
 import InputSwitch from '@/components/common/InputSwitch';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
-import { variationSwitches } from 'data/configuration/variationData';
 import { variationSettingFields } from '@/components/formFields/VariationSettingFields';
 import { useUsersHook } from '@hooks/useUserData';
-const { Option } = Select;
 interface Variation {
   key: string;
   role: string;
