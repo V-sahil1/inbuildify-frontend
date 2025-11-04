@@ -34,25 +34,24 @@ export interface MenuItem {
 }
 
 export const gridMenuItems: MenuItem[] = [
-  //   this functionality need to add dont remove the commented code
   {
     id: 1,
     icon: <IconUser className="w-4 h-4 mr-3" />,
     label: 'User',
     href: `${SystemRoutes.USERS}`,
   },
-  // {
-  //   id: 2,
-  //   icon: <IconAddressBook className="w-4 h-4 mr-3" />,
-  //   label: "Contact",
-  //   href: "#",
-  // },
-  // {
-  //   id: 3,
-  //   icon: <IconUsersGroup className="w-4 h-4 mr-3" />,
-  //   label: "User Group",
-  //   href: "#",
-  // },
+  {
+    id: 2,
+    icon: <IconAddressBook className="w-4 h-4 mr-3" />,
+    label: 'Contact',
+    href: '#',
+  },
+  {
+    id: 3,
+    icon: <IconUsersGroup className="w-4 h-4 mr-3" />,
+    label: 'User Group',
+    href: '#',
+  },
   {
     id: 4,
     icon: <IconCalendarFilled className="w-4 h-4 mr-3" />,
@@ -71,12 +70,12 @@ export const gridMenuItems: MenuItem[] = [
     label: 'Todo',
     href: `${SystemRoutes.TODO}`,
   },
-  // {
-  //   id: 7,
-  //   icon: <IconUsers className="w-4 h-4 mr-3" />,
-  //   label: "Agent/Referral",
-  //   href: "#",
-  // },
+  {
+    id: 7,
+    icon: <IconUsers className="w-4 h-4 mr-3" />,
+    label: 'Agent/Referral',
+    href: '#',
+  },
 ];
 
 export const gridMenuItems2: MenuItem[] = [
@@ -86,94 +85,94 @@ export const gridMenuItems2: MenuItem[] = [
     label: 'Admin',
     href: `${SystemRoutes.ADMIN}/general`,
   },
-  // {
-  //   id: 2,
-  //   icon: <IconDatabase className="w-4 h-4 mr-3" />,
-  //   label: "Master Collections",
-  //   href: "#",
-  // },
-  // {
-  //   id: 3,
-  //   icon: <IconReceipt className="w-4 h-4 mr-3" />,
-  //   label: "Price List",
-  //   href: "#",
-  // },
+  {
+    id: 2,
+    icon: <IconDatabase className="w-4 h-4 mr-3" />,
+    label: 'Master Collections',
+    href: '#',
+  },
+  {
+    id: 3,
+    icon: <IconReceipt className="w-4 h-4 mr-3" />,
+    label: 'Price List',
+    href: '#',
+  },
 
-  // {
-  //   id: 4,
-  //   icon: <IconHome className="w-4 h-4 mr-3" />,
-  //   label: "Facade",
-  //   href: "#",
-  // },
-  // {
-  //   id: 5,
-  //   icon: <IconLayout2 className="w-4 h-4 mr-3" />,
-  //   label: "Floor Plan",
-  //   href: "#",
-  // },
-  // {
-  //   id: 6,
-  //   icon: <IconPackage className="w-4 h-4 mr-3" />,
-  //   label: "Package",
-  //   href: "#",
-  // },
+  {
+    id: 4,
+    icon: <IconHome className="w-4 h-4 mr-3" />,
+    label: 'Facade',
+    href: '#',
+  },
+  {
+    id: 5,
+    icon: <IconLayout2 className="w-4 h-4 mr-3" />,
+    label: 'Floor Plan',
+    href: '#',
+  },
+  {
+    id: 6,
+    icon: <IconPackage className="w-4 h-4 mr-3" />,
+    label: 'Package',
+    href: '#',
+  },
 
-  // {
-  //   id: 7,
-  //   icon: <IconPalette className="w-4 h-4 mr-3" />,
-  //   label: "Color",
-  //   href: "#",
-  // },
-  // {
-  //   id: 8,
-  //   icon: <IconColorPicker className="w-4 h-4 mr-3" />,
-  //   label: "Color Group",
-  //   href: "#",
-  // },
-  // {
-  //   id: 9,
-  //   icon: <IconTruck className="w-4 h-4 mr-3" />,
-  //   label: "Supplier",
-  //   href: "#",
-  // },
+  {
+    id: 7,
+    icon: <IconPalette className="w-4 h-4 mr-3" />,
+    label: 'Color',
+    href: '#',
+  },
+  {
+    id: 8,
+    icon: <IconColorPicker className="w-4 h-4 mr-3" />,
+    label: 'Color Group',
+    href: '#',
+  },
+  {
+    id: 9,
+    icon: <IconTruck className="w-4 h-4 mr-3" />,
+    label: 'Supplier',
+    href: '#',
+  },
 
-  // {
-  //   id: 10,
-  //   icon: <IconBeach className="w-4 h-4 mr-3" />,
-  //   label: "Holiday",
-  //   href: "#",
-  // },
-  // {
-  //   id: 11,
-  //   icon: <IconFileDescription className="w-4 h-4 mr-3" />,
-  //   label: "Quotation Format",
-  //   href: "#",
-  // },
-  // {
-  //   id: 12,
-  //   icon: <IconClipboardList className="w-4 h-4 mr-3" />,
-  //   label: "Survey Template",
-  //   href: "#",
-  // },
+  {
+    id: 10,
+    icon: <IconBeach className="w-4 h-4 mr-3" />,
+    label: 'Holiday',
+    href: '#',
+  },
+  {
+    id: 11,
+    icon: <IconFileDescription className="w-4 h-4 mr-3" />,
+    label: 'Quotation Format',
+    href: '#',
+  },
+  {
+    id: 12,
+    icon: <IconClipboardList className="w-4 h-4 mr-3" />,
+    label: 'Survey Template',
+    href: '#',
+  },
 
-  // {
-  //   id: 13,
-  //   icon: <IconBuildingEstate className="w-4 h-4 mr-3" />,
-  //   label: "Estate",
-  //   href: "#",
-  // },
-  // {
-  //   id: 14,
-  //   icon: <IconCoins className="w-4 h-4 mr-3" />,
-  //   label: "Cost Center",
-  //   href: "#",
-  // },
-  // {
-  //   id: 15,
-  //   icon: <IconFileCertificate className="w-4 h-4 mr-3" />,
-  //   label: "Contract Document Format",
-  //   href: "#",
-  // },
+  {
+    id: 13,
+    icon: <IconBuildingEstate className="w-4 h-4 mr-3" />,
+    label: 'Estate',
+    href: '#',
+  },
+  {
+    id: 14,
+    icon: <IconCoins className="w-4 h-4 mr-3" />,
+    label: 'Cost Center',
+    href: '#',
+  },
+  {
+    id: 15,
+    icon: <IconFileCertificate className="w-4 h-4 mr-3" />,
+    label: 'Contract Document Format',
+    href: '#',
+  },
 ];
 
 export const createMenuGridItems: MenuItem[] = [

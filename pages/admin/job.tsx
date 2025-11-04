@@ -6,6 +6,7 @@ import { Colors } from '@/components/configurations/components/job/Colors';
 import { Workflow } from '@/components/configurations/components/job/Workflow';
 import { Invoice } from '@/components/configurations/components/job/Invoice';
 import { Variation } from '@/components/configurations/components/job/Variation';
+import { Comission } from '@/components/configurations/components/job/Comission';
 
 const TABS = [
   {
@@ -38,21 +39,11 @@ const TABS = [
     label: tabsLabel('Variation', 'Manage variation'),
     component: Variation,
   },
-  // {
-  //   id: "checklist",
-  //   label: tabsLabel("Checklist", "Manage Checklist"),
-  //   component: Checklist,
-  // },
-  // {
-  //   id: "role-and-user-mapping",
-  //   label: tabsLabel("Role and User Mapping", "set default user each role"),
-  //   component: RoleAndUser,
-  // },
-  // {
-  //   id: "password-policy",
-  //   label: tabsLabel("Password Policy", "Password privacy settings"),
-  //   component: PasswordPolicy,
-  // },
+  {
+    id: 'comission',
+    label: tabsLabel('Comission', 'Manage Comission settings'),
+    component: Comission,
+  },
 ];
 
 export default function GeneralConfig() {

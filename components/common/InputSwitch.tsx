@@ -12,7 +12,7 @@ const InputSwitch = ({
 }) => {
   return (
     <div className="w-full mb-5 border-b border-gray-100 pb-3">
-      <div className="flex items-center gap-2">
+      <div className="flex items-start gap-2">
         <Form.Item name={name} valuePropName="checked" noStyle>
           <Switch />
         </Form.Item>
