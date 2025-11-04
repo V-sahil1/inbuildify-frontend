@@ -1,13 +1,14 @@
 import TabLayout from '@/components/common/TabLayout';
-import NotesTag from '@/components/configurations/components/general/NotesTag';
 import RoleAndUser from '@/components/configurations/components/general/RoleAndUser';
-import { PasswordPolicy } from '@/components/configurations/components/general/PasswordPolicy';
 import { tabsLabel } from '@/components/common/TabLabel';
 import { SettingPage } from '@/components/configurations/components/construction/Setting';
 import { Options } from '@/components/configurations/components/construction/Options';
 import { Types } from '@/components/configurations/components/construction/Types';
 import { Stages } from '@/components/configurations/components/construction/Stages';
 import { Checklist } from '@/components/configurations/components/construction/Checklist';
+import { InspectionChecklist } from '@/components/configurations/components/construction/InspectionChecklist';
+import { OHList } from '@/components/configurations/components/construction/OHList';
+import { ETSRecharge } from '@/components/configurations/components/construction/ETSRecharge';
 
 const TABS = [
   {
@@ -36,24 +37,19 @@ const TABS = [
     component: Checklist,
   },
   {
-    id: 'notes-tag',
-    label: tabsLabel('Notes Tag', 'Add tags to category the notes'),
-    component: NotesTag,
+    id: 'inspection-checklist',
+    label: tabsLabel('Inspection Checklist', 'manage Inspection Checklist'),
+    component: InspectionChecklist,
   },
   {
-    id: 'checklist',
-    label: tabsLabel('Checklist', 'Manage Checklist'),
-    component: Checklist,
+    id: 'ohs-list',
+    label: tabsLabel('OH&S List', 'Manage OH&S List'),
+    component: OHList,
   },
   {
     id: 'role-and-user-mapping',
-    label: tabsLabel('Role and User Mapping', 'set default user each role'),
-    component: RoleAndUser,
-  },
-  {
-    id: 'password-policy',
-    label: tabsLabel('Password Policy', 'Password privacy settings'),
-    component: PasswordPolicy,
+    label: tabsLabel('ETS & Recharge', 'Manage ETS & Recharge'),
+    component: ETSRecharge,
   },
 ];
 

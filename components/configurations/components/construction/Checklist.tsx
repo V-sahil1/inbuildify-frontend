@@ -1,70 +1,19 @@
 'use client';
-import React, { useState } from 'react';
-import { Form, Row, Col, Input, InputNumber, Select, Checkbox, Button, Typography } from 'antd';
-import { IconPlus, IconCheck, IconX } from '@tabler/icons-react';
-
-const { Option } = Select;
-const { Text } = Typography;
+import { Form, Row, Col, Select, Button, Table, Tooltip } from 'antd';
+import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
+import { ChecklistSettingForm } from '../ChecklistSettingForm';
+import { useState } from 'react';
+import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
+import { ChecklistHeader } from '../ChecklistHeader';
+import { checklistFormFields } from '@/components/formFields/checklistFormFields';
 
 export function Checklist() {
-  const [rows, setRows] = useState([
-    { id: 1, checklist: '', supplierType: '', sort: 1, dateRequired: true },
-  ]);
-
-  const handleChange = (id: number, field: string, value: any) => {
-    setRows(prev => prev.map(row => (row.id === id ? { ...row, [field]: value } : row)));
-  };
-
-  const addRow = () => {
-    const next = {
-      id: Date.now(),
-      checklist: '',
-      supplierType: '',
-      sort: rows.length + 1,
-      dateRequired: false,
-    };
-    setRows([...rows, next]);
-  };
-
+  const [editing, setEditing] = useState<number | null>(null);
+  const [subChecklistModal, setSubChecklistModal] = useState(false);
+  const [addChecklistModal, setAddChecklistModal] = useState(false);
   return (
     <div className="p-6 bg-white rounded-lg shadow border border-gray-200">
-      <Form layout="vertical" className="mb-6">
-        <Row gutter={16}>
-          <Col span={8}>
-            <Form.Item label="Builder" required>
-              <Select
-                placeholder="Select Builder"
-                options={[
-                  { label: 'Company Level', value: 'companyLevel' },
-                  { label: 'Project Level', value: 'projectLevel' },
-                ]}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item label="Construction Types" required>
-              <Select
-                placeholder="Select Construction Type"
-                options={[
-                  { label: 'Single Storey Build', value: 'singleStoreyBuilding' },
-                  { label: 'Multi Storey Build', value: 'multiStoreyBuilding' },
-                ]}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item label="Stage" required>
-              <Select
-                placeholder="Select Stage"
-                options={[
-                  { label: 'Base Stage', value: 'baseStage' },
-                  { label: 'Project Stage', value: 'projectLevel' },
-                ]}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-      </Form>
+      <ChecklistHeader />
 
       {/* Table Header */}
       <Row
@@ -72,12 +21,10 @@ export function Checklist() {
         align="middle"
         className="border-b border-gray-300 pb-2 mb-4 text-sm font-semibold text-gray-700 w-full"
       >
-        {/* Narrow column for S.No */}
         <Col flex="80px" className="text-center">
           S.No
         </Col>
 
-        {/* Six equal columns */}
         <Col flex="auto">
           <Row gutter={8} align="middle">
             <Col flex="3">Checklist</Col>
@@ -94,6 +41,8 @@ export function Checklist() {
                 size="small"
                 icon={<IconPlus size={14} />}
                 className="!text-xs !h-6"
+                disabled={addChecklistModal}
+                onClick={() => setAddChecklistModal(true)}
               >
                 New
               </Button>
@@ -101,124 +50,98 @@ export function Checklist() {
           </Row>
         </Col>
       </Row>
-      <Row gutter={8} align="middle" className="border-b border-gray-200 py-1">
-        <Col flex="80px" className="text-center">
-          1
-        </Col>
-        <Col flex="auto">
-          <Row gutter={8}>
-            {/* Text spanning two columns */}
-            <Col flex="3" className="bg-gray-50 p-2 rounded">
-              <Input placeholder="Checklist Name" />
-            </Col>
-            <Col flex="1" className="bg-gray-50 p-2 rounded">
-              <Select placeholder="Select Type" className="w-full" />
-            </Col>
-            <Col flex="1" className="bg-gray-50 p-2 rounded">
-              <Input placeholder="Sort" />
-            </Col>
-            <Col flex="1" className="flex items-center justify-end gap-2">
-              <Button
-                type="primary"
-                size="small"
-                icon={<IconCheck size={14} />}
-                className="!text-xs !h-6"
-              />
-              <Button
-                type="primary"
-                size="small"
-                icon={<IconX size={14} />}
-                className="!text-xs !h-6"
-              />
-            </Col>
-          </Row>
-        </Col>
-      </Row>
-      <Row gutter={8} align="middle" className="border-b border-gray-200 py-1">
-        <Col flex="80px" className="text-center" />
-        <Col flex="auto">
-          <Row gutter={8}>
-            {/* Text spanning two columns */}
-            <Col flex="1" className="bg-gray-50 p-2 rounded">
-              <Checkbox>Date required</Checkbox>
-            </Col>
-            <Col flex="1" className="bg-gray-50 p-2 rounded">
-              <Checkbox>Supplier</Checkbox>
-            </Col>
-            <Col flex="1" className="bg-gray-50 p-2 rounded">
-              <Checkbox>Claim</Checkbox>
-            </Col>
-            <Col flex="1" className="bg-gray-50 p-2 rounded">
-              <Checkbox>Dependent</Checkbox>
-            </Col>
-            <Col flex="1" className="bg-gray-50 p-2 rounded" />
-            <Col flex="1" className="bg-gray-50 p-2 rounded" />
-          </Row>
-        </Col>
-      </Row>
-      <Row gutter={8} align="middle" className="border-b border-gray-200 py-1">
-        <Col flex="80px" className="text-center" />
-        <Col flex="auto">
-          <Row gutter={8}>
-            {/* Text spanning two columns */}
-            <Col flex="1" className="bg-gray-50 p-2 rounded">
-              <div className="flex">
-                <p>No of Days:</p>
-                <InputNumber min={0} className="ml-2 w-[90px]" placeholder="Duration" />
-              </div>
-            </Col>
-            <Col flex="1" className="bg-gray-50 p-2 rounded">
-              <Checkbox>Notify</Checkbox>
-            </Col>
-            <Col flex="1" className="bg-gray-50 p-2 rounded">
-              <Checkbox>Milestone</Checkbox>
-            </Col>
-            <Col flex="1" className="bg-gray-50 p-2 rounded">
-              <Checkbox>Attachement mandatory</Checkbox>
-            </Col>
-            <Col flex="1" className="bg-gray-50 p-2 rounded" />
-            <Col flex="1" className="bg-gray-50 p-2 rounded" />
-          </Row>
-        </Col>
-      </Row>
-      <Row gutter={8} align="middle" className="border-b border-gray-200 py-1">
-        <Col flex="80px" className="text-center" />
-        <Col flex="auto">
-          <Row gutter={8}>
-            <Col flex="2" className="bg-gray-50 p-2 rounded">
-              <div className="flex gap-2">
-                <p>compliance type:</p>
-                <Select placeholder="Select Compliance Type" />
-              </div>
-            </Col>
-            <Col flex="2" className="bg-gray-50 p-2 rounded">
-              <div className="flex gap-2">
-                <p>cost center:</p>
-                <Select placeholder="Select Cost Center" />
-              </div>
-            </Col>
-            <Col flex="2" className="bg-gray-50 p-2 rounded">
-              <div className="flex gap-2">
-                <p>construction options:</p>
-                <Select placeholder="Select Construction Options" />
-              </div>
-            </Col>
 
-            <Col flex="1" className="bg-gray-50 p-2 rounded" />
-          </Row>
-        </Col>
-      </Row>
-      <Row gutter={8} align="middle" className=" py-1">
-        <Col flex="80px" className="text-center" />
-        <Col flex="auto">
-          <Row gutter={7}>
-            <Col flex="6" className="bg-gray-50 p-2 rounded">
-              <Input placeholder="Checklist Name" />
+      {addChecklistModal && (
+        <Row gutter={8} className="  border-gray-200 py-1">
+          <ChecklistSettingForm />
+        </Row>
+      )}
+      <Row gutter={8} className="  border-gray-200 py-1">
+        {editing === 1 ? (
+          <ChecklistSettingForm />
+        ) : (
+          <>
+            <Col flex="80px" className="text-center">
+              1
             </Col>
-            <Col flex="1" className="bg-gray-50 p-2 rounded" />
-          </Row>
-        </Col>
+            <Col flex="auto">
+              <Row gutter={8}>
+                <Col flex="3" className="rounded">
+                  <div className="flex flex-col gap-2">
+                    <div className="flex gap-2">
+                      <p>site visit</p>
+                      <p className="bg-green-500 text-white text-center  rounded w-[60px]">
+                        2 days
+                      </p>
+                    </div>
+                    {/* show only if cost type is available */}
+                    <p>cost center</p>
+                    <p className="bg-pink-500 text-white text-center  rounded w-[60px]">MH001</p>
+                  </div>
+                </Col>
+                <Col flex="1" className="p-2 rounded flex justify-center items-center h-[50px]">
+                  <p className="bg-green-500 text-white text-center rounded w-[60px]">Engineer</p>
+                </Col>
+                <Col flex="1" className="p-2 rounded">
+                  <p className="text-center">1</p>
+                </Col>
+                <Col flex="1" className="flex items-center justify-end gap-2">
+                  <Tooltip title="Add Sub checklist">
+                    <Button
+                      size="small"
+                      icon={<IconPlus size={14} />}
+                      className="!text-xs !h-6"
+                      onClick={() => setSubChecklistModal(true)}
+                    />
+                  </Tooltip>
+                  <Tooltip title="Edit">
+                    <Button
+                      size="small"
+                      icon={<IconEdit size={14} />}
+                      className="!text-xs !h-6"
+                      onClick={() => setEditing(1)}
+                    />
+                  </Tooltip>
+                  <Tooltip title="Delete">
+                    <Button size="small" icon={<IconTrash size={14} />} className="!text-xs !h-6" />
+                  </Tooltip>
+                </Col>
+              </Row>
+              {/* below row is conditional if the data are avialbale then only the table will visible other wise it will be the null */}
+              <Row gutter={8} align="middle" className=" py-1 w-full">
+                <Col flex="auto">
+                  <Row gutter={8}>
+                    <Col flex="6" className="p-2 rounded">
+                      <Table
+                        bordered
+                        pagination={false}
+                        columns={[
+                          {
+                            title: 'prodecessor',
+                            dataIndex: 'name',
+                            key: 'name',
+                            width: '60%',
+                          },
+                        ]}
+                        dataSource={[{ name: 'hello' }]}
+                      />
+                    </Col>
+                    <Col flex="1" className="p-2 rounded" />
+                  </Row>
+                </Col>
+              </Row>
+            </Col>
+          </>
+        )}
       </Row>
+
+      <ActionDialogmodel
+        open={subChecklistModal}
+        title="Add Sub checklist"
+        onCancel={() => setSubChecklistModal(false)}
+        onSubmit={() => setSubChecklistModal(false)}
+        fields={checklistFormFields}
+      />
     </div>
   );
 }
