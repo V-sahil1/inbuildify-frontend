@@ -2,11 +2,11 @@
 import React, { useState } from 'react';
 import { Drawer, Button } from 'antd';
 import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
-import CustomSteps from '@/components/common/CustomSteps';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import ConfirmationModal from '@/components/common/ConfirmationModal';
 import { TaskTable } from './TaskTable';
 import { ConfirmationContentModal } from '@/components/common/ConfirmationContentModal';
+import { CustomSteps } from '@/components/common/CustomSteps';
 
 interface JobWorkflowDrawerProps {
   open: boolean;
@@ -161,7 +161,7 @@ export const JobWorkflowDrawer: React.FC<JobWorkflowDrawerProps> = ({ open, onCl
           onClose={() => {
             setOpenModal(prev => ({ ...prev, delete: false }));
           }}
-          onConfirm={() => {}}
+          onConfirm={() => { }}
           message={`Are you sure you want to delete this ${openModal.stageName}?`}
         />
       )}
