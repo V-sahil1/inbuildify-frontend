@@ -65,13 +65,13 @@ export const menuList = (pathname: string) => {
         icon: IconFileDescription,
         link: 'Document',
         roles: commonRoles,
-        url: `/configuration/document`,
+        url: `/admin/document`,
       },
       {
         icon: IconPlugConnected,
         link: 'Integration',
         roles: commonRoles,
-        url: `/configuration/integration`,
+        url: `/admin/integration`,
       },
       {
         icon: IconTemplate,
@@ -90,13 +90,6 @@ export const menuList = (pathname: string) => {
         link: 'Portal',
         roles: commonRoles,
         url: `/configuration/portal`,
-      },
-
-      {
-        icon: IconDotsCircleHorizontal,
-        link: 'Others',
-        roles: commonRoles,
-        url: `/configuration/others`,
       },
     ];
   }
