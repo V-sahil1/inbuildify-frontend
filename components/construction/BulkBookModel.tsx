@@ -24,34 +24,12 @@ const BulkBookModel = ({
     label: string;
     count: number;
   }> = [
-    { type: 'currentStage', label: 'Current Stage', count: 0 },
-    { type: 'allStages', label: 'All Stages', count: 0 },
-  ];
+      { type: 'currentStage', label: 'Current Stage', count: 0 },
+      { type: 'allStages', label: 'All Stages', count: 0 },
+    ];
   const handleFilterTabChange = (selectedType: string) => {
-    console.log('Selected filter:', selectedType);
     setActiveFilter(filterOptions.find(f => f.type === selectedType) || activeFilter);
   };
-  const data = [
-    {
-      checklist: 'new checklist',
-      supplier: 'a&l windows',
-      start: '02/10/25',
-      finish: '03/10/25',
-      stage: 'Base Stage',
-    },
-  ];
-  console.log('index', checkSupplierItems[1]);
-  console.log(checkItems, checkSupplierItems);
-
-  const bookContent = (
-    <div className="max-w-[300px]">
-      <p>Are you sure you want to book the suppliers? Before preceeding, Please Confirm.</p>
-      <div className="flex gap-2 justify-center mt-2">
-        <Button>Yes</Button>
-        <Button>No</Button>
-      </div>
-    </div>
-  );
 
   async function handleSubmit() {
     const values = await form.validateFields();
@@ -107,7 +85,7 @@ const BulkBookModel = ({
               <Popconfirm
                 title="Are you sure you want to book the suppliers?"
                 onConfirm={handleSubmit}
-                onCancel={() => {}}
+                onCancel={() => { }}
                 okText="Yes"
                 cancelText="No"
               >

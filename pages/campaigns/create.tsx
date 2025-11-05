@@ -1,7 +1,8 @@
 import CampaignContacts from '@/components/Campaign/CampaignContacts';
 import CampaignDetail from '@/components/Campaign/CampaignDetail';
 import CampaignPreviewSend from '@/components/Campaign/CampaignPreviewSend';
-import CustomStepsModel from '@/components/common/CustomSteps';
+import { CustomSteps } from '@/components/common/CustomSteps';
+
 import { IconMathGreater } from '@tabler/icons-react';
 import { useState } from 'react';
 
@@ -24,11 +25,11 @@ export default function CreateCampaign() {
       <div className="flex items-center gap-3 mb-6">
         Campaign List <IconMathGreater size={15} /> Campaign
       </div>
-      <CustomStepsModel
+      <CustomSteps
         currentValue={current}
         setCurrent={setCurrent}
         steps={steps}
-      ></CustomStepsModel>
+      ></CustomSteps>
     </div>
   );
 }

@@ -1,39 +1,60 @@
-import { Button, Drawer, Input, Select, Switch } from 'antd';
+import { Button, Drawer, Form, Input, Select, Switch } from 'antd';
 import CheckList from './Checklist';
 import { useState } from 'react';
 import { IconCheck, IconPlus, IconX } from '@tabler/icons-react';
+import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineActionsBar';
 const { TextArea } = Input;
 
 const JobChecklist = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
   const [isnewChecklistOpen, setNewchecklistopen] = useState(false);
-  const data = [
-    { title: 'Internet -NBM Opticum', type: 'dropdown' },
-    { title: 'Water recycled or rainwater tank or solar hot water', type: 'dropdown' },
-    { title: 'Eaves-450 or 300 and eaves retuen', type: 'checkbox' },
-    { title: 'Roof pitch (what pitches developer allow)', type: 'dropdown' },
-    { title: 'Roof low profile tiles)', type: 'dropdown' },
-  ];
+  const [data, setData] = useState([]);
+  const [form] = Form.useForm();
+
+  type FilterType = 'all' | 'pending' | 'completed';
+  const [activeFilter, setActiveFilter] = useState<{
+    type: FilterType;
+    label: string;
+    count?: number;
+  }>({ type: 'all', label: 'All' });
+
+  const filterOptions: Array<{
+    type: FilterType;
+    label: string;
+    count: number;
+  }> = [
+      { type: 'all', label: 'All', count: data.length },
+      { type: 'pending', label: 'Pending', count: data.length },
+      { type: 'completed', label: 'Completed', count: data.length },
+    ];
+  const handleFilterTabChange = (selectedType: string) => {
+    console.log('Selected filter:', selectedType);
+    setActiveFilter(filterOptions.find(f => f.type === selectedType) || activeFilter);
+  };
+
+  function handleSubmit(values) {
+    console.log('values', values);
+    setData(prev => [...prev, values]);
+    setNewchecklistopen(false);
+    form.resetFields();
+    console.log('data', data);
+  }
+
   return (
     <>
       <Drawer title="DA Checklist" placement="right" size="large" onClose={onClose} open={open}>
         <div>
           <div className="flex justify-between">
-            <div className="flex gap-2 border border-border-color rounded-3xl p-1 items-center">
-              <Button type="primary" className="flex gap-2  rounded-3xl p-1 items-center">
-                <p>ALL</p>
-                <div className="rounded-full w-6 h-6 bg-white text-primary text-center">8</div>
-              </Button>
-              <Button type="primary" className="flex gap-2  rounded-3xl p-1 items-center">
-                <p>Pending</p>{' '}
-                <div className="rounded-full w-6 h-6 bg-white text-primary text-center">8</div>
-              </Button>
-              <Button type="primary" className="flex gap-2  rounded-3xl p-1 items-center">
-                <p>Completed</p>{' '}
-                <div className="rounded-full w-6 h-6 bg-white text-primary text-center">8</div>
-              </Button>
+            <div>
+              <TimelineActionsBar
+                tabs={filterOptions.map(f => ({ type: f.type, label: f.label, count: f.count }))}
+                activeTab={activeFilter.type}
+                onTabChange={handleFilterTabChange}
+                isActionShow={false}
+                isCountShow={true}
+              />
             </div>
             <div
-              className="flex items-center text-primary gap-2"
+              className="flex items-center text-primary gap-2 cursor-pointer"
               onClick={() => setNewchecklistopen(true)}
             >
               <div className="rounded-full text-sm w-4 h-4 border border-primary">
@@ -44,42 +65,58 @@ const JobChecklist = ({ open, onClose }: { open: boolean; onClose: () => void })
             </div>
           </div>
           {isnewChecklistOpen && (
-            <div className="flex gap-3 justify-between items-center text-xs p-4 m-2 bg-body-color">
-              <div>
-                <p>Description</p>
-                <TextArea rows={1} />
-              </div>
-              <div>
-                <p>Notes</p>
-                <Switch></Switch>
-              </div>
-              <div>
-                <p>Required</p>
-                <Switch></Switch>
-              </div>
-              <div>
-                <p>Type</p>
-                <Select
-                  defaultValue="checkbox"
-                  options={[
-                    { value: 'checkbox', label: 'Checkbox' },
-                    { value: 'dropdown', label: 'Dropdown' },
-                  ]}
-                ></Select>
-              </div>
-              <div className="flex gap-2">
+            <Form form={form} onFinish={handleSubmit}>
+              <div className="flex gap-3 justify-between items-center text-xs p-4 m-2 bg-body-color">
                 <div>
-                  <Button type="text" icon={<IconCheck />}></Button>
+                  <p>Description</p>
+                  <Form.Item name="description">
+                    <TextArea rows={1} />
+                  </Form.Item>
                 </div>
-                <div onClick={() => setNewchecklistopen(false)}>
-                  <Button type="text" icon={<IconX />}></Button>
+                <div>
+                  <p>Notes</p>
+                  <Form.Item name="notes" valuePropName="valu e">
+                    <Switch />
+                  </Form.Item>
+                </div>
+                <div>
+                  <p>Required</p>
+                  <Form.Item name="required" valuePropName="value">
+                    <Switch />
+                  </Form.Item>
+                </div>
+                <div>
+                  <p>Type</p>
+                  <Form.Item name="type">
+                    <Select
+                      options={[
+                        { value: 'checkbox', label: 'Checkbox' },
+                        { value: 'dropdown', label: 'Dropdown' },
+                      ]}
+                      placeholder="Please Select"
+                    />
+                  </Form.Item>
+                </div>
+                <div className="flex gap-2">
+                  <div>
+                    <Button htmlType="submit" type="text" icon={<IconCheck />}></Button>
+                  </div>
+                  <div onClick={() => setNewchecklistopen(false)}>
+                    <Button type="text" icon={<IconX />}></Button>
+                  </div>
                 </div>
               </div>
-            </div>
+            </Form>
           )}
           {data.map(obj => (
             <>
-              <CheckList title={obj.title} type={obj.type} />
+              <CheckList
+                title={obj.description}
+                type={obj.type}
+                isnotes={obj.notes}
+                isrequired={obj.required}
+                form={form}
+              />
             </>
           ))}
         </div>

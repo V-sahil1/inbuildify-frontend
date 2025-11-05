@@ -1,22 +1,19 @@
-import {
-  IconDotsVertical,
-  IconList,
-  IconMail,
-  IconPhone,
-  IconUserSquareRounded,
-} from '@tabler/icons-react';
-import { Button, Modal, Popover, Switch, Tag } from 'antd';
+import { IconDotsVertical, IconList, IconUserSquareRounded } from '@tabler/icons-react';
+import { Button, Modal, Popover, Switch, Tag, Tooltip } from 'antd';
 import { useEffect, useState } from 'react';
 import JobChecklist from './JobChecklist';
 import { JobOptions } from 'data/options';
 import { useRouter } from 'next/navigation';
 import { jobOptionRenderer } from './joboptions';
+import { UserContent } from '@/components/common/UserContent';
+import LeadDetailsForm from '@/components/leadDetail/forms/LeadDetailsForm';
 const JobDetailHeader = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isChecklistDreawerOpen, setChecklistDrawerOpen] = useState(false);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [activeAction, setActiveAction] = useState(null);
   const [isJobOptionModalOpen, setJobOptionModalOpen] = useState(false);
+  const [manageUserDetail, setManageUserOpen] = useState(false);
   const router = useRouter();
 
   const handleClose = () => {
@@ -55,28 +52,22 @@ const JobDetailHeader = () => {
     setActiveAction(item.key);
     setJobOptionModalOpen(true);
   };
-  const popOverContent = (
-    <div className="p-2">
-      <p className="my-2">Murthy</p>
-      <p className="my-2"> Lot 300 Tallis Cct,Tarneit,VIC,5345</p>
-      <p className="flex items-center gap-1 my-2">
-        <IconPhone size={15} />
-        7863625436
-      </p>
-      <p className="flex items-center gap-1 my-2">
-        <IconMail size={15} />
-        murthy@mailinator.com
-      </p>
-    </div>
-  );
+
   return (
     <>
       <div className="w-full pr-[100px]">
         <div className="flex justify-between w-full text-sm m-3">
           <div className="border-l-2 pl-2 cursor-pointer">
-            <Popover content={popOverContent}>
+            <Popover content={<UserContent />}>
               <div className="flex gap-2 items-center text-base font-semibold text-blue">
-                Murthy <IconUserSquareRounded color="var(--blue)" size={20} />
+                Murthy{' '}
+                <Tooltip title="Manage Contact">
+                  <IconUserSquareRounded
+                    color="var(--blue)"
+                    size={20}
+                    onClick={() => setManageUserOpen(true)}
+                  />
+                </Tooltip>
               </div>
               <div className="flex items-center gap-1">
                 Lot 300 Tallis Cct,Tarneit,VIC,5345<Tag color="green">Titled</Tag>
@@ -145,8 +136,7 @@ const JobDetailHeader = () => {
                                           className="mr-2"
                                           onChange={checked => {
                                             console.log(
-                                              `Finance Approval ${
-                                                checked ? 'approved' : 'not approved'
+                                              `Finance Approval ${checked ? 'approved' : 'not approved'
                                               }`
                                             );
                                           }}
@@ -256,6 +246,18 @@ const JobDetailHeader = () => {
             </div>
           </div>
         </Modal>
+        <LeadDetailsForm
+          open={manageUserDetail}
+          onCancel={() => {
+            setManageUserOpen(false);
+          }}
+          onSubmit={() => {
+            setManageUserOpen(false);
+          }}
+          initialValue={[]}
+          loading={false}
+          isLinkContact={true}
+        />
       </div>
     </>
   );

@@ -11,13 +11,15 @@ type CustomStepsPropsType = {
   currentValue: number;
   setCurrent: (value) => void;
   titlePlacement?: 'horizontal' | 'vertical';
+  status?: "wait" | "process" | "finish" | "error";
 };
 
-const CustomSteps: React.FC<CustomStepsPropsType> = ({
+export const CustomSteps: React.FC<CustomStepsPropsType> = ({
   steps,
   currentValue,
   setCurrent,
-  titlePlacement = 'horizontal',
+  titlePlacement = 'vertical',
+  status
 }) => {
   return (
     <div>
@@ -26,12 +28,13 @@ const CustomSteps: React.FC<CustomStepsPropsType> = ({
           labelPlacement={titlePlacement}
           current={currentValue}
           onChange={value => setCurrent(value)}
+          status={status}
           items={steps}
         />
       </div>
-      <div>{steps[currentValue].content}</div>
+      <div>{steps[currentValue]?.content}</div>
     </div>
   );
 };
 
-export default CustomSteps;
+

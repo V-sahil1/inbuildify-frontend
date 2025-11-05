@@ -1,5 +1,15 @@
-import { IconGrid3x3, IconPlus, IconFilter } from '@tabler/icons-react';
-import { Button, Dropdown, Input, InputNumber, MenuProps, Select, Space } from 'antd';
+import { IconGrid3x3, IconPlus } from '@tabler/icons-react';
+import {
+  Button,
+  DatePicker,
+  Dropdown,
+  Input,
+  InputNumber,
+  MenuProps,
+  Select,
+  Space,
+  Switch,
+} from 'antd';
 import React from 'react';
 
 interface VariationHeaderProps {
@@ -72,48 +82,77 @@ const JobVariationActionBar = ({
   );
 
   return (
-    <div className="w-full flex items-center justify-between gap-4 px-3 py-6">
-      <Space>
-        <Button type="primary" onClick={onShowAll}>
-          Show All
-        </Button>
-
-        <Button>
-          Selected Items <span className="ml-1">{selectedCount}</span>
-        </Button>
-        {/* Extra Dropdown */}
+    <div className="w-full px-3 py-6">
+      <div className="flex items-center justify-between">
         <div>
-          <Dropdown.Button
-            icon={<IconPlus size={20} />}
-            menu={{ items: extraItems, onClick: ({ key }) => onExtraSelect(key) }}
-          >
-            Extra 0
-          </Dropdown.Button>
+          <span className="block text-sm mb-1 text-font-color">Title</span>
+          <Input
+            placeholder="Post Contract Variation"
+            className="max-w-36"
+            value={title}
+            onChange={e => onTitleChange(e.target.value)}
+          />
         </div>
 
-        {/* Title */}
-        <span className="text-sm mb-1">Title</span>
-        <Input
-          placeholder="Post Contract Variation"
-          className="max-w-36"
-          value={title}
-          onChange={e => onTitleChange(e.target.value)}
-        />
-        {/* All filters packed inside dropdown */}
-        <Dropdown dropdownRender={() => filterContent} trigger={['click']}>
-          <Button icon={<IconFilter />} />
-        </Dropdown>
-      </Space>
+        <div>
+          <span className="block text-sm mb-1 text-font-color">Requested by</span>
+          <Select
+            placeholder="Please select"
+            value={requestedBy}
+            onChange={onRequestedByChange}
+            options={personOptions}
+            style={{ width: '100%' }}
+          />
+        </div>
+        <div>
+          <span className="block text-sm mb-1 text-font-color">Delayed Days</span>
+          <InputNumber
+            min={0}
+            value={delayedDays}
+            type="number"
+            onChange={onDelayedDaysChange}
+            style={{ width: '100%' }}
+          />
+        </div>
+        <div>
+          <span className="block text-sm mb-1 text-font-color">variation Date</span>
+          <DatePicker />
+        </div>
+        <div>
+          <span className="block text-sm mb-1 text-font-color">Show price master in pdf</span>
+          <Switch />
+        </div>
+      </div>
+      <div className="flex justify-between items-center mt-2">
+        <Space>
+          <Button type="primary" onClick={onShowAll}>
+            Show All
+          </Button>
 
-      {/* Right Side */}
-      <Space>
-        <span className="font-medium">Total Cost: ${totalCost.toFixed(2)}</span>
-        <Button onClick={onPreview}>Preview</Button>
-        <Button type="primary" onClick={onContinue}>
-          Continue
-        </Button>
-        <Button icon={<IconGrid3x3 />} />
-      </Space>
+          <Button>
+            Selected Items <span className="ml-1">{selectedCount}</span>
+          </Button>
+          {/* Extra Dropdown */}
+          <div>
+            <Dropdown.Button
+              icon={<IconPlus size={20} />}
+              menu={{ items: extraItems, onClick: ({ key }) => onExtraSelect(key) }}
+            >
+              Extra 0
+            </Dropdown.Button>
+          </div>
+        </Space>
+
+        {/* Right Side */}
+        <Space>
+          <span className="font-medium">Total Cost: ${totalCost.toFixed(2)}</span>
+          <Button onClick={onPreview}>Preview</Button>
+          <Button type="primary" onClick={onContinue}>
+            Continue
+          </Button>
+          <Button icon={<IconGrid3x3 />} />
+        </Space>
+      </div>
     </div>
   );
 };

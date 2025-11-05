@@ -12,7 +12,18 @@ const Index = () => {
     <>
       <div className="m-3">
         <div className="flex justify-between">
-          <StageProgress id="MH-001" title="Maintenance" status="Pending" steps={[]} />
+          <StageProgress
+            id="MH-001"
+            title="Maintenance"
+            status="Pending"
+            steps={[]}
+            data={[
+              { label: 'Builder', value: 'Murthy Muthuswamy', status: 'Active' },
+              { label: 'Company Administrator', value: 'Murthy Muthuswamy', status: 'Active' },
+              { label: 'Contract Admin', value: 'Murthy Muthuswamy', status: 'Active' },
+              { label: 'My Home Admin', value: 'Manasa Gummuluru', status: 'Inactive' },
+            ]}
+          />
         </div>
       </div>
       <div className="m-3">

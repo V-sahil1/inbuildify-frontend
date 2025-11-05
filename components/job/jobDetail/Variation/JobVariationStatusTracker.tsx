@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { Button, Dropdown, Tag } from 'antd';
 import { IconChevronDown, IconPencil, IconSettings } from '@tabler/icons-react';
 import StatusTracker, { Stage } from '@/components/common/StatusTracker';
+import MailSendModal from '@/components/common/Models/MailSendModal';
 
 const JobVariationStatusTracker = () => {
+  const [mailSendTypeOpen, setMailSendTypeOpen] = useState(null);
+  const [uploadComplete, setIsUploadComplete] = useState(false);
   const [stages, setStages] = useState<Stage[]>([
     {
       id: 1,
@@ -22,7 +25,7 @@ const JobVariationStatusTracker = () => {
                 {
                   label: 'Edit Variation',
                   type: 'default',
-                  onClick: () => {},
+                  onClick: () => { },
                 },
               ];
               if (updated[1]) updated[1].status = 'active';
@@ -40,16 +43,9 @@ const JobVariationStatusTracker = () => {
         {
           label: 'Approve',
           type: 'primary',
-          onClick: () =>
-            setStages(prev => {
-              const updated = [...prev];
-              if (updated[1].status === 'completed') return prev;
-              updated[1].status = 'completed';
-              updated[1].buttons = [];
-              if (updated[2]) updated[2].status = 'active';
-              console.log('Approved Step 2');
-              return updated;
-            }),
+          onClick: () => {
+            setMailSendTypeOpen(2);
+          },
         },
       ],
     },
@@ -66,25 +62,49 @@ const JobVariationStatusTracker = () => {
               const updated = [...prev];
               if (updated[2].status === 'completed') return prev;
               updated[2].status = 'completed';
-              updated[2].buttons = [];
+              updated[2].buttons = [
+                {
+                  label: 'Send',
+                  type: 'default',
+                  onClick: () => {
+                    setMailSendTypeOpen(3);
+                    setStages(prev => {
+                      const updated = [...prev];
+                      if (updated[2].status === 'completed') return prev;
+                      updated[2].status = 'completed';
+                      updated[2].buttons = [];
+                      if (updated[3]) updated[3].status = 'active';
+                      console.log('Skipped Step 3');
+                      return updated;
+                    });
+                  },
+                },
+                {
+                  label: 'Skip',
+                  type: 'default',
+                  onClick: () =>
+                    setStages(prev => {
+                      const updated = [...prev];
+                      if (updated[2].status === 'completed') return prev;
+                      updated[2].status = 'completed';
+                      updated[2].buttons = [];
+                      if (updated[3]) updated[3].status = 'active';
+                      console.log('Skipped Step 3');
+                      return updated;
+                    }),
+                },
+              ];
               if (updated[3]) updated[3].status = 'active';
-              console.log('eSign Step 3');
+              console.log('Skipped Step 3');
               return updated;
             }),
         },
         {
           label: 'Send',
           type: 'primary',
-          onClick: () =>
-            setStages(prev => {
-              const updated = [...prev];
-              if (updated[2].status === 'completed') return prev;
-              updated[2].status = 'completed';
-              updated[2].buttons = [];
-              if (updated[3]) updated[3].status = 'active';
-              console.log('Send Step 3');
-              return updated;
-            }),
+          onClick: () => {
+            setMailSendTypeOpen(3);
+          },
         },
         {
           label: 'Skip Sending',
@@ -94,7 +114,38 @@ const JobVariationStatusTracker = () => {
               const updated = [...prev];
               if (updated[2].status === 'completed') return prev;
               updated[2].status = 'completed';
-              updated[2].buttons = [];
+              updated[2].buttons = [
+                {
+                  label: 'eSign',
+                  type: 'default',
+                  onClick: () =>
+                    setStages(prev => {
+                      const updated = [...prev];
+                      if (updated[2].status === 'completed') return prev;
+                      updated[2].status = 'completed';
+                      updated[2].buttons = [];
+                      if (updated[3]) updated[3].status = 'active';
+                      console.log('Skipped Step 3');
+                      return updated;
+                    }),
+                },
+                {
+                  label: 'Send',
+                  type: 'default',
+                  onClick: () => {
+                    setMailSendTypeOpen(3);
+                    setStages(prev => {
+                      const updated = [...prev];
+                      if (updated[2].status === 'completed') return prev;
+                      updated[2].status = 'completed';
+                      updated[2].buttons = [];
+                      if (updated[3]) updated[3].status = 'active';
+                      console.log('Skipped Step 3');
+                      return updated;
+                    });
+                  },
+                },
+              ];
               if (updated[3]) updated[3].status = 'active';
               console.log('Skipped Step 3');
               return updated;
@@ -108,18 +159,32 @@ const JobVariationStatusTracker = () => {
       status: 'disabled',
       buttons: [
         {
-          label: 'Upload',
+          label: 'Upload Signed Variation',
           type: 'primary',
-          onClick: () =>
+          upload: true,
+          onClick: () => {
             setStages(prev => {
               const updated = [...prev];
               if (updated[3].status === 'completed') return prev;
               updated[3].status = 'completed';
-              updated[3].buttons = [];
+              updated[3].buttons = [
+                {
+                  label: 'Download',
+                  type: 'primary',
+                  onClick: () => { },
+                },
+                {
+                  label: 'Delete',
+                  type: 'primary',
+                  upload: true,
+                  onClick: () => { },
+                },
+              ];
               if (updated[4]) updated[4].status = 'active';
-              console.log('Uploaded Step 4');
+              console.log('eSign Step 3');
               return updated;
-            }),
+            });
+          },
         },
       ],
     },
@@ -129,7 +194,7 @@ const JobVariationStatusTracker = () => {
       status: 'disabled',
       buttons: [
         {
-          label: 'Yes',
+          label: 'Included',
           type: 'primary',
           onClick: () =>
             setStages(prev => {
@@ -143,7 +208,7 @@ const JobVariationStatusTracker = () => {
             }),
         },
         {
-          label: 'No',
+          label: 'Not Included',
           type: 'default',
           onClick: () =>
             setStages(prev => {
@@ -151,7 +216,7 @@ const JobVariationStatusTracker = () => {
               if (updated[4].status === 'completed') return prev;
               updated[4].status = 'completed';
               updated[4].buttons = [];
-              if (updated[6]) updated[6].status = 'active';
+              if (updated[5]) updated[5].status = 'active';
               console.log('No Step 5');
               return updated;
             }),
@@ -172,6 +237,7 @@ const JobVariationStatusTracker = () => {
               if (updated[5].status === 'completed') return prev;
               updated[5].status = 'completed';
               updated[5].buttons = [];
+              if (updated[6]) updated[6].status = 'active';
               console.log('Step 6 Sent Invoice');
               return updated;
             }),
@@ -192,6 +258,7 @@ const JobVariationStatusTracker = () => {
               if (updated[6].status === 'completed') return prev;
               updated[6].status = 'completed';
               updated[6].buttons = [];
+              if (updated[7]) updated[7].status = 'active';
               console.log('Step 7 Sent Notice');
               return updated;
             }),
@@ -199,6 +266,7 @@ const JobVariationStatusTracker = () => {
       ],
     },
   ]);
+  console.log('button', stages[3].buttons);
 
   return (
     <div className="p-3 bg-card-color">
@@ -212,7 +280,7 @@ const JobVariationStatusTracker = () => {
           <Button type="primary" className="text-sm">
             Create Another Variation
           </Button>
-          <Dropdown menu={{ items: [] }}>
+          <Dropdown menu={{ items: [{ key: 'preview', label: 'Preview Variation' }] }}>
             <Button className="text-sm">
               More Activities
               <IconChevronDown />
@@ -238,10 +306,84 @@ const JobVariationStatusTracker = () => {
 
       {/* Variation Steps */}
       <StatusTracker
+        setIsUploadComplete={setIsUploadComplete}
         stages={stages.map(stage => ({
           ...stage,
-          buttons: stage.id === 1 ? stage.buttons : stage.status === 'active' ? stage.buttons : [],
+          buttons:
+            stage.id === 1
+              ? stage.buttons
+              : stage.status === 'active' || stage.status === 'completed'
+                ? stage.buttons
+                : [],
         }))}
+      />
+      <MailSendModal
+        open={mailSendTypeOpen === 2}
+        onCancel={() => setMailSendTypeOpen(null)}
+        onSend={() => {
+          setStages(prev => {
+            const updated = [...prev];
+            if (updated[1].status === 'completed') return prev;
+            updated[1].status = 'completed';
+            updated[1].buttons = [];
+            if (updated[2]) updated[2].status = 'active';
+            console.log('Approved Step 2');
+            return updated;
+          });
+          setMailSendTypeOpen(null);
+        }}
+        title="Send Variation approved Notofication"
+        attachedCopy={true}
+        attachFile={false}
+      />
+      <MailSendModal
+        open={mailSendTypeOpen === 3}
+        onCancel={() => setMailSendTypeOpen(null)}
+        onSend={() => {
+          setMailSendTypeOpen(null);
+          setStages(prev => {
+            const updated = [...prev];
+            if (updated[2].status === 'completed') return prev;
+            updated[2].status = 'completed';
+            updated[2].buttons = [
+              {
+                label: 'eSign',
+                type: 'default',
+                onClick: () =>
+                  setStages(prev => {
+                    const updated = [...prev];
+                    if (updated[2].status === 'completed') return prev;
+                    updated[2].status = 'completed';
+                    updated[2].buttons = [];
+                    if (updated[3]) updated[3].status = 'active';
+                    console.log('Skipped Step 3');
+                    return updated;
+                  }),
+              },
+              {
+                label: 'ReSend',
+                type: 'default',
+                onClick: () =>
+                  setStages(prev => {
+                    setMailSendTypeOpen(3);
+                    const updated = [...prev];
+                    if (updated[2].status === 'completed') return prev;
+                    updated[2].status = 'completed';
+                    updated[2].buttons = [];
+                    if (updated[3]) updated[3].status = 'active';
+                    console.log('Skipped Step 3');
+                    return updated;
+                  }),
+              },
+            ];
+            if (updated[3]) updated[3].status = 'active';
+            console.log('Skipped Step 3');
+            return updated;
+          });
+        }}
+        title="Send this Variation"
+        attachedCopy={true}
+        attachFile={true}
       />
     </div>
   );

@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { message, Steps, Table, Typography } from 'antd';
+import { message, Table, Typography } from 'antd';
 import StageProgress from '@/components/common/StageProgress';
 import { jobWorkflowChecklistFields } from '@/components/formFields/jobWorkflowChecklistFields';
 import TimelineActionsBar, {
@@ -15,19 +15,7 @@ import {
 import router from 'next/router';
 import { JobWorkFlowChecklist } from 'data/types';
 import Loading from '@/components/common/Loading';
-const ClickableStep = ({ title, isCurrent, onClick }) => {
-  return (
-    <div
-      onClick={onClick}
-      style={{
-        cursor: 'pointer',
-        fontWeight: isCurrent ? 'bold' : 'normal',
-      }}
-    >
-      <h3>{title}</h3>
-    </div>
-  );
-};
+import { CustomSteps } from '@/components/common/CustomSteps';
 const index = () => {
   const { id } = router.query as { id: string };
   const [activeStep, setActiveStep] = useState(0);
@@ -60,20 +48,7 @@ const index = () => {
   useEffect(() => {
     if (status === Status.IDLE) fetchWorkflow();
   }, [status]);
-  const handleStepClick = (index: number) => {
-    setActiveStep(index);
 
-    if (index > Math.max(-1, ...finishedSteps)) {
-      const newFinished = Array.from({ length: index + 1 }, (_, i) => i);
-      setFinishedSteps(newFinished);
-    } else {
-      if (!finishedSteps.includes(index)) {
-        setFinishedSteps([...finishedSteps, index]);
-      }
-    }
-  };
-
-  const currentStepTitle = workflowProcess[activeStep]?.name;
   const currentStepId = workflowProcess[activeStep]?.workflowProcessId;
   const fetchWorkflowProcessTasks = async () => {
     setLoading(true);
@@ -128,49 +103,33 @@ const index = () => {
           </div>
         </div>
       </div>
-
       <div className="m-3">
-        <Steps current={activeStep} labelPlacement="vertical">
-          {workflowProcess.map((step, index) => {
-            const status = finishedSteps.includes(index)
-              ? 'finish'
-              : index === activeStep
-                ? 'process'
-                : 'wait';
-
-            return (
-              <Steps.Step
-                key={index}
-                status={status}
-                title={
-                  <ClickableStep
-                    title={step.name}
-                    isCurrent={activeStep === index}
-                    onClick={() => handleStepClick(index)}
-                  />
-                }
-              />
-            );
-          })}
-        </Steps>
-      </div>
-
-      <div>
-        <Typography.Title className="!text-lg m-10">{currentStepTitle}</Typography.Title>
-        <div className="overflow-x-auto">
-          {loading ? (
-            <div className="flex justify-center items-center h-[200px]">
-              <Loading type="primary" />
-            </div>
-          ) : (
-            <Table
-              dataSource={workflowProcessTasks}
-              columns={jobWorkflowChecklistFields(handleUpdateRow, handleDeleteRow)}
-              pagination={{ pageSize: 10 }}
-              rowKey="actionId"
-            />
-          )}
-        </div>
+        <CustomSteps
+          steps={workflowProcess.map((step, index) => ({
+            title: step.name,
+            content: (
+              <>
+                <Typography.Title className="!text-lg m-10">{step.name}</Typography.Title>
+                <div className="overflow-x-auto">
+                  {loading ? (
+                    <div className="flex justify-center items-center h-[200px]">
+                      <Loading type="primary" />
+                    </div>
+                  ) : (
+                    <Table
+                      dataSource={workflowProcessTasks}
+                      columns={jobWorkflowChecklistFields(handleUpdateRow, handleDeleteRow)}
+                      pagination={{ pageSize: 10 }}
+                      rowKey="actionId"
+                    />
+                  )}
+                </div>
+              </>
+            ),
+          }))}
+          currentValue={activeStep}
+          setCurrent={setActiveStep}
+        />
       </div>
     </div>
   );

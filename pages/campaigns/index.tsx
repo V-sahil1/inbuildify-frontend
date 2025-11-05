@@ -1,14 +1,4 @@
-import {
-  IconBattery,
-  IconBellOff,
-  IconBook2,
-  IconDotsVertical,
-  IconMail,
-  IconSearch,
-  IconShare3,
-  IconSpeakerphone,
-  IconUsersGroup,
-} from '@tabler/icons-react';
+import { IconDotsVertical, IconSearch, IconShare3 } from '@tabler/icons-react';
 import { Button, Divider, Input, Table, Tag } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { useRouter } from 'next/router';
@@ -16,6 +6,7 @@ import { data, DataType } from 'data/CampaignData';
 import { useEffect, useMemo, useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { debounce } from 'lodash';
+import SystemRoutes from '@lib/constants/Routes';
 export default function Campaigns() {
   const router = useRouter();
   const pathname = usePathname();
@@ -43,43 +34,43 @@ export default function Campaigns() {
     };
   }, [debouncedUpdateURL, campaignName]);
 
-  const card = [
-    {
-      title: 'Created',
-      count: '59',
-      icon: <IconSpeakerphone size={40} />,
-      footer: 'Last 1 month: 1',
-    },
-    {
-      title: 'Sent',
-      count: '14',
-      icon: <IconMail size={40} />,
-      footer: 'Last 1 month: 0(0 %)',
-    },
-    {
-      title: 'Campaign Contacts',
-      count: '4',
-      icon: <IconBook2 size={40} />,
-      footer: 'Last 1 month: 0(0 %)',
-    },
-    {
-      title: 'Groups',
-      count: '1',
-      icon: <IconUsersGroup size={40} />,
-    },
-    {
-      title: 'Unsubscribed',
-      count: '0',
-      icon: <IconBellOff size={40} />,
-      footer: 'Last 1 month: 0(0 %)',
-    },
-    {
-      title: 'Usage',
-      count: '0%',
-      icon: <IconBattery size={40} />,
-      footer: 'Sent 0 out of 1000',
-    },
-  ];
+  // const card = [
+  //   {
+  //     title: 'Created',
+  //     count: '59',
+  //     icon: <IconSpeakerphone size={40} />,
+  //     footer: 'Last 1 month: 1',
+  //   },
+  //   {
+  //     title: 'Sent',
+  //     count: '14',
+  //     icon: <IconMail size={40} />,
+  //     footer: 'Last 1 month: 0(0 %)',
+  //   },
+  //   {
+  //     title: 'Campaign Contacts',
+  //     count: '4',
+  //     icon: <IconBook2 size={40} />,
+  //     footer: 'Last 1 month: 0(0 %)',
+  //   },
+  //   {
+  //     title: 'Groups',
+  //     count: '1',
+  //     icon: <IconUsersGroup size={40} />,
+  //   },
+  //   {
+  //     title: 'Unsubscribed',
+  //     count: '0',
+  //     icon: <IconBellOff size={40} />,
+  //     footer: 'Last 1 month: 0(0 %)',
+  //   },
+  //   {
+  //     title: 'Usage',
+  //     count: '0%',
+  //     icon: <IconBattery size={40} />,
+  //     footer: 'Sent 0 out of 1000',
+  //   },
+  // ];
   const columns: ColumnsType<DataType> = [
     {
       title: 'Status',
@@ -139,7 +130,7 @@ export default function Campaigns() {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold">Campaigns</h1>
-      <div className="flex justify-between gap-3 mt-3">
+      {/* <div className="flex justify-between gap-3 mt-3">
         {card.map(op => (
           <div className="p-3 bg-card-color w-full">
             <p>{op.title}</p>
@@ -155,7 +146,7 @@ export default function Campaigns() {
             )}
           </div>
         ))}
-      </div>
+      </div> */}
       <div className="mt-6">
         <div className="flex justify-between mb-2 ">
           <div className="flex gap-2 w-[60%]">
@@ -168,7 +159,7 @@ export default function Campaigns() {
             />
             <p className="text-sm">54 Campaigns</p>
           </div>
-          <Button type="primary" onClick={() => router.push('/campaigns/CreateCampaign')}>
+          <Button type="primary" onClick={() => router.push(`${SystemRoutes.CAMPAIGN}/create`)}>
             New Campaign
           </Button>
         </div>

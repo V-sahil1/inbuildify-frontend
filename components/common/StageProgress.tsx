@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button, Dropdown, message, Tag } from 'antd';
+import { Button, Dropdown, message, Popover, Tag } from 'antd';
 import { IconDots } from '@tabler/icons-react';
 import { useAppDispatch } from '@hooks/redux';
 import {
@@ -16,6 +16,7 @@ import transferLeadFields from '../formFields/transferLeadFields';
 import CloseLeadModal from '../leadDetail/LeadQuotations/CloseLeadModal';
 import { QuotationResponse } from '@redux/feature/quotation/IQuotationState';
 import SystemRoutes from '@lib/constants/Routes';
+import { HeaderContent } from './HeaderContent';
 
 type Step = {
   key: string;
@@ -35,6 +36,7 @@ type StageProgressProps = {
   showOptions?: boolean;
   idClassName?: string;
   quotations?: QuotationResponse[];
+  data?: { label: string; value: string; status: string }[];
 };
 
 const actions = [
@@ -82,6 +84,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
   showOptions = false,
   idClassName,
   quotations,
+  data,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
@@ -181,17 +184,18 @@ const StageProgress: React.FC<StageProgressProps> = ({
     <div className="flex items-center justify-between flex-wrap gap-2 min-w-[300px] ">
       <div className="flex flex-col gap-2">
         {/* Info */}
-        <div className="flex items-center gap-2">
-          <span className="font-medium">
-            {title} <span className="text-secondary">{id && `- ${id}`}</span>
-          </span>
-          {status && (
-            <Tag color="cyan" className="rounded-md">
-              {status}
-            </Tag>
-          )}
-        </div>
-
+        <Popover content={data ? <HeaderContent id={id} leadsource="website" data={data} /> : null}>
+          <div className="flex items-center gap-2 cursor-pointer">
+            <span className="font-medium">
+              {title} <span className="text-secondary">{id && `- ${id}`}</span>
+            </span>
+            {status && (
+              <Tag color="cyan" className="rounded-md">
+                {status}
+              </Tag>
+            )}
+          </div>
+        </Popover>
         {/* Step Progress */}
         <div className="flex w-full">
           {steps.map((step, index) => {
@@ -273,9 +277,8 @@ const StageProgress: React.FC<StageProgressProps> = ({
             )}
           >
             <button
-              className={`btn border ${
-                dropdownVisible ? 'border-red-500 bg-red-50' : 'border-red-500'
-              } rounded-md p-1`}
+              className={`btn border ${dropdownVisible ? 'border-red-500 bg-red-50' : 'border-red-500'
+                } rounded-md p-1`}
               onClick={() => setDropdownVisible(!dropdownVisible)}
             >
               <IconDots stroke={2} className="text-red-500" />

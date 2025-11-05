@@ -1,4 +1,5 @@
-import { Button } from 'antd';
+import { IconDotsVertical } from '@tabler/icons-react';
+import { Button, Dropdown } from 'antd';
 
 type Steps = {
   key: string;
@@ -8,6 +9,7 @@ type Steps = {
   icon: string;
   date?: string;
   onClick?: () => void;
+  options?: { key: string; label: string }[];
 };
 
 type WorkflowStepsProps = {
@@ -51,10 +53,13 @@ const WorkflowSteps: React.FC<WorkflowStepsProps> = ({ steps }) => {
                   </div>
                 </div>
                 <Button type="link">{item.label}</Button>
-                <div className="text-xs ">
+                <div className="text-xs flex justify-between px-2">
                   <p>
                     {item?.status} {item.date && 'on'} {item?.date}
                   </p>
+                  <Dropdown menu={{ items: item.options }}>
+                    <IconDotsVertical size={15} className="text-blue" />
+                  </Dropdown>
                 </div>
               </div>
             </div>

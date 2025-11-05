@@ -37,11 +37,10 @@ const TimelineActionsBar: FC<TimelineActionsBarProps> = ({
               key={tab.type}
               onClick={() => onTabChange(tab.type)}
               className={`px-2 sm:px-3 py-1 sm:text-sm text-xs rounded-full transition flex gap-2
-              ${
-                activeTab === tab.type
+              ${activeTab === tab.type
                   ? 'bg-[--primary] text-white font-medium'
                   : 'hover:text-[--primary]'
-              }
+                }
               `}
             >
               {tab.label}

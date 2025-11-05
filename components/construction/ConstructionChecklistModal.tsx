@@ -1,5 +1,5 @@
-import { useUsersHook } from '@hooks/useUserData';
-import { Button, Checkbox, Form, Input, Modal, Switch } from 'antd';
+
+import { Checkbox, Form, Input, Modal } from 'antd';
 import { useState } from 'react';
 
 const ConstructionChecklistModal = ({
@@ -10,10 +10,10 @@ const ConstructionChecklistModal = ({
   isDefect,
   initialValues,
 }) => {
-  console.log(initialValues);
+
   const [form] = Form.useForm();
   const [hideSetting, setHideSetting] = useState(true);
-  // const {users} = useUsersHook()
+
   async function handleSubmit() {
     const values = await form.validateFields();
     onSubmit(values);

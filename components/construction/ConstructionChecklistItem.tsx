@@ -22,13 +22,12 @@ import {
 } from 'antd';
 import BookingSupplierDrawer from './BookingSupplierDrawer';
 import { useState } from 'react';
-import EmailContent from './EmailContent';
 import ChecklistNotesModal from './ChecklisrNotesModal';
 import { ChecklistSubtaskModal } from './ChecklistSubtaskModal';
 import { ChecklistSubtaskItem } from './ChecklistSubtaskItem';
-import { color } from 'framer-motion';
 import { ConfirmationContentModal } from '../common/ConfirmationContentModal';
 import ConstructionChecklistModal from './ConstructionChecklistModal';
+import MailSendModal from '../common/Models/MailSendModal';
 
 const ConstructionChecklistItem = ({
   values,
@@ -251,14 +250,14 @@ const ConstructionChecklistItem = ({
           setSupplierStatus({ status: 'pending', color: 'yellow' });
         }}
       />
-      <EmailContent
+      <MailSendModal
         title={`Supplier - ${values?.checklist}`}
         open={supplierMessageOpen}
         onCancel={() => setSupplierMessageOpen(false)}
-        onSubmit={() => {
+        onSend={() => {
           setSupplierMessageOpen(false);
         }}
-        initialValues={{}}
+        attachFile={true}
       />
       <ChecklistNotesModal
         open={notesOpen}

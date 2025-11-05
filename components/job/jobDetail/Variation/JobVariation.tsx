@@ -2,6 +2,7 @@ import { IconDotsVertical } from '@tabler/icons-react';
 import { Button, Dropdown, Table, Tag } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { JobVariationDataType } from 'data/types';
+import dayjs from 'dayjs';
 
 type JobVariationProps = {
   data: JobVariationDataType[];
@@ -47,11 +48,7 @@ const JobVariation: React.FC<JobVariationProps> = ({ data, setActiveScreen }) =>
               </div>
             </div>
             <div>
-              {new Date(record.Created.date).toLocaleDateString('en-GB', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-              })}
+              {dayjs(record.Created.date).format('DD/MM/YYYY')}
             </div>
           </div>
         );
@@ -70,11 +67,7 @@ const JobVariation: React.FC<JobVariationProps> = ({ data, setActiveScreen }) =>
               </div>
             </div>
             <div>
-              {new Date(record.Approved.date).toLocaleDateString('en-GB', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-              })}
+              {dayjs(record.Approved.date).format('DD/MM/YYYY')}
             </div>
           </div>
         );
@@ -114,12 +107,14 @@ const JobVariation: React.FC<JobVariationProps> = ({ data, setActiveScreen }) =>
                   label: 'Delete',
                 },
               ],
-              onClick: e => {},
+              onClick: e => {
+                if (e.key === 'edit') {
+                  setActiveScreen('createVariation');
+                }
+              },
             }}
           >
-            <span>
-              <IconDotsVertical />
-            </span>
+            <IconDotsVertical size={20} className="cursor-pointer" />
           </Dropdown>
         </>
       ),

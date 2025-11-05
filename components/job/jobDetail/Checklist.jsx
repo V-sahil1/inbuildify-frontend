@@ -1,9 +1,9 @@
 import { IconPencil, IconPlus } from '@tabler/icons-react';
-import { Button, Checkbox, Input, Select } from 'antd';
+import { Button, Checkbox, Form, Input, Select } from 'antd';
 import { useState } from 'react';
 const { TextArea } = Input;
 
-const CheckList = ({ title, type }) => {
+const CheckList = ({ title, type, isnotes, isrequired, form }) => {
   const [isNotesOpen, setNotesOpen] = useState(false);
   const [isEditNotesopen, setIsEditNotesOpen] = useState(false);
 
@@ -33,20 +33,25 @@ const CheckList = ({ title, type }) => {
           {type === 'checkbox' && <Checkbox />}
         </div>
       </div>
-      <div className="flex gap-2 items-center" onClick={() => setNotesOpen(true)}>
-        <div className="rounded-full text-sm w-4 h-4  text-white bg-primary flex items-center justify-center">
-          {' '}
-          <IconPlus size={15} />{' '}
+      {isnotes && (
+        <div className="flex gap-2 items-center cursor-pointer" onClick={() => setNotesOpen(true)}>
+          <div className="rounded-full text-sm w-4 h-4  text-white bg-primary flex items-center justify-center">
+            {' '}
+            <IconPlus size={15} />{' '}
+          </div>
+          <div>Notes</div>
+          {isEditNotesopen && <IconPencil size={20} />}
         </div>
-        <div>Notes</div>
-        {isEditNotesopen && <IconPencil size={20} />}
-      </div>
+      )}
+
       {isNotesOpen && (
         <div className="bg-card-color p-3 ">
-          <TextArea showCount maxLength={500} />
+          <Form.Item name="notesDetail" initialValue={form.getFieldValue('notesDetail') || ''}>
+            <TextArea showCount maxLength={500} />
+          </Form.Item>
           <div className="flex gap-2 justify-end mt-6">
             <Button onClick={() => setNotesOpen(false)}>Cancel</Button>
-            <Button type="primary" onClick={handleNotesEdit}>
+            <Button htmlType="submit" type="primary" onClick={handleNotesEdit}>
               {' '}
               OK
             </Button>
