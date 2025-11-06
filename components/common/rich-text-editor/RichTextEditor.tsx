@@ -104,45 +104,52 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     ];
   }, [value]);
 
+  const serialize = (nodes: Descendant[]): string => {
+    return nodes
+      .map(node => {
+        if (Editor.isEditor(node)) return serialize(node.children);
+
+        if ('text' in node) {
+          let text = node.text;
+          if ((node as any).bold) text = `<strong>${text}</strong>`;
+          if ((node as any).italic) text = `<em>${text}</em>`;
+          if ((node as any).underline) text = `<u>${text}</u>`;
+          if ((node as any).color)
+            text = `<span style="color:${(node as any).color}">${text}</span>`;
+          if ((node as any).fontFamily)
+            text = `<span style="font-family:${(node as any).fontFamily}">${text}</span>`;
+          if ((node as any).fontSize)
+            text = `<span style="font-size:${(node as any).fontSize}">${text}</span>`;
+          return text;
+        }
+
+        const children = serialize(node.children);
+        switch ((node as any).type) {
+          case 'paragraph':
+            return `<p>${children}</p>`;
+          case 'heading-one':
+            return `<h1>${children}</h1>`;
+          case 'heading-two':
+            return `<h2>${children}</h2>`;
+          case 'bulleted-list':
+            return `<ul>${children}</ul>`;
+          case 'numbered-list':
+            return `<ol>${children}</ol>`;
+          case 'list-item':
+            return `<li>${children}</li>`;
+          case 'block-quote':
+            return `<blockquote>${children}</blockquote>`;
+          default:
+            return `<div>${children}</div>`;
+        }
+      })
+      .join('');
+  };
+
   const handleChange = useCallback(
     (newValue: Descendant[]) => {
-      const hasFormatting = newValue.some(node => {
-        if ('children' in node) {
-          return (
-            node.type !== 'paragraph' ||
-            node.children.some(child => {
-              if ('text' in child) {
-                return (
-                  child.bold ||
-                  child.italic ||
-                  child.underline ||
-                  child.code ||
-                  child.fontFamily ||
-                  child.fontSize ||
-                  child.color
-                );
-              }
-              return false;
-            })
-          );
-        }
-        return false;
-      });
-
-      if (hasFormatting) {
-        onChange(JSON.stringify(newValue));
-      } else {
-        const textContent = newValue
-          .map(node => {
-            if ('children' in node) {
-              return node.children.map(child => ('text' in child ? child.text : '')).join('');
-            }
-            return '';
-          })
-          .join('\n');
-
-        onChange(textContent);
-      }
+      const html = serialize(newValue);
+      onChange(html);
     },
     [onChange]
   );
