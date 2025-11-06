@@ -2,6 +2,8 @@
 
 import React, { KeyboardEvent, MouseEvent, useCallback, useMemo } from 'react';
 import { Descendant, Editor, Element as SlateElement, Transforms, createEditor } from 'slate';
+import DOMPurify from 'dompurify';
+import { jsx } from 'slate-hyperscript';
 import { withHistory } from 'slate-history';
 import {
   Editable,
@@ -65,11 +67,53 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   const renderLeaf = useCallback((props: RenderLeafProps) => <Leaf {...props} />, []);
   const editor = useMemo(() => withHistory(withReact(createEditor())), []);
 
+  const deserialize = (html: string): Descendant[] => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+
+    const walk = (el: Node): any => {
+      if (el.nodeType === 3) {
+        return el.textContent ? { text: el.textContent } : null;
+      }
+      if (!(el instanceof HTMLElement)) return null;
+
+      const children = Array.from(el.childNodes).map(walk).filter(Boolean);
+
+      switch (el.nodeName) {
+        case 'BODY':
+          return jsx('fragment', {}, children);
+        case 'P':
+          return jsx('element', { type: 'paragraph' }, children);
+        case 'H1':
+          return jsx('element', { type: 'heading-one' }, children);
+        case 'H2':
+          return jsx('element', { type: 'heading-two' }, children);
+        case 'STRONG':
+          return children.map((child: any) => ({ ...child, bold: true }));
+        case 'EM':
+          return children.map((child: any) => ({ ...child, italic: true }));
+        case 'U':
+          return children.map((child: any) => ({ ...child, underline: true }));
+        case 'LI':
+          return jsx('element', { type: 'list-item' }, children);
+        case 'UL':
+          return jsx('element', { type: 'bulleted-list' }, children);
+        case 'OL':
+          return jsx('element', { type: 'numbered-list' }, children);
+        default:
+          return children;
+      }
+    };
+
+    const fragment = walk(doc.body);
+    return Array.isArray(fragment) ? fragment : [fragment];
+  };
+
   const slateValue = useMemo(() => {
     if (!value) {
       return [
         {
-          type: 'paragraph' as const,
+          type: 'paragraph',
           children: [{ text: '' }],
         },
       ];
@@ -77,28 +121,18 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
     try {
       const parsed = JSON.parse(value);
-      if (Array.isArray(parsed)) {
-        return parsed;
-      }
+      if (Array.isArray(parsed)) return parsed;
     } catch {
-      const paragraphs = value.split('\n').map(line => ({
-        type: 'paragraph' as const,
-        children: [{ text: line }],
-      }));
-
-      return paragraphs.length > 0
-        ? paragraphs
-        : [
-            {
-              type: 'paragraph' as const,
-              children: [{ text: '' }],
-            },
-          ];
+      // if it's HTML
+      if (/<[a-z][\s\S]*>/i.test(value)) {
+        return deserialize(value);
+      }
     }
 
+    // fallback plain text
     return [
       {
-        type: 'paragraph' as const,
+        type: 'paragraph',
         children: [{ text: value }],
       },
     ];
@@ -148,8 +182,20 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
   const handleChange = useCallback(
     (newValue: Descendant[]) => {
-      const html = serialize(newValue);
-      onChange(html);
+      const html = serialize(newValue); // this produces your <img>...<b> string
+
+      // 3️⃣ Sanitize it properly
+      const cleanHtml = DOMPurify.sanitize(html, {
+        USE_PROFILES: { html: true },
+        ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto|tel):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
+        FORBID_TAGS: ['script', 'iframe', 'object', 'embed'],
+        FORBID_CONTENTS: ['script', 'style'],
+      });
+
+      console.log('🧹 Before:', html);
+      console.log('✅ After:', cleanHtml);
+
+      onChange(cleanHtml);
     },
     [onChange]
   );
