@@ -162,5 +162,5 @@ export const dummyBuilderData = {
   name: 'My Home',
   address: '45 Tallis Circuit, Truganina, VIC, 3029',
   phone: '0406166577',
-  email: 'ms@insimplify.com.au',
+  email: 'ms@inbuildify.com.au',
 };

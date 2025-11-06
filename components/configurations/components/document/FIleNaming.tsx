@@ -72,12 +72,6 @@ export const FileNaming = () => {
     },
   ];
 
-  const onRow: TableProps<any>['onRow'] = record => ({
-    onClick: () => {
-      console.log(`Parent row clicked: ${record.name}`);
-    },
-  });
-
   const insertAtCursor = (text: string) => {
     const input = inputRef.current?.resizableTextArea?.textArea;
     if (!input) return;
@@ -117,7 +111,6 @@ export const FileNaming = () => {
       <Table
         columns={columns}
         dataSource={data}
-        onRow={onRow}
         pagination={false}
         rowClassName="hover:bg-gray-50"
       />

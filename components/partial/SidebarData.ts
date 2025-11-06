@@ -77,19 +77,19 @@ export const menuList = (pathname: string) => {
         icon: IconTemplate,
         link: 'Templates',
         roles: commonRoles,
-        url: `/configuration/templates`,
+        url: `/admin/templates`,
       },
       {
         icon: IconCalendarTime,
         link: 'Scheduler',
         roles: commonRoles,
-        url: `/configuration/scheduler`,
+        url: `/admin/scheduler`,
       },
       {
         icon: IconWorldWww,
         link: 'Portal',
         roles: commonRoles,
-        url: `/configuration/portal`,
+        url: `/admin/portal`,
       },
     ];
   }
