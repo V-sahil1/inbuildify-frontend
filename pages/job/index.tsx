@@ -95,7 +95,6 @@ const JobPage: React.FC = () => {
 
   const handleFilterTabChange = (selectedType: string) => {
     console.log('Selected filter:', selectedType);
-    setActiveFilter(filterOptions.find(f => f.type === selectedType) || activeFilter);
     // You can call your API or set state here
   };
 
@@ -238,11 +237,6 @@ const JobPage: React.FC = () => {
     },
   ];
   type FilterType = 'inProgress' | 'completed' | 'onHold' | 'cancelled' | 'archieved';
-  const [activeFilter, setActiveFilter] = useState<{
-    type: FilterType;
-    label: string;
-    count?: number;
-  }>({ type: 'inProgress', label: 'In Progress' });
   const filterOptions: Array<{
     type: FilterType;
     label: string;
@@ -261,8 +255,7 @@ const JobPage: React.FC = () => {
         <div className="text-md md:text-2xl font-bold">Job List</div>
         <div className="flex">
           <TimelineActionsBar
-            tabs={filterOptions.map(f => ({ type: f.type, label: f.label, count: f.count }))}
-            activeTab={activeFilter.type}
+            tabs={filterOptions}
             onTabChange={handleFilterTabChange}
             isActionShow={false}
             isCountShow={true}

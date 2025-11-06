@@ -4,8 +4,8 @@ import { useUsersHook } from '@hooks/useUserData';
 
 const ConstructionModelFields = (): FormField[] => {
   const [mailOpen, setMailOpen] = useState(false);
-  const { users } = useUsersHook()
-  const userOptions = users.map((user) => ({ label: user.name, value: user.usersId }))
+  const { users } = useUsersHook();
+  const userOptions = users.map(user => ({ label: user.name, value: user.usersId }));
   const fields: (FormField | false)[] = [
     {
       label: 'Construction Type',

@@ -161,7 +161,7 @@ export const JobWorkflowDrawer: React.FC<JobWorkflowDrawerProps> = ({ open, onCl
           onClose={() => {
             setOpenModal(prev => ({ ...prev, delete: false }));
           }}
-          onConfirm={() => { }}
+          onConfirm={() => {}}
           message={`Are you sure you want to delete this ${openModal.stageName}?`}
         />
       )}

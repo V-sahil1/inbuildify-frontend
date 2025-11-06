@@ -134,7 +134,6 @@ const LeadPage: React.FC = () => {
   const handleFilterTabChange = (selectedType: string) => {
     console.log('Selected filter:', selectedType);
     setCurrentFilter(selectedType);
-    setActiveFilter(filterOptions.find(f => f.type === selectedType) || activeFilter);
     // You can call your API or set state here
   };
 
@@ -285,11 +284,6 @@ const LeadPage: React.FC = () => {
     },
   ];
   type FilterType = 'all' | 'leads' | 'opportunities' | 'closedWon' | 'closedLost' | 'onHold';
-  const [activeFilter, setActiveFilter] = useState<{
-    type: FilterType;
-    label: string;
-    count?: number;
-  }>({ type: 'all', label: 'All' });
   const filterOptions: Array<{
     type: FilterType;
     label: string;
@@ -321,8 +315,7 @@ const LeadPage: React.FC = () => {
         <h1 className="text-2xl font-bold">{getFilterTitle(currentFilter)}</h1>
         <div>
           <TimelineActionsBar
-            tabs={filterOptions.map(f => ({ type: f.type, label: f.label, count: f.count }))}
-            activeTab={activeFilter.type}
+            tabs={filterOptions}
             onTabChange={handleFilterTabChange}
             isActionShow={false}
             isCountShow={true}

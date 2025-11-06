@@ -94,7 +94,6 @@ const TaskTable: React.FC = () => {
 
   const handleFilterTabChange = (selectedType: string) => {
     console.log('Selected filter:', selectedType);
-    setActiveFilter(filterOptions.find(f => f.type === selectedType) || activeFilter);
     // You can call your API or set state here
   };
 
@@ -214,11 +213,6 @@ const TaskTable: React.FC = () => {
     },
   ];
   type FilterType = 'today' | 'tomorrow' | 'this-week' | 'next-week' | 'overdue' | 'pending';
-  const [activeFilter, setActiveFilter] = useState<{
-    type: FilterType;
-    label: string;
-    count?: number;
-  }>({ type: 'today', label: 'Today' });
 
   const filterOptions: Array<{
     type: FilterType;
@@ -243,8 +237,7 @@ const TaskTable: React.FC = () => {
         <h1 className="text-2xl font-bold">Tasks</h1>
         <div>
           <TimelineActionsBar
-            tabs={filterOptions.map(f => ({ type: f.type, label: f.label, count: f.count }))}
-            activeTab={activeFilter.type}
+            tabs={filterOptions}
             onTabChange={handleFilterTabChange}
             isActionShow={false}
             isCountShow={true}

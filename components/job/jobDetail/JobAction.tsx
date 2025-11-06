@@ -143,7 +143,6 @@ const JobAction = () => {
         <div className="ml-8">
           <TimelineActionsBar
             tabs={tabs}
-            activeTab={activeTab}
             onTabChange={handleTabChange}
             actionItems={actionItems}
             onActionSelect={key => {

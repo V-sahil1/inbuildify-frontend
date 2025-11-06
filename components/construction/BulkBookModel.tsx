@@ -13,22 +13,16 @@ const BulkBookModel = ({
 }) => {
   const [form] = Form.useForm();
   type FilterType = 'currentStage' | 'allStages';
-  const [activeFilter, setActiveFilter] = useState<{
-    type: FilterType;
-    label: string;
-    count?: number;
-  }>({ type: 'currentStage', label: 'Current Stage' });
-
   const filterOptions: Array<{
     type: FilterType;
     label: string;
     count: number;
   }> = [
-      { type: 'currentStage', label: 'Current Stage', count: 0 },
-      { type: 'allStages', label: 'All Stages', count: 0 },
-    ];
+    { type: 'currentStage', label: 'Current Stage', count: 0 },
+    { type: 'allStages', label: 'All Stages', count: 0 },
+  ];
   const handleFilterTabChange = (selectedType: string) => {
-    setActiveFilter(filterOptions.find(f => f.type === selectedType) || activeFilter);
+    console.log('Type:', selectedType);
   };
 
   async function handleSubmit() {
@@ -42,8 +36,7 @@ const BulkBookModel = ({
       <div>
         <Form form={form}>
           <TimelineActionsBar
-            tabs={filterOptions.map(f => ({ type: f.type, label: f.label, count: f.count }))}
-            activeTab={activeFilter.type}
+            tabs={filterOptions}
             onTabChange={handleFilterTabChange}
             isActionShow={false}
             isCountShow={true}
@@ -85,7 +78,7 @@ const BulkBookModel = ({
               <Popconfirm
                 title="Are you sure you want to book the suppliers?"
                 onConfirm={handleSubmit}
-                onCancel={() => { }}
+                onCancel={() => {}}
                 okText="Yes"
                 cancelText="No"
               >

@@ -375,7 +375,7 @@ const LeadDetailsForm: React.FC<any> = ({
                       type="text"
                       icon={<IconUserCheck size={18} />}
                       className="text-blue-600 hover:text-blue-800"
-                    // onClick={() => setHideAddressForm(false)}
+                      // onClick={() => setHideAddressForm(false)}
                     />
                   </div>
                 </div>

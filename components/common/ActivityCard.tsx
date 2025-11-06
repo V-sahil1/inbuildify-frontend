@@ -42,7 +42,6 @@ const getStatusTag = (status: 'Sent' | 'Delivered') => {
 };
 
 const ActivityCard: React.FC<ActivityCardProps> = ({ data, tabs }) => {
-  const [activeTab, setActiveTab] = useState(tabs?.[0]?.type || 'Own');
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredData = data.filter(
@@ -59,8 +58,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ data, tabs }) => {
         <div className="flex sm:flex-row justify-between sm:items-center gap-3 mb-4">
           <TimelineActionsBar
             tabs={tabs}
-            activeTab={activeTab}
-            onTabChange={tab => setActiveTab(tab)}
+            onTabChange={tab => console.log(tab)}
             isActionShow={false}
             isCountShow={true}
           />

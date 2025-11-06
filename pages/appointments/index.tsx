@@ -172,11 +172,6 @@ export default function Appointments() {
   };
 
   type FilterType = 'today' | 'tomorrow' | 'this-week' | 'next-week' | 'pending';
-  const [activeFilter, setActiveFilter] = useState<{
-    type: FilterType;
-    label: string;
-    count?: number;
-  }>({ type: 'today', label: 'Today' });
 
   const filterOptions: Array<{
     type: FilterType;
@@ -195,7 +190,6 @@ export default function Appointments() {
   ];
   const handleFilterTabChange = (selectedType: string) => {
     console.log('Selected filter:', selectedType);
-    setActiveFilter(filterOptions.find(f => f.type === selectedType) || activeFilter);
   };
 
   const PopOverContent = (
@@ -210,8 +204,7 @@ export default function Appointments() {
         <h1 className="text-2xl font-bold">Appointments</h1>
         <div>
           <TimelineActionsBar
-            tabs={filterOptions.map(f => ({ type: f.type, label: f.label, count: f.count }))}
-            activeTab={activeFilter.type}
+            tabs={filterOptions}
             onTabChange={handleFilterTabChange}
             isActionShow={false}
             isCountShow={true}

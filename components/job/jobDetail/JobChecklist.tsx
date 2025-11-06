@@ -9,26 +9,17 @@ const JobChecklist = ({ open, onClose }: { open: boolean; onClose: () => void })
   const [isnewChecklistOpen, setNewchecklistopen] = useState(false);
   const [data, setData] = useState([]);
   const [form] = Form.useForm();
-
-  type FilterType = 'all' | 'pending' | 'completed';
-  const [activeFilter, setActiveFilter] = useState<{
-    type: FilterType;
-    label: string;
-    count?: number;
-  }>({ type: 'all', label: 'All' });
-
   const filterOptions: Array<{
-    type: FilterType;
+    type: string;
     label: string;
     count: number;
   }> = [
-      { type: 'all', label: 'All', count: data.length },
-      { type: 'pending', label: 'Pending', count: data.length },
-      { type: 'completed', label: 'Completed', count: data.length },
-    ];
+    { type: 'all', label: 'All', count: data.length },
+    { type: 'pending', label: 'Pending', count: data.length },
+    { type: 'completed', label: 'Completed', count: data.length },
+  ];
   const handleFilterTabChange = (selectedType: string) => {
     console.log('Selected filter:', selectedType);
-    setActiveFilter(filterOptions.find(f => f.type === selectedType) || activeFilter);
   };
 
   function handleSubmit(values) {
@@ -46,8 +37,7 @@ const JobChecklist = ({ open, onClose }: { open: boolean; onClose: () => void })
           <div className="flex justify-between">
             <div>
               <TimelineActionsBar
-                tabs={filterOptions.map(f => ({ type: f.type, label: f.label, count: f.count }))}
-                activeTab={activeFilter.type}
+                tabs={filterOptions}
                 onTabChange={handleFilterTabChange}
                 isActionShow={false}
                 isCountShow={true}

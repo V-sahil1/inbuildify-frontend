@@ -11,7 +11,7 @@ type CustomStepsPropsType = {
   currentValue: number;
   setCurrent: (value) => void;
   titlePlacement?: 'horizontal' | 'vertical';
-  status?: "wait" | "process" | "finish" | "error";
+  status?: 'wait' | 'process' | 'finish' | 'error';
 };
 
 export const CustomSteps: React.FC<CustomStepsPropsType> = ({
@@ -19,7 +19,7 @@ export const CustomSteps: React.FC<CustomStepsPropsType> = ({
   currentValue,
   setCurrent,
   titlePlacement = 'vertical',
-  status
+  status,
 }) => {
   return (
     <div>
@@ -36,5 +36,3 @@ export const CustomSteps: React.FC<CustomStepsPropsType> = ({
     </div>
   );
 };
-
-

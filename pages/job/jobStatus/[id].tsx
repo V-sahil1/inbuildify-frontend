@@ -20,7 +20,6 @@ const JobStatusTaskManager = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('All');
 
   const isAllTasksCompleted = (tasks: jobStatusTask[]) =>
     tasks.length > 0 && tasks.every(task => task.status === 'completed');
@@ -251,8 +250,9 @@ const JobStatusTaskManager = () => {
       <div className="flex justify-center md:ml-[35%]">
         <TimelineActionsBar
           tabs={tabs}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
+          onTabChange={(type: string) => {
+            console.log(type);
+          }}
           isActionShow={false}
           isCountShow={true}
         />

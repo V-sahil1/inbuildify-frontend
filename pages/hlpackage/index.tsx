@@ -249,11 +249,6 @@ export default function HLPackages() {
     | 'published'
     | 'sold'
     | 'unavailable';
-  const [activeFilter, setActiveFilter] = useState<{
-    type: FilterType;
-    label: string;
-    count?: number;
-  }>({ type: 'all', label: 'All' });
 
   const filterOptions: Array<{
     type: FilterType;
@@ -270,7 +265,6 @@ export default function HLPackages() {
   ];
   const handleFilterTabChange = (selectedType: string) => {
     console.log('Selected filter:', selectedType);
-    setActiveFilter(filterOptions.find(f => f.type === selectedType) || activeFilter);
   };
 
   const handleNewPackageSubmit = () => {
@@ -284,8 +278,7 @@ export default function HLPackages() {
         <h1 className="text-2xl font-bold">H & L Packages</h1>
         <div>
           <TimelineActionsBar
-            tabs={filterOptions.map(f => ({ type: f.type, label: f.label, count: f.count }))}
-            activeTab={activeFilter.type}
+            tabs={filterOptions}
             onTabChange={handleFilterTabChange}
             isActionShow={false}
             isCountShow={true}

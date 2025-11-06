@@ -14,7 +14,6 @@ import CustomAvtar from '@/components/common/CustomAvtar';
 import Link from 'next/link';
 import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineActionsBar';
 import HLPackageCopyModal from '@/components/common/Models/HLPackageCopyModal';
-import SystemRoutes from '@lib/constants/Routes';
 
 const QuotationPage: React.FC = () => {
   const router = useRouter();
@@ -95,7 +94,6 @@ const QuotationPage: React.FC = () => {
 
   const handleFilterTabChange = (selectedType: string) => {
     console.log('Selected filter:', selectedType);
-    setActiveFilter(filterOptions.find(f => f.type === selectedType) || activeFilter);
     // You can call your API or set state here
   };
 
@@ -249,11 +247,6 @@ const QuotationPage: React.FC = () => {
     | 'pendingApproval'
     | 'cancelled'
     | 'expired';
-  const [activeFilter, setActiveFilter] = useState<{
-    type: FilterType;
-    label: string;
-    count?: number;
-  }>({ type: 'all', label: 'All' });
   const filterOptions: Array<{
     type: FilterType;
     label: string;
@@ -278,8 +271,7 @@ const QuotationPage: React.FC = () => {
         <h1 className="text-2xl font-bold">Quotatioln List</h1>
         <div>
           <TimelineActionsBar
-            tabs={filterOptions.map(f => ({ type: f.type, label: f.label, count: f.count }))}
-            activeTab={activeFilter.type}
+            tabs={filterOptions}
             onTabChange={handleFilterTabChange}
             isActionShow={false}
             isCountShow={true}

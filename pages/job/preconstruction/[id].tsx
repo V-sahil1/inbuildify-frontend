@@ -19,14 +19,12 @@ import { CustomSteps } from '@/components/common/CustomSteps';
 const index = () => {
   const { id } = router.query as { id: string };
   const [activeStep, setActiveStep] = useState(0);
-  const [activeTab, setActiveTab] = useState('Own');
-  const [finishedSteps, setFinishedSteps] = useState<number[]>([]);
   const [workflowProcessTasks, setWorkflowProcessTasks] = useState([]);
   const [loading, setLoading] = useState(false);
   const { workflowProcess, status } = useAppSelector(state => state.workflow);
   const dispatch = useAppDispatch();
   const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
+    console.log(tab);
   };
 
   const handleUpdateRow = (updatedRecord: JobWorkFlowChecklist) => {
@@ -95,7 +93,6 @@ const index = () => {
           <div className="flex items-center">
             <TimelineActionsBar
               tabs={tabs}
-              activeTab={activeTab}
               onTabChange={handleTabChange}
               isActionShow={false}
               isCountShow={true}

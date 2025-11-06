@@ -25,11 +25,7 @@ export default function CreateCampaign() {
       <div className="flex items-center gap-3 mb-6">
         Campaign List <IconMathGreater size={15} /> Campaign
       </div>
-      <CustomSteps
-        currentValue={current}
-        setCurrent={setCurrent}
-        steps={steps}
-      ></CustomSteps>
+      <CustomSteps currentValue={current} setCurrent={setCurrent} steps={steps}></CustomSteps>
     </div>
   );
 }

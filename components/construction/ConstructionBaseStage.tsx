@@ -17,7 +17,6 @@ import InspectionCheckListDrawer from './InspectionCheckListDrawer';
 
 const ConstructionBaseStage = ({ setCurrent, id }) => {
   const [actionType, setActionType] = useState('');
-  const [inspectionOpen, setIsInspectionOpen] = useState(false);
   const [sendEmailOpen, setsendEmailOpen] = useState(false);
   const [checkOpen, setCheckOpen] = useState(false);
   const [defectOpen, setDefectOpen] = useState(false);
@@ -80,24 +79,17 @@ const ConstructionBaseStage = ({ setCurrent, id }) => {
   }, [debouncedUpdateURL]);
 
   type FilterType = 'all' | 'pending' | 'completed' | 'notApplicable';
-  const [activeFilter, setActiveFilter] = useState<{
-    type: FilterType;
-    label: string;
-    count?: number;
-  }>({ type: 'all', label: 'All' });
-
   const filterOptions: Array<{
     type: FilterType;
     label: string;
   }> = [
-      { type: 'all', label: 'All' },
-      { type: 'pending', label: 'Pending' },
-      { type: 'completed', label: 'Completed' },
-      { type: 'notApplicable', label: 'Not Applicable' },
-    ];
+    { type: 'all', label: 'All' },
+    { type: 'pending', label: 'Pending' },
+    { type: 'completed', label: 'Completed' },
+    { type: 'notApplicable', label: 'Not Applicable' },
+  ];
   const handleFilterTabChange = (selectedType: string) => {
     console.log('Selected filter:', selectedType);
-    setActiveFilter(filterOptions.find(f => f.type === selectedType) || activeFilter);
     handleFilterChange({ ...filters, checklistFilter: selectedType });
   };
   useEffect(() => {
@@ -121,7 +113,7 @@ const ConstructionBaseStage = ({ setCurrent, id }) => {
       form.setFieldsValue({ checklist: formValues.checklist });
     }
   }
-  function handleEditCheckStatus(checklist) { }
+  function handleEditCheckStatus(checklist) {}
 
   function handleAddChecklist(values) {
     setcheckItems(prev => [...prev, { values: values, isDefect: false }]);
@@ -192,7 +184,6 @@ const ConstructionBaseStage = ({ setCurrent, id }) => {
           <div>
             <TimelineActionsBar
               tabs={filterOptions.map(f => ({ type: f.type, label: f.label }))}
-              activeTab={activeFilter.type}
               onTabChange={handleFilterTabChange}
               isActionShow={false}
             />
@@ -331,7 +322,8 @@ const ConstructionBaseStage = ({ setCurrent, id }) => {
           to: ['abc', 'bhb'],
           subject: 'hello',
           content: 'hellooooo',
-        }} />
+        }}
+      />
       <UpdateStatusDrawer
         open={actionType === 'Update Status'}
         onCancel={() => setActionType(null)}

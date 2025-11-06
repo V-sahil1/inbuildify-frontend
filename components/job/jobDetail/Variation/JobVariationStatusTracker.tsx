@@ -25,7 +25,7 @@ const JobVariationStatusTracker = () => {
                 {
                   label: 'Edit Variation',
                   type: 'default',
-                  onClick: () => { },
+                  onClick: () => {},
                 },
               ];
               if (updated[1]) updated[1].status = 'active';
@@ -171,13 +171,13 @@ const JobVariationStatusTracker = () => {
                 {
                   label: 'Download',
                   type: 'primary',
-                  onClick: () => { },
+                  onClick: () => {},
                 },
                 {
                   label: 'Delete',
                   type: 'primary',
                   upload: true,
-                  onClick: () => { },
+                  onClick: () => {},
                 },
               ];
               if (updated[4]) updated[4].status = 'active';

@@ -134,11 +134,6 @@ export function OHShistoryDrawer({ open, onCancel }) {
   );
 
   type FilterType = 'all' | 'pending' | 'yes' | 'no' | 'N/A';
-  const [activeFilter, setActiveFilter] = useState<{
-    type: FilterType;
-    label: string;
-    count?: number;
-  }>({ type: 'all', label: 'All' });
 
   const filterOptions: Array<{
     type: FilterType;
@@ -153,7 +148,6 @@ export function OHShistoryDrawer({ open, onCancel }) {
   ];
   const handleFilterTabChange = (selectedType: string) => {
     console.log('Selected filter:', selectedType);
-    setActiveFilter(filterOptions.find(f => f.type === selectedType) || activeFilter);
   };
 
   return (
@@ -195,8 +189,7 @@ export function OHShistoryDrawer({ open, onCancel }) {
         // OHS List
         <div>
           <TimelineActionsBar
-            tabs={filterOptions.map(f => ({ type: f.type, label: f.label, count: f.count }))}
-            activeTab={activeFilter.type}
+            tabs={filterOptions}
             onTabChange={handleFilterTabChange}
             isActionShow={false}
             isCountShow={true}

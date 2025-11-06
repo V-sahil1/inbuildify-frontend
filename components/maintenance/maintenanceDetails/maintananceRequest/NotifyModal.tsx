@@ -101,12 +101,7 @@ const NotifyModal: React.FC<NotifyModalProps> = ({ open, onCancel, onSave, data 
       ]}
     >
       <div className="mb-4">
-        <TimelineActionsBar
-          tabs={tabs}
-          activeTab={notifyType}
-          onTabChange={handleTabChange}
-          isActionShow={false}
-        />
+        <TimelineActionsBar tabs={tabs} onTabChange={handleTabChange} isActionShow={false} />
       </div>
 
       <div className="flex gap-4 mb-4 items-center">

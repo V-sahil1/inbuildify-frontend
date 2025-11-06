@@ -1,4 +1,3 @@
-
 import { Checkbox, Form, Input, Modal } from 'antd';
 import { useState } from 'react';
 
@@ -10,7 +9,6 @@ const ConstructionChecklistModal = ({
   isDefect,
   initialValues,
 }) => {
-
   const [form] = Form.useForm();
   const [hideSetting, setHideSetting] = useState(true);
 

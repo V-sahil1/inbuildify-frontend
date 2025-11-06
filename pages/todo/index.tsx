@@ -87,7 +87,7 @@ const TodosPage: React.FC = () => {
 
   const handleFilterTabChange = (selectedType: string) => {
     console.log('Selected filter:', selectedType);
-    setActiveFilter(filterOptions.find(f => f.type === selectedType) || activeFilter);
+    // You can call your API or set state here
   };
 
   const columns: ColumnsType<TodoDataType> = [
@@ -215,11 +215,7 @@ const TodosPage: React.FC = () => {
   );
 
   type FilterType = 'today' | 'tomorrow' | 'this-week' | 'next-week' | 'overdue';
-  const [activeFilter, setActiveFilter] = useState<{
-    type: FilterType;
-    label: string;
-    count?: number;
-  }>({ type: 'today', label: 'Today' });
+
   const filterOptions: Array<{
     type: FilterType;
     label: string;
@@ -238,8 +234,7 @@ const TodosPage: React.FC = () => {
         <h1 className="text-2xl font-bold">Todo</h1>
         <div>
           <TimelineActionsBar
-            tabs={filterOptions.map(f => ({ type: f.type, label: f.label, count: f.count }))}
-            activeTab={activeFilter.type}
+            tabs={filterOptions}
             onTabChange={handleFilterTabChange}
             isActionShow={false}
             isCountShow={true}

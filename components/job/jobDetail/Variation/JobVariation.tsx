@@ -47,9 +47,7 @@ const JobVariation: React.FC<JobVariationProps> = ({ data, setActiveScreen }) =>
                 {record.Created.user}
               </div>
             </div>
-            <div>
-              {dayjs(record.Created.date).format('DD/MM/YYYY')}
-            </div>
+            <div>{dayjs(record.Created.date).format('DD/MM/YYYY')}</div>
           </div>
         );
       },
@@ -66,9 +64,7 @@ const JobVariation: React.FC<JobVariationProps> = ({ data, setActiveScreen }) =>
                 {record.Approved.user}
               </div>
             </div>
-            <div>
-              {dayjs(record.Approved.date).format('DD/MM/YYYY')}
-            </div>
+            <div>{dayjs(record.Approved.date).format('DD/MM/YYYY')}</div>
           </div>
         );
       },

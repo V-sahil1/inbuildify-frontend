@@ -277,8 +277,9 @@ const StageProgress: React.FC<StageProgressProps> = ({
             )}
           >
             <button
-              className={`btn border ${dropdownVisible ? 'border-red-500 bg-red-50' : 'border-red-500'
-                } rounded-md p-1`}
+              className={`btn border ${
+                dropdownVisible ? 'border-red-500 bg-red-50' : 'border-red-500'
+              } rounded-md p-1`}
               onClick={() => setDropdownVisible(!dropdownVisible)}
             >
               <IconDots stroke={2} className="text-red-500" />
