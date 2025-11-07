@@ -1,15 +1,13 @@
-import { IconCheck, IconDotsVertical, IconPencil, IconPinFilled } from '@tabler/icons-react';
-import { Button, Checkbox, DatePicker, Dropdown, Form } from 'antd';
-import { useState } from 'react';
+import { IconDotsVertical, IconPinFilled } from '@tabler/icons-react';
+import { Checkbox, DatePicker, Dropdown, Form } from 'antd';
 
 export function ChecklistSubtaskItem({ ind, checkind, values }) {
-  const [subTaskSave, setSubTaskSave] = useState(false);
   const subtaskItem = [
     { key: 'edit', label: 'Edit' },
     { key: 'delete', label: 'Delete' },
     { key: 'notApplicable', label: 'Mark As Not Applicable' },
   ];
-  function handleSave() {}
+
   return (
     <>
       <div className="table-row bg-card-color px-3">

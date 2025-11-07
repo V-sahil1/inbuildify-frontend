@@ -4,7 +4,6 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { debounce } from 'lodash';
 import DateFilterDropdown from '../common/custom-selects/DateFilterDropdown';
-import { title } from 'process';
 export default function CampaignFilter() {
   const router = useRouter();
   const pathname = usePathname();
@@ -46,38 +45,33 @@ export default function CampaignFilter() {
     { title: 'Land', options: ['No', 'Yes'] },
     { title: 'Finance', options: ['No', 'Yes'] },
   ];
+  const filterOptions = [
+    'Leads/jobs',
+    'Import Contacts',
+    'Campaign Contacts',
+    'Groups',
+    'Referral Partners',
+    'Supplier/Trades',
+  ];
   return (
     <>
       <div>
         <div className="flex justify-between mb-3 text-sm">
-          <div>
-            <Checkbox /> Leads/jobs
-          </div>
-          <div>
-            <Checkbox /> Import Contacts <p className="text-blue">import more</p>
-          </div>
-          <div>
-            <Checkbox /> Campaign Contacts
-          </div>
-          <div>
-            <Checkbox /> Groups
-          </div>
-          <div>
-            <Checkbox /> Referral Partners
-          </div>
-          <div>
-            <Checkbox /> Supplier/Trades
-          </div>
+          {filterOptions.map(opt => (
+            <div>
+              <Checkbox /> {opt}
+            </div>
+          ))}
         </div>
         <div className="bg-body-color p-3 mb-3">
           <p className="mb-2 font-medium">Filter Options</p>
           <div className="flex justify-between text-sm">
-            {filterCheckBoxData.map(item => (
-              <div>
+            {filterCheckBoxData.map((item, ind) => (
+              <div key={ind}>
                 <p>{item.title}</p>
                 <div className="text-xs">
-                  {item.options.map(op => (
-                    <div>
+                  {item.options.map((op, ind) => (
+                    <div key={ind}>
                       <Checkbox /> {op}
                     </div>
                   ))}
@@ -86,7 +80,7 @@ export default function CampaignFilter() {
             ))}
             <div>
               <p>Created Date</p>
-              <DateFilterDropdown onFilter={() => {}} onClear={() => {}} />
+              <DateFilterDropdown onFilter={() => { }} onClear={() => { }} />
             </div>
             <div>
               <p>Address</p>

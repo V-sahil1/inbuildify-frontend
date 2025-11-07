@@ -103,6 +103,7 @@ const index = () => {
       <div className="m-3">
         <CustomSteps
           steps={workflowProcess.map((step, index) => ({
+            key: index,
             title: step.name,
             content: (
               <>

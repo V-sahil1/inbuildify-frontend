@@ -254,7 +254,7 @@ export const ColorPdf = ({}) => {
               // Outer map: Iterate over each category (BRICKS, ROOF TILES, etc.)
               <>
                 {/* Category Title Row (Spanning all columns) */}
-                <View style={[ItemTable.row, ItemTable.categoryHeaderRow]}>
+                <View key={index} style={[ItemTable.row, ItemTable.categoryHeaderRow]}>
                   <Text
                     style={[
                       ItemTable.cell,

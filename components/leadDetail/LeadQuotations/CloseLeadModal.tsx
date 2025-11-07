@@ -124,6 +124,7 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
                     {quotations?.map((quotation, index) => {
                       return (
                         <Radio
+                          key={index}
                           className="flex items-center ml-10 p-2  font-medium"
                           value={(quotation?.versions[0] as any)?.quotationVersionId}
                         >

@@ -447,9 +447,9 @@ const AdditionalFieldPdf = ({}) => {
       {isCheckBox ? (
         <View style={{ width: 300, flexDirection: 'row', gap: 2, flexWrap: 'wrap' }}>
           :{' '}
-          {options?.map(op =>
+          {options?.map((op, index) =>
             Value === op ? (
-              <View style={{ flexDirection: 'row' }}>
+              <View key={index} style={{ flexDirection: 'row' }}>
                 {' '}
                 <View style={checkBoxStyle.container}>
                   <Image src="/check.png"></Image>
@@ -457,7 +457,7 @@ const AdditionalFieldPdf = ({}) => {
                 <Text>{op}</Text>{' '}
               </View>
             ) : (
-              <View style={{ flexDirection: 'row' }}>
+              <View key={index} style={{ flexDirection: 'row' }}>
                 {' '}
                 <View style={checkBoxStyle.container}></View> <Text>{op}</Text>{' '}
               </View>
@@ -503,8 +503,9 @@ const AdditionalFieldPdf = ({}) => {
         <View style={styles.headerText}>
           <Text>Location Of Building Site</Text>
         </View>
-        {data.LocationOfBuildingSite.map(item => (
+        {data.LocationOfBuildingSite.map((item, index) => (
           <ViewData
+            key={index}
             label={item.label}
             isCheckBox={item.isCheckBox}
             Value={item.Value}
@@ -514,8 +515,9 @@ const AdditionalFieldPdf = ({}) => {
         <View style={styles.headerText}>
           <Text>Build Zone</Text>
         </View>
-        {data.BuildZone.map(item => (
+        {data.BuildZone.map((item, index) => (
           <ViewData
+            key={index}
             label={item.label}
             isCheckBox={item.isCheckBox}
             Value={item.Value}
@@ -527,8 +529,9 @@ const AdditionalFieldPdf = ({}) => {
             Site Fill (Enter the values of maximum filled area)
           </Text>
         </View>
-        {data.SiteFill.map(item => (
+        {data.SiteFill.map((item, index) => (
           <ViewData
+            key={index}
             label={item.label}
             isCheckBox={item.isCheckBox}
             Value={item.Value}
@@ -538,8 +541,9 @@ const AdditionalFieldPdf = ({}) => {
         <View style={styles.item}>
           <Text style={styles.secondaryText}>Site Fall (As per Engineering)</Text>
         </View>
-        {data.SiteFall.map(item => (
+        {data.SiteFall.map((item, index) => (
           <ViewData
+            key={index}
             label={item.label}
             isCheckBox={item.isCheckBox}
             Value={item.Value}
@@ -549,8 +553,9 @@ const AdditionalFieldPdf = ({}) => {
         <View style={styles.headerText}>
           <Text>Design Guidelines and Other Requirements</Text>
         </View>
-        {data.DesignGuidelinesandOtherRequirements.map(item => (
+        {data.DesignGuidelinesandOtherRequirements.map((item, index) => (
           <ViewData
+            key={index}
             label={item.label}
             isCheckBox={item.isCheckBox}
             Value={item.Value}
@@ -560,8 +565,9 @@ const AdditionalFieldPdf = ({}) => {
         <View style={styles.item}>
           <Text style={styles.secondaryText}>Roof Type</Text>
         </View>
-        {data.RoofType.map(item => (
+        {data.RoofType.map((item, index) => (
           <ViewData
+            key={index}
             label={item.label}
             isCheckBox={item.isCheckBox}
             Value={item.Value}
@@ -571,8 +577,9 @@ const AdditionalFieldPdf = ({}) => {
         <View style={styles.item}>
           <Text style={styles.secondaryText}>CONSTRUCTION TYPE</Text>
         </View>
-        {data.constructiontype.map(item => (
+        {data.constructiontype.map((item, index) => (
           <ViewData
+            key={index}
             label={item.label}
             isCheckBox={item.isCheckBox}
             Value={item.Value}
@@ -582,8 +589,9 @@ const AdditionalFieldPdf = ({}) => {
         <View style={styles.item}>
           <Text style={styles.secondaryText}>SETBACK FOR SINGLE STOREY AND GROUND FLOOR</Text>
         </View>
-        {data.setbackForSingleStoreyAndGroundFloor.map(item => (
+        {data.setbackForSingleStoreyAndGroundFloor.map((item, index) => (
           <ViewData
+            key={index}
             label={item.label}
             isCheckBox={item.isCheckBox}
             Value={item.Value}
@@ -593,8 +601,9 @@ const AdditionalFieldPdf = ({}) => {
         <View style={styles.item}>
           <Text style={styles.secondaryText}>SETBACK FOR DOUBLE STOREY FIRST FLOOR</Text>
         </View>
-        {data.setbackForDoubleStoreyFirstFloor.map(item => (
+        {data.setbackForDoubleStoreyFirstFloor.map((item, index) => (
           <ViewData
+            key={index}
             label={item.label}
             isCheckBox={item.isCheckBox}
             Value={item.Value}

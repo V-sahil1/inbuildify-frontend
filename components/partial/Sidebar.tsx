@@ -93,6 +93,10 @@ export default function Sidebar({
             alt="logo"
             width={200}
             height={100}
+            className="cursor-pointer"
+            onClick={() => {
+              router.push('/');
+            }}
           />
         </h4>
       </div>

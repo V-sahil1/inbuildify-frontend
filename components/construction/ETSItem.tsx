@@ -14,8 +14,8 @@ export const ETSItem = ({ onRemove, index, form, onConfirm, tableHeaderField }) 
   return (
     <div className="table-row hover:bg-card-color ">
       <div className="table-cell text-center p-3 align-middle">{index + 1}</div>
-      {tableHeaderField.map(field => (
-        <div className="table-cell text-center p-3 align-middle">
+      {tableHeaderField.map((field, index) => (
+        <div key={index} className="table-cell text-center p-3 align-middle">
           <Form.Item name={['items', index, field.name]}>
             {field.type === 'text' ? (
               <Input className="w-[100px]" disabled={confirmed ? isdisabled : false} />

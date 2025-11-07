@@ -1,10 +1,21 @@
 'use client';
 
 import { UploadFileStatus } from 'antd/es/upload/interface';
-import { Modal, Form, Input, Select, Radio, Upload, Button, Switch, DatePicker } from 'antd';
+import {
+  Modal,
+  Form,
+  Input,
+  Select,
+  Radio,
+  Upload,
+  Button,
+  Switch,
+  DatePicker,
+  ColorPicker,
+} from 'antd';
 import { UploadChangeParam } from 'antd/es/upload';
 import React, { useEffect, useState } from 'react';
-import RichTextEditorFormField from '../rich-text-editor/RichTextEditorFormField';
+import RichTextEditor from '../rich-text-editor/RichTextEditor';
 
 export type FormField = {
   label: string;
@@ -26,7 +37,8 @@ export type FormField = {
     | 'image'
     | 'switch'
     | 'date'
-    | 'texteditor';
+    | 'texteditor'
+    | 'color';
   mode?: 'tags' | 'multiple';
   options?: { value: string; label: string }[];
   button?: string;
@@ -186,7 +198,11 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
             ) : field.type === 'checkbox' ? (
               <Radio.Group>
                 {field.options ? (
-                  field.options.map(option => <Radio value={option.value}>{option.label}</Radio>)
+                  field.options.map(option => (
+                    <Radio key={option.value} value={option.value}>
+                      {option.label}
+                    </Radio>
+                  ))
                 ) : (
                   <>
                     <Radio value="TRUE">Yes</Radio>
@@ -269,10 +285,17 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
                 format="YYYY-MM-DD"
               />
             ) : field.type === 'texteditor' ? (
-              <RichTextEditorFormField
+              <RichTextEditor
                 value={form.getFieldValue(field.name) || ''}
                 onChange={val => form.setFieldValue(field.name, val)}
                 maxHeight="400px"
+              />
+            ) : field.type === 'color' ? (
+              <ColorPicker
+                defaultValue="#d59d35"
+                onChange={color => {
+                  form.setFieldValue(field.name, color.toHexString());
+                }}
               />
             ) : (
               <Input placeholder={field.placeholder} type={field.type} disabled={field.disabled} />

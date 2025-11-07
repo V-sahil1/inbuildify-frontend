@@ -152,7 +152,7 @@ const HLPackageDetail = () => {
     </div>
   );
   const filterButtons = ['All', 'Selected', 'UnSelected'];
-  function handleSubmit(values) {}
+  function handleSubmit(values) { }
   return (
     <div className="p-4">
       <Form form={form} onFinish={handleSubmit} initialValues={initialValues}>
@@ -392,8 +392,9 @@ const HLPackageDetail = () => {
                   <IconPencil size={20} />
                 </div>
                 <div className="rounded-2xl flex gap-2 p-1 border border-primary">
-                  {filterButtons.map(btn => (
+                  {filterButtons.map((btn, index) => (
                     <Button
+                      key={index}
                       className={`rounded-xl text-xs ${activeTab === btn ? 'bg-primary' : 'bg-white text-primary'} `}
                       type="primary"
                       size="small"
@@ -446,8 +447,8 @@ const HLPackageDetail = () => {
                 <div className="flex gap-2 items-center mb-2">
                   <Checkbox /> Select All
                 </div>
-                {InclusinList.map(list => (
-                  <div className="flex items-start gap-2 mb-2">
+                {InclusinList.map((list, index) => (
+                  <div key={index} className="flex items-start gap-2 mb-2">
                     <Checkbox checked />
                     <div>
                       <p>{list.title}</p>
@@ -516,58 +517,71 @@ const HLPackageDetail = () => {
         </div>
       </Form>
 
-      <LandLotFormModel
-        title="Lot"
-        open={landLotOpen}
-        onClose={() => setLandLotOpen(false)}
-        onSubmit={() => {
-          setLandLotOpen(false);
-          setLotDetail(lotdata);
-        }}
-        isCopy={false}
-      />
-      <CommissionDrawer
-        openDrawer={landCommissionModelOpen}
-        setOpenDrawer={setLandCommissionModelOpen}
-        partners={partners}
-        setPartners={setPartners}
-        disabledPartners={disabledPartners}
-        setDisabledPartners={setDisabledPartners}
-      />
-      <FloorPlanModal
-        visible={floorplanModalOpen}
-        onCancel={() => setfloorplanModalOpen(false)}
-        onSave={setSelectedPlan}
-        selectedPlan={selectedPlan}
-      />
-      <FacadeModal
-        visible={facadeModalOpen}
-        onCancel={() => {
-          setFacadeModalOpen(false);
-          dispatch(clearStandardFilter());
-          dispatch(clearUpgradeFilter());
-        }}
-        onSave={data => {
-          setSelectedFacade(data);
-          dispatch(clearStandardFilter());
-          dispatch(clearUpgradeFilter());
-        }}
-        selectedFacade={selectedFacade}
-      />
-      <ActionDialogmodel
-        title="Custom Section"
-        open={customSectionModalOpen}
-        onCancel={() => setCustomSectionModalOpen(false)}
-        onSubmit={() => {
-          setCustomSectionModalOpen(false);
-        }}
-        fields={CustomSectionField}
-      />
-      <PriceListDrawer
-        title="PriceList Items"
-        open={PriceListDrawerOpen}
-        onClose={() => setPriceListDrawerOpen(false)}
-      />
+      {landLotOpen && (
+        <LandLotFormModel
+          title="Lot"
+          open={landLotOpen}
+          onClose={() => setLandLotOpen(false)}
+          onSubmit={() => {
+            setLandLotOpen(false);
+            setLotDetail(lotdata);
+          }}
+          isCopy={false}
+        />
+      )}
+      {landCommissionModelOpen && (
+        <CommissionDrawer
+          openDrawer={landCommissionModelOpen}
+          setOpenDrawer={setLandCommissionModelOpen}
+          partners={partners}
+          setPartners={setPartners}
+          disabledPartners={disabledPartners}
+          setDisabledPartners={setDisabledPartners}
+        />
+      )}
+      {floorplanModalOpen && (
+        <FloorPlanModal
+          visible={floorplanModalOpen}
+          onCancel={() => setfloorplanModalOpen(false)}
+          onSave={setSelectedPlan}
+          selectedPlan={selectedPlan}
+        />
+      )}
+      {facadeModalOpen && (
+        <FacadeModal
+          visible={facadeModalOpen}
+          onCancel={() => {
+            setFacadeModalOpen(false);
+            dispatch(clearStandardFilter());
+            dispatch(clearUpgradeFilter());
+          }}
+          onSave={data => {
+            setSelectedFacade(data);
+            dispatch(clearStandardFilter());
+            dispatch(clearUpgradeFilter());
+          }}
+          selectedFacade={selectedFacade}
+        />
+      )}
+
+      {customSectionModalOpen && (
+        <ActionDialogmodel
+          title="Custom Section"
+          open={customSectionModalOpen}
+          onCancel={() => setCustomSectionModalOpen(false)}
+          onSubmit={() => {
+            setCustomSectionModalOpen(false);
+          }}
+          fields={CustomSectionField}
+        />
+      )}
+      {PriceListDrawerOpen && (
+        <PriceListDrawer
+          title="PriceList Items"
+          open={PriceListDrawerOpen}
+          onClose={() => setPriceListDrawerOpen(false)}
+        />
+      )}
     </div>
   );
 };

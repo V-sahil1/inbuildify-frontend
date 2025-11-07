@@ -57,6 +57,7 @@ const StatusTracker: React.FC<Props> = ({ stages, setIsUploadComplete }) => {
                 {stage.buttons?.map((btn, i) =>
                   btn.upload ? (
                     <Upload
+                      key={i}
                       showUploadList={false}
                       onChange={file => {
                         if (file.file.status === 'done') {

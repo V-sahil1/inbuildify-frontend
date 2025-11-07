@@ -1,7 +1,7 @@
 import AssigneeSelect from '@/components/common/custom-selects/AssigneeSelect';
 import DateFilterDropdown from '@/components/common/custom-selects/DateFilterDropdown';
 import { IconCopy, IconDotsVertical, IconShare3, IconTable } from '@tabler/icons-react';
-import { Button, Dropdown, Input, Modal, Space, Switch, Table, Tooltip } from 'antd';
+import { Button, Dropdown, Input, Space, Table, Tooltip } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { Dayjs } from 'dayjs';
 import { usePathname, useSearchParams } from 'next/navigation';
@@ -305,28 +305,32 @@ export default function HLPackages() {
       />
 
       {/* create package modal */}
-      <CreateFormModal
-        title="New Package"
-        open={isModalOpen}
-        onCancel={() => setIsModalOpen(false)}
-        onSubmit={handleNewPackageSubmit}
-        fields={[
-          {
-            label: 'Title',
-            name: 'title',
-          },
-        ]}
-      />
+      {isModalOpen && (
+        <CreateFormModal
+          title="New Package"
+          open={isModalOpen}
+          onCancel={() => setIsModalOpen(false)}
+          onSubmit={handleNewPackageSubmit}
+          fields={[
+            {
+              label: 'Title',
+              name: 'title',
+            },
+          ]}
+        />
+      )}
 
       {/* copy package modal */}
-      <HLPackageCopyModal
-        title="Copy Package"
-        open={isCopyModalOpen}
-        onCancel={() => setIsCopyModalOpen(false)}
-        onOk={() => {
-          setIsCopyModalOpen(false);
-        }}
-      />
+      {isCopyModalOpen && (
+        <HLPackageCopyModal
+          title="Copy Package"
+          open={isCopyModalOpen}
+          onCancel={() => setIsCopyModalOpen(false)}
+          onOk={() => {
+            setIsCopyModalOpen(false);
+          }}
+        />
+      )}
     </div>
   );
 }

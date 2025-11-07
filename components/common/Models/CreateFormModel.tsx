@@ -4,7 +4,7 @@ import { UploadFileStatus } from 'antd/es/upload/interface';
 import { Modal, Form, Input, Select, Radio, Upload, Button, ColorPicker, Switch } from 'antd';
 import { UploadChangeParam } from 'antd/es/upload';
 import React, { useEffect } from 'react';
-import RichTextEditorFormField from '../rich-text-editor/RichTextEditorFormField';
+import RichTextEditor from '../rich-text-editor/RichTextEditor';
 
 export type CreateFormField = {
   label: string;
@@ -232,7 +232,7 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
                 }}
               />
             ) : field.type === 'textEditor' ? (
-              <RichTextEditorFormField
+              <RichTextEditor
                 value={form.getFieldValue(field.name) || ''}
                 onChange={val => form.setFieldValue(field.name, val)}
                 maxHeight="400px"

@@ -152,7 +152,10 @@ const Facade = () => {
       ) : facades.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {facades?.map((facade: IFacadeState) => (
-            <div className="card bg-card-color p-4 rounded-xl flex flex-col items-center border border-border-color relative group">
+            <div
+              key={facade.facadeId}
+              className="card bg-card-color p-4 rounded-xl flex flex-col items-center border border-border-color relative group"
+            >
               {/* Hover overlay with blur effect */}
               <div className="absolute inset-0 bg-black-50 bg-opacity-50 backdrop-blur-sm rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4 z-10">
                 <button
@@ -220,31 +223,35 @@ const Facade = () => {
           className="py-12"
         />
       )}
-      <CreateFormModal
-        title="Facade Plan"
-        open={isModalVisible}
-        isEditing={isEditing}
-        initialValues={editingFacade}
-        onCancel={() => {
-          setIsModalVisible(false);
-          setIsEditing(false);
-          setEditingFacade(null);
-        }}
-        onSubmit={handleCreateFacade}
-        fields={facadeFields({ isDwellingDisable: false })}
-        loading={loading}
-      />
-      <ConfirmationModal
-        open={showDeleteConfirm}
-        onClose={() => setShowDeleteConfirm(false)}
-        onConfirm={() => handleDelete(facadeId)}
-        message="Are you sure you want to delete this facade?"
-        type="danger"
-        confirmText="Delete"
-        cancelText="Cancel"
-        loading={isDeleting}
-        maxWidth="sm"
-      />
+      {isModalVisible && (
+        <CreateFormModal
+          title="Facade Plan"
+          open={isModalVisible}
+          isEditing={isEditing}
+          initialValues={editingFacade}
+          onCancel={() => {
+            setIsModalVisible(false);
+            setIsEditing(false);
+            setEditingFacade(null);
+          }}
+          onSubmit={handleCreateFacade}
+          fields={facadeFields({ isDwellingDisable: false })}
+          loading={loading}
+        />
+      )}
+      {showDeleteConfirm && (
+        <ConfirmationModal
+          open={showDeleteConfirm}
+          onClose={() => setShowDeleteConfirm(false)}
+          onConfirm={() => handleDelete(facadeId)}
+          message="Are you sure you want to delete this facade?"
+          type="danger"
+          confirmText="Delete"
+          cancelText="Cancel"
+          loading={isDeleting}
+          maxWidth="sm"
+        />
+      )}
     </div>
   );
 };

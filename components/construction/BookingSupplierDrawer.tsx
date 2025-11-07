@@ -1,7 +1,7 @@
 import { Button, DatePicker, Divider, Drawer, Form, Input, Select, Upload } from 'antd';
-import RichTextEditorFormField from '../common/rich-text-editor/RichTextEditorFormField';
 import { IconTruck, IconUser } from '@tabler/icons-react';
 import { useState } from 'react';
+import RichTextEditor from '../common/rich-text-editor/RichTextEditor';
 
 const BookingSupplierDrawer = ({ title, open, onCancel, values, onSubmit }) => {
   const [form] = Form.useForm();
@@ -37,14 +37,14 @@ const BookingSupplierDrawer = ({ title, open, onCancel, values, onSubmit }) => {
               </div>
               <div className="flex justify-between">
                 <div className="flex gap-2">
-                  {bookindDetails.to?.map(obj => (
-                    <p>{obj}</p>
+                  {bookindDetails.to?.map((obj, index) => (
+                    <p key={index}>{obj}</p>
                   ))}
                 </div>
 
                 <Button type="primary">Queued</Button>
               </div>
-              <p>{bookindDetails.message}</p>
+              <div dangerouslySetInnerHTML={{ __html: bookindDetails.message }} />
             </div>
           </div>
         ) : (
@@ -89,7 +89,7 @@ const BookingSupplierDrawer = ({ title, open, onCancel, values, onSubmit }) => {
                   <div>
                     <p>Message</p>
                     <Form.Item name="message">
-                      <RichTextEditorFormField
+                      <RichTextEditor
                         value={form.getFieldValue('message') || ''}
                         onChange={val => form.setFieldValue('message', val)}
                         maxHeight="400px"

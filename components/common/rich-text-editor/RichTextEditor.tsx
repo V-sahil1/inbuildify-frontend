@@ -202,7 +202,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
   return (
     <div className="border border-gray-300 rounded-md overflow-hidden">
-      <Slate editor={editor} initialValue={slateValue} onChange={handleChange}>
+      <Slate key={value} editor={editor} initialValue={slateValue} onChange={handleChange}>
         <Toolbar>
           <MarkButton format="bold" icon={<IconBold className="w-4 h-4" />} />
           <MarkButton format="italic" icon={<IconItalic className="w-4 h-4" />} />

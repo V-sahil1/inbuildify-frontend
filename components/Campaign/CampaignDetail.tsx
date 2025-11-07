@@ -2,22 +2,22 @@ import { IconArrowUp, IconPaperclip } from '@tabler/icons-react';
 import { Button, Dropdown, Input } from 'antd';
 import RichTextEditor from '../common/rich-text-editor/RichTextEditor';
 import { useState } from 'react';
-import { CreateFormField, CreateFormModal } from '../common/Models/CreateFormModel';
+import { ActionDialogmodel, FormField } from '../common/Models/ActionDialogModel';
 
 const CampaignDetail = ({ current, setCurrent }) => {
   const [editedContent, setEditedContent] = useState('');
   const [footerOpen, setFooterOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('Email');
-  const fields: CreateFormField[] = [
+  const fields: FormField[] = [
     { label: 'Footer Name', name: 'footerName', type: 'text' },
-    { label: 'Footer Content', name: 'footerContent', type: 'textEditor' },
+    { label: 'Footer Content', name: 'footerContent', type: 'texteditor' },
     { label: 'Set Background Color', name: 'backgroundColor', type: 'color' },
     { label: 'Set as Default', name: 'default', type: 'switch' },
   ];
   const initialValues = {
     footerName: 'hiiii',
     footerContent: 'ok',
-    backgroundColor: '#3548D5',
+    backgroundColor: '#50d535',
     default: 'true',
   };
   return (
@@ -102,18 +102,20 @@ const CampaignDetail = ({ current, setCurrent }) => {
           Create Footer
         </p>
       </div>
-      <CreateFormModal
-        title="Footer"
-        open={footerOpen}
-        onCancel={() => setFooterOpen(false)}
-        onSubmit={values => {
-          setFooterOpen(false);
-          console.log(values);
-        }}
-        fields={fields}
-        initialValues={initialValues}
-        isEditing={true}
-      />
+      {footerOpen && (
+        <ActionDialogmodel
+          title="Footer"
+          open={footerOpen}
+          onCancel={() => setFooterOpen(false)}
+          onSubmit={values => {
+            setFooterOpen(false);
+            console.log(values);
+          }}
+          fields={fields}
+          initialValues={initialValues}
+          isEditing={true}
+        />
+      )}
     </div>
   );
 };

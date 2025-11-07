@@ -196,7 +196,7 @@ const RoleAndUser: React.FC = () => {
         <Form form={form} component={false}>
           <Table
             dataSource={data}
-            columns={columns.map(col => {
+            columns={columns.map((col, index) => {
               if (!col.onCell) {
                 return col;
               }
@@ -221,6 +221,7 @@ const RoleAndUser: React.FC = () => {
 
                     return (
                       <Form.Item
+                        key={index}
                         name={col.dataIndex}
                         style={{ margin: 0 }}
                         rules={[

@@ -161,14 +161,14 @@ const HomeInclusionPdf = ({}) => {
           <Text>My Home Inclusions</Text>
         </View>
         <View>
-          {data.map(item => (
-            <View style={{ marginHorizontal: 10 }}>
+          {data.map((item, index) => (
+            <View key={index} style={{ marginHorizontal: 10 }}>
               <View>
                 <Text style={styles.headerText}>{item.label}</Text>
               </View>
               <View style={{ marginLeft: 5 }}>
-                {item.points.map(point => (
-                  <View style={styles.secondaryText}>
+                {item.points.map((point, index) => (
+                  <View key={index} style={styles.secondaryText}>
                     <Text style={{ marginHorizontal: 10 }}>-</Text>
                     <Text>{point}</Text>
                   </View>
@@ -181,8 +181,8 @@ const HomeInclusionPdf = ({}) => {
               <Text style={styles.headerText}>Important Notes</Text>
             </View>
             <View style={{ marginLeft: 5 }}>
-              {ImportantNotes.map(point => (
-                <View style={styles.secondaryText}>
+              {ImportantNotes.map((point, index) => (
+                <View key={index} style={styles.secondaryText}>
                   <Text style={{ marginHorizontal: 10 }}>-</Text>
                   <Text>{point}</Text>
                 </View>

@@ -43,7 +43,7 @@ const BulkBookModel = ({
           />
           <div className="mt-2">
             {checkItems.map((item, index) => (
-              <div className="flex justify-between">
+              <div key={index} className="flex justify-between">
                 <Form.Item
                   name={item.values.checklist}
                   valuePropName="checked"

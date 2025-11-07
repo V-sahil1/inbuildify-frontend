@@ -140,12 +140,12 @@ export function OHShistoryDrawer({ open, onCancel }) {
     label: string;
     count: number;
   }> = [
-    { type: 'all', label: 'All', count: data.length },
-    { type: 'pending', label: 'Pending', count: data.length },
-    { type: 'yes', label: 'Yes', count: data.length },
-    { type: 'no', label: 'No', count: data.length },
-    { type: 'N/A', label: 'N/A', count: data.length },
-  ];
+      { type: 'all', label: 'All', count: data.length },
+      { type: 'pending', label: 'Pending', count: data.length },
+      { type: 'yes', label: 'Yes', count: data.length },
+      { type: 'no', label: 'No', count: data.length },
+      { type: 'N/A', label: 'N/A', count: data.length },
+    ];
   const handleFilterTabChange = (selectedType: string) => {
     console.log('Selected filter:', selectedType);
   };
@@ -179,8 +179,8 @@ export function OHShistoryDrawer({ open, onCancel }) {
       onClose={
         showList
           ? () => {
-              setShowList(false);
-            }
+            setShowList(false);
+          }
           : onCancel
       }
       size="large"
@@ -207,8 +207,8 @@ export function OHShistoryDrawer({ open, onCancel }) {
               {/* Table Body */}
 
               <div className="table-row-group overflow-y-auto">
-                {listData.map(list => (
-                  <div className="grid grid-cols-11 py-2 border-b-[1px]">
+                {listData.map((list, index) => (
+                  <div key={index} className="grid grid-cols-11 py-2 border-b-[1px]">
                     <div className="col-span-7">
                       <p>{list.label}</p>
                       <p className="flex items-center gap-1 text-xs text-blue mt-1">

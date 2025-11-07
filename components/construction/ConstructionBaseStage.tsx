@@ -83,11 +83,11 @@ const ConstructionBaseStage = ({ setCurrent, id }) => {
     type: FilterType;
     label: string;
   }> = [
-    { type: 'all', label: 'All' },
-    { type: 'pending', label: 'Pending' },
-    { type: 'completed', label: 'Completed' },
-    { type: 'notApplicable', label: 'Not Applicable' },
-  ];
+      { type: 'all', label: 'All' },
+      { type: 'pending', label: 'Pending' },
+      { type: 'completed', label: 'Completed' },
+      { type: 'notApplicable', label: 'Not Applicable' },
+    ];
   const handleFilterTabChange = (selectedType: string) => {
     console.log('Selected filter:', selectedType);
     handleFilterChange({ ...filters, checklistFilter: selectedType });
@@ -113,7 +113,7 @@ const ConstructionBaseStage = ({ setCurrent, id }) => {
       form.setFieldsValue({ checklist: formValues.checklist });
     }
   }
-  function handleEditCheckStatus(checklist) {}
+  function handleEditCheckStatus(checklist) { }
 
   function handleAddChecklist(values) {
     setcheckItems(prev => [...prev, { values: values, isDefect: false }]);
@@ -183,14 +183,15 @@ const ConstructionBaseStage = ({ setCurrent, id }) => {
           </div>
           <div>
             <TimelineActionsBar
-              tabs={filterOptions.map(f => ({ type: f.type, label: f.label }))}
+              tabs={filterOptions}
               onTabChange={handleFilterTabChange}
               isActionShow={false}
             />
           </div>
           <div className="flex items-center justify-end gap-1">
-            {actionButton.map(btn => (
+            {actionButton.map((btn, index) => (
               <Button
+                key={index}
                 size="small"
                 type="primary"
                 className="text-xs"
@@ -269,77 +270,95 @@ const ConstructionBaseStage = ({ setCurrent, id }) => {
         </div>
       </Form>
       {/* in previous youtube video this drawer is present but in current video this doesn't */}
-      <InspectionCheckListDrawer
-        open={actionType === 'Inspection'}
-        onClose={() => setActionType(null)}
-      />
-      <MailSendModal
-        open={sendEmailOpen}
-        onCancel={() => setsendEmailOpen(false)}
-        onSend={() => {
-          setsendEmailOpen(false);
-        }}
-      />
-      <BulkBookModel
-        title="Bulk Book"
-        open={actionType === 'Bulk Book'}
-        onCancel={() => setActionType(null)}
-        checkItems={checkItems}
-        checkSupplierItems={checkSupplierItems}
-        editCheckStatus={handleEditCheckStatus}
-      />
-      <CostManageModal
-        title="Manage Cost"
-        open={actionType === 'Manage Cost'}
-        onCancel={() => setActionType(null)}
-      />
-      <ConstructionChecklistModal
-        title={defectOpen ? 'New Defect Checklist' : 'New Checklist'}
-        open={checkOpen || defectOpen}
-        onCancel={() => {
-          defectOpen ? setDefectOpen(false) : setCheckOpen(false);
-        }}
-        onSubmit={defectOpen ? handleAddDefectChecklist : handleAddChecklist}
-        isDefect={defectOpen}
-        initialValues={{
-          checklist: '',
-          daterequired: false,
-          noOfDays: '',
-          sort: '',
-          supplier: false,
-          notify: false,
-          claim: false,
-          milestone: false,
-        }}
-      />
-      <MailSendModal
-        title="Claim Stage Notification"
-        open={actionType === 'Claim'}
-        onCancel={() => setActionType(null)}
-        onSend={handleClaimSubmit}
-        attachFile={true}
-        initialValue={{
-          to: ['abc', 'bhb'],
-          subject: 'hello',
-          content: 'hellooooo',
-        }}
-      />
-      <UpdateStatusDrawer
-        open={actionType === 'Update Status'}
-        onCancel={() => setActionType(null)}
-        checkItems={checkItems}
-      />
-      <OHShistoryDrawer open={actionType === 'OH&S'} onCancel={() => setActionType(null)} />
-      <ConfirmationContentModal
-        title="Confirmation"
-        open={finalConfirmationOpen}
-        onClose={() => setActionType(null)}
-        onSubmit={() => {
-          setfinalConfirmation(false);
-        }}
-        okText="Complete Job"
-        content={finalConfirmationContent}
-      />
+      {actionType === 'Inspection' && (
+        <InspectionCheckListDrawer
+          open={actionType === 'Inspection'}
+          onClose={() => setActionType(null)}
+        />
+      )}
+      {sendEmailOpen && (
+        <MailSendModal
+          open={sendEmailOpen}
+          onCancel={() => setsendEmailOpen(false)}
+          onSend={() => {
+            setsendEmailOpen(false);
+          }}
+        />
+      )}
+      {actionType === 'Bulk Book' && (
+        <BulkBookModel
+          title="Bulk Book"
+          open={actionType === 'Bulk Book'}
+          onCancel={() => setActionType(null)}
+          checkItems={checkItems}
+          checkSupplierItems={checkSupplierItems}
+          editCheckStatus={handleEditCheckStatus}
+        />
+      )}
+      {actionType === 'Manage Cost' && (
+        <CostManageModal
+          title="Manage Cost"
+          open={actionType === 'Manage Cost'}
+          onCancel={() => setActionType(null)}
+        />
+      )}
+      {(checkOpen || defectOpen) && (
+        <ConstructionChecklistModal
+          title={defectOpen ? 'New Defect Checklist' : 'New Checklist'}
+          open={checkOpen || defectOpen}
+          onCancel={() => {
+            defectOpen ? setDefectOpen(false) : setCheckOpen(false);
+          }}
+          onSubmit={defectOpen ? handleAddDefectChecklist : handleAddChecklist}
+          isDefect={defectOpen}
+          initialValues={{
+            checklist: '',
+            daterequired: false,
+            noOfDays: '',
+            sort: '',
+            supplier: false,
+            notify: false,
+            claim: false,
+            milestone: false,
+          }}
+        />
+      )}
+      {actionType === 'Claim' && (
+        <MailSendModal
+          title="Claim Stage Notification"
+          open={actionType === 'Claim'}
+          onCancel={() => setActionType(null)}
+          onSend={handleClaimSubmit}
+          attachFile={true}
+          initialValue={{
+            to: ['abc', 'bhb'],
+            subject: 'hello',
+            content: 'hellooooo',
+          }}
+        />
+      )}
+      {actionType === 'Update Status' && (
+        <UpdateStatusDrawer
+          open={actionType === 'Update Status'}
+          onCancel={() => setActionType(null)}
+          checkItems={checkItems}
+        />
+      )}
+      {actionType === 'OH&S' && (
+        <OHShistoryDrawer open={actionType === 'OH&S'} onCancel={() => setActionType(null)} />
+      )}
+      {finalConfirmationOpen && (
+        <ConfirmationContentModal
+          title="Confirmation"
+          open={finalConfirmationOpen}
+          onClose={() => setActionType(null)}
+          onSubmit={() => {
+            setfinalConfirmation(false);
+          }}
+          okText="Complete Job"
+          content={finalConfirmationContent}
+        />
+      )}
     </div>
   );
 };

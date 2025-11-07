@@ -19,8 +19,8 @@ export function HeaderContent({ id, leadsource, data }) {
       <div className="grid grid-cols-2 gap-4 mt-3">
         {data &&
           data.length > 0 &&
-          data.map(item => (
-            <div className="flex gap-1 items-center p-1 text-xs">
+          data.map((item, index) => (
+            <div key={index} className="flex gap-1 items-center p-1 text-xs">
               <div className="rounded-full w-4 h-4 text-center border border-blue text-blue">
                 <IconUser size={15} />
               </div>

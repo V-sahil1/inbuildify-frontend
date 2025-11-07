@@ -237,75 +237,89 @@ const ConstructionChecklistItem = ({
       </div>
 
       {/* subtask */}
-      {subtaskItems.map((item, ind) => (
-        <ChecklistSubtaskItem ind={ind} checkind={index} values={item.values} />
+      {subtaskItems.map((item, index) => (
+        <ChecklistSubtaskItem key={index} ind={index} checkind={index} values={item.values} />
       ))}
-      <BookingSupplierDrawer
-        title={`Booking Supplier - ${values?.checklist}`}
-        open={supplierBookOpen}
-        onCancel={() => setSupplierBookOpen(false)}
-        values={form.getFieldValues}
-        onSubmit={() => {
-          console.log('helo');
-          setSupplierStatus({ status: 'pending', color: 'yellow' });
-        }}
-      />
-      <MailSendModal
-        title={`Supplier - ${values?.checklist}`}
-        open={supplierMessageOpen}
-        onCancel={() => setSupplierMessageOpen(false)}
-        onSend={() => {
-          setSupplierMessageOpen(false);
-        }}
-        attachFile={true}
-      />
-      <ChecklistNotesModal
-        open={notesOpen}
-        onCancel={() => setNotesOpen(false)}
-        onSubmit={() => {
-          setNotesOpen(false);
-        }}
-      />
-      <ChecklistSubtaskModal
-        open={subtaskOpen}
-        onCancel={() => setSubtaskOpen(false)}
-        onSubmit={addSubtaskItem}
-      />
-      <ConfirmationContentModal
-        content={ConfirmationContent}
-        open={confimationOpen}
-        onClose={() => {
-          setConfirmationOpen(false);
-        }}
-        onSubmit={() => {
-          setSupplierStatus({ status: 'notApplicable', color: 'yellow' });
-          setConfirmationOpen(false);
-        }}
-        okText="Mark As Not Applicable"
-        title="Confirmation"
-      />
-      <ConfirmationContentModal
-        content={supplierAcceptContent}
-        open={supplierAccept}
-        onClose={() => setSupplierAccept(false)}
-        onSubmit={() => {
-          setSupplierStatus({ status: 'accepted', color: 'green' });
-          setSupplierAccept(false);
-        }}
-        title="Confirmation"
-        okText="Mark As Supplier Accepted"
-      />
-      <ConstructionChecklistModal
-        key={JSON.stringify(values)}
-        title={isDefect ? 'Edit Defect Checklist' : 'Edit Checklist'}
-        open={checklistEdit}
-        onCancel={() => {
-          setChecklistEdit(false);
-        }}
-        onSubmit={handleSubmit}
-        initialValues={values}
-        isDefect={isDefect}
-      />
+      {supplierBookOpen && (
+        <BookingSupplierDrawer
+          title={`Booking Supplier - ${values?.checklist}`}
+          open={supplierBookOpen}
+          onCancel={() => setSupplierBookOpen(false)}
+          values={form.getFieldValues}
+          onSubmit={() => {
+            console.log('helo');
+            setSupplierStatus({ status: 'pending', color: 'yellow' });
+          }}
+        />
+      )}
+      {supplierMessageOpen && (
+        <MailSendModal
+          title={`Supplier - ${values?.checklist}`}
+          open={supplierMessageOpen}
+          onCancel={() => setSupplierMessageOpen(false)}
+          onSend={() => {
+            setSupplierMessageOpen(false);
+          }}
+          attachFile={true}
+        />
+      )}
+      {notesOpen && (
+        <ChecklistNotesModal
+          open={notesOpen}
+          onCancel={() => setNotesOpen(false)}
+          onSubmit={() => {
+            setNotesOpen(false);
+          }}
+        />
+      )}
+      {subtaskOpen && (
+        <ChecklistSubtaskModal
+          open={subtaskOpen}
+          onCancel={() => setSubtaskOpen(false)}
+          onSubmit={addSubtaskItem}
+        />
+      )}
+      {confimationOpen && (
+        <ConfirmationContentModal
+          content={ConfirmationContent}
+          open={confimationOpen}
+          onClose={() => {
+            setConfirmationOpen(false);
+          }}
+          onSubmit={() => {
+            setSupplierStatus({ status: 'notApplicable', color: 'yellow' });
+            setConfirmationOpen(false);
+          }}
+          okText="Mark As Not Applicable"
+          title="Confirmation"
+        />
+      )}
+      {supplierAccept && (
+        <ConfirmationContentModal
+          content={supplierAcceptContent}
+          open={supplierAccept}
+          onClose={() => setSupplierAccept(false)}
+          onSubmit={() => {
+            setSupplierStatus({ status: 'accepted', color: 'green' });
+            setSupplierAccept(false);
+          }}
+          title="Confirmation"
+          okText="Mark As Supplier Accepted"
+        />
+      )}
+      {checklistEdit && (
+        <ConstructionChecklistModal
+          key={JSON.stringify(values)}
+          title={isDefect ? 'Edit Defect Checklist' : 'Edit Checklist'}
+          open={checklistEdit}
+          onCancel={() => {
+            setChecklistEdit(false);
+          }}
+          onSubmit={handleSubmit}
+          initialValues={values}
+          isDefect={isDefect}
+        />
+      )}
     </>
   );
 };

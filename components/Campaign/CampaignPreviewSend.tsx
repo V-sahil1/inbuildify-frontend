@@ -43,8 +43,8 @@ const CampaignPreviewSend = () => {
       <div>
         <div className="flex justify-between mb-3 text-sm">
           <div className="flex flex-col gap-2">
-            {fields.map(field => (
-              <div className="flex">
+            {fields.map((field, index) => (
+              <div key={index} className="flex">
                 <p className="w-[300px]">{field.label}</p>
                 <p>{field.value}</p>
               </div>

@@ -112,6 +112,7 @@ const LandCreatePackageDrawerModel = ({ title, open, onClose, onSubmit }) => {
                 <div className="flex gap-2 overflow-x-auto mt-3">
                   {floorPlans?.map(plan => (
                     <div
+                      key={plan.floorPlanId}
                       className={`${selectedFloorplan === plan.floorPlanId ? 'border-2 border-primary' : ''}`}
                     >
                       <FloorPlanCard

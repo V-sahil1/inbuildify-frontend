@@ -362,6 +362,7 @@ export const JobProcess: React.FC = () => {
                   }))
                 }
                 options={FUNCTIONALITY_OPTIONS.map(o => ({
+                  key: o.value,
                   label: o.value,
                   value: o.value,
                 }))}
@@ -495,11 +496,13 @@ export const JobProcess: React.FC = () => {
         size="middle"
         bordered
       />
-      <JobWorkflowDrawer
-        open={funcModal.open}
-        onClose={() => setFuncModal({ open: false })}
-        record={funcModal.row}
-      />
+      {funcModal.open && (
+        <JobWorkflowDrawer
+          open={funcModal.open}
+          onClose={() => setFuncModal({ open: false })}
+          record={funcModal.row}
+        />
+      )}
     </div>
   );
 };

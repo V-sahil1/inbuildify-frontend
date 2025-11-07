@@ -98,16 +98,15 @@ const JobChecklist = ({ open, onClose }: { open: boolean; onClose: () => void })
               </div>
             </Form>
           )}
-          {data.map(obj => (
-            <>
-              <CheckList
-                title={obj.description}
-                type={obj.type}
-                isnotes={obj.notes}
-                isrequired={obj.required}
-                form={form}
-              />
-            </>
+          {data.map((obj, index) => (
+            <CheckList
+              key={index}
+              title={obj.description}
+              type={obj.type}
+              isnotes={obj.notes}
+              isrequired={obj.required}
+              form={form}
+            />
           ))}
         </div>
       </Drawer>

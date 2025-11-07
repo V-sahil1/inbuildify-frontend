@@ -277,28 +277,34 @@ export default function Land() {
           pageSize: 10,
         }}
       />
-      <LandPackageDrawerModel
-        title="Packages"
-        open={isPackageDrawerOpen}
-        onClose={() => setIsPackageDrawerOpen(false)}
-      />
-      <LandLotFormModel
-        title="Lot Details"
-        open={isLotFormDrawerOpen}
-        isCopy={isCopy}
-        onSubmit={handleLotSubmit}
-        initialValues={initialValues as any}
-        onClose={() => {
-          setIsLotFormDrawerOpen(false);
-          setIsCopy(false);
-        }}
-      />
-      <LandCreatePackageDrawerModel
-        title="New Package for 333"
-        open={isNewPackageDrawerOpen}
-        onClose={() => setIsNewPackageDrawerOpen(false)}
-        onSubmit={handleNewPackaheSubmit}
-      />
+      {isPackageDrawerOpen && (
+        <LandPackageDrawerModel
+          title="Packages"
+          open={isPackageDrawerOpen}
+          onClose={() => setIsPackageDrawerOpen(false)}
+        />
+      )}
+      {isLotFormDrawerOpen && (
+        <LandLotFormModel
+          title="Lot Details"
+          open={isLotFormDrawerOpen}
+          isCopy={isCopy}
+          onSubmit={handleLotSubmit}
+          initialValues={initialValues as any}
+          onClose={() => {
+            setIsLotFormDrawerOpen(false);
+            setIsCopy(false);
+          }}
+        />
+      )}
+      {isNewPackageDrawerOpen && (
+        <LandCreatePackageDrawerModel
+          title="New Package for 333"
+          open={isNewPackageDrawerOpen}
+          onClose={() => setIsNewPackageDrawerOpen(false)}
+          onSubmit={handleNewPackaheSubmit}
+        />
+      )}
     </div>
   );
 }

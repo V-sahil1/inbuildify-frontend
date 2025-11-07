@@ -127,8 +127,10 @@ const ETSdrawer = ({ title, open, onCancel }) => {
               <div className="table-header-group bg-card-color text-sm font-medium text-font-color border-b border-gray-200">
                 <div className="table-row">
                   <div className="table-cell text-left p-3  w-[100px]">Sr. No.</div>
-                  {tableHeaderField.map(field => (
-                    <div className="table-cell text-left p-3  w-[100px]">{field.label}</div>
+                  {tableHeaderField.map((field, index) => (
+                    <div key={index} className="table-cell text-left p-3  w-[100px]">
+                      {field.label}
+                    </div>
                   ))}
                   <div className="table-cell text-left p-3 w-[100px]">
                     <Button onClick={handleAddItem}>
