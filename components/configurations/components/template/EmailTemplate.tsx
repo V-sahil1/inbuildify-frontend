@@ -1,7 +1,7 @@
 import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineActionsBar';
 import { IconEdit } from '@tabler/icons-react';
 import { Button, Table } from 'antd';
-import { emailTemplateData } from 'data/configuration/emailTemplateData';
+import { emailTemplateData } from 'data/configuration/TemplateData';
 import { useState } from 'react';
 import { EmailTemplateForm } from './EmailTemplateForm';
 
@@ -65,6 +65,7 @@ export const EmailTemplate = () => {
           templateId={EditTemplate.key}
           templateName={EditTemplate.templateName}
           template={EditTemplate.template}
+          onCancel={() => setEditTemplate(null)}
         />
       ) : (
         <>

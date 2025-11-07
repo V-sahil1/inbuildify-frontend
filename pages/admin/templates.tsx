@@ -1,9 +1,9 @@
 import TabLayout from '@/components/common/TabLayout';
 import { tabsLabel } from '@/components/common/TabLabel';
-import { OptionalSettings } from '@/components/configurations/components/Integration/OptionalSetting';
-import { Website } from '@/components/configurations/components/Integration/Website';
-import { Xero } from '@/components/configurations/components/Integration/Xero';
 import { EmailTemplate } from '@/components/configurations/components/template/EmailTemplate';
+import EmailSignatureSettings from '@/components/configurations/components/template/EmailSignature';
+import { TemplateNotes } from '@/components/configurations/components/template/NotesTemplate';
+import { PdfTemplates } from '@/components/configurations/components/template/PDFTemplate';
 
 const TABS = [
   {
@@ -14,17 +14,17 @@ const TABS = [
   {
     id: 'emailSignature',
     label: tabsLabel('Email Signature', 'Customize your own email signature'),
-    component: OptionalSettings,
+    component: EmailSignatureSettings,
   },
   {
     id: 'notes',
     label: tabsLabel('Notes', 'Customize your own notes contents'),
-    component: Website,
+    component: TemplateNotes,
   },
   {
     id: 'pdf',
     label: tabsLabel('PDF', 'Configure the header,footer and more'),
-    component: Xero,
+    component: PdfTemplates,
   },
 ];
 

@@ -10,10 +10,12 @@ export const EmailTemplateForm = ({
   templateId,
   templateName,
   template,
+  onCancel
 }: {
   templateId: string;
   templateName: string;
   template: any;
+  onCancel: () => void;
 }) => {
   const { users } = useUsersHook();
   const inputRef = useRef<any>(null);
@@ -91,6 +93,7 @@ export const EmailTemplateForm = ({
       content: template.content || '',
     });
     message.info('Changes reverted');
+    onCancel();
   };
 
   return (
