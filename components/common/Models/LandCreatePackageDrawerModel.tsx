@@ -8,18 +8,15 @@ import { IconX } from '@tabler/icons-react';
 import { Button, Card, Checkbox, Drawer, Form, Input, message, Select } from 'antd';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { getDwellingTypes, getRanges } from '@redux/feature/types/typesThunk';
-import { mapToOptions } from '@lib/utils/rangeAndDwellingObjToOptions';
+import RangeSelect from '../custom-selects/RangeSelect';
+import DwellingTypeSelect from '../custom-selects/DwellingTypeSelect';
 
 const LandCreatePackageDrawerModel = ({ title, open, onClose, onSubmit }) => {
   const [form] = Form.useForm();
   const { floorPlans, status, filters } = useAppSelector((state: RootState) => state.floorPlan);
   const { facades, selectedFilters } = useAppSelector(state => state.facade);
   const facadeStatus = useAppSelector(state => state.facade.status);
-  const { range, dwellingType } = useAppSelector(state => state.types);
   const typesStatus = useAppSelector(state => state.types.status);
-  const rangeOptions = mapToOptions(range);
-  const dwellingOptions = mapToOptions(dwellingType);
   const [selectedFacade, setSelectedFacade] = useState(null);
   const [selectedFloorplan, setSelectedFloorplan] = useState(null);
   const dispatch = useAppDispatch();
@@ -44,22 +41,6 @@ const LandCreatePackageDrawerModel = ({ title, open, onClose, onSubmit }) => {
     }
   }, [dispatch, facadeStatus, selectedFilters]);
 
-  useEffect(() => {
-    const fetchTypesData = async () => {
-      try {
-        if (typesStatus?.range === Status.IDLE) {
-          await dispatch(getRanges()).unwrap();
-        }
-        if (typesStatus?.dwellingType === Status.IDLE) {
-          await dispatch(getDwellingTypes()).unwrap();
-        }
-      } catch (error) {
-        message.error(error);
-      }
-    };
-    fetchTypesData();
-  }, [dispatch]);
-
   const handleSubmit = async values => {
     console.log(values);
     onSubmit(values);
@@ -81,20 +62,18 @@ const LandCreatePackageDrawerModel = ({ title, open, onClose, onSubmit }) => {
           <Form form={form} layout="vertical" onFinish={handleSubmit}>
             <div className="grid grid-cols-2 gap-2 ">
               <Form.Item label="Package Name" name="packageName" className="!text-red-500">
-                <Input></Input>
+                <Input />
               </Form.Item>
               <Form.Item label="Dwelling Type" name="dwellingType">
-                <Select options={dwellingOptions}></Select>
+                <DwellingTypeSelect />
               </Form.Item>
             </div>
             <div className="grid grid-cols-2 gap-2 ">
               <Form.Item label="Inclusion" name="inclusion" className="!text-red-500">
-                <Select
-                  options={[{ label: 'Turnkey Inclusion', value: 'turnkeyInclusion' }]}
-                ></Select>
+                <Select options={[{ label: 'Turnkey Inclusion', value: 'turnkeyInclusion' }]} />
               </Form.Item>
               <Form.Item label="Range" name="range">
-                <Select options={rangeOptions}></Select>
+                <RangeSelect />
               </Form.Item>
             </div>
             <Form.Item label="Disclamier" name="disclamier">
@@ -103,7 +82,7 @@ const LandCreatePackageDrawerModel = ({ title, open, onClose, onSubmit }) => {
                   { label: 'Validity', value: 'validity' },
                   { label: 'Standard', value: 'standard' },
                 ]}
-              ></Select>
+              />
             </Form.Item>
             {/* floor plan */}
             <div>

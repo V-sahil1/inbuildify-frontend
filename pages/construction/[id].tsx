@@ -99,12 +99,16 @@ const index = () => {
           title="Construction"
           steps={[]}
           status="In Progress"
-          data={[
-            { label: 'Builder', value: 'Murthy Muthuswamy', status: 'Active' },
-            { label: 'Company Administrator', value: 'Murthy Muthuswamy', status: 'Active' },
-            { label: 'Contract Admin', value: 'Murthy Muthuswamy', status: 'Active' },
-            { label: 'My Home Admin', value: 'Manasa Gummuluru', status: 'Inactive' },
-          ]}
+          data={{
+            builder: 'xyz',
+            leadSource: 'website',
+            assignedTask: [
+              { label: 'Accounts', value: 'Accounts Myhome', status: 'Inactive' },
+              { label: 'Color Consultant', value: 'Color Consultant', status: 'Inactive' },
+              { label: 'Construction Manager - MH', value: 'Manasa Gummuluru', status: 'Inactive' },
+              { label: 'My Home - Company Admin', value: 'Manasa Gummuluru', status: 'Inactive' },
+            ],
+          }}
         />
         <ConstructionDetailHeader />
       </div>

@@ -23,6 +23,7 @@ const WorkflowSteps: React.FC<WorkflowStepsProps> = ({ steps }) => {
         const isLast = index === steps.length - 1;
         return (
           <div
+            key={index}
             className="flex flex-1 "
             onClick={e => {
               e.preventDefault();
@@ -57,9 +58,10 @@ const WorkflowSteps: React.FC<WorkflowStepsProps> = ({ steps }) => {
                   <p>
                     {item?.status} {item.date && 'on'} {item?.date}
                   </p>
-                  <Dropdown menu={{ items: item.options }}>
+
+                  {item.options && <Dropdown menu={{ items: item.options }} trigger={['click']} >
                     <IconDotsVertical size={15} className="text-blue" />
-                  </Dropdown>
+                  </Dropdown>}
                 </div>
               </div>
             </div>

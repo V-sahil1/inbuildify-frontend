@@ -10,7 +10,6 @@ import {
   Space,
   Tag,
   Tooltip,
-  Modal,
   message,
   InputNumber,
 } from 'antd';
@@ -23,61 +22,8 @@ import {
   IconJumpRope,
 } from '@tabler/icons-react';
 import { JobWorkflowDrawer } from '../JobWorkflowDrawer';
-
-type FunctionalityKey = 'Sales' | 'Workflow' | 'Color' | 'Construction' | 'Maintenance';
-
-interface StageItem {
-  id: number;
-  name: string;
-  dependent?: boolean;
-  functionality: FunctionalityKey;
-  meta?: Record<string, any>;
-  sort: number;
-  isActive?: boolean;
-}
-
-const DEFAULT_DATA: StageItem[] = [
-  {
-    id: 1,
-    name: 'Sales',
-    dependent: false,
-    functionality: 'Sales',
-    sort: 1,
-    isActive: true,
-  },
-  {
-    id: 2,
-    name: 'Preconstruction',
-    dependent: false,
-    functionality: 'Workflow',
-    sort: 2,
-    isActive: true,
-  },
-  {
-    id: 3,
-    name: 'Color',
-    dependent: false,
-    functionality: 'Color',
-    sort: 3,
-    isActive: true,
-  },
-  {
-    id: 4,
-    name: 'Construction',
-    dependent: false,
-    functionality: 'Construction',
-    sort: 4,
-    isActive: true,
-  },
-  {
-    id: 5,
-    name: 'Maintenance',
-    dependent: false,
-    functionality: 'Maintenance',
-    sort: 5,
-    isActive: true,
-  },
-];
+import { DEFAULT_DATA } from 'data/jobProcessData';
+import { FunctionalityKey, StageItem } from 'data/types';
 
 const FUNCTIONALITY_OPTIONS: { value: FunctionalityKey; color: string }[] = [
   { value: 'Sales', color: 'purple' },

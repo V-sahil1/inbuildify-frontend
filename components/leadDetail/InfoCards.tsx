@@ -339,22 +339,26 @@ const InfoCards: React.FC<InfoCardsProps> = ({
         </Card>
       </Tooltip>
 
-      <PropertyDetailsModal
-        visible={propertyModalVisible}
-        onCancel={() => setPropertyModalVisible(false)}
-        onSave={onPropertyUpdate}
-        initialValues={propertyDetails}
-      />
+      {propertyModalVisible && (
+        <PropertyDetailsModal
+          visible={propertyModalVisible}
+          onCancel={() => setPropertyModalVisible(false)}
+          onSave={onPropertyUpdate}
+          initialValues={propertyDetails}
+        />
+      )}
 
       {/* Edit Lead Details Modal */}
-      <LeadDetailsForm
-        open={editModalVisible}
-        onCancel={() => setEditModalVisible(false)}
-        onSubmit={handleEditLeadSubmit}
-        loading={loading}
-        isEditing={true}
-        initialValues={{ ...leadDetails, secondary_phone: leadDetails?.secondaryPhone }}
-      />
+      {editModalVisible && (
+        <LeadDetailsForm
+          open={editModalVisible}
+          onCancel={() => setEditModalVisible(false)}
+          onSubmit={handleEditLeadSubmit}
+          loading={loading}
+          isEditing={true}
+          initialValues={{ ...leadDetails, secondary_phone: leadDetails?.secondaryPhone }}
+        />
+      )}
 
       {floorPlanModalVisible && (
         <FloorPlanModal

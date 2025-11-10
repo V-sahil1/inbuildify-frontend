@@ -5,6 +5,7 @@ import { useState } from 'react';
 import CustomAvtar from '../common/CustomAvtar';
 import { IconEye, IconPlus, IconTrash, IconUpload } from '@tabler/icons-react';
 import TimelineActionsBar from '../common/TimeLineComponents/TimelineActionsBar';
+import { listData } from 'data/ohsData';
 
 export function OHShistoryDrawer({ open, onCancel }) {
   const [addList, setAddlist] = useState({ supervisor: false, supplier: false });
@@ -25,20 +26,6 @@ export function OHShistoryDrawer({ open, onCancel }) {
       submittedDate: '04-10-25',
       status: 'draft',
     },
-  ];
-
-  const listData = [
-    { label: 'Are OH&S and site location signs prominently displayed?' },
-    { label: 'Are materials placed safely on block (outside 2m fall zone)?' },
-    { label: 'If fall zone is not available, has guardrail been installed?' },
-    { label: 'Is there adequate, safe access around the site?' },
-    { label: 'Is the toilet clean, upright, and operating properly?' },
-    { label: 'Has rubbish bin been provided, is it accessible and not full?' },
-    { label: 'Is fuse / RCD protected by the security bar and pad lock?' },
-    { label: 'Has the meter box RCD been tested monthly?' },
-    { label: 'Is the meter box in a safe condition (eg door OK etc)?' },
-    { label: 'Has void protection been correctly installed?' },
-    { label: 'Is Laddaloc installed and utilised (subbie has key)?' },
   ];
 
   const columns: ColumnsType<DataType> = [
@@ -140,12 +127,12 @@ export function OHShistoryDrawer({ open, onCancel }) {
     label: string;
     count: number;
   }> = [
-      { type: 'all', label: 'All', count: data.length },
-      { type: 'pending', label: 'Pending', count: data.length },
-      { type: 'yes', label: 'Yes', count: data.length },
-      { type: 'no', label: 'No', count: data.length },
-      { type: 'N/A', label: 'N/A', count: data.length },
-    ];
+    { type: 'all', label: 'All', count: data.length },
+    { type: 'pending', label: 'Pending', count: data.length },
+    { type: 'yes', label: 'Yes', count: data.length },
+    { type: 'no', label: 'No', count: data.length },
+    { type: 'N/A', label: 'N/A', count: data.length },
+  ];
   const handleFilterTabChange = (selectedType: string) => {
     console.log('Selected filter:', selectedType);
   };
@@ -179,8 +166,8 @@ export function OHShistoryDrawer({ open, onCancel }) {
       onClose={
         showList
           ? () => {
-            setShowList(false);
-          }
+              setShowList(false);
+            }
           : onCancel
       }
       size="large"

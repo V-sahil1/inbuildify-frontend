@@ -1,7 +1,8 @@
 import { IconMail, IconPhone, IconPlus, IconTrash, IconUser } from '@tabler/icons-react';
 import { Tag } from 'antd';
 import { ContentCard } from './card/ContentCard';
-export function HeaderContent({ id, leadsource, data }) {
+export function HeaderContent({ id, data }) {
+  console.log('data', data);
   return (
     <div className="max-h-[400px] overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
       <div>
@@ -10,16 +11,16 @@ export function HeaderContent({ id, leadsource, data }) {
       </div>
       <div className="mt-2">
         <p>Builder</p>
-        <Tag color="blue">My Home</Tag>
+        <Tag color="blue">{data?.builder}</Tag>
       </div>
       <div className="mt-2">
         <p>Lead Source</p>
-        <p>{leadsource}</p>
+        <p>{data?.leadSource}</p>
       </div>
       <div className="grid grid-cols-2 gap-4 mt-3">
-        {data &&
-          data.length > 0 &&
-          data.map((item, index) => (
+        {data.assignedTask &&
+          data?.assignedTask.length > 0 &&
+          data.assignedTask.map((item, index) => (
             <div key={index} className="flex gap-1 items-center p-1 text-xs">
               <div className="rounded-full w-4 h-4 text-center border border-blue text-blue">
                 <IconUser size={15} />
@@ -56,7 +57,7 @@ export function HeaderContent({ id, leadsource, data }) {
           <div className="text-font-color-100">
             <div className="flex justify-between">
               <p className="text-blue">Company</p>
-              <IconTrash size={15} color="red" />
+              <IconTrash size={15} color="red" className="cursor-pointer" />
             </div>
             <p>VIC</p>
             <div className="flex gap-2 items-center">

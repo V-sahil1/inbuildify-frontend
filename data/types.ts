@@ -391,3 +391,14 @@ export interface StatusCard {
   color: string;
   icon: React.ReactNode;
 }
+
+export type FunctionalityKey = 'Sales' | 'Workflow' | 'Color' | 'Construction' | 'Maintenance';
+export interface StageItem {
+  id: number;
+  name: string;
+  dependent?: boolean;
+  functionality: FunctionalityKey;
+  meta?: Record<string, any>;
+  sort: number;
+  isActive?: boolean;
+}

@@ -36,7 +36,11 @@ type StageProgressProps = {
   showOptions?: boolean;
   idClassName?: string;
   quotations?: QuotationResponse[];
-  data?: { label: string; value: string; status: string }[];
+  data?: {
+    builder?: string;
+    leadSource?: string;
+    assignedTask?: { label: string; value: string; status: string }[];
+  };
 };
 
 const actions = [
@@ -184,7 +188,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
     <div className="flex items-center justify-between flex-wrap gap-2 min-w-[300px] ">
       <div className="flex flex-col gap-2">
         {/* Info */}
-        <Popover content={data ? <HeaderContent id={id} leadsource="website" data={data} /> : null}>
+        <Popover content={data ? <HeaderContent id={id} data={data} /> : null}>
           <div className="flex items-center gap-2 cursor-pointer">
             <span className="font-medium">
               {title} <span className="text-secondary">{id && `- ${id}`}</span>

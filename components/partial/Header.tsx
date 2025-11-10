@@ -294,7 +294,7 @@ export default function Header({
                     </div>
 
                     {/* Second Section */}
-                    <div className="flex-1 overflow-y-auto">
+                    <div className="flex-1 overflow-y-auto " style={{ scrollbarWidth: 'none' }}>
                       <div className="p-3">
                         {/* this functionality need to add dont remove the code */}
 
