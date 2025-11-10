@@ -33,17 +33,17 @@ export const CustomerPortal = () => {
   }, []);
 
   const handleValuesChange = (_, allValues) => {
-  const mergedValues = { ...initialValues, ...allValues };
-  const changed = JSON.stringify(mergedValues) !== JSON.stringify(initialValues);
-  setIsChanged(changed);
-};
+    const mergedValues = { ...initialValues, ...allValues };
+    const changed = JSON.stringify(mergedValues) !== JSON.stringify(initialValues);
+    setIsChanged(changed);
+  };
 
-const handleSave = () => {
-  const values = { ...initialValues, ...form.getFieldsValue() };
-  form.setFieldsValue(values);
-  setIsChanged(false);
-  console.log("✅ Saved:", values);
-};
+  const handleSave = () => {
+    const values = { ...initialValues, ...form.getFieldsValue() };
+    form.setFieldsValue(values);
+    setIsChanged(false);
+    console.log('✅ Saved:', values);
+  };
 
   const sendLoginCredentials = Form.useWatch('sendLoginCredentials', form);
   const allowColorSelection = Form.useWatch('allowColorSelection', form);
@@ -57,7 +57,6 @@ const handleSave = () => {
   return (
     <div className="p-6 bg-white rounded-lg shadow-sm">
       <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
-
         <InputSwitch
           name="sendLoginCredentials"
           label="Options To Send Login Credentials to Customer"
@@ -73,7 +72,7 @@ const handleSave = () => {
               <InputNumber
                 min={1}
                 max={9999}
-                onKeyPress={(e) => !/[0-9]/.test(e.key) && e.preventDefault()}
+                onKeyPress={e => !/[0-9]/.test(e.key) && e.preventDefault()}
               />
               <Text type="secondary"> days</Text>
             </Form.Item>

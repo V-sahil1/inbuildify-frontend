@@ -1,29 +1,29 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import { Button, Modal, Table, message, Input, Dropdown, Menu } from "antd";
-import { IconEdit, IconPlus, IconTrash, IconCheck, IconX } from "@tabler/icons-react";
-import { notesTemplateData, personalizationList } from "data/configuration/TemplateData";
+import React, { useState } from 'react';
+import { Button, Modal, Table, message, Input, Dropdown, Menu } from 'antd';
+import { IconEdit, IconPlus, IconTrash, IconCheck, IconX } from '@tabler/icons-react';
+import { notesTemplateData, personalizationList } from 'data/configuration/TemplateData';
 
 export const TemplateNotes = () => {
   const [templates, setTemplates] = useState(notesTemplateData);
-  const [modalMode, setModalMode] = useState<false | "activate" | "deactivate">(false);
+  const [modalMode, setModalMode] = useState<false | 'activate' | 'deactivate'>(false);
   const [selectedRow, setSelectedRow] = useState<any>(null);
 
   const [isCreating, setIsCreating] = useState(false);
   const [isEditing, setIsEditing] = useState<number | null>(null);
 
   const [templateForm, setTemplateForm] = useState({
-    notestemplate: "",
-    content: "",
+    notestemplate: '',
+    content: '',
   });
 
   const insertToken = (token: string) =>
-    setTemplateForm((prev) => ({ ...prev, content: prev.content + ` [${token}]` }));
+    setTemplateForm(prev => ({ ...prev, content: prev.content + ` [${token}]` }));
 
   const saveTemplate = () => {
     if (!templateForm.notestemplate.trim()) {
-      return message.error("Template name required.");
+      return message.error('Template name required.');
     }
 
     const newEntry = {
@@ -34,40 +34,38 @@ export const TemplateNotes = () => {
 
     setTemplates([newEntry, ...templates]);
     resetForm();
-    message.success("Template added. Click + to activate.");
+    message.success('Template added. Click + to activate.');
   };
 
   const updateTemplate = () => {
-    setTemplates((prev) =>
-      prev.map((item) =>
-        item.key === isEditing ? { ...item, ...templateForm } : item
-      )
+    setTemplates(prev =>
+      prev.map(item => (item.key === isEditing ? { ...item, ...templateForm } : item))
     );
 
     resetForm();
-    message.success("Template updated.");
+    message.success('Template updated.');
   };
 
   const activateTemplate = () => {
-    setTemplates((prev) =>
-      prev.map((t) => (t.key === selectedRow.key ? { ...t, activated: true } : t))
+    setTemplates(prev =>
+      prev.map(t => (t.key === selectedRow.key ? { ...t, activated: true } : t))
     );
 
     closeModal();
-    message.success("Template activated.");
+    message.success('Template activated.');
   };
 
   const deactivateTemplate = () => {
-    setTemplates((prev) =>
-      prev.map((t) => (t.key === selectedRow.key ? { ...t, activated: false } : t))
+    setTemplates(prev =>
+      prev.map(t => (t.key === selectedRow.key ? { ...t, activated: false } : t))
     );
 
     closeModal();
-    message.success("Template deactivated.");
+    message.success('Template deactivated.');
   };
 
   const resetForm = () => {
-    setTemplateForm({ notestemplate: "", content: "" });
+    setTemplateForm({ notestemplate: '', content: '' });
     setIsCreating(false);
     setIsEditing(null);
   };
@@ -79,7 +77,7 @@ export const TemplateNotes = () => {
 
   const menu = (
     <Menu>
-      {personalizationList.map((item) => (
+      {personalizationList.map(item => (
         <Menu.Item key={item} onClick={() => insertToken(item)}>
           {item}
         </Menu.Item>
@@ -89,13 +87,13 @@ export const TemplateNotes = () => {
 
   const columns = [
     {
-      title: "S.No",
-      width: "5%",
+      title: 'S.No',
+      width: '5%',
       render: (_: any, __: any, index: number) => index + 1,
     },
     {
-      title: "Notes Template",
-      width: "75%",
+      title: 'Notes Template',
+      width: '75%',
       render: (_: any, record: any) => {
         const editing = isEditing === record.key;
         const creating = record.newRow;
@@ -107,12 +105,10 @@ export const TemplateNotes = () => {
                 <Input
                   placeholder="Template Name"
                   value={templateForm.notestemplate}
-                  onChange={(e) =>
-                    setTemplateForm((p) => ({ ...p, notestemplate: e.target.value }))
-                  }
+                  onChange={e => setTemplateForm(p => ({ ...p, notestemplate: e.target.value }))}
                 />
 
-                <Dropdown overlay={menu} trigger={["click"]}>
+                <Dropdown overlay={menu} trigger={['click']}>
                   <Button size="small">Insert Personalization ▼</Button>
                 </Dropdown>
               </div>
@@ -121,9 +117,7 @@ export const TemplateNotes = () => {
                 rows={5}
                 placeholder="Write template content..."
                 value={templateForm.content}
-                onChange={(e) =>
-                  setTemplateForm((p) => ({ ...p, content: e.target.value }))
-                }
+                onChange={e => setTemplateForm(p => ({ ...p, content: e.target.value }))}
               />
             </div>
           );
@@ -133,9 +127,7 @@ export const TemplateNotes = () => {
           <div>
             <div className="font-medium text-sm">{record.notestemplate}</div>
 
-            <div className="text-xs mt-1 whitespace-pre-line">
-              {record.content}
-            </div>
+            <div className="text-xs mt-1 whitespace-pre-line">{record.content}</div>
           </div>
         );
       },
@@ -150,7 +142,7 @@ export const TemplateNotes = () => {
           )}
         </div>
       ),
-      width: "10%",
+      width: '10%',
       render: (_: any, record: any) => {
         const editing = isEditing === record.key;
         const creating = record.newRow;
@@ -190,7 +182,7 @@ export const TemplateNotes = () => {
                 type="text"
                 onClick={() => {
                   setSelectedRow(record);
-                  setModalMode("activate");
+                  setModalMode('activate');
                 }}
               >
                 <IconPlus size={18} />
@@ -215,7 +207,7 @@ export const TemplateNotes = () => {
                   danger
                   onClick={() => {
                     setSelectedRow(record);
-                    setModalMode("deactivate");
+                    setModalMode('deactivate');
                   }}
                 >
                   <IconTrash size={18} />
@@ -228,9 +220,7 @@ export const TemplateNotes = () => {
     },
   ];
 
-  const tableData = isCreating
-    ? [{ key: "new", newRow: true }, ...templates]
-    : templates;
+  const tableData = isCreating ? [{ key: 'new', newRow: true }, ...templates] : templates;
 
   return (
     <div className="space-y-4">
@@ -245,23 +235,25 @@ export const TemplateNotes = () => {
           <Button key="cancel" onClick={closeModal}>
             Cancel
           </Button>,
-          modalMode === "activate" && (
+          modalMode === 'activate' && (
             <Button key="ok" type="primary" onClick={activateTemplate}>
               Activate
             </Button>
           ),
-          modalMode === "deactivate" && (
+          modalMode === 'deactivate' && (
             <Button key="deact" type="primary" onClick={deactivateTemplate}>
               Deactivate
             </Button>
           ),
         ]}
       >
-        <p><strong>Template Name:</strong> {selectedRow?.notestemplate}</p>
         <p>
-          {modalMode === "deactivate"
-            ? "Are you sure you want to deactivate this template?"
-            : "Are you sure you want to activate this template?"}
+          <strong>Template Name:</strong> {selectedRow?.notestemplate}
+        </p>
+        <p>
+          {modalMode === 'deactivate'
+            ? 'Are you sure you want to deactivate this template?'
+            : 'Are you sure you want to activate this template?'}
         </p>
       </Modal>
     </div>

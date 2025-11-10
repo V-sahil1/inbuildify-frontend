@@ -1,34 +1,29 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import { Table, Button } from "antd";
-import { IconEdit } from "@tabler/icons-react";
-import PdfFormatForm from "./PdfFormats";
-import { PdfTemplateData } from "data/configuration/TemplateData";
+import React, { useState } from 'react';
+import { Table, Button } from 'antd';
+import { IconEdit } from '@tabler/icons-react';
+import PdfFormatForm from './PdfFormats';
+import { PdfTemplateData } from 'data/configuration/TemplateData';
 export const PdfTemplates = () => {
-  
-
   const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
 
   const columns = [
     {
-      title: "S.No",
-      width: "10%",
+      title: 'S.No',
+      width: '10%',
       render: (_: any, __: any, index: number) => index + 1,
     },
     {
-      title: "Template Name",
-      dataIndex: "name",
-      width: "80%",
+      title: 'Template Name',
+      dataIndex: 'name',
+      width: '80%',
     },
     {
-      title: "",
-      width: "10%",
+      title: '',
+      width: '10%',
       render: (_: any, record: any) => (
-        <Button
-          type="text"
-          onClick={() => setSelectedTemplate(record)}
-        >
+        <Button type="text" onClick={() => setSelectedTemplate(record)}>
           <IconEdit size={18} />
         </Button>
       ),
@@ -43,12 +38,7 @@ export const PdfTemplates = () => {
           goBack={() => setSelectedTemplate(null)}
         />
       ) : (
-        <Table 
-          dataSource={PdfTemplateData}
-          columns={columns}
-          pagination={false}
-          rowKey="key"
-        />
+        <Table dataSource={PdfTemplateData} columns={columns} pagination={false} rowKey="key" />
       )}
     </div>
   );

@@ -1,7 +1,7 @@
 import TabLayout from '@/components/common/TabLayout';
 import { tabsLabel } from '@/components/common/TabLabel';
 import { CustomerPortal } from '@/components/configurations/components/portal/customerPortal';
-import  AgentPortal  from '@/components/configurations/components/portal/agentPortal';
+import AgentPortal from '@/components/configurations/components/portal/agentPortal';
 
 const TABS = [
   {
@@ -14,7 +14,6 @@ const TABS = [
     label: tabsLabel('Agent Portal', 'Set agent portal common setting'),
     component: AgentPortal,
   },
-
 ];
 
 export default function GeneralConfig() {

@@ -1,9 +1,9 @@
-"use client";
-import React from "react";
-import { Form, Input, Select, Row, Col, Upload, Button, InputNumber, Divider } from "antd";
-import { ColorPicker } from "antd";
-import { IconInfoSquareFilled, IconUpload } from "@tabler/icons-react";
-import InputSwitch from "@/components/common/InputSwitch";
+'use client';
+import React from 'react';
+import { Form, Input, Select, Row, Col, Upload, Button, InputNumber, Divider } from 'antd';
+import { ColorPicker } from 'antd';
+import { IconInfoSquareFilled, IconUpload } from '@tabler/icons-react';
+import InputSwitch from '@/components/common/InputSwitch';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -45,23 +45,19 @@ const PdfFormatForm = ({ templateName, goBack }: any) => {
           </Col>
 
           <Col span={6}>
-            {templateName !== "Color Format" && templateName !== "Maintenance Format" && (
+            {templateName !== 'Color Format' && templateName !== 'Maintenance Format' && (
               <Form.Item label="Bank Information">
                 <Select placeholder="Select">
                   <Option value="bottom">Bottom</Option>
                 </Select>
               </Form.Item>
             )}
-            {templateName === "Color Format" && (
+            {templateName === 'Color Format' && (
               <Form.Item label="User Label Information">
-                <InputSwitch
-                  name="userlabelinformation"
-                  label=""
-                />
+                <InputSwitch name="userlabelinformation" label="" />
               </Form.Item>
             )}
           </Col>
-
         </Row>
 
         <Divider orientation="left">Page Header</Divider>
@@ -89,28 +85,33 @@ const PdfFormatForm = ({ templateName, goBack }: any) => {
             </Form.Item>
           </Col>
 
-          {templateName !== "Variation Format" && (
+          {templateName !== 'Variation Format' && (
             <Col span={6}>
               <Form.Item label="Title">
                 <Input />
               </Form.Item>
             </Col>
           )}
-
         </Row>
         <Divider orientation="left">Page Footer</Divider>
 
         <Row gutter={16}>
           <Col span={6}>
-            <Form.Item label="Background Color"><ColorPicker /></Form.Item>
+            <Form.Item label="Background Color">
+              <ColorPicker />
+            </Form.Item>
           </Col>
           <Col span={6}>
-            <Form.Item label="Font Color"><ColorPicker /></Form.Item>
+            <Form.Item label="Font Color">
+              <ColorPicker />
+            </Form.Item>
           </Col>
           <Col span={6}>
             <Form.Item label="Font Size">
               <Select defaultValue={10}>
-                {[8, 10, 12, 14].map(size => <Option key={size}>{size}</Option>)}
+                {[8, 10, 12, 14].map(size => (
+                  <Option key={size}>{size}</Option>
+                ))}
               </Select>
             </Form.Item>
           </Col>
@@ -130,7 +131,7 @@ const PdfFormatForm = ({ templateName, goBack }: any) => {
 
           <Col span={6}>
             <Form.Item label="Height">
-              <InputNumber placeholder="130" style={{ width: "100%" }} />
+              <InputNumber placeholder="130" style={{ width: '100%' }} />
             </Form.Item>
           </Col>
         </Row>
@@ -138,7 +139,7 @@ const PdfFormatForm = ({ templateName, goBack }: any) => {
         <Row gutter={16}>
           <Col span={6}>
             <Form.Item label="Width">
-              <InputNumber placeholder="150" style={{ width: "100%" }} />
+              <InputNumber placeholder="150" style={{ width: '100%' }} />
             </Form.Item>
           </Col>
           <Col span={6}>
@@ -148,22 +149,30 @@ const PdfFormatForm = ({ templateName, goBack }: any) => {
           </Col>
           <Col span={6}>
             <Form.Item label="Logo Image">
-              <Upload><Button icon={<IconUpload />}>Upload</Button></Upload>
+              <Upload>
+                <Button icon={<IconUpload />}>Upload</Button>
+              </Upload>
             </Form.Item>
           </Col>
           <Col span={6}>
             <Form.Item label="Watermark Image">
-              <Upload><Button icon={<IconUpload />}>Upload</Button></Upload>
+              <Upload>
+                <Button icon={<IconUpload />}>Upload</Button>
+              </Upload>
             </Form.Item>
           </Col>
         </Row>
-      
-        {templateName !== "Receipt Format" && (
+
+        {templateName !== 'Receipt Format' && (
           <>
             <Row gutter={16}>
-              <Col span={12}><Divider orientation="left">List Items - Header</Divider></Col>
-              {templateName !== "Maintenance Format" && (
-                <Col span={12}><Divider orientation="left">List Items - Footer</Divider></Col>
+              <Col span={12}>
+                <Divider orientation="left">List Items - Header</Divider>
+              </Col>
+              {templateName !== 'Maintenance Format' && (
+                <Col span={12}>
+                  <Divider orientation="left">List Items - Footer</Divider>
+                </Col>
               )}
             </Row>
             <Row gutter={16}>
@@ -178,7 +187,7 @@ const PdfFormatForm = ({ templateName, goBack }: any) => {
                 </Form.Item>
               </Col>
 
-              {templateName !== "Maintenance Format" && (
+              {templateName !== 'Maintenance Format' && (
                 <>
                   <Col span={6}>
                     <Form.Item label=" Background Color">
@@ -196,7 +205,7 @@ const PdfFormatForm = ({ templateName, goBack }: any) => {
             </Row>
           </>
         )}
-        {templateName === "Variation Format" && (
+        {templateName === 'Variation Format' && (
           <>
             <Divider orientation="left">Sub Items - Header</Divider>
             <Row gutter={16}>
@@ -223,11 +232,15 @@ const PdfFormatForm = ({ templateName, goBack }: any) => {
           </>
         )}
 
-        {templateName === "Color Format" && (
+        {templateName === 'Color Format' && (
           <>
             <Row gutter={16}>
-              <Col span={12}><Divider orientation="left">Cost Type - Standard</Divider></Col>
-              <Col span={12}><Divider orientation="left">Cost Type - Upgrade</Divider></Col>
+              <Col span={12}>
+                <Divider orientation="left">Cost Type - Standard</Divider>
+              </Col>
+              <Col span={12}>
+                <Divider orientation="left">Cost Type - Upgrade</Divider>
+              </Col>
             </Row>
             <Row gutter={16}>
               <Col span={6}>
@@ -255,34 +268,40 @@ const PdfFormatForm = ({ templateName, goBack }: any) => {
           </>
         )}
 
-        {templateName !== "Color Format" && templateName !== "Maintenance Format" && (
+        {templateName !== 'Color Format' && templateName !== 'Maintenance Format' && (
           <Form.Item label="Bank Header Text">
             <Input placeholder="Bank Details" />
           </Form.Item>
         )}
-        {templateName !== "Maintenance Format" && (
+        {templateName !== 'Maintenance Format' && (
           <Form.Item label="Custom Text">
             <TextArea rows={4} />
           </Form.Item>
         )}
-        {templateName === "Variation Format" && (
+        {templateName === 'Variation Format' && (
           <Form.Item label="Total Cost Custom Text">
             <TextArea rows={4} />
           </Form.Item>
         )}
 
-        {templateName === "Invoice Format" && (
-          <Form.Item label={(<div className="flex items-center gap-1"> Initial Diposite Discription <IconInfoSquareFilled size={15} /> </div>)}>
+        {templateName === 'Invoice Format' && (
+          <Form.Item
+            label={
+              <div className="flex items-center gap-1">
+                {' '}
+                Initial Diposite Discription <IconInfoSquareFilled size={15} />{' '}
+              </div>
+            }
+          >
             <TextArea rows={4} />
           </Form.Item>
         )}
 
-        {templateName !== "Invoice Format" && templateName !== "Maintenance Format" && templateName !== "Receipt Format" && (
-          <InputSwitch
-            name="buildersignature"
-            label="Enable Builder Signature"
-          />
-        )}
+        {templateName !== 'Invoice Format' &&
+          templateName !== 'Maintenance Format' &&
+          templateName !== 'Receipt Format' && (
+            <InputSwitch name="buildersignature" label="Enable Builder Signature" />
+          )}
 
         <div className="flex gap-2 mt-4 justify-end">
           <Button type="default" onClick={goBack}>

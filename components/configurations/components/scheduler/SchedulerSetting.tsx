@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import { Select, Typography, Card } from "antd";
-import { IconCheck, IconX } from "@tabler/icons-react";
-import { useUsersHook } from "@hooks/useUserData"; // ✅ import hook
+import React, { useState } from 'react';
+import { Select, Typography, Card } from 'antd';
+import { IconCheck, IconX } from '@tabler/icons-react';
+import { useUsersHook } from '@hooks/useUserData'; // ✅ import hook
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -29,7 +29,6 @@ export default function SchedulerSetting() {
     <div className="p-6 space-y-6">
       <Card className="p-5">
         <div className="flex gap-[5%] items-center mb-1">
-
           <Text strong className="text-base text-font-color">
             Receiver of Emails When Someone Replies to Scheduler Emails.
           </Text>
@@ -48,12 +47,12 @@ export default function SchedulerSetting() {
                 className="w-[320px]"
                 placeholder="Choose Users"
                 value={tempUsers}
-                onChange={(v) => setTempUsers(v)}
+                onChange={v => setTempUsers(v)}
                 autoFocus
                 options={users.map((u: any) => ({
                   label: u.name,
-                  value: u.usersId
-                }))} 
+                  value: u.usersId,
+                }))}
               />
 
               <button onClick={handleConfirm}>
@@ -69,7 +68,8 @@ export default function SchedulerSetting() {
 
         <div className="flex items-start gap-2 mt-1 text-font-color-100 text-sm">
           <span>
-            When someone replies to a scheduler email, the selected user(s) will receive those replies.
+            When someone replies to a scheduler email, the selected user(s) will receive those
+            replies.
           </span>
         </div>
       </Card>
