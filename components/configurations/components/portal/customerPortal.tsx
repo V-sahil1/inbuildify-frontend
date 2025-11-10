@@ -10,6 +10,7 @@ const { Text } = Typography;
 export const CustomerPortal = () => {
   const [form] = Form.useForm();
   const [showConfirm, setShowConfirm] = useState(false);
+  const [isChanged, setIsChanged] = useState(false);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
   const initialValues = {
@@ -31,21 +32,31 @@ export const CustomerPortal = () => {
     form.setFieldsValue(initialValues);
   }, []);
 
-  const handleSave = () => {
-    const values = form.getFieldsValue();
-    console.log('✅ Saved Customer Portal Settings:', values);
-  };
+  const handleValuesChange = (_, allValues) => {
+  const mergedValues = { ...initialValues, ...allValues };
+  const changed = JSON.stringify(mergedValues) !== JSON.stringify(initialValues);
+  setIsChanged(changed);
+};
+
+const handleSave = () => {
+  const values = { ...initialValues, ...form.getFieldsValue() };
+  form.setFieldsValue(values);
+  setIsChanged(false);
+  console.log("✅ Saved:", values);
+};
 
   const sendLoginCredentials = Form.useWatch('sendLoginCredentials', form);
   const allowColorSelection = Form.useWatch('allowColorSelection', form);
   const showConstructionStages = Form.useWatch('showConstructionStages', form);
 
   const handleIconClick = () => fileInputRef.current?.click();
-  const handleFile = e => console.log('📂 File:', e.target.files?.[0]?.name);
+  const handleFile = () => {
+    setIsChanged(true);
+  };
 
   return (
     <div className="p-6 bg-white rounded-lg shadow-sm">
-      <Form form={form} layout="vertical">
+      <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
 
         <InputSwitch
           name="sendLoginCredentials"
@@ -59,7 +70,12 @@ export const CustomerPortal = () => {
               label="How many Days Customer Online Portal can be Active after Handover?"
               name="portalActiveDays"
             >
-              <InputNumber min={1} max={9999} /> <Text type="secondary">days</Text>
+              <InputNumber
+                min={1}
+                max={9999}
+                onKeyPress={(e) => !/[0-9]/.test(e.key) && e.preventDefault()}
+              />
+              <Text type="secondary"> days</Text>
             </Form.Item>
 
             <Text type="secondary" className="text-xs block mb-2">
@@ -151,9 +167,11 @@ export const CustomerPortal = () => {
             </button>
           </div>
 
-          <Button type="primary" onClick={() => setShowConfirm(true)}>
-            Save Changes
-          </Button>
+          {isChanged && (
+            <Button type="primary" onClick={() => setShowConfirm(true)}>
+              Save Changes
+            </Button>
+          )}
         </div>
       </Form>
 

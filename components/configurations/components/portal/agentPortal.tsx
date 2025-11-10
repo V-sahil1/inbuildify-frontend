@@ -8,6 +8,7 @@ import { ConfirmationContentModal } from '@/components/common/ConfirmationConten
 const AgentPortal = () => {
   const [form] = Form.useForm();
   const [showConfirm, setShowConfirm] = useState(false);
+  const [isChanged, setIsChanged] = useState(false);
 
   const initialValues = {
     publishToAgentPortal: true,
@@ -17,29 +18,44 @@ const AgentPortal = () => {
     form.setFieldsValue(initialValues);
   }, []);
 
+  const handleValuesChange = (_, allValues) => {
+    const changed = Object.keys(initialValues).some(
+      key => allValues[key] !== initialValues[key]
+    );
+    setIsChanged(changed);
+  };
+
   const handleSave = () => {
     console.log("✅ Agent Portal Saved Settings:", form.getFieldsValue());
+    setIsChanged(false);
   };
 
   return (
     <div className="p-6 bg-white rounded-lg shadow-sm">
-      <Form form={form} layout="vertical">
-
+      <Form
+        form={form}
+        layout="vertical"
+        onValuesChange={handleValuesChange} 
+      >
         <InputSwitch
           name="publishToAgentPortal"
           label="Publish Packages to Agent Portal"
           description={
             <div className="flex flex-col gap-2">
-              When enabled, HL Packages can be published to the Agent Portal. Agents will see the published packages based on their distribution—either visible to all agents on the portal or shared privately with specific agents.
+              When enabled, HL Packages can be published to the Agent Portal.
+              Agents will see the packages based on their distribution—either
+              visible to all agents or shared privately with specific agents.
             </div>
           }
         />
 
-        <div className="text-right mt-6">
-          <Button type="primary" onClick={() => setShowConfirm(true)}>
-            Save Changes
-          </Button>
-        </div>
+        {isChanged && (
+          <div className="text-right mt-6">
+            <Button type="primary" onClick={() => setShowConfirm(true)}>
+              Save Changes
+            </Button>
+          </div>
+        )}
       </Form>
 
       <ConfirmationContentModal
@@ -52,11 +68,7 @@ const AgentPortal = () => {
         }}
         okText="Yes"
         cancelText="No"
-        content={
-          <div>
-            <p>Are you sure you want to update this setting?</p>
-          </div>
-        }
+        content={<p>Are you sure you want to update this setting?</p>}
       />
     </div>
   );

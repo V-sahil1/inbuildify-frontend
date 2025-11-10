@@ -1,18 +1,18 @@
 import TabLayout from '@/components/common/TabLayout';
 import { tabsLabel } from '@/components/common/TabLabel';
-import { IntegrationArea } from '@/components/configurations/components/Integration/IntegrationArea';
-import { OptionalSettings } from '@/components/configurations/components/Integration/OptionalSetting';
+import { EmailScheduler } from '@/components/configurations/components/scheduler/EmailScheduler';
+import SchedulerSetting from '@/components/configurations/components/scheduler/SchedulerSetting';
 
 const TABS = [
   {
     id: 'email',
     label: tabsLabel('Email', 'Customize email reminder or report'),
-    component: IntegrationArea,
+    component: EmailScheduler,
   },
   {
-    id: 'emailSignature',
+    id: 'schedulerSetting',
     label: tabsLabel('Schedular settings', 'set schedular common settings'),
-    component: OptionalSettings,
+    component: SchedulerSetting,
   },
 ];
 
