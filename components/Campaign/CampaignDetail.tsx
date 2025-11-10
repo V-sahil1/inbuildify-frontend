@@ -1,19 +1,18 @@
 import { IconArrowUp, IconPaperclip } from '@tabler/icons-react';
-import { Button, Dropdown, Input } from 'antd';
+import { Button, Dropdown, Form, Input, InputRef } from 'antd';
 import RichTextEditor from '../common/rich-text-editor/RichTextEditor';
-import { useState } from 'react';
-import { ActionDialogmodel, FormField } from '../common/Models/ActionDialogModel';
+import { useRef, useState } from 'react';
+import { ActionDialogmodel } from '../common/Models/ActionDialogModel';
+import { campaignFooterfields } from '../formFields/campaignFields';
+import { InsertAtCursor } from '../../lib/utils/InsertAtCursor';
 
 const CampaignDetail = ({ current, setCurrent }) => {
   const [editedContent, setEditedContent] = useState('');
   const [footerOpen, setFooterOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('Email');
-  const fields: FormField[] = [
-    { label: 'Footer Name', name: 'footerName', type: 'text' },
-    { label: 'Footer Content', name: 'footerContent', type: 'texteditor' },
-    { label: 'Set Background Color', name: 'backgroundColor', type: 'color' },
-    { label: 'Set as Default', name: 'default', type: 'switch' },
-  ];
+  const inputRef = useRef<InputRef>(null);
+  const [form] = Form.useForm();
+  const toggleButtons = ['Email', 'SMS'];
   const initialValues = {
     footerName: 'hiiii',
     footerContent: 'ok',
@@ -32,73 +31,84 @@ const CampaignDetail = ({ current, setCurrent }) => {
             </Button>
           </div>
         </div>
-        <div className="flex-col flex gap-3">
-          <div className="flex">
-            <p className="w-[200px]">Campaign By</p>
-            <div className="w-[500px]">
-              <Button
-                className={` ${
-                  activeTab === 'Email' ? 'bg-primary' : 'bg-white text-primary'
-                } rounded-none`}
-                type="primary"
-                onClick={() => setActiveTab('Email')}
-              >
-                Email
-              </Button>
-              <Button
-                className={` ${
-                  activeTab === 'SMS' ? 'bg-primary' : 'bg-white text-primary'
-                } rounded-none`}
-                type="primary"
-                onClick={() => setActiveTab('SMS')}
-              >
-                SMS
-              </Button>
+        <Form form={form}>
+          <div className="flex-col flex gap-3">
+            <div className="flex">
+              <p className="w-[200px]">Campaign By</p>
+              <div className="w-[500px]">
+                <Form.Item name="sendOption">
+                  {toggleButtons.map((btn, index) => (
+                    <Button
+                      key={index}
+                      className={` ${activeTab === btn ? 'bg-primary' : 'bg-white text-primary'
+                        } rounded-none`}
+                      type="primary"
+                      onClick={() => setActiveTab(btn)}
+                    >
+                      {btn}
+                    </Button>
+                  ))}
+                </Form.Item>
+              </div>
             </div>
+            <div className="flex">
+              <p className="w-[200px]">Campaign Name</p>
+              <Form.Item name="campaignName">
+                <Input className=" w-[500px]" />
+              </Form.Item>
+            </div>
+            <div className="flex">
+              <p className="w-[200px]">Subject</p>
+              <Form.Item name="subject">
+                <Input
+                  ref={inputRef}
+                  className=" w-[500px]"
+                  value={form.getFieldValue('subject')}
+                  onChange={e => form.setFieldValue('subject', e.target.value)}
+                />
+              </Form.Item>
+
+              <Dropdown
+                menu={{
+                  items: [
+                    {
+                      key: 'Insert Contact Name',
+                      label: 'Insert Contact Name',
+                    },
+                  ],
+                  onClick: e => {
+                    form.setFieldValue(
+                      'subject',
+                      InsertAtCursor(inputRef, e.key, form.getFieldValue('subject') || '', 'input')
+                    );
+                  },
+                }}
+                className="ml-2"
+              >
+                <Button type="primary"> Insert Personalization</Button>
+              </Dropdown>
+            </div>
+            <div className="flex">
+              <p className="w-[200px]">Import HTML</p>
+              <Button icon={<IconArrowUp size={15} />} />
+            </div>
+            <div className="flex">
+              <p className="w-[200px]">Attachment</p>
+              <Button icon={<IconPaperclip size={15} />} />
+            </div>
+            <Form.Item>
+              <RichTextEditor value={editedContent} onChange={setEditedContent} maxHeight="400px" />
+            </Form.Item>
           </div>
-          <div className="flex">
-            <p className="w-[200px]">Campaign Name</p>
-            <Input className=" w-[500px]" />
-          </div>
-          <div className="flex">
-            <p className="w-[200px]">Subject</p>
-            <Input
-              className=" w-[500px]"
-              addonAfter={
-                <Dropdown
-                  menu={{
-                    items: [
-                      {
-                        key: 'Insert Contact Name',
-                        label: 'Insert Contact Name',
-                        onClick: () => {},
-                      },
-                    ],
-                  }}
-                >
-                  Insert Personalization
-                </Dropdown>
-              }
-            />
-          </div>
-          <div className="flex">
-            <p className="w-[200px]">Import HTML</p>
-            <Button icon={<IconArrowUp size={15} />} />
-          </div>
-          <div className="flex">
-            <p className="w-[200px]">Attachment</p>
-            <Button icon={<IconPaperclip size={15} />} />
-          </div>
-          <RichTextEditor value={editedContent} onChange={setEditedContent} maxHeight="400px" />
-        </div>
+        </Form>
       </div>
       <div className="flex justify-between mx-3">
-        <p>Campaign Footer</p>
+        <p className="cursor-pointer">Campaign Footer</p>
         <div>
-          <p className="text-blue">Choose Footer</p>
+          <p className="text-blue cursor-pointer">Choose Footer</p>
           <p>Standard Footer</p>
         </div>
-        <p className="text-blue" onClick={() => setFooterOpen(true)}>
+        <p className="text-blue cursor-pointer" onClick={() => setFooterOpen(true)}>
           Create Footer
         </p>
       </div>
@@ -111,7 +121,7 @@ const CampaignDetail = ({ current, setCurrent }) => {
             setFooterOpen(false);
             console.log(values);
           }}
-          fields={fields}
+          fields={campaignFooterfields}
           initialValues={initialValues}
           isEditing={true}
         />

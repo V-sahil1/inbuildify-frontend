@@ -1,8 +1,7 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { Table, Input, Button, Space, Dropdown, Switch } from 'antd';
-import { debounce } from 'lodash';
 import { IconFilter, IconDownload, IconUpload, IconTrash, IconShare3 } from '@tabler/icons-react';
 import type { ColumnsType } from 'antd/es/table';
 import { exportToExcel } from '@lib/utils/exportToExcel';
@@ -21,10 +20,10 @@ import CustomAvtar from '@/components/common/CustomAvtar';
 import Link from 'next/link';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineActionsBar';
+import { debouncedURL } from '@lib/utils/debounceURL';
 
 const LeadPage: React.FC = () => {
   const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const [filters, setFilters] = useState<{
     refrenceId: string;
@@ -53,7 +52,7 @@ const LeadPage: React.FC = () => {
   const { leads } = useAppSelector(state => state.lead);
   const { leads: leadLoading } = useAppSelector(state => state.lead.status);
   const dispatch = useAppDispatch();
-
+  const debouncedUpdateURL = debouncedURL();
   useEffect(() => {
     async function fetchData() {
       if (leadLoading === Status.IDLE) {
@@ -64,24 +63,6 @@ const LeadPage: React.FC = () => {
       fetchData();
     }
   }, [dispatch, leadLoading]);
-
-  const debouncedUpdateURL = useMemo(
-    () =>
-      debounce((newFilters: typeof filters) => {
-        const params = new URLSearchParams(searchParams.toString());
-
-        Object.entries(newFilters).forEach(([key, value]) => {
-          if (value) {
-            params.set(key, value.toString());
-          } else {
-            params.delete(key);
-          }
-        });
-
-        router.replace(`${pathname}?${params.toString()}`);
-      }, 500), // 500ms debounce delay
-    [pathname, router, searchParams]
-  );
 
   const handleFilterChange = useCallback(
     (updates: Partial<typeof filters>) => {
@@ -144,7 +125,7 @@ const LeadPage: React.FC = () => {
           <span>Refrence ID</span>
           <Input
             value={filters.refrenceId}
-            onChange={e => handleFilterChange({ ...filters, refrenceId: e.target.value })}
+            onChange={e => handleFilterChange({ refrenceId: e.target.value })}
           />
         </div>
       ),
@@ -158,7 +139,7 @@ const LeadPage: React.FC = () => {
           <span>Name</span>
           <Input
             value={filters.name}
-            onChange={e => handleFilterChange({ ...filters, name: e.target.value })}
+            onChange={e => handleFilterChange({ name: e.target.value })}
           />
         </div>
       ),
@@ -174,7 +155,6 @@ const LeadPage: React.FC = () => {
             value={filters.propertyAddress}
             onChange={e =>
               handleFilterChange({
-                ...filters,
                 propertyAddress: e.target.value,
               })
             }
@@ -191,7 +171,7 @@ const LeadPage: React.FC = () => {
           <span>Source</span>
           <SourceSelect
             value={filters.source}
-            onChange={value => handleFilterChange({ ...filters, source: value })}
+            onChange={value => handleFilterChange({ source: value })}
           />
         </div>
       ),
@@ -205,7 +185,7 @@ const LeadPage: React.FC = () => {
           <span>Rating</span>
           <RatingSelect
             value={filters.rating}
-            onChange={value => handleFilterChange({ ...filters, rating: value })}
+            onChange={value => handleFilterChange({ rating: value })}
           />
         </div>
       ),
@@ -220,11 +200,11 @@ const LeadPage: React.FC = () => {
           <DateFilterDropdown
             onFilter={(type, dates) => {
               const dateString = dates ? `${dates[0].toISOString()},${dates[1].toISOString()}` : '';
-              handleFilterChange({ ...filters, created: dateString });
+              handleFilterChange({ created: dateString });
             }}
             onClear={() => {
               console.log('Cleared date filter');
-              handleFilterChange({ ...filters, created: '' });
+              handleFilterChange({ created: '' });
             }}
           />
         </div>
@@ -241,11 +221,11 @@ const LeadPage: React.FC = () => {
           <DateFilterDropdown
             onFilter={(type, dates) => {
               const dateString = dates ? `${dates[0].toISOString()},${dates[1].toISOString()}` : '';
-              handleFilterChange({ ...filters, updated: dateString });
+              handleFilterChange({ updated: dateString });
             }}
             onClear={() => {
               console.log('Cleared date filter');
-              handleFilterChange({ ...filters, updated: '' });
+              handleFilterChange({ updated: '' });
             }}
           />
         </div>
@@ -261,7 +241,7 @@ const LeadPage: React.FC = () => {
           <span>Assignee</span>
           <AssigneeSelect
             value={filters.assignedTo}
-            onChange={value => handleFilterChange({ ...filters, assignedTo: value })}
+            onChange={value => handleFilterChange({ assignedTo: value })}
           />
         </div>
       ),

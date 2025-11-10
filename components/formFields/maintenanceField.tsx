@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Input, Dropdown, Button } from 'antd';
 import { IconDotsVertical, IconExternalLink } from '@tabler/icons-react';
 import dayjs, { Dayjs } from 'dayjs';
-import { debounce } from 'lodash';
 import SystemRoutes from '@lib/constants/Routes';
 import { Maintenance } from '@redux/feature/maintenance/IMaintenanceState';
 import AssignSupervisorDropdown from '../construction/assignSupervisorModal';
@@ -11,6 +10,7 @@ import AssigneeSelect from '../common/custom-selects/AssigneeSelect';
 import DateFilterDropdown from '../common/custom-selects/DateFilterDropdown';
 import ConfirmationModal from '../common/ConfirmationModal';
 import { ActionDialogmodel } from '../common/Models/ActionDialogModel';
+import { debouncedURL } from '@lib/utils/debounceURL';
 
 type DateRange = [Dayjs, Dayjs] | null;
 
@@ -34,7 +34,6 @@ export const useMaintenanceTableLogic = ({
   handleStatusChange,
 }: UseMaintenanceTableLogicProps) => {
   const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const [filters, setFilters] = useState({
@@ -54,20 +53,7 @@ export const useMaintenanceTableLogic = ({
   const [isStatusChangeModalVisible, setIsStatusChangeModalVisible] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [isRevertModalVisible, setIsRevertModalVisible] = useState(false);
-
-  const debouncedUpdateURL = useMemo(
-    () =>
-      debounce((newFilters: typeof filters) => {
-        const params = new URLSearchParams(searchParams.toString());
-        Object.entries(newFilters).forEach(([key, value]) => {
-          if (value) params.set(key, typeof value === 'string' ? value : '');
-          else params.delete(key);
-        });
-        router.replace(`${pathname}?${params.toString()}`);
-      }, 400),
-    [pathname, router, searchParams]
-  );
-
+  const debouncedUpdateURL = debouncedURL();
   const handleFilterChange = useCallback(
     (updates: Partial<typeof filters>) => {
       setFilters(prev => {
@@ -161,9 +147,9 @@ export const useMaintenanceTableLogic = ({
             <div className="font-semibold">Start Date</div>
             <DateFilterDropdown
               onFilter={(type, dates) => {
-                handleFilterChange({ ...filters, startDate: dates });
+                handleFilterChange({ startDate: dates });
               }}
-              onClear={() => handleFilterChange({ ...filters, startDate: null })}
+              onClear={() => handleFilterChange({ startDate: null })}
             />
           </div>
         ),
@@ -181,9 +167,9 @@ export const useMaintenanceTableLogic = ({
             <div className="font-semibold">End Date</div>
             <DateFilterDropdown
               onFilter={(type, dates) => {
-                handleFilterChange({ ...filters, endDate: dates });
+                handleFilterChange({ endDate: dates });
               }}
-              onClear={() => handleFilterChange({ ...filters, endDate: null })}
+              onClear={() => handleFilterChange({ endDate: null })}
             />
           </div>
         ),

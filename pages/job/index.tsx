@@ -1,9 +1,8 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/router';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { Table, Input, Space, Dropdown, Switch, Button } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { debounce } from 'lodash';
 import { IconFilter, IconDownload, IconExternalLink } from '@tabler/icons-react';
 import { exportToExcel } from '@lib/utils/exportToExcel';
 import DateFilterDropdown from '@/components/common/custom-selects/DateFilterDropdown';
@@ -15,10 +14,10 @@ import CustomAvtar from '@/components/common/CustomAvtar';
 import Link from 'next/link';
 import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineActionsBar';
 import SystemRoutes from '@lib/constants/Routes';
+import { debouncedURL } from '@lib/utils/debounceURL';
 
 const JobPage: React.FC = () => {
   const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const [filters, setFilters] = useState<{
     refrenceId: string;
@@ -40,23 +39,7 @@ const JobPage: React.FC = () => {
   const [showBlocked, setShowBlocked] = useState(false);
   const [currentBar, setCurrentBar] = useState<string>();
 
-  const debouncedUpdateURL = useMemo(
-    () =>
-      debounce((newFilters: typeof filters) => {
-        const params = new URLSearchParams(searchParams.toString());
-
-        Object.entries(newFilters).forEach(([key, value]) => {
-          if (value) {
-            params.set(key, value.toString());
-          } else {
-            params.delete(key);
-          }
-        });
-
-        router.replace(`${pathname}?${params.toString()}`);
-      }, 500), // 500ms debounce delay
-    [pathname, router, searchParams]
-  );
+  const debouncedUpdateURL = debouncedURL();
 
   const handleFilterChange = useCallback(
     (updates: Partial<typeof filters>) => {
@@ -110,7 +93,7 @@ const JobPage: React.FC = () => {
           <span>Refrence ID</span>
           <Input
             value={filters.refrenceId}
-            onChange={e => handleFilterChange({ ...filters, refrenceId: e.target.value })}
+            onChange={e => handleFilterChange({ refrenceId: e.target.value })}
           />
         </div>
       ),
@@ -124,7 +107,7 @@ const JobPage: React.FC = () => {
           <span>Customer Name</span>
           <Input
             value={filters.customerName}
-            onChange={e => handleFilterChange({ ...filters, customerName: e.target.value })}
+            onChange={e => handleFilterChange({ customerName: e.target.value })}
           />
         </div>
       ),
@@ -140,7 +123,6 @@ const JobPage: React.FC = () => {
             value={filters.jobAddress}
             onChange={e =>
               handleFilterChange({
-                ...filters,
                 jobAddress: e.target.value,
               })
             }
@@ -159,11 +141,11 @@ const JobPage: React.FC = () => {
           <DateFilterDropdown
             onFilter={(type, dates) => {
               const dateString = dates ? `${dates[0].toISOString()},${dates[1].toISOString()}` : '';
-              handleFilterChange({ ...filters, created: dateString });
+              handleFilterChange({ created: dateString });
             }}
             onClear={() => {
               console.log('Cleared date filter');
-              handleFilterChange({ ...filters, created: '' });
+              handleFilterChange({ created: '' });
             }}
           />
         </div>
@@ -180,11 +162,11 @@ const JobPage: React.FC = () => {
           <DateFilterDropdown
             onFilter={(type, dates) => {
               const dateString = dates ? `${dates[0].toISOString()},${dates[1].toISOString()}` : '';
-              handleFilterChange({ ...filters, titled: dateString });
+              handleFilterChange({ titled: dateString });
             }}
             onClear={() => {
               console.log('Cleared date filter');
-              handleFilterChange({ ...filters, titled: '' });
+              handleFilterChange({ titled: '' });
             }}
           />
         </div>
@@ -202,7 +184,6 @@ const JobPage: React.FC = () => {
             value={filters.estateName}
             onChange={e =>
               handleFilterChange({
-                ...filters,
                 estateName: e.target.value,
               })
             }
@@ -219,7 +200,7 @@ const JobPage: React.FC = () => {
           <span>Consultant</span>
           <AssigneeSelect
             value={filters.consultant}
-            onChange={value => handleFilterChange({ ...filters, consultant: value })}
+            onChange={value => handleFilterChange({ consultant: value })}
           />
         </div>
       ),

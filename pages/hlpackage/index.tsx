@@ -4,10 +4,9 @@ import { IconCopy, IconDotsVertical, IconShare3, IconTable } from '@tabler/icons
 import { Button, Dropdown, Input, Space, Table, Tooltip } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { Dayjs } from 'dayjs';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { debounce } from 'lodash';
+import { useCallback, useEffect, useState } from 'react';
 import CustomAvtar from '@/components/common/CustomAvtar';
 import { CreateFormModal } from '@/components/common/Models/CreateFormModel';
 import HLPackageCopyModal from '@/components/common/Models/HLPackageCopyModal';
@@ -15,10 +14,10 @@ import { data, DataType } from 'data/hlpackageData';
 import Link from 'next/link';
 import SystemRoutes from '@lib/constants/Routes';
 import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineActionsBar';
+import { debouncedURL } from '@lib/utils/debounceURL';
 
 export default function HLPackages() {
   const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCopyModalOpen, setIsCopyModalOpen] = useState(false);
@@ -41,24 +40,7 @@ export default function HLPackages() {
     createdDate: searchParams.get('createdDate') || '',
     assignee: searchParams.get('assignee') || '',
   });
-
-  const debouncedUpdateURL = useMemo(
-    () =>
-      debounce((newFilters: typeof filters) => {
-        const params = new URLSearchParams(searchParams.toString());
-
-        Object.entries(newFilters).forEach(([key, value]) => {
-          if (value) {
-            params.set(key, value.toString());
-          } else {
-            params.delete(key);
-          }
-        });
-
-        router.replace(`${pathname}?${params.toString()}`);
-      }, 500), // 500ms debounce delay
-    [pathname, router, searchParams]
-  );
+  const debouncedUpdateURL = debouncedURL();
 
   const handleFilterChange = useCallback(
     (updates: Partial<typeof filters>) => {
@@ -84,7 +66,7 @@ export default function HLPackages() {
           <span>Package</span>
           <Input
             value={filters.packages}
-            onChange={e => handleFilterChange({ ...filters, packages: e.target.value })}
+            onChange={e => handleFilterChange({ packages: e.target.value })}
           />
         </div>
       ),
@@ -98,7 +80,7 @@ export default function HLPackages() {
           <span>Lot Address</span>
           <Input
             value={filters.lotAddress}
-            onChange={e => handleFilterChange({ ...filters, lotAddress: e.target.value })}
+            onChange={e => handleFilterChange({ lotAddress: e.target.value })}
           />
         </div>
       ),
@@ -112,7 +94,7 @@ export default function HLPackages() {
           <span>Estate Name</span>
           <Input
             value={filters.estateName}
-            onChange={e => handleFilterChange({ ...filters, estateName: e.target.value })}
+            onChange={e => handleFilterChange({ estateName: e.target.value })}
           />
         </div>
       ),
@@ -126,7 +108,7 @@ export default function HLPackages() {
           <span>Facade Name</span>
           <Input
             value={filters.facadeName}
-            onChange={e => handleFilterChange({ ...filters, facadeName: e.target.value })}
+            onChange={e => handleFilterChange({ facadeName: e.target.value })}
           />
         </div>
       ),
@@ -140,7 +122,7 @@ export default function HLPackages() {
           <span>Floor Plan Name</span>
           <Input
             value={filters.floorplanName}
-            onChange={e => handleFilterChange({ ...filters, floorplanName: e.target.value })}
+            onChange={e => handleFilterChange({ floorplanName: e.target.value })}
           />
         </div>
       ),
@@ -154,7 +136,7 @@ export default function HLPackages() {
           <span>Cost</span>
           <Input
             value={filters.cost}
-            onChange={e => handleFilterChange({ ...filters, cost: e.target.value })}
+            onChange={e => handleFilterChange({ cost: e.target.value })}
           />
         </div>
       ),
@@ -169,11 +151,11 @@ export default function HLPackages() {
           <DateFilterDropdown
             onFilter={(type, dates) => {
               const dateString = dates ? `${dates[0].toISOString()},${dates[1].toISOString()}` : '';
-              handleFilterChange({ ...filters, createdDate: dateString });
+              handleFilterChange({ createdDate: dateString });
             }}
             onClear={() => {
               console.log('Cleared date filter');
-              handleFilterChange({ ...filters, createdDate: '' });
+              handleFilterChange({ createdDate: '' });
             }}
           />
         </div>
@@ -188,7 +170,7 @@ export default function HLPackages() {
           <span>Assignee</span>
           <AssigneeSelect
             value={filters.assignee}
-            onChange={value => handleFilterChange({ ...filters, assignee: value })}
+            onChange={value => handleFilterChange({ assignee: value })}
           />
         </div>
       ),

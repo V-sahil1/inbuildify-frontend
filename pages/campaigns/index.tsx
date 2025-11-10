@@ -1,38 +1,37 @@
 import { IconDotsVertical, IconSearch, IconShare3 } from '@tabler/icons-react';
-import { Button, Divider, Input, Table, Tag } from 'antd';
+import { Button, Input, Table, Tag } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { useRouter } from 'next/router';
 import { data, DataType } from 'data/CampaignData';
-import { useEffect, useMemo, useState } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
-import { debounce } from 'lodash';
+import { useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import SystemRoutes from '@lib/constants/Routes';
+import { debouncedURL } from '@lib/utils/debounceURL';
 export default function Campaigns() {
   const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [campaignName, setCampaignName] = useState(searchParams.get('campaignName') || '');
-
-  const debouncedUpdateURL = useMemo(
-    () =>
-      debounce((value: string) => {
-        const params = new URLSearchParams(searchParams.toString());
-        if (value) {
-          params.set('campaignName', value);
-        } else {
-          params.delete('campaignName');
-        }
-        router.replace(`${pathname}?${params.toString()}`);
-      }, 500), // 500ms debounce delay
-    [pathname, router, searchParams]
+  const [filters, setFilters] = useState<{
+    campaignName: string;
+  }>({
+    campaignName: searchParams.get('contact') || '',
+  });
+  const debouncedUpdateURL = debouncedURL();
+  const handleFilterChange = useCallback(
+    (updates: Partial<typeof filters>) => {
+      setFilters(prev => {
+        const newFilters = { ...prev, ...updates };
+        debouncedUpdateURL(newFilters);
+        return newFilters;
+      });
+    },
+    [debouncedUpdateURL]
   );
 
   useEffect(() => {
-    debouncedUpdateURL(campaignName);
     return () => {
       debouncedUpdateURL.cancel();
     };
-  }, [debouncedUpdateURL, campaignName]);
+  }, [debouncedUpdateURL]);
 
   // const card = [
   //   {
@@ -152,8 +151,8 @@ export default function Campaigns() {
           <div className="flex gap-2 w-[60%]">
             <Input
               addonBefore={<IconSearch size={20} />}
-              value={campaignName}
-              onChange={e => setCampaignName(e.target.value)}
+              value={filters.campaignName}
+              onChange={e => handleFilterChange({ campaignName: e.target.value })}
               placeholder="Search Campaigns by Campaign name"
               style={{ width: '80%' }}
             />

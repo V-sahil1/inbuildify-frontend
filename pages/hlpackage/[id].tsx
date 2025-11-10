@@ -27,15 +27,14 @@ import {
   Tag,
   Tooltip,
 } from 'antd';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import FacadeModal from '@/components/leadDetail/FacadeModal';
 import { clearStandardFilter, clearUpgradeFilter } from '@redux/feature/facade/facadeSlice';
 import PriceListDrawer from '@/components/common/Models/PriceListDrawer';
 import { CommissionDrawer, Partner } from '@/components/job/jobDetail/comission/commissionDrawer';
 const { TextArea } = Input;
-import { debounce } from 'lodash';
-import { useRouter } from 'next/router';
-import { usePathname, useSearchParams } from 'next/navigation';
+
+import { useSearchParams } from 'next/navigation';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import {
   CustomSectionField,
@@ -46,6 +45,7 @@ import {
   templateOptions,
 } from 'data/HLPackageDeatilData';
 import { ContentCard } from '@/components/common/card/ContentCard';
+import { debouncedURL } from '@lib/utils/debounceURL';
 
 const HLPackageDetail = () => {
   const [contactNameEditOpen, setContactNameEditOpen] = useState(false);
@@ -69,8 +69,6 @@ const HLPackageDetail = () => {
   const typesStatus = useAppSelector(state => state.types.status);
   const rangeOptions = mapToOptions(range);
   const dwellingOptions = mapToOptions(dwellingType);
-  const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
   const [form] = Form.useForm();
@@ -81,24 +79,7 @@ const HLPackageDetail = () => {
     inclusion: searchParams.get('inclusion') || '',
     houseFeature: searchParams.get('houseFeature') || '',
   });
-
-  const debouncedUpdateURL = useMemo(
-    () =>
-      debounce((newFilters: typeof filters) => {
-        const params = new URLSearchParams(searchParams.toString());
-
-        Object.entries(newFilters).forEach(([key, value]) => {
-          if (value) {
-            params.set(key, value.toString());
-          } else {
-            params.delete(key);
-          }
-        });
-
-        router.replace(`${pathname}?${params.toString()}`);
-      }, 500), // 500ms debounce delay
-    [pathname, router, searchParams]
-  );
+  const debouncedUpdateURL = debouncedURL();
 
   const handleFilterChange = useCallback(
     (updates: Partial<typeof filters>) => {
@@ -142,7 +123,7 @@ const HLPackageDetail = () => {
             options={options}
             onChange={onChange}
             placeholder="Please Select Option "
-          ></Select>
+          />
         </Form.Item>
       ) : (
         <p onClick={onClick} className="cursor-pointer">
@@ -151,8 +132,15 @@ const HLPackageDetail = () => {
       )}
     </div>
   );
+
+  const DataField = ({ label, value }) => (
+    <div className="flex mb-2">
+      <p>{label} : </p>
+      <p>{value}</p>
+    </div>
+  );
   const filterButtons = ['All', 'Selected', 'UnSelected'];
-  function handleSubmit(values) { }
+  function handleSubmit(values) {}
   return (
     <div className="p-4">
       <Form form={form} onFinish={handleSubmit} initialValues={initialValues}>
@@ -218,37 +206,13 @@ const HLPackageDetail = () => {
                           <IconMapPin size={20} />
                           <p>{lotdata.address}</p>
                         </div>
-                        <div className="flex mb-2">
-                          {' '}
-                          <p>Estate : </p>
-                          <p>{lotdata.estate}</p>
-                        </div>
-                        <div className="flex mb-2">
-                          {' '}
-                          <p>Stage : </p>
-                          <p>{lotdata.stage}</p>
-                        </div>
-                        <div className="flex mb-2">
-                          {' '}
-                          <p>Type : </p>
-                          <p>{lotdata.type}</p>
-                        </div>
+                        <DataField label="Estate" value={lotdata.estate} />
+                        <DataField label="Stage" value={lotdata.stage} />
+                        <DataField label="Type" value={lotdata.type} />
                         <div className="flex gap-1">
-                          <div className="flex">
-                            {' '}
-                            <p>W : </p>
-                            <p>{lotdata.width}</p>
-                          </div>
-                          <div className="flex">
-                            {' '}
-                            <p>D : </p>
-                            <p>{lotdata.depth}</p>
-                          </div>
-                          <div className="flex">
-                            {' '}
-                            <p>Total : </p>
-                            <p>{lotdata.total}</p>
-                          </div>
+                          <DataField label="W" value={lotdata.width} />
+                          <DataField label="D" value={lotdata.depth} />
+                          <DataField label="Total" value={lotdata.total} />
                         </div>
                       </div>
                     ) : (
@@ -279,7 +243,7 @@ const HLPackageDetail = () => {
                               setContactNameEditOpen(false);
                             }}
                             placeholder="Please Select Option"
-                          ></Select>
+                          />
                         </Form.Item>
                       ) : (
                         <p onClick={() => setContactNameEditOpen(true)}>
@@ -416,7 +380,7 @@ const HLPackageDetail = () => {
                   placeholder="Search Inclusions"
                   size="small"
                   value={filters.inclusion}
-                  onChange={e => handleFilterChange({ ...filters, inclusion: e.target.value })}
+                  onChange={e => handleFilterChange({ inclusion: e.target.value })}
                 />
                 <div>
                   {groupEditOpen ? (
@@ -429,7 +393,7 @@ const HLPackageDetail = () => {
                           setGroupEditOpen(false);
                         }}
                         placeholder="Please Select Option"
-                      ></Select>
+                      />
                     </Form.Item>
                   ) : form.getFieldValue('group') ? (
                     <div>
@@ -471,7 +435,7 @@ const HLPackageDetail = () => {
                   placeholder="Search Feature.."
                   size="small"
                   value={filters.houseFeature}
-                  onChange={e => handleFilterChange({ ...filters, houseFeature: e.target.value })}
+                  onChange={e => handleFilterChange({ houseFeature: e.target.value })}
                 />
                 <div className="mt-2">
                   <div className="flex gap-2">
@@ -498,7 +462,7 @@ const HLPackageDetail = () => {
                   showCount
                   className="my-2"
                   maxLength={500}
-                ></TextArea>
+                />
               </div>
             </div>
           </div>

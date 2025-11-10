@@ -1,9 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
-import { useRouter } from 'next/router';
-import { Table, Input, Select, Button, Space, Dropdown, Menu } from 'antd';
+import { useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { Table, Input, Button, Space, Dropdown, Menu } from 'antd';
 import { IconDownload, IconTruck } from '@tabler/icons-react';
-import { debounce } from 'lodash';
 import { exportToExcel } from '@lib/utils/exportToExcel';
 import DateFilterDropdown from '@/components/common/custom-selects/DateFilterDropdown';
 import type { ColumnsType } from 'antd/es/table';
@@ -12,10 +10,9 @@ import { Dayjs } from 'dayjs';
 import AssigneeSelect from '@/components/common/custom-selects/AssigneeSelect';
 import CustomAvtar from '@/components/common/CustomAvtar';
 import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineActionsBar';
+import { debouncedURL } from '@lib/utils/debounceURL';
 
 const TodosPage: React.FC = () => {
-  const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const [filters, setFilters] = useState<{
     jobAddress: string;
@@ -33,23 +30,7 @@ const TodosPage: React.FC = () => {
     siteSupervisor: searchParams.get('siteSupervisor') || '',
   });
 
-  const debouncedUpdateURL = useMemo(
-    () =>
-      debounce((newFilters: typeof filters) => {
-        const params = new URLSearchParams(searchParams.toString());
-
-        Object.entries(newFilters).forEach(([key, value]) => {
-          if (value) {
-            params.set(key, value.toString());
-          } else {
-            params.delete(key);
-          }
-        });
-
-        router.replace(`${pathname}?${params.toString()}`);
-      }, 500),
-    [pathname, router, searchParams]
-  );
+  const debouncedUpdateURL = debouncedURL();
 
   const handleFilterChange = useCallback(
     (updates: Partial<typeof filters>) => {
@@ -97,7 +78,7 @@ const TodosPage: React.FC = () => {
           <span>Job Address</span>
           <Input
             value={filters.jobAddress}
-            onChange={e => handleFilterChange({ ...filters, jobAddress: e.target.value })}
+            onChange={e => handleFilterChange({ jobAddress: e.target.value })}
           />
         </div>
       ),
@@ -111,7 +92,7 @@ const TodosPage: React.FC = () => {
           <span>Task Name</span>
           <Input
             value={filters.taskName}
-            onChange={e => handleFilterChange({ ...filters, taskName: e.target.value })}
+            onChange={e => handleFilterChange({ taskName: e.target.value })}
           />
         </div>
       ),
@@ -126,11 +107,11 @@ const TodosPage: React.FC = () => {
           <DateFilterDropdown
             onFilter={(type, dates) => {
               const dateString = dates ? `${dates[0].toISOString()},${dates[1].toISOString()}` : '';
-              handleFilterChange({ ...filters, bookingDate: dateString });
+              handleFilterChange({ bookingDate: dateString });
             }}
             onClear={() => {
               console.log('Cleared date filter');
-              handleFilterChange({ ...filters, bookingDate: '' });
+              handleFilterChange({ bookingDate: '' });
             }}
           />
         </div>
@@ -147,11 +128,11 @@ const TodosPage: React.FC = () => {
           <DateFilterDropdown
             onFilter={(type, dates) => {
               const dateString = dates ? `${dates[0].toISOString()},${dates[1].toISOString()}` : '';
-              handleFilterChange({ ...filters, startDate: dateString });
+              handleFilterChange({ startDate: dateString });
             }}
             onClear={() => {
               console.log('Cleared date filter');
-              handleFilterChange({ ...filters, startDate: '' });
+              handleFilterChange({ startDate: '' });
             }}
           />
         </div>
@@ -167,7 +148,7 @@ const TodosPage: React.FC = () => {
           <span>Site Supervisor</span>
           <AssigneeSelect
             value={filters.siteSupervisor}
-            onChange={value => handleFilterChange({ ...filters, siteSupervisor: value })}
+            onChange={value => handleFilterChange({ siteSupervisor: value })}
           />
         </div>
       ),

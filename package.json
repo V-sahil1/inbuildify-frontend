@@ -27,7 +27,7 @@
     "ag-grid-community": "^34.0.2",
     "ag-grid-enterprise": "^34.0.2",
     "ag-grid-react": "^34.0.2",
-    "antd": "5.27.6",
+    "antd": "5.27.0",
     "apexcharts": "^5.3.4",
     "axios": "^1.11.0",
     "dayjs": "^1.11.13",

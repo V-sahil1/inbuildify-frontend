@@ -1,6 +1,6 @@
 import { IconPlus, IconSearch } from '@tabler/icons-react';
 import { Button, Checkbox, DatePicker, Form, Input, Switch, Upload } from 'antd';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import MailSendModal from '../common/Models/MailSendModal';
 import BulkBookModel from './BulkBookModel';
 import CostManageModal from './CostManageModal';
@@ -8,12 +8,11 @@ import ConstructionChecklistModal from './ConstructionChecklistModal';
 import ConstructionChecklistItem from './ConstructionChecklistItem';
 import { UpdateStatusDrawer } from './UpdateStatusDrawer';
 import { OHShistoryDrawer } from './OHShistoryDrawer';
-import { useRouter } from 'next/router';
-import { usePathname, useSearchParams } from 'next/navigation';
-import { debounce } from 'lodash';
+import { useSearchParams } from 'next/navigation';
 import { ConfirmationContentModal } from '../common/ConfirmationContentModal';
 import TimelineActionsBar from '../common/TimeLineComponents/TimelineActionsBar';
 import InspectionCheckListDrawer from './InspectionCheckListDrawer';
+import { debouncedURL } from '@lib/utils/debounceURL';
 
 const ConstructionBaseStage = ({ setCurrent, id }) => {
   const [actionType, setActionType] = useState('');
@@ -24,10 +23,8 @@ const ConstructionBaseStage = ({ setCurrent, id }) => {
   const [checkItems, setcheckItems] = useState<{ values: any; isDefect: Boolean }[]>([]);
   const [checkSupplierItems, setSuppliercheckItems] = useState([]);
   const [form] = Form.useForm();
-  const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
-
+  const debouncedUpdateURL = debouncedURL();
   const actionButton = [
     'Claim',
     'Bulk Book',
@@ -45,21 +42,6 @@ const ConstructionBaseStage = ({ setCurrent, id }) => {
     checklistFilter: searchParams.get('checklistFilter') || '',
     checklist: searchParams.get('checklist') || '',
   });
-  const debouncedUpdateURL = useMemo(
-    () =>
-      debounce((newFilters: typeof filters) => {
-        const params = new URLSearchParams(searchParams.toString());
-        Object.entries(newFilters).forEach(([key, value]) => {
-          if (value) {
-            params.set(key, value.toString());
-          } else {
-            params.delete(key);
-          }
-        });
-        router.replace(`${pathname}?${params.toString()}`);
-      }, 500), // 500ms debounce delay
-    [pathname, router, searchParams]
-  );
 
   const handleFilterChange = useCallback(
     (updates: Partial<typeof filters>) => {
@@ -83,14 +65,14 @@ const ConstructionBaseStage = ({ setCurrent, id }) => {
     type: FilterType;
     label: string;
   }> = [
-      { type: 'all', label: 'All' },
-      { type: 'pending', label: 'Pending' },
-      { type: 'completed', label: 'Completed' },
-      { type: 'notApplicable', label: 'Not Applicable' },
-    ];
+    { type: 'all', label: 'All' },
+    { type: 'pending', label: 'Pending' },
+    { type: 'completed', label: 'Completed' },
+    { type: 'notApplicable', label: 'Not Applicable' },
+  ];
   const handleFilterTabChange = (selectedType: string) => {
     console.log('Selected filter:', selectedType);
-    handleFilterChange({ ...filters, checklistFilter: selectedType });
+    handleFilterChange({ checklistFilter: selectedType });
   };
   useEffect(() => {
     const fetchConstructionBaseStageData = () => {
@@ -113,7 +95,7 @@ const ConstructionBaseStage = ({ setCurrent, id }) => {
       form.setFieldsValue({ checklist: formValues.checklist });
     }
   }
-  function handleEditCheckStatus(checklist) { }
+  function handleEditCheckStatus(checklist) {}
 
   function handleAddChecklist(values) {
     setcheckItems(prev => [...prev, { values: values, isDefect: false }]);
@@ -214,7 +196,6 @@ const ConstructionBaseStage = ({ setCurrent, id }) => {
                       addonBefore={<IconSearch size={15} />}
                       onChange={e =>
                         handleFilterChange({
-                          ...filters,
                           checklist: e.target.value,
                         })
                       }

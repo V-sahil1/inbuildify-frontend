@@ -4,20 +4,18 @@ import DateFilterDropdown from '@/components/common/custom-selects/DateFilterDro
 import CustomAvtar from '@/components/common/CustomAvtar';
 import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineActionsBar';
 import { exportToExcel } from '@lib/utils/exportToExcel';
-import { IconDots, IconDownload, IconX } from '@tabler/icons-react';
-import { Button, Dropdown, Input, Popover, Switch, Table, Tag } from 'antd';
+import { IconDots, IconDownload } from '@tabler/icons-react';
+import { Button, Input, Popover, Switch, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { debounce } from 'lodash';
-import { usePathname, useSearchParams } from 'next/navigation';
-import { useRouter } from 'next/router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 import { data, DataType } from 'data/appointmentData';
+import { debouncedURL } from '@lib/utils/debounceURL';
 
 export default function Appointments() {
-  const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const [CancelledIncluded, setCancelledIncluded] = useState(false);
+  const debouncedUpdateURL = debouncedURL();
   const [filters, setFilters] = useState<{
     title: string;
     location: string;
@@ -34,22 +32,6 @@ export default function Appointments() {
     status: searchParams.get('status') || '',
   });
 
-  const debouncedUpdateURL = useMemo(
-    () =>
-      debounce((newFilters: typeof filters) => {
-        const params = new URLSearchParams(searchParams.toString());
-        Object.entries(newFilters).forEach(([key, value]) => {
-          if (value) {
-            params.set(key, value.toString());
-          } else {
-            params.delete(key);
-          }
-        });
-        router.replace(`${pathname}?${params.toString()}`);
-      }, 500), // 500ms debounce delay
-    [pathname, router, searchParams]
-  );
-
   const handleFilterChange = useCallback(
     (updates: Partial<typeof filters>) => {
       setFilters(prev => {
@@ -60,7 +42,6 @@ export default function Appointments() {
     },
     [debouncedUpdateURL]
   );
-
   useEffect(() => {
     return () => {
       debouncedUpdateURL.cancel();
@@ -72,7 +53,7 @@ export default function Appointments() {
       title: (
         <div>
           <span>Title</span>
-          <Input onChange={e => handleFilterChange({ ...filters, title: e.target.value })} />
+          <Input onChange={e => handleFilterChange({ title: e.target.value })} />
         </div>
       ),
       dataIndex: 'title',
@@ -88,7 +69,7 @@ export default function Appointments() {
       title: (
         <div>
           <span>Location</span>
-          <Input onChange={e => handleFilterChange({ ...filters, location: e.target.value })} />
+          <Input onChange={e => handleFilterChange({ location: e.target.value })} />
         </div>
       ),
       dataIndex: 'location',
@@ -102,11 +83,11 @@ export default function Appointments() {
           <DateFilterDropdown
             onFilter={(type, dates) => {
               const dateString = dates ? `${dates[0].toISOString()},${dates[1].toISOString()}` : '';
-              handleFilterChange({ ...filters, date: dateString });
+              handleFilterChange({ date: dateString });
             }}
             onClear={() => {
               console.log('Cleared date filter');
-              handleFilterChange({ ...filters, date: '' });
+              handleFilterChange({ date: '' });
             }}
           />
         </div>
@@ -129,7 +110,7 @@ export default function Appointments() {
           <span>Assignee</span>
           <AssigneeSelect
             value={filters.assignee}
-            onChange={value => handleFilterChange({ ...filters, assignee: value })}
+            onChange={value => handleFilterChange({ assignee: value })}
           />
         </div>
       ),
@@ -144,7 +125,7 @@ export default function Appointments() {
           <div>Category</div>
           <CategorySelect
             value={filters.category}
-            onChange={value => handleFilterChange({ ...filters, category: value })}
+            onChange={value => handleFilterChange({ category: value })}
           />
         </div>
       ),
@@ -178,16 +159,16 @@ export default function Appointments() {
     label: string;
     count: number;
   }> = [
-    { type: 'today', label: 'Today', count: data.length },
-    { type: 'tomorrow', label: 'Tomorrow', count: data.length },
-    { type: 'this-week', label: 'This Week', count: data.length },
-    { type: 'next-week', label: 'Next Week', count: data.length },
-    {
-      type: 'pending',
-      label: 'Pending',
-      count: data.filter(d => d.status === 'pending').length,
-    },
-  ];
+      { type: 'today', label: 'Today', count: data.length },
+      { type: 'tomorrow', label: 'Tomorrow', count: data.length },
+      { type: 'this-week', label: 'This Week', count: data.length },
+      { type: 'next-week', label: 'Next Week', count: data.length },
+      {
+        type: 'pending',
+        label: 'Pending',
+        count: data.filter(d => d.status === 'pending').length,
+      },
+    ];
   const handleFilterTabChange = (selectedType: string) => {
     console.log('Selected filter:', selectedType);
   };

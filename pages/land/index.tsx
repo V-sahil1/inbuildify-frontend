@@ -4,18 +4,17 @@ import CustomAvtar from '@/components/common/CustomAvtar';
 import LandCreatePackageDrawerModel from '@/components/common/Models/LandCreatePackageDrawerModel';
 import LandLotFormModel from '@/components/common/Models/LandLotFormModel';
 import LandPackageDrawerModel from '@/components/common/Models/LandPackageDrawerModel';
+import { debouncedURL } from '@lib/utils/debounceURL';
 import { IconCopy, IconPlus, IconTable } from '@tabler/icons-react';
 import { Button, Input, Space, Table, Tooltip } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { data, DataType } from 'data/landData';
-import { debounce } from 'lodash';
-import { usePathname, useSearchParams } from 'next/navigation';
-import { useRouter } from 'next/router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+
+import { useSearchParams } from 'next/navigation';
+
+import { useCallback, useEffect, useState } from 'react';
 
 export default function Land() {
-  const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isPackageDrawerOpen, setIsPackageDrawerOpen] = useState(false);
   const [isLotFormDrawerOpen, setIsLotFormDrawerOpen] = useState(false);
@@ -61,24 +60,7 @@ export default function Land() {
     status: searchParams.get('status') || '',
     createdby: searchParams.get('createdby') || '',
   });
-
-  const debouncedUpdateURL = useMemo(
-    () =>
-      debounce((newFilters: typeof filters) => {
-        const params = new URLSearchParams(searchParams.toString());
-
-        Object.entries(newFilters).forEach(([key, value]) => {
-          if (value) {
-            params.set(key, value.toString());
-          } else {
-            params.delete(key);
-          }
-        });
-
-        router.replace(`${pathname}?${params.toString()}`);
-      }, 500), // 500ms debounce delay
-    [pathname, router, searchParams]
-  );
+  const debouncedUpdateURL = debouncedURL();
 
   const handleFilterChange = useCallback(
     (updates: Partial<typeof filters>) => {
@@ -104,7 +86,7 @@ export default function Land() {
           <span>Lot Number</span>
           <Input
             value={filters.lotNumber}
-            onChange={e => handleFilterChange({ ...filters, lotNumber: e.target.value })}
+            onChange={e => handleFilterChange({ lotNumber: e.target.value })}
           />
         </div>
       ),
@@ -118,7 +100,7 @@ export default function Land() {
           <span>Price</span>
           <Input
             value={filters.price}
-            onChange={e => handleFilterChange({ ...filters, price: e.target.value })}
+            onChange={e => handleFilterChange({ price: e.target.value })}
           />
         </div>
       ),
@@ -132,7 +114,7 @@ export default function Land() {
           <span>Size</span>
           <Input
             value={filters.size}
-            onChange={e => handleFilterChange({ ...filters, size: e.target.value })}
+            onChange={e => handleFilterChange({ size: e.target.value })}
           />
         </div>
       ),
@@ -146,7 +128,7 @@ export default function Land() {
           <span>Estate</span>
           <Input
             value={filters.estate}
-            onChange={e => handleFilterChange({ ...filters, estate: e.target.value })}
+            onChange={e => handleFilterChange({ estate: e.target.value })}
           />
         </div>
       ),
@@ -160,7 +142,7 @@ export default function Land() {
           <span>Stage Name</span>
           <Input
             value={filters.stageName}
-            onChange={e => handleFilterChange({ ...filters, stageName: e.target.value })}
+            onChange={e => handleFilterChange({ stageName: e.target.value })}
           />
         </div>
       ),
@@ -174,7 +156,7 @@ export default function Land() {
           <span>Address</span>
           <Input
             value={filters.address}
-            onChange={e => handleFilterChange({ ...filters, address: e.target.value })}
+            onChange={e => handleFilterChange({ address: e.target.value })}
           />
         </div>
       ),
@@ -188,7 +170,7 @@ export default function Land() {
           <span>Status</span>
           <StatusSelect
             value={filters.status}
-            onChange={value => handleFilterChange({ ...filters, status: value })}
+            onChange={value => handleFilterChange({ status: value })}
           />
         </div>
       ),
@@ -202,7 +184,7 @@ export default function Land() {
           <span>Created By</span>
           <AssigneeSelect
             value={filters.createdby}
-            onChange={value => handleFilterChange({ ...filters, createdby: value })}
+            onChange={value => handleFilterChange({ createdby: value })}
           />
         </div>
       ),

@@ -1,10 +1,9 @@
 'use client';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { Input, Select, Button, Dropdown, Popover, Switch, Modal } from 'antd';
+import { useSearchParams } from 'next/navigation';
+import { Input, Select, Button, Dropdown, Popover, Switch } from 'antd';
 import { IconDotsVertical, IconExternalLink, IconFilter } from '@tabler/icons-react';
 import dayjs, { Dayjs } from 'dayjs';
-import { debounce } from 'lodash';
 import SystemRoutes from '@lib/constants/Routes';
 import { Construction } from '@redux/feature/construction/IConstructionState';
 import AssignSupervisorDropdown from '../construction/assignSupervisorModal';
@@ -12,6 +11,7 @@ import AssigneeSelect from '../common/custom-selects/AssigneeSelect';
 import DateFilterDropdown from '../common/custom-selects/DateFilterDropdown';
 import ConfirmationModal from '../common/ConfirmationModal';
 import { ActionDialogmodel } from '../common/Models/ActionDialogModel';
+import { debouncedURL } from '@lib/utils/debounceURL';
 
 type DateRange = [Dayjs, Dayjs] | null;
 
@@ -75,8 +75,6 @@ export const useConstructionTableLogic = ({
   handleRevertFromConstruction?: (jobId: string) => void;
   handleExport?: (jobId: string) => void;
 }) => {
-  const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const [isRevertModalVisible, setIsRevertModalVisible] = useState(false);
@@ -99,19 +97,7 @@ export const useConstructionTableLogic = ({
     siteSupervisor: searchParams.get('siteSupervisor') || 'All',
     status: searchParams.get('status') || 'All',
   });
-
-  const debouncedUpdateURL = useMemo(
-    () =>
-      debounce((newFilters: typeof filters) => {
-        const params = new URLSearchParams(searchParams.toString());
-        Object.entries(newFilters).forEach(([key, value]) => {
-          if (value && value !== 'All') params.set(key, typeof value === 'string' ? value : '');
-          else params.delete(key);
-        });
-        router.replace(`${pathname}?${params.toString()}`);
-      }, 400),
-    [pathname, router, searchParams]
-  );
+  const debouncedUpdateURL = debouncedURL();
 
   const handleFilterChange = useCallback(
     (updates: Partial<typeof filters>) => {
@@ -267,11 +253,11 @@ export const useConstructionTableLogic = ({
                 const dateString = dates
                   ? `${dates[0].toISOString()},${dates[1].toISOString()}`
                   : '';
-                handleFilterChange({ ...filters, dueDate: dates });
+                handleFilterChange({ dueDate: dates });
               }}
               onClear={() => {
                 console.log('Cleared date filter');
-                handleFilterChange({ ...filters, dueDate: null });
+                handleFilterChange({ dueDate: null });
               }}
             />
           </div>

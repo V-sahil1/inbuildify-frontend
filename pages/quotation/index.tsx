@@ -1,9 +1,7 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
-import { useRouter } from 'next/router';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Table, Input, Space, Dropdown, Switch, Button, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { debounce } from 'lodash';
 import { IconFilter, IconDownload, IconShare3, IconCopy } from '@tabler/icons-react';
 import { exportToExcel } from '@lib/utils/exportToExcel';
 import DateFilterDropdown from '@/components/common/custom-selects/DateFilterDropdown';
@@ -14,10 +12,9 @@ import CustomAvtar from '@/components/common/CustomAvtar';
 import Link from 'next/link';
 import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineActionsBar';
 import HLPackageCopyModal from '@/components/common/Models/HLPackageCopyModal';
+import { debouncedURL } from '@lib/utils/debounceURL';
 
 const QuotationPage: React.FC = () => {
-  const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const [filters, setFilters] = useState<{
     refrenceId: string;
@@ -38,24 +35,7 @@ const QuotationPage: React.FC = () => {
   });
   const [showBlocked, setShowBlocked] = useState(false);
   const [isCopyModalOpen, setIsCopyModalOpen] = useState(false);
-
-  const debouncedUpdateURL = useMemo(
-    () =>
-      debounce((newFilters: typeof filters) => {
-        const params = new URLSearchParams(searchParams.toString());
-
-        Object.entries(newFilters).forEach(([key, value]) => {
-          if (value) {
-            params.set(key, value.toString());
-          } else {
-            params.delete(key);
-          }
-        });
-
-        router.replace(`${pathname}?${params.toString()}`);
-      }, 500), // 500ms debounce delay
-    [pathname, router, searchParams]
-  );
+  const debouncedUpdateURL = debouncedURL();
 
   const handleFilterChange = useCallback(
     (updates: Partial<typeof filters>) => {
@@ -104,7 +84,7 @@ const QuotationPage: React.FC = () => {
           <span>Refrence ID</span>
           <Input
             value={filters.refrenceId}
-            onChange={e => handleFilterChange({ ...filters, refrenceId: e.target.value })}
+            onChange={e => handleFilterChange({ refrenceId: e.target.value })}
           />
         </div>
       ),
@@ -118,7 +98,7 @@ const QuotationPage: React.FC = () => {
           <span>Customer Name</span>
           <Input
             value={filters.customerName}
-            onChange={e => handleFilterChange({ ...filters, customerName: e.target.value })}
+            onChange={e => handleFilterChange({ customerName: e.target.value })}
           />
         </div>
       ),
@@ -134,7 +114,6 @@ const QuotationPage: React.FC = () => {
             value={filters.propertyAddress}
             onChange={e =>
               handleFilterChange({
-                ...filters,
                 propertyAddress: e.target.value,
               })
             }
@@ -153,7 +132,6 @@ const QuotationPage: React.FC = () => {
             value={filters.contactAddress}
             onChange={e =>
               handleFilterChange({
-                ...filters,
                 contactAddress: e.target.value,
               })
             }
@@ -171,11 +149,11 @@ const QuotationPage: React.FC = () => {
           <DateFilterDropdown
             onFilter={(type, dates) => {
               const dateString = dates ? `${dates[0].toISOString()},${dates[1].toISOString()}` : '';
-              handleFilterChange({ ...filters, created: dateString });
+              handleFilterChange({ created: dateString });
             }}
             onClear={() => {
               console.log('Cleared date filter');
-              handleFilterChange({ ...filters, created: '' });
+              handleFilterChange({ created: '' });
             }}
           />
         </div>
@@ -191,7 +169,7 @@ const QuotationPage: React.FC = () => {
           <span>Approver</span>
           <AssigneeSelect
             value={filters.approver}
-            onChange={value => handleFilterChange({ ...filters, approver: value })}
+            onChange={value => handleFilterChange({ approver: value })}
           />
         </div>
       ),
@@ -210,7 +188,7 @@ const QuotationPage: React.FC = () => {
           <span>Assignee</span>
           <AssigneeSelect
             value={filters.assignee}
-            onChange={value => handleFilterChange({ ...filters, assignee: value })}
+            onChange={value => handleFilterChange({ assignee: value })}
           />
         </div>
       ),

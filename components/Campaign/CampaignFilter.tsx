@@ -1,34 +1,35 @@
-import { Checkbox, Input, Radio, Select } from 'antd';
-import { useRouter } from 'next/router';
-import { usePathname, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
-import { debounce } from 'lodash';
+import { Checkbox, Form, Input, Radio, Select } from 'antd';
+import { useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 import DateFilterDropdown from '../common/custom-selects/DateFilterDropdown';
+import { useUsersHook } from '@hooks/useUserData';
+import { debouncedURL } from '@lib/utils/debounceURL';
 export default function CampaignFilter() {
-  const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [address, setAddress] = useState(searchParams.get('address') || '');
-  const debouncedUpdateURL = useMemo(
-    () =>
-      debounce((value: string) => {
-        const params = new URLSearchParams(searchParams.toString());
-        if (value) {
-          params.set('address', value);
-        } else {
-          params.delete('address');
-        }
-        router.replace(`${pathname}?${params.toString()}`);
-      }, 500), // 500ms debounce delay
-    [pathname, router, searchParams]
+  const { users } = useUsersHook();
+  const userOptions = users.map(user => ({ label: user.name, value: user.usersId }));
+  const [filters, setFilters] = useState<{
+    address: string;
+  }>({
+    address: searchParams.get('contact') || '',
+  });
+  const debouncedUpdateURL = debouncedURL();
+  const handleFilterChange = useCallback(
+    (updates: Partial<typeof filters>) => {
+      setFilters(prev => {
+        const newFilters = { ...prev, ...updates };
+        debouncedUpdateURL(newFilters);
+        return newFilters;
+      });
+    },
+    [debouncedUpdateURL]
   );
 
   useEffect(() => {
-    debouncedUpdateURL(address);
     return () => {
       debouncedUpdateURL.cancel();
     };
-  }, [debouncedUpdateURL, address]);
+  }, [debouncedUpdateURL]);
 
   const filterCheckBoxData = [
     { title: 'Lead Status', options: ['Open-Leads', 'Open-Opportunity', 'Closed Lost', 'On Hold'] },
@@ -53,13 +54,16 @@ export default function CampaignFilter() {
     'Referral Partners',
     'Supplier/Trades',
   ];
+
   return (
     <>
       <div>
         <div className="flex justify-between mb-3 text-sm">
           {filterOptions.map(opt => (
             <div>
-              <Checkbox /> {opt}
+              <Form.Item name={opt} valuePropName="checked" initialValue={false}>
+                <Checkbox /> {opt}
+              </Form.Item>
             </div>
           ))}
         </div>
@@ -70,47 +74,60 @@ export default function CampaignFilter() {
               <div key={ind}>
                 <p>{item.title}</p>
                 <div className="text-xs">
-                  {item.options.map((op, ind) => (
-                    <div key={ind}>
-                      <Checkbox /> {op}
-                    </div>
-                  ))}
+                  <Form.Item name={item.title}>
+                    <Checkbox.Group options={item.options} />
+                  </Form.Item>
                 </div>
               </div>
             ))}
             <div>
               <p>Created Date</p>
-              <DateFilterDropdown onFilter={() => { }} onClear={() => { }} />
+              <Form.Item name="createdDate">
+                <DateFilterDropdown onFilter={() => {}} onClear={() => {}} />
+              </Form.Item>
             </div>
             <div>
               <p>Address</p>
               <div className="flex flex-col gap-3">
                 <div>
-                  <Radio.Group
-                    options={[
-                      { value: 'contact', label: 'Contact' },
-                      { value: 'property', label: 'Property' },
-                    ]}
-                  ></Radio.Group>
+                  <Form.Item>
+                    <Radio.Group
+                      options={[
+                        { value: 'contact', label: 'Contact' },
+                        { value: 'property', label: 'Property' },
+                      ]}
+                    />
+                  </Form.Item>
                 </div>
-                <Select size="small" placeholder="Suburb/ City"></Select>
-                <Input
-                  size="small"
-                  placeholder="search"
-                  value={address}
-                  onChange={e => setAddress(e.target.value)}
-                />
+                <Form.Item name="city">
+                  {' '}
+                  <Select size="small" placeholder="Suburb/ City"></Select>
+                </Form.Item>
+                <Form.Item name="addressSearch">
+                  {' '}
+                  <Input
+                    size="small"
+                    placeholder="search"
+                    value={filters.address}
+                    onChange={e => handleFilterChange({ address: e.target.value })}
+                  />
+                </Form.Item>
               </div>
             </div>
           </div>
           <div className="flex justify-center text-sm gap-3">
             <div>
               <p>Client Type</p>
-              <Select placeholder="Select Client Type"></Select>
+              <Form.Item name="clientType">
+                {' '}
+                <Select placeholder="Select Client Type" />
+              </Form.Item>
             </div>
             <div>
               <p>Sales Executive</p>
-              <Select placeholder="Select Assignee"></Select>
+              <Form.Item name="assignee">
+                <Select placeholder="Select Assignee" options={userOptions} />
+              </Form.Item>
             </div>
           </div>
         </div>

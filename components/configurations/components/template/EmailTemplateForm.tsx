@@ -5,12 +5,14 @@ import { Button, Dropdown, Input, Select, message } from 'antd';
 import { IconInfoCircle, IconMapDown } from '@tabler/icons-react';
 import RichTextEditor from '@/components/common/rich-text-editor/RichTextEditor';
 import { useUsersHook } from '@hooks/useUserData';
+import { InsertAtCursor } from '@lib/utils/InsertAtCursor';
+import { TextAreaRef } from 'antd/es/input/TextArea';
 
 export const EmailTemplateForm = ({
   templateId,
   templateName,
   template,
-  onCancel
+  onCancel,
 }: {
   templateId: string;
   templateName: string;
@@ -18,7 +20,7 @@ export const EmailTemplateForm = ({
   onCancel: () => void;
 }) => {
   const { users } = useUsersHook();
-  const inputRef = useRef<any>(null);
+  const inputRef = useRef<TextAreaRef>(null);
 
   const [formData, setFormData] = useState({
     additionalRecipient: template?.additionalRecipient || [],
@@ -49,22 +51,6 @@ export const EmailTemplateForm = ({
 
   const updateField = (key: string, value: any) => {
     setFormData(prev => ({ ...prev, [key]: value }));
-  };
-
-  const insertAtCursor = (text: string) => {
-    const input = inputRef.current?.resizableTextArea?.textArea;
-    if (!input) return;
-
-    const start = input.selectionStart;
-    const end = input.selectionEnd;
-    const newValue = formData.subject.slice(0, start) + `[${text}]` + formData.subject.slice(end);
-
-    updateField('subject', newValue);
-
-    setTimeout(() => {
-      input.focus();
-      input.setSelectionRange(start + text.length + 2, start + text.length + 2);
-    }, 0);
   };
 
   const handleSave = async () => {
@@ -98,7 +84,7 @@ export const EmailTemplateForm = ({
 
   return (
     <div className="space-y-4 bg-white p-4 rounded">
-      <p className="text-base font-medium">Template Settings – {template.templateName}</p>
+      <p className="text-base font-medium">Template Settings – {template?.templateName}</p>
 
       <div className="flex gap-2 items-center text-gray-600">
         <IconInfoCircle size={18} />
@@ -139,7 +125,12 @@ export const EmailTemplateForm = ({
               items: options.map(opt => ({
                 key: opt,
                 label: opt,
-                onClick: () => insertAtCursor(opt),
+                onClick: () => {
+                  updateField(
+                    'subject',
+                    InsertAtCursor(inputRef, opt, formData.subject, 'textarea')
+                  );
+                },
               })),
             }}
             trigger={['click']}
