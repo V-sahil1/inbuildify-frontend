@@ -136,8 +136,7 @@ const JobDetailHeader = () => {
                                           className="mr-2"
                                           onChange={checked => {
                                             console.log(
-                                              `Finance Approval ${
-                                                checked ? 'approved' : 'not approved'
+                                              `Finance Approval ${checked ? 'approved' : 'not approved'
                                               }`
                                             );
                                           }}
@@ -258,6 +257,7 @@ const JobDetailHeader = () => {
           initialValue={[]}
           loading={false}
           isLinkContact={true}
+          showContact={false}
         />
       </div>
     </>

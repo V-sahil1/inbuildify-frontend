@@ -14,7 +14,14 @@ import {
   getStatesByCountryIdThunk,
 } from '@redux/feature/location/locationThunk';
 import { RootState } from '@redux/feature/store';
-import { IconChevronLeft, IconMail, IconPhone, IconPlus, IconUserCheck } from '@tabler/icons-react';
+import {
+  IconChevronLeft,
+  IconMail,
+  IconPaperclip,
+  IconPhone,
+  IconPlus,
+  IconUserCheck,
+} from '@tabler/icons-react';
 import { Button, Card, Form, Input, message, Modal, Select, Switch } from 'antd';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -28,6 +35,7 @@ const LeadDetailsForm: React.FC<any> = ({
   onCancel,
   onSubmit,
   isLinkContact = false,
+  showContact = true,
 }) => {
   const [form] = Form.useForm();
   const [showContactForm, setShowContactForm] = useState(false);
@@ -190,7 +198,6 @@ const LeadDetailsForm: React.FC<any> = ({
     setShowContactForm(false);
     setHideAddressForm(true);
   };
-
   return (
     <Modal
       title={
@@ -198,25 +205,32 @@ const LeadDetailsForm: React.FC<any> = ({
           <div>
             <h1 className="text-left">Contact Details</h1>
           </div>
-          {showContactForm ? (
-            <Button
-              type="primary"
-              icon={<IconChevronLeft />}
-              onClick={handleContactBackClick}
-              className="mr-6"
-            >
-              Back
-            </Button>
-          ) : (
-            <Button
-              type="primary"
-              icon={<IconPlus />}
-              onClick={handleContactClick}
-              className="mr-6"
-            >
-              Contact
-            </Button>
-          )}
+
+          <div className="mr-6 space-x-1">
+            {showContact && (
+              <>
+                {showContactForm ? (
+                  <Button
+                    type="primary"
+                    icon={<IconChevronLeft />}
+                    onClick={handleContactBackClick}
+                  >
+                    Back
+                  </Button>
+                ) : (
+                  <Button type="primary" icon={<IconPlus />} onClick={handleContactClick}>
+                    Contact
+                  </Button>
+                )}
+              </>
+            )}
+
+            {isLinkContact && (
+              <Button type="primary" icon={<IconPaperclip />}>
+                Link Contact
+              </Button>
+            )}
+          </div>
         </div>
       }
       open={open}
@@ -375,7 +389,7 @@ const LeadDetailsForm: React.FC<any> = ({
                       type="text"
                       icon={<IconUserCheck size={18} />}
                       className="text-blue-600 hover:text-blue-800"
-                      // onClick={() => setHideAddressForm(false)}
+                    // onClick={() => setHideAddressForm(false)}
                     />
                   </div>
                 </div>
