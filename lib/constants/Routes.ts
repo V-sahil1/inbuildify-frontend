@@ -32,6 +32,7 @@ class SystemRoutes {
   public static CAMPAIGN = `/campaigns`;
   public static ADMIN = `/admin`;
   public static EMAIL_ACTIVITIES = `/activities`;
+  public static AGENT_REFERRAL = `/agent-referral`;
 }
 
 export default SystemRoutes;

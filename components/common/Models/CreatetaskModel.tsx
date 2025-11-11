@@ -6,6 +6,8 @@ export const CreateTaskModal = ({
   onClose,
   title,
   loading,
+  status=false,
+  attachment=true,
   onSubmit,
   initialData,
 }: {
@@ -13,6 +15,8 @@ export const CreateTaskModal = ({
   onClose: () => void;
   title: string;
   loading: boolean;
+  status?:boolean;
+  attachment?:boolean;
   onSubmit: () => void;
   initialData?: any;
 }) => {
@@ -29,10 +33,12 @@ export const CreateTaskModal = ({
     >
       <CreateTaskCard
         onSave={onSubmit}
+        isStatusShow={status}
         onCancel={() => {
           onClose();
         }}
         loading={loading}
+        attachment={attachment}
         initialData={initialData}
       />
     </Modal>

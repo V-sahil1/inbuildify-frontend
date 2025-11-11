@@ -24,6 +24,8 @@ interface CreateTaskCardProps {
   onCancel: () => void;
   loading: boolean;
   initialData?: TaskDetails;
+  isStatusShow?: boolean;
+  attachment?:boolean;
 }
 
 const priorityOptions = [
@@ -32,7 +34,13 @@ const priorityOptions = [
   { label: 'High', value: 'HIGH' },
 ];
 
-const CreateTaskCard: FC<CreateTaskCardProps> = ({ onSave, onCancel, loading, initialData }) => {
+const statusOptions = [
+  { label: 'Completed', value: 'completed' },
+  { label: 'Yet To Start', value: 'yettostart' },
+  { label: 'Working', value: 'working' },
+];
+
+const CreateTaskCard: FC<CreateTaskCardProps> = ({ onSave, onCancel, loading, initialData, isStatusShow = false, attachment = true }) => {
   const [form] = Form.useForm();
   const { users, status } = useAppSelector(state => state.user);
   const { email } = useAppSelector(state => state.auth.user);
@@ -157,7 +165,16 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({ onSave, onCancel, loading, in
       >
         <Select options={priorityOptions} placeholder="Select Priority" />
       </Form.Item>
-
+      {isStatusShow && (
+        <Form.Item
+          label="Status"
+          name={['task', 'status']}
+          rules={priorityRules}
+          initialValue={initialData?.status}
+        >
+          <Select options={statusOptions} placeholder="Select status" />
+        </Form.Item>
+      )}
       <Form.Item
         label="Description"
         name={['task', 'description']}
@@ -210,11 +227,13 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({ onSave, onCancel, loading, in
               : []
           }
         >
+      {attachment && (
+
           <Upload beforeUpload={() => false} maxCount={1} accept={acceptOnlyImageRule}>
             <Button icon={<IconUpload />}>Attach Files</Button>
           </Upload>
+      )}
         </Form.Item>
-
         <div className="flex gap-3">
           <Button onClick={onCancel}>Cancel</Button>
           <Button type="primary" htmlType="submit" loading={loading} disabled={loading}>

@@ -31,9 +31,9 @@ export const EmailTemplateForm = ({
   useEffect(() => {
     if (template) {
       setFormData({
-        additionalRecipient: template.additionalRecipient || [],
-        subject: template.subject || '',
-        content: template.content || '',
+        additionalRecipient: template?.additionalRecipient || [],
+        subject: template?.subject || '',
+        content: template?.content || '',
       });
     }
   }, [template]);
@@ -74,9 +74,9 @@ export const EmailTemplateForm = ({
   // Cancel functionality
   const handleCancel = () => {
     setFormData({
-      additionalRecipient: template.additionalRecipient || [],
-      subject: template.subject || '',
-      content: template.content || '',
+      additionalRecipient: template?.additionalRecipient || [],
+      subject: template?.subject || '',
+      content: template?.content || '',
     });
     message.info('Changes reverted');
     onCancel();

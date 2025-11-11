@@ -161,6 +161,7 @@ export interface NoteDetails {
   message: string;
   tags: NoteTag[];
   sendToCustomer?: boolean;
+  sendToReferralPartner?:boolean;
   createFollowUpTask?: boolean;
   task?: NoteTask;
   attachment?: NoteAttachment[];
@@ -191,6 +192,7 @@ export interface TaskDetails {
   description: string;
   assignee: { id: string; name: string };
   attachment?: { uid: string; name: string; url?: string }[];
+  status?: 'completed' | 'yettostart' | 'working' | '';
 }
 
 export interface SmsDetails {

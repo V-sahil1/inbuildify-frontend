@@ -4,7 +4,7 @@ const { Text } = Typography;
 const InputSwitch = ({
   label,
   description,
-  name,
+  name, 
 }: {
   label: string;
   description?: string | React.ReactNode;

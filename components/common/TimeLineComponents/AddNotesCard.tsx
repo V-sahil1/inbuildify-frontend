@@ -16,9 +16,10 @@ interface AddNotesCardProps {
   loading: boolean;
   onCancel: () => void;
   initialData?: NoteDetails;
+  tagnSwitch?: boolean;
 }
 
-const AddNotesCard: FC<AddNotesCardProps> = ({ onSave, loading, onCancel, initialData }) => {
+const AddNotesCard: FC<AddNotesCardProps> = ({ onSave, loading, onCancel, initialData, tagnSwitch = true }) => {
   const [form] = Form.useForm();
   const { TextArea } = Input;
   const dispatch = useAppDispatch();
@@ -75,21 +76,23 @@ const AddNotesCard: FC<AddNotesCardProps> = ({ onSave, loading, onCancel, initia
       </Form.Item>
 
       {/* Tags */}
-      <Form.Item label="Tags" name="tags" initialValue={initialData?.tags?.map(t => t.name) ?? []}>
-        <Select
-          mode="tags"
-          style={{ width: '100%' }}
-          placeholder="Add tags"
-          tokenSeparators={[',']}
-        >
-          {tags?.map((tag, idx) => (
-            <Option key={idx} value={tag.name}>
-              {tag.name}
-            </Option>
-          ))}
-        </Select>
-      </Form.Item>
+      {tagnSwitch && (
 
+        <Form.Item label="Tags" name="tags" initialValue={initialData?.tags?.map(t => t.name) ?? []}>
+          <Select
+            mode="tags"
+            style={{ width: '100%' }}
+            placeholder="Add tags"
+            tokenSeparators={[',']}
+          >
+            {tags?.map((tag, idx) => (
+              <Option key={idx} value={tag.name}>
+                {tag.name}
+              </Option>
+            ))}
+          </Select>
+        </Form.Item>
+      )}
       <div className="flex gap-4">
         <Form.Item
           label="Attach Files"
@@ -120,7 +123,7 @@ const AddNotesCard: FC<AddNotesCardProps> = ({ onSave, loading, onCancel, initia
           </Upload>
         </Form.Item>
         <div className="flex flex-col gap-3 flex-1">
-          {!initialData && (
+          {!initialData && tagnSwitch && (
             <>
               <div className="flex items-center gap-2 text-sm text-font-color-100">
                 <Form.Item
@@ -147,7 +150,19 @@ const AddNotesCard: FC<AddNotesCardProps> = ({ onSave, loading, onCancel, initia
               </div>
             </>
           )}
-
+          {!initialData && !tagnSwitch && (
+            <div className="flex items-center gap-2 text-sm text-font-color-100 mt-4">
+              <Form.Item
+                name="sendToCustomer"
+                valuePropName="checked"
+                initialValue={initialData?.sendToReferralPartner || true}
+                noStyle
+              >
+                <Switch />
+              </Form.Item>
+              <span>Send this note to referral partner</span>
+            </div>
+          )}
           <Form.Item noStyle shouldUpdate>
             {({ getFieldValue }) =>
               getFieldValue('createFollowUpTask') ? (

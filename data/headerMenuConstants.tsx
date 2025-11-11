@@ -74,7 +74,7 @@ export const gridMenuItems: MenuItem[] = [
     id: 7,
     icon: <IconUsers className="w-4 h-4 mr-3" />,
     label: 'Agent/Referral',
-    href: '#',
+    href: `${SystemRoutes.AGENT_REFERRAL}`,
   },
 ];
 
