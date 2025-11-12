@@ -1,202 +1,179 @@
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import { CostType } from '@lib/constants/enum';
 import { createCategoryItem } from '@redux/feature/masterPriceList/masterPriceListThunk';
 import { setQuotationExtraItems } from '@redux/feature/quotation/quotationSlice';
 import { RootState } from '@redux/feature/store';
 import { IconPlus, IconX } from '@tabler/icons-react';
-import { InputNumber, Button, Input, Select, message } from 'antd';
-import React, { useState, useMemo } from 'react';
-import { PricingItem } from '../common/PricingItem';
+import { Button, Input, Select, message, Form } from 'antd';
+import React, { useState } from 'react';
+import { enumToReadable } from '@lib/utils/enumToRedable';
+import { QuatationItem } from './QuatationItem';
+import { Item } from '@redux/feature/masterPriceList/iMasterPriceListState';
+import { Status } from '@lib/constants/enum';
 const { TextArea } = Input;
 
-const { Option } = Select;
-
 interface QuatationItemProps {
-  onQuantityChange: (value: number) => void;
-  onToggleAdd: () => void;
-  onItemQuantityChange: (itemId: string, quantity: number) => void;
-  onItemAdd: (itemId: string, price: number) => void;
+  onToggleAdd?: (item: Item) => void;
+  onItemQuantityChange?: (itemId: string, quantity: number) => void;
+  form?: any;
+  isReadOnly?: boolean;
+  quantityRef?: React.RefObject<Record<string, HTMLInputElement | null>>;
 }
 
 export const QuatationExtraItem: React.FC<QuatationItemProps> = React.memo(
-  ({ onQuantityChange, onToggleAdd, onItemQuantityChange, onItemAdd }) => {
+  ({ onToggleAdd, onItemQuantityChange, form, isReadOnly, quantityRef }) => {
     const [added, setAdded] = useState(false);
-    const { categories } = useAppSelector((state: RootState) => state.masterPriceList);
+    const { categories, status } = useAppSelector((state: RootState) => state.masterPriceList);
+    const { selectedFilters } = useAppSelector((state: RootState) => state.quotation);
     const dispatch = useAppDispatch();
-    const { extraItems } = useAppSelector((state: RootState) => state.quotation);
-
-    // Local form state
-    const [formData, setFormData] = useState({
-      category_id: undefined as string | undefined,
-      cost_type: undefined as string | undefined,
-      description: '',
-      quantity: 1,
-      cost: 0,
-    });
-
-    // Total calculation
-    const total = useMemo(
-      () => (formData.cost || 0) * (formData.quantity || 0),
-      [formData.cost, formData.quantity]
-    );
+    const costType = Form.useWatch('cost_type', form);
+    const {
+      extraItems,
+      items,
+      package: selectedPackageFromSlice,
+    } = useAppSelector((state: RootState) => state.quotation);
 
     const handleToggle = async () => {
+      const values = await form.validateFields();
       const newAdded = !added;
-      setAdded(newAdded);
-      //   onToggleAdd();
+      console.log('values', values);
+      setAdded(false);
       try {
-        if (
-          formData.category_id === undefined ||
-          formData.cost_type === undefined ||
-          formData.description === '' ||
-          formData.quantity === 1 ||
-          formData.cost === 0
-        ) {
-          message.error('Please fill all the fields');
-          return;
-        }
         if (newAdded) {
-          const response = await dispatch(
-            createCategoryItem({
-              category_id: formData.category_id,
-              cost_type: formData.cost_type,
-              description: formData.description,
-              cost: total,
-              // it will come from the quatation slice below two only
-              dwelling: 'SINGLE_STOREY',
-              range: 'PREMIUM',
+          const payload = {
+            category_id: values.category_id,
+            cost_type: values.cost_type,
+            description: values.description,
+            dwelling: selectedFilters.dwelling_type,
+            range: selectedFilters.range,
+            cost: costType === 'INCLUDED' ? null : values.cost,
+            cost_type_text: enumToReadable(values.cost_type),
+            status: 'ACTIVE',
+          };
+          const response = await dispatch(createCategoryItem(payload)).unwrap();
+
+          dispatch(
+            setQuotationExtraItems({
+              ...response,
+              quantity: values.quantity,
             })
-          ).unwrap();
-          dispatch(setQuotationExtraItems(response));
-          setFormData({
-            category_id: undefined,
-            cost_type: undefined,
-            description: '',
-            quantity: 1,
-            cost: 0,
-          });
+          );
+          form.resetFields();
         }
       } catch (error) {
         message.error(error);
       }
     };
-
-    const handleQuantityChange = (value: number | null) => {
-      const qty = value ?? 0;
-      setFormData(prev => ({ ...prev, quantity: qty }));
-      // onQuantityChange(qty);
-    };
-
     return (
       <>
-        <div className="table-row hover:bg-card-color">
+        <div className="table-row hover:bg-card-color overflow-y-auto">
           {/* Item */}
           <div className="table-cell p-3 align-top">
             <div className="font-medium text-[16px]">Extra Item</div>
             <div className="flex flex-col flex-wrap gap-5 mt-1">
               <div className="flex gap-5">
                 {/* Category Select */}
-                <Select
-                  size="large"
-                  placeholder="Select Category"
-                  value={formData.category_id}
-                  onChange={val => setFormData(prev => ({ ...prev, category_id: val }))}
-                  style={{ minWidth: '180px' }}
-                >
-                  {categories?.map(category => (
-                    <Option key={category.categoryId} value={category.categoryId}>
-                      {category.name}
-                    </Option>
-                  ))}
-                </Select>
+                <Form.Item name="category_id">
+                  <Select
+                    placeholder="Select Category"
+                    style={{ minWidth: '180px' }}
+                    options={categories.map(category => ({
+                      label: category.name,
+                      value: category.categoryId,
+                    }))}
+                  />
+                </Form.Item>
 
                 {/* Cost Type Select */}
-                <Select
-                  size="large"
-                  placeholder="Select Cost Type"
-                  value={formData.cost_type}
-                  onChange={val => setFormData(prev => ({ ...prev, cost_type: val }))}
-                  style={{ minWidth: '180px' }}
-                >
-                  {CostType?.map(costType => (
-                    <Option key={costType.value} value={costType.value}>
-                      {costType.label}
-                    </Option>
-                  ))}
-                </Select>
+                <Form.Item name="cost_type">
+                  <Select
+                    placeholder="Select Cost Type"
+                    style={{ minWidth: '180px' }}
+                    options={[
+                      { value: 'INCLUDED', label: 'Included' },
+                      { value: 'FIXED', label: 'Fixed' },
+                      { value: 'VARIABLE', label: 'Variable' },
+                    ]}
+                  />
+                </Form.Item>
+
+                {/* buildercost */}
+                <Form.Item name="builderCost">
+                  <Input type="number" placeholder="Enter Builder Cost" />
+                </Form.Item>
               </div>
 
               {/* Description */}
-              <div className="flex gap-5">
-                <TextArea
-                  showCount
-                  maxLength={500}
-                  rows={4}
-                  placeholder="Enter item description"
-                  value={formData.description}
-                  onChange={e =>
-                    setFormData(prev => ({
-                      ...prev,
-                      description: e.target.value,
-                    }))
-                  }
-                  style={{ width: '100%', resize: 'none' }}
-                />
+              <div>
+                <Form.Item name="description">
+                  <TextArea
+                    showCount
+                    maxLength={500}
+                    rows={4}
+                    placeholder="Enter item description"
+                    style={{ resize: 'none' }}
+                  />
+                </Form.Item>
               </div>
             </div>
           </div>
 
           {/* Quantity */}
           <div className="table-cell text-center p-3 align-middle">
-            <InputNumber
-              min={1}
-              value={formData.quantity}
-              onChange={handleQuantityChange}
-              size="small"
-              className="w-full text-center"
-            />
+            {costType !== 'INCLUDED' && (
+              <Form.Item name="quantity">
+                <Input type="number" min={1} size="small" className="w-full text-center" />
+              </Form.Item>
+            )}
           </div>
 
           {/* Price */}
           <div className="table-cell text-center p-3 align-middle">
-            <Input
-              type="number"
-              min={0.1}
-              prefix="$"
-              value={formData.cost}
-              onChange={e =>
-                setFormData(prev => ({
-                  ...prev,
-                  cost: Number(e.target.value) || 0,
-                }))
-              }
-              style={{ width: '100%' }}
-            />
+            {costType !== 'INCLUDED' && (
+              <Form.Item name="cost">
+                <Input type="number" min={1} prefix="$" style={{ width: '100%' }} />
+              </Form.Item>
+            )}
           </div>
 
           {/* Total */}
           <div className="table-cell text-center p-3 align-middle">
-            <span className="font-medium">${total.toFixed(2)}</span>
+            {costType !== 'INCLUDED' && (
+              <Form.Item name="total">
+                <Input disabled />
+              </Form.Item>
+            )}
           </div>
 
           {/* Action */}
           <div className="table-cell text-center p-3 align-middle">
             <Button
+              loading={status.CategoryItem === Status.PENDING}
               type={added ? 'primary' : 'dashed'}
               shape="circle"
               size="small"
               icon={added ? <IconX size={16} /> : <IconPlus size={16} />}
               onClick={handleToggle}
+              htmlType="submit"
             />
           </div>
         </div>
-        {/* {extraItems?.map((item) => (
-                    <PricingItem
-                        item={item}
-                        onQuantityChange={onQuantityChange}
-                        onToggleAdd={onToggleAdd}
-                    />
-                ))} */}
+
+        {extraItems?.map(item => (
+          <QuatationItem
+            key={item?.categoryItemId}
+            item={item}
+            disabled={
+              isReadOnly ||
+              selectedPackageFromSlice?.categoryItems?.some(
+                catItem => catItem.id === item.categoryItemId
+              )
+            }
+            quantityRef={el => (quantityRef.current[item.categoryItemId] = el)}
+            onQuantityChange={onItemQuantityChange}
+            isSelected={items?.some(itemData => itemData.categoryItemId === item.categoryItemId)}
+            onToggleAdd={onToggleAdd}
+          />
+        ))}
       </>
     );
   }

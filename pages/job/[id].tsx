@@ -13,78 +13,44 @@ import JobDetailHeader from '@/components/job/jobDetail/JobDetailHeader';
 import JobCustomFields from '@/components/job/jobDetail/JobCustomFields';
 import { useState } from 'react';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
+import ConstructionModelFields from '@/components/formFields/constructionModelFields';
 import ActivityCard from '@/components/common/ActivityCard';
 import { EmailData, filterTabs } from 'data/activityData';
-import ConstructionModelFields from '@/components/formFields/constructionModelFields';
 const { TabPane } = Tabs;
-
-// cosnt initialValues = {
-
-// }
-
-const JobVariationData = [
-  {
-    ReferenceID: 'MYH00486-V1',
-    Amount: 7000.0,
-    RequestedBy: 'Aman',
-    DelayedBy: 'Hiren',
-    DrawingChanges: 'Yes',
-    Created: { user: 'MM', date: '1/1/2002' },
-    Approved: { user: 'MM', date: '1/1/2002' },
-    Status: 'Approved',
-    Invoice: 'invoice',
-    Profile: 'MM',
-  },
-  {
-    ReferenceID: 'MYH00486-V2',
-    Amount: 7000.0,
-    RequestedBy: 'Aman',
-    DelayedBy: 'Hiren',
-    DrawingChanges: 'No',
-    Created: { user: 'MM', date: '1/1/2002' },
-    Approved: { user: 'MM', date: '1/1/2002' },
-    Status: 'Approved',
-    Invoice: 'invoice',
-    Profile: 'A',
-  },
-  {
-    ReferenceID: 'MYH00486-V3',
-    Amount: 7000.0,
-    RequestedBy: 'Aman',
-    DelayedBy: 'Hiren',
-    DrawingChanges: 'Yes',
-    Created: { user: 'MM', date: '1/1/2002' },
-    Approved: { user: 'MM', date: '1/1/2002' },
-    Status: 'Draft',
-    Invoice: 'invoice',
-    Profile: 'A',
-  },
-];
 
 export default function JobDetail() {
   const { id } = router.query;
   const [isConstructionModelOpen, setConstructionModelOpen] = useState(false);
   const [constructionReady, setConstructionReady] = useState(false);
-  const workFlowSteps = [
+  const [workFlowSteps, setWorkflowSteps] = useState([
     {
       key: 'Sales',
       label: 'Sales',
       status: 'Closed',
-      color: 'bg-green-600',
+      color: 'bg-cyan-500',
       icon: 'MM',
       date: '12/03/2025',
-      onClick: () => router.push(`${SystemRoutes.LEADS}/${id}`),
+      onClick: () => {
+        handleWorkflowStepsStatus('Sales');
+        router.push(`${SystemRoutes.LEADS}/${id}`);
+      },
+      options: [
+        { key: 'facade', label: 'Preview Facade' },
+        { key: 'floorplan', label: 'Preview Facade' },
+      ],
     },
     {
-      key: 'preconstruction',
+      key: 'Preconstruction',
       label: 'Preconstruction',
       status: 'Completed',
-      color: 'bg-green-300',
+      color: 'bg-cyan-500',
       icon: '2',
       date: '12/03/2025',
       onClick: () => {
-        router.push(`/${SystemRoutes.JOB_PRECONSTRUCTION}/${id}`);
+        handleWorkflowStepsStatus('Preconstruction');
+        router.push(`${SystemRoutes.JOB_PRECONSTRUCTION}/${id}`);
       },
+      options: [{ key: 'skip', label: 'Skip' }],
     },
     {
       key: 'Color',
@@ -94,17 +60,26 @@ export default function JobDetail() {
       icon: 'MM',
       date: '12/03/2025',
       onClick: () => {
-        router.push(`/${SystemRoutes.JOB}/colour/${id}`);
+        handleWorkflowStepsStatus('Color');
+        router.push(`${SystemRoutes.JOB}/colour/${id}`);
       },
+      options: [
+        { key: 'colors', label: 'Switch to External Colours' },
+        { key: 'pdf', label: 'Preview PDF' },
+        { key: 'document', label: 'Generate Colors Document' },
+        { key: 'delete', label: 'Delete' },
+        { key: 'skip', label: 'Skip' },
+      ],
     },
     {
       key: 'Construction',
       label: 'Construction',
-      status: 'Under Construction',
-      color: 'bg-cyan-300',
+      status: constructionReady ? 'Ready for Construction' : 'Under Construction',
+      color: 'bg-cyan-500',
       icon: '4',
       date: '',
       onClick: () => {
+        handleWorkflowStepsStatus('Construction');
         constructionReady
           ? router.push(`/${SystemRoutes.CONSTRUCTION}/${id}`)
           : setConstructionModelOpen(true);
@@ -114,12 +89,22 @@ export default function JobDetail() {
       key: 'Maintenance',
       label: 'Maintenance',
       status: '',
-      color: 'bg-gray-200',
+      color: 'bg-cyan-500',
       icon: '5',
       date: '',
-      onClick: () => {},
+      onClick: () => {
+        handleWorkflowStepsStatus('Maintenance');
+      },
     },
-  ];
+  ]);
+
+  function handleWorkflowStepsStatus(key) {
+    setWorkflowSteps(prev =>
+      prev.map(step =>
+        step.key === key ? { ...step, status: 'completed', color: 'bg-green-600' } : step
+      )
+    );
+  }
   function handleSubmit(values) {
     setConstructionReady(true);
     setConstructionModelOpen(false);
@@ -129,7 +114,26 @@ export default function JobDetail() {
     <>
       <div className="m-3">
         <div className="flex justify-between">
-          <StageProgress id="MH-001" title="Job" status="Pending" steps={[]} />
+          <StageProgress
+            id="MH-001"
+            title="Job"
+            status="Pending"
+            steps={[]}
+            data={{
+              builder: 'xyz',
+              leadSource: 'website',
+              assignedTask: [
+                { label: 'Accounts', value: 'Accounts Myhome', status: 'Inactive' },
+                { label: 'Color Consultant', value: 'Color Consultant', status: 'Inactive' },
+                {
+                  label: 'Construction Manager - MH',
+                  value: 'Manasa Gummuluru',
+                  status: 'Inactive',
+                },
+                { label: 'My Home - Company Admin', value: 'Manasa Gummuluru', status: 'Inactive' },
+              ],
+            }}
+          />
           <JobDetailHeader />
         </div>
         <WorkflowSteps steps={workFlowSteps} />

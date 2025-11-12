@@ -15,11 +15,7 @@ import {
 import { Package } from '@redux/feature/package/IPackageState';
 import { RootState } from '@redux/feature/store';
 import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
-import {
-  createQuotation,
-  getQuotationById,
-  getQuotationVersionById,
-} from '@redux/feature/quotation/quotationThunk';
+import { createQuotation, getQuotationVersionById } from '@redux/feature/quotation/quotationThunk';
 import { message, Result, Spin } from 'antd';
 import QuotationFilter from '@/components/quotation/QuotationFilter';
 import { updateLeadStatus } from '@redux/feature/lead/leadSlice';
@@ -31,7 +27,6 @@ import SystemRoutes from '@lib/constants/Routes';
 import { useRouter } from 'next/router';
 import { getDwellingTypes, getRanges } from '@redux/feature/types/typesThunk';
 import { clearFilters } from '@redux/feature/facade/facadeSlice';
-import Link from 'next/link';
 import Loading from '../common/Loading';
 
 const QuotationManager = () => {
@@ -39,6 +34,7 @@ const QuotationManager = () => {
   const router = useRouter();
   const { id } = router.query;
   const { quoteVersionId } = router.query as { quoteVersionId: string };
+  const [onSelect, setSelect] = useState(false);
   // console.log("🚀 ~ QuotationManager ~ quoteVersionId:", quoteVersionId)
   const [isEditMode, setIsEditMode] = useState(false);
   const isReadOnly = useMemo(() => !!quoteVersionId && !isEditMode, [quoteVersionId, isEditMode]);
@@ -103,7 +99,6 @@ const QuotationManager = () => {
   const { categories: categoryData, status } = useAppSelector(
     (state: RootState) => state.masterPriceList
   );
-  console.log('categoryyyy', categoryData, items);
   // const { categories: mplCategories } = useAppSelector(
   //   (state: RootState) => state.masterPriceList
   // );
@@ -124,7 +119,7 @@ const QuotationManager = () => {
         message.error(e || 'Failed to fetch categories');
       }
     };
-    if (status === Status.IDLE) {
+    if (status.Category === Status.IDLE) {
       fetchCategoriesData();
     }
   }, [dispatch, status]);
@@ -192,15 +187,9 @@ const QuotationManager = () => {
           res.items?.forEach((item: any) => {
             if (item?.costType === 'INCLUDED') {
               // only add if not already in quotation
-              const alreadyAdded = items.some(i => i.itemId === item.categoryItemId);
+              const alreadyAdded = items.some(i => i.categoryItemId === item.categoryItemId);
               if (!alreadyAdded) {
-                dispatch(
-                  setQuotationItems({
-                    itemId: item.categoryItemId,
-                    quantity: 1,
-                    price: Number(item?.cost ?? 0),
-                  })
-                );
+                dispatch(setQuotationItems({ ...item, quantity: 1 }));
               }
             }
           });
@@ -265,7 +254,7 @@ const QuotationManager = () => {
     }
   };
 
-  const handleItemQuantityChange = (itemId: string, quantity: number) => {};
+  const handleItemQuantityChange = (itemId: string, quantity: number) => { };
 
   const getQuotationItems = () => {
     const normalize = (item: any, isExtra = false) => ({
@@ -357,13 +346,18 @@ const QuotationManager = () => {
       // Now build grouped items
       const groupedItems = allCategories.map(category => {
         const matchedItems = (category.items || [])
-          .filter(catItem => itemsFromSlice.some(sel => sel.itemId === catItem.categoryItemId))
+          .filter(catItem =>
+            itemsFromSlice.some(sel => sel.categoryItemId === catItem.categoryItemId)
+          )
           .map(catItem => {
-            const selected = itemsFromSlice.find(sel => sel.itemId === catItem.categoryItemId);
+            const selected = itemsFromSlice.find(
+              sel => sel.categoryItemId === catItem.categoryItemId
+            );
+
             return {
               ...catItem,
               ...selected,
-              total: Number(selected?.quantity) * Number(selected?.price),
+              total: selected.cost,
             };
           });
 
@@ -447,7 +441,6 @@ const QuotationManager = () => {
   //     </div>
   //   );
   // }
-
   return (
     <>
       <div className="m-3 flex justify-between items-center">
@@ -464,7 +457,7 @@ const QuotationManager = () => {
         onPlanSelect={setSelectedPlan}
         onFacadeSelect={setSelectedFacade}
         onPackageSelect={setSelectedPackage}
-        onPropertyUpdate={() => {}}
+        onPropertyUpdate={() => { }}
         isReadOnly={isReadOnly}
       />
 
@@ -472,7 +465,7 @@ const QuotationManager = () => {
         {quotationFilters?.range && quotationFilters?.dwelling_type ? (
           <>
             <div className="w-64">
-              {status === Status.IDLE ? (
+              {status.Category === Status.IDLE ? (
                 <div className="flex items-center justify-center flex-1">
                   <Loading type="primary" />
                 </div>
@@ -481,6 +474,7 @@ const QuotationManager = () => {
                   categories={categoryData}
                   selectedCategory={selectedCategory}
                   onCategorySelect={handleFetchCategoryItems}
+                  setSelect={setSelect}
                 />
               )}
             </div>
@@ -496,6 +490,8 @@ const QuotationManager = () => {
                   ? (getCategoryById(selectedCategory)?.loadingItems ?? false)
                   : false
               }
+              setSelect={setSelect}
+              select={onSelect}
             />
           </>
         ) : (
@@ -513,6 +509,7 @@ const QuotationManager = () => {
 
       <div className="m-3">
         <FooterActions
+          id={quoteDetails?.slugId || ''}
           total={calculateTotalQuotation(packageFromSlice, itemsFromSlice, Number(facade?.cost))}
           quoteVersionId={quoteVersionId}
           isEditMode={isEditMode}

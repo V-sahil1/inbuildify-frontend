@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Input, message, Select } from 'antd';
-import { Category } from '@redux/feature/masterPriceList/iMasterPriceListState';
+import { Category, Item } from '@redux/feature/masterPriceList/iMasterPriceListState';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { RootState } from '@redux/feature/store';
 import {
@@ -9,9 +9,10 @@ import {
   updateQuotationItem,
 } from '@redux/feature/quotation/quotationSlice';
 import Loading from '../common/Loading';
-import { PriceItem } from './PriceItem';
 import { IconSearch } from '@tabler/icons-react';
 import { fetchCategoryItems } from '@redux/feature/masterPriceList/masterPriceListThunk';
+import { QuatationItem } from '../quotation/QuatationItem';
+import { toggleExpand } from '@redux/feature/masterPriceList/masterPriceListSlice';
 interface PriceListItemsPanelProps {
   categories?: Category[];
   itemsLoading: boolean;
@@ -19,37 +20,58 @@ interface PriceListItemsPanelProps {
 
 const PriceListItemPanel: React.FC<PriceListItemsPanelProps> = ({ categories, itemsLoading }) => {
   const dispatch = useAppDispatch();
-  const { status } = useAppSelector((state: RootState) => state.masterPriceList);
   const { items, package: selectedPackageFromSlice } = useAppSelector(
     (state: RootState) => state.quotation
   );
   const quantityRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-  const handleItemAdd = (itemId: string, price: number) => {
-    const quantity = quantityRefs.current[itemId]?.value || '1';
+  const handleItemAdd = (item: Item) => {
+    const quantity = quantityRefs.current[item.categoryItemId]?.value || '1';
 
-    if (items.some(item => item.itemId === itemId)) {
-      dispatch(removeQuotationItem(itemId));
+    if (items.some(i => i.categoryItemId === item.categoryItemId)) {
+      dispatch(removeQuotationItem(item.categoryItemId));
     } else {
-      dispatch(setQuotationItems({ itemId, quantity: Number(quantity), price }));
+      dispatch(setQuotationItems({ ...item, quantity: Number(quantity) }));
     }
   };
   const handleItemQuantityChange = (itemId: string, quantity: number) => {
     dispatch(updateQuotationItem({ itemId, quantity }));
   };
-
-  const fetchCategoryitems = async (categoryId: string) => {
-    try {
-      await dispatch(fetchCategoryItems({ categoryId })).unwrap();
-    } catch (error) {
-      message.error(error);
-    }
-  };
   useEffect(() => {
-    if (categories?.length > 0) {
-      categories.forEach(category => {
-        fetchCategoryitems(category.categoryId);
-      });
-    }
+    const fetchCategoryitems = async () => {
+      try {
+        const responses = await Promise.all(
+          categories.map(async cat => {
+            if (!cat.isExpanded) {
+              dispatch(toggleExpand(cat.categoryId));
+            }
+            return dispatch(
+              fetchCategoryItems({
+                categoryId: cat.categoryId,
+              })
+            ).unwrap();
+          })
+        );
+
+        // ✅ Step 2: After fetching, auto-add INCLUDED items
+        {
+          responses &&
+            responses.forEach(res => {
+              res.items?.forEach((item: any) => {
+                if (item?.costType === 'INCLUDED') {
+                  // only add if not already in quotation
+                  const alreadyAdded = items.some(i => i.categoryItemId === item.categoryItemId);
+                  if (!alreadyAdded) {
+                    dispatch(setQuotationItems({ ...item, quantity: 1 }));
+                  }
+                }
+              });
+            });
+        }
+      } catch (error) {
+        message.error('Failed to fetch category items');
+      }
+    };
+    fetchCategoryitems();
   }, []);
   return (
     <div className="w-full bg-card-color flex flex-col">
@@ -72,7 +94,7 @@ const PriceListItemPanel: React.FC<PriceListItemsPanelProps> = ({ categories, it
           </div>
           {!categories && (
             <div className="table-row">
-              <div className="table-cell p-6 text-center col-span-7 text-font-color">
+              <div className="table-cell p-6 text-center col-span-4 text-font-color">
                 No items found
               </div>
             </div>
@@ -85,11 +107,10 @@ const PriceListItemPanel: React.FC<PriceListItemsPanelProps> = ({ categories, it
             </div>
           ) : (
             <div className="table-row-group overflow-y-auto">
-              {categories?.length > 0 ? (
+              {categories?.length > 200 ? (
                 categories.map(category =>
                   category?.items?.map(item => (
-                    <PriceItem
-                      categoryName={category.name}
+                    <QuatationItem
                       key={item?.categoryItemId}
                       item={item}
                       disabled={selectedPackageFromSlice?.categoryItems?.some(
@@ -97,7 +118,9 @@ const PriceListItemPanel: React.FC<PriceListItemsPanelProps> = ({ categories, it
                       )}
                       onQuantityChange={handleItemQuantityChange}
                       quantityRef={el => (quantityRefs.current[item.categoryItemId] = el)}
-                      isSelected={items?.some(itemData => itemData.itemId === item.categoryItemId)}
+                      isSelected={items?.some(
+                        itemData => itemData.categoryItemId === item.categoryItemId
+                      )}
                       onToggleAdd={handleItemAdd}
                     />
                   ))

@@ -26,7 +26,7 @@ export interface QuotationState {
   plan: any;
   facade: any;
   package: Package;
-  items: { itemId: string; quantity: number; price: number }[];
+  items: (Item & { quantity: number })[];
   extraItems: (Item & { quantity: number })[];
 }
 
@@ -73,26 +73,22 @@ const quotationSlice = createSlice({
       const { builderId, ...propertyWithoutBuilder } = (action.payload || {}) as any;
       state.property = propertyWithoutBuilder as any;
     },
-    setQuotationExtraItems(state, action: PayloadAction<Item>) {
-      state.extraItems = [{ ...action.payload, quantity: 1 }, ...state.extraItems];
-      state.items = [
-        { itemId: action.payload.categoryItemId, quantity: 1, price: action.payload.cost },
-        ...state.items,
-      ];
-    },
-    setQuotationItems(
+    setQuotationExtraItems(
       state,
-      action: PayloadAction<{ itemId: string; quantity: number; price: number }>
+      action: PayloadAction<
+        Item & {
+          quantity: number;
+        }
+      >
     ) {
-      // state.items = [{ itemId: action.payload.itemId, quantity: action.payload.quantity, price: action.payload.price }, ...state.items];
-      state.items.push({
-        itemId: action.payload.itemId,
-        quantity: action.payload.quantity,
-        price: action.payload.price,
-      });
+      state.extraItems = [...state.extraItems, action.payload];
+      state.items = [...state.items, action.payload];
+    },
+    setQuotationItems(state, action: PayloadAction<Item & { quantity: number }>) {
+      state.items = [...state.items, action.payload];
     },
     removeQuotationItem(state, action: PayloadAction<string>) {
-      state.items = state.items.filter(item => item.itemId !== action.payload);
+      state.items = state.items.filter(item => item.categoryItemId !== action.payload);
     },
     setQuotationPlan(state, action: PayloadAction<any>) {
       state.plan = action.payload;
@@ -103,16 +99,22 @@ const quotationSlice = createSlice({
     setQuotationPackage(state, action: PayloadAction<any>) {
       state.package = action.payload;
       const uniqueItems = action.payload.categoryItems.filter(
-        item => !state.items.some(i => i.itemId === item.id)
+        item => !state.items.some(i => i.categoryItemId === item.id)
       );
       state.items = [
         ...state.items,
-        ...uniqueItems.map(item => ({ itemId: item.id, quantity: 1, price: item.price })),
+        ...uniqueItems.map(item => ({
+          categoryItemId: item.id,
+          quantity: 1,
+          price: item.price,
+          description: item.desc,
+          cost: item.price,
+        })),
       ];
     },
     updateQuotationItem: (state, action) => {
       const { itemId, quantity } = action.payload;
-      const item = state.items.find(i => i.itemId === itemId);
+      const item = state.items.find(i => i.categoryItemId === itemId);
       if (item) {
         item.quantity = quantity;
       }

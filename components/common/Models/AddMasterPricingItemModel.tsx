@@ -49,7 +49,7 @@ const AddMasterPricingItemModal = ({
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (mplStatus === Status.IDLE) {
+    if (mplStatus.Category === Status.IDLE) {
       dispatch(fetchCategories());
     }
   }, [dispatch]);
@@ -486,9 +486,8 @@ const AddMasterPricingItemModal = ({
         <Form.Item className="mb-0">
           <button
             type="submit"
-            className={`btn btn-primary w-full md:w-auto px-8 py-2 text-base ${
-              isAddingItem ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
+            className={`btn btn-primary w-full md:w-auto px-8 py-2 text-base ${isAddingItem ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             disabled={isAddingItem}
           >
             {isAddingItem ? (

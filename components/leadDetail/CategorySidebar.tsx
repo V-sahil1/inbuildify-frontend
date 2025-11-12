@@ -6,12 +6,14 @@ interface CategorySidebarProps {
   categories: Category[];
   selectedCategory: string;
   onCategorySelect: (categoryId: string) => void;
+  setSelect?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const CategorySidebar: React.FC<CategorySidebarProps> = ({
   categories,
   selectedCategory,
   onCategorySelect,
+  setSelect,
 }) => {
   // useEffect(() => {
   //   if (categories.length > 0 && !selectedCategory) {
@@ -29,7 +31,10 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
       <Menu
         mode="vertical"
         selectedKeys={[selectedCategory]}
-        onSelect={({ key }) => onCategorySelect(key)}
+        onSelect={({ key }) => {
+          onCategorySelect(key);
+          setSelect(false);
+        }}
         className="border-0 h-full"
         items={menuItems}
       />

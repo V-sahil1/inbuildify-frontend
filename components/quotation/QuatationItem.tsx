@@ -1,16 +1,18 @@
 import { useAppSelector } from '@hooks/redux';
 import { enumToReadable } from '@lib/utils/enumToRedable';
+import { Item } from '@redux/feature/masterPriceList/iMasterPriceListState';
 import { RootState } from '@redux/feature/store';
-import { IconPlus, IconX } from '@tabler/icons-react';
+import { IconPencil, IconPlus, IconX } from '@tabler/icons-react';
 import { Tag, InputNumber, Button, Tooltip } from 'antd';
 import React, { useState, useEffect } from 'react';
+import AddMasterPricingItemModal from '../common/Models/AddMasterPricingItemModel';
 
 interface QuatationItemProps {
   item: any;
   onQuantityChange: (itemId: string, qty: number) => void;
-  onToggleAdd: (itemId: string, price: number) => void;
+  onToggleAdd: (item: Item) => void;
   isSelected: boolean;
-  quantityRef: any;
+  quantityRef?: any;
   disabled?: boolean;
 }
 
@@ -18,10 +20,10 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
   ({ item, onToggleAdd, isSelected, onQuantityChange, quantityRef, disabled }) => {
     const { items } = useAppSelector((state: RootState) => state.quotation);
 
-    const reduxQuantity = items.find(i => i.itemId === item.categoryItemId)?.quantity ?? 1;
+    const reduxQuantity = items.find(i => i.categoryItemId === item.categoryItemId)?.quantity ?? 1;
 
     const [quantity, setQuantity] = useState<number>(reduxQuantity);
-
+    const [isEdited, setIsEdited] = useState({ item: false, extraitem: false });
     useEffect(() => {
       setQuantity(reduxQuantity);
     }, [reduxQuantity]);
@@ -30,8 +32,8 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
       onQuantityChange(item.categoryItemId, quantity);
     }, [quantity, item.cost, item.categoryItemId, onQuantityChange]);
 
-    const handleToggle = (itemId: string, price: number) => {
-      onToggleAdd(itemId, price);
+    const handleToggle = (item: Item) => {
+      onToggleAdd(item);
     };
 
     const handleQuantityChange = (value: number | null) => {
@@ -43,13 +45,18 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
       <div className={isSelected ? 'table-row bg-primary-10' : 'table-row hover:bg-card-color'}>
         {/* Item Info */}
         <div className="table-cell p-3 align-top">
-          <div className="font-medium text-[16px] break-all">
+          <div className="flex gap-2 items-center font-medium text-[16px] break-all">
             <Tooltip title={item.shortDescription ? item.shortDescription : item.description}>
               {' '}
               <p className="line-clamp-2">
                 {item.shortDescription ? item.shortDescription : item.description}
               </p>
             </Tooltip>
+            <IconPencil
+              size={15}
+              className="text-blue cursor-pointer"
+              onClick={() => setIsEdited(prev => ({ ...prev, item: true }))}
+            />
           </div>
           <div className="flex flex-wrap gap-2 mt-1">
             {item.costType && <Tag color="yellow">{item.costType}</Tag>}
@@ -65,6 +72,15 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
             {item.rangeName && item.rangeName !== 'NONE' && (
               <Tag color="orange">{enumToReadable(item.rangeName).toUpperCase()}</Tag>
             )}
+            {/* the extraItemType is need to add in backednd there are 4 types  'Additional' | 'Complimentary' | 'Discount' | 'Note' is opening in the click of the extra */}
+            {/* {item.extraItemType && <Tag color="yellow">{item.extraItemType}Additional Item</Tag>} */}
+          </div>
+          <div className="mt-2">
+            <div className="flex items-center gap-2 cursor-pointer">
+              <IconPlus size={16} className="border rounded-full border-primary text-primary" />
+              Notes
+            </div>
+            {/* {item.builderCost && <p>Builder Cost($) : {item.builderCost}</p>} */}
           </div>
         </div>
 
@@ -100,9 +116,19 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
             shape="circle"
             size="small"
             icon={isSelected ? <IconX size={16} /> : <IconPlus size={16} />}
-            onClick={() => handleToggle(item.categoryItemId, item.cost)}
+            onClick={() => handleToggle(item)}
           />
         </div>
+        {isEdited.item && (
+          <AddMasterPricingItemModal
+            open={isEdited.item}
+            onClose={() => {
+              setIsEdited(prev => ({ ...prev, item: false }));
+            }}
+            categoryId={item.categoryId}
+            categoryItem={item}
+          />
+        )}
       </div>
     );
   }

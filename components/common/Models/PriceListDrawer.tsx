@@ -21,7 +21,7 @@ const PriceListDrawer = ({ title, open, onClose }) => {
         message.error(e || 'Failed to fetch categories');
       }
     };
-    if (status === Status.IDLE) {
+    if (status.Category === Status.IDLE) {
       fetchCategoriesData();
     }
   }, [dispatch, status]);

@@ -1,8 +1,18 @@
-import React from 'react';
-import { Button, Space } from 'antd';
-import { IconCheck, IconEye, IconPencil, IconX, IconDeviceFloppy } from '@tabler/icons-react';
+import React, { useState } from 'react';
+import { Button, Dropdown, Input, Space } from 'antd';
+import {
+  IconCheck,
+  IconEye,
+  IconPencil,
+  IconX,
+  IconDeviceFloppy,
+  IconFileTypePdf,
+  IconFileTypeXls,
+} from '@tabler/icons-react';
+import { ConfirmationContentModal } from '../common/ConfirmationContentModal';
 
 interface FooterActionsProps {
+  id?: string;
   expiryDate?: string;
   total: number;
   quoteVersionId?: string;
@@ -17,6 +27,7 @@ interface FooterActionsProps {
 }
 
 const FooterActions: React.FC<FooterActionsProps> = ({
+  id,
   expiryDate,
   total,
   quoteVersionId,
@@ -29,6 +40,55 @@ const FooterActions: React.FC<FooterActionsProps> = ({
   previewLoading,
   disableAction,
 }) => {
+  const [approveOpen, setApproveOpen] = useState(false);
+  const [sketchNum, setSketchNum] = useState('');
+  const previewMenu = [
+    { key: 'quotation', label: 'Quotation', icon: <IconFileTypePdf size={15} color="red" /> },
+    {
+      key: 'quotationSpecification',
+      label: 'Quotation With Specification',
+      icon: <IconFileTypePdf size={15} color="red" />,
+    },
+    {
+      key: 'preliminaryAgreement',
+      label: 'Preliminary Agreement',
+      icon: <IconFileTypePdf size={15} color="red" />,
+    },
+    {
+      key: 'quotationBuilderCost',
+      label: 'Quotation With Builder Cost',
+      icon: <IconFileTypePdf size={15} color="red" />,
+    },
+    {
+      key: 'quotationSpecificationExcel',
+      label: 'Quotation With Specification',
+      icon: <IconFileTypeXls size={15} color="green" />,
+    },
+  ];
+
+  const approveContent = (
+    <div className="space-y-2">
+      <div>
+        <p>Quotation Reference No</p>
+        <p className="text-blue">{id}</p>
+      </div>
+      <div>
+        <p>Sketch Number</p>
+        <Input
+          type="number"
+          className="max-w-[200px]"
+          value={sketchNum}
+          onChange={e => setSketchNum(e.target.value)}
+        />
+      </div>
+      <p>Are you sure you want to approve this quatation?</p>
+    </div>
+  );
+  const handlePreview = key => {
+    if (key === 'quotation') {
+      onPreview();
+    }
+  };
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-4">
@@ -70,13 +130,31 @@ const FooterActions: React.FC<FooterActionsProps> = ({
               Create Quotation
             </Button>
           )}
-          <Button
-            icon={<IconEye size={16} />}
-            onClick={onPreview}
-            disabled={(disableAction && !isEditMode) || previewLoading}
-            loading={previewLoading}
+          <Dropdown
+            menu={{
+              items: previewMenu,
+              onClick: e => {
+                handlePreview(e.key);
+              },
+            }}
           >
-            Preview
+            <Button
+              icon={<IconEye size={16} />}
+              // onClick={onPreview}
+              disabled={(disableAction && !isEditMode) || previewLoading}
+              loading={previewLoading}
+            >
+              Preview
+            </Button>
+          </Dropdown>
+          <Button
+            type="primary"
+            onClick={() => {
+              setApproveOpen(true);
+            }}
+            loading={loading}
+          >
+            Approve
           </Button>
         </Space>
       </div>
@@ -89,6 +167,19 @@ const FooterActions: React.FC<FooterActionsProps> = ({
           Total: <span className="text-green-600">${total.toLocaleString()}</span>
         </div>
       </div>
+      {approveOpen && (
+        <ConfirmationContentModal
+          open={approveOpen}
+          onClose={() => setApproveOpen(false)}
+          onSubmit={() => {
+            console.log('sketch num', sketchNum);
+            setApproveOpen(false);
+          }}
+          content={approveContent}
+          okText="Approve"
+          title="Confirmation"
+        />
+      )}
     </div>
   );
 };

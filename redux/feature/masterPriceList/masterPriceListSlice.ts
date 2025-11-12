@@ -15,7 +15,7 @@ import { Category } from './iMasterPriceListState';
 const masterPriceListSlice = createSlice({
   name: 'masterPriceList',
   initialState: {
-    status: Status.IDLE,
+    status: { Category: Status.IDLE, CategoryItem: Status.IDLE },
     categories: [] as Category[],
     loading: false,
     selectedFilters: { range: '', dwelling_type: '' },
@@ -43,11 +43,11 @@ const masterPriceListSlice = createSlice({
     builder
       // categories
       .addCase(fetchCategories.pending, state => {
-        state.status = Status.PENDING;
+        state.status.Category = Status.PENDING;
         state.loading = true;
       })
       .addCase(fetchCategories.fulfilled, (state, action) => {
-        state.status = Status.SUCCESS;
+        state.status.Category = Status.SUCCESS;
         state.loading = false;
         state.categories = action.payload?.categories.map(c => ({
           ...c,
@@ -101,6 +101,9 @@ const masterPriceListSlice = createSlice({
       })
 
       // create item
+      .addCase(createCategoryItem.pending, state => {
+        state.status.CategoryItem = Status.PENDING;
+      })
       .addCase(createCategoryItem.fulfilled, (state, action) => {
         const category = state.categories.find(c => c.categoryId === action.meta.arg.category_id);
         if (category) {
@@ -109,6 +112,7 @@ const masterPriceListSlice = createSlice({
           }
           category.items = [action.payload, ...(category.items || [])];
         }
+        state.status.CategoryItem = Status.SUCCESS;
       })
 
       //delete item

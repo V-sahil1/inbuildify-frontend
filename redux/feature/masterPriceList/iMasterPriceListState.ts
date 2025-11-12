@@ -3,6 +3,7 @@ export interface Item {
   name?: string;
   cost?: number;
   type?: 'Fixed' | 'Variable' | 'Included';
+  costType?: 'FIXED' | 'VARIABLE' | 'INCLUDED';
   categoryItemId?: string;
   categoryId?: string;
   shortDescription?: string;
@@ -11,6 +12,12 @@ export interface Item {
   updatedAt?: string;
   rangeId?: string;
   dwellingTypeId?: string;
+  dwellingTypeName?: string;
+  costOption?: string;
+  status?: string;
+  rangeName?: string;
+  // extraItemType?: 'Additional' | 'Complimentary' | 'Discount' | 'Note';
+  // builderCost?: number
 }
 
 export interface Category {
@@ -35,7 +42,7 @@ export interface RequestItem {
   description: string;
   short_description?: string;
   cost_type: string;
-  cost: number;
+  cost?: number;
   cost_type_text?: string;
   cost_option?: string;
   include_by_default?: boolean;
@@ -51,4 +58,7 @@ export interface RequestItem {
     range_end: string;
   }[];
   status?: string;
+  builderCost?: number;
+  // extraItemType?: string;
+  // builderCost?: number
 }

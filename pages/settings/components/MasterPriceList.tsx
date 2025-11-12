@@ -38,10 +38,10 @@ export const MasterPriceList = () => {
   const { selectedFilters: mplFilters } = useAppSelector((state: any) => state.masterPriceList);
 
   useEffect(() => {
-    if (status === Status.IDLE) {
+    if (status.Category === Status.IDLE) {
       dispatch(fetchCategories());
     }
-  }, [dispatch, status]);
+  }, [dispatch, status.Category]);
 
   const [localCategories, setLocalCategories] = useState<Category[]>([]);
   useEffect(() => {
@@ -219,9 +219,9 @@ export const MasterPriceList = () => {
       const payload =
         localCategories.length > 0
           ? localCategories?.map(c => ({
-              categoryId: c?.categoryId,
-              displayOrder: c?.displayOrder,
-            }))
+            categoryId: c?.categoryId,
+            displayOrder: c?.displayOrder,
+          }))
           : [];
 
       if (payload?.length > 0) {
@@ -294,7 +294,9 @@ export const MasterPriceList = () => {
           {!isOrderChanged() && (
             <Button
               type="primary"
-              disabled={orderLoading.save || status == Status.PENDING || orderLoading.reset}
+              disabled={
+                orderLoading.save || status.Category == Status.PENDING || orderLoading.reset
+              }
               onClick={() => {
                 setEditing(false);
                 setAddCategoryModal(true);
@@ -306,7 +308,7 @@ export const MasterPriceList = () => {
         </div>
       </div>
 
-      {status == Status.PENDING || orderLoading.save ? (
+      {status.Category == Status.PENDING || orderLoading.save ? (
         <div className="flex justify-center items-center pt-[20vh]">
           <Spin size="large" />
         </div>
