@@ -22,7 +22,7 @@ import {
   IconPlus,
   IconUserCheck,
 } from '@tabler/icons-react';
-import { Button, Card, Form, Input, message, Modal, Select, Switch } from 'antd';
+import { Button, Card, Form, Input, message, Modal, Radio, Select, Switch } from 'antd';
 import { useEffect, useMemo, useState } from 'react';
 
 const { Option } = Select;
@@ -35,6 +35,7 @@ const LeadDetailsForm: React.FC<any> = ({
   onCancel,
   onSubmit,
   isLinkContact = false,
+  showStatus = false,
   showContact = true,
 }) => {
   const [form] = Form.useForm();
@@ -212,13 +213,13 @@ const LeadDetailsForm: React.FC<any> = ({
                 {showContactForm ? (
                   <Button
                     type="primary"
-                    icon={<IconChevronLeft />}
+                    icon={<IconChevronLeft size={16} />}
                     onClick={handleContactBackClick}
                   >
                     Back
                   </Button>
                 ) : (
-                  <Button type="primary" icon={<IconPlus />} onClick={handleContactClick}>
+                  <Button type="primary" icon={<IconPlus size={16} />} onClick={handleContactClick}>
                     Contact
                   </Button>
                 )}
@@ -226,7 +227,7 @@ const LeadDetailsForm: React.FC<any> = ({
             )}
 
             {isLinkContact && (
-              <Button type="primary" icon={<IconPaperclip />}>
+              <Button type="primary" icon={<IconPaperclip size={16} />}>
                 Link Contact
               </Button>
             )}
@@ -361,6 +362,19 @@ const LeadDetailsForm: React.FC<any> = ({
                   ))}
                 </Select>
               </Form.Item>
+              {/* haven't managed in the payload and need to manage int he payload for specifically in the contacts route */}
+              {showStatus && (
+                <Form.Item
+                  label="Status"
+                  name="status"
+                  rules={[{ required: true, message: 'Please select status' }]}
+                >
+                  <Radio.Group>
+                    <Radio value="active">Active</Radio>
+                    <Radio value="inactive">Inactive</Radio>
+                  </Radio.Group>
+                </Form.Item>
+              )}
             </>
           ) : (
             <div className="col-span-2 w-full">
@@ -389,7 +403,7 @@ const LeadDetailsForm: React.FC<any> = ({
                       type="text"
                       icon={<IconUserCheck size={18} />}
                       className="text-blue-600 hover:text-blue-800"
-                    // onClick={() => setHideAddressForm(false)}
+                      // onClick={() => setHideAddressForm(false)}
                     />
                   </div>
                 </div>

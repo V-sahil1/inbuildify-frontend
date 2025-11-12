@@ -182,21 +182,21 @@ function App() {
           label: 'Proposal',
           color: 'bg-green-500',
           textColor: 'text-white',
-          onClick: () => { },
+          onClick: () => {},
         },
         {
           key: 'negotiation',
           label: 'Negotiation',
           color: 'bg-yellow-300',
           textColor: 'text-black',
-          onClick: () => { },
+          onClick: () => {},
         },
         {
           key: 'close',
           label: 'Close',
           color: 'bg-gray-200',
           textColor: 'text-black',
-          onClick: () => { },
+          onClick: () => {},
         },
       ];
     }
@@ -206,7 +206,7 @@ function App() {
         label: 'New',
         color: 'bg-green-500',
         textColor: 'text-white',
-        onClick: () => { },
+        onClick: () => {},
       },
       {
         key: 'working',
@@ -319,9 +319,9 @@ function App() {
               )}
             </div>
             {propertyFromSlice?.address1 ||
-              propertyFromSlice?.citySuburb ||
-              propertyFromSlice?.stateRegion ||
-              propertyFromSlice?.zipPostalCode ? (
+            propertyFromSlice?.citySuburb ||
+            propertyFromSlice?.stateRegion ||
+            propertyFromSlice?.zipPostalCode ? (
               <>
                 <Tooltip title={propertyFromSlice?.address1}>
                   <Typography.Title
@@ -517,7 +517,6 @@ function App() {
             ...primaryContact,
             secondary_phone: primaryContact?.secondaryPhone,
           }}
-
         />
 
         {/* Property Details Modal */}

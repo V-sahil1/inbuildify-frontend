@@ -25,289 +25,6 @@ export const leadDetails: LeadDetails = {
   notes: 'No notes',
 };
 
-// export const propertyDetails: PropertyDetails = {
-//   lot: 'Lot 234',
-//   location: 'Tarneit, Victoria, 3029',
-//   titleDate: '13-07-2023 (Estimated)',
-//   type: 'Regular',
-//   width: '6',
-//   depth: '0',
-//   total: '25.00'
-// };
-
-// export const availablePlans: Plan[] = [
-//   { id: '1', name: 'My Home 1', bedrooms: 4, bathrooms: 2, garage: 2, area: '6 x 0 = 25.00' },
-//   { id: '2', name: 'Contemporary 200', bedrooms: 3, bathrooms: 2, garage: 2, area: '7 x 0 = 30.00' },
-//   { id: '3', name: 'Modern Villa', bedrooms: 4, bathrooms: 3, garage: 2, area: '8 x 0 = 35.00' },
-// ];
-
-// export const availableFacades: Facade[] = [
-//   { id: '1', name: 'LXL 81', type: 'Standard' }
-// ];
-
-// export const availablePackages: Package[] = [
-//   {
-//     packageId: '1',
-//     name: 'Premium Pack',
-//     amount: "5000",
-//     categoryItemDescriptions: [
-//        'High-end wooden flooring',
-//        'Premium ceramic tiles for bathroom',
-//        'Complete home automation system',
-//        'High-quality interior paint',
-//     ],
-//     builderId: '1',
-//     categoryItemIds: ['1', '2', '3', '4'],
-//     createdAt: '2023-07-13T00:00:00.000Z',
-//     updatedAt: '2023-07-13T00:00:00.000Z'
-//   }
-// ];
-
-// export const categories = [
-//   {
-//     id: 'base-price',
-//     name: 'Base Price',
-//     items: [
-//       {
-//         id: '1',
-//         name: 'Base price for Single Storey',
-//         tags: ['Base Price', 'Variable', 'sq', 'Premium', 'Single Storey'],
-//         quantity: 1,
-//         price: 11500.00,
-//         total: 11500.00
-//       },
-//       {
-//         id: '2',
-//         name: 'Base price for Single Storey 16 Sq',
-//         tags: ['Base Price', 'Fixed'],
-//         quantity: 1,
-//         price: 182000.00,
-//         total: 182000.00
-//       },
-//       {
-//         id: '3',
-//         name: 'Base Price for Single Storey 17Sq',
-//         tags: ['Base Price', 'Fixed'],
-//         quantity: 1,
-//         price: 200000.00,
-//         total: 200000.00
-//       },
-//       {
-//         id: '4',
-//         name: 'Base Price for Single Storey 25 Sq',
-//         tags: ['Base Price', 'Fixed'],
-//         quantity: 1,
-//         price: 280000.00,
-//         total: 280000.00
-//       }
-//     ]
-//   },
-//   {
-//     id: 'site-costs',
-//     name: 'Site Costs',
-//     items: [
-//       {
-//         id: '5',
-//         name: 'Site preparation',
-//         tags: ['Site Costs', 'Fixed'],
-//         quantity: 1,
-//         price: 5000.00,
-//         total: 5000.00
-//       },
-//       {
-//         id: '6',
-//         name: 'Excavation',
-//         tags: ['Site Costs', 'Variable'],
-//         quantity: 2,
-//         price: 2500.00,
-//         total: 5000.00
-//       }
-//     ]
-//   },
-//   {
-//     id: 'kitchen',
-//     name: 'Kitchen',
-//     items: [
-//       {
-//         id: '7',
-//         name: 'Premium Kitchen Package',
-//         tags: ['Kitchen', 'Premium'],
-//         quantity: 1,
-//         price: 15000.00,
-//         total: 15000.00
-//       },
-//       {
-//         id: '8',
-//         name: 'Stone Benchtops',
-//         tags: ['Kitchen', 'Premium'],
-//         quantity: 1,
-//         price: 3000.00,
-//         total: 3000.00
-//       }
-//     ]
-//   },
-//   {
-//     id: 'electrical',
-//     name: 'Electrical',
-//     items: [
-//       {
-//         id: '9',
-//         name: 'Standard Electrical Package',
-//         tags: ['Electrical', 'Fixed'],
-//         quantity: 1,
-//         price: 8000.00,
-//         total: 8000.00
-//       }
-//     ]
-//   },
-//   {
-//     id: 'pre-construction',
-//     name: 'Pre-Construction',
-//     items: [
-//       {
-//         id: '10',
-//         name: 'Building Permits',
-//         tags: ['Pre-Construction', 'Fixed'],
-//         quantity: 1,
-//         price: 2000.00,
-//         total: 2000.00
-//       }
-//     ]
-//   },
-//   {
-//     id: 'retaining-wall',
-//     name: 'Retaining Wall',
-//     items: [
-//       {
-//         id: '11',
-//         name: 'Concrete Retaining Wall',
-//         tags: ['Retaining Wall', 'Variable'],
-//         quantity: 10,
-//         price: 150.00,
-//         total: 1500.00
-//       }
-//     ]
-//   },
-//   {
-//     id: 'council-requirements',
-//     name: 'Council Requirements',
-//     items: [
-//       {
-//         id: '12',
-//         name: 'Council Fees',
-//         tags: ['Council Requirements', 'Fixed'],
-//         quantity: 1,
-//         price: 1500.00,
-//         total: 1500.00
-//       }
-//     ]
-//   },
-//   {
-//     id: 'external-structure',
-//     name: 'External Structure',
-//     items: [
-//       {
-//         id: '13',
-//         name: 'Outdoor Entertainment Area',
-//         tags: ['External Structure', 'Premium'],
-//         quantity: 1,
-//         price: 12000.00,
-//         total: 12000.00
-//       }
-//     ]
-//   }
-// ];
-
-// export const ColorItemList: ColorCategory[] = [
-//   {
-//     category: "bricks-access",
-//     items: [
-//       {
-//         key: "br-001",
-//         images: ["https://img.freepik.com/free-photo/background-made-from-bricks_23-2148742475.jpg?t=st=1757423430~exp=1757427030~hmac=6fd91972a1d2c7126ce68c51132bd8fdca6a0ceeb29968afbfbda1c3dce77123&w=2000", "https://placehold.co/600x400"],
-//         itemName: "Red Sand Brick",
-//         itemCode: "BR-001",
-//         itemDescription: "Durable red sand brick suitable for exterior walls.",
-//         itemFeatures: "High strength, weather resistant, eco-friendly",
-//         itemUnits: 100,
-//         itemSupplier: "Supplier 1",
-//         itemCost: 150,
-//         isAdded: false,
-//       },
-//       {
-//         key: "br-002",
-//         images: ["https://img.freepik.com/free-photo/effect-view-grungy-construction-vintage-material_1417-1038.jpg?t=st=1757423521~exp=1757427121~hmac=f706a084b106859b448dd937d389c9f6b2910c2e11b152243fdc2733baee51ea&w=2000", "https://placehold.co/600x400"],
-//         itemName: "Grey Cement Brick",
-//         itemCode: "BR-002",
-//         itemDescription: "Grey cement brick with smooth finish.",
-//         itemFeatures: "Cost-effective, low maintenance",
-//         itemUnits: 80,
-//         itemCost: 150,
-//         isAdded: true,
-//       },
-//     ],
-//   },
-//   {
-//     category: "roof-concrete",
-//     items: [
-//       {
-//         key: "rf-001",
-//         images: ["https://img.freepik.com/free-photo/roof-tiles_23-2148742475.jpg?t=st=1757423612~exp=1757427212~hmac=2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b"],
-//         itemName: "Classic Concrete Tile",
-//         itemCode: "RF-001",
-//         itemDescription: "Concrete roof tile with natural stone finish.",
-//         itemFeatures: "Fire resistant, sound insulation",
-//         itemUnits: 200,
-//         isAdded: true,
-//       },
-//     ],
-//   },
-//   {
-//     category: "windows-black",
-//     items: [
-//       {
-//         key: "wd-001",
-//         images: ["https://img.freepik.com/free-photo/roof-tiles_23-2148742475.jpg?t=st=1757423612~exp=1757427212~hmac=2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b"],
-//         itemName: "Black Aluminium Window",
-//         itemCode: "WD-001",
-//         itemDescription: "Sleek black frame for modern homes.",
-//         itemFeatures: "Powder-coated, double-glazed option",
-//         itemUnits: 50,
-//         isAdded: true,
-//       },
-//     ],
-//   },
-//   {
-//     category: "doors-hinged",
-//     items: [
-//       {
-//         key: "dr-001",
-//         images: ["https://img.freepik.com/free-photo/roof-tiles_23-2148742475.jpg?t=st=1757423612~exp=1757427212~hmac=2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b"],
-//         itemName: "Classic Hinged Door",
-//         itemCode: "DR-001",
-//         itemDescription: "Traditional wooden hinged door with premium finish.",
-//         itemFeatures: "Solid wood, customizable handle",
-//         itemUnits: 30,
-//         isAdded: false,
-//       },
-//     ],
-//   },
-//   {
-//     category: "flooring-timber",
-//     items: [
-//       {
-//         key: "fl-001",
-//         images: ["https://img.freepik.com/free-photo/roof-tiles_23-2148742475.jpg?t=st=1757423612~exp=1757427212~hmac=2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b2b3b"],
-//         itemName: "Oak Timber Flooring",
-//         itemCode: "FL-001",
-//         itemDescription: "Premium oak timber flooring for luxury interiors.",
-//         itemFeatures: "Durable, scratch resistant, natural look",
-//         itemUnits: 500,
-//         isAdded: false,
-//       },
-//     ],
-//   },
-// ];
 
 export const WorkStepsChecklist = [
   {
@@ -679,5 +396,40 @@ export const JobinvoiceData: any[] = [
     payment: -50000.0,
     status: 'PAID',
     date: '31-07-2023',
+  },
+];
+
+export const contactData = [
+  {
+    id: 1,
+    name: 'ABC',
+    address: '1, Moon Street, Cranbourne, Victoria, 3977',
+    phone: '0430503135',
+    email: 'rb_sandhu@yahoo.com',
+    active: true,
+  },
+  {
+    id: 2,
+    name: 'Abhi',
+    address: '20 Leajs, 344356, Victoria, 546436',
+    phone: '345436',
+    email: 'abhi@ujited.com.au',
+    active: true,
+  },
+  {
+    id: 3,
+    name: 'Abhishek',
+    address: '17 shunglenack, Throsby, Victoria, 2813',
+    phone: '0478279769',
+    email: 'abhishek@gmail.com',
+    active: false,
+  },
+  {
+    id: 4,
+    name: 'Adam',
+    address: '7 Leaks road, Epping, Victoria, 3434',
+    phone: '040312323',
+    email: 'adam@gmail.com',
+    active: true,
   },
 ];

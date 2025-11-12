@@ -159,16 +159,16 @@ export default function Appointments() {
     label: string;
     count: number;
   }> = [
-      { type: 'today', label: 'Today', count: data.length },
-      { type: 'tomorrow', label: 'Tomorrow', count: data.length },
-      { type: 'this-week', label: 'This Week', count: data.length },
-      { type: 'next-week', label: 'Next Week', count: data.length },
-      {
-        type: 'pending',
-        label: 'Pending',
-        count: data.filter(d => d.status === 'pending').length,
-      },
-    ];
+    { type: 'today', label: 'Today', count: data.length },
+    { type: 'tomorrow', label: 'Tomorrow', count: data.length },
+    { type: 'this-week', label: 'This Week', count: data.length },
+    { type: 'next-week', label: 'Next Week', count: data.length },
+    {
+      type: 'pending',
+      label: 'Pending',
+      count: data.filter(d => d.status === 'pending').length,
+    },
+  ];
   const handleFilterTabChange = (selectedType: string) => {
     console.log('Selected filter:', selectedType);
   };

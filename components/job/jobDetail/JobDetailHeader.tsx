@@ -136,7 +136,8 @@ const JobDetailHeader = () => {
                                           className="mr-2"
                                           onChange={checked => {
                                             console.log(
-                                              `Finance Approval ${checked ? 'approved' : 'not approved'
+                                              `Finance Approval ${
+                                                checked ? 'approved' : 'not approved'
                                               }`
                                             );
                                           }}

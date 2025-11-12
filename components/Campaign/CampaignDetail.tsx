@@ -40,8 +40,9 @@ const CampaignDetail = ({ current, setCurrent }) => {
                   {toggleButtons.map((btn, index) => (
                     <Button
                       key={index}
-                      className={` ${activeTab === btn ? 'bg-primary' : 'bg-white text-primary'
-                        } rounded-none`}
+                      className={` ${
+                        activeTab === btn ? 'bg-primary' : 'bg-white text-primary'
+                      } rounded-none`}
                       type="primary"
                       onClick={() => setActiveTab(btn)}
                     >

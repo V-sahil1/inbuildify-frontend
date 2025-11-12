@@ -59,9 +59,11 @@ const WorkflowSteps: React.FC<WorkflowStepsProps> = ({ steps }) => {
                     {item?.status} {item.date && 'on'} {item?.date}
                   </p>
 
-                  {item.options && <Dropdown menu={{ items: item.options }} trigger={['click']} >
-                    <IconDotsVertical size={15} className="text-blue" />
-                  </Dropdown>}
+                  {item.options && (
+                    <Dropdown menu={{ items: item.options }} trigger={['click']}>
+                      <IconDotsVertical size={15} className="text-blue" />
+                    </Dropdown>
+                  )}
                 </div>
               </div>
             </div>

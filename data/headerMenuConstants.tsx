@@ -44,7 +44,7 @@ export const gridMenuItems: MenuItem[] = [
     id: 2,
     icon: <IconAddressBook className="w-4 h-4 mr-3" />,
     label: 'Contact',
-    href: '#',
+    href: `${SystemRoutes.CONTACTS}`,
   },
   {
     id: 3,
