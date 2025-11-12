@@ -165,7 +165,7 @@ export const gridMenuItems2: MenuItem[] = [
     id: 14,
     icon: <IconCoins className="w-4 h-4 mr-3" />,
     label: 'Cost Center',
-    href: '#',
+    href: `${SystemRoutes.COST_CENTER}`,
   },
   {
     id: 15,

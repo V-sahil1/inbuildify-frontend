@@ -38,7 +38,8 @@ export type FormField = {
     | 'switch'
     | 'date'
     | 'texteditor'
-    | 'color';
+    | 'color'
+    | 'custom';
   mode?: 'tags' | 'multiple';
   options?: { value: string; label: string }[];
   button?: string;
@@ -49,6 +50,7 @@ export type FormField = {
   notFoundContent?: React.ReactNode;
   acceptFileType?: string;
   extra?: string;
+  render?: React.ReactNode | (() => React.ReactNode);
 };
 
 interface ActionDialogProps {
@@ -57,7 +59,7 @@ interface ActionDialogProps {
   loading?: boolean;
   isEditing?: boolean;
   initialValues?: any;
-  headerMessage?: string;
+  headerMessage?: React.ReactNode;
   footerMessage?: string;
   onCancel: () => void;
   invite?: boolean;
@@ -65,6 +67,7 @@ interface ActionDialogProps {
   onSubmit: (values: any) => void;
   fields?: readonly FormField[];
   onValuesChange?: (values: any, form: any) => void;
+  variant?: 'default' | 'danger' | 'success';
 }
 
 export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
@@ -80,6 +83,7 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
   submitButtonText,
   fields,
   onValuesChange,
+  variant = 'default',
 }) => {
   const [form] = Form.useForm();
   const [switchValues, setSwitchValues] = useState({});
@@ -152,8 +156,32 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
       onCancel={onCancel}
       okText={submitButtonText}
       confirmLoading={loading}
+      okButtonProps={(() => {
+        const className =
+          variant === 'danger'
+            ? '!bg-red-600 !border-0 hover:!bg-red-700 !text-white hover:shadow-lg transition-all duration-200'
+            : variant === 'success'
+            ? '!bg-green-600 !border-0 hover:!bg-green-700 !text-white hover:shadow-lg transition-all duration-200'
+            : undefined;
+        return className ? { className } : undefined;
+      })()}
+      cancelButtonProps={(() => {
+        const className =
+          variant === 'danger'
+            ? '!text-red-600 !border-red-600 !bg-transparent hover:!text-red-700 hover:!border-red-700 hover:!bg-transparent'
+            : variant === 'success'
+            ? '!text-green-600 !border-green-600 !bg-transparent hover:!text-green-700 hover:!border-green-700 hover:!bg-transparent'
+            : undefined;
+        return className ? { className } : undefined;
+      })()}
     >
-      {headerMessage && <p className="text-sm my-4 font-semibold">{headerMessage}</p>}
+      {headerMessage && (
+        typeof headerMessage === 'string' ? (
+          <p className="text-sm my-4 font-semibold">{headerMessage}</p>
+        ) : (
+          <>{headerMessage}</>
+        )
+      )}
       <Form
         form={form}
         layout="vertical"
@@ -297,6 +325,8 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
                   form.setFieldValue(field.name, color.toHexString());
                 }}
               />
+            ) : field.type === 'custom' ? (
+              typeof field.render === 'function' ? (field.render as () => React.ReactNode)() : field.render
             ) : (
               <Input placeholder={field.placeholder} type={field.type} disabled={field.disabled} />
             )}

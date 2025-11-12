@@ -34,6 +34,7 @@ class SystemRoutes {
   public static EMAIL_ACTIVITIES = `/activities`;
   public static CONTACTS = `/contacts`;
   public static AGENT_REFERRAL = `/agent-referral`;
+  public static COST_CENTER = `/cost-center`;
 }
 
 export default SystemRoutes;

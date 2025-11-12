@@ -18,8 +18,9 @@ import {
 } from '@tabler/icons-react';
 import LeadDetailsForm from '@/components/leadDetail/forms/LeadDetailsForm';
 import TooltipButton from '@/components/common/TooltipButtton';
-import ConfirmationModal from '@/components/common/ConfirmationModal';
+import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import { ConfirmationContentModal } from '@/components/common/ConfirmationContentModal';
+import AssociatedEntitiesList from '@/components/common/AssociatedEntitiesList';
 import { contactData } from 'data/sampleData';
 
 const ContactListing = () => {
@@ -33,9 +34,33 @@ const ContactListing = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const [isEditing, setIsEditing] = useState(false);
   const [actionModal, setActionModal] = useState<{
-    type: 'delete' | 'audit' | null;
+    type: 'audit' | null;
     contact: { id: number; name: string; phone: string; email: string } | null;
   }>(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [contactToDelete, setContactToDelete] = useState<{
+    id: number;
+    name: string;
+    phone: string;
+    email: string;
+  } | null>(null);
+
+  const handleOpenDelete = (contact: {
+    id: number;
+    name: string;
+    phone: string;
+    email: string;
+  }) => {
+    setContactToDelete(contact);
+    setDeleteOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!contactToDelete) return;
+    setContacts(prev => prev.filter(c => c.id !== contactToDelete.id));
+    setDeleteOpen(false);
+    setContactToDelete(null);
+  };
 
   const filteredContacts = contacts.filter(c => {
     const matchSearch =
@@ -52,10 +77,7 @@ const ContactListing = () => {
 
   // Filter Dropdown
   const filterMenu = (
-    <div
-      className="p-4 bg-white rounded-xl shadow-md w-64"
-      onClick={e => e.stopPropagation()}
-    >
+    <div className="p-4 bg-white rounded-xl shadow-md w-64" onClick={e => e.stopPropagation()}>
       <div className="flex items-center justify-between mb-4">
         <span className="text-sm font-medium">Show Only Customers</span>
         <Switch checked={showCustomers} onChange={setShowCustomers} />
@@ -136,7 +158,7 @@ const ContactListing = () => {
           <TooltipButton
             title="Delete"
             icon={<IconTrash size={18} className="!text-red-500" />}
-            onClick={() => setActionModal({ type: 'delete', contact })}
+            onClick={() => handleOpenDelete(contact)}
           />
         </div>
       ),
@@ -275,7 +297,7 @@ const ContactListing = () => {
                 <TooltipButton
                   title="Delete"
                   icon={<IconTrash size={18} className="!text-red-500" />}
-                  onClick={() => setActionModal({ type: 'delete', contact })}
+                  onClick={() => handleOpenDelete(contact)}
                 />
               </div>
             </div>
@@ -304,18 +326,42 @@ const ContactListing = () => {
         initialValue={isEditing}
       />
 
-      {/* Delete Confirmation */}
-      {/* TODO :  Need to add after the action dialog model varients being added refrence leads page delete modal to verify*/}
-      {actionModal?.type === 'delete' && (
-        <ConfirmationModal
-          type="danger"
-          open={actionModal?.type === 'delete'}
-          onClose={() => setActionModal(null)}
-          onConfirm={() => { }}
-          title="Delete Contact"
-          message="Are you sure you want to delete this contact?"
-        />
-      )}
+      <ActionDialogmodel
+        open={deleteOpen}
+        onCancel={() => {
+          setDeleteOpen(false);
+          setContactToDelete(null);
+        }}
+        title="Confirm Deletion"
+        headerMessage={
+          <div className="space-y-2 text-sm">
+            <span className="text-gray-400">
+              The below associated details of this contact will also be deleted:
+            </span>
+            {contactToDelete && (
+              <div className="max-h-64 overflow-y-auto px-3 py-2 mb-2 custom-scrollbar">
+                <div className="font-bold text-font-color mb-1">
+                  {contactToDelete.id} - {contactToDelete.name}
+                </div>
+                <AssociatedEntitiesList />
+              </div>
+            )}
+          </div>
+        }
+        isEditing={true}
+        variant="danger"
+        fields={[
+          {
+            name: 'comments',
+            label: 'Notes',
+            type: 'textarea',
+            placeholder: 'Enter notes...',
+            extra: `Are you sure you want to delete the contact${contactToDelete ? ` \'${contactToDelete.name}\'` : ''}?`,
+          },
+        ]}
+        onSubmit={handleConfirmDelete}
+        submitButtonText="Confirm"
+      />
 
       {/* Audit Log Confirmation */}
       {actionModal?.type === 'audit' && (

@@ -6,7 +6,6 @@ import { IconFilter, IconDownload, IconUpload, IconTrash, IconShare3 } from '@ta
 import type { ColumnsType } from 'antd/es/table';
 import { exportToExcel } from '@lib/utils/exportToExcel';
 import DateFilterDropdown from '@/components/common/custom-selects/DateFilterDropdown';
-import FilterTabs from '@/components/common/FilterTabs';
 import AssigneeSelect from '@/components/common/custom-selects/AssigneeSelect';
 import SourceSelect from '@/components/common/custom-selects/SourceSelect';
 import RatingSelect from '@/components/common/custom-selects/RatingSelect';
@@ -19,6 +18,7 @@ import SystemRoutes from '@lib/constants/Routes';
 import CustomAvtar from '@/components/common/CustomAvtar';
 import Link from 'next/link';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
+import AssociatedEntitiesList from '@/components/common/AssociatedEntitiesList';
 import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineActionsBar';
 import { debouncedURL } from '@lib/utils/debounceURL';
 
@@ -362,13 +362,14 @@ const LeadPage: React.FC = () => {
       <ActionDialogmodel
         open={isDeleteModalVisible}
         onCancel={handleCancelDelete}
-        title={
-          <div className="space-y-2  text-sm">
-            <span className=" text-gray-400">
+        title="Delete Confirmation"
+        headerMessage={
+          <div className="space-y-2 text-sm">
+            <span className="text-gray-400">
               The below associated details of the selected {getFilterTitle(currentFilter)} will also
               be <br /> deleted:
             </span>
-            <div className="max-h-64 overflow-y-auto   px-3 py-2 mb-2 custom-scrollbar">
+            <div className="max-h-64 overflow-y-auto px-3 py-2 mb-2 custom-scrollbar">
               {selectedLeads.length > 0 ? (
                 <div className="space-y-4">
                   {selectedLeads.map((lead, idx) => (
@@ -376,20 +377,7 @@ const LeadPage: React.FC = () => {
                       <div className="font-bold text-font-color mb-1">
                         {idx + 1}. {lead.slugId} - {lead.name}
                       </div>
-                      <ul className="list-disc pl-6 space-y-1 text-primary">
-                        <li>Lead</li>
-                        <li>Customer</li>
-                        <li>Contact</li>
-                        <li>Quotation</li>
-                        <li>Property</li>
-                        <li>ColorSelection</li>
-                        <li>Construction</li>
-                        <li>Job</li>
-                        <li>Commision</li>
-                        <li>Payment</li>
-                        <li>Task</li>
-                        <li>Workflow</li>
-                      </ul>
+                      <AssociatedEntitiesList />
                     </div>
                   ))}
                 </div>

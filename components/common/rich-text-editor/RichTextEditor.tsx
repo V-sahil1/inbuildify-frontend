@@ -286,12 +286,22 @@ const toggleBlock = (editor: CustomEditor, format: CustomElementFormat) => {
     split: true,
   });
 
-  const newProps = isAlignType(format)
-    ? { align: isActive ? undefined : format }
-    : { type: isActive ? 'paragraph' : isList ? 'list-item' : format };
+let newProperties: Partial<SlateElement>;
+  if (isAlignType(format)) {
+    newProperties = {
+      align: isActive ? undefined : format,
+    };
+  } else {
+    newProperties = {
+      type: isActive ? 'paragraph' : isList ? 'list-item' : format,
+    };
+  }
+  Transforms.setNodes<SlateElement>(editor, newProperties);
 
-  Transforms.setNodes(editor, newProps);
-  if (!isActive && isList) Transforms.wrapNodes(editor, { type: format, children: [] });
+  if (!isActive && isList) {
+    const block = { type: format, children: [] };
+    Transforms.wrapNodes(editor, block);
+  }
 };
 
 const isBlockActive = (editor: CustomEditor, format: CustomElementFormat, type: 'type' | 'align') => {
