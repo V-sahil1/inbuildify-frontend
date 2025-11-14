@@ -1,6 +1,6 @@
 import { IconPlus, IconSearch } from '@tabler/icons-react';
 import { Button, Checkbox, DatePicker, Form, Input, Switch, Upload } from 'antd';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import MailSendModal from '../common/Models/MailSendModal';
 import BulkBookModel from './BulkBookModel';
 import CostManageModal from './CostManageModal';
@@ -8,7 +8,6 @@ import ConstructionChecklistModal from './ConstructionChecklistModal';
 import ConstructionChecklistItem from './ConstructionChecklistItem';
 import { UpdateStatusDrawer } from './UpdateStatusDrawer';
 import { OHShistoryDrawer } from './OHShistoryDrawer';
-import { useSearchParams } from 'next/navigation';
 import { ConfirmationContentModal } from '../common/ConfirmationContentModal';
 import TimelineActionsBar from '../common/TimeLineComponents/TimelineActionsBar';
 import InspectionCheckListDrawer from './InspectionCheckListDrawer';
@@ -23,8 +22,9 @@ const ConstructionBaseStage = ({ setCurrent, id }) => {
   const [checkItems, setcheckItems] = useState<{ values: any; isDefect: Boolean }[]>([]);
   const [checkSupplierItems, setSuppliercheckItems] = useState([]);
   const [form] = Form.useForm();
-  const searchParams = useSearchParams();
-  const debouncedUpdateURL = debouncedURL();
+  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+    filtersKey: ['checklistFilter', 'checklist'],
+  });
   const actionButton = [
     'Claim',
     'Bulk Book',
@@ -34,25 +34,6 @@ const ConstructionBaseStage = ({ setCurrent, id }) => {
     'Inspection',
     'Move to Next Page',
   ];
-
-  const [filters, setFilters] = useState<{
-    checklistFilter: string;
-    checklist: string;
-  }>({
-    checklistFilter: searchParams.get('checklistFilter') || '',
-    checklist: searchParams.get('checklist') || '',
-  });
-
-  const handleFilterChange = useCallback(
-    (updates: Partial<typeof filters>) => {
-      setFilters(prev => {
-        const newFilters = { ...prev, ...updates };
-        debouncedUpdateURL(newFilters);
-        return newFilters;
-      });
-    },
-    [debouncedUpdateURL]
-  );
 
   useEffect(() => {
     return () => {
@@ -72,7 +53,7 @@ const ConstructionBaseStage = ({ setCurrent, id }) => {
   ];
   const handleFilterTabChange = (selectedType: string) => {
     console.log('Selected filter:', selectedType);
-    handleFilterChange({ checklistFilter: selectedType });
+    setParams({ checklistFilter: selectedType });
   };
   useEffect(() => {
     const fetchConstructionBaseStageData = () => {
@@ -195,7 +176,7 @@ const ConstructionBaseStage = ({ setCurrent, id }) => {
                     <Input
                       addonBefore={<IconSearch size={15} />}
                       onChange={e =>
-                        handleFilterChange({
+                        setParams({
                           checklist: e.target.value,
                         })
                       }

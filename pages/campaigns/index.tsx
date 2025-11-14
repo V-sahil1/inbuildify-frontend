@@ -3,30 +3,12 @@ import { Button, Input, Table, Tag } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { useRouter } from 'next/router';
 import { data, DataType } from 'data/CampaignData';
-import { useCallback, useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
 import SystemRoutes from '@lib/constants/Routes';
 import { debouncedURL } from '@lib/utils/debounceURL';
 export default function Campaigns() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const [filters, setFilters] = useState<{
-    campaignName: string;
-  }>({
-    campaignName: searchParams.get('contact') || '',
-  });
-  const debouncedUpdateURL = debouncedURL();
-  const handleFilterChange = useCallback(
-    (updates: Partial<typeof filters>) => {
-      setFilters(prev => {
-        const newFilters = { ...prev, ...updates };
-        debouncedUpdateURL(newFilters);
-        return newFilters;
-      });
-    },
-    [debouncedUpdateURL]
-  );
-
+  const { debouncedUpdateURL, setParams, filters } = debouncedURL({ filtersKey: ['campaignName'] });
   useEffect(() => {
     return () => {
       debouncedUpdateURL.cancel();
@@ -152,7 +134,7 @@ export default function Campaigns() {
             <Input
               addonBefore={<IconSearch size={20} />}
               value={filters.campaignName}
-              onChange={e => handleFilterChange({ campaignName: e.target.value })}
+              onChange={e => setParams({ campaignName: e.target.value })}
               placeholder="Search Campaigns by Campaign name"
               style={{ width: '80%' }}
             />

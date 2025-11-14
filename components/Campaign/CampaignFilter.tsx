@@ -1,29 +1,12 @@
 import { Checkbox, Form, Input, Radio, Select } from 'antd';
-import { useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import DateFilterDropdown from '../common/custom-selects/DateFilterDropdown';
 import { useUsersHook } from '@hooks/useUserData';
 import { debouncedURL } from '@lib/utils/debounceURL';
 export default function CampaignFilter() {
-  const searchParams = useSearchParams();
   const { users } = useUsersHook();
   const userOptions = users.map(user => ({ label: user.name, value: user.usersId }));
-  const [filters, setFilters] = useState<{
-    address: string;
-  }>({
-    address: searchParams.get('contact') || '',
-  });
-  const debouncedUpdateURL = debouncedURL();
-  const handleFilterChange = useCallback(
-    (updates: Partial<typeof filters>) => {
-      setFilters(prev => {
-        const newFilters = { ...prev, ...updates };
-        debouncedUpdateURL(newFilters);
-        return newFilters;
-      });
-    },
-    [debouncedUpdateURL]
-  );
+  const { debouncedUpdateURL, setParams, filters } = debouncedURL({ filtersKey: ['address'] });
 
   useEffect(() => {
     return () => {
@@ -109,7 +92,7 @@ export default function CampaignFilter() {
                     size="small"
                     placeholder="search"
                     value={filters.address}
-                    onChange={e => handleFilterChange({ address: e.target.value })}
+                    onChange={e => setParams({ address: e.target.value })}
                   />
                 </Form.Item>
               </div>

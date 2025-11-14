@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { Table, Input, Button, Space } from 'antd';
 import { IconFilter, IconDownload, IconBell, IconExternalLink } from '@tabler/icons-react';
@@ -9,7 +8,6 @@ import PrioritySelect from '@/components/common/custom-selects/PrioritySelect';
 import StatusSelect from '@/components/common/custom-selects/StatusSelect';
 import type { ColumnsType } from 'antd/es/table';
 import { data, DataType } from 'data/tasklistData';
-import { Dayjs } from 'dayjs';
 import SystemRoutes from '@lib/constants/Routes';
 import AssigneeSelect from '@/components/common/custom-selects/AssigneeSelect';
 import CustomAvtar from '@/components/common/CustomAvtar';
@@ -19,37 +17,9 @@ import { debouncedURL } from '@lib/utils/debounceURL';
 
 const TaskTable: React.FC = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const [filters, setFilters] = useState<{
-    name: string;
-    contactName: string;
-    phone: string;
-    dueDate: [Dayjs, Dayjs] | string | null;
-    priority: string;
-    status: string;
-    assignedTo: string;
-  }>({
-    name: searchParams.get('name') || '',
-    contactName: searchParams.get('contactName') || '',
-    phone: searchParams.get('phone') || '',
-    dueDate: searchParams.get('dueDate') || '',
-    priority: searchParams.get('priority') || '',
-    status: searchParams.get('status') || '',
-    assignedTo: searchParams.get('assignedTo') || '',
+  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+    filtersKey: ['name', 'contactName', 'phone', 'dueDate', 'priority', 'status', 'assignedTo'],
   });
-
-  const debouncedUpdateURL = debouncedURL();
-
-  const handleFilterChange = useCallback(
-    (updates: Partial<typeof filters>) => {
-      setFilters(prev => {
-        const newFilters = { ...prev, ...updates };
-        debouncedUpdateURL(newFilters);
-        return newFilters;
-      });
-    },
-    [debouncedUpdateURL]
-  );
 
   useEffect(() => {
     return () => {
@@ -85,10 +55,7 @@ const TaskTable: React.FC = () => {
       title: (
         <div>
           <span>Name</span>
-          <Input
-            value={filters.name}
-            onChange={e => handleFilterChange({ name: e.target.value })}
-          />
+          <Input value={filters.name} onChange={e => setParams({ name: e.target.value })} />
         </div>
       ),
       dataIndex: 'name',
@@ -101,7 +68,7 @@ const TaskTable: React.FC = () => {
           <span>Contact Name</span>
           <Input
             value={filters.contactName}
-            onChange={e => handleFilterChange({ contactName: e.target.value })}
+            onChange={e => setParams({ contactName: e.target.value })}
           />
         </div>
       ),
@@ -113,10 +80,7 @@ const TaskTable: React.FC = () => {
       title: (
         <div>
           <span>Phone</span>
-          <Input
-            value={filters.phone}
-            onChange={e => handleFilterChange({ phone: e.target.value })}
-          />
+          <Input value={filters.phone} onChange={e => setParams({ phone: e.target.value })} />
         </div>
       ),
       dataIndex: 'phone',
@@ -130,11 +94,11 @@ const TaskTable: React.FC = () => {
           <DateFilterDropdown
             onFilter={(type, dates) => {
               const dateString = dates ? `${dates[0].toISOString()},${dates[1].toISOString()}` : '';
-              handleFilterChange({ dueDate: dateString });
+              setParams({ dueDate: dateString });
             }}
             onClear={() => {
               console.log('Cleared date filter');
-              handleFilterChange({ dueDate: '' });
+              setParams({ dueDate: '' });
             }}
           />
         </div>
@@ -150,7 +114,7 @@ const TaskTable: React.FC = () => {
           <span>Priority</span>
           <PrioritySelect
             value={filters.priority}
-            onChange={value => handleFilterChange({ priority: value })}
+            onChange={value => setParams({ priority: value })}
           />
         </div>
       ),
@@ -162,10 +126,7 @@ const TaskTable: React.FC = () => {
       title: (
         <div className="flex flex-col">
           <span>Status</span>
-          <StatusSelect
-            value={filters.status}
-            onChange={value => handleFilterChange({ status: value })}
-          />
+          <StatusSelect value={filters.status} onChange={value => setParams({ status: value })} />
         </div>
       ),
       dataIndex: 'status',
@@ -178,7 +139,7 @@ const TaskTable: React.FC = () => {
           <span>Assignee</span>
           <AssigneeSelect
             value={filters.assignedTo}
-            onChange={value => handleFilterChange({ assignedTo: value })}
+            onChange={value => setParams({ assignedTo: value })}
           />
         </div>
       ),

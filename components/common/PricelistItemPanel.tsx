@@ -107,7 +107,7 @@ const PriceListItemPanel: React.FC<PriceListItemsPanelProps> = ({ categories, it
             </div>
           ) : (
             <div className="table-row-group overflow-y-auto">
-              {categories?.length > 200 ? (
+              {categories?.length > 0 ? (
                 categories.map(category =>
                   category?.items?.map(item => (
                     <QuatationItem

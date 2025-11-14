@@ -1,6 +1,5 @@
 'use client';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
 import { Input, Select, Button, Dropdown, Popover, Switch } from 'antd';
 import { IconDotsVertical, IconExternalLink, IconFilter } from '@tabler/icons-react';
 import dayjs, { Dayjs } from 'dayjs';
@@ -75,8 +74,6 @@ export const useConstructionTableLogic = ({
   handleRevertFromConstruction?: (jobId: string) => void;
   handleExport?: (jobId: string) => void;
 }) => {
-  const searchParams = useSearchParams();
-
   const [isRevertModalVisible, setIsRevertModalVisible] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [isStatusChangeModalVisible, setIsStatusChangeModalVisible] = useState(false);
@@ -86,29 +83,19 @@ export const useConstructionTableLogic = ({
     statusLabel: string;
   } | null>(null);
 
-  const [filters, setFilters] = useState({
-    id: searchParams.get('id') || '',
-    customerName: searchParams.get('customerName') || '',
-    jobAddress: searchParams.get('jobAddress') || '',
-    jobType: searchParams.get('jobType') || '',
-    builderName: searchParams.get('builderName') || 'All',
-    currentStage: searchParams.get('currentStage') || 'All',
-    dueDate: null as DateRange,
-    siteSupervisor: searchParams.get('siteSupervisor') || 'All',
-    status: searchParams.get('status') || 'All',
+  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+    filtersKey: [
+      'id',
+      'customerName',
+      'jobAddress',
+      'jobType',
+      'builderName',
+      'currentStage',
+      'dueDate',
+      'siteSupervisor',
+      'status',
+    ],
   });
-  const debouncedUpdateURL = debouncedURL();
-
-  const handleFilterChange = useCallback(
-    (updates: Partial<typeof filters>) => {
-      setFilters(prev => {
-        const newFilters = { ...prev, ...updates };
-        debouncedUpdateURL(newFilters);
-        return newFilters;
-      });
-    },
-    [debouncedUpdateURL]
-  );
 
   useEffect(() => () => debouncedUpdateURL.cancel(), [debouncedUpdateURL]);
 
@@ -150,7 +137,7 @@ export const useConstructionTableLogic = ({
             <Input
               placeholder="Search ID"
               value={filters.id}
-              onChange={e => handleFilterChange({ id: e.target.value })}
+              onChange={e => setParams({ id: e.target.value })}
             />
           </div>
         ),
@@ -166,7 +153,7 @@ export const useConstructionTableLogic = ({
             <Input
               placeholder="Search Customer"
               value={filters.customerName}
-              onChange={e => handleFilterChange({ customerName: e.target.value })}
+              onChange={e => setParams({ customerName: e.target.value })}
             />
           </div>
         ),
@@ -181,7 +168,7 @@ export const useConstructionTableLogic = ({
             <Input
               placeholder="Search Address"
               value={filters.jobAddress}
-              onChange={e => handleFilterChange({ jobAddress: e.target.value })}
+              onChange={e => setParams({ jobAddress: e.target.value })}
             />
           </div>
         ),
@@ -196,7 +183,7 @@ export const useConstructionTableLogic = ({
             <Input
               placeholder="Search Job Type"
               value={filters.jobType}
-              onChange={e => handleFilterChange({ jobType: e.target.value })}
+              onChange={e => setParams({ jobType: e.target.value })}
             />
           </div>
         ),
@@ -208,10 +195,7 @@ export const useConstructionTableLogic = ({
         title: (
           <div className="flex flex-col gap-1">
             <span className="font-semibold">Builder</span>
-            <Select
-              value={filters.builderName}
-              onChange={val => handleFilterChange({ builderName: val })}
-            >
+            <Select value={filters.builderName} onChange={val => setParams({ builderName: val })}>
               {uniqueBuilders.map(b => (
                 <Select.Option key={b} value={b}>
                   {b}
@@ -228,10 +212,7 @@ export const useConstructionTableLogic = ({
         title: (
           <div className="flex flex-col gap-1">
             <span className="font-semibold">Current Stage</span>
-            <Select
-              value={filters.currentStage}
-              onChange={val => handleFilterChange({ currentStage: val })}
-            >
+            <Select value={filters.currentStage} onChange={val => setParams({ currentStage: val })}>
               {uniqueStages.map(s => (
                 <Select.Option key={s} value={s}>
                   {s}
@@ -253,11 +234,11 @@ export const useConstructionTableLogic = ({
                 const dateString = dates
                   ? `${dates[0].toISOString()},${dates[1].toISOString()}`
                   : '';
-                handleFilterChange({ dueDate: dates });
+                setParams({ dueDate: dates });
               }}
               onClear={() => {
                 console.log('Cleared date filter');
-                handleFilterChange({ dueDate: null });
+                setParams({ dueDate: null });
               }}
             />
           </div>
@@ -273,7 +254,7 @@ export const useConstructionTableLogic = ({
             <span className="font-semibold">Site Supervisor</span>
             <AssigneeSelect
               value={filters.siteSupervisor}
-              onChange={value => handleFilterChange({ siteSupervisor: value })}
+              onChange={value => setParams({ siteSupervisor: value })}
             />
           </div>
         ),
@@ -372,7 +353,7 @@ export const useConstructionTableLogic = ({
     ];
   }, [
     filters,
-    handleFilterChange,
+    setParams,
     handleSupervisorAssign,
     handleStatusChange,
     handleExport,
@@ -427,7 +408,7 @@ export const useConstructionTableLogic = ({
 
   return {
     filters,
-    handleFilterChange,
+    setParams,
     constructionColumns,
     RevertModal,
     StatusChangeModal,

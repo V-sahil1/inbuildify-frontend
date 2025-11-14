@@ -21,8 +21,11 @@ const AgentReferralHeader = ({
   onViewChange,
   onCreateClick,
 }: HeaderProps) => {
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL(500, ['search', 'status'], {
-    status: 'active',
+  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+    filtersKey: ['search', 'status'],
+    initialValue: {
+      status: 'active',
+    },
   });
 
   useEffect(() => {

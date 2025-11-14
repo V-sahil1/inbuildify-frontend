@@ -5,31 +5,15 @@ import { Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { data, DataType } from 'data/CampaignContactData';
 import { useRouter } from 'next/router';
-import { usePathname, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { debouncedURL } from '@lib/utils/debounceURL';
 const CampaignContacts = ({ current, setCurrent }) => {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState('Selected');
   const [form] = Form.useForm();
-  const [filters, setFilters] = useState<{
-    contact: string;
-  }>({
-    contact: searchParams.get('contact') || '',
-  });
-  const debouncedUpdateURL = debouncedURL();
-  const handleFilterChange = useCallback(
-    (updates: Partial<typeof filters>) => {
-      setFilters(prev => {
-        const newFilters = { ...prev, ...updates };
-        debouncedUpdateURL(newFilters);
-        return newFilters;
-      });
-    },
-    [debouncedUpdateURL]
-  );
+  const { debouncedUpdateURL, setParams, filters } = debouncedURL({ filtersKey: ['contact'] });
 
   useEffect(() => {
     return () => {
@@ -104,7 +88,7 @@ const CampaignContacts = ({ current, setCurrent }) => {
               placeholder="Search Contacts by name,email"
               style={{ width: '800px' }}
               value={filters.contact}
-              onChange={e => handleFilterChange({ contact: e.target.value })}
+              onChange={e => setParams({ contact: e.target.value })}
             />
             <div className="flex">
               <Button

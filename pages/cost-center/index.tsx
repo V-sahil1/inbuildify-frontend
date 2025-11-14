@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
 import {
   Table,
   Input,
@@ -33,7 +32,6 @@ interface CostCenter {
 }
 
 export default function CostCenterMaster() {
-  const searchParams = useSearchParams();
   const [openModal, setOpenModal] = useState(false);
   const [openChecklist, setOpenChecklist] = useState(false);
 
@@ -48,25 +46,9 @@ export default function CostCenterMaster() {
 
   const [data, setData] = useState<CostCenter[]>(() => initialCostCenters);
 
-  const [filters, setFilters] = useState({
-    code: searchParams.get('code') || '',
-    name: searchParams.get('name') || '',
-    description: searchParams.get('description') || '',
-    sortOrder: searchParams.get('sortOrder') || '',
-    isActive: searchParams.get('isActive') || '',
+  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+    filtersKey: ['code', 'name', 'description', 'sortOrder', 'isActive'],
   });
-
-  const debouncedUpdateURL = debouncedURL();
-  const handleFilterChange = useCallback(
-    (updates: Partial<typeof filters>) => {
-      setFilters(prev => {
-        const newFilters = { ...prev, ...updates };
-        debouncedUpdateURL(newFilters);
-        return newFilters;
-      });
-    },
-    [debouncedUpdateURL]
-  );
 
   useEffect(() => () => debouncedUpdateURL.cancel(), [debouncedUpdateURL]);
 
@@ -147,10 +129,7 @@ export default function CostCenterMaster() {
       title: (
         <div className="flex flex-col">
           <span>Code</span>
-          <Input
-            value={filters.code}
-            onChange={e => handleFilterChange({ code: e.target.value })}
-          />
+          <Input value={filters.code} onChange={e => setParams({ code: e.target.value })} />
         </div>
       ),
       dataIndex: 'code',
@@ -160,10 +139,7 @@ export default function CostCenterMaster() {
       title: (
         <div className="flex flex-col">
           <span>Name</span>
-          <Input
-            value={filters.name}
-            onChange={e => handleFilterChange({ name: e.target.value })}
-          />
+          <Input value={filters.name} onChange={e => setParams({ name: e.target.value })} />
         </div>
       ),
       dataIndex: 'name',
@@ -175,7 +151,7 @@ export default function CostCenterMaster() {
           <span>Description</span>
           <Input
             value={filters.description}
-            onChange={e => handleFilterChange({ description: e.target.value })}
+            onChange={e => setParams({ description: e.target.value })}
           />
         </div>
       ),
@@ -188,7 +164,7 @@ export default function CostCenterMaster() {
           <span>Sort Order</span>
           <Input
             value={filters.sortOrder}
-            onChange={e => handleFilterChange({ sortOrder: e.target.value })}
+            onChange={e => setParams({ sortOrder: e.target.value })}
           />
         </div>
       ),
@@ -202,7 +178,7 @@ export default function CostCenterMaster() {
           <StatusSelect
             activeInactive
             value={filters.isActive}
-            onChange={val => handleFilterChange({ isActive: val })}
+            onChange={val => setParams({ isActive: val })}
             width="100%"
           />
         </div>

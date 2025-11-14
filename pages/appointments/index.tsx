@@ -7,41 +7,16 @@ import { exportToExcel } from '@lib/utils/exportToExcel';
 import { IconDots, IconDownload } from '@tabler/icons-react';
 import { Button, Input, Popover, Switch, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { data, DataType } from 'data/appointmentData';
 import { debouncedURL } from '@lib/utils/debounceURL';
 
 export default function Appointments() {
-  const searchParams = useSearchParams();
   const [CancelledIncluded, setCancelledIncluded] = useState(false);
-  const debouncedUpdateURL = debouncedURL();
-  const [filters, setFilters] = useState<{
-    title: string;
-    location: string;
-    date: string;
-    assignee: string;
-    category: string;
-    status: string;
-  }>({
-    title: searchParams.get('title') || '',
-    location: searchParams.get('location') || '',
-    date: searchParams.get('date') || '',
-    assignee: searchParams.get('assignee') || '',
-    category: searchParams.get('category') || '',
-    status: searchParams.get('status') || '',
+  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+    filtersKey: ['title', 'location', 'date', 'assignee', 'category', 'status'],
   });
 
-  const handleFilterChange = useCallback(
-    (updates: Partial<typeof filters>) => {
-      setFilters(prev => {
-        const newFilters = { ...prev, ...updates };
-        debouncedUpdateURL(newFilters);
-        return newFilters;
-      });
-    },
-    [debouncedUpdateURL]
-  );
   useEffect(() => {
     return () => {
       debouncedUpdateURL.cancel();
@@ -53,7 +28,7 @@ export default function Appointments() {
       title: (
         <div>
           <span>Title</span>
-          <Input onChange={e => handleFilterChange({ title: e.target.value })} />
+          <Input onChange={e => setParams({ title: e.target.value })} />
         </div>
       ),
       dataIndex: 'title',
@@ -69,7 +44,7 @@ export default function Appointments() {
       title: (
         <div>
           <span>Location</span>
-          <Input onChange={e => handleFilterChange({ location: e.target.value })} />
+          <Input onChange={e => setParams({ location: e.target.value })} />
         </div>
       ),
       dataIndex: 'location',
@@ -83,11 +58,11 @@ export default function Appointments() {
           <DateFilterDropdown
             onFilter={(type, dates) => {
               const dateString = dates ? `${dates[0].toISOString()},${dates[1].toISOString()}` : '';
-              handleFilterChange({ date: dateString });
+              setParams({ date: dateString });
             }}
             onClear={() => {
               console.log('Cleared date filter');
-              handleFilterChange({ date: '' });
+              setParams({ date: '' });
             }}
           />
         </div>
@@ -110,7 +85,7 @@ export default function Appointments() {
           <span>Assignee</span>
           <AssigneeSelect
             value={filters.assignee}
-            onChange={value => handleFilterChange({ assignee: value })}
+            onChange={value => setParams({ assignee: value })}
           />
         </div>
       ),
@@ -125,7 +100,7 @@ export default function Appointments() {
           <div>Category</div>
           <CategorySelect
             value={filters.category}
-            onChange={value => handleFilterChange({ category: value })}
+            onChange={value => setParams({ category: value })}
           />
         </div>
       ),

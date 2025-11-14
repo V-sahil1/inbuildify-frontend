@@ -3,19 +3,16 @@ import StatusSelect from '@/components/common/custom-selects/StatusSelect';
 import CustomAvtar from '@/components/common/CustomAvtar';
 import LandCreatePackageDrawerModel from '@/components/common/Models/LandCreatePackageDrawerModel';
 import LandLotFormModel from '@/components/common/Models/LandLotFormModel';
-import LandPackageDrawerModel from '@/components/common/Models/LandPackageDrawerModel';
+import LandPackageDrawer from '@/components/common/Models/LandPackageDrawer';
 import { debouncedURL } from '@lib/utils/debounceURL';
 import { IconCopy, IconPlus, IconTable } from '@tabler/icons-react';
 import { Button, Input, Space, Table, Tooltip } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { data, DataType } from 'data/landData';
 
-import { useSearchParams } from 'next/navigation';
-
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Land() {
-  const searchParams = useSearchParams();
   const [isPackageDrawerOpen, setIsPackageDrawerOpen] = useState(false);
   const [isLotFormDrawerOpen, setIsLotFormDrawerOpen] = useState(false);
   const [isNewPackageDrawerOpen, setIsNewPackageDrawerOpen] = useState(false);
@@ -40,38 +37,16 @@ export default function Land() {
     depth: '',
     totalsize: '',
   };
-
-  const [filters, setFilters] = useState<{
-    lotNumber: string;
-    price: string;
-    size: string;
-    estate: string;
-    stageName: string;
-    address: string;
-    status: string;
-    createdby: string;
-  }>({
-    lotNumber: searchParams.get('lotNumber') || '',
-    price: searchParams.get('price') || '',
-    size: searchParams.get('size') || '',
-    estate: searchParams.get('estate') || '',
-    stageName: searchParams.get('stageName') || '',
-    address: searchParams.get('address') || '',
-    status: searchParams.get('status') || '',
-    createdby: searchParams.get('createdby') || '',
-  });
-  const debouncedUpdateURL = debouncedURL();
-
-  const handleFilterChange = useCallback(
-    (updates: Partial<typeof filters>) => {
-      setFilters(prev => {
-        const newFilters = { ...prev, ...updates };
-        debouncedUpdateURL(newFilters);
-        return newFilters;
-      });
-    },
-    [debouncedUpdateURL]
-  );
+  const { debouncedUpdateURL, setParams, filters } = debouncedURL({filtersKey:[
+    'lotNumber',
+    'price',
+    'size',
+    'estate',
+    'stageName',
+    'address',
+    'status',
+    'createdby',
+  ]} );
 
   useEffect(() => {
     return () => {
@@ -86,7 +61,7 @@ export default function Land() {
           <span>Lot Number</span>
           <Input
             value={filters.lotNumber}
-            onChange={e => handleFilterChange({ lotNumber: e.target.value })}
+            onChange={e => setParams({ lotNumber: e.target.value })}
           />
         </div>
       ),
@@ -98,10 +73,7 @@ export default function Land() {
       title: (
         <div>
           <span>Price</span>
-          <Input
-            value={filters.price}
-            onChange={e => handleFilterChange({ price: e.target.value })}
-          />
+          <Input value={filters.price} onChange={e => setParams({ price: e.target.value })} />
         </div>
       ),
       dataIndex: 'price',
@@ -112,10 +84,7 @@ export default function Land() {
       title: (
         <div>
           <span>Size</span>
-          <Input
-            value={filters.size}
-            onChange={e => handleFilterChange({ size: e.target.value })}
-          />
+          <Input value={filters.size} onChange={e => setParams({ size: e.target.value })} />
         </div>
       ),
       dataIndex: 'size',
@@ -126,10 +95,7 @@ export default function Land() {
       title: (
         <div>
           <span>Estate</span>
-          <Input
-            value={filters.estate}
-            onChange={e => handleFilterChange({ estate: e.target.value })}
-          />
+          <Input value={filters.estate} onChange={e => setParams({ estate: e.target.value })} />
         </div>
       ),
       dataIndex: 'estate',
@@ -142,7 +108,7 @@ export default function Land() {
           <span>Stage Name</span>
           <Input
             value={filters.stageName}
-            onChange={e => handleFilterChange({ stageName: e.target.value })}
+            onChange={e => setParams({ stageName: e.target.value })}
           />
         </div>
       ),
@@ -154,10 +120,7 @@ export default function Land() {
       title: (
         <div>
           <span>Address</span>
-          <Input
-            value={filters.address}
-            onChange={e => handleFilterChange({ address: e.target.value })}
-          />
+          <Input value={filters.address} onChange={e => setParams({ address: e.target.value })} />
         </div>
       ),
       dataIndex: 'address',
@@ -168,10 +131,7 @@ export default function Land() {
       title: (
         <div>
           <span>Status</span>
-          <StatusSelect
-            value={filters.status}
-            onChange={value => handleFilterChange({ status: value })}
-          />
+          <StatusSelect value={filters.status} onChange={value => setParams({ status: value })} />
         </div>
       ),
       dataIndex: 'status',
@@ -184,7 +144,7 @@ export default function Land() {
           <span>Created By</span>
           <AssigneeSelect
             value={filters.createdby}
-            onChange={value => handleFilterChange({ createdby: value })}
+            onChange={value => setParams({ createdby: value })}
           />
         </div>
       ),
@@ -260,7 +220,7 @@ export default function Land() {
         }}
       />
       {isPackageDrawerOpen && (
-        <LandPackageDrawerModel
+        <LandPackageDrawer
           title="Packages"
           open={isPackageDrawerOpen}
           onClose={() => setIsPackageDrawerOpen(false)}

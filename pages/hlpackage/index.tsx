@@ -3,10 +3,8 @@ import DateFilterDropdown from '@/components/common/custom-selects/DateFilterDro
 import { IconCopy, IconDotsVertical, IconShare3, IconTable } from '@tabler/icons-react';
 import { Button, Dropdown, Input, Space, Table, Tooltip } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import { Dayjs } from 'dayjs';
-import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/router';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import CustomAvtar from '@/components/common/CustomAvtar';
 import { CreateFormModal } from '@/components/common/Models/CreateFormModel';
 import HLPackageCopyModal from '@/components/common/Models/HLPackageCopyModal';
@@ -18,40 +16,20 @@ import { debouncedURL } from '@lib/utils/debounceURL';
 
 export default function HLPackages() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCopyModalOpen, setIsCopyModalOpen] = useState(false);
-  const [filters, setFilters] = useState<{
-    packages: string;
-    lotAddress: string;
-    estateName: string;
-    facadeName: string;
-    floorplanName: string;
-    cost: string;
-    createdDate: [Dayjs, Dayjs] | string | null;
-    assignee: string;
-  }>({
-    packages: searchParams.get('packages') || '',
-    lotAddress: searchParams.get('lotAddress') || '',
-    estateName: searchParams.get('estateName') || '',
-    facadeName: searchParams.get('facadeName') || '',
-    floorplanName: searchParams.get('floorplanName') || '',
-    cost: searchParams.get('cost') || '',
-    createdDate: searchParams.get('createdDate') || '',
-    assignee: searchParams.get('assignee') || '',
+  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+    filtersKey: [
+      'packages',
+      'lotAddress',
+      'estateName',
+      'facadeName',
+      'floorplanName',
+      'cost',
+      'createdDate',
+      'assignee',
+    ],
   });
-  const debouncedUpdateURL = debouncedURL();
-
-  const handleFilterChange = useCallback(
-    (updates: Partial<typeof filters>) => {
-      setFilters(prev => {
-        const newFilters = { ...prev, ...updates };
-        debouncedUpdateURL(newFilters);
-        return newFilters;
-      });
-    },
-    [debouncedUpdateURL]
-  );
 
   useEffect(() => {
     return () => {
@@ -64,10 +42,7 @@ export default function HLPackages() {
       title: (
         <div>
           <span>Package</span>
-          <Input
-            value={filters.packages}
-            onChange={e => handleFilterChange({ packages: e.target.value })}
-          />
+          <Input value={filters.packages} onChange={e => setParams({ packages: e.target.value })} />
         </div>
       ),
       dataIndex: 'packages',
@@ -80,7 +55,7 @@ export default function HLPackages() {
           <span>Lot Address</span>
           <Input
             value={filters.lotAddress}
-            onChange={e => handleFilterChange({ lotAddress: e.target.value })}
+            onChange={e => setParams({ lotAddress: e.target.value })}
           />
         </div>
       ),
@@ -94,7 +69,7 @@ export default function HLPackages() {
           <span>Estate Name</span>
           <Input
             value={filters.estateName}
-            onChange={e => handleFilterChange({ estateName: e.target.value })}
+            onChange={e => setParams({ estateName: e.target.value })}
           />
         </div>
       ),
@@ -108,7 +83,7 @@ export default function HLPackages() {
           <span>Facade Name</span>
           <Input
             value={filters.facadeName}
-            onChange={e => handleFilterChange({ facadeName: e.target.value })}
+            onChange={e => setParams({ facadeName: e.target.value })}
           />
         </div>
       ),
@@ -122,7 +97,7 @@ export default function HLPackages() {
           <span>Floor Plan Name</span>
           <Input
             value={filters.floorplanName}
-            onChange={e => handleFilterChange({ floorplanName: e.target.value })}
+            onChange={e => setParams({ floorplanName: e.target.value })}
           />
         </div>
       ),
@@ -134,10 +109,7 @@ export default function HLPackages() {
       title: (
         <div>
           <span>Cost</span>
-          <Input
-            value={filters.cost}
-            onChange={e => handleFilterChange({ cost: e.target.value })}
-          />
+          <Input value={filters.cost} onChange={e => setParams({ cost: e.target.value })} />
         </div>
       ),
       dataIndex: 'cost',
@@ -151,11 +123,11 @@ export default function HLPackages() {
           <DateFilterDropdown
             onFilter={(type, dates) => {
               const dateString = dates ? `${dates[0].toISOString()},${dates[1].toISOString()}` : '';
-              handleFilterChange({ createdDate: dateString });
+              setParams({ createdDate: dateString });
             }}
             onClear={() => {
               console.log('Cleared date filter');
-              handleFilterChange({ createdDate: '' });
+              setParams({ createdDate: '' });
             }}
           />
         </div>
@@ -170,7 +142,7 @@ export default function HLPackages() {
           <span>Assignee</span>
           <AssigneeSelect
             value={filters.assignee}
-            onChange={value => handleFilterChange({ assignee: value })}
+            onChange={value => setParams({ assignee: value })}
           />
         </div>
       ),

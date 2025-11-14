@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Input, Dropdown, Button } from 'antd';
 import { IconDotsVertical, IconExternalLink } from '@tabler/icons-react';
 import dayjs, { Dayjs } from 'dayjs';
@@ -34,17 +34,6 @@ export const useMaintenanceTableLogic = ({
   handleStatusChange,
 }: UseMaintenanceTableLogicProps) => {
   const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const [filters, setFilters] = useState({
-    id: searchParams.get('id') || '',
-    customerName: searchParams.get('customerName') || '',
-    jobAddress: searchParams.get('jobAddress') || '',
-    startDate: null as DateRange,
-    endDate: null as DateRange,
-    assignee: searchParams.get('assignee') || '',
-  });
-
   const [selectedStatus, setSelectedStatus] = useState<{
     jobId: string;
     statusKey: string;
@@ -53,18 +42,9 @@ export const useMaintenanceTableLogic = ({
   const [isStatusChangeModalVisible, setIsStatusChangeModalVisible] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [isRevertModalVisible, setIsRevertModalVisible] = useState(false);
-  const debouncedUpdateURL = debouncedURL();
-  const handleFilterChange = useCallback(
-    (updates: Partial<typeof filters>) => {
-      setFilters(prev => {
-        const newFilters = { ...prev, ...updates };
-        debouncedUpdateURL(newFilters);
-        return newFilters;
-      });
-    },
-    [debouncedUpdateURL]
-  );
-
+  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+    filtersKey: ['id', 'customerName', 'jobAddress', 'startDate', 'endDate', 'assignee'],
+  });
   useEffect(() => () => debouncedUpdateURL.cancel(), [debouncedUpdateURL]);
 
   const handleRevert = () => {
@@ -102,7 +82,7 @@ export const useMaintenanceTableLogic = ({
             <Input
               placeholder="Search ID"
               value={filters.id}
-              onChange={e => handleFilterChange({ id: e.target.value })}
+              onChange={e => setParams({ id: e.target.value })}
             />
           </div>
         ),
@@ -118,7 +98,7 @@ export const useMaintenanceTableLogic = ({
             <Input
               placeholder="Search Customer"
               value={filters.customerName}
-              onChange={e => handleFilterChange({ customerName: e.target.value })}
+              onChange={e => setParams({ customerName: e.target.value })}
             />
           </div>
         ),
@@ -133,7 +113,7 @@ export const useMaintenanceTableLogic = ({
             <Input
               placeholder="Search Address"
               value={filters.jobAddress}
-              onChange={e => handleFilterChange({ jobAddress: e.target.value })}
+              onChange={e => setParams({ jobAddress: e.target.value })}
             />
           </div>
         ),
@@ -147,9 +127,9 @@ export const useMaintenanceTableLogic = ({
             <div className="font-semibold">Start Date</div>
             <DateFilterDropdown
               onFilter={(type, dates) => {
-                handleFilterChange({ startDate: dates });
+                setParams({ startDate: dates });
               }}
-              onClear={() => handleFilterChange({ startDate: null })}
+              onClear={() => setParams({ startDate: null })}
             />
           </div>
         ),
@@ -167,9 +147,9 @@ export const useMaintenanceTableLogic = ({
             <div className="font-semibold">End Date</div>
             <DateFilterDropdown
               onFilter={(type, dates) => {
-                handleFilterChange({ endDate: dates });
+                setParams({ endDate: dates });
               }}
-              onClear={() => handleFilterChange({ endDate: null })}
+              onClear={() => setParams({ endDate: null })}
             />
           </div>
         ),
@@ -187,7 +167,7 @@ export const useMaintenanceTableLogic = ({
             <span className="font-semibold">Site Supervisor</span>
             <AssigneeSelect
               value={filters.assignee}
-              onChange={value => handleFilterChange({ assignee: value })}
+              onChange={value => setParams({ assignee: value })}
             />
           </div>
         ),
@@ -269,7 +249,7 @@ export const useMaintenanceTableLogic = ({
         },
       },
     ];
-  }, [filters, handleFilterChange, handleSupervisorAssign, handleExport]);
+  }, [filters, setParams, handleSupervisorAssign, handleExport]);
 
   const RevertModal = () => (
     <ConfirmationModal
@@ -316,7 +296,7 @@ export const useMaintenanceTableLogic = ({
 
   return {
     filters,
-    handleFilterChange,
+    setParams,
     maintenanceColumns,
     selectedStatus,
     isStatusChangeModalVisible,

@@ -1,6 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useSearchParams } from 'next/navigation';
 import { Table, Input, Button, Space, Dropdown, Switch } from 'antd';
 import { IconFilter, IconDownload, IconUpload, IconTrash, IconShare3 } from '@tabler/icons-react';
 import type { ColumnsType } from 'antd/es/table';
@@ -24,26 +23,6 @@ import { debouncedURL } from '@lib/utils/debounceURL';
 
 const LeadPage: React.FC = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const [filters, setFilters] = useState<{
-    refrenceId: string;
-    name: string;
-    propertyAddress: string;
-    source: string;
-    rating: string;
-    created: string;
-    updated: string;
-    assignedTo: string;
-  }>({
-    refrenceId: searchParams.get('refrenceId') || '',
-    name: searchParams.get('name') || '',
-    propertyAddress: searchParams.get('propertyAddress') || '',
-    source: searchParams.get('source') || '',
-    rating: searchParams.get('rating') || '',
-    created: searchParams.get('created') || '',
-    updated: searchParams.get('updated') || '',
-    assignedTo: searchParams.get('assignedTo') || '',
-  });
   const [showBlocked, setShowBlocked] = useState(false);
   const [currentFilter, setCurrentFilter] = useState<string>('all');
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
@@ -52,7 +31,18 @@ const LeadPage: React.FC = () => {
   const { leads } = useAppSelector(state => state.lead);
   const { leads: leadLoading } = useAppSelector(state => state.lead.status);
   const dispatch = useAppDispatch();
-  const debouncedUpdateURL = debouncedURL();
+  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+    filtersKey: [
+      'refrenceId',
+      'name',
+      'propertyAddress',
+      'source',
+      'rating',
+      'created',
+      'updated',
+      'assignedTo',
+    ],
+  });
   useEffect(() => {
     async function fetchData() {
       if (leadLoading === Status.IDLE) {
@@ -63,17 +53,6 @@ const LeadPage: React.FC = () => {
       fetchData();
     }
   }, [dispatch, leadLoading]);
-
-  const handleFilterChange = useCallback(
-    (updates: Partial<typeof filters>) => {
-      setFilters(prev => {
-        const newFilters = { ...prev, ...updates };
-        debouncedUpdateURL(newFilters);
-        return newFilters;
-      });
-    },
-    [debouncedUpdateURL]
-  );
 
   useEffect(() => {
     return () => {
@@ -125,7 +104,7 @@ const LeadPage: React.FC = () => {
           <span>Refrence ID</span>
           <Input
             value={filters.refrenceId}
-            onChange={e => handleFilterChange({ refrenceId: e.target.value })}
+            onChange={e => setParams({ refrenceId: e.target.value })}
           />
         </div>
       ),
@@ -137,10 +116,7 @@ const LeadPage: React.FC = () => {
       title: (
         <div>
           <span>Name</span>
-          <Input
-            value={filters.name}
-            onChange={e => handleFilterChange({ name: e.target.value })}
-          />
+          <Input value={filters.name} onChange={e => setParams({ name: e.target.value })} />
         </div>
       ),
       dataIndex: 'name',
@@ -154,7 +130,7 @@ const LeadPage: React.FC = () => {
           <Input
             value={filters.propertyAddress}
             onChange={e =>
-              handleFilterChange({
+              setParams({
                 propertyAddress: e.target.value,
               })
             }
@@ -169,10 +145,7 @@ const LeadPage: React.FC = () => {
       title: (
         <div>
           <span>Source</span>
-          <SourceSelect
-            value={filters.source}
-            onChange={value => handleFilterChange({ source: value })}
-          />
+          <SourceSelect value={filters.source} onChange={value => setParams({ source: value })} />
         </div>
       ),
       dataIndex: 'leadSource',
@@ -183,10 +156,7 @@ const LeadPage: React.FC = () => {
       title: (
         <div className="flex flex-col">
           <span>Rating</span>
-          <RatingSelect
-            value={filters.rating}
-            onChange={value => handleFilterChange({ rating: value })}
-          />
+          <RatingSelect value={filters.rating} onChange={value => setParams({ rating: value })} />
         </div>
       ),
       dataIndex: 'rating',
@@ -200,11 +170,11 @@ const LeadPage: React.FC = () => {
           <DateFilterDropdown
             onFilter={(type, dates) => {
               const dateString = dates ? `${dates[0].toISOString()},${dates[1].toISOString()}` : '';
-              handleFilterChange({ created: dateString });
+              setParams({ created: dateString });
             }}
             onClear={() => {
               console.log('Cleared date filter');
-              handleFilterChange({ created: '' });
+              setParams({ created: '' });
             }}
           />
         </div>
@@ -221,11 +191,11 @@ const LeadPage: React.FC = () => {
           <DateFilterDropdown
             onFilter={(type, dates) => {
               const dateString = dates ? `${dates[0].toISOString()},${dates[1].toISOString()}` : '';
-              handleFilterChange({ updated: dateString });
+              setParams({ updated: dateString });
             }}
             onClear={() => {
               console.log('Cleared date filter');
-              handleFilterChange({ updated: '' });
+              setParams({ updated: '' });
             }}
           />
         </div>
@@ -241,7 +211,7 @@ const LeadPage: React.FC = () => {
           <span>Assignee</span>
           <AssigneeSelect
             value={filters.assignedTo}
-            onChange={value => handleFilterChange({ assignedTo: value })}
+            onChange={value => setParams({ assignedTo: value })}
           />
         </div>
       ),

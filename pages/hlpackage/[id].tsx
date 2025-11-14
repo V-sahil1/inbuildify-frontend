@@ -27,14 +27,12 @@ import {
   Tag,
   Tooltip,
 } from 'antd';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import FacadeModal from '@/components/leadDetail/FacadeModal';
 import { clearStandardFilter, clearUpgradeFilter } from '@redux/feature/facade/facadeSlice';
 import PriceListDrawer from '@/components/common/Models/PriceListDrawer';
 import { CommissionDrawer, Partner } from '@/components/job/jobDetail/comission/commissionDrawer';
 const { TextArea } = Input;
-
-import { useSearchParams } from 'next/navigation';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import {
   CustomSectionField,
@@ -69,28 +67,11 @@ const HLPackageDetail = () => {
   const typesStatus = useAppSelector(state => state.types.status);
   const rangeOptions = mapToOptions(range);
   const dwellingOptions = mapToOptions(dwellingType);
-  const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
   const [form] = Form.useForm();
-  const [filters, setFilters] = useState<{
-    inclusion: string;
-    houseFeature: string;
-  }>({
-    inclusion: searchParams.get('inclusion') || '',
-    houseFeature: searchParams.get('houseFeature') || '',
+  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+    filtersKey: ['inclusion', 'houseFeature'],
   });
-  const debouncedUpdateURL = debouncedURL();
-
-  const handleFilterChange = useCallback(
-    (updates: Partial<typeof filters>) => {
-      setFilters(prev => {
-        const newFilters = { ...prev, ...updates };
-        debouncedUpdateURL(newFilters);
-        return newFilters;
-      });
-    },
-    [debouncedUpdateURL]
-  );
 
   useEffect(() => {
     return () => {
@@ -380,7 +361,7 @@ const HLPackageDetail = () => {
                   placeholder="Search Inclusions"
                   size="small"
                   value={filters.inclusion}
-                  onChange={e => handleFilterChange({ inclusion: e.target.value })}
+                  onChange={e => setParams({ inclusion: e.target.value })}
                 />
                 <div>
                   {groupEditOpen ? (
@@ -435,7 +416,7 @@ const HLPackageDetail = () => {
                   placeholder="Search Feature.."
                   size="small"
                   value={filters.houseFeature}
-                  onChange={e => handleFilterChange({ houseFeature: e.target.value })}
+                  onChange={e => setParams({ houseFeature: e.target.value })}
                 />
                 <div className="mt-2">
                   <div className="flex gap-2">

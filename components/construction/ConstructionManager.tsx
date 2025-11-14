@@ -41,7 +41,7 @@ const ConstructionManager = () => {
 
   const {
     filters,
-    handleFilterChange,
+    setParams,
     constructionColumns: columns,
     RevertModal,
     StatusChangeModal,
@@ -65,14 +65,14 @@ const ConstructionManager = () => {
   const filteredData = useMemo(() => {
     return constructionData.filter(item => {
       return (
-        item.id.toString().toLowerCase().includes(filters.id.toLowerCase()) &&
-        item.customerName.toLowerCase().includes(filters.customerName.toLowerCase()) &&
-        item.jobAddress.toLowerCase().includes(filters.jobAddress.toLowerCase()) &&
-        item.jobType.toLowerCase().includes(filters.jobType.toLowerCase()) &&
-        (filters.builderName === 'All' || item.builderName === filters.builderName) &&
-        (filters.currentStage === 'All' || item.currentStage === filters.currentStage) &&
-        (filters.siteSupervisor === 'All' || item.siteSupervisor === filters.siteSupervisor) &&
-        (filters.status === 'All' || item.status === filters.status)
+        item.id.toString().toLowerCase().includes(filters.id?.toLowerCase()) &&
+        item.customerName.toLowerCase().includes(filters.customerName?.toLowerCase()) &&
+        item.jobAddress.toLowerCase().includes(filters.jobAddress?.toLowerCase()) &&
+        item.jobType.toLowerCase().includes(filters.jobType?.toLowerCase()) &&
+        (filters?.builderName === 'All' || item.builderName === filters?.builderName) &&
+        (filters?.currentStage === 'All' || item.currentStage === filters?.currentStage) &&
+        (filters?.siteSupervisor === 'All' || item.siteSupervisor === filters?.siteSupervisor) &&
+        (filters?.status === 'All' || item.status === filters?.status)
       );
     });
   }, [constructionData, filters]);
@@ -98,7 +98,7 @@ const ConstructionManager = () => {
               key={status}
               className={`min-w-[250px] flex-1 cursor-pointer transition-shadow ${isActive ? 'shadow-md' : 'shadow-sm'}`}
               style={{ borderLeft: `4px solid ${color}` }}
-              onClick={() => handleFilterChange({ status })}
+              onClick={() => setParams({ status })}
             >
               <div className="flex items-center gap-3">
                 <div className="text-2xl">{icon}</div>
@@ -130,7 +130,7 @@ const ConstructionManager = () => {
           <Tag
             closable
             color="blue"
-            onClose={() => handleFilterChange({ status: 'All' })}
+            onClose={() => setParams({ status: 'All' })}
             className="text-base"
           >
             {filters.status}

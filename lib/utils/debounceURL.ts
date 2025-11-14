@@ -5,15 +5,26 @@ import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 // delay:  debounce time
 // filtersKey: string[] — list of query parameter keys to manage and sync with the URL.
 // initialValue?: object — optional default values that are applied first and override URL search params.
-
-export function debouncedURL(delay = 500, filtersKey: string[], initialValue?: {}) {
+// shouldSyncURL?: new prop to control URL syncing
+interface DebouncedURLOptions {
+  delay?: number;
+  filtersKey: string[];
+  initialValue?: Record<string, string>;
+  shouldSyncURL?: boolean; 
+}
+export function debouncedURL({
+  delay = 500,
+  filtersKey,
+  initialValue = {},
+  shouldSyncURL = true,
+}: DebouncedURLOptions) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [filters, setFilters] = useState(
     filtersKey.reduce(
       (acc, key) => {
-        acc[key] = searchParams.get(key) || initialValue && initialValue[key] ;
+        acc[key] = searchParams.get(key) || (initialValue && initialValue[key]);
         return acc;
       },
       {} as Record<string, string>
@@ -22,19 +33,19 @@ export function debouncedURL(delay = 500, filtersKey: string[], initialValue?: {
   const debouncedUpdateURL = useMemo(
     () =>
       debounce((newFilters: Record<string, string | number | null | undefined>) => {
-        const params = new URLSearchParams(searchParams.toString());
-
-        Object.entries(newFilters).forEach(([key, value]) => {
-          if (value !== null && value !== undefined && value !== '') {
-            params.set(key, value.toString());
-          } else {
-            params.delete(key);
-          }
-        });
-
-        router.replace(`${pathname}?${params.toString()}`);
+        if (shouldSyncURL) {
+          const params = new URLSearchParams(searchParams.toString());
+          Object.entries(newFilters).forEach(([key, value]) => {
+            if (value !== null && value !== undefined && value !== '') {
+              params.set(key, value.toString());
+            } else {
+              params.delete(key);
+            }
+          });
+          router.replace(`${pathname}?${params.toString()}`);
+        }
       }, delay),
-    [pathname, router, searchParams, delay]
+    [pathname, router, searchParams, delay,shouldSyncURL]
   );
   const setParams = useCallback(
     updatedParams => {

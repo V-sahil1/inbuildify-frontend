@@ -32,7 +32,7 @@ const data = [
   },
 ];
 
-const LandPackageDrawerModel = ({ title, onClose, open }) => {
+const LandPackageDrawer = ({ title, onClose, open }) => {
   const columns: ColumnsType<DataType> = [
     {
       title: 'Name',
@@ -88,4 +88,4 @@ const LandPackageDrawerModel = ({ title, onClose, open }) => {
   );
 };
 
-export default LandPackageDrawerModel;
+export default LandPackageDrawer;

@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import { Table, Input, Space, Dropdown, Switch, Button, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { IconFilter, IconDownload, IconShare3, IconCopy } from '@tabler/icons-react';
@@ -15,38 +14,19 @@ import HLPackageCopyModal from '@/components/common/Models/HLPackageCopyModal';
 import { debouncedURL } from '@lib/utils/debounceURL';
 
 const QuotationPage: React.FC = () => {
-  const searchParams = useSearchParams();
-  const [filters, setFilters] = useState<{
-    refrenceId: string;
-    customerName: string;
-    contactAddress: string;
-    approver: string;
-    created: string;
-    propertyAddress: string;
-    assignee: string;
-  }>({
-    refrenceId: searchParams.get('refrenceId') || '',
-    customerName: searchParams.get('customerName') || '',
-    contactAddress: searchParams.get('contactAddress') || '',
-    approver: searchParams.get('approver') || '',
-    created: searchParams.get('created') || '',
-    propertyAddress: searchParams.get('propertyAddress') || '',
-    assignee: searchParams.get('assignee') || '',
-  });
   const [showBlocked, setShowBlocked] = useState(false);
   const [isCopyModalOpen, setIsCopyModalOpen] = useState(false);
-  const debouncedUpdateURL = debouncedURL();
-
-  const handleFilterChange = useCallback(
-    (updates: Partial<typeof filters>) => {
-      setFilters(prev => {
-        const newFilters = { ...prev, ...updates };
-        debouncedUpdateURL(newFilters);
-        return newFilters;
-      });
-    },
-    [debouncedUpdateURL]
-  );
+  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+    filtersKey: [
+      'refrenceId',
+      'customerName',
+      'contactAddress',
+      'approver',
+      'created',
+      'propertyAddress',
+      'assignee',
+    ],
+  });
 
   useEffect(() => {
     return () => {
@@ -84,7 +64,7 @@ const QuotationPage: React.FC = () => {
           <span>Refrence ID</span>
           <Input
             value={filters.refrenceId}
-            onChange={e => handleFilterChange({ refrenceId: e.target.value })}
+            onChange={e => setParams({ refrenceId: e.target.value })}
           />
         </div>
       ),
@@ -98,7 +78,7 @@ const QuotationPage: React.FC = () => {
           <span>Customer Name</span>
           <Input
             value={filters.customerName}
-            onChange={e => handleFilterChange({ customerName: e.target.value })}
+            onChange={e => setParams({ customerName: e.target.value })}
           />
         </div>
       ),
@@ -113,7 +93,7 @@ const QuotationPage: React.FC = () => {
           <Input
             value={filters.propertyAddress}
             onChange={e =>
-              handleFilterChange({
+              setParams({
                 propertyAddress: e.target.value,
               })
             }
@@ -131,7 +111,7 @@ const QuotationPage: React.FC = () => {
           <Input
             value={filters.contactAddress}
             onChange={e =>
-              handleFilterChange({
+              setParams({
                 contactAddress: e.target.value,
               })
             }
@@ -149,11 +129,11 @@ const QuotationPage: React.FC = () => {
           <DateFilterDropdown
             onFilter={(type, dates) => {
               const dateString = dates ? `${dates[0].toISOString()},${dates[1].toISOString()}` : '';
-              handleFilterChange({ created: dateString });
+              setParams({ created: dateString });
             }}
             onClear={() => {
               console.log('Cleared date filter');
-              handleFilterChange({ created: '' });
+              setParams({ created: '' });
             }}
           />
         </div>
@@ -169,7 +149,7 @@ const QuotationPage: React.FC = () => {
           <span>Approver</span>
           <AssigneeSelect
             value={filters.approver}
-            onChange={value => handleFilterChange({ approver: value })}
+            onChange={value => setParams({ approver: value })}
           />
         </div>
       ),
@@ -188,7 +168,7 @@ const QuotationPage: React.FC = () => {
           <span>Assignee</span>
           <AssigneeSelect
             value={filters.assignee}
-            onChange={value => handleFilterChange({ assignee: value })}
+            onChange={value => setParams({ assignee: value })}
           />
         </div>
       ),

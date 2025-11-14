@@ -1,47 +1,26 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
 import { Table, Input, Button, Space, Dropdown, Menu } from 'antd';
 import { IconDownload, IconTruck } from '@tabler/icons-react';
 import { exportToExcel } from '@lib/utils/exportToExcel';
 import DateFilterDropdown from '@/components/common/custom-selects/DateFilterDropdown';
 import type { ColumnsType } from 'antd/es/table';
 import { todoDummyData, TodoDataType } from 'data/tasklistData';
-import { Dayjs } from 'dayjs';
 import AssigneeSelect from '@/components/common/custom-selects/AssigneeSelect';
 import CustomAvtar from '@/components/common/CustomAvtar';
 import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineActionsBar';
 import { debouncedURL } from '@lib/utils/debounceURL';
 
 const TodosPage: React.FC = () => {
-  const searchParams = useSearchParams();
-  const [filters, setFilters] = useState<{
-    jobAddress: string;
-    taskName: string;
-    supplier: string;
-    bookingDate: [Dayjs, Dayjs] | string | null;
-    startDate: [Dayjs, Dayjs] | string | null;
-    siteSupervisor: string;
-  }>({
-    jobAddress: searchParams.get('jobAddress') || '',
-    taskName: searchParams.get('taskName') || '',
-    supplier: searchParams.get('supplier') || '',
-    bookingDate: searchParams.get('bookingDate') || '',
-    startDate: searchParams.get('startDate') || '',
-    siteSupervisor: searchParams.get('siteSupervisor') || '',
+  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+    filtersKey: [
+      'jobAddress',
+      'taskName',
+      'supplier',
+      'bookingDate',
+      'startDate',
+      'siteSupervisor',
+    ],
   });
-
-  const debouncedUpdateURL = debouncedURL();
-
-  const handleFilterChange = useCallback(
-    (updates: Partial<typeof filters>) => {
-      setFilters(prev => {
-        const newFilters = { ...prev, ...updates };
-        debouncedUpdateURL(newFilters);
-        return newFilters;
-      });
-    },
-    [debouncedUpdateURL]
-  );
 
   useEffect(() => {
     return () => {
@@ -78,7 +57,7 @@ const TodosPage: React.FC = () => {
           <span>Job Address</span>
           <Input
             value={filters.jobAddress}
-            onChange={e => handleFilterChange({ jobAddress: e.target.value })}
+            onChange={e => setParams({ jobAddress: e.target.value })}
           />
         </div>
       ),
@@ -90,10 +69,7 @@ const TodosPage: React.FC = () => {
       title: (
         <div>
           <span>Task Name</span>
-          <Input
-            value={filters.taskName}
-            onChange={e => handleFilterChange({ taskName: e.target.value })}
-          />
+          <Input value={filters.taskName} onChange={e => setParams({ taskName: e.target.value })} />
         </div>
       ),
       dataIndex: 'taskName',
@@ -107,11 +83,11 @@ const TodosPage: React.FC = () => {
           <DateFilterDropdown
             onFilter={(type, dates) => {
               const dateString = dates ? `${dates[0].toISOString()},${dates[1].toISOString()}` : '';
-              handleFilterChange({ bookingDate: dateString });
+              setParams({ bookingDate: dateString });
             }}
             onClear={() => {
               console.log('Cleared date filter');
-              handleFilterChange({ bookingDate: '' });
+              setParams({ bookingDate: '' });
             }}
           />
         </div>
@@ -128,11 +104,11 @@ const TodosPage: React.FC = () => {
           <DateFilterDropdown
             onFilter={(type, dates) => {
               const dateString = dates ? `${dates[0].toISOString()},${dates[1].toISOString()}` : '';
-              handleFilterChange({ startDate: dateString });
+              setParams({ startDate: dateString });
             }}
             onClear={() => {
               console.log('Cleared date filter');
-              handleFilterChange({ startDate: '' });
+              setParams({ startDate: '' });
             }}
           />
         </div>
@@ -148,7 +124,7 @@ const TodosPage: React.FC = () => {
           <span>Site Supervisor</span>
           <AssigneeSelect
             value={filters.siteSupervisor}
-            onChange={value => handleFilterChange({ siteSupervisor: value })}
+            onChange={value => setParams({ siteSupervisor: value })}
           />
         </div>
       ),
