@@ -1,12 +1,20 @@
-import { useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { debounce } from 'lodash';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
-export function debouncedURL(delay = 500) {
+export function debouncedURL(delay = 500, filtersKey: string[], initialValue?: {}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-
+  const [filters, setFilters] = useState(
+    filtersKey.reduce(
+      (acc, key) => {
+        acc[key] = searchParams.get(key) || initialValue ? initialValue[key] : '';
+        return acc;
+      },
+      {} as Record<string, string>
+    )
+  );
   const debouncedUpdateURL = useMemo(
     () =>
       debounce((newFilters: Record<string, string | number | null | undefined>) => {
@@ -24,6 +32,19 @@ export function debouncedURL(delay = 500) {
       }, delay),
     [pathname, router, searchParams, delay]
   );
+  const setParams = useCallback(
+    updatedParams => {
+      setFilters(prev => {
+        const newFilters = { ...prev, ...updatedParams };
+        debouncedUpdateURL(newFilters);
+        return newFilters;
+      });
+    },
+    [debouncedUpdateURL]
+  );
 
-  return debouncedUpdateURL;
+  useEffect(() => {
+    debouncedUpdateURL(filters);
+  }, []);
+  return { debouncedUpdateURL, setParams, filters };
 }
