@@ -18,6 +18,7 @@ import React, { useEffect, useState } from 'react';
 import RichTextEditor from '../rich-text-editor/RichTextEditor';
 
 export type FormField = {
+  key?: string;
   label: string;
   name: string;
   placeholder?: string;
@@ -161,8 +162,8 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
           variant === 'danger'
             ? '!bg-red-600 !border-0 hover:!bg-red-700 !text-white hover:shadow-lg transition-all duration-200'
             : variant === 'success'
-            ? '!bg-green-600 !border-0 hover:!bg-green-700 !text-white hover:shadow-lg transition-all duration-200'
-            : undefined;
+              ? '!bg-green-600 !border-0 hover:!bg-green-700 !text-white hover:shadow-lg transition-all duration-200'
+              : undefined;
         return className ? { className } : undefined;
       })()}
       cancelButtonProps={(() => {
@@ -170,18 +171,17 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
           variant === 'danger'
             ? '!text-red-600 !border-red-600 !bg-transparent hover:!text-red-700 hover:!border-red-700 hover:!bg-transparent'
             : variant === 'success'
-            ? '!text-green-600 !border-green-600 !bg-transparent hover:!text-green-700 hover:!border-green-700 hover:!bg-transparent'
-            : undefined;
+              ? '!text-green-600 !border-green-600 !bg-transparent hover:!text-green-700 hover:!border-green-700 hover:!bg-transparent'
+              : undefined;
         return className ? { className } : undefined;
       })()}
     >
-      {headerMessage && (
-        typeof headerMessage === 'string' ? (
+      {headerMessage &&
+        (typeof headerMessage === 'string' ? (
           <p className="text-sm my-4 font-semibold">{headerMessage}</p>
         ) : (
           <>{headerMessage}</>
-        )
-      )}
+        ))}
       <Form
         form={form}
         layout="vertical"
@@ -190,7 +190,8 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
       >
         {fields.map(field => (
           <Form.Item
-            key={field.name}
+            key={field.key || field.name}
+
             label={
               <div className="flex items-center justify-between w-full gap-1">
                 <span className="flex-1">{field.label}</span>
@@ -224,7 +225,7 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
                 {...(field?.mode && { mode: field?.mode })}
               />
             ) : field.type === 'checkbox' ? (
-              <Radio.Group>
+              <Radio.Group onChange={field.onChange}>
                 {field.options ? (
                   field.options.map(option => (
                     <Radio key={option.value} value={option.value}>
@@ -326,7 +327,11 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
                 }}
               />
             ) : field.type === 'custom' ? (
-              typeof field.render === 'function' ? (field.render as () => React.ReactNode)() : field.render
+              typeof field.render === 'function' ? (
+                (field.render as () => React.ReactNode)()
+              ) : (
+                field.render
+              )
             ) : (
               <Input placeholder={field.placeholder} type={field.type} disabled={field.disabled} />
             )}

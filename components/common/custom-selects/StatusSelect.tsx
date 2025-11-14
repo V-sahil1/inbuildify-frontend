@@ -12,19 +12,27 @@ const activeInactiveOptions = [
   { value: 'false', label: 'Inactive' },
 ];
 
+const approveOptions = [
+  { value: '', label: 'All' },
+  { value: 'approved', label: 'Approved' },
+  { value: 'cancelled', label: 'Cancelled' },
+  { value: 'modified', label: 'Modified' },
+  { value: 'expired', label: 'Expired' },
+];
 interface StatusSelectProps {
   value?: string;
   onChange?: (value: string) => void;
   width?: number | string;
   activeInactive?: boolean;
+  approveOption?: boolean;
 }
 
-const StatusSelect: React.FC<StatusSelectProps> = ({ value, onChange, width, activeInactive = false }) => {
+const StatusSelect: React.FC<StatusSelectProps> = ({ value, onChange, width, activeInactive = false, approveOption = false }) => {
   return (
     <CustomSelect
       value={value}
       onChange={onChange}
-      options={activeInactive ? activeInactiveOptions : statusOptions}
+      options={approveOption ? approveOptions : activeInactive ? activeInactiveOptions : statusOptions}
       placeholder="Status"
       width={width}
     />

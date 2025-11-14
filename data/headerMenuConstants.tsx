@@ -102,7 +102,7 @@ export const gridMenuItems2: MenuItem[] = [
     id: 4,
     icon: <IconHome className="w-4 h-4 mr-3" />,
     label: 'Facade',
-    href: '#',
+    href: `${SystemRoutes.FACADE}`,
   },
   {
     id: 5,

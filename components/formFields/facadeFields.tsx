@@ -1,5 +1,4 @@
-import { enumArrayToOptions } from '@lib/utils/enumArrayToOptionsConvert';
-import { CreateFormField } from '../common/Models/CreateFormModel';
+import { useState, useMemo } from 'react';
 import { useAppSelector } from '@hooks/redux';
 import { mapToOptions } from '@lib/utils/rangeAndDwellingObjToOptions';
 import {
@@ -12,63 +11,100 @@ import SystemRoutes from '@lib/constants/Routes';
 
 export const facadeFields = ({
   isDwellingDisable = false,
+  type,
 }: {
   isDwellingDisable?: boolean;
-}): CreateFormField[] => {
+  type?: 'standard' | 'upgrade';
+}) => {
   const dwellingType = useAppSelector(state => state.types.dwellingType);
   const { selectedFilters } = useAppSelector(state => state.quotation);
-  const dwellingTypeOptions = mapToOptions(dwellingType);
+  const dwellingTypeOptions = mapToOptions(dwellingType); 
+  const [costType, setCostType] = useState<'standard' | 'upgrade'>(type);
 
-  return [
-    {
-      label: 'Name',
-      name: 'name',
-      type: 'text',
-      placeholder: 'Luxury Villa',
-      rules: settingNameRules,
-    },
-    {
-      label: 'Image',
-      name: 'image',
-      type: 'image',
-      acceptFileType: acceptOnlyImageRule,
-      rules: [{ required: true, message: 'Please upload image' }],
-    },
-    {
-      label: 'Dwelling Type',
-      name: 'dwelling_type',
-      type: 'select',
-      options: dwellingTypeOptions,
-      placeholder: 'Select dwelling type',
-      rules: [{ required: true, message: 'Please select a dwelling type' }],
-      disabled: isDwellingDisable,
-      initialValue: isDwellingDisable ? selectedFilters?.dwelling_type : undefined,
-      notFoundContent: (
-        <NoDataMessage label="dwelling type" link={SystemRoutes.DWELLING_AND_RANGE} />
-      ),
-    },
-    {
-      label: 'Cost',
-      name: 'cost',
-      type: 'number',
-      placeholder: '10000',
-      rules: costRules,
-    },
-    {
-      label: 'Standard',
-      name: 'standard',
-      type: 'checkbox',
-      placeholder: '1',
-      initialValue: 'TRUE',
-      rules: [{ required: true, message: 'Please select a dwelling type' }],
-    },
-    {
-      label: 'Upgrade',
-      name: 'upgrade',
-      type: 'checkbox',
-      placeholder: '1',
-      initialValue: 'TRUE',
-      rules: [{ required: true, message: 'Please select a dwelling type' }],
-    },
-  ];
+  const handleCostTypeChange = (e: any) => {
+    const value = e?.target?.value || e;
+    setCostType(value);
+  };
+
+  const fields = useMemo(() => {
+    return [
+      {
+        label: 'Location',
+        name: 'location',
+        type: 'select',
+        options: [],
+        placeholder: 'Location',
+        rules: settingNameRules,
+      },
+      {
+        label: 'Name',
+        name: 'name',
+        type: 'text',
+        placeholder: 'Luxury Villa',
+        rules: settingNameRules,
+      },
+      {
+        label: 'Dwelling Type',
+        name: 'dwelling_type',
+        type: 'select',
+        options: dwellingTypeOptions,
+        placeholder: 'Select dwelling type',
+        rules: [{ required: true, message: 'Please select a dwelling type' }],
+        disabled: isDwellingDisable,
+        initialValue: isDwellingDisable ? selectedFilters?.dwelling_type : undefined,
+        notFoundContent: (
+          <NoDataMessage label="dwelling type" link={SystemRoutes.DWELLING_AND_RANGE} />
+        ),
+      },
+      {
+        label: 'Image',
+        name: 'image',
+        type: 'image',
+        acceptFileType: acceptOnlyImageRule,
+        rules: [{ required: true, message: 'Please upload image' }],
+      },
+      {
+        label: 'Cost Type',
+        name: 'costType',
+        type: 'checkbox',
+        options: [
+          { label: 'Standard', value: 'standard' },
+          { label: 'Upgrade', value: 'upgrade' },
+        ],
+        placeholder: 'Select cost type',
+        rules: [{ required: true, message: 'Please select a cost type' }],
+        value: costType,
+        onChange: handleCostTypeChange,
+        initialValue: costType,
+      },
+      {
+        label: 'Cost',
+        name: 'cost',
+        type: 'number',
+        disabled: costType === 'standard',
+        rules: costRules,
+      },
+      {
+        label: 'Builder cost',
+        name: 'builderCost',
+        type: 'number',
+        disabled: costType === 'standard',
+        rules: costRules,
+      },
+      {
+        label: 'Status',
+        name: 'status',
+        type: 'checkbox',
+        options: [
+          { label: 'Active', value: 'active' },
+          { label: 'Inactive', value: 'inactive' },
+        ],
+        placeholder: 'Select status',
+        initialValue: 'active',
+        rules: [{ required: true, message: 'Please select a status' }],
+      },
+    ];
+  }, [costType, dwellingTypeOptions, isDwellingDisable, selectedFilters]);
+
+  return fields;
 };

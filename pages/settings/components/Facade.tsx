@@ -34,6 +34,7 @@ const Facade = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [facadeId, setFacadeId] = useState<string | null>(null);
+  const fields = facadeFields({ isDwellingDisable: false });
 
   const fetchFacadesData = async (filters?: { standard?: boolean; upgrade?: boolean }) => {
     try {
@@ -235,7 +236,7 @@ const Facade = () => {
             setEditingFacade(null);
           }}
           onSubmit={handleCreateFacade}
-          fields={facadeFields({ isDwellingDisable: false })}
+          fields={fields}
           loading={loading}
         />
       )}
