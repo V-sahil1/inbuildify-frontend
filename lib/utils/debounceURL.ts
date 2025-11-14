@@ -2,6 +2,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { debounce } from 'lodash';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
+// delay:  debounce time
+// filtersKey: string[] — list of query parameter keys to manage and sync with the URL.
+// initialValue?: object — optional default values that are applied first and override URL search params.
+
 export function debouncedURL(delay = 500, filtersKey: string[], initialValue?: {}) {
   const router = useRouter();
   const pathname = usePathname();
@@ -9,7 +13,7 @@ export function debouncedURL(delay = 500, filtersKey: string[], initialValue?: {
   const [filters, setFilters] = useState(
     filtersKey.reduce(
       (acc, key) => {
-        acc[key] = searchParams.get(key) || initialValue ? initialValue[key] : '';
+        acc[key] = searchParams.get(key) || initialValue && initialValue[key] ;
         return acc;
       },
       {} as Record<string, string>
