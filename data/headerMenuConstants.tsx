@@ -140,7 +140,7 @@ export const gridMenuItems2: MenuItem[] = [
     id: 10,
     icon: <IconBeach className="w-4 h-4 mr-3" />,
     label: 'Holiday',
-    href: '#',
+    href: `${SystemRoutes.HOLIDAY_MASTER}`,
   },
   {
     id: 11,

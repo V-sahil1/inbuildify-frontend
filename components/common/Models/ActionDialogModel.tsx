@@ -61,12 +61,12 @@ interface ActionDialogProps {
   isEditing?: boolean;
   initialValues?: any;
   headerMessage?: React.ReactNode;
-  footerMessage?: string;
+  footerMessage?: React.ReactNode;
   onCancel: () => void;
   invite?: boolean;
   submitButtonText?: string;
   onSubmit: (values: any) => void;
-  fields?: readonly FormField[];
+  fields: readonly FormField[];
   onValuesChange?: (values: any, form: any) => void;
   variant?: 'default' | 'danger' | 'success';
 }
@@ -191,7 +191,6 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
         {fields.map(field => (
           <Form.Item
             key={field.key || field.name}
-
             label={
               <div className="flex items-center justify-between w-full gap-1">
                 <span className="flex-1">{field.label}</span>
@@ -337,7 +336,12 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
             )}
           </Form.Item>
         ))}
-        {footerMessage && <p className="text-sm my-4 font-semibold">{footerMessage}</p>}
+
+        {typeof footerMessage === 'string' ? (
+          <p className="text-sm my-4 font-semibold">{footerMessage}</p>
+        ) : (
+          <>{footerMessage}</>
+        )}
       </Form>
     </Modal>
   );

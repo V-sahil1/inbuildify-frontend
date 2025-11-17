@@ -38,6 +38,7 @@ class SystemRoutes {
   public static FLOORPLAN = `/floorplan`;
   public static FACADE = `/facade`;
   public static CONTRACT = `/contract`;
+  public static HOLIDAY_MASTER = `/holiday-master`;
 }
 
 export default SystemRoutes;
