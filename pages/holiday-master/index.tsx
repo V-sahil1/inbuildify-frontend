@@ -1,8 +1,7 @@
 'use client';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
-import { HolidayRecalculateModal } from '@/components/common/Models/HolidayRecalculateMOdal';
+import { HolidayRecalculateModal } from '@/components/common/Models/HolidayRecalculateModal';
 import { holidayFields } from '@/components/formFields/holidayFields';
-import { holidayRecalculateFields } from '@/components/formFields/holidayRecalculateFields';
 import { useHolidayMasterColumns } from '@/components/table-columns/holidayMasterColumn';
 import { debouncedURL } from '@lib/utils/debounceURL';
 import { IconPlus, IconRefresh } from '@tabler/icons-react';
@@ -15,7 +14,7 @@ export default function HolidayMaster() {
   const { debouncedUpdateURL, setParams, filters } = debouncedURL({
     filtersKey: ['startDate', 'endDate', 'desc', 'state', 'status'],
   });
-  const { columns, data,deleteModal } = useHolidayMasterColumns({ filters, setParams });
+  const { columns, data, deleteModal } = useHolidayMasterColumns({ filters, setParams });
   useEffect(() => {
     return () => {
       debouncedUpdateURL.cancel();
@@ -103,29 +102,11 @@ export default function HolidayMaster() {
       <HolidayRecalculateModal
         open={modalOpen === 'recalculate'}
         onCancel={() => setModalOpen(null)}
-        onSubmit={() => console.log("Submitted")}
+        onSubmit={values => {
+          console.log('Submitted', values);
+          setModalOpen(null);
+        }}
       />
-
-         {/* footerMessage={ 
-        //   <div className="bg-yellow-100 border-l-4 border-red-500 text-red-600 p-4 rounded-md">
-        //     <ul className="list-disc ml-5 space-y-2 text-sm leading-relaxed">
-        //       <li>
-        //         Kindly do this activity during{' '}
-        //         <span className="font-semibold">non-business hours</span> from{' '}
-        //         <strong>7pm to 6am</strong>.
-        //       </li>
-        //       <li>
-        //         It's a system process, it will take time to update the existing jobs, so please wait
-        //         for <strong>2 hours</strong> to complete the action.
-        //       </li>
-        //       <li>
-        //         Based on the new holiday(s) added, the dates will be recalculated and suppliers will
-        //         be rebooked for all the booked jobs.
-        //       </li>
-        //     </ul>
-        //   </div>
-        // }*/}
-
       {deleteModal}
     </div>
   );

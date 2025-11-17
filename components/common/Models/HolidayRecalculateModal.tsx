@@ -1,22 +1,19 @@
-import React, { useState } from "react";
-import { Modal, Form, Switch, Typography, Button, Alert } from "antd";
+import React from 'react';
+import { Modal, Form, Switch, Typography, Button, Input } from 'antd';
 
 const { Text } = Typography;
-
+const { TextArea } = Input;
 export const HolidayRecalculateModal: React.FC<{
   open: boolean;
   onCancel: () => void;
-  onSubmit: () => void;
+  onSubmit: (values) => void;
 }> = ({ open, onCancel, onSubmit }) => {
   const [form] = Form.useForm();
-  const [showExtraOptions, setShowExtraOptions] = useState(false);
-
-  const handleConstructionToggle = (checked: boolean) => {
-    setShowExtraOptions(checked);
-  };
-
+  const captureReason = Form.useWatch('captureReason', form);
+  const workflowJobs = Form.useWatch('workflowJobs', form);
+  const constructionJobs = Form.useWatch('constructionJobs', form);
   const handleSubmit = () => {
-    form.validateFields().then(() => onSubmit());
+    form.validateFields().then(values => onSubmit(values));
   };
 
   return (
@@ -25,7 +22,7 @@ export const HolidayRecalculateModal: React.FC<{
       open={open}
       onCancel={onCancel}
       centered
-      destroyOnClose
+      destroyOnHidden
       maskClosable={false}
       footer={[
         <Button key="cancel" onClick={onCancel}>
@@ -35,108 +32,91 @@ export const HolidayRecalculateModal: React.FC<{
           Recalculate
         </Button>,
       ]}
-      bodyStyle={{
-        maxHeight: "70vh",
-        overflowY: "auto",
-        padding: "12px 24px",
+      styles={{
+        body: {
+          maxHeight: '70vh',
+          overflowY: 'auto',
+          padding: '12px 24px',
+          scrollbarWidth: 'none',
+        },
       }}
     >
       <Form layout="vertical" form={form}>
-        <Form.Item
-          name="workflowJobs"
-          valuePropName="checked"
-          initialValue={true}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div className="flex items-center gap-8">
+          <Form.Item name="workflowJobs" valuePropName="checked" initialValue={true}>
             <Switch />
-            <Text strong>
-              Recalculate the estimated dates for existing workflow jobs
-            </Text>
-          </div>
-        </Form.Item>
+          </Form.Item>
+          <Text strong>Recalculate the estimated dates for existing workflow jobs</Text>
+        </div>
+        <div className="flex items-center gap-8">
+          <Form.Item name="constructionJobs" valuePropName="checked" initialValue={false}>
+            <Switch />
+          </Form.Item>
+          <Text strong>Recalculate the estimated dates for existing construction jobs</Text>
+        </div>
 
-        <Form.Item
-          name="constructionJobs"
-          valuePropName="checked"
-          initialValue={false}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <Switch onChange={handleConstructionToggle} />
-            <Text strong>
-              Recalculate the estimated dates for existing construction jobs
-            </Text>
-          </div>
-        </Form.Item>
-
-        {showExtraOptions && (
+        {constructionJobs && (
           <>
-            <Form.Item
-              name="captureReason"
-              valuePropName="checked"
-              initialValue={false}
-            >
-              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div>
+              <div className="flex items-center gap-8">
+                <Form.Item name="captureReason" valuePropName="checked" initialValue={false}>
                   <Switch />
-                  <Text strong>
-                    Capture reason for rebooking and include in rebooking email
+                </Form.Item>
+                <Text strong>Capture reason for rebooking and include in rebooking email</Text>
+              </div>
+              <div className="ml-[76px]">
+                {!captureReason && (
+                  <Text type="secondary">
+                    The reason captured will be included in all the rebooking emails and sent to the
+                    respective suppliers.
                   </Text>
-                </div>
-                <Text type="secondary" style={{ marginLeft: 28 }}>
-                  The reason captured will be included in all the rebooking
-                  emails and sent to the respective suppliers.
-                </Text>
+                )}
+                {captureReason && (
+                  <Form.Item name="message">
+                    <TextArea rows={4} showCount maxLength={500} style={{ resize: 'none' }} />
+                  </Form.Item>
+                )}
               </div>
-            </Form.Item>
-
-            <Form.Item
-              name="confirmedBooking"
-              valuePropName="checked"
-              initialValue={true}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <Switch />
-                <Text strong>
-                  Recalculate the dates for confirmed booking
-                </Text>
-              </div>
-            </Form.Item>
+            </div>
+            <div className="flex items-center gap-8">
+              <Form.Item name="confirmedBooking" valuePropName="checked" initialValue={true}>
+                <Switch className="mt-4" />
+              </Form.Item>
+              <Text strong>Recalculate the dates for confirmed booking</Text>
+            </div>
           </>
         )}
 
         {/* Alerts shown below based on toggle state */}
-        <div style={{ marginTop: 16 }}>
-          <Alert
-            type="warning"
-            showIcon
-            message={
-              <>
-                <div>
-                  <Text type="danger">
-                    Kindly do this activity during non-business hours from 7pm
-                    to 6am.
-                  </Text>
-                </div>
-                <div>
-                  <Text type="danger">
-                    It's a system process, it will take time to update the
-                    existing jobs, so please wait for 2 hours to complete the
-                    action.
-                  </Text>
-                </div>
-                {showExtraOptions && (
-                  <div>
-                    <Text type="danger">
-                      Based on the new holiday(s) added, the dates will be
-                      recalculated and suppliers will be rebooked for all the
-                      booked jobs.
-                    </Text>
-                  </div>
+
+        {(workflowJobs || constructionJobs) && (
+          <div style={{ marginTop: 16 }}>
+            <div className="bg-yellow-100 border-l-4 border-red-500 text-red-600 p-4 rounded-md">
+              <ul className="list-disc ml-5 space-y-2 text-sm leading-relaxed">
+                {workflowJobs && (
+                  <>
+                    <li>
+                      Kindly do this activity during{' '}
+                      <span className="font-semibold">non-business hours</span> from{' '}
+                      <strong>7pm to 6am</strong>.
+                    </li>
+                    <li>
+                      It's a system process, it will take time to update the existing jobs, so
+                      please wait for <strong>2 hours</strong> to complete the action.
+                    </li>
+                  </>
                 )}
-              </>
-            }
-          />
-        </div>
+
+                {constructionJobs && (
+                  <li>
+                    Based on the new holiday(s) added, the dates will be recalculated and suppliers
+                    will be rebooked for all the booked jobs.
+                  </li>
+                )}
+              </ul>
+            </div>
+          </div>
+        )}
       </Form>
     </Modal>
   );
