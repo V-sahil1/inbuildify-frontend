@@ -161,7 +161,7 @@ export interface NoteDetails {
   message: string;
   tags: NoteTag[];
   sendToCustomer?: boolean;
-  sendToReferralPartner?:boolean;
+  sendToReferralPartner?: boolean;
   createFollowUpTask?: boolean;
   task?: NoteTask;
   attachment?: NoteAttachment[];

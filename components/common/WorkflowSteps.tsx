@@ -25,13 +25,9 @@ const WorkflowSteps: React.FC<WorkflowStepsProps> = ({ steps }) => {
           <div
             key={index}
             className="flex flex-1 "
-            onClick={e => {
-              e.preventDefault();
-              item?.onClick();
-            }}
           >
             <div
-              className={`flex-1 flex-col text-center py-2  cursor-pointer  justify-center ${item.color}
+              className={`flex-1 flex-col text-center py-2 justify-center ${item.color}
                                           ${index > 0 ? '-ml-40' : ''} z-[${steps.length - index}]
                                           ${index == 0 ? 'rounded-tl-lg rounded-bl-lg' : isLast ? 'rounded-tr-lg rounded-br-lg' : ''} `}
               style={{
@@ -53,7 +49,9 @@ const WorkflowSteps: React.FC<WorkflowStepsProps> = ({ steps }) => {
                     {item.icon}
                   </div>
                 </div>
-                <Button type="link">{item.label}</Button>
+                <Button type="link" className='cursor-pointer' onClick={e => {
+              item?.onClick();
+            }}>{item.label}</Button>
                 <div className="text-xs flex justify-between px-2">
                   <p>
                     {item?.status} {item.date && 'on'} {item?.date}
@@ -61,7 +59,7 @@ const WorkflowSteps: React.FC<WorkflowStepsProps> = ({ steps }) => {
 
                   {item.options && (
                     <Dropdown menu={{ items: item.options }} trigger={['click']}>
-                      <IconDotsVertical size={15} className="text-blue" />
+                      <IconDotsVertical size={15} className="text-blue cursor-pointer" />
                     </Dropdown>
                   )}
                 </div>

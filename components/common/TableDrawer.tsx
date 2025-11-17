@@ -1,14 +1,15 @@
-import React from "react";
-import { Drawer, Table } from "antd";
-import { IconX } from "@tabler/icons-react";
+import React, { Children } from 'react';
+import { Button, Drawer, Table } from 'antd';
+import { IconX } from '@tabler/icons-react';
 
 interface TableDrawerProps {
   open: boolean;
   onClose: () => void;
-  title: string;
-  table : {columns: any[]; data: any[]};
+  title: string | React.ReactNode;
+  table: { columns: any[]; data: any[] };
   width?: number | string;
   loading?: boolean;
+  children?: React.ReactNode; 
 }
 
 export const TableDrawer: React.FC<TableDrawerProps> = ({
@@ -18,6 +19,8 @@ export const TableDrawer: React.FC<TableDrawerProps> = ({
   table,
   width = 900,
   loading = false,
+  children
+  
 }) => {
   return (
     <Drawer
@@ -26,10 +29,17 @@ export const TableDrawer: React.FC<TableDrawerProps> = ({
       title={title}
       width={width}
       closeIcon={false}
-      extra={<IconX style={{ cursor: "pointer" }} onClick={onClose} size={20} />}
-      bodyStyle={{ padding: 0 }}
+      extra={
+        <Button className='ml-2' type="text" icon={<IconX style={{ cursor: 'pointer' }} onClick={onClose} />} />
+      }
+      styles={{
+        body: {
+          padding: 0,
+        },
+      }}
     >
       <div className="p-4">
+       {children}
         <Table
           columns={table?.columns}
           dataSource={table?.data}
@@ -37,7 +47,7 @@ export const TableDrawer: React.FC<TableDrawerProps> = ({
           bordered
           scroll={{ x: true }}
           loading={loading}
-          rowKey={(record) => record.key || record.id}
+          rowKey={record => record.key || record.id}
           tableLayout="fixed"
         />
       </div>

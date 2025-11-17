@@ -9,6 +9,7 @@ import { TableDrawer } from '@/components/common/TableDrawer';
 import { QuotationHistoryColumn } from '@/components/table-columns/QuotationHistoryColumn';
 import { facadeFields } from '@/components/formFields/facadeFields';
 import { ActionDialogmodel, FormField } from '@/components/common/Models/ActionDialogModel';
+import { exportToExcel } from '@lib/utils/exportToExcel';
 
 const { Option } = Select;
 
@@ -141,7 +142,21 @@ const FacadeMaster = () => {
       ),
     },
   ];
-
+  const handleExport = data => {
+    const column = {
+      referenceNo: 'Reference No',
+      customerName: 'Customer Name',
+      propertyAddress: 'Property Address',
+      quotationStatus: 'Quotation Status',
+      leadStatus: 'Lead Status',
+    };
+    exportToExcel({
+      data,
+      fileName: 'FacadeQuotationList',
+      sheetName: 'FacadeQuotationList',
+      columnHeaders: column,
+    });
+  };
   return (
     <div className="p-6 min-h-screen">
       <div className="flex items-center justify-between mb-4">
@@ -186,7 +201,11 @@ const FacadeMaster = () => {
               <p>Quotation History</p>
               <Space>
                 <Button type="primary">Total Records {data.length}</Button>
-                <Button type="primary" icon={<IconDownload size={20} />} />
+                <Button
+                  type="primary"
+                  onClick={() => handleExport(data)}
+                  icon={<IconDownload size={20} />}
+                />
               </Space>
             </div>
           }
@@ -217,4 +236,3 @@ const FacadeMaster = () => {
 };
 
 export default FacadeMaster;
-

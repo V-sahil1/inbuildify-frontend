@@ -1,6 +1,7 @@
 import { Input } from 'antd';
-import React from 'react';
+import React, { useEffect } from 'react';
 import StatusSelect from '../common/custom-selects/StatusSelect';
+import { debouncedURL } from '@lib/utils/debounceURL';
 
 interface QuotationRecord {
   key: string;
@@ -12,6 +13,15 @@ interface QuotationRecord {
 }
 
 export const QuotationHistoryColumn = () => {
+  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+    filtersKey: ['referenceNo', 'customerName', 'propertyAddress', 'quotationStatus', 'leadStatus'],
+    shouldSyncURL: false,
+  });
+  useEffect(() => {
+    return () => {
+      debouncedUpdateURL.cancel();
+    };
+  }, [debouncedUpdateURL]);
   const columns = [
     {
       title: (
@@ -21,7 +31,9 @@ export const QuotationHistoryColumn = () => {
           <Input
             placeholder="Search Reference No"
             onChange={
-              e => {}
+              e => {
+                setParams({ referenceNo: e.target.value });
+              }
               //  handleFilterChange('referenceNo', e.target.value)
             }
           />
@@ -41,7 +53,9 @@ export const QuotationHistoryColumn = () => {
           <Input
             placeholder="Search Customer Name"
             onChange={
-              e => {}
+              e => {
+                setParams({ customerName: e.target.value });
+              }
               //  handleFilterChange('customerName', e.target.value)
             }
           />
@@ -59,7 +73,9 @@ export const QuotationHistoryColumn = () => {
           <Input
             placeholder="Search Property Address"
             onChange={
-              e => {}
+              e => {
+                setParams({ propertyAddress: e.target.value });
+              }
               //  handleFilterChange('propertyAddress', e.target.value)
             }
           />
@@ -73,12 +89,17 @@ export const QuotationHistoryColumn = () => {
       title: (
         <div className="flex flex-col gap-1">
           <span>Quotation Status</span>
-          <StatusSelect approveOption={true} />
+          <StatusSelect
+            approveOption={true}
+            onChange={value => {
+              setParams({ quotationStatus: value });
+            }}
+          />
         </div>
       ),
       dataIndex: 'quotationStatus',
       key: 'quotationStatus',
-
+      width: 150,
       render: (status: string) => {
         const colors: Record<string, string> = {
           Approved: 'bg-green-100 text-green-800',
@@ -97,7 +118,13 @@ export const QuotationHistoryColumn = () => {
       title: (
         <div className="flex flex-col gap-1">
           <span>Lead Status</span>
-          <select className="border rounded text-sm px-2 py-1 outline-none" defaultValue="All">
+          <select
+            className="border rounded text-sm px-2 py-1 outline-none"
+            defaultValue="All"
+            onChange={e => {
+              setParams({ leadStatus: e.target.value });
+            }}
+          >
             <option value="All">All</option>
             <option value="Open">Open</option>
             <option value="Closed Won">Closed Won</option>

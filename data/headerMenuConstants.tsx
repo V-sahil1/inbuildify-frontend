@@ -108,7 +108,7 @@ export const gridMenuItems2: MenuItem[] = [
     id: 5,
     icon: <IconLayout2 className="w-4 h-4 mr-3" />,
     label: 'Floor Plan',
-    href: '#',
+    href: `${SystemRoutes.FLOORPLAN}`,
   },
   {
     id: 6,
@@ -171,7 +171,7 @@ export const gridMenuItems2: MenuItem[] = [
     id: 15,
     icon: <IconFileCertificate className="w-4 h-4 mr-3" />,
     label: 'Contract Document Format',
-    href: '#',
+    href: `${SystemRoutes.CONTRACT}`,
   },
 ];
 

@@ -8,6 +8,7 @@ import {
 } from './floorPlanThunk';
 import { Status } from '@lib/constants/enum';
 import { IFloorPlanState } from './IFloorPlanState';
+import { FloorplanPricelistRecord } from '@/components/table-columns/FloorplanPricelistColumns';
 
 const floorPlanSlice = createSlice({
   name: 'floorPlan',
@@ -16,11 +17,19 @@ const floorPlanSlice = createSlice({
     status: { floorPlan: Status.IDLE, filters: Status.IDLE, conditions: Status.IDLE },
     filters: null,
     selectedFilters: { range: '', dwelling_type: '' },
+    selectedFloorplans:[] as FloorplanPricelistRecord[]
   },
   reducers: {
     setSelectedFilters: (state, action) => {
       state.selectedFilters = { ...state.selectedFilters, ...action.payload };
     },
+    setSelectedFloorplans : (state,action) => {
+      state.selectedFloorplans = [...state.selectedFloorplans,action.payload];
+    },
+    removeFloorplanItem : (state,action)=>{
+      const {id}=action.payload
+      state.selectedFloorplans = state.selectedFloorplans.filter((item) => item.id !== id)
+    }
   },
   extraReducers: builder => {
     builder
@@ -54,5 +63,5 @@ const floorPlanSlice = createSlice({
   },
 });
 
-export const { setSelectedFilters } = floorPlanSlice.actions;
+export const { setSelectedFilters,setSelectedFloorplans,removeFloorplanItem } = floorPlanSlice.actions;
 export default floorPlanSlice.reducer;

@@ -19,5 +19,6 @@ export interface IFloorPlanState {
   updatedAt: string;
   rangeName: string;
   dwellingTypeName: string;
+  status?:string
 }
 [];
