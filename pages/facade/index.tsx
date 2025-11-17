@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Table, Select, Input, Button, Tag, Image, Tooltip } from 'antd';
-import { IconPlus, IconRotate } from '@tabler/icons-react';
+import React, { useEffect, useState } from 'react';
+import { Table, Select, Input, Button, Tag, Image, Tooltip, Space } from 'antd';
+import { IconDownload, IconPlus, IconRotate } from '@tabler/icons-react';
 import DwellingTypeSelect from '@/components/common/custom-selects/DwellingTypeSelect';
 import StatusSelect from '@/components/common/custom-selects/StatusSelect';
 import { facadeData } from 'data/facadeData';
@@ -21,17 +21,14 @@ const FacadeMaster = () => {
     isDwellingDisable: false,
     type: isEditing?.costType || 'standard',
   }) as FormField[];
-  const updateURL = debouncedURL(500);
-
-  const handleFilterChange = (key: string, value: string | number | null | undefined) => {
-    if (key === 'status') setStatusFilter(value as string);
-
-    const normalizedValue =
-      value === 'All' || value === '' || value === null || value === undefined ? null : value;
-
-    updateURL({ [key]: normalizedValue });
-  };
-
+  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+    filtersKey: ['name', 'dwellingType', 'dwellingType', 'costType', 'label', 'location', 'status'],
+  });
+  useEffect(() => {
+    return () => {
+      debouncedUpdateURL.cancel();
+    };
+  }, [debouncedUpdateURL]);
   const columns = [
     {
       title: 'Image',
@@ -50,10 +47,7 @@ const FacadeMaster = () => {
       title: (
         <div className="flex flex-col gap-1">
           <span>Name</span>
-          <Input
-            placeholder="Search Name"
-            onChange={e => handleFilterChange('name', e.target.value)}
-          />
+          <Input placeholder="Search Name" onChange={e => setParams({ name: e.target.value })} />
         </div>
       ),
       dataIndex: 'name',
@@ -64,7 +58,7 @@ const FacadeMaster = () => {
       title: (
         <div className="flex flex-col gap-1">
           <span>Dwelling Type</span>
-          <DwellingTypeSelect onChange={v => handleFilterChange('dwellingType', v)} />
+          <DwellingTypeSelect onChange={v => setParams({ dwellingType: v })} />
         </div>
       ),
       dataIndex: 'dwelling_type',
@@ -74,7 +68,7 @@ const FacadeMaster = () => {
       title: (
         <div className="flex flex-col gap-1">
           <span>Cost Type</span>
-          <Select defaultValue="All" size="small" onChange={v => handleFilterChange('costType', v)}>
+          <Select defaultValue="All" size="small" onChange={v => setParams({ costType: v })}>
             <Option value="All">All</Option>
             <Option value="Standard">Standard</Option>
             <Option value="Upgrade">Upgrade</Option>
@@ -94,7 +88,7 @@ const FacadeMaster = () => {
       title: (
         <div className="flex flex-col gap-1">
           <span>Label</span>
-          <Select defaultValue="All" size="small" onChange={v => handleFilterChange('label', v)}>
+          <Select defaultValue="All" size="small" onChange={v => setParams({ label: v })}>
             <Option value="All">All</Option>
             <Option value="Standard">Standard</Option>
           </Select>
@@ -108,7 +102,7 @@ const FacadeMaster = () => {
       title: (
         <div className="flex flex-col gap-1">
           <span>Location</span>
-          <Select defaultValue="All" size="small" onChange={v => handleFilterChange('location', v)}>
+          <Select defaultValue="All" size="small" onChange={v => setParams({ location: v })}>
             <Option value="All">All</Option>
           </Select>
         </div>
@@ -120,7 +114,7 @@ const FacadeMaster = () => {
       title: (
         <div className="flex flex-col gap-1">
           <span>Status</span>
-          <StatusSelect activeInactive={true} onChange={v => handleFilterChange('status', v)} />
+          <StatusSelect activeInactive={true} onChange={v => setParams({ status: v })} />
         </div>
       ),
       dataIndex: 'status',
@@ -172,7 +166,7 @@ const FacadeMaster = () => {
           statusFilter ? item.status.toLowerCase() === statusFilter.toLowerCase() : true
         )}
         pagination={false}
-        rootClassName='cursor-pointer'
+        rootClassName="cursor-pointer"
         onRow={record => ({
           onClick: () => {
             setIsEditing(record);
@@ -187,7 +181,15 @@ const FacadeMaster = () => {
           open={drawerOpen === 'quotation'}
           width={1200}
           onClose={() => setDrawerOpen(null)}
-          title="Quotation History"
+          title={
+            <div className="flex justify-between items-center">
+              <p>Quotation History</p>
+              <Space>
+                <Button type="primary">Total Records {data.length}</Button>
+                <Button type="primary" icon={<IconDownload size={20} />} />
+              </Space>
+            </div>
+          }
           table={{ columns: quotationColumns, data }}
         />
       )}
@@ -215,3 +217,4 @@ const FacadeMaster = () => {
 };
 
 export default FacadeMaster;
+
