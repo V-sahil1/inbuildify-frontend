@@ -12,7 +12,7 @@ export const createTemplateFields = (): FormField[] => {
     {
       label: 'Template Type',
       name: 'template_type',
-      type: 'checkbox',
+      type: 'radio',
       options: [
         { value: 'Template', label: 'Template' },
         { value: 'Package', label: 'Package' },

@@ -66,7 +66,7 @@ export const facadeFields = ({
       {
         label: 'Cost Type',
         name: 'costType',
-        type: 'checkbox',
+        type: 'radio',
         options: [
           { label: 'Standard', value: 'standard' },
           { label: 'Upgrade', value: 'upgrade' },
@@ -94,7 +94,7 @@ export const facadeFields = ({
       {
         label: 'Status',
         name: 'status',
-        type: 'checkbox',
+        type: 'radio',
         options: [
           { label: 'Active', value: 'active' },
           { label: 'Inactive', value: 'inactive' },

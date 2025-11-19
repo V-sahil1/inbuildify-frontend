@@ -64,7 +64,7 @@ export const getIncomingFields = (): FormField[] => [
   {
     label: 'Commission Type',
     name: 'commissionType',
-    type: 'checkbox',
+    type: 'radio',
     options: [
       { label: 'Percentage', value: 'percentage' },
       { label: 'Amount', value: 'amount' },

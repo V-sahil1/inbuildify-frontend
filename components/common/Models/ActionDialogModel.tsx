@@ -12,6 +12,7 @@ import {
   Switch,
   DatePicker,
   ColorPicker,
+  Checkbox,
 } from 'antd';
 import { UploadChangeParam } from 'antd/es/upload';
 import React, { useEffect, useState } from 'react';
@@ -32,6 +33,7 @@ export type FormField = {
     | 'text'
     | 'textarea'
     | 'select'
+    | 'dynamic-select'
     | 'url'
     | 'number'
     | 'checkbox'
@@ -39,7 +41,9 @@ export type FormField = {
     | 'switch'
     | 'date'
     | 'texteditor'
+    | 'textEditor'
     | 'color'
+    | 'radio'
     | 'custom';
   mode?: 'tags' | 'multiple';
   options?: { value: string; label: string }[];
@@ -223,7 +227,19 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
                 notFoundContent={field?.notFoundContent}
                 {...(field?.mode && { mode: field?.mode })}
               />
-            ) : field.type === 'checkbox' ? (
+            ) : field.type === 'dynamic-select' ? (
+              // dynamic-select behaves like select but can also get options updated by parent (via props re-render)
+              <Select
+                showSearch
+                placeholder={field?.placeholder}
+                options={field?.options}
+                disabled={field?.disabled}
+                notFoundContent={field?.notFoundContent}
+                {...(field?.mode && { mode: field?.mode })}
+                onChange={(val) => field.onChange?.(val)}
+                // onChange={(val) => field.onChange?.(val, form)}
+              />
+            ) : field.type === 'radio' ? (
               <Radio.Group onChange={field.onChange}>
                 {field.options ? (
                   field.options.map(option => (
@@ -326,12 +342,16 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
                 }}
               />
             ) : field.type === 'custom' ? (
-              typeof field.render === 'function' ? (
-                (field.render as () => React.ReactNode)()
-              ) : (
-                field.render
-              )
-            ) : (
+              typeof field.render === 'function' ? (field.render as () => React.ReactNode)() : field.render
+            ): field.type === 'checkbox' ?(
+                 <Checkbox.Group onChange={field.onChange}>
+                {field.options.map(option => (
+                    <Checkbox key={option.value} value={option.value}>
+                      {option.label}
+                    </Checkbox>
+                  ))}
+                </Checkbox.Group>
+             ) : (
               <Input placeholder={field.placeholder} type={field.type} disabled={field.disabled} />
             )}
           </Form.Item>
