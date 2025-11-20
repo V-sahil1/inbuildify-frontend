@@ -2,6 +2,7 @@ import { Input } from 'antd';
 import React, { useEffect } from 'react';
 import StatusSelect from '../common/custom-selects/StatusSelect';
 import { debouncedURL } from '@lib/utils/debounceURL';
+import { exportToExcel } from '@lib/utils/exportToExcel';
 
 interface QuotationRecord {
   key: string;
@@ -22,6 +23,22 @@ export const QuotationHistoryColumn = () => {
       debouncedUpdateURL.cancel();
     };
   }, [debouncedUpdateURL]);
+
+  const handleExport = data => {
+    const column = {
+      referenceNo: 'Reference No',
+      customerName: 'Customer Name',
+      propertyAddress: 'Property Address',
+      quotationStatus: 'Quotation Status',
+      leadStatus: 'Lead Status',
+    };
+    exportToExcel({
+      data,
+      fileName: 'QuotationList',
+      sheetName: 'QuotationList',
+      columnHeaders: column,
+    });
+  };
   const columns = [
     {
       title: (
@@ -230,5 +247,5 @@ export const QuotationHistoryColumn = () => {
     },
   ];
 
-  return { columns, data };
+  return { columns, data, handleExport };
 };

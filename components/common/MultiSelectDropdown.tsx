@@ -5,15 +5,15 @@ import {
   getDropdownPosition,
   isClickOutside,
   handleKeyDown as handleKeyDownUtil,
-  handleAddNewItem as handleAddNewItemUtil
+  handleAddNewItem as handleAddNewItemUtil,
 } from '../../lib/utils/MultiSelectDropdown.utils';
-import { Input } from 'antd';
+import { Button, Input } from 'antd';
+import { IconPlus, IconX } from '@tabler/icons-react';
 
 // Icons
 const X = ({ className = '' }: { className?: string }) => (
   <span className={`inline-block text-base leading-none ${className}`}>×</span>
 );
-
 
 interface MultiSelectDropdownProps {
   items: DropdownItem[];
@@ -31,7 +31,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
   onSelectionChange,
   onAddNewItem,
   placeholder = 'Select items...',
-  loading = false,  
+  loading = false,
   className = '',
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -44,14 +44,20 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
 
   const filteredItems = filterItems(items, selectedItems, searchTerm);
 
-  const handleSelect = useCallback((item: DropdownItem) => {
-    onSelectionChange([...selectedItems, item]);
-    setSearchTerm('');
-  }, [onSelectionChange, selectedItems]);
+  const handleSelect = useCallback(
+    (item: DropdownItem) => {
+      onSelectionChange([...selectedItems, item]);
+      setSearchTerm('');
+    },
+    [onSelectionChange, selectedItems]
+  );
 
-  const handleRemove = useCallback((id: string) => {
-    onSelectionChange(selectedItems.filter((item) => item.id !== id));
-  }, [onSelectionChange, selectedItems]);
+  const handleRemove = useCallback(
+    (id: string) => {
+      onSelectionChange(selectedItems.filter(item => item.id !== id));
+    },
+    [onSelectionChange, selectedItems]
+  );
 
   const handleAddNew = useCallback(async () => {
     if (!onAddNewItem) return;
@@ -81,7 +87,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
 
     document.addEventListener('mousedown', handleClickOutside);
     window.addEventListener('resize', updateDropdownPosition);
-    
+
     // Initial position check
     if (isOpen) {
       // Use requestAnimationFrame to ensure the dropdown is rendered before checking position
@@ -103,47 +109,40 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
     handleKeyDownUtil(e, {
       isOpen,
       setIsOpen,
-      onEnter: handleAddNew
+      onEnter: handleAddNew,
     });
   };
 
   return (
     <div className={`${className}`} ref={dropdownRef}>
-      <div className="flex flex-wrap items-center gap-2">        
+      <div className="flex flex-wrap items-center gap-2">
         {selectedItems.length > 0 && (
           <div className="flex flex-wrap items-center gap-2">
-            {selectedItems.map((item) => (
-              <div
-                key={item.id}
-                className="inline-flex items-center gap-1 px-3 py-1 text-sm bg-amber-500 text-white rounded-md"
-              >
-                {item.name}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRemove(item.id);
-                  }}
-                  className="text-blue-500 hover:text-blue-700 focus:outline-none"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              </div>
+            {selectedItems.map(item => (
+              <Button key={item.id} size="small" type="primary">
+                <span className="flex items-center gap-2">
+                  {item.name}{' '}
+                  <IconX
+                    size={15}
+                    onClick={e => {
+                      e.stopPropagation();
+                      handleRemove(item.id);
+                    }}
+                  />
+                </span>
+              </Button>
             ))}
           </div>
         )}
-        <button
-          ref={buttonRef}
-          type="button"
-          onClick={() => setIsOpen(!isOpen)}
-          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50"
-        >
-          {placeholder}
-        </button>
+        <Button ref={buttonRef} onClick={() => setIsOpen(!isOpen)}>
+          <span className="flex items-center gap-2">
+            <IconPlus size={18} /> {placeholder}
+          </span>
+        </Button>
       </div>
 
       {isOpen && (
-        <div 
+        <div
           ref={dropdownMenuRef}
           className={`z-10 w-full ${
             dropdownPosition === 'bottom' ? 'mt-1' : 'mb-1 bottom-full'
@@ -163,14 +162,14 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
               autoFocus
             />
           </div>
-          
+
           <div className="max-h-60 overflow-y-auto">
             {loading ? (
               <div className="p-2 text-sm text-gray-500">Loading...</div>
             ) : filteredItems.length === 0 && searchTerm ? (
               onAddNewItem ? (
                 <button
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation();
                     handleAddNew();
                   }}
@@ -183,10 +182,10 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
                 <div className="p-2 text-sm text-gray-500">No items found</div>
               )
             ) : (
-              filteredItems.map((item) => (
+              filteredItems.map(item => (
                 <div
                   key={item.id}
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation();
                     handleSelect(item);
                   }}
