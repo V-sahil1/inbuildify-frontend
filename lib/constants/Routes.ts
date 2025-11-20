@@ -41,6 +41,9 @@ class SystemRoutes {
   public static FACADE = `/facade`;
   public static CONTRACT = `/contract`;
   public static HOLIDAY_MASTER = `/holiday-master`;
+  public static PACKAGE = `/package`;
+  public static MASTER_COLLECTION = `/master-collection`;
+  public static PRICELIST = `/pricelist`;
 }
 
 export default SystemRoutes;

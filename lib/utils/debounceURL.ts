@@ -10,7 +10,7 @@ interface DebouncedURLOptions {
   delay?: number;
   filtersKey: string[];
   initialValue?: Record<string, string>;
-  shouldSyncURL?: boolean; 
+  shouldSyncURL?: boolean;
 }
 export function debouncedURL({
   delay = 500,
@@ -21,7 +21,7 @@ export function debouncedURL({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [filters, setFilters] = useState(
+  const [filters, setFilters] = useState<Record<string, string> | null>(
     filtersKey.reduce(
       (acc, key) => {
         acc[key] = searchParams.get(key) || (initialValue && initialValue[key]);
@@ -35,17 +35,18 @@ export function debouncedURL({
       debounce((newFilters: Record<string, string | number | null | undefined>) => {
         if (shouldSyncURL) {
           const params = new URLSearchParams(searchParams.toString());
-          Object.entries(newFilters).forEach(([key, value]) => {
-            if (value !== null && value !== undefined && value !== '') {
-              params.set(key, value.toString());
-            } else {
-              params.delete(key);
-            }
-          });
+          newFilters &&
+            Object.entries(newFilters).forEach(([key, value]) => {
+              if (value !== null && value !== undefined && value !== '') {
+                params.set(key, value.toString());
+              } else {
+                params.delete(key);
+              }
+            });
           router.replace(`${pathname}?${params.toString()}`);
         }
       }, delay),
-    [pathname, router, searchParams, delay,shouldSyncURL]
+    [pathname, router, delay, shouldSyncURL]
   );
   const setParams = useCallback(
     updatedParams => {
@@ -58,8 +59,13 @@ export function debouncedURL({
     [debouncedUpdateURL]
   );
 
+  const resetParams = useCallback(() => {
+    setFilters(null);
+    debouncedUpdateURL(null);
+  }, [debouncedUpdateURL]);
+
   useEffect(() => {
     debouncedUpdateURL(filters);
   }, []);
-  return { debouncedUpdateURL, setParams, filters };
+  return { debouncedUpdateURL, setParams, filters, resetParams };
 }

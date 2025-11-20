@@ -89,15 +89,14 @@ export const gridMenuItems2: MenuItem[] = [
     id: 2,
     icon: <IconDatabase className="w-4 h-4 mr-3" />,
     label: 'Master Collections',
-    href: '#',
+    href: `${SystemRoutes.MASTER_COLLECTION}`,
   },
   {
     id: 3,
     icon: <IconReceipt className="w-4 h-4 mr-3" />,
     label: 'Price List',
-    href: '#',
+    href: `${SystemRoutes.PRICELIST}`,
   },
-
   {
     id: 4,
     icon: <IconHome className="w-4 h-4 mr-3" />,
@@ -114,7 +113,7 @@ export const gridMenuItems2: MenuItem[] = [
     id: 6,
     icon: <IconPackage className="w-4 h-4 mr-3" />,
     label: 'Package',
-    href: '#',
+    href: `${SystemRoutes.PACKAGE}`,
   },
 
   {
