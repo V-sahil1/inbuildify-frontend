@@ -10,11 +10,15 @@ export interface SubCategory {
   isExpanded: boolean;
   createdAt: string;
   updatedAt: string;
+  status?: string;
+  sortOrder?: number;
 }
 
 export interface ColorCategory {
   colorCategoryId: string;
   name: string;
+  status?: string;
+  sortOrder?: number;
   description: string;
   createdAt: string;
   updatedAt: string;
@@ -39,6 +43,8 @@ export interface SubCategoryItem {
   isDeleted: boolean;
   createdAt: string;
   updatedAt: string;
+  expirationDate?: string;
+  isActive?: boolean;
 }
 
 export interface ColorInitialState {

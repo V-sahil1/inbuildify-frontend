@@ -121,13 +121,13 @@ export const gridMenuItems2: MenuItem[] = [
     id: 7,
     icon: <IconPalette className="w-4 h-4 mr-3" />,
     label: 'Color',
-    href: '#',
+    href: `${SystemRoutes.COLOR}`,
   },
   {
     id: 8,
     icon: <IconColorPicker className="w-4 h-4 mr-3" />,
     label: 'Color Group',
-    href: '#',
+    href: `${SystemRoutes.COLOR_GROUP}`,
   },
   {
     id: 9,

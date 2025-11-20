@@ -6,6 +6,7 @@ import {
   IconAlertSquare,
   IconX,
   IconAlertCircle,
+  IconHelpCircle,
 } from '@tabler/icons-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -67,7 +68,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             </div>
           ),
           btnClass:
-            'bg-red-600 hover:bg-red-700 text-white border-none hover:shadow-lg transition-all duration-200',
+            'bg-red-600 hover:bg-red-700 text-white hover:!text-red-600  hover:!border-red-600 transition-all duration-200',
           borderColor: 'border-red-100',
         };
       case 'info':
@@ -75,11 +76,11 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         return {
           icon: (
             <div className={`${baseClasses} bg-blue-100`}>
-              <IconInfoCircleFilled size={40} className="text-blue-600" />
+              <IconHelpCircle size={40} className="text-orange-600" />
             </div>
           ),
           btnClass:
-            '!bg-blue-500 hover:!bg-blue-600 text-secondary border hover:shadow-md active:!bg-blue-700 transition-all duration-200 shadow-sm',
+            '!bg-orange-500 text-white hover:!bg-white  border hover:shadow-md active:!bg-blue-700 transition-all duration-200 shadow-sm',
           borderColor: 'border-blue-100',
         };
     }

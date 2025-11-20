@@ -21,6 +21,8 @@ class SystemRoutes {
   public static CALENDAR = `/calendar`;
   public static JOB_WORKFLOW = `${this.JOB}/workflow`;
   public static JOB_PRECONSTRUCTION = `${this.JOB}/preconstruction`;
+  public static COLOR = `${this.BASE}/color`;
+  public static COLOR_GROUP = `${this.BASE}/colorgroup`;
   // public static JOB_CONSTRUCTION = `/construction`
   public static CONSTRUCTION = `/construction`;
   public static MAINTENANCE = `/maintenance`;

@@ -17,3 +17,5 @@ export interface TooltipButtonProps {
   icon: ReactNode;
   onClick?: () => void;
 }
+
+export type CopyType = 'category' | 'subcategory' | 'subcategoryitem';

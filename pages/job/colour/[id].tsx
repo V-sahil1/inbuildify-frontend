@@ -33,6 +33,7 @@ const Index = () => {
   const { range, status } = useAppSelector(state => state.types);
   const [subCategoryItem, setSubCategoryItem] = useState([]);
   const [confirmationModal, setConfirmationModal] = useState(false);
+  const [templateKey, setTemplateKey] = useState<string | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -95,6 +96,7 @@ const Index = () => {
   const handleTemplateSelect = () => {
     setConfirmationModal(false);
     console.log('Selected template:', selectedTemplate);
+    setSelectedTemplate(templateKey);
   };
   const addedCount = ColorCategory?.reduce((total, category) => {
     if (!category.subCategories) return total;
@@ -139,7 +141,10 @@ const Index = () => {
                     console.log('Manage template clicked');
                   } else {
                     setConfirmationModal(true);
-                    setSelectedTemplate(info.key);
+
+                    console.log('Selected template:', info.key);
+                    setTemplateKey(info.key);
+                    // setSelectedTemplate(info.key);
                   }
                 },
               }}
@@ -183,9 +188,13 @@ const Index = () => {
           />
         </div>
         <div className="p-3 h-full overflow-y-auto custom-scrollbar">
-          {selectedTemplate && !confirmationModal && subCategoryItem.length > 0 ? (
+          {selectedTemplate !== ''  && subCategoryItem.length > 0 ? (
             <TemplateColorItemCard
               templateName={`Template ${selectedTemplate}`}
+              onCancel={() => {
+                console.log('Cancel template:', selectedTemplate);
+                setSelectedTemplate('');
+              }}
               onEdit={() => {
                 console.log('Edit template:', selectedTemplate);
               }}
@@ -200,9 +209,29 @@ const Index = () => {
                   description: '',
                 };
               }}
-              onRemove={() => {}}
-              onUpdateItem={() => {}}
-              items={subCategoryItem.map(item => ({
+              onRemove={(id, originalItem) => {
+                console.log('Remove item:', id);
+                console.log("items",originalItem );
+                setSubCategoryItem(prevItems => 
+                  prevItems.map(item => 
+                    item.colorItemId === id 
+                      ? { ...originalItem, colorItemId: id } 
+                      : item
+                  )
+                );
+                // setSubCategoryItem(prevItems => prevItems.filter(item => item.colorItemId !== id));
+              }}
+              onUpdateItem={(id, field, value) => {
+                setSubCategoryItem(prevItems => 
+                  prevItems.map(item => 
+                    item.colorItemId === id 
+                      ? { ...item, [field]: value } 
+                      : item
+                  )
+                );
+                console.log('Update item:', id, field, value);
+              }}
+              items={subCategoryItem.map(item => ({...item,
                 id: item.colorItemId,
                 name: item.name,
 
