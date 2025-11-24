@@ -1,6 +1,6 @@
 export interface ChecklistItem {
   title: string;
-  tags: string[];
+  tags?: string[];
   level: 'Company Level' | 'My Home';
 }
 
@@ -17,7 +17,7 @@ export const checklistItems: ChecklistItem[] = [
   },
   {
     title: 'Appliance install Plumber',
-    tags: ['Single Storey Build', 'Completion Stage'],
+    tags: [],
     level: 'My Home',
   },
   {

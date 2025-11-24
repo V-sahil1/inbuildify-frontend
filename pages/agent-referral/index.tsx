@@ -1,21 +1,19 @@
-"use client";
-import React, { useState } from "react";
-import { Typography, Empty, Switch, Form, Row, Col, Input, Button, Modal } from "antd";
-import { useRouter } from "next/navigation";
-import AgentReferralHeader from "@/components/agentreferral/PartnerListingHeader";
-import AgentReferralTable from "@/components/agentreferral/PartnerListingTable";
-import AgentReferralGrid from "@/components/agentreferral/PartnerListingGrid";
-import ConfirmationModal from "@/components/common/ConfirmationModal";
-import PartnerDetailModal from "@/components/agentreferral/PartnerdetailModal";
-import { initialData, Partners } from "data/agentreferralData";
-
-
+'use client';
+import React, { useState } from 'react';
+import { Typography, Empty, Switch, Form, Row, Col, Input, Button, Modal } from 'antd';
+import { useRouter } from 'next/navigation';
+import AgentReferralHeader from '@/components/agentreferral/PartnerListingHeader';
+import AgentReferralTable from '@/components/agentreferral/PartnerListingTable';
+import AgentReferralGrid from '@/components/agentreferral/PartnerListingGrid';
+import ConfirmationModal from '@/components/common/ConfirmationModal';
+import PartnerDetailModal from '@/components/agentreferral/PartnerdetailModal';
+import { initialData, Partners } from 'data/agentreferralData';
 
 const AgentReferralManager = () => {
   const router = useRouter();
 
   const [partners, setPartners] = useState<Partners[]>(initialData);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
 
   const [selectedPartner, setSelectedPartner] = useState<Partners | null>(null);
   const [actionType, setActionType] = useState<string | null>(null);
@@ -24,8 +22,8 @@ const AgentReferralManager = () => {
   const [emailPassword, setEmailPassword] = useState(false);
   const [changePartnerPassword, setChangePartnerPassword] = useState(false);
 
-  const [statusTab, setStatusTab] = useState<"active" | "inactive">("active");
-  const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
+  const [statusTab, setStatusTab] = useState<'active' | 'inactive'>('active');
+  const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
 
   const [resetForm] = Form.useForm();
 
@@ -39,11 +37,11 @@ const AgentReferralManager = () => {
       name: values.name,
       email: values.email,
       phone: values.phone,
-      address1: values.address1 + ", " + values.city,
+      address1: values.address1 + ', ' + values.city,
       reserved: 0,
       packages: 0,
       isActive: values.isActive,
-      isLocked: false
+      isLocked: false,
     };
 
     setPartners([...partners, newPartner]);
@@ -51,9 +49,7 @@ const AgentReferralManager = () => {
   };
 
   const handleUpdatePartner = (values: any) => {
-    setPartners(prev =>
-      prev.map(p => (p.id === selectedPartner?.id ? { ...p, ...values } : p))
-    );
+    setPartners(prev => prev.map(p => (p.id === selectedPartner?.id ? { ...p, ...values } : p)));
     setActionType(null);
     setSelectedPartner(null);
   };
@@ -66,9 +62,7 @@ const AgentReferralManager = () => {
 
   const handleLockConfirm = () => {
     setPartners(prev =>
-      prev.map(p =>
-        p.id === selectedPartner?.id ? { ...p, isLocked: !p.isLocked } : p
-      )
+      prev.map(p => (p.id === selectedPartner?.id ? { ...p, isLocked: !p.isLocked } : p))
     );
     setActionType(null);
     setSelectedPartner(null);
@@ -77,13 +71,13 @@ const AgentReferralManager = () => {
   const handleSaveResetPassword = () => {
     if (!genPassword) {
       resetForm.validateFields().then(values => {
-        console.log("Manual new password:", values.password);
+        console.log('Manual new password:', values.password);
       });
     } else {
-      console.log("Auto password");
+      console.log('Auto password');
     }
 
-    console.log("Flags:", { changePartnerPassword, emailPassword });
+    console.log('Flags:', { changePartnerPassword, emailPassword });
     setActionType(null);
     setGenPassword(false);
     setEmailPassword(false);
@@ -97,7 +91,7 @@ const AgentReferralManager = () => {
       p.email.toLowerCase().includes(search.toLowerCase()) ||
       p.phone.toLowerCase().includes(search.toLowerCase());
 
-    const matchStatus = statusTab === "active" ? p.isActive : !p.isActive;
+    const matchStatus = statusTab === 'active' ? p.isActive : !p.isActive;
     return matchSearch && matchStatus;
   });
 
@@ -113,32 +107,50 @@ const AgentReferralManager = () => {
         onStatusChange={setStatusTab}
         onViewChange={setViewMode}
         onCreateClick={() => {
-          setActionType("add");
+          setActionType('add');
           setSelectedPartner(null);
         }}
       />
 
       {filteredPartners.length === 0 ? (
         <Empty description="No Agents found." />
-      ) : viewMode === "grid" ? (
+      ) : viewMode === 'grid' ? (
         <AgentReferralGrid
           partners={filteredPartners}
-          onEdit={(p) => { setSelectedPartner(p); setActionType("edit"); }}
-          onDelete={(p) => { setSelectedPartner(p); setActionType("delete"); }}
-          onLock={(p) => { setSelectedPartner(p); setActionType("lock"); }}
-          onResetPassword={(p) => { setSelectedPartner(p); setActionType("resetPassword"); }}
+          onEdit={p => {
+            setSelectedPartner(p);
+            setActionType('edit');
+          }}
+          onDelete={p => {
+            setSelectedPartner(p);
+            setActionType('delete');
+          }}
+          onLock={p => {
+            setSelectedPartner(p);
+            setActionType('lock');
+          }}
+          onResetPassword={p => {
+            setSelectedPartner(p);
+            setActionType('resetPassword');
+          }}
           onViewDetails={goToPartnerDetail}
         />
       ) : (
         <AgentReferralTable
           partners={filteredPartners}
-          onEdit={(p) => { setSelectedPartner(p); setActionType("edit"); }}
-          onDelete={(p) => { setSelectedPartner(p); setActionType("delete"); }}
+          onEdit={p => {
+            setSelectedPartner(p);
+            setActionType('edit');
+          }}
+          onDelete={p => {
+            setSelectedPartner(p);
+            setActionType('delete');
+          }}
           onRowClick={goToPartnerDetail}
         />
       )}
 
-      {actionType === "add" && (
+      {actionType === 'add' && (
         <PartnerDetailModal
           open
           initialData={null}
@@ -147,7 +159,7 @@ const AgentReferralManager = () => {
         />
       )}
 
-      {actionType === "edit" && selectedPartner && (
+      {actionType === 'edit' && selectedPartner && (
         <PartnerDetailModal
           open
           initialData={selectedPartner}
@@ -156,7 +168,7 @@ const AgentReferralManager = () => {
         />
       )}
 
-      {actionType === "delete" && selectedPartner && (
+      {actionType === 'delete' && selectedPartner && (
         <ConfirmationModal
           open
           onClose={() => setActionType(null)}
@@ -167,18 +179,18 @@ const AgentReferralManager = () => {
         />
       )}
 
-      {actionType === "lock" && selectedPartner && (
+      {actionType === 'lock' && selectedPartner && (
         <ConfirmationModal
           open
           onClose={() => setActionType(null)}
           onConfirm={handleLockConfirm}
-          message={`Are you sure you want to ${willLock ? "lock" : "unlock"} this partner?`}
-          type={willLock ? "danger" : "info"}
-          confirmText={willLock ? "Lock" : "Unlock"}
+          message={`Are you sure you want to ${willLock ? 'lock' : 'unlock'} this partner?`}
+          type={willLock ? 'danger' : 'info'}
+          confirmText={willLock ? 'Lock' : 'Unlock'}
         />
       )}
 
-      {actionType === "resetPassword" && selectedPartner && (
+      {actionType === 'resetPassword' && selectedPartner && (
         <Modal
           open
           onCancel={() => setActionType(null)}
@@ -188,7 +200,9 @@ const AgentReferralManager = () => {
           footer={
             <div className="flex justify-end gap-2 border-t pt-3">
               <Button onClick={() => setActionType(null)}>Cancel</Button>
-              <Button type="primary" onClick={handleSaveResetPassword}>Save</Button>
+              <Button type="primary" onClick={handleSaveResetPassword}>
+                Save
+              </Button>
             </div>
           }
         >
@@ -203,11 +217,7 @@ const AgentReferralManager = () => {
                 <Form form={resetForm} layout="vertical">
                   <Row gutter={16}>
                     <Col span={12}>
-                      <Form.Item
-                        name="password"
-                        label="Password"
-                        rules={[{ required: true }]}
-                      >
+                      <Form.Item name="password" label="Password" rules={[{ required: true }]}>
                         <Input.Password />
                       </Form.Item>
                     </Col>
@@ -223,12 +233,18 @@ const AgentReferralManager = () => {
                 </div>
 
                 <div className="flex items-center gap-2 mb-2">
-                  <Switch checked={changePartnerPassword} onChange={() => setChangePartnerPassword(!changePartnerPassword)} />
+                  <Switch
+                    checked={changePartnerPassword}
+                    onChange={() => setChangePartnerPassword(!changePartnerPassword)}
+                  />
                   <span>Ask partner to change password at next login</span>
                 </div>
 
                 <div className="flex items-center gap-2 mb-2">
-                  <Switch checked={emailPassword} onChange={() => setEmailPassword(!emailPassword)} />
+                  <Switch
+                    checked={emailPassword}
+                    onChange={() => setEmailPassword(!emailPassword)}
+                  />
                   <span>Email the password</span>
                 </div>
               </>

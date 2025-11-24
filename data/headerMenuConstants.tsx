@@ -132,7 +132,7 @@ export const gridMenuItems2: MenuItem[] = [
     id: 9,
     icon: <IconTruck className="w-4 h-4 mr-3" />,
     label: 'Supplier',
-    href: '#',
+    href: `${SystemRoutes.SUPPLIER}`,
   },
 
   {
@@ -158,7 +158,7 @@ export const gridMenuItems2: MenuItem[] = [
     id: 13,
     icon: <IconBuildingEstate className="w-4 h-4 mr-3" />,
     label: 'Estate',
-    href: '#',
+    href: `${SystemRoutes.ESTATE}`,
   },
   {
     id: 14,

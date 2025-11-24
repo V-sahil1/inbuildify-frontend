@@ -16,7 +16,7 @@ export const timeAgo = (dateString: string) => {
   } else if (days === 1) {
     return 'Yesterday';
   } else if (days > 30) {
-    return `Created at: ${date.toLocaleDateString()}`;
+    return `${date.toLocaleDateString()}`;
   } else {
     return `${days} days ago`;
   }

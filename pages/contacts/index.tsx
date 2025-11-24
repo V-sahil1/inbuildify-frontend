@@ -22,6 +22,7 @@ import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel'
 import { ConfirmationContentModal } from '@/components/common/ConfirmationContentModal';
 import AssociatedEntitiesList from '@/components/common/AssociatedEntitiesList';
 import { contactData } from 'data/sampleData';
+import { debouncedURL } from '@lib/utils/debounceURL';
 
 const ContactListing = () => {
   const [contacts, setContacts] = useState(contactData);
@@ -29,7 +30,10 @@ const ContactListing = () => {
   const [showCustomers, setShowCustomers] = useState(true);
   const [portalAccess, setPortalAccess] = useState('noLogin');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [search, setSearch] = useState('');
+  const { setParams, filters } = debouncedURL({
+    delay: 500,
+    filtersKey: ['search'],
+  });
   const [modalOpen, setModalOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const [isEditing, setIsEditing] = useState(false);
@@ -61,6 +65,8 @@ const ContactListing = () => {
     setDeleteOpen(false);
     setContactToDelete(null);
   };
+
+  const search = (filters.search || '').toString();
 
   const filteredContacts = contacts.filter(c => {
     const matchSearch =
@@ -167,7 +173,7 @@ const ContactListing = () => {
   ];
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-6  min-h-screen">
       <h1 className="text-2xl font-semibold mb-4">Contact Listing</h1>
 
       {/* Top Bar */}
@@ -176,7 +182,7 @@ const ContactListing = () => {
           placeholder="Search contacts by name, email, or phone number"
           allowClear
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={e => setParams({ search: e.target.value })}
           className="w-full md:w-1/2"
         />
 
@@ -249,56 +255,64 @@ const ContactListing = () => {
 
       {/* Grid or Table View */}
       {viewMode === 'grid' ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
           {filteredContacts.map(contact => (
             <div
               key={contact.id}
-              className="bg-card-color flex flex-col gap-3 rounded-2xl hover:shadow-lg transition-all p-4"
+              className="bg-card-color rounded-2xl hover:shadow-lg transition-all p-4"
             >
-              <div className="flex items-center justify-between w-full">
-                <p className="text-gray-800 font-semibold text-base">{contact.name || 'N/A'}</p>
-                <TooltipButton
-                  title="Edit"
-                  icon={<IconPencil size={18} />}
-                  onClick={() => {
-                    setIsEditing(true);
-                    setModalOpen(true);
-                  }}
-                />
-              </div>
+              <div className="flex items-center justify-between gap-4 w-full">
+                {/* Left: contact details */}
+                <div className="flex flex-col gap-2 flex-1">
+                  <div className="text-gray-800 font-semibold text-base">
+                    {contact.name || 'N/A'}
+                  </div>
 
-              <div className="flex items-center justify-between w-full">
-                <div className="flex items-center gap-2 text-gray-600 text-sm">
-                  <IconMapPin size={18} className="text-gray-500" />
-                  <span>{contact.address || 'No address provided'}</span>
-                </div>
-                {/* it will redirect to the linked lead detail page (note: the id will be multiple or the unique need check from the BE) */}
-                {/* this icon will get hidden if the lead is not being associated it with any lead */}
-                <TooltipButton title="Lead" icon={<IconSignLeft size={18} />} />
-              </div>
+                  <div className="flex items-center gap-2 text-gray-600 text-sm">
+                    <IconMapPin size={18} />
+                    <span>{contact.address || 'No address provided'}</span>
+                  </div>
 
-              <div className="flex items-center justify-between w-full">
-                <div className="flex items-center gap-2 text-gray-800 font-medium">
-                  <IconPhone size={18} className="text-gray-500" />
-                  <span>{contact.phone || 'No phone available'}</span>
-                </div>
-                <TooltipButton
-                  title="Audit log"
-                  icon={<IconStopwatch size={18} />}
-                  onClick={() => setActionModal({ type: 'audit', contact })}
-                />
-              </div>
+                  <div className="flex items-center gap-2 text-gray-800 font-medium text-sm">
+                    <IconPhone size={18} />
+                    <span>{contact.phone || 'No phone available'}</span>
+                  </div>
 
-              <div className="flex items-center justify-between w-full">
-                <div className="flex items-center gap-2 text-gray-700">
-                  <IconMail size={18} className="text-gray-500" />
-                  <span>{contact.email || 'No email available'}</span>
+                  <div className="flex items-center gap-2 text-gray-700 text-sm">
+                    <IconMail size={18} />
+                    <span>{contact.email || 'No email available'}</span>
+                  </div>
                 </div>
-                <TooltipButton
-                  title="Delete"
-                  icon={<IconTrash size={18} className="!text-red-500" />}
-                  onClick={() => handleOpenDelete(contact)}
-                />
+
+                {/* Right: action buttons */}
+                <div className="flex flex-col items-end gap-1">
+                  <TooltipButton
+                    title="Edit"
+                    icon={<IconPencil size={18} />}
+                    onClick={() => {
+                      setIsEditing(true);
+                      setModalOpen(true);
+                    }}
+                    type="text"
+                  />
+                  {/* it will redirect to the linked lead detail page (note: the id will be multiple or the unique need check from the BE) */}
+                  {/* this icon will get hidden if the lead is not being associated it with any lead */}
+                  <TooltipButton title="Lead" icon={<IconSignLeft size={18} />} type="text" />
+
+                  <TooltipButton
+                    title="Audit log"
+                    icon={<IconStopwatch size={18} />}
+                    onClick={() => setActionModal({ type: 'audit', contact })}
+                    type="text"
+                  />
+
+                  <TooltipButton
+                    title="Delete"
+                    icon={<IconTrash size={18} className="!text-red-500" />}
+                    onClick={() => handleOpenDelete(contact)}
+                    type="text"
+                  />
+                </div>
               </div>
             </div>
           ))}

@@ -44,6 +44,8 @@ class SystemRoutes {
   public static PACKAGE = `/package`;
   public static MASTER_COLLECTION = `/master-collection`;
   public static PRICELIST = `/pricelist`;
+  public static ESTATE = `/estate`;
+  public static SUPPLIER = `/supplier`;
 }
 
 export default SystemRoutes;

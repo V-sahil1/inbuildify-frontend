@@ -9,7 +9,7 @@ interface TableDrawerProps {
   table: { columns: any[]; data: any[] };
   width?: number | string;
   loading?: boolean;
-  children?: React.ReactNode; 
+  children?: React.ReactNode;
 }
 
 export const TableDrawer: React.FC<TableDrawerProps> = ({
@@ -19,8 +19,7 @@ export const TableDrawer: React.FC<TableDrawerProps> = ({
   table,
   width = 900,
   loading = false,
-  children
-  
+  children,
 }) => {
   return (
     <Drawer
@@ -30,7 +29,11 @@ export const TableDrawer: React.FC<TableDrawerProps> = ({
       width={width}
       closeIcon={false}
       extra={
-        <Button className='ml-2' type="text" icon={<IconX style={{ cursor: 'pointer' }} onClick={onClose} />} />
+        <Button
+          className="ml-2"
+          type="text"
+          icon={<IconX style={{ cursor: 'pointer' }} onClick={onClose} />}
+        />
       }
       styles={{
         body: {
@@ -39,12 +42,11 @@ export const TableDrawer: React.FC<TableDrawerProps> = ({
       }}
     >
       <div className="p-4">
-       {children}
+        {children}
         <Table
           columns={table?.columns}
           dataSource={table?.data}
           pagination={false}
-          bordered
           scroll={{ x: true }}
           loading={loading}
           rowKey={record => record.key || record.id}

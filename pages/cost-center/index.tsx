@@ -16,8 +16,8 @@ import {
 import { IconList, IconTrash, IconPencil } from '@tabler/icons-react';
 import { debouncedURL } from '@lib/utils/debounceURL';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
-import { ChecklistDrawer } from '@/components/costCenter/ChecklistDrawer';
-import { ChecklistItem, initialCostCenters } from 'data/costCenterData';
+import { ChecklistDrawer } from '@/components/common/ChecklistDrawer';
+import { ChecklistItem, checklistItems, initialCostCenters } from 'data/costCenterData';
 import StatusSelect from '@/components/common/custom-selects/StatusSelect';
 import { getCostCenterModalFields } from '@/components/costCenter/costCenterFormFields';
 
@@ -297,7 +297,8 @@ export default function CostCenterMaster() {
         <ChecklistDrawer
           open={openChecklist}
           onClose={() => setOpenChecklist(false)}
-          costCenterName={selectedCostCenter.code}
+          title={`Checklists for ${selectedCostCenter.code}`}
+          items={checklistItems}
           initialSelected={costCenterChecklists[selectedCostCenter.code] || []}
           onUpdate={updatedList => {
             setCostCenterChecklists(prev => ({ ...prev, [selectedCostCenter.code]: updatedList }));
