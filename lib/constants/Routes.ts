@@ -46,6 +46,7 @@ class SystemRoutes {
   public static PRICELIST = `/pricelist`;
   public static ESTATE = `/estate`;
   public static SUPPLIER = `/supplier`;
+  public static QUOTATION_FORMAT = `/quotation-format`;
 }
 
 export default SystemRoutes;
