@@ -151,7 +151,7 @@ export const gridMenuItems2: MenuItem[] = [
     id: 12,
     icon: <IconClipboardList className="w-4 h-4 mr-3" />,
     label: 'Survey Template',
-    href: '#',
+    href: `${SystemRoutes.SURVEY_TEMPLATE}`,
   },
 
   {
