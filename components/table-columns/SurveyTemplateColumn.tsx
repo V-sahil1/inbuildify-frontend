@@ -1,6 +1,6 @@
 import { Badge, Button, Input, Popconfirm, Select, Tag, Tooltip } from 'antd';
 import StatusSelect from '../common/custom-selects/StatusSelect';
-import { IconQuestionMark, IconTrash } from '@tabler/icons-react';
+import { IconPlus, IconQuestionMark, IconTrash } from '@tabler/icons-react';
 import { useState } from 'react';
 
 export const SurveyTemplateColumn = (
@@ -19,7 +19,7 @@ export const SurveyTemplateColumn = (
       recommendTemplate: false,
     },
   ]);
-  
+
   const column = [
     {
       title: (
@@ -85,36 +85,68 @@ export const SurveyTemplateColumn = (
               />
             </Tooltip>
           </Badge>
-          <Popconfirm
-            okText="Inactive"
-            onConfirm={e => {
-              e.stopPropagation();
-              setTemplateData(prev =>
-                prev.map(i => (i.id === selectedTemplate.id ? { ...i, status: 'InActive' } : i))
-              );
-            }}
-            onCancel={e => e.stopPropagation()}
-            title={
-              <>
-                <p>Are you sure you want to inactivate?</p>
-                <p>
-                  This template is already mapped for existing jobs hence it can only be
-                  inactivated.
-                </p>
-              </>
-            }
-            placement="topRight"
-          >
-            <Button
-              type="text"
-              color="red"
-              icon={<IconTrash size={15} />}
-              onClick={e => {
+          {record.status === 'Active' ? (
+            <Popconfirm
+              okText="Inactive"
+              onConfirm={e => {
                 e.stopPropagation();
-                setSelectedTemplate(record);
+                setTemplateData(prev =>
+                  prev.map(i => (i.id === selectedTemplate.id ? { ...i, status: 'InActive' } : i))
+                );
+                setSelectedTemplate(null);
               }}
-            />
-          </Popconfirm>
+              onCancel={e => {
+                e.stopPropagation();
+                setSelectedTemplate(null);
+              }}
+              title={
+                <>
+                  <p>Are you sure you want to inactivate?</p>
+                  <p>
+                    This template is already mapped for existing jobs hence it can only be
+                    inactivated.
+                  </p>
+                </>
+              }
+              placement="topRight"
+            >
+              <Button
+                type="text"
+                color="red"
+                icon={<IconTrash size={15} />}
+                onClick={e => {
+                  e.stopPropagation();
+                  setSelectedTemplate(record);
+                }}
+              />
+            </Popconfirm>
+          ) : (
+            <Popconfirm
+              title="Are you sure you want to to activate template?"
+              onConfirm={e => {
+                e.stopPropagation();
+                setTemplateData(prev =>
+                  prev.map(i => (i.id === selectedTemplate.id ? { ...i, status: 'Active' } : i))
+                );
+                setSelectedTemplate(null);
+              }}
+              onCancel={e => {
+                e.stopPropagation();
+                setSelectedTemplate(null);
+              }}
+              okText="Active"
+            >
+              <Button
+                type="text"
+                className="text-blue"
+                icon={<IconPlus size={15} />}
+                onClick={e => {
+                  e.stopPropagation();
+                  setSelectedTemplate(record);
+                }}
+              />
+            </Popconfirm>
+          )}
         </div>
       ),
       width: 200,
