@@ -10,12 +10,18 @@ interface DwellingTypeSelectProps {
   value?: string;
   onChange?: (value: string) => void;
   width?: number | string;
+  disabled?: boolean;
 }
 
-const DwellingTypeSelect: React.FC<DwellingTypeSelectProps> = ({ value, onChange, width }) => {
+const DwellingTypeSelect: React.FC<DwellingTypeSelectProps> = ({
+  value,
+  onChange,
+  width,
+  disabled,
+}) => {
   const { dwellingType } = useAppSelector(state => state.types);
   const typesStatus = useAppSelector(state => state.types.status);
-  const dwellingOptions = mapToOptions(dwellingType);
+  const dwellingOptions = dwellingType && mapToOptions(dwellingType);
   const dispatch = useAppDispatch();
   useEffect(() => {
     const fetchTypesData = async () => {
@@ -36,6 +42,7 @@ const DwellingTypeSelect: React.FC<DwellingTypeSelectProps> = ({ value, onChange
       options={dwellingOptions}
       placeholder="Dwelling Type"
       width={width}
+      disabled={disabled}
     />
   );
 };

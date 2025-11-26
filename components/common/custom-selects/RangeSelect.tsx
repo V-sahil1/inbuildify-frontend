@@ -10,12 +10,13 @@ interface RangeSelectProps {
   value?: string;
   onChange?: (value: string) => void;
   width?: number | string;
+  disabled?: boolean;
 }
 
-const RangeSelect: React.FC<RangeSelectProps> = ({ value, onChange, width }) => {
+const RangeSelect: React.FC<RangeSelectProps> = ({ value, onChange, width, disabled }) => {
   const { range } = useAppSelector(state => state.types);
   const typesStatus = useAppSelector(state => state.types.status);
-  const rangeOptions = mapToOptions(range);
+  const rangeOptions = range && mapToOptions(range);
   const dispatch = useAppDispatch();
   useEffect(() => {
     const fetchTypesData = async () => {
@@ -36,6 +37,7 @@ const RangeSelect: React.FC<RangeSelectProps> = ({ value, onChange, width }) => 
       options={rangeOptions}
       placeholder="Range"
       width={width}
+      disabled={disabled}
     />
   );
 };

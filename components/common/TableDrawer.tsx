@@ -6,7 +6,7 @@ interface TableDrawerProps {
   open: boolean;
   onClose: () => void;
   title: string | React.ReactNode;
-  table: { columns: any[]; data: any[] };
+  table: { columns: any[]; data: any[] }[];
   width?: number | string;
   loading?: boolean;
   children?: React.ReactNode;
@@ -41,17 +41,20 @@ export const TableDrawer: React.FC<TableDrawerProps> = ({
         },
       }}
     >
-      <div className="p-4">
+      <div className="p-4 space-y-2">
         {children}
-        <Table
-          columns={table?.columns}
-          dataSource={table?.data}
-          pagination={false}
-          scroll={{ x: true }}
-          loading={loading}
-          rowKey={record => record.key || record.id}
-          tableLayout="fixed"
-        />
+        {table.map((item, index) => (
+          <Table
+            key={index}
+            columns={item?.columns}
+            dataSource={item?.data}
+            pagination={false}
+            scroll={{ x: true }}
+            loading={loading}
+            rowKey={record => record.key || record.id}
+            tableLayout="fixed"
+          />
+        ))}
       </div>
     </Drawer>
   );

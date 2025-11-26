@@ -13,9 +13,10 @@ import JobDetailHeader from '@/components/job/jobDetail/JobDetailHeader';
 import JobCustomFields from '@/components/job/jobDetail/JobCustomFields';
 import { useState } from 'react';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
-import ConstructionModelFields from '@/components/formFields/constructionModelFields';
+
 import ActivityCard from '@/components/common/ActivityCard';
 import { EmailData, filterTabs } from 'data/activityData';
+import { ConstructionModelFields } from '@/components/formFields/constructionModelFields';
 const { TabPane } = Tabs;
 
 export default function JobDetail() {

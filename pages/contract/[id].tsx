@@ -1,5 +1,4 @@
-
-import ContractFormat from '@/components/common/contract/contractFormat';
+import ContractFormat from '@/components/common/contract/ContractFormat';
 import { useRouter } from 'next/router';
 
 const ContractById = () => {

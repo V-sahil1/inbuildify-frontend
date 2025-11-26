@@ -17,7 +17,7 @@ const SupplierType: React.FC<SupplierTypeProps> = ({ open, onClose }) => {
         onClose={onClose}
         title="Supplier Type / Group"
         width="45%"
-        table={{ columns, data }}
+        table={[{ columns, data }]}
       />
       {confirmModal}
       {checklistDrawer}

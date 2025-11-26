@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { FormField } from '../common/Models/ActionDialogModel';
 import { useUsersHook } from '@hooks/useUserData';
 
-const ConstructionModelFields = (): FormField[] => {
+export const ConstructionModelFields = (): FormField[] => {
   const [mailOpen, setMailOpen] = useState(false);
   const { users } = useUsersHook();
   const userOptions = users.map(user => ({ label: user.name, value: user.usersId }));
-  const fields: (FormField | false)[] = [
+  const fields: FormField[] = [
     {
       label: 'Construction Type',
       name: 'constructionType',
@@ -41,7 +41,7 @@ const ConstructionModelFields = (): FormField[] => {
       label: 'Send Mail',
       name: 'mail',
       type: 'switch',
-      onClick: () => setMailOpen(!mailOpen),
+      onChange: value => setMailOpen(value),
     },
     mailOpen && {
       label: 'To',
@@ -57,5 +57,3 @@ const ConstructionModelFields = (): FormField[] => {
 
   return fields.filter(Boolean) as FormField[];
 };
-
-export default ConstructionModelFields;

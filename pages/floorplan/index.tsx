@@ -281,7 +281,7 @@ const FloorPlanMaster = () => {
               </Space>
             </div>
           }
-          table={{ columns: quotationColumns, data }}
+          table={[{ columns: quotationColumns, data }]}
         />
       )}
       {drawerOpen === 'floorplan' && (
@@ -290,7 +290,7 @@ const FloorPlanMaster = () => {
           width={800}
           onClose={() => setDrawerOpen(null)}
           title="Pricelist Items"
-          table={{ columns: floorplanPricelistColumn, data: pricelistData }}
+          table={[{ columns: floorplanPricelistColumn, data: pricelistData }]}
         >
           <Space className="my-2">
             <Button type="primary">Show All</Button>
@@ -304,7 +304,7 @@ const FloorPlanMaster = () => {
           width={800}
           onClose={() => setDrawerOpen(null)}
           title="Facade"
-          table={{ columns: facadeColumns, data: facadeData }}
+          table={[{ columns: facadeColumns, data: facadeData }]}
         >
           <div className="flex justify-between my-2">
             <Space>

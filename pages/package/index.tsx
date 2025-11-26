@@ -99,10 +99,12 @@ const Package = () => {
               </div>
             )
           }
-          table={{
-            columns: drawerOpen === 'pricelist' ? pricelistColumn : quotationColumns,
-            data: drawerOpen === 'pricelist' ? pricelistData : quotationHistoryData,
-          }}
+          table={[
+            {
+              columns: drawerOpen === 'pricelist' ? pricelistColumn : quotationColumns,
+              data: drawerOpen === 'pricelist' ? pricelistData : quotationHistoryData,
+            },
+          ]}
           open={['pricelist', 'quotation'].includes(drawerOpen)}
           onClose={() => setDrawerOpen(null)}
           width={drawerOpen === 'pricelist' ? 700 : 900}

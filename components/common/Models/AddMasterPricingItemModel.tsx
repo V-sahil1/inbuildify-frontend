@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { Form, Input, Radio, Checkbox, Select, Modal, message } from 'antd';
 import { IconMinus, IconPlus } from '@tabler/icons-react';
 import {
@@ -9,15 +9,13 @@ import {
   updateCategoryItem,
 } from '@redux/feature/masterPriceList/masterPriceListThunk';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
-// import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
 import { getConditions } from '@redux/feature/floorPlan/floorPlanThunk';
-import { enumToReadable } from '@lib/utils/enumToRedable';
 import { Status } from '@lib/constants/enum';
 import { addPackageItems } from '@redux/feature/package/packageSlice';
-import { mapToOptions } from '@lib/utils/rangeAndDwellingObjToOptions';
-import SystemRoutes from '@lib/constants/Routes';
-import NoDataMessage from '../NoDataMessage';
 import Loading from '../Loading';
+import MultiSelectDropdown from '../MultiSelectDropdown';
+import RangeSelect from '../custom-selects/RangeSelect';
+import DwellingTypeSelect from '../custom-selects/DwellingTypeSelect';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -29,6 +27,7 @@ interface AddMasterPricingItemModalProps {
   categoryItem?: any;
   preselectedRange?: string;
   preselectedDwelling?: string;
+  extraField?: boolean;
 }
 
 const AddMasterPricingItemModal = ({
@@ -38,16 +37,30 @@ const AddMasterPricingItemModal = ({
   categoryItem,
   preselectedRange,
   preselectedDwelling,
+  extraField,
 }: AddMasterPricingItemModalProps) => {
   const [form] = Form.useForm();
   const [costType, setCostType] = useState('INCLUDED');
   const { filters, status } = useAppSelector(state => state.floorPlan);
-  const { range, dwellingType } = useAppSelector(state => state.types);
-  const rangeOptions = mapToOptions(range);
-  const dwellingTypeOptions = mapToOptions(dwellingType);
   const { categories, status: mplStatus } = useAppSelector(state => state.masterPriceList);
+  const [selectedRange, setSelectedRange] = useState([]);
+  const [rangeItems, setRangeItems] = useState([
+    { id: 'abc', name: 'abc' },
+    { id: 'pqr', name: 'pqr' },
+  ]);
+  const [selectedDwelling, setSelectedDwelling] = useState([]);
+  const [dwellingItems, setDwellingItems] = useState([
+    { id: 'abc', name: 'abc' },
+    { id: 'pqr', name: 'pqr' },
+  ]);
+  const condition = Form.useWatch(['conditions', name, 'name'], form);
+  console.log('condition');
+  const conditionOption = [
+    { label: 'Site Fall(mm)', value: 'siteFall' },
+    { label: 'Land Size', value: 'land' },
+    { label: 'Corner Block', value: 'CornerBlock' },
+  ];
   const dispatch = useAppDispatch();
-
   useEffect(() => {
     if (mplStatus.Category === Status.IDLE) {
       dispatch(fetchCategories());
@@ -56,7 +69,15 @@ const AddMasterPricingItemModal = ({
 
   // New state for button loading
   const [isAddingItem, setIsAddingItem] = useState(false);
-
+  const handleAddNewItem = useCallback(async (setItems, name: string) => {
+    // In a real app, you would save this to your backend first
+    const newItem = {
+      id: Date.now().toString(),
+      name,
+    };
+    setItems(prev => [...prev, newItem]);
+    return newItem;
+  }, []);
   useLayoutEffect(() => {
     if (categoryItem) {
       form.setFieldsValue({
@@ -109,6 +130,7 @@ const AddMasterPricingItemModal = ({
   }, [dispatch, filters, status.conditions]);
 
   const onFinish = async (values: any) => {
+    console.log('priceitem submit', values);
     await form.validateFields();
     try {
       setIsAddingItem(true);
@@ -155,6 +177,8 @@ const AddMasterPricingItemModal = ({
     form.resetFields();
     onClose();
   };
+
+  const conditionsList = Form.useWatch('conditions', form) || [];
 
   return (
     <Modal
@@ -287,155 +311,224 @@ const AddMasterPricingItemModal = ({
           )}
         </div>
 
-        {/* Cost */}
-        <Form.Item
-          label="Cost"
-          name="cost"
-          rules={[{ required: costType !== 'INCLUDED', message: 'Please enter cost' }]}
-          className="form-item-responsive"
-        >
-          <Input
-            min={0}
-            prefix="$"
-            type="number"
-            style={{ width: '100%' }}
-            disabled={costType === 'INCLUDED'}
-          />
-        </Form.Item>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          {/* Cost */}
+          <Form.Item
+            label="Cost"
+            name="cost"
+            rules={[{ required: costType !== 'INCLUDED', message: 'Please enter cost' }]}
+            className="form-item-responsive"
+          >
+            <Input
+              min={0}
+              prefix="$"
+              type="number"
+              style={{ width: '100%' }}
+              disabled={costType === 'INCLUDED'}
+            />
+          </Form.Item>
+          {/* Builder Cost */}
+          {extraField && (
+            <Form.Item
+              label="Builder Cost"
+              name="builder_cost"
+              rules={[{ required: costType !== 'INCLUDED', message: 'Please enter cost' }]}
+              className="form-item-responsive"
+            >
+              <Input
+                min={0}
+                prefix="$"
+                type="number"
+                style={{ width: '100%' }}
+                disabled={costType === 'INCLUDED'}
+              />
+            </Form.Item>
+          )}
+        </div>
+        {extraField && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <Form.Item label="Sort Order" name="sort" className="form-item-responsive">
+              <Input type="number" />
+            </Form.Item>
+            <Form.Item label="UOM" name="uom" className="form-item-responsive">
+              <Input />
+            </Form.Item>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           {/* Range */}
-          <Form.Item
-            label="Range"
-            name="range"
-            className="form-item-responsive"
-            rules={[{ required: true, message: 'Please select range' }]}
-          >
-            <Select
-              placeholder="Please select"
-              style={{ width: '100%' }}
-              options={rangeOptions}
-              disabled={!!preselectedRange}
-              notFoundContent={
-                <NoDataMessage label="range type" link={SystemRoutes.DWELLING_AND_RANGE} />
-              }
-            />
-          </Form.Item>
+          {
+            <Form.Item
+              label="Range"
+              name="range"
+              className="form-item-responsive"
+              // rules={[{ required: true, message: 'Please select range' }]}
+            >
+              {extraField ? (
+                <MultiSelectDropdown
+                  items={rangeItems}
+                  selectedItems={selectedRange}
+                  onSelectionChange={value => {
+                    setSelectedRange(value);
+                    form.setFieldValue('range', value);
+                  }}
+                  onAddNewItem={name => handleAddNewItem(setRangeItems, name)}
+                  placeholder="Range"
+                />
+              ) : (
+                <RangeSelect disabled={!!preselectedRange} />
+              )}
+            </Form.Item>
+          }
 
           {/* Dwelling Type */}
           <Form.Item
             label="Dwelling Type"
             name="dwelling"
             className="form-item-responsive"
-            rules={[{ required: true, message: 'Please select dwelling type' }]}
+            // rules={[{ required: true, message: 'Please select dwelling type' }]}
           >
-            <Select
-              placeholder="Please select"
-              style={{ width: '100%' }}
-              options={dwellingTypeOptions}
-              disabled={!!preselectedDwelling}
-              notFoundContent={
-                <NoDataMessage label="dwelling type" link={SystemRoutes.DWELLING_AND_RANGE} />
-              }
-            />
+            {extraField ? (
+              <MultiSelectDropdown
+                items={dwellingItems}
+                selectedItems={selectedDwelling}
+                onSelectionChange={value => {
+                  setSelectedDwelling(value);
+                  form.setFieldValue('dwellingType', value);
+                }}
+                onAddNewItem={name => handleAddNewItem(setDwellingItems, name)}
+                placeholder="Dwelling"
+              />
+            ) : (
+              <DwellingTypeSelect disabled={!!preselectedDwelling} />
+            )}
           </Form.Item>
         </div>
 
         <Form.List name="conditions">
           {(fields, { add, remove }) => (
             <>
-              {fields.map(({ key, name, ...restField }, index) => (
-                <div
-                  key={key}
-                  className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr_auto] gap-4 mb-4 items-center"
-                >
-                  {/* Condition */}
-                  <Form.Item
-                    {...restField}
-                    label="Conditions"
-                    name={[name, 'name']}
-                    rules={[{ required: true, message: 'Please select condition' }]}
+              {fields.map(({ key, name, ...restField }, index) => {
+                const row = conditionsList[name] || {};
+                const conditionName = row.name;
+                return (
+                  <div
+                    key={key}
+                    className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr_auto] gap-4 mb-4 items-center"
                   >
-                    <Select placeholder="Please select" className="w-full">
-                      {filters?.conditions?.map((condition: { name: string }) => (
+                    {/* Condition */}
+                    <Form.Item
+                      {...restField}
+                      label="Conditions"
+                      name={[name, 'name']}
+                      rules={[{ required: true, message: 'Please select condition' }]}
+                    >
+                      {/* conditions are coming from backend but in video conditions are different*/}
+                      <Select
+                        placeholder="Please select"
+                        className="w-full"
+                        options={conditionOption}
+                      >
+                        {/* {filters?.conditions?.map((condition: { name: string }) => (
                         <Option key={condition.name} value={condition.name}>
                           {enumToReadable(condition.name)}
                         </Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
+                      ))} */}
+                      </Select>
+                    </Form.Item>
 
-                  {/* Range Start */}
-                  <Form.Item
-                    {...restField}
-                    label="Range - Start"
-                    name={[name, 'range_start']}
-                    dependencies={[['conditions', name, 'range_end']]} // 👈 watch end
-                    rules={[
-                      { required: true, message: 'Please enter range start' },
-                      {
-                        validator: async (_, value) => {
-                          if (value === undefined || value === null) return Promise.resolve();
+                    {/* Range Start */}
+                    {conditionName !== 'CornerBlock' && (
+                      <Form.Item
+                        {...restField}
+                        label="Range - Start"
+                        name={[name, 'range_start']}
+                        dependencies={[['conditions', name, 'range_end']]} // 👈 watch end
+                        rules={[
+                          { required: true, message: 'Please enter range start' },
+                          {
+                            validator: async (_, value) => {
+                              if (value === undefined || value === null) return Promise.resolve();
 
-                          const start = Number(value);
-                          if (start > 100000)
-                            return Promise.reject('Range must not exceed 100,000');
-                          if (start < 0) return Promise.reject('Range must be greater than 0');
+                              const start = Number(value);
+                              if (start > 100000)
+                                return Promise.reject('Range must not exceed 100,000');
+                              if (start < 0) return Promise.reject('Range must be greater than 0');
 
-                          const end = form.getFieldValue(['conditions', name, 'range_end']);
-                          if (end !== undefined && end !== null && start >= Number(end)) {
-                            return Promise.reject('Range Start must be less than Range End');
-                          }
+                              const end = form.getFieldValue(['conditions', name, 'range_end']);
+                              if (end !== undefined && end !== null && start >= Number(end)) {
+                                return Promise.reject('Range Start must be less than Range End');
+                              }
 
-                          return Promise.resolve();
-                        },
-                      },
-                    ]}
-                  >
-                    <Input type="number" min={0} className="w-full" />
-                  </Form.Item>
+                              return Promise.resolve();
+                            },
+                          },
+                        ]}
+                      >
+                        <Input type="number" min={0} className="w-full" />
+                      </Form.Item>
+                    )}
 
-                  {/* Range End */}
-                  <Form.Item
-                    {...restField}
-                    label="Range - End"
-                    name={[name, 'range_end']}
-                    dependencies={[['conditions', name, 'range_start']]} // 👈 watch start
-                    rules={[
-                      { required: true, message: 'Please enter range end' },
-                      {
-                        validator: async (_, value) => {
-                          if (value === undefined || value === null) return Promise.resolve();
+                    {/* Range End */}
+                    {conditionName !== 'CornerBlock' && (
+                      <Form.Item
+                        {...restField}
+                        label="Range - End"
+                        name={[name, 'range_end']}
+                        dependencies={[['conditions', name, 'range_start']]} // 👈 watch start
+                        rules={[
+                          { required: true, message: 'Please enter range end' },
+                          {
+                            validator: async (_, value) => {
+                              if (value === undefined || value === null) return Promise.resolve();
 
-                          const end = Number(value);
-                          if (end > 100000) return Promise.reject('Range must not exceed 100,000');
-                          if (end < 0) return Promise.reject('Range must be greater than 0');
+                              const end = Number(value);
+                              if (end > 100000)
+                                return Promise.reject('Range must not exceed 100,000');
+                              if (end < 0) return Promise.reject('Range must be greater than 0');
 
-                          const start = form.getFieldValue(['conditions', name, 'range_start']);
-                          if (start !== undefined && start !== null && end <= Number(start)) {
-                            return Promise.reject('Range End must be greater than Range Start');
-                          }
+                              const start = form.getFieldValue(['conditions', name, 'range_start']);
+                              if (start !== undefined && start !== null && end <= Number(start)) {
+                                return Promise.reject('Range End must be greater than Range Start');
+                              }
 
-                          return Promise.resolve();
-                        },
-                      },
-                    ]}
-                  >
-                    <Input type="number" min={0} className="w-full" />
-                  </Form.Item>
-
-                  {/* Minus Button – hidden if only one row */}
-                  <div className="flex items-center justify-center">
-                    <button
-                      type="button"
-                      className="btn-danger flex flex-1 items-center justify-center h-full rounded hover:bg-gray-300"
-                      onClick={() => remove(name)}
-                    >
-                      <IconMinus />
-                    </button>
+                              return Promise.resolve();
+                            },
+                          },
+                        ]}
+                      >
+                        <Input type="number" min={0} className="w-full" />
+                      </Form.Item>
+                    )}
+                    {/* status */}
+                    {conditionName === 'CornerBlock' && (
+                      <Form.Item
+                        label="Status"
+                        name={[name, 'status']}
+                        dependencies={[['conditions', name, 'status']]}
+                      >
+                        <Radio.Group
+                          options={[
+                            { label: 'Yes', value: 'Yes' },
+                            { label: 'No', value: 'No' },
+                          ]}
+                        />
+                      </Form.Item>
+                    )}
+                    {/* Minus Button – hidden if only one row */}
+                    <div className="flex items-center justify-center">
+                      <button
+                        type="button"
+                        className="btn-danger flex flex-1 items-center justify-center h-full rounded hover:bg-gray-300"
+                        onClick={() => remove(name)}
+                      >
+                        <IconMinus />
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
 
               {/* Add Button */}
               <Form.Item>
@@ -446,20 +539,42 @@ const AddMasterPricingItemModal = ({
             </>
           )}
         </Form.List>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Form.Item
-            label="Status"
-            name="status"
-            initialValue="ACTIVE"
-            className="form-item-responsive"
-          >
-            <Radio.Group style={{ width: '100%' }} disabled={!categoryId}>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Radio value="ACTIVE">Active</Radio>
-                <Radio value="INACTIVE">Inactive</Radio>
-              </div>
-            </Radio.Group>
-          </Form.Item>
+        <Form.Item
+          label="Status"
+          name="status"
+          initialValue="ACTIVE"
+          className="form-item-responsive"
+        >
+          <Radio.Group
+            style={{ width: '100%' }}
+            disabled={!categoryId}
+            options={[
+              { label: 'Active', value: 'ACTIVE' },
+              { label: 'Inactive', value: 'INACTIVE' },
+            ]}
+          />
+        </Form.Item>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          {extraField && (
+            <div>
+              <Form.Item
+                name="include_by_default"
+                valuePropName="checked"
+                className="form-item-responsive"
+                initialValue={false}
+              >
+                <Checkbox>Include By Default</Checkbox>
+              </Form.Item>
+              <Form.Item
+                name="notAllowRemoveQuotation"
+                valuePropName="checked"
+                className="form-item-responsive"
+                initialValue={false}
+              >
+                <Checkbox>Do not allow to remove from Quotation</Checkbox>
+              </Form.Item>
+            </div>
+          )}
           <div>
             {costType !== 'VARIABLE' && (
               <Form.Item
@@ -486,8 +601,9 @@ const AddMasterPricingItemModal = ({
         <Form.Item className="mb-0">
           <button
             type="submit"
-            className={`btn btn-primary w-full md:w-auto px-8 py-2 text-base ${isAddingItem ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
+            className={`btn btn-primary w-full md:w-auto px-8 py-2 text-base ${
+              isAddingItem ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
             disabled={isAddingItem}
           >
             {isAddingItem ? (

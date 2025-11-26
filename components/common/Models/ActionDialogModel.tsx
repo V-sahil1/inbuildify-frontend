@@ -106,20 +106,22 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
   };
 
   useEffect(() => {
-    if (open) {
-      if (isEditing && initialValues) {
-        const values = { ...initialValues };
-        if (initialValues.logo) {
-          values[fields.find(f => f.type === 'image')?.name || 'logo'] = makeFileFromUrl(
-            initialValues.logo
-          );
-        }
-        form.setFieldsValue(values);
-      } else if (!isEditing) {
-        form.resetFields();
+    if (!open) return;
+
+    if (isEditing && initialValues) {
+      const values = { ...initialValues };
+      if (initialValues.logo) {
+        values[fields.find(f => f.type === 'image')?.name || 'logo'] = makeFileFromUrl(
+          initialValues.logo
+        );
       }
+      form.setFieldsValue({
+        ...values,
+      });
+    } else if (!isEditing) {
+      form.resetFields();
     }
-  }, [open, isEditing, initialValues, fields, form]);
+  }, [open]);
 
   const handleOk = async () => {
     try {
@@ -236,7 +238,7 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
                 disabled={field?.disabled}
                 notFoundContent={field?.notFoundContent}
                 {...(field?.mode && { mode: field?.mode })}
-                onChange={(val) => field.onChange?.(val)}
+                onChange={val => field.onChange?.(val)}
                 // onChange={(val) => field.onChange?.(val, form)}
               />
             ) : field.type === 'radio' ? (
@@ -318,7 +320,9 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
             ) : field.type === 'switch' ? (
               <Switch
                 checked={switchValues[field.name] || false}
-                onChange={checked => handleSwitchChange(field.name, checked)}
+                onChange={checked => {
+                  handleSwitchChange(field.name, checked);
+                }}
                 onClick={field.onClick}
               />
             ) : field.type === 'date' ? (
@@ -342,16 +346,20 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
                 }}
               />
             ) : field.type === 'custom' ? (
-              typeof field.render === 'function' ? (field.render as () => React.ReactNode)() : field.render
-            ): field.type === 'checkbox' ?(
-                 <Checkbox.Group onChange={field.onChange}>
+              typeof field.render === 'function' ? (
+                (field.render as () => React.ReactNode)()
+              ) : (
+                field.render
+              )
+            ) : field.type === 'checkbox' ? (
+              <Checkbox.Group onChange={field.onChange}>
                 {field.options.map(option => (
-                    <Checkbox key={option.value} value={option.value}>
-                      {option.label}
-                    </Checkbox>
-                  ))}
-                </Checkbox.Group>
-             ) : (
+                  <Checkbox key={option.value} value={option.value}>
+                    {option.label}
+                  </Checkbox>
+                ))}
+              </Checkbox.Group>
+            ) : (
               <Input placeholder={field.placeholder} type={field.type} disabled={field.disabled} />
             )}
           </Form.Item>

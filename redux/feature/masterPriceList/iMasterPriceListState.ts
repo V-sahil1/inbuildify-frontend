@@ -30,6 +30,8 @@ export interface Category {
   items: Item[] | null;
   isExpanded: boolean;
   loadingItems: boolean;
+  status?:string;
+  sort?:number
 }
 
 export interface CategoriesState {
@@ -50,8 +52,8 @@ export interface RequestItem {
   package_only?: boolean;
   uom?: string;
   sort_order?: number;
-  range?: string;
-  dwelling?: string;
+  range?: string | string[];
+  dwelling?: string | string[];
   conditions?: {
     name: string;
     range_start: string;
@@ -59,6 +61,7 @@ export interface RequestItem {
   }[];
   status?: string;
   builderCost?: number;
+  notAllowRemoveQuotation?:boolean
   // extraItemType?: string;
   // builderCost?: number
 }

@@ -209,7 +209,7 @@ const FacadeMaster = () => {
               </Space>
             </div>
           }
-          table={{ columns: quotationColumns, data }}
+          table={[{ columns: quotationColumns, data }]}
         />
       )}
 
