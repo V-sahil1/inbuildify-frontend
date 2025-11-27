@@ -192,7 +192,10 @@ export interface TaskDetails {
   description: string;
   assignee: { id: string; name: string };
   attachment?: { uid: string; name: string; url?: string }[];
-  status?: 'completed' | 'yettostart' | 'working' | '';
+  status?: 'completed' | 'yettostart' | 'working' | 'Skipped' | 'Cancelled' | '';
+  contactName?: string;
+  phone?: string;
+  tags?: string[];
 }
 
 export interface SmsDetails {

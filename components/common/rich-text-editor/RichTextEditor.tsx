@@ -79,8 +79,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   const editor = useMemo(() => withHistory(withReact(createEditor())), []);
 
   const slateValue = useMemo(() => {
-    if (!value)
-      return [{ type: 'paragraph', children: [{ text: '' }] }];
+    if (!value) return [{ type: 'paragraph', children: [{ text: '' }] }];
 
     try {
       const parsed = JSON.parse(value);
@@ -179,46 +178,43 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
 const deserialize = (html: string): Descendant[] => {
   const parser = new DOMParser();
-  const doc = parser.parseFromString(html, "text/html");
+  const doc = parser.parseFromString(html, 'text/html');
 
   const walk = (el: Node): any => {
     if (el.nodeType === 3) {
-      const text = el.textContent || "";
+      const text = el.textContent || '';
       return text.trim() ? { text } : null;
     }
 
     if (!(el instanceof HTMLElement)) return null;
 
-    let children = Array.from(el.childNodes)
-      .map(walk)
-      .flat()
-      .filter(Boolean);
+    let children = Array.from(el.childNodes).map(walk).flat().filter(Boolean);
 
     if (children.length === 0) {
-      children = [{ text: "" }];
+      children = [{ text: '' }];
     }
 
     switch (el.nodeName) {
-      case "BODY":
+      case 'BODY':
         return children;
-      case "P":
-        return { type: "paragraph", children };
-      case "H1":
-        return { type: "heading-one", children };
-      case "H2":
-        return { type: "heading-two", children };
-      case "STRONG":
+      case 'P':
+        return { type: 'paragraph', children };
+      case 'H1':
+        return { type: 'heading-one', children };
+      case 'H2':
+        return { type: 'heading-two', children };
+      case 'STRONG':
         return children.map((child: any) => ({ ...child, bold: true }));
-      case "EM":
+      case 'EM':
         return children.map((child: any) => ({ ...child, italic: true }));
-      case "U":
+      case 'U':
         return children.map((child: any) => ({ ...child, underline: true }));
-      case "UL":
-        return { type: "bulleted-list", children };
-      case "OL":
-        return { type: "numbered-list", children };
-      case "LI":
-        return { type: "list-item", children };
+      case 'UL':
+        return { type: 'bulleted-list', children };
+      case 'OL':
+        return { type: 'numbered-list', children };
+      case 'LI':
+        return { type: 'list-item', children };
       default:
         return children;
     }
@@ -227,35 +223,47 @@ const deserialize = (html: string): Descendant[] => {
   const result = walk(doc.body);
 
   return Array.isArray(result) ? result : [result];
-}
+};
 
 const serialize = (nodes: Descendant[]): string =>
-  nodes.map(node => {
-    if (Editor.isEditor(node)) return serialize(node.children);
+  nodes
+    .map(node => {
+      if (Editor.isEditor(node)) return serialize(node.children);
 
-    if ('text' in node) {
-      let text = node.text;
-      if ((node as any).bold) text = `<strong>${text}</strong>`;
-      if ((node as any).italic) text = `<em>${text}</em>`;
-      if ((node as any).underline) text = `<u>${text}</u>`;
-      if ((node as any).color) text = `<span style="color:${(node as any).color}">${text}</span>`;
-      if ((node as any).fontFamily) text = `<span style="font-family:${(node as any).fontFamily}">${text}</span>`;
-      if ((node as any).fontSize) text = `<span style="font-size:${(node as any).fontSize}">${text}</span>`;
-      return text;
-    }
+      if ('text' in node) {
+        let text = node.text;
+        if ((node as any).bold) text = `<strong>${text}</strong>`;
+        if ((node as any).italic) text = `<em>${text}</em>`;
+        if ((node as any).underline) text = `<u>${text}</u>`;
+        if ((node as any).color) text = `<span style="color:${(node as any).color}">${text}</span>`;
+        if ((node as any).fontFamily)
+          text = `<span style="font-family:${(node as any).fontFamily}">${text}</span>`;
+        if ((node as any).fontSize)
+          text = `<span style="font-size:${(node as any).fontSize}">${text}</span>`;
+        return text;
+      }
 
-    const children = serialize(node.children);
-    switch ((node as any).type) {
-      case 'paragraph': return `<p>${children}</p>`;
-      case 'heading-one': return `<h1>${children}</h1>`;
-      case 'heading-two': return `<h2>${children}</h2>`;
-      case 'bulleted-list': return `<ul>${children}</ul>`;
-      case 'numbered-list': return `<ol>${children}</ol>`;
-      case 'list-item': return `<li>${children}</li>`;
-      case 'block-quote': return `<blockquote>${children}</blockquote>`;
-      default: return `<div>${children}</div>`;
-    }
-  }).join('');
+      const children = serialize(node.children);
+      switch ((node as any).type) {
+        case 'paragraph':
+          return `<p>${children}</p>`;
+        case 'heading-one':
+          return `<h1>${children}</h1>`;
+        case 'heading-two':
+          return `<h2>${children}</h2>`;
+        case 'bulleted-list':
+          return `<ul>${children}</ul>`;
+        case 'numbered-list':
+          return `<ol>${children}</ol>`;
+        case 'list-item':
+          return `<li>${children}</li>`;
+        case 'block-quote':
+          return `<blockquote>${children}</blockquote>`;
+        default:
+          return `<div>${children}</div>`;
+      }
+    })
+    .join('');
 
 const toggleMark = (editor: CustomEditor, format: CustomTextKey) => {
   if (!editor.selection) return;
@@ -286,7 +294,7 @@ const toggleBlock = (editor: CustomEditor, format: CustomElementFormat) => {
     split: true,
   });
 
-let newProperties: Partial<SlateElement>;
+  let newProperties: Partial<SlateElement>;
   if (isAlignType(format)) {
     newProperties = {
       align: isActive ? undefined : format,
@@ -304,7 +312,11 @@ let newProperties: Partial<SlateElement>;
   }
 };
 
-const isBlockActive = (editor: CustomEditor, format: CustomElementFormat, type: 'type' | 'align') => {
+const isBlockActive = (
+  editor: CustomEditor,
+  format: CustomElementFormat,
+  type: 'type' | 'align'
+) => {
   if (!editor.selection) return false;
   try {
     const [match] = Array.from(
@@ -418,7 +430,10 @@ const Leaf = ({ attributes, children, leaf }: RenderLeafProps) => {
   return <span {...attributes}>{children}</span>;
 };
 
-interface BlockButtonProps { format: CustomElementFormat; icon: React.ReactNode; }
+interface BlockButtonProps {
+  format: CustomElementFormat;
+  icon: React.ReactNode;
+}
 const BlockButton = ({ format, icon }: BlockButtonProps) => {
   const editor = useSlate();
   return (
@@ -434,7 +449,10 @@ const BlockButton = ({ format, icon }: BlockButtonProps) => {
   );
 };
 
-interface MarkButtonProps { format: CustomTextKey; icon: React.ReactNode; }
+interface MarkButtonProps {
+  format: CustomTextKey;
+  icon: React.ReactNode;
+}
 const MarkButton = ({ format, icon }: MarkButtonProps) => {
   const editor = useSlate();
   return (

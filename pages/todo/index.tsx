@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Table, Input, Button, Space, Dropdown, Menu } from 'antd';
 import { IconDownload, IconTruck } from '@tabler/icons-react';
 import { exportToExcel } from '@lib/utils/exportToExcel';
@@ -9,8 +9,12 @@ import AssigneeSelect from '@/components/common/custom-selects/AssigneeSelect';
 import CustomAvtar from '@/components/common/CustomAvtar';
 import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineActionsBar';
 import { debouncedURL } from '@lib/utils/debounceURL';
+import { TodoFormDrawer } from '@/components/common/todo/TodoFormDrawer';
+import { ChecklistDateChange } from '@/components/common/todo/ChecklistDateChange';
 
 const TodosPage: React.FC = () => {
+  const [drawerOpen, setDrawerOpen] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
   const { debouncedUpdateURL, setParams, filters } = debouncedURL({
     filtersKey: [
       'jobAddress',
@@ -212,12 +216,34 @@ const TodosPage: React.FC = () => {
         rowSelection={{
           type: 'checkbox',
         }}
+        onRow={record => ({
+          onClick: () => setDrawerOpen(record),
+          style: { cursor: 'pointer' },
+        })}
         pagination={{
           pageSize: 10,
           showSizeChanger: true,
           showQuickJumper: true,
         }}
       />
+      {!!drawerOpen && (
+        <TodoFormDrawer
+          open={!!drawerOpen}
+          onCancel={() => setDrawerOpen(null)}
+          onSubmit={() => {
+            setModalOpen(true);
+          }}
+        />
+      )}
+      {modalOpen && (
+        <ChecklistDateChange
+          open={modalOpen}
+          onCancel={() => setModalOpen(false)}
+          onSubmit={values => {
+            console.log('values', values);
+          }}
+        />
+      )}
     </div>
   );
 };

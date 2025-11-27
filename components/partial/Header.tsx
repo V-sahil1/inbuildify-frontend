@@ -25,6 +25,7 @@ import leadCreateFields from '../formFields/LeadCreateFields';
 import { JobCreationModal } from '../common/Models/JobModal';
 import { CreateTaskModal } from '../common/Models/CreatetaskModel';
 import { CreateAppointmentModal } from '../common/Models/createAppointementModel';
+import { setTask } from '@redux/feature/task/taskSlice';
 
 export default function Header({
   toggleMobileNav,
@@ -56,6 +57,7 @@ export default function Header({
   });
   const dispatch = useAppDispatch();
   const router = useRouter();
+  
   useEffect(() => {
     const sidebarElement = document.querySelector('.admin-wrapper');
     if (sidebarElement) {
@@ -140,7 +142,8 @@ export default function Header({
     setCreateMenuOpen('');
   };
 
-  const handleTaskSubmit = () => {
+  const handleTaskSubmit = (values) => {
+    dispatch(setTask({ ...values.task, taskId: Math.floor(Math.random() * 100000).toString() }))
     setCreateMenuOpen('');
   };
   const renderCreateModal = () => {
@@ -186,7 +189,7 @@ export default function Header({
             onClose={() => setCreateMenuOpen('')}
             title="Create Appointment"
             loading={false}
-            onSubmit={handleTaskSubmit}
+            onSubmit={()=>{}}
             initialData={undefined}
           />
         );

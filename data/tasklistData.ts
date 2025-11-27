@@ -1,3 +1,5 @@
+import { TaskDetails } from './types';
+
 export interface DataType {
   key: string;
   name: string;
@@ -11,42 +13,45 @@ export interface DataType {
   phone: string;
 }
 
-export const data: DataType[] = [
+export const data: TaskDetails[] = [
   {
-    key: '1',
+    taskId: '1',
     name: 'Task 1',
-    status: 'open',
-    priority: 'High',
+    status: 'working',
+    priority: 'HIGH',
     dueDate: '2023-10-15',
-    assignedTo: 'John Doe',
-    assignedToId: 1,
+    assignee: { id: 'John Doe', name: 'John Doe' },
     contactName: 'John Doe',
     phone: '123-456-7890',
     tags: ['urgent', 'important'],
+    time: '',
+    description: '',
   },
   {
-    key: '2',
+    taskId: '2',
     name: 'Task 2',
-    status: 'open',
-    priority: 'High',
-    dueDate: '2023-10-14',
-    assignedTo: 'John Doe',
-    assignedToId: 2,
+    status: 'working',
+    priority: 'HIGH',
+    dueDate: '2023-10-15',
+    assignee: { id: 'John Doe', name: 'John Doe' },
     contactName: 'John Doe',
     phone: '123-456-7890',
     tags: ['urgent', 'important'],
+    time: '',
+    description: '',
   },
   {
-    key: '3',
+    taskId: '3',
     name: 'Task 3',
-    status: 'open',
-    priority: 'High',
-    dueDate: '2023-10-16',
-    assignedTo: 'John Doe',
-    assignedToId: 3,
+    status: 'working',
+    priority: 'HIGH',
+    dueDate: '2023-10-15',
+    assignee: { id: 'John Doe', name: 'John Doe' },
     contactName: 'John Doe',
     phone: '123-456-7890',
     tags: ['urgent', 'important'],
+    time: '',
+    description: '',
   },
 ];
 

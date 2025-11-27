@@ -6,8 +6,8 @@ export const CreateTaskModal = ({
   onClose,
   title,
   loading,
-  status=false,
-  attachment=true,
+  status = false,
+  attachment = true,
   onSubmit,
   initialData,
 }: {
@@ -15,9 +15,9 @@ export const CreateTaskModal = ({
   onClose: () => void;
   title: string;
   loading: boolean;
-  status?:boolean;
-  attachment?:boolean;
-  onSubmit: () => void;
+  status?: boolean;
+  attachment?: boolean;
+  onSubmit: (values) => void;
   initialData?: any;
 }) => {
   return (

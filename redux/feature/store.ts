@@ -16,7 +16,7 @@ import actionReducer from './action/actionSlice';
 import userReducer from './user/userSlice';
 import workflowReducer from './workflow/workflowSlice';
 import colourReducer from './color/ColourSlice';
-
+import taskReducer from './task/taskSlice';
 const authPersistConfig = {
   key: 'auth',
   storage,
@@ -39,6 +39,7 @@ const appReducer = combineReducers({
   user: userReducer,
   workflow: workflowReducer,
   colour: colourReducer,
+  task: taskReducer,
 });
 
 const rootReducer = (state: ReturnType<typeof appReducer> | undefined, action: any) => {
@@ -67,6 +68,7 @@ const persistConfig = {
     'user',
     'workflow',
     'colour',
+    'task',
   ],
 };
 

@@ -1,6 +1,6 @@
 'use client';
-import { FC, useEffect, useState } from 'react';
-import { Button, DatePicker, TimePicker, Input, Select, Upload, Form, message } from 'antd';
+import { FC, useEffect } from 'react';
+import { Button, DatePicker, TimePicker, Input, Select, Upload, Form, message, Tag } from 'antd';
 import dayjs from 'dayjs';
 import { IconUpload } from '@tabler/icons-react';
 import { TaskDetails } from 'data/types';
@@ -25,7 +25,7 @@ interface CreateTaskCardProps {
   loading: boolean;
   initialData?: TaskDetails;
   isStatusShow?: boolean;
-  attachment?:boolean;
+  attachment?: boolean;
 }
 
 const priorityOptions = [
@@ -38,9 +38,30 @@ const statusOptions = [
   { label: 'Completed', value: 'completed' },
   { label: 'Yet To Start', value: 'yettostart' },
   { label: 'Working', value: 'working' },
+  { label: 'Skipped', value: 'Skipped' },
+  { label: 'Cancelled', value: 'Cancelled' },
 ];
+export const contactData = [
+  { id: 'BS01937', name: 'Kishor Kumar', type: 'Sales', phone: '1234567862' },
+  { id: 'BS01934', name: 'Kishan Kumar', type: 'Job', phone: '1234567862' },
+];
+const linkToOption = contactData.map(i => ({
+  value: i.id,
+  label: (
+    <p>
+      {i.id} - {i.name} - <Tag color="purple">{i.type}</Tag>
+    </p>
+  ),
+}));
 
-const CreateTaskCard: FC<CreateTaskCardProps> = ({ onSave, onCancel, loading, initialData, isStatusShow = false, attachment = true }) => {
+const CreateTaskCard: FC<CreateTaskCardProps> = ({
+  onSave,
+  onCancel,
+  loading,
+  initialData,
+  isStatusShow = false,
+  attachment = true,
+}) => {
   const [form] = Form.useForm();
   const { users, status } = useAppSelector(state => state.user);
   const { email } = useAppSelector(state => state.auth.user);
@@ -76,7 +97,7 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({ onSave, onCancel, loading, in
       values.actionId = initialData?.actionId;
       values.action_type_id = initialData?.taskId;
     }
-    values.task.due_date = values.task?.due_date?.format('YYYY-MM-DD');
+    values.task.dueDate = values.task?.dueDate?.format('YYYY-MM-DD');
     values.task.time = values.task?.time?.format('HH:mm');
     values.attachment = values?.attachment ? values?.attachment?.[0]?.originFileObj : null;
     onSave(values);
@@ -98,17 +119,18 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({ onSave, onCancel, loading, in
         rules={taskNameRules}
         initialValue={initialData?.name}
       >
-        <Input placeholder="Task Name" />
+        <Input disabled={isStatusShow} placeholder="Task Name" />
       </Form.Item>
 
       <div className="grid grid-cols-2 gap-3">
         <Form.Item
           label="Due Date"
-          name={['task', 'due_date']}
+          name={['task', 'dueDate']}
           rules={dueDateRules}
           initialValue={initialData?.dueDate ? dayjs(initialData?.dueDate) : null}
         >
           <DatePicker
+            disabled={isStatusShow}
             format="YYYY-MM-DD"
             className="w-full"
             inputReadOnly
@@ -129,11 +151,12 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({ onSave, onCancel, loading, in
           initialValue={initialData?.time ? dayjs(initialData.time, 'HH:mm') : null}
         >
           <TimePicker
+            disabled={isStatusShow}
             format="HH:mm"
             className="w-full"
             hideDisabledOptions
             disabledTime={() => {
-              const selectedDate: dayjs.Dayjs = form.getFieldValue(['task', 'due_date']);
+              const selectedDate: dayjs.Dayjs = form.getFieldValue(['task', 'dueDate']);
               const now = dayjs();
 
               if (!selectedDate) {
@@ -156,34 +179,6 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({ onSave, onCancel, loading, in
           />
         </Form.Item>
       </div>
-
-      <Form.Item
-        label="Priority"
-        name={['task', 'priority']}
-        rules={priorityRules}
-        initialValue={initialData?.priority}
-      >
-        <Select options={priorityOptions} placeholder="Select Priority" />
-      </Form.Item>
-      {isStatusShow && (
-        <Form.Item
-          label="Status"
-          name={['task', 'status']}
-          rules={priorityRules}
-          initialValue={initialData?.status}
-        >
-          <Select options={statusOptions} placeholder="Select status" />
-        </Form.Item>
-      )}
-      <Form.Item
-        label="Description"
-        name={['task', 'description']}
-        rules={descriptionRules}
-        initialValue={initialData?.description}
-      >
-        <Input.TextArea rows={4} placeholder="Task Description" className="!resize-none" />
-      </Form.Item>
-
       <Form.Item
         label="Assignee"
         name={['task', 'assignee']}
@@ -202,44 +197,96 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({ onSave, onCancel, loading, in
         rules={[{ required: true, message: 'Please select assignee' }]}
       >
         <Select
+          disabled={isStatusShow}
           options={assigneeOptions}
           placeholder="Select Assignee"
           notFoundContent={<NoDataMessage label="User" link={SystemRoutes.USERS} />}
         />
       </Form.Item>
-
-      <div className="flex flex-col sm:flex-row  sm:justify-between sm:items-end gap-3">
+      <div className="grid grid-cols-2 gap-3">
+        {!isStatusShow && (
+          <Form.Item
+            label="Priority"
+            name={['task', 'priority']}
+            rules={priorityRules}
+            initialValue={initialData?.priority}
+          >
+            <Select
+              disabled={isStatusShow}
+              options={priorityOptions}
+              placeholder="Select Priority"
+            />
+          </Form.Item>
+        )}
+        {/* {isStatusShow && ( */}
         <Form.Item
-          name="attachment"
-          valuePropName="fileList"
-          getValueFromEvent={e => e.fileList}
-          className="max-w-[200px] sm:max-w-[350px]"
-          initialValue={
-            initialData?.attachment
-              ? [
-                  {
-                    uid: '-1',
-                    name: 'attachment.jpg',
-                    status: 'done',
-                    url: initialData?.attachment,
-                  },
-                ]
-              : []
-          }
+          label="Status"
+          name={['task', 'status']}
+          rules={priorityRules}
+          initialValue={initialData?.status}
         >
-      {attachment && (
-
-          <Upload beforeUpload={() => false} maxCount={1} accept={acceptOnlyImageRule}>
-            <Button icon={<IconUpload />}>Attach Files</Button>
-          </Upload>
-      )}
+          <Select disabled={isStatusShow} options={statusOptions} placeholder="Select status" />
         </Form.Item>
-        <div className="flex gap-3">
-          <Button onClick={onCancel}>Cancel</Button>
-          <Button type="primary" htmlType="submit" loading={loading} disabled={loading}>
-            Save
-          </Button>
-        </div>
+        {/* )} */}
+      </div>
+
+      <Form.Item
+        label="Link To"
+        name={['task', 'contactName']}
+        initialValue={initialData?.contactName}
+      >
+        <Select disabled={isStatusShow} options={linkToOption} />
+      </Form.Item>
+      <Form.Item
+        label="Description"
+        name={['task', 'description']}
+        rules={descriptionRules}
+        initialValue={initialData?.description}
+      >
+        <Input.TextArea
+          disabled={isStatusShow}
+          rows={4}
+          placeholder="Task Description"
+          className="!resize-none"
+        />
+      </Form.Item>
+
+      <Form.Item
+        name="attachment"
+        valuePropName="fileList"
+        getValueFromEvent={e => e.fileList}
+        className="max-w-[200px] sm:max-w-[350px]"
+        initialValue={
+          initialData?.attachment
+            ? [
+                {
+                  uid: '-1',
+                  name: 'attachment.jpg',
+                  status: 'done',
+                  url: initialData?.attachment,
+                },
+              ]
+            : []
+        }
+      >
+        {attachment && (
+          <Upload beforeUpload={() => false} maxCount={1} accept={acceptOnlyImageRule}>
+            <Button disabled={isStatusShow} icon={<IconUpload />}>
+              Attach Files
+            </Button>
+          </Upload>
+        )}
+      </Form.Item>
+      {isStatusShow && (
+        <p className="text-red-500">
+          This is workflow task and cant be edited.Please click on Reference id to view more details
+        </p>
+      )}
+      <div className="flex gap-3">
+        <Button onClick={onCancel}>Cancel</Button>
+        <Button type="primary" htmlType="submit" loading={loading} disabled={loading}>
+          Save
+        </Button>
       </div>
     </Form>
   );

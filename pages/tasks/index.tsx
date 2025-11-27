@@ -1,33 +1,29 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Table, Input, Button, Space } from 'antd';
-import { IconFilter, IconDownload, IconBell, IconExternalLink } from '@tabler/icons-react';
+import { IconFilter, IconDownload, IconBell } from '@tabler/icons-react';
 import { exportToExcel } from '@lib/utils/exportToExcel';
-import DateFilterDropdown from '@/components/common/custom-selects/DateFilterDropdown';
-import PrioritySelect from '@/components/common/custom-selects/PrioritySelect';
-import StatusSelect from '@/components/common/custom-selects/StatusSelect';
-import type { ColumnsType } from 'antd/es/table';
-import { data, DataType } from 'data/tasklistData';
 import SystemRoutes from '@lib/constants/Routes';
-import AssigneeSelect from '@/components/common/custom-selects/AssigneeSelect';
-import CustomAvtar from '@/components/common/CustomAvtar';
-import Link from 'next/link';
 import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineActionsBar';
 import { debouncedURL } from '@lib/utils/debounceURL';
-
+import { TaskDetails } from 'data/types';
+import { CreateTaskModal } from '@/components/common/Models/CreatetaskModel';
+import { TaskColumn } from '@/components/table-columns/TaskColumn';
+import { contactData } from '@/components/common/TimeLineComponents/CreateTaskCard';
 const TaskTable: React.FC = () => {
   const router = useRouter();
+  const [modalOpen, setModalOpen] = useState<'create' | null>(null);
+  const [selectedTask, setSelectedTask] = useState(null);
   const { debouncedUpdateURL, setParams, filters } = debouncedURL({
     filtersKey: ['name', 'contactName', 'phone', 'dueDate', 'priority', 'status', 'assignedTo'],
   });
-
+  const { columns, taskData, taskSubmit } = TaskColumn(selectedTask, filters, setParams);
   useEffect(() => {
     return () => {
       debouncedUpdateURL.cancel();
     };
   }, [debouncedUpdateURL]);
-
-  const handleExport = (data: DataType[]) => {
+  const handleExport = (data: TaskDetails[]) => {
     const column = {
       name: 'Name',
       contactName: 'Contact Name',
@@ -50,112 +46,6 @@ const TaskTable: React.FC = () => {
     // You can call your API or set state here
   };
 
-  const columns: ColumnsType<DataType> = [
-    {
-      title: (
-        <div>
-          <span>Name</span>
-          <Input value={filters.name} onChange={e => setParams({ name: e.target.value })} />
-        </div>
-      ),
-      dataIndex: 'name',
-      key: 'name',
-      width: 250,
-    },
-    {
-      title: (
-        <div>
-          <span>Contact Name</span>
-          <Input
-            value={filters.contactName}
-            onChange={e => setParams({ contactName: e.target.value })}
-          />
-        </div>
-      ),
-      dataIndex: 'contactName',
-      key: 'contactName',
-      width: 200,
-    },
-    {
-      title: (
-        <div>
-          <span>Phone</span>
-          <Input value={filters.phone} onChange={e => setParams({ phone: e.target.value })} />
-        </div>
-      ),
-      dataIndex: 'phone',
-      key: 'phone',
-      width: 150,
-    },
-    {
-      title: (
-        <div className="flex flex-col">
-          <span>Due Date</span>
-          <DateFilterDropdown
-            onFilter={(type, dates) => {
-              const dateString = dates ? `${dates[0].toISOString()},${dates[1].toISOString()}` : '';
-              setParams({ dueDate: dateString });
-            }}
-            onClear={() => {
-              console.log('Cleared date filter');
-              setParams({ dueDate: '' });
-            }}
-          />
-        </div>
-      ),
-      dataIndex: 'dueDate',
-      key: 'dueDate',
-      width: 150,
-      render: date => new Date(date).toLocaleDateString(),
-    },
-    {
-      title: (
-        <div className="flex flex-col">
-          <span>Priority</span>
-          <PrioritySelect
-            value={filters.priority}
-            onChange={value => setParams({ priority: value })}
-          />
-        </div>
-      ),
-      dataIndex: 'priority',
-      key: 'priority',
-      width: 150,
-    },
-    {
-      title: (
-        <div className="flex flex-col">
-          <span>Status</span>
-          <StatusSelect value={filters.status} onChange={value => setParams({ status: value })} />
-        </div>
-      ),
-      dataIndex: 'status',
-      key: 'status',
-      width: 120,
-    },
-    {
-      title: (
-        <div>
-          <span>Assignee</span>
-          <AssigneeSelect
-            value={filters.assignedTo}
-            onChange={value => setParams({ assignedTo: value })}
-          />
-        </div>
-      ),
-      dataIndex: 'assignedTo',
-      key: 'assignedTo',
-      width: 200,
-      render: (_, record) => (
-        <div className="flex justify-between items-center">
-          <CustomAvtar label={record.assignedTo} />
-          <Link href={`job/jobStatus/${record.key}`}>
-            <IconExternalLink size={22} className="cursor-pointer text-blue" />
-          </Link>
-        </div>
-      ),
-    },
-  ];
   type FilterType = 'today' | 'tomorrow' | 'this-week' | 'next-week' | 'overdue' | 'pending';
 
   const filterOptions: Array<{
@@ -163,15 +53,15 @@ const TaskTable: React.FC = () => {
     label: string;
     count: number;
   }> = [
-    { type: 'today', label: 'Today', count: data.length },
-    { type: 'tomorrow', label: 'Tomorrow', count: data.length },
-    { type: 'this-week', label: 'This Week', count: data.length },
-    { type: 'next-week', label: 'Next Week', count: data.length },
-    { type: 'overdue', label: 'Overdue', count: data.length },
+    { type: 'today', label: 'Today', count: taskData.length },
+    { type: 'tomorrow', label: 'Tomorrow', count: taskData.length },
+    { type: 'this-week', label: 'This Week', count: taskData.length },
+    { type: 'next-week', label: 'Next Week', count: taskData.length },
+    { type: 'overdue', label: 'Overdue', count: taskData.length },
     {
       type: 'pending',
       label: 'Pending',
-      count: data.filter(d => d.status === 'pending').length,
+      count: taskData.filter(d => d.status === 'yettostart').length,
     },
   ];
 
@@ -196,7 +86,7 @@ const TaskTable: React.FC = () => {
           <Button
             icon={<IconDownload />}
             onClick={() => {
-              handleExport(data);
+              handleExport(taskData);
             }}
           >
             Export
@@ -209,7 +99,7 @@ const TaskTable: React.FC = () => {
 
       <Table
         columns={columns}
-        dataSource={data}
+        dataSource={taskData}
         rowSelection={{
           type: 'checkbox',
         }}
@@ -218,7 +108,29 @@ const TaskTable: React.FC = () => {
           showSizeChanger: true,
           showQuickJumper: true,
         }}
+        onRow={record => ({
+          onClick: () => {
+            setModalOpen('create');
+            setSelectedTask(record);
+          },
+          style: { cursor: 'pointer' },
+        })}
       />
+      {modalOpen === 'create' && (
+        <CreateTaskModal
+          open={modalOpen === 'create'}
+          onClose={() => setModalOpen(null)}
+          title={!!selectedTask ? 'Edit Task' : 'Create Task'}
+          loading={false}
+          onSubmit={values => {
+            console.log('task submit', values.task);
+            taskSubmit(values.task);
+            setModalOpen(null);
+          }}
+          initialData={selectedTask}
+          status={contactData.filter(i => i.id === selectedTask.contactName)[0].type === 'Job'}
+        />
+      )}
     </div>
   );
 };
