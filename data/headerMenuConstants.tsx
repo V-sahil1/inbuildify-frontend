@@ -38,7 +38,7 @@ export const gridMenuItems: MenuItem[] = [
     id: 1,
     icon: <IconUser className="w-4 h-4 mr-3" />,
     label: 'User',
-    href: `${SystemRoutes.USERS}`,
+    href: `${SystemRoutes.USER}`,
   },
   {
     id: 2,
@@ -50,7 +50,7 @@ export const gridMenuItems: MenuItem[] = [
     id: 3,
     icon: <IconUsersGroup className="w-4 h-4 mr-3" />,
     label: 'User Group',
-    href: '#',
+    href: `${SystemRoutes.USER_GROUP}`,
   },
   {
     id: 4,

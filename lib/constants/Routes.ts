@@ -46,7 +46,9 @@ class SystemRoutes {
   public static PRICELIST = `/pricelist`;
   public static ESTATE = `/estate`;
   public static SUPPLIER = `/supplier`;
-  public static SURVEY_TEMPLATE=`/survey_template`
+  public static SURVEY_TEMPLATE = `/survey_template`;
+  public static USER = `/user`;
+  public static USER_GROUP = `/user-group`;
 }
 
 export default SystemRoutes;
