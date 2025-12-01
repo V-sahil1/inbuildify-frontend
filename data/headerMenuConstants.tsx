@@ -38,7 +38,7 @@ export const gridMenuItems: MenuItem[] = [
     id: 1,
     icon: <IconUser className="w-4 h-4 mr-3" />,
     label: 'User',
-    href: `${SystemRoutes.USER}`,
+    href: `${SystemRoutes.USERS}`,
   },
   {
     id: 2,

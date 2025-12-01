@@ -1,240 +1,175 @@
-'use client';
+import { useEffect, useState } from 'react';
+import { Button, Input, Table } from 'antd';
+import { IconDownload, IconLayoutGrid, IconLayoutList, IconPlus } from '@tabler/icons-react';
+import { debouncedURL } from '@lib/utils/debounceURL';
+import { ConfirmationContentModal } from '@/components/common/ConfirmationContentModal';
+import { CustomFilterButtons } from '@/components/common/CustomFilterButtons';
+import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
+import TooltipButton from '@/components/common/TooltipButtton';
+import { UserColumn } from '@/components/table-columns/UserColumn';
+import { UserCard } from '@/components/user/UserCard';
+import { UserFormModal } from '@/components/user/UserFormModal';
+import { User } from 'data/userData';
 
-import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Form, Table, Typography, message, Tabs } from 'antd';
-import type { TableColumnsType } from 'antd';
-import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import {
-  createUserThunk,
-  getInvitedUsersThunk,
-  getUsersThunk,
-} from '@redux/feature/user/userThunk';
-import { CreateFormModal } from '@/components/common/Models/CreateFormModel';
-import { Status } from '@lib/constants/enum';
-import { enumToReadable } from '@lib/utils/enumToRedable';
-import { DetailModal } from '@/components/common/DetailModal';
-import { RootState } from '@redux/feature/store';
-import { invitedUser, user } from '@redux/feature/user/UserState';
-import { userDetailModelFields, userInviteFormFields } from '@/components/formFields/userField';
-import Loading from '@/components/common/Loading';
-
-const UserPage = () => {
-  const { users, status, invitedUsers } = useAppSelector((state: RootState) => state.user);
-  const [activeTab, setActiveTab] = useState<'users' | 'invites'>('users');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [form] = Form.useForm<user>();
-  const [userInviteLoading, setuserInviteLoading] = useState(false);
-  const [resendInvite, setresendInvite] = useState('');
-  const [selectedUser, setSelectedUser] = useState(null);
-  const dispatch = useAppDispatch();
-
-  // Fetch active users
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        await dispatch(getUsersThunk()).unwrap();
-      } catch (error) {
-        message.error(error || 'Failed to fetch users');
-      }
-    }
-    if (status.users === Status.IDLE) {
-      fetchData();
-    }
-  }, [dispatch, status]);
-
-  const fetchInvitedUsers = async () => {
-    try {
-      await dispatch(getInvitedUsersThunk()).unwrap();
-    } catch (err) {
-      message.error(err || 'Failed to fetch invited users');
-    }
-  };
-
-  useEffect(() => {
-    if (activeTab === 'invites' && status.invitedUsers === Status.IDLE) {
-      fetchInvitedUsers();
-    }
-  }, [activeTab]);
-
-  const handleSubmit = async values => {
-    await form.validateFields();
-    try {
-      setuserInviteLoading(true);
-      const res = await dispatch(
-        createUserThunk({
-          email: values.email,
-          role: values.role,
-        })
-      ).unwrap();
-      message.success('Invitation sent successfully');
-      form.resetFields();
-      setIsModalOpen(false);
-    } catch (err) {
-      message.error(err || 'Failed to send invitation');
-    } finally {
-      setuserInviteLoading(false);
-    }
-  };
-
-  const handleResendInvite = async (record: invitedUser) => {
-    try {
-      setresendInvite(record.email);
-      const res = await dispatch(
-        createUserThunk({
-          email: record.email,
-          role: record.role,
-        })
-      ).unwrap();
-      message.success('Invitation sent successfully');
-    } catch (err) {
-      message.error(err || 'Failed to resend invitation');
-    } finally {
-      setresendInvite('');
-    }
-  };
-  const handleRowClick = async (record: user) => {
-    const user = { ...record, role: enumToReadable(record.role.join(' , ')) };
-    setSelectedUser(user);
-  };
-
-  // Users Table Columns
-  const userColumns: TableColumnsType<user> = useMemo(
-    () => [
-      { title: 'Email', dataIndex: 'email', key: 'email' },
-      {
-        title: 'Role',
-        dataIndex: 'role',
-        key: 'role',
-        render: (_, record) => enumToReadable(record.role.join(' , ')),
-      },
-    ],
-    []
+const Users = () => {
+  const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
+  const [drawerOpen, setDrawerOpen] = useState<'create'>(null);
+  const [modalOpen, setModalOpen] = useState<'resetLoginId' | 'lockUser' | 'changeStatusUser'>(
+    null
   );
-  // Invited Users Table Columns
-  const inviteColumns: TableColumnsType<invitedUser> = useMemo(
-    () => [
-      { title: 'Email', dataIndex: 'email', key: 'email' },
-      {
-        title: 'Role',
-        dataIndex: 'role',
-        key: 'role',
-        render: (_, record) => enumToReadable(record.role),
-      },
-
-      {
-        title: 'Actions',
-        key: 'actions',
-        render: (_, record) => (
-          <div>
-            {resendInvite === record?.email ? (
-              <div className="ml-6">
-                {' '}
-                <Loading type="primary" />
-              </div>
-            ) : (
-              <Button
-                type="link"
-                onClick={() => handleResendInvite(record)}
-                disabled={resendInvite !== '' && resendInvite !== record.email}
-              >
-                Resend
-              </Button>
-            )}
-          </div>
-        ),
-      },
-    ],
-    [resendInvite]
+  const [selectedUser, setSelectedUser] = useState<User>();
+  const { column, users, userSubmit, handleExport, handleClose } = UserColumn(
+    setModalOpen,
+    setSelectedUser,
+    setDrawerOpen,
+    selectedUser
   );
+  const user = selectedUser && users.filter(i => i.loginId === selectedUser.loginId)[0];
+  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+    filtersKey: ['search', 'status'],
+    initialValue: { status: 'Active' },
+  });
+  useEffect(() => {
+    return () => {
+      debouncedUpdateURL.cancel();
+    };
+  }, [debouncedUpdateURL]);
 
   return (
     <div className="p-4">
-      <div className="w-full">
-        <Typography.Title level={4} style={{ margin: 0, color: 'var(--font-color)' }}>
-          {activeTab === 'users' ? 'Users' : 'Invited Users'}
-        </Typography.Title>
-        <div className="flex items-center justify-between mb-4">
-          <div className="w-full">
-            <Tabs
-              activeKey={activeTab}
-              onChange={key => setActiveTab(key as 'users' | 'invites')}
-              items={[
-                { key: 'users', label: 'Users' },
-                { key: 'invites', label: 'Invited Users' },
-              ]}
-            />
-          </div>
-          {/* 🔹 Always visible now */}
-          {activeTab == 'users' && (
-            <button
-              className="btn large bg-primary cursor-pointer text-white w-36 ml-10"
-              onClick={() => setIsModalOpen(true)}
-            >
-              Invite User
-            </button>
-          )}
+      <h1 className="text-2xl font-semibold mb-4">Users Listing</h1>
+      <div className="flex flex-wrap items-center gap-3 mb-6">
+        <Input.Search
+          placeholder="Search contacts by name, email, or phone number"
+          allowClear
+          value={filters.search}
+          onChange={e => setParams({ search: e.target.value })}
+          className="w-full md:w-1/2"
+        />
+
+        <CustomFilterButtons
+          filterButtons={['Active', 'InActive']}
+          activeTab={filters.status}
+          setActiveTab={value => setParams({ status: value })}
+        />
+
+        <div className="flex items-center gap-2">
+          <p className="text-gray-500 text-sm">12 Users</p>
         </div>
-        <Table
-          rowKey="key"
-          columns={
-            activeTab === 'users'
-              ? (userColumns as TableColumnsType<user | invitedUser>)
-              : (inviteColumns as TableColumnsType<user | invitedUser>)
-          }
-          dataSource={activeTab === 'users' ? users : invitedUsers}
-          pagination={{ pageSize: 10 }}
-          scroll={{ x: 'max-content' }}
-          onRow={
-            activeTab === 'users'
-              ? (record: user) => ({
-                  style: { cursor: 'pointer' },
-                  onClick: () => handleRowClick(record),
-                })
-              : record => ({})
-          }
-          loading={{
-            spinning:
-              activeTab === 'users'
-                ? status.users === Status.PENDING
-                : status.invitedUsers === Status.PENDING,
-            indicator: (
-              <div className="flex justify-center items-center h-full">
-                {' '}
-                <Loading type="primary" />
-              </div>
-            ),
-          }}
-          locale={{
-            emptyText: (
-              activeTab === 'users'
-                ? status.users === Status.PENDING
-                : status.invitedUsers === Status.PENDING
-            ) ? (
-              <div className="min-h-[200px]"></div>
-            ) : (
-              'No Data'
-            ),
-          }}
-        />
-        <CreateFormModal
-          title="User"
-          open={isModalOpen}
-          onSubmit={handleSubmit}
-          invite={true}
-          onCancel={() => setIsModalOpen(false)}
-          loading={userInviteLoading}
-          fields={userInviteFormFields()}
-        />
-        <DetailModal
-          title="User Details"
-          open={selectedUser !== null}
-          onCancel={() => setSelectedUser(null)}
-          data={selectedUser}
-          fields={userDetailModelFields()}
-        />
+
+        <div className="ml-auto flex items-center gap-2">
+          <Button
+            type="primary"
+            icon={<IconPlus size={16} />}
+            onClick={() => {
+              setDrawerOpen('create');
+            }}
+          >
+            New User
+          </Button>
+
+          {viewMode === 'grid' ? (
+            <TooltipButton
+              title="Switch to Table View"
+              icon={<IconLayoutList size={16} />}
+              onClick={() => setViewMode('table')}
+            />
+          ) : (
+            <TooltipButton
+              title="Switch to Grid View"
+              icon={<IconLayoutGrid size={16} />}
+              onClick={() => setViewMode('grid')}
+            />
+          )}
+
+          <TooltipButton
+            title="Export"
+            icon={<IconDownload size={16} />}
+            onClick={() => handleExport(users)}
+          />
+        </div>
       </div>
+      {viewMode === 'grid' ? (
+        <div className="grid grid-cols-3 gap-2 ">
+          {users
+            .filter(i => i.status === filters.status)
+            .map((user, index) => (
+              <UserCard
+                key={index}
+                user={user}
+                setDrawerOpen={setDrawerOpen}
+                setModalOpen={setModalOpen}
+                setSelectedUser={setSelectedUser}
+              />
+            ))}
+        </div>
+      ) : (
+        <Table columns={column} dataSource={users.filter(i => i.status === filters.status)}></Table>
+      )}
+      {drawerOpen === 'create' && (
+        <UserFormModal
+          open={drawerOpen === 'create'}
+          onCancel={handleClose}
+          onSubmit={values => {
+            console.log('user submit', values);
+            userSubmit(values);
+          }}
+          setModalOpen={setModalOpen}
+          isEditing={!!selectedUser}
+          initialValue={selectedUser}
+        />
+      )}
+      {modalOpen === 'resetLoginId' && (
+        <ActionDialogmodel
+          title="Change Login Id"
+          open={modalOpen === 'resetLoginId'}
+          onCancel={handleClose}
+          onSubmit={values => {
+            userSubmit({ loginId: values.loginId });
+          }}
+          fields={[
+            { label: 'New Login id', name: 'loginId', type: 'text' },
+            {
+              label: 'Email new login Id',
+              name: 'emailLoginId',
+              type: 'switch',
+              initialValue: true,
+            },
+          ]}
+          isEditing={!!selectedUser}
+          initialValues={selectedUser}
+        />
+      )}
+      {['changeStatusUser', 'lockUser'].includes(modalOpen) && (
+        <ConfirmationContentModal
+          title="Confirmation"
+          open={['changeStatusUser', 'lockUser'].includes(modalOpen)}
+          onClose={handleClose}
+          okText={
+            modalOpen === 'lockUser'
+              ? user?.lock
+                ? 'UnLock'
+                : 'Lock'
+              : user?.status === 'Active'
+                ? 'InActivate'
+                : 'Activate'
+          }
+          content={`Are you sure you want to ${modalOpen === 'changeStatusUser' ? (user?.status === 'Active' ? 'InActivate' : 'Activate') : user?.lock ? 'UnLock' : 'Lock'} the user?`}
+          onSubmit={() => {
+            const value =
+              modalOpen === 'lockUser'
+                ? user?.lock
+                  ? false
+                  : true
+                : user?.status === 'Active'
+                  ? 'InActive'
+                  : 'Active';
+            userSubmit(modalOpen === 'lockUser' ? { lock: value } : { status: value });
+          }}
+        />
+      )}
     </div>
   );
 };
 
-export default UserPage;
+export default Users;

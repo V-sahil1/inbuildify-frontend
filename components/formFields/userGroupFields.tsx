@@ -1,6 +1,7 @@
 import { useUsersHook } from '@hooks/useUserData';
-import { CustomSelectWithAutoSelectAll } from '../common/CustomSelectwithSelectAll';
+
 import { FormField } from '../common/Models/ActionDialogModel';
+import { CustomBulkSelect } from '../common/CustomBulkSelect';
 
 export const userGroupField = () => {
   const { users } = useUsersHook();
@@ -11,7 +12,7 @@ export const userGroupField = () => {
       label: 'Select User',
       name: 'users',
       type: 'custom',
-      render: <CustomSelectWithAutoSelectAll options={userOptions} onChange={() => {}} />,
+      render: <CustomBulkSelect options={userOptions} onChange={() => {}} />,
     },
     {
       label: 'Status',

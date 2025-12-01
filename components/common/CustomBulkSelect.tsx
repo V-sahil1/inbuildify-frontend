@@ -1,7 +1,9 @@
 import { Select, Tag } from 'antd';
 import { useMemo } from 'react';
-
-export const CustomSelectWithAutoSelectAll = ({ value = [], onChange, options }) => {
+// onchange is set to required as it is being calling in the form item and the form item managing the onchange and values prop
+// when using only without the form item need to handkle the onchnage
+// in form item pass as empty function for onchange
+export const CustomBulkSelect = ({ value = [], onChange, options }) => {
   const ALL_VALUE = 'All';
   const allValues = useMemo(() => options.map(o => o.value), [options]);
   const isAllSelected = value.length === allValues.length;
