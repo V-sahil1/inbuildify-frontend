@@ -5,10 +5,11 @@ const TooltipButton: React.FC<TooltipButtonProps> = ({
   title,
   icon,
   type = 'default',
+  className,
   onClick,
 }) => (
   <Tooltip title={title}>
-    <Button icon={icon} onClick={onClick} type={type} />
+    <Button icon={icon} onClick={onClick} type={type} className={className} />
   </Tooltip>
 );
 

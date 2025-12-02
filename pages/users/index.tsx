@@ -5,7 +5,7 @@ import { debouncedURL } from '@lib/utils/debounceURL';
 import { ConfirmationContentModal } from '@/components/common/ConfirmationContentModal';
 import { CustomFilterButtons } from '@/components/common/CustomFilterButtons';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
-import TooltipButton from '@/components/common/TooltipButtton';
+import TooltipButton from '@/components/common/TooltipButton';
 import { UserColumn } from '@/components/table-columns/UserColumn';
 import { UserCard } from '@/components/user/UserCard';
 import { UserFormModal } from '@/components/user/UserFormModal';

@@ -12,7 +12,7 @@ import { getLeadThunk } from '@redux/feature/lead/leadThunk';
 import { Status } from '@lib/constants/enum';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { ILead } from '@redux/feature/lead/ILeadState';
-import TooltipButton from '@/components/common/TooltipButtton';
+import TooltipButton from '@/components/common/TooltipButton';
 import SystemRoutes from '@lib/constants/Routes';
 import CustomAvtar from '@/components/common/CustomAvtar';
 import Link from 'next/link';

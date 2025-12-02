@@ -17,6 +17,8 @@ import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel'
 import ActivityCard from '@/components/common/ActivityCard';
 import { EmailData, filterTabs } from 'data/activityData';
 import { ConstructionModelFields } from '@/components/formFields/constructionModelFields';
+import FileExplorer from '@/components/common/FileExplorer';
+import { sdriveRootFolders } from '@/data/sdriveData';
 const { TabPane } = Tabs;
 
 export default function JobDetail() {
@@ -152,10 +154,21 @@ export default function JobDetail() {
             <JobAction />
           </TabPane>
           <TabPane tab="Documents" key="Documents">
-            <div className="bg-card-color">
-              <Result
-                title="Document Functionality coming soon"
-                subTitle="Please check back later"
+            <div className="w-full">
+              <FileExplorer
+                rootFolders={sdriveRootFolders}
+                enableSearch={true}
+                onSearchChange={(query) => console.log('Search:', query)}
+                enableMultiSelect={true}
+                onDelete={(items) => console.log('Delete items:', items)}
+                enableAddFolder={true}
+                onAddFolder={(parentId) => console.log('Add folder to parent:', parentId)}
+                enableAddFile={true}
+                onAddFile={(parentId) => console.log('Add file to parent:', parentId)}
+                enableShare={true}
+                onShare={(items) => console.log('Share items:', items)}
+                enableExport={true}
+                onExport={(items) => console.log('Export items:', items)}
               />
             </div>
           </TabPane>

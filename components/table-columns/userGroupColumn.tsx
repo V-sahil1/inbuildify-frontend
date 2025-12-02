@@ -1,5 +1,5 @@
 import { useUsersHook } from '@hooks/useUserData';
-import TooltipButton from '../common/TooltipButtton';
+import TooltipButton from '../common/TooltipButton';
 import { IconPencil } from '@tabler/icons-react';
 import { Tag } from 'antd';
 import { useState } from 'react';

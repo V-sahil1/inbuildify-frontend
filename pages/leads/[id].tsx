@@ -41,6 +41,8 @@ import { removeQuotation } from '@redux/feature/lead/leadSlice';
 import DepositModel from '@/components/common/Models/DepositModel';
 import ActivityCard from '@/components/common/ActivityCard';
 import { EmailData, filterTabs } from 'data/activityData';
+import FileExplorer from '@/components/common/FileExplorer';
+import { sdriveRootFolders } from '@/data/sdriveData';
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -182,21 +184,21 @@ function App() {
           label: 'Proposal',
           color: 'bg-green-500',
           textColor: 'text-white',
-          onClick: () => {},
+          onClick: () => { },
         },
         {
           key: 'negotiation',
           label: 'Negotiation',
           color: 'bg-yellow-300',
           textColor: 'text-black',
-          onClick: () => {},
+          onClick: () => { },
         },
         {
           key: 'close',
           label: 'Close',
           color: 'bg-gray-200',
           textColor: 'text-black',
-          onClick: () => {},
+          onClick: () => { },
         },
       ];
     }
@@ -206,7 +208,7 @@ function App() {
         label: 'New',
         color: 'bg-green-500',
         textColor: 'text-white',
-        onClick: () => {},
+        onClick: () => { },
       },
       {
         key: 'working',
@@ -319,9 +321,9 @@ function App() {
               )}
             </div>
             {propertyFromSlice?.address1 ||
-            propertyFromSlice?.citySuburb ||
-            propertyFromSlice?.stateRegion ||
-            propertyFromSlice?.zipPostalCode ? (
+              propertyFromSlice?.citySuburb ||
+              propertyFromSlice?.stateRegion ||
+              propertyFromSlice?.zipPostalCode ? (
               <>
                 <Tooltip title={propertyFromSlice?.address1}>
                   <Typography.Title
@@ -485,10 +487,21 @@ function App() {
               <LeadActions leadId={leadId} />
             </TabPane>
             <TabPane tab="Document" key="Document">
-              <div className="bg-card-color">
-                <Result
-                  title="Document Functionality coming soon"
-                  subTitle="Please check back later"
+              <div className="w-full">
+                <FileExplorer
+                  rootFolders={sdriveRootFolders}
+                  enableSearch={true}
+                  onSearchChange={(query) => console.log('Search:', query)}
+                  enableMultiSelect={true}
+                  onDelete={(items) => console.log('Delete items:', items)}
+                  enableAddFolder={true}
+                  onAddFolder={(parentId) => console.log('Add folder to parent:', parentId)}
+                  enableAddFile={true}
+                  onAddFile={(parentId) => console.log('Add file to parent:', parentId)}
+                  enableShare={true}
+                  onShare={(items) => console.log('Share items:', items)}
+                  enableExport={true}
+                  onExport={(items) => console.log('Export items:', items)}
                 />
               </div>
             </TabPane>

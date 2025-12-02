@@ -17,7 +17,7 @@ import {
   IconFileTypeCsv,
 } from '@tabler/icons-react';
 import LeadDetailsForm from '@/components/leadDetail/forms/LeadDetailsForm';
-import TooltipButton from '@/components/common/TooltipButtton';
+import TooltipButton from '@/components/common/TooltipButton';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import { ConfirmationContentModal } from '@/components/common/ConfirmationContentModal';
 import AssociatedEntitiesList from '@/components/common/AssociatedEntitiesList';

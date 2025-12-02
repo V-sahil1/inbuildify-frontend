@@ -5,7 +5,7 @@ import { IconFilter, IconDownload, IconShare3, IconCopy } from '@tabler/icons-re
 import { exportToExcel } from '@lib/utils/exportToExcel';
 import DateFilterDropdown from '@/components/common/custom-selects/DateFilterDropdown';
 import AssigneeSelect from '@/components/common/custom-selects/AssigneeSelect';
-import TooltipButton from '@/components/common/TooltipButtton';
+import TooltipButton from '@/components/common/TooltipButton';
 import { QuotationDataType, quotationDummyData } from 'data/quotationlistData';
 import CustomAvtar from '@/components/common/CustomAvtar';
 import Link from 'next/link';

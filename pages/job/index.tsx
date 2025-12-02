@@ -6,7 +6,7 @@ import { IconFilter, IconDownload, IconExternalLink } from '@tabler/icons-react'
 import { exportToExcel } from '@lib/utils/exportToExcel';
 import DateFilterDropdown from '@/components/common/custom-selects/DateFilterDropdown';
 import AssigneeSelect from '@/components/common/custom-selects/AssigneeSelect';
-import TooltipButton from '@/components/common/TooltipButtton';
+import TooltipButton from '@/components/common/TooltipButton';
 import DynamicHorizontalChart from '@/components/common/charts/DynamicHorizontalChart';
 import { JobDataType, jobDummyData } from 'data/joblistData';
 import CustomAvtar from '@/components/common/CustomAvtar';

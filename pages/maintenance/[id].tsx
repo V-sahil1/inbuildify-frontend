@@ -1,8 +1,10 @@
 'use client';
 
 import ActivityCard from '@/components/common/ActivityCard';
+import FileExplorer from '@/components/common/FileExplorer';
 import StageProgress from '@/components/common/StageProgress';
 import RequestList from '@/components/maintenance/maintenanceDetails/maintananceRequest/maintenanceRequest';
+import { sdriveRootFolders } from '@/data/sdriveData';
 import { Result, Tabs } from 'antd';
 import { EmailData, filterTabs } from 'data/activityData';
 const { TabPane } = Tabs;
@@ -47,10 +49,21 @@ const Index = () => {
             <RequestList />
           </TabPane>
           <TabPane tab="Documents" key="Documents">
-            <div className="bg-card-color">
-              <Result
-                title="Document Functionality coming soon"
-                subTitle="Please check back later"
+            <div className="w-full">
+              <FileExplorer
+                rootFolders={sdriveRootFolders}
+                enableSearch={true}
+                onSearchChange={query => console.log('Search:', query)}
+                enableMultiSelect={true}
+                onDelete={items => console.log('Delete items:', items)}
+                enableAddFolder={true}
+                onAddFolder={parentId => console.log('Add folder to parent:', parentId)}
+                enableAddFile={true}
+                onAddFile={parentId => console.log('Add file to parent:', parentId)}
+                enableShare={true}
+                onShare={items => console.log('Share items:', items)}
+                enableExport={true}
+                onExport={items => console.log('Export items:', items)}
               />
             </div>
           </TabPane>

@@ -9,6 +9,8 @@ import { CreateAppointmentModal } from "@/components/common/Models/createAppoint
 import AddNotesCard from "@/components/common/TimeLineComponents/AddNotesCard";
 import ReferralLeads from "@/components/agentreferral/ReferralLeads";
 import { initialData } from "data/agentreferralData";
+import FileExplorer from "@/components/common/FileExplorer";
+import { sdriveRootFolders } from "@/data/sdriveData";
 
 const { TabPane } = Tabs;
 
@@ -96,8 +98,22 @@ const ReferralPartnerPage = () => {
               <ReferralLeads />
             </TabPane>
             <TabPane tab="Documents" key="documents">
-              <div className="bg-white p-6">
-                <Result title="Document Functionality coming soon" subTitle="Please check back later" />
+              <div className="w-full">
+                <FileExplorer
+                  rootFolders={sdriveRootFolders}
+                  enableSearch={true}
+                  onSearchChange={query => console.log('Search:', query)}
+                  enableMultiSelect={true}
+                  onDelete={items => console.log('Delete items:', items)}
+                  enableAddFolder={true}
+                  onAddFolder={parentId => console.log('Add folder to parent:', parentId)}
+                  enableAddFile={true}
+                  onAddFile={parentId => console.log('Add file to parent:', parentId)}
+                  enableShare={true}
+                  onShare={items => console.log('Share items:', items)}
+                  enableExport={true}
+                  onExport={items => console.log('Export items:', items)}
+                />
               </div>
             </TabPane>
           </Tabs>

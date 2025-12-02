@@ -9,7 +9,7 @@ import {
 } from '@tabler/icons-react';
 import { userData } from 'data/userData';
 import { useState } from 'react';
-import TooltipButton from '../common/TooltipButtton';
+import TooltipButton from '../common/TooltipButton';
 
 export const UserColumn = (setModalOpen, setSelectedUser, setDrawerOpen, selectedUser) => {
   const [users, setUserData] = useState(userData);

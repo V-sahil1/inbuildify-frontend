@@ -8,7 +8,7 @@ import {
   IconUserCheck,
   IconUserPlus,
 } from '@tabler/icons-react';
-import TooltipButton from '../common/TooltipButtton';
+import TooltipButton from '../common/TooltipButton';
 
 export const UserCard = ({ user, setModalOpen, setSelectedUser, setDrawerOpen }) => {
   return (
