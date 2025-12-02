@@ -11,15 +11,17 @@ interface TabItem {
   icon?: React.ElementType;
   breadcrumb?: string;
   component: React.ComponentType<any>;
+  componentProps?: any;
 }
 
 interface TabLayoutProps {
   tabs: TabItem[];
   breadcrumbBase?: { link: string; url: string };
   className?: string;
+  children?: React.ReactNode;
 }
 
-export default function TabLayout({ tabs, breadcrumbBase, className }: TabLayoutProps) {
+export default function TabLayout({ tabs, breadcrumbBase, className, children }: TabLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -53,6 +55,7 @@ export default function TabLayout({ tabs, breadcrumbBase, className }: TabLayout
         lg:static fixed z-[1] transition-all duration-300 
         left-0 rtl:right-0`}
       >
+        {children}
         <TabList>
           {tabs.map(tab => {
             const Icon = tab.icon;
@@ -85,7 +88,7 @@ export default function TabLayout({ tabs, breadcrumbBase, className }: TabLayout
 
           {tabs.map((tab, index) => {
             const TabComponent = tab.component;
-            return <TabPanel key={tab.id}>{selectedIndex === index && <TabComponent />}</TabPanel>;
+            return <TabPanel key={tab.id}>{selectedIndex === index && <TabComponent {...(tab.componentProps || {})} />}</TabPanel>;
           })}
         </div>
       </div>
