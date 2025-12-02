@@ -48,6 +48,7 @@ class SystemRoutes {
   public static SUPPLIER = `/supplier`;
   public static SURVEY_TEMPLATE = `/survey_template`;
   public static USER_GROUP = `/user-group`;
+  public static QUOTATION_FORMAT = `/quotation-format`;
 }
 
 export default SystemRoutes;

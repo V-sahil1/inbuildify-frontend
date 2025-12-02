@@ -145,7 +145,7 @@ export const gridMenuItems2: MenuItem[] = [
     id: 11,
     icon: <IconFileDescription className="w-4 h-4 mr-3" />,
     label: 'Quotation Format',
-    href: '#',
+    href: `${SystemRoutes.QUOTATION_FORMAT}`,
   },
   {
     id: 12,

@@ -51,6 +51,7 @@ const DateFilterDropdown: React.FC<DateFilterDropdownProps> = ({ onFilter, onCle
       <Select
         value={selectedFilter}
         onChange={handleChange}
+        allowClear
         placeholder="Select date"
         style={{ width: '100%' }}
       >
