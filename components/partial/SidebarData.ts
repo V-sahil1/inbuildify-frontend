@@ -2,7 +2,7 @@ import SystemRoutes from '@lib/constants/Routes';
 import { ContractReport } from '@lib/utils/Reports/job/contractReport';
 import { CostSummaryReport } from '@lib/utils/Reports/job/costSummary';
 import { CustomerStatusReport } from '@lib/utils/Reports/job/customerStatusReport';
-import { DelayExtensionNoticeReport } from '@lib/utils/Reports/job/DelayExtensionNoticeReport';
+import { DelayExtensionNoticeReport } from '@lib/utils/Reports/job/delayExtensionNoticeReport';
 import { InvoicePaymentsReport } from '@lib/utils/Reports/job/invoicePaymentsReport';
 import { JobStatusReport } from '@lib/utils/Reports/job/jobStatusReport';
 import { LandTitleForcastReport } from '@lib/utils/Reports/job/landTitleForcastReport';
