@@ -1,4 +1,11 @@
 import SystemRoutes from '@lib/constants/Routes';
+import { AgentSummaryReport } from '@lib/utils/Reports/sales/agentSummaryReport';
+import { CommissionReport } from '@lib/utils/Reports/sales/commissionReport';
+import { FloorPlanFacadeReport } from '@lib/utils/Reports/sales/floorPlanFacadeReport';
+import { LeadFocusReport } from '@lib/utils/Reports/sales/LeadFocusReport';
+import { NoActionLeadsReport } from '@lib/utils/Reports/sales/noActionLeadsReport';
+import { PerformanceReport } from '@lib/utils/Reports/sales/performanceReport';
+import { QuotationReport } from '@lib/utils/Reports/sales/quotationReport';
 import {
   IconHome,
   IconBuildingSkyscraper,
@@ -178,38 +185,52 @@ export const menuList = (pathname: string) => {
           children: [
             {
               link: 'Lead / Focus Report',
-              url: `/sales/lead-focus`,
               roles: commonRoles,
+              onClick: () => {
+                LeadFocusReport();
+              }
             },
             {
               link: 'Quotation Report',
-              url: `/sales/quotation`,
               roles: commonRoles,
+              onClick: () => {
+                QuotationReport();
+              }
             },
             {
               link: 'Floor Plan & Facade Report',
-              url: `/sales/floorplan-facade`,
               roles: commonRoles,
+              onClick: () => {
+                FloorPlanFacadeReport();
+              }
             },
             {
               link: 'Performance Report',
-              url: `/sales/performance`,
               roles: commonRoles,
+              onClick: () => {
+                PerformanceReport();
+              }
             },
             {
               link: 'Agent Summary Report',
-              url: `/sales/agent-summary`,
               roles: commonRoles,
+              onClick: () => {
+                AgentSummaryReport();
+              }
             },
             {
               link: 'No Action Leads Report',
-              url: `/sales/no-action-leads`,
               roles: commonRoles,
+              onClick: () => {
+                NoActionLeadsReport();
+              }
             },
             {
               link: 'Commission Report',
-              url: `/sales/commission`,
               roles: commonRoles,
+              onClick: () => {
+                CommissionReport();
+              }
             },
           ],
         },

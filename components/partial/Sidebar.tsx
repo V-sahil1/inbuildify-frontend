@@ -23,6 +23,7 @@ interface MenuItem {
   icon?: React.ComponentType<{ className?: string }>;
   children?: MenuItem[];
   roles?: string[];
+  onClick?: () => void;
 }
 
 type SidebarMenuItem = MenuDivider | MenuItem;
@@ -107,9 +108,8 @@ export default function Sidebar({
             <li key={key} className="sidebar-listitem">
               <button
                 onClick={() => menuToggle(key)}
-                className={`sidebar-list-button flex items-center gap-10 w-full py-10 transition-all hover:text-secondary ${
-                  menuActive === key ? 'text-secondary' : ''
-                }`}
+                className={`sidebar-list-button flex items-center gap-10 w-full py-10 transition-all hover:text-secondary ${menuActive === key ? 'text-secondary' : ''
+                  }`}
               >
                 {'icon' in item &&
                   React.createElement(item.icon, {
@@ -123,18 +123,16 @@ export default function Sidebar({
                 )}
               </button>
               <ul
-                className={`sidebar-sublist ps-30 relative before:absolute before:h-full before:w-[1px] ltr:before:left-10 rtl:before:right-10 before:top-0 before:bg-secondary ${
-                  menuActive === key ? 'block' : 'hidden'
-                }`}
+                className={`sidebar-sublist ps-30 relative before:absolute before:h-full before:w-[1px] ltr:before:left-10 rtl:before:right-10 before:top-0 before:bg-secondary ${menuActive === key ? 'block' : 'hidden'
+                  }`}
               >
                 {item.children.map((res, key) =>
                   res.children ? (
                     <li key={key}>
                       <button
                         onClick={() => menuToggleSub(key)}
-                        className={`flex items-center gap-10 w-full py-2 text-[14px]/[20px] relative before:hidden before:absolute before:rounded-full before:h-[9px] before:w-[9px] ltr:before:left-[-24px] rtl:before:right-[-24px] before:top-[50%] before:translate-y-[-50%] before:bg-secondary hover:text-secondary hover:before:block transition-all ${
-                          menuActiveSub === key ? 'text-secondary before:!block' : ''
-                        }`}
+                        className={`flex items-center gap-10 w-full py-2 text-[14px]/[20px] relative before:hidden before:absolute before:rounded-full before:h-[9px] before:w-[9px] ltr:before:left-[-24px] rtl:before:right-[-24px] before:top-[50%] before:translate-y-[-50%] before:bg-secondary hover:text-secondary hover:before:block transition-all ${menuActiveSub === key ? 'text-secondary before:!block' : ''
+                          }`}
                       >
                         <span>{res.link}</span>
                         {menuActiveSub === key ? (
@@ -144,23 +142,26 @@ export default function Sidebar({
                         )}
                       </button>
                       <ul
-                        className={`ps-30 relative before:absolute before:h-full before:w-[1px] ltr:before:left-10 rtl:before:right-10 before:top-0 before:bg-secondary ${
-                          menuActiveSub === key ? 'block' : 'hidden'
-                        }`}
+                        className={`ps-30 relative before:absolute before:h-full before:w-[1px] ltr:before:left-10 rtl:before:right-10 before:top-0 before:bg-secondary ${menuActiveSub === key ? 'block' : 'hidden'
+                          }`}
                       >
                         {res.children.map((sub, key) => (
-                          <li key={key}>
-                            <Link
+                          <li key={key} onClick={() => sub.onClick?.()}>
+                            {sub.url ? <Link
                               href={sub.url}
                               onClick={() => {
                                 window.innerWidth < 1200 && setMobileNav(false);
                               }}
-                              className={`py-1 text-[14px]/[20px] flex relative before:hidden before:absolute before:rounded-full before:h-[9px] before:w-[9px] ltr:before:left-[-24px] rtl:before:right-[-24px] before:top-[50%] before:translate-y-[-50%] before:bg-secondary hover:text-secondary hover:before:block transition-all ${
-                                pageUrl === sub.url ? 'text-secondary before:!block' : ''
-                              }`}
+                              className={`py-1 text-[14px]/[20px] flex relative before:hidden before:absolute before:rounded-full before:h-[9px] before:w-[9px] ltr:before:left-[-24px] rtl:before:right-[-24px] before:top-[50%] before:translate-y-[-50%] before:bg-secondary hover:text-secondary hover:before:block transition-all ${pageUrl === sub.url ? 'text-secondary before:!block' : ''
+                                }`}
                             >
                               {sub.link}
-                            </Link>
+                            </Link> : <span
+                              className={`py-1 text-[14px]/[20px] cursor-pointer flex relative before:hidden before:absolute before:rounded-full before:h-[9px] before:w-[9px] ltr:before:left-[-24px] rtl:before:right-[-24px] before:top-[50%] before:translate-y-[-50%] before:bg-secondary hover:text-secondary hover:before:block transition-all ${pageUrl === sub.url ? 'text-secondary before:!block' : ''
+                                }`}
+                            >
+                              {sub.link}
+                            </span>}
                           </li>
                         ))}
                       </ul>
@@ -172,9 +173,8 @@ export default function Sidebar({
                         onClick={() => {
                           window.innerWidth < 1200 && setMobileNav(false);
                         }}
-                        className={`py-1 text-[14px]/[20px] flex relative before:hidden before:absolute before:rounded-full before:h-[9px] before:w-[9px] ltr:before:left-[-24px] rtl:before:right-[-24px] before:top-[50%] before:translate-y-[-50%] before:bg-secondary hover:text-secondary hover:before:block transition-all ${
-                          pageUrl === res.url ? 'text-secondary before:!block' : ''
-                        }`}
+                        className={`py-1 text-[14px]/[20px] flex relative before:hidden before:absolute before:rounded-full before:h-[9px] before:w-[9px] ltr:before:left-[-24px] rtl:before:right-[-24px] before:top-[50%] before:translate-y-[-50%] before:bg-secondary hover:text-secondary hover:before:block transition-all ${pageUrl === res.url ? 'text-secondary before:!block' : ''
+                          }`}
                       >
                         {res.link}
                       </Link>
@@ -190,9 +190,8 @@ export default function Sidebar({
                 onClick={() => {
                   window.innerWidth < 1200 && setMobileNav(false);
                 }}
-                className={`sidebar-list-link flex items-center gap-10 w-full py-2 transition-all hover:text-secondary ${
-                  pageUrl === item.url ? 'text-secondary' : ''
-                }`}
+                className={`sidebar-list-link flex items-center gap-10 w-full py-2 transition-all hover:text-secondary ${pageUrl === item.url ? 'text-secondary' : ''
+                  }`}
               >
                 {item?.icon ? (
                   // @ts-ignore
@@ -206,9 +205,8 @@ export default function Sidebar({
           ) : 'devider' in item ? (
             <li
               key={key}
-              className={`devider py-3 menu-devider uppercase text-[12px]/[15px]${
-                item.color ? ` text-${item.color}` : ''
-              }${item.fontWeight ? ` font-${item.fontWeight}` : ''}`}
+              className={`devider py-3 menu-devider uppercase text-[12px]/[15px]${item.color ? ` text-${item.color}` : ''
+                }${item.fontWeight ? ` font-${item.fontWeight}` : ''}`}
             >
               {item.devider}
             </li>

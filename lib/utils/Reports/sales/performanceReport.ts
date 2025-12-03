@@ -1,0 +1,85 @@
+import { exportToExcel } from '@lib/utils/exportToExcel';
+
+export const PerformanceReport = () => {
+    const data = [
+        {
+            SNo: '1',
+            QuotRefNo: 'MYH25080066',
+            Name: 'vamshi',
+            ContactNo: '876543456',
+            Email: 'vamshi9108@gmail.com',
+            PropAddress: 'Lot 987, 1 KINGS AVENUE, FRANKSTON, VIC, 7890',
+            SalesPerson: 'Vamshi',
+            CreatedDate: '25-08-2025',
+            UpdatedDate: '30-09-2025',
+            Assignee: 'Vamshi',
+        },
+        {
+            SNo: '2',
+            QuotRefNo: 'MYH25090079',
+            Name: 'sunny',
+            ContactNo: '03434545656',
+            Email: 'sunnysingh@gmail.com',
+            PropAddress: '123 George Street, Sydney, VIC, 2000',
+            SalesPerson: 'Murthy Muthuswamy',
+            CreatedDate: '29-09-2025',
+            UpdatedDate: '29-09-2025',
+            Assignee: 'Murthy Muthuswamy',
+        },
+        {
+            SNo: '3',
+            QuotRefNo: 'MYH25090080',
+            Name: 'Johnathan',
+            ContactNo: '02343434324',
+            Email: 'john@gmail.com',
+            PropAddress: '208 Second Harum proident at n, Fugiat excepturi exe, VIC, 5021',
+            SalesPerson: 'Murthy Muthuswamy',
+            CreatedDate: '29-09-2025',
+            UpdatedDate: '30-09-2025',
+            Assignee: 'Murthy Muthuswamy',
+        },
+        {
+            SNo: '4',
+            QuotRefNo: 'MYH25090081',
+            Name: 'Mathew',
+            ContactNo: '0406343244',
+            Email: 'ms@insimplify.com.au',
+            PropAddress: 'Lot 34 Chelsea Street, Tarneit, VIC, 3029',
+            SalesPerson: 'Murthy Muthuswamy',
+            CreatedDate: '30-09-2025',
+            UpdatedDate: '30-09-2025',
+            Assignee: 'Murthy Muthuswamy',
+        },
+        {
+            SNo: '5',
+            QuotRefNo: 'MYH25100084',
+            Name: 'Joshua Ewinggg',
+            ContactNo: '09876543211',
+            Email: 'doca@mailinator.com',
+            PropAddress: '91 Hague L In numquam proident, Ex qui quia aut aute, VIC, 2075',
+            SalesPerson: 'Kishan',
+            CreatedDate: '01-10-2025',
+            UpdatedDate: '02-10-2025',
+            Assignee: 'Kishan',
+        },
+    ];
+    const column = {
+        SNo: { label: 'S.No', color: 'FF050980' },
+        QuotRefNo: { label: 'QuotRefNo', color: 'FF050980' },
+        Name: { label: 'Name', color: 'FF050980' },
+        ContactNo: { label: 'Contact No', color: 'FF050980' },
+        Email: { label: 'Email', color: 'FF050980' },
+        PropAddress: { label: 'PropAddress', color: 'FF050980' },
+        SalesPerson: { label: 'Sales Person', color: 'FF050980' },
+        CreatedDate: { label: 'Created Date', color: 'FF050980' },
+        UpdatedDate: { label: 'Updated Date', color: 'FF050980' },
+        Assignee: { label: 'Assignee', color: 'FF050980' },
+    };
+
+    exportToExcel({
+        data: data,
+        fileName: 'PerformenceStatusReport',
+        sheetName: 'PerformenceStatusReport',
+        columnHeaders: column,
+    });
+};
