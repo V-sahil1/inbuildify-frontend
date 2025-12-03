@@ -1,0 +1,91 @@
+import { exportToExcel } from '@lib/utils/exportToExcel';
+
+export const ContractReport = () => {
+    const data = [
+        {
+            ReferenceID: 'MYH00665',
+            CustomerName: 'Joshua Ewing',
+            JobAddress: '91 Hague L In numquam proident, Ex qui quia aut aute, VIC, 2075',
+            Email: 'doca@mailinator.com',
+            Phone: '9876543211',
+            PreparedDate: '01-10-2025',
+            SignedDate: '01-10-2025',
+            Assignee: 'Kishan',
+            SiteSupervisor: '',
+        },
+        {
+            ReferenceID: 'MYH00656',
+            CustomerName: 'Jacob',
+            JobAddress: 'Lot 28 Ballarat Street, Epping, VIC, 3039',
+            Email: 'jacob@insimplify.com.au',
+            Phone: '4565567676',
+            PreparedDate: '',
+            SignedDate: '',
+            Assignee: 'Murthy Muthuswamy',
+            SiteSupervisor: '',
+        },
+        {
+            ReferenceID: 'MYH00654',
+            CustomerName: 'vamshi',
+            JobAddress: 'Lot 987, 1 KINGS AVENUE, FRANKSTON, VIC, 7890',
+            Email: 'vamshi9108@gmail.com',
+            Phone: '876543456',
+            PreparedDate: '',
+            SignedDate: '',
+            Assignee: 'Vamshi',
+            SiteSupervisor: '',
+        },
+        {
+            ReferenceID: 'MYH00663',
+            CustomerName: 'Mathew',
+            JobAddress: 'Lot 34 Chelsea Street, Tarneit, VIC, 3029',
+            Email: 'ms@insimplify.com.au',
+            Phone: '406343244',
+            PreparedDate: '30-09-2025',
+            SignedDate: '30-09-2025',
+            Assignee: 'Murthy Muthuswamy',
+            SiteSupervisor: '',
+        },
+        {
+            ReferenceID: 'MYH00653',
+            CustomerName: 'Balram Test',
+            JobAddress: '123, epping street, Melbourne, VIC, 1245',
+            Email: 'support@insimplify.com.au',
+            Phone: '34567788',
+            PreparedDate: '19-08-2025',
+            SignedDate: '19-08-2025',
+            Assignee: 'Murthy Muthuswamy',
+            SiteSupervisor: 'Murthy Muthuswamy',
+        },
+        {
+            ReferenceID: 'MYH00637',
+            CustomerName: 'John Wick',
+            JobAddress: 'Suite 10, 45 Tallis Circuit, Truganina, VIC, 3029',
+            Email: 'hello@aluxhomes.com.au',
+            Phone: '0406 166 577',
+            PreparedDate: '24-09-2025',
+            SignedDate: '24-09-2025',
+            Assignee: 'Murthy Muthuswamy',
+            SiteSupervisor: '',
+        },
+    ];
+    const column = {
+        ReferenceID: { label: 'Reference ID', color: 'FF0023BD' },
+        CustomerName: { label: 'Customer Name', color: 'FF0023BD' },
+        JobAddress: { label: 'Job Address', color: 'FF0023BD' },
+        Email: { label: 'Email', color: 'FF0023BD' },
+        Phone: { label: 'Phone', color: 'FF0023BD' },
+        PreparedDate: { label: 'Prepared Date', color: 'FF0023BD' },
+        SignedDate: { label: 'Signed Date', color: 'FF0023BD' },
+        Assignee: { label: 'Assignee', color: 'FF0023BD' },
+        SiteSupervisor: { label: 'Site Supervisor', color: 'FF0023BD' },
+    };
+
+    exportToExcel({
+        data: data,
+        fileName: 'Contract Report',
+        sheetName: 'Contract Report',
+        columnHeaders: column,
+        title: 'Contract Report',
+    });
+};

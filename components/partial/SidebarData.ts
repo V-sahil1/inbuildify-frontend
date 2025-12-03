@@ -1,4 +1,14 @@
 import SystemRoutes from '@lib/constants/Routes';
+import { ContractReport } from '@lib/utils/Reports/job/contractReport';
+import { CostSummaryReport } from '@lib/utils/Reports/job/costSummary';
+import { CustomerStatusReport } from '@lib/utils/Reports/job/customerStatusReport';
+import { DelayExtensionNoticeReport } from '@lib/utils/Reports/job/DelayExtensionNoticeReport';
+import { InvoicePaymentsReport } from '@lib/utils/Reports/job/invoicePaymentsReport';
+import { JobStatusReport } from '@lib/utils/Reports/job/jobStatusReport';
+import { LandTitleForcastReport } from '@lib/utils/Reports/job/landTitleForcastReport';
+import { NoActionJobReport } from '@lib/utils/Reports/job/noActionJobReport';
+import { SurveyReport } from '@lib/utils/Reports/job/surveyReport';
+import { VariationReport } from '@lib/utils/Reports/job/variationReport';
 import { AgentSummaryReport } from '@lib/utils/Reports/sales/agentSummaryReport';
 import { CommissionReport } from '@lib/utils/Reports/sales/commissionReport';
 import { FloorPlanFacadeReport } from '@lib/utils/Reports/sales/floorPlanFacadeReport';
@@ -253,59 +263,81 @@ export const menuList = (pathname: string) => {
           children: [
             {
               link: 'Customer Status Report',
-              url: `/job/customer-status`,
               roles: commonRoles,
+              onClick: () => {
+                CustomerStatusReport();
+              }
             },
             {
               link: 'Job Status Report',
-              url: `/job/job-status`,
               roles: commonRoles,
+              onClick: () => {
+                JobStatusReport();
+              }
             },
             {
               link: 'No action Jobs Report',
-              url: `/job/no-action-jobs`,
               roles: commonRoles,
+              onClick: () => {
+                NoActionJobReport();
+              }
             },
             {
               link: 'Contract Report',
-              url: `/job/contract`,
               roles: commonRoles,
+              onClick: () => {
+                ContractReport();
+              }
             },
             {
               link: 'Invoices & Payments Report',
-              url: '/job/invoices-payments',
               roles: commonRoles,
+              onClick: () => {
+                InvoicePaymentsReport();
+              }
             },
             {
               link: 'Commission Report',
-              url: `/job/commission`,
               roles: commonRoles,
+              onClick: () => {
+                CommissionReport();
+              }
             },
             {
               link: 'Cost Summary Report',
-              url: `/job/cost-summary`,
               roles: commonRoles,
+              onClick: () => {
+                CostSummaryReport();
+              }
             },
             {
               link: 'Land Title Forecast Report',
-              url: `/job/land-title-forecast`,
               roles: commonRoles,
+              onClick: () => {
+                LandTitleForcastReport();
+              }
             },
 
             {
               link: 'Variation Report',
-              url: `/variation`,
               roles: commonRoles,
+              onClick: () => {
+                VariationReport();
+              }
             },
             {
               link: 'Delay / Extension Notice Report',
-              url: `/delay-extension-notice`,
               roles: commonRoles,
+              onClick: () => {
+                DelayExtensionNoticeReport();
+              }
             },
             {
               link: 'Survey Report',
-              url: `/survey`,
               roles: commonRoles,
+              onClick: () => {
+                SurveyReport();
+              }
             },
           ],
         },
