@@ -9,6 +9,8 @@ import { LandTitleForcastReport } from '@lib/utils/Reports/job/landTitleForcastR
 import { NoActionJobReport } from '@lib/utils/Reports/job/noActionJobReport';
 import { SurveyReport } from '@lib/utils/Reports/job/surveyReport';
 import { VariationReport } from '@lib/utils/Reports/job/variationReport';
+import { MaintenanceDetailedReport } from '@lib/utils/Reports/maintenance/maintenanceDetailedReport';
+import { MaintenanceDetailReport } from '@lib/utils/Reports/maintenance/maintenanceDetailReport';
 import { AgentSummaryReport } from '@lib/utils/Reports/sales/agentSummaryReport';
 import { CommissionReport } from '@lib/utils/Reports/sales/commissionReport';
 import { FloorPlanFacadeReport } from '@lib/utils/Reports/sales/floorPlanFacadeReport';
@@ -128,11 +130,6 @@ export const menuList = (pathname: string) => {
       link: 'Sales',
       roles: ['builder', 'contractor', 'customer'],
       children: [
-        // {
-        //   link: "Dashboard",
-        //   url: "/dashboard",
-        //   roles: ["builder", "contractor", "customer"],
-        // },
         {
           link: 'Leads',
           url: SystemRoutes.LEADS,
@@ -347,13 +344,17 @@ export const menuList = (pathname: string) => {
           children: [
             {
               link: 'Maintenance Report',
-              url: `/maintenance/base`,
               roles: commonRoles,
+              onClick: () => {
+                MaintenanceDetailReport();
+              }
             },
             {
               link: 'Maintenance Detailed Report',
-              url: `/maintenance/detailed`,
               roles: commonRoles,
+              onClick: () => {
+                MaintenanceDetailedReport();
+              }
             },
           ],
         },
