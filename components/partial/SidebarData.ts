@@ -248,7 +248,7 @@ export const menuList = (pathname: string) => {
           children: [
             {
               link: 'WorkFlow Status Report',
-              url: `/workflow/status`,
+              url: `/reports/workflowStatusReport`,
               roles: commonRoles,
             },
           ],
