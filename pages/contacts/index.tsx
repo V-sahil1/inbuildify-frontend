@@ -23,6 +23,7 @@ import { ConfirmationContentModal } from '@/components/common/ConfirmationConten
 import AssociatedEntitiesList from '@/components/common/AssociatedEntitiesList';
 import { contactData } from 'data/sampleData';
 import { debouncedURL } from '@lib/utils/debounceURL';
+import { ContactList } from '@lib/utils/Reports/contact/ContactList';
 
 const ContactListing = () => {
   const [contacts, setContacts] = useState(contactData);
@@ -233,18 +234,17 @@ const ContactListing = () => {
             menu={{
               items: [
                 {
-                  key: 'export',
+                  key: 'excel',
                   label: 'Export to XLSX',
                   icon: <IconFileSpreadsheet size={16} />,
-                  // method to export the xlsx file using the xl hook
                 },
                 {
-                  key: 'print',
+                  key: 'csv',
                   label: 'Export to CSV',
                   icon: <IconFileTypeCsv size={16} />,
-                  // method to export the csv file need to implement the hook
                 },
               ],
+              onClick: e => ContactList(e.key, filteredContacts),
             }}
             trigger={['click']}
           >

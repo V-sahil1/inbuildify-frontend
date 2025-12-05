@@ -1,7 +1,9 @@
 import { Button, Dropdown, Select } from 'antd';
 import DwellingTypeSelect from '../common/custom-selects/DwellingTypeSelect';
 import RangeSelect from '../common/custom-selects/RangeSelect';
-import { IconDownload, IconFileTypePdf, IconUpload } from '@tabler/icons-react';
+import { IconDownload, IconFileSpreadsheet, IconUpload } from '@tabler/icons-react';
+import { PricelistMaster } from '@lib/utils/Reports/pricelist/PricelistMaster';
+import { PriceMasterCorrection } from '@lib/utils/Reports/pricelist/PriceMasterCorrection';
 
 export const PricelistHeader = ({
   filters,
@@ -11,13 +13,20 @@ export const PricelistHeader = ({
   setModalOpen,
 }) => {
   const exportMenu = [
-    { key: 'fullList', label: 'Export Full List', icon: <IconFileTypePdf size={15} color="red" /> },
     {
-      key: 'corrections',
+      key: 'pricemaster',
+      label: 'Export Full List',
+      icon: <IconFileSpreadsheet size={15} color="red" />,
+    },
+    {
+      key: 'pricemastercorrection',
       label: 'Export For Corrections',
-      icon: <IconFileTypePdf size={15} color="red" />,
+      icon: <IconFileSpreadsheet size={15} color="red" />,
     },
   ];
+  const handleExport = key => {
+    key === 'pricemaster' ? PricelistMaster() : PriceMasterCorrection();
+  };
   return (
     <>
       <div className="flex gap-2 items-center">
@@ -71,7 +80,10 @@ export const PricelistHeader = ({
           icon={<IconUpload size={15} />}
           onClick={() => setModalOpen('import')}
         />
-        <Dropdown menu={{ items: exportMenu }} trigger={['click']}>
+        <Dropdown
+          menu={{ items: exportMenu, onClick: e => handleExport(e.key) }}
+          trigger={['click']}
+        >
           <Button type="primary" icon={<IconDownload size={15} />} />
         </Dropdown>
       </div>

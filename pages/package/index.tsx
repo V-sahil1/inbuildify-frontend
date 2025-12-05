@@ -5,6 +5,7 @@ import { PackageColumn } from '@/components/table-columns/PackageColumn';
 import { PackagePricelistColumn } from '@/components/table-columns/PackagePricelistColumn';
 import { QuotationHistoryColumn } from '@/components/table-columns/QuotationHistoryColumn';
 import { debouncedURL } from '@lib/utils/debounceURL';
+import { QuotationHistory } from '@lib/utils/Reports/quotation/QuotationHistory';
 import { IconDownload, IconPlus } from '@tabler/icons-react';
 import { Button, Space, Table } from 'antd';
 import { useEffect, useState } from 'react';
@@ -28,11 +29,7 @@ const Package = () => {
     setDrawerOpen,
   });
   const { column: pricelistColumn, pricelistData } = PackagePricelistColumn();
-  const {
-    columns: quotationColumns,
-    data: quotationHistoryData,
-    handleExport,
-  } = QuotationHistoryColumn();
+  const { columns: quotationColumns, data: quotationHistoryData } = QuotationHistoryColumn();
   return (
     <div className="p-4">
       <div className="flex items-center justify-between mb-4">
@@ -92,7 +89,7 @@ const Package = () => {
                   <Button type="primary">Total Records {quotationHistoryData.length}</Button>
                   <Button
                     type="primary"
-                    onClick={() => handleExport(quotationHistoryData)}
+                    onClick={() => QuotationHistory(quotationHistoryData, 'Package QuotationList')}
                     icon={<IconDownload size={20} />}
                   />
                 </Space>

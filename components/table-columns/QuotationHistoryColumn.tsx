@@ -2,7 +2,6 @@ import { Input } from 'antd';
 import React, { useEffect } from 'react';
 import StatusSelect from '../common/custom-selects/StatusSelect';
 import { debouncedURL } from '@lib/utils/debounceURL';
-import { exportToExcel } from '@lib/utils/exportToExcel';
 
 interface QuotationRecord {
   key: string;
@@ -24,21 +23,6 @@ export const QuotationHistoryColumn = () => {
     };
   }, [debouncedUpdateURL]);
 
-  const handleExport = data => {
-    const column = {
-      referenceNo: 'Reference No',
-      customerName: 'Customer Name',
-      propertyAddress: 'Property Address',
-      quotationStatus: 'Quotation Status',
-      leadStatus: 'Lead Status',
-    };
-    exportToExcel({
-      data,
-      fileName: 'QuotationList',
-      sheetName: 'QuotationList',
-      columnHeaders: column,
-    });
-  };
   const columns = [
     {
       title: (
@@ -47,12 +31,9 @@ export const QuotationHistoryColumn = () => {
           <span>Reference No</span>{' '}
           <Input
             placeholder="Search Reference No"
-            onChange={
-              e => {
-                setParams({ referenceNo: e.target.value });
-              }
-              //  handleFilterChange('referenceNo', e.target.value)
-            }
+            onChange={e => {
+              setParams({ referenceNo: e.target.value });
+            }}
           />
         </div>
       ),
@@ -69,12 +50,9 @@ export const QuotationHistoryColumn = () => {
           <span>Customer Name</span>{' '}
           <Input
             placeholder="Search Customer Name"
-            onChange={
-              e => {
-                setParams({ customerName: e.target.value });
-              }
-              //  handleFilterChange('customerName', e.target.value)
-            }
+            onChange={e => {
+              setParams({ customerName: e.target.value });
+            }}
           />
         </div>
       ),
@@ -89,12 +67,9 @@ export const QuotationHistoryColumn = () => {
           <span>Property Address</span>{' '}
           <Input
             placeholder="Search Property Address"
-            onChange={
-              e => {
-                setParams({ propertyAddress: e.target.value });
-              }
-              //  handleFilterChange('propertyAddress', e.target.value)
-            }
+            onChange={e => {
+              setParams({ propertyAddress: e.target.value });
+            }}
           />
         </div>
       ),
@@ -247,5 +222,5 @@ export const QuotationHistoryColumn = () => {
     },
   ];
 
-  return { columns, data, handleExport };
+  return { columns, data };
 };

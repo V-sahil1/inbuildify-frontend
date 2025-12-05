@@ -1,4 +1,3 @@
-import { exportToExcel } from '@lib/utils/exportToExcel';
 import {
   IconKey,
   IconLock,
@@ -110,41 +109,5 @@ export const UserColumn = (setModalOpen, setSelectedUser, setDrawerOpen, selecte
     setModalOpen(null);
     setSelectedUser(null);
   }
-
-  const handleExport = data => {
-    const column = {
-      name: 'Name',
-      loginId: 'Login Id',
-      email: 'Email',
-      phone: 'Phone',
-      initials: 'Initials',
-      builders: 'Builders',
-      role: 'Role',
-      reportingTo: 'Reporting To',
-      joiningDate: 'Joining Date',
-      dob: 'Date Of Birth',
-      designation: 'Designation',
-      secondaryPhone: 'Secondary Phone',
-      remarks: 'Remarks',
-      consultant_bio: 'Consultant Bio',
-      image: 'Photo',
-      signature: 'Signature',
-      address1: 'Address1',
-      status: 'Status',
-      lock: 'Lock',
-      country: 'Country',
-      state: 'State',
-      address2: 'Address2',
-      city: 'City',
-      zipcode: 'Zip Code',
-    };
-    exportToExcel({
-      data,
-      fileName: 'UserList',
-      sheetName: 'UserList',
-      columnHeaders: column,
-    });
-  };
-
-  return { column, users, userSubmit: handleSubmit, handleExport, handleClose };
+  return { column, users, userSubmit: handleSubmit, handleClose };
 };

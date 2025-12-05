@@ -8,7 +8,7 @@ import { QuotationHistoryColumn } from '@/components/table-columns/QuotationHist
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { Status } from '@lib/constants/enum';
 import { debouncedURL } from '@lib/utils/debounceURL';
-import { exportToExcel } from '@lib/utils/exportToExcel';
+import { QuotationHistory } from '@lib/utils/Reports/quotation/QuotationHistory';
 import { fetchFloorPlans } from '@redux/feature/floorPlan/floorPlanThunk';
 import { IFloorPlanState } from '@redux/feature/floorPlan/IFloorPlanState';
 import { RootState } from '@redux/feature/store';
@@ -205,21 +205,6 @@ const FloorPlanMaster = () => {
       ),
     },
   ];
-  const handleExport = data => {
-    const column = {
-      referenceNo: 'Reference No',
-      customerName: 'Customer Name',
-      propertyAddress: 'Property Address',
-      quotationStatus: 'Quotation Status',
-      leadStatus: 'Lead Status',
-    };
-    exportToExcel({
-      data,
-      fileName: 'FloorplanQuotationList',
-      sheetName: 'FloorplanQuotationList',
-      columnHeaders: column,
-    });
-  };
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
@@ -275,7 +260,7 @@ const FloorPlanMaster = () => {
                 <Button type="primary">Total Records {data.length}</Button>
                 <Button
                   type="primary"
-                  onClick={() => handleExport(data)}
+                  onClick={() => QuotationHistory(data, 'Floorplan QuotationList')}
                   icon={<IconDownload size={20} />}
                 />
               </Space>

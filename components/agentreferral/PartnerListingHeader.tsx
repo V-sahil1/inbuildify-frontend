@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Button, Input, Radio } from 'antd';
 import { IconSearch, IconDownload, IconLayoutGrid, IconTable } from '@tabler/icons-react';
 import { debouncedURL } from '@lib/utils/debounceURL';
-import { exportToExcel } from '@lib/utils/exportToExcel';
-import { initialData, Partners } from 'data/agentreferralData';
+import { initialData } from 'data/agentreferralData';
+import { AgentReferralPartnerList } from '@lib/utils/Reports/agent-referral/AgentReferralPartnerList';
 
 interface HeaderProps {
   total: number;
@@ -52,27 +52,6 @@ const AgentReferralHeader = ({
     onViewChange?.(nextView);
   };
 
-  const handleExport = (data: Partners[]) => {
-    const column = {
-      name: 'Name',
-      address1: 'Address',
-      email: 'email',
-      phone: 'Phone',
-      loginId: 'LoginId',
-      isActive: 'Status',
-    };
-
-    exportToExcel({
-      data: data.map(d => ({
-        ...d,
-        isActive: d.isActive ? 'Active' : 'Inactive',
-      })),
-      fileName: 'Agent-ReferralPartnerList',
-      sheetName: 'Agent-ReferralPartnerList',
-      columnHeaders: column,
-    });
-  };
-
   return (
     <div className="flex items-center justify-between my-4 w-full">
       <div className="flex items-center gap-4 w-full">
@@ -106,7 +85,7 @@ const AgentReferralHeader = ({
           <IconDownload
             size={18}
             onClick={() => {
-              handleExport(initialData);
+              AgentReferralPartnerList(initialData);
             }}
           />
         </Button>

@@ -1,6 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Button, Input, Table } from 'antd';
-import { IconDownload, IconLayoutGrid, IconLayoutList, IconPlus } from '@tabler/icons-react';
+import { Button, Input, Table, Dropdown } from 'antd';
+import {
+  IconDownload,
+  IconFileSpreadsheet,
+  IconFileTypeCsv,
+  IconLayoutGrid,
+  IconLayoutList,
+  IconPlus,
+} from '@tabler/icons-react';
 import { debouncedURL } from '@lib/utils/debounceURL';
 import { ConfirmationContentModal } from '@/components/common/ConfirmationContentModal';
 import { CustomFilterButtons } from '@/components/common/CustomFilterButtons';
@@ -10,6 +17,7 @@ import { UserColumn } from '@/components/table-columns/UserColumn';
 import { UserCard } from '@/components/user/UserCard';
 import { UserFormModal } from '@/components/user/UserFormModal';
 import { User } from 'data/userData';
+import { UserList } from '@lib/utils/Reports/user/UserList';
 
 const Users = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
@@ -18,7 +26,7 @@ const Users = () => {
     null
   );
   const [selectedUser, setSelectedUser] = useState<User>();
-  const { column, users, userSubmit, handleExport, handleClose } = UserColumn(
+  const { column, users, userSubmit, handleClose } = UserColumn(
     setModalOpen,
     setSelectedUser,
     setDrawerOpen,
@@ -29,6 +37,10 @@ const Users = () => {
     filtersKey: ['search', 'status'],
     initialValue: { status: 'Active' },
   });
+  const items = [
+    { label: 'Export to XLSX', key: 'excel', icon: <IconFileSpreadsheet size={16} /> },
+    { label: 'Export to CSV', key: 'csv', icon: <IconFileTypeCsv /> },
+  ];
   useEffect(() => {
     return () => {
       debouncedUpdateURL.cancel();
@@ -82,11 +94,9 @@ const Users = () => {
             />
           )}
 
-          <TooltipButton
-            title="Export"
-            icon={<IconDownload size={16} />}
-            onClick={() => handleExport(users)}
-          />
+          <Dropdown menu={{ items, onClick: e => UserList(e.key, users) }} trigger={['click']}>
+            <TooltipButton title="Export" icon={<IconDownload size={16} />} />
+          </Dropdown>
         </div>
       </div>
       {viewMode === 'grid' ? (

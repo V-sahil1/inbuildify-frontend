@@ -11,6 +11,8 @@ import { QuotationHistoryColumn } from '@/components/table-columns/QuotationHist
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { Status } from '@lib/constants/enum';
 import { debouncedURL } from '@lib/utils/debounceURL';
+import { BulkPricelist } from '@lib/utils/Reports/pricelist/BulkPricelist';
+import { QuotationHistory } from '@lib/utils/Reports/quotation/QuotationHistory';
 import { fetchCategories } from '@redux/feature/masterPriceList/masterPriceListThunk';
 import { IconDownload } from '@tabler/icons-react';
 import { Button, message, Space, Table, Upload } from 'antd';
@@ -76,7 +78,7 @@ const PriceList = () => {
     selectedPricelist,
     categories
   );
-  const { columns: quotationColumns, data: quotationData, handleExport } = QuotationHistoryColumn();
+  const { columns: quotationColumns, data: quotationData } = QuotationHistoryColumn();
   const {
     column: locationColumn,
     data,
@@ -105,6 +107,7 @@ const PriceList = () => {
       debouncedUpdateURL.cancel();
     };
   }, [debouncedUpdateURL]);
+
   return (
     <div className="p-4">
       <div className="flex items-center justify-between mb-4">
@@ -169,7 +172,7 @@ const PriceList = () => {
                   <Button type="primary">Total Records {quotationData.length}</Button>
                   <Button
                     type="primary"
-                    onClick={() => handleExport(quotationData)}
+                    onClick={() => QuotationHistory(quotationData, 'Pricelist QuotationList')}
                     icon={<IconDownload size={20} />}
                   />
                 </Space>
@@ -251,7 +254,9 @@ const PriceList = () => {
                   <Upload>
                     <Button>Click to Upload</Button>
                   </Upload>
-                  <Button icon={<IconDownload size={15} />}>Download Template</Button>
+                  <Button icon={<IconDownload size={15} />} onClick={BulkPricelist}>
+                    Download Template
+                  </Button>
                 </div>
                 <p className="text-red-500">Maximum 1000 items can be imported at a time </p>
                 <p className="text-red-500">Supported formats(.xlsx)</p>

@@ -6,7 +6,7 @@ import { IconDownload } from '@tabler/icons-react';
 import SupplierType from '@/components/supplier/SupplierType';
 import SupplierInfoDrawer from '@/components/supplier/SupplierInfoDrawer';
 import { useSupplierColumns, Supplier } from '@/components/table-columns/SupplierColumns';
-import { exportToExcel } from '@lib/utils/exportToExcel';
+import { SupplierList } from '@lib/utils/Reports/supplier/SupplierList';
 
 export default function SupplierPage() {
   const [supplierTypeOpen, setSupplierTypeOpen] = useState(false);
@@ -36,35 +36,6 @@ export default function SupplierPage() {
     setData(prev => [...prev, newSupplier]);
   };
 
-  const handleExport = () => {
-    const columnsMap: Record<string, string> = {
-      name: 'Supplier Name',
-      description: 'Supplier Description',
-      contactName: 'Contact Name',
-      email: 'Email',
-      phone: 'Primary Phone',
-      website: 'Website',
-      induction: 'Induction Pack Received',
-      workCoverExpiryDate: 'Work Cover Expiry Date',
-      plInsuranceExpiryDate: 'PLInsurance Expiry Date',
-      tradeLicenseExpiryDate: 'TradeLicense Expiry Date',
-      whiteCardExpiryDate: 'WhiteCard Expiry Date',
-      forkLiftLicenseExpiryDate: 'Fork-Lift License Expiry Date',
-      type: 'Supplier Type Name',
-    };
-
-    exportToExcel({
-      data: filteredData.map(row => ({
-        ...row,
-        induction: row.induction ? 'Yes' : 'No',
-        type: (row.type || []).join(', '),
-      })),
-      fileName: 'SupplierList',
-      sheetName: 'SupplierList',
-      columnHeaders: columnsMap,
-    });
-  };
-
   return (
     <div style={{ padding: 20 }}>
       <div className="flex justify-between mb-4 items-center">
@@ -80,7 +51,10 @@ export default function SupplierPage() {
             New Supplier
           </Button>
           <Button onClick={() => setSupplierTypeOpen(true)}>Supplier Type</Button>
-          <Button icon={<IconDownload size={16} />} onClick={handleExport}>
+          <Button
+            icon={<IconDownload size={16} />}
+            onClick={() => SupplierList(filteredData, 'Supplier and Trades List')}
+          >
             Export
           </Button>
         </Space>
