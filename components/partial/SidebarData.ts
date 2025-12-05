@@ -248,7 +248,7 @@ export const menuList = (pathname: string) => {
           children: [
             {
               link: 'WorkFlow Status Report',
-              url: `/reports/workflowStatusReport`,
+              url: `/reports/workflowstatusreport`,
               roles: commonRoles,
             },
           ],
@@ -365,7 +365,7 @@ export const menuList = (pathname: string) => {
           children: [
             {
               link: 'Utilization Graph',
-              url: `/others/utilization-graph`,
+              url: `/reports/utilizationgraph`,
               roles: commonRoles,
             },
           ],

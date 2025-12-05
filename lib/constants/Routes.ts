@@ -48,8 +48,9 @@ class SystemRoutes {
   public static SUPPLIER = `/supplier`;
   public static SURVEY_TEMPLATE = `/survey_template`;
   public static USER_GROUP = `/user-group`;
-  public static WORKFLOW_STATUS_REPORT = `/reports/workflow/status`;
   public static QUOTATION_FORMAT = `/quotation-format`;
+  public static WORKFLOW_STATUS_REPORT = `/reports/workflow/workflow-status-report`;
+  public static UTILIZATION_GRAPH = `/reports/workflow/utililization-graph`;
 }
 
 export default SystemRoutes;
