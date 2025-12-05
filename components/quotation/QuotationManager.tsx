@@ -21,7 +21,7 @@ import QuotationFilter from '@/components/quotation/QuotationFilter';
 import { updateLeadStatus } from '@redux/feature/lead/leadSlice';
 import { clearQuotation, setQuotationItems } from '@redux/feature/quotation/quotationSlice';
 import { usePdf } from '@hooks/usePdf';
-import QuatationPdf from '@/components/common/QuatationPdf';
+import QuatationPdf from '@/components/common/pdf/QuatationPdf';
 import calculateTotalQuotation from '@lib/utils/calculateTotalQuotation';
 import SystemRoutes from '@lib/constants/Routes';
 import { useRouter } from 'next/router';

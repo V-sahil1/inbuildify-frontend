@@ -797,7 +797,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     fontFamily: 'Helvetica',
   },
-  body: { paddingTop: 10, flex: 1 },
+  body: { padding: 20, flex: 1 },
   headerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -807,7 +807,7 @@ const styles = StyleSheet.create({
   titleText: {
     alignItems: 'center',
     fontWeight: 'bold',
-    marginBottom: 30,
+    marginBottom: 20,
     fontSize: 15,
   },
   headerText: {

@@ -8,7 +8,7 @@ import { toggleExpandColourCategoryItem } from '@redux/feature/color/ColourSlice
 import { Button, Dropdown, message, Select } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { usePdf } from '@hooks/usePdf';
-import ColorPdf from '@/components/common/ColorPdf';
+import ColorPdf from '@/components/common/pdf/ColorPdf';
 import NoDataMessage from '@/components/common/NoDataMessage';
 import SystemRoutes from '@lib/constants/Routes';
 import { useRouter } from 'next/navigation';
