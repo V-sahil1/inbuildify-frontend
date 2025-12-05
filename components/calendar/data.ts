@@ -7,14 +7,14 @@ export interface Event {
   start_time: string;
   end_time: string;
   category:
-    | 'General'
-    | 'Sales'
-    | 'Job'
-    | 'Construction'
-    | 'Maintenance'
-    | 'ReferralPartner'
-    | 'Today'
-    | 'Holiday';
+  | 'General'
+  | 'Sales'
+  | 'Job'
+  | 'Construction'
+  | 'Maintenance'
+  | 'ReferralPartner'
+  | 'Today'
+  | 'Holiday';
   type: 'Appointment' | 'Task';
 }
 
@@ -42,7 +42,7 @@ export const dummyEvents: Event[] = [
     title: 'Lot 89, 09 in numquam prident - Ex qui quia aut aute - mmm',
     description: 'Multi-day construction project',
     start_time: dayjs('2025-10-05').hour(8).minute(0).toISOString(),
-    end_time: dayjs('2025-10-11').hour(18).minute(0).toISOString(),
+    end_time: dayjs('2025-10-14').hour(18).minute(0).toISOString(),
     category: 'Construction',
     type: 'Appointment',
   },
@@ -50,10 +50,19 @@ export const dummyEvents: Event[] = [
     id: '4',
     title: 'Lot 28 Ballarat Street, Epping - Electrician Install',
     description: 'Electrical installation work',
-    start_time: dayjs('2025-10-09').hour(9).minute(0).toISOString(),
+    start_time: dayjs('2025-10-06').hour(9).minute(0).toISOString(),
     end_time: dayjs('2025-10-09').hour(15).minute(0).toISOString(),
     category: 'Maintenance',
     type: 'Appointment',
+  },
+  {
+    id: '55',
+    title: 'Lot 8888 Ballarat Street, Epping - Electrician Install',
+    description: 'Electrical installation work',
+    start_time: dayjs('2025-10-09').hour(16).minute(0).toISOString(),
+    end_time: dayjs('2025-10-09').hour(17).minute(50).toISOString(),
+    category: 'Maintenance',
+    type: 'Task',
   },
   {
     id: '5',

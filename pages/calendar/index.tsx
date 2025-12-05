@@ -8,6 +8,7 @@ import EventModal from '@/components/calendar/EventModal';
 import WeekView from '@/components/calendar/WeekView';
 import DayView from '@/components/calendar/DayView';
 import MonthView from '@/components/calendar/MonthView';
+import ListView from '@/components/calendar/ListView';
 
 type ViewType = 'month' | 'week' | 'day' | 'list';
 
@@ -30,7 +31,7 @@ const CalendarView = () => {
   };
 
   const handlePrevious = () => {
-    if (viewType === 'month') {
+    if (viewType === 'month' || viewType === 'list') {
       setCurrentDate(currentDate.subtract(1, 'month'));
     } else if (viewType === 'week') {
       setCurrentDate(currentDate.subtract(1, 'week'));
@@ -40,7 +41,7 @@ const CalendarView = () => {
   };
 
   const handleNext = () => {
-    if (viewType === 'month') {
+    if (viewType === 'month' || viewType === 'list') {
       setCurrentDate(currentDate.add(1, 'month'));
     } else if (viewType === 'week') {
       setCurrentDate(currentDate.add(1, 'week'));
@@ -54,7 +55,7 @@ const CalendarView = () => {
   };
 
   const getTitle = () => {
-    if (viewType === 'month') {
+    if (viewType === 'month' || viewType === 'list') {
       return currentDate.format('MMMM YYYY');
     } else if (viewType === 'week') {
       const startOfWeek = currentDate.startOf('week');
@@ -67,7 +68,7 @@ const CalendarView = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="bg-white" style={{ minHeight: 'calc(100vh - 156px)' }}>
       <div className="border-b border-gray-200">
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-4">
@@ -120,14 +121,14 @@ const CalendarView = () => {
                 { label: 'month', value: 'month' },
                 { label: 'week', value: 'week' },
                 { label: 'day', value: 'day' },
-                // { label: 'list', value: 'list' }
+                { label: 'list', value: 'list' }
               ]}
             />
           </div>
         </div>
       </div>
 
-      <div className="p-6">
+      <div className="h-full">
         {viewType === 'month' && (
           <MonthView currentDate={currentDate} events={events} onEventClick={handleEventClick} />
         )}
@@ -138,7 +139,7 @@ const CalendarView = () => {
           <DayView currentDate={currentDate} events={events} onEventClick={handleEventClick} />
         )}
         {viewType === 'list' && (
-          <MonthView currentDate={currentDate} events={events} onEventClick={handleEventClick} />
+          <ListView currentDate={currentDate} events={events} onEventClick={handleEventClick} />
         )}
       </div>
 

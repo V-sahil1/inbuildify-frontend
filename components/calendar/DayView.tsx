@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import { Event } from './data';
@@ -23,38 +24,156 @@ const categoryColors: Record<string, string> = {
 const DayView = ({ currentDate, events, onEventClick }: DayViewProps) => {
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
-  const getEventsForHour = (hour: number) => {
-    return events.filter(event => {
-      const eventStart = dayjs(event.start_time);
-      const eventEnd = dayjs(event.end_time);
-      const slotStart = currentDate.hour(hour).minute(0);
-      const slotEnd = currentDate.hour(hour).minute(59);
+  // Separate events
+  const singleDayEvents = events.filter(event => {
+    const start = dayjs(event.start_time);
+    const end = dayjs(event.end_time);
+    const durationHours = end.diff(start, 'hour', true);
+    return start.isSame(end, 'day') && durationHours < 23;
+  });
 
-      return (
-        eventStart.isSame(currentDate, 'day') &&
-        (eventStart.hour() === hour ||
-          (eventStart.isBefore(slotEnd) && eventEnd.isAfter(slotStart)))
-      );
+  const allDayEvents = events.filter(event => {
+    const start = dayjs(event.start_time);
+    const end = dayjs(event.end_time);
+    const durationHours = end.diff(start, 'hour', true);
+    const isMultiOrFullDay = !start.isSame(end, 'day') || durationHours >= 23;
+
+    // Check overlap with current date
+    const overlaps = (start.isBefore(currentDate.endOf('day')) || start.isSame(currentDate, 'day')) &&
+      (end.isAfter(currentDate.startOf('day')) || end.isSame(currentDate, 'day'));
+
+    return isMultiOrFullDay && overlaps;
+  });
+
+  // Calculate layout for overlapping events
+  const eventsWithLayout = useMemo(() => {
+    // Filter for current day first
+    const dayEvents = singleDayEvents.filter(event =>
+      dayjs(event.start_time).isSame(currentDate, 'day')
+    );
+
+    const sorted = [...dayEvents].sort((a, b) => {
+      const startA = dayjs(a.start_time);
+      const startB = dayjs(b.start_time);
+      if (!startA.isSame(startB)) return startA.diff(startB);
+      return dayjs(b.end_time).diff(dayjs(a.end_time));
     });
-  };
+
+    const groups: Event[][] = [];
+    let currentGroup: Event[] = [];
+    let groupEnd: dayjs.Dayjs | null = null;
+
+    sorted.forEach(event => {
+      const start = dayjs(event.start_time);
+      const end = dayjs(event.end_time);
+
+      if (!currentGroup.length) {
+        currentGroup.push(event);
+        groupEnd = end;
+      } else {
+        if (start.isBefore(groupEnd)) {
+          currentGroup.push(event);
+          if (end.isAfter(groupEnd)) groupEnd = end;
+        } else {
+          groups.push(currentGroup);
+          currentGroup = [event];
+          groupEnd = end;
+        }
+      }
+    });
+    if (currentGroup.length) groups.push(currentGroup);
+
+    const result: (Event & { layout: React.CSSProperties })[] = [];
+
+    groups.forEach(group => {
+      const columns: dayjs.Dayjs[] = [];
+      const eventSlots: { event: Event, colIndex: number }[] = [];
+
+      group.forEach(event => {
+        const start = dayjs(event.start_time);
+        const end = dayjs(event.end_time);
+
+        let placed = false;
+        for (let i = 0; i < columns.length; i++) {
+          if (columns[i].isBefore(start) || columns[i].isSame(start)) {
+            columns[i] = end;
+            eventSlots.push({ event, colIndex: i });
+            placed = true;
+            break;
+          }
+        }
+        if (!placed) {
+          columns.push(end);
+          eventSlots.push({ event, colIndex: columns.length - 1 });
+        }
+      });
+
+      const totalCols = columns.length;
+
+      eventSlots.forEach(({ event, colIndex }) => {
+        const start = dayjs(event.start_time);
+        const end = dayjs(event.end_time);
+        const startHour = start.hour();
+        const startMinute = start.minute();
+        const durationMinutes = end.diff(start, 'minute');
+
+        const top = (startHour * 60 + startMinute) * (128 / 60);
+        const height = durationMinutes * (128 / 60);
+
+        result.push({
+          ...event,
+          layout: {
+            top: `${top}px`,
+            height: `${Math.max(height, 40)}px`,
+            left: `${(colIndex / totalCols) * 100}%`,
+            width: `${(1 / totalCols) * 100}%`,
+            position: 'absolute',
+          }
+        });
+      });
+    });
+
+    return result;
+  }, [singleDayEvents, currentDate]);
 
   return (
     <div className="bg-white overflow-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
-      <div className="flex border-b border-gray-200">
-        <div className="w-24 flex-shrink-0"></div>
-        <div className="flex-1 p-4 text-center">
-          <div className="text-sm text-gray-600">{currentDate.format('dddd')}</div>
-          <div
-            className={`text-3xl font-semibold ${
-              currentDate.isSame(dayjs(), 'day') ? 'text-blue-600' : 'text-gray-800'
-            }`}
-          >
-            {currentDate.format('MMMM D, YYYY')}
+      <div className="flex border-b border-gray-200 sticky top-0 z-20 bg-white">
+        <div className="w-24 flex-shrink-0 border-r border-gray-200 bg-gray-50"></div>
+        <div className="flex-1">
+          <div className="p-4 text-center border-b border-gray-200">
+            <div className="text-sm text-gray-600">{currentDate.format('dddd')}</div>
+            <div
+              className={`text-3xl font-semibold ${currentDate.isSame(dayjs(), 'day') ? 'text-blue-600' : 'text-gray-800'
+                }`}
+            >
+              {currentDate.format('MMMM D, YYYY')}
+            </div>
           </div>
+
+          {/* All Day Events Section */}
+          {allDayEvents.length > 0 && (
+            <div className="p-2 space-y-1 border-b border-gray-200 bg-gray-50">
+              {allDayEvents.map(event => (
+                <div
+                  key={event.id}
+                  className={`${categoryColors[event.category]} text-white text-xs px-2 py-1 rounded flex items-center gap-1 cursor-pointer hover:opacity-80 transition-opacity`}
+                  onClick={() => onEventClick(event)}
+                >
+                  {event.type === 'Task' ? (
+                    <IconCircleCheckFilled className="text-[10px] flex-shrink-0" />
+                  ) : (
+                    <IconCircleFilled className="text-[10px] flex-shrink-0" />
+                  )}
+                  <span className="font-medium truncate">{event.title}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
-      <div className="flex">
+      <div className="flex relative">
         <div className="w-24 flex-shrink-0">
           {hours.map(hour => (
             <div
@@ -72,55 +191,48 @@ const DayView = ({ currentDate, events, onEventClick }: DayViewProps) => {
           ))}
         </div>
 
-        <div className="flex-1 border-l border-gray-200">
-          {hours.map(hour => {
-            const hourEvents = getEventsForHour(hour);
-            return (
-              <div key={hour} className="h-32 border-b border-gray-200 p-2">
-                <div className="space-y-2">
-                  {hourEvents.map((event, idx) => {
-                    const eventStart = dayjs(event.start_time);
-                    const eventEnd = dayjs(event.end_time);
-                    const duration = eventEnd.diff(eventStart, 'minute');
+        <div className="flex-1 border-l border-gray-200 relative">
+          {/* Background Grid */}
+          <div className="absolute inset-0 pointer-events-none">
+            {hours.map(h => (
+              <div key={h} className="h-32 border-b border-gray-200"></div>
+            ))}
+          </div>
 
-                    return (
-                      <div
-                        key={event.id + idx}
-                        className={`${categoryColors[event.category]} text-white p-3 rounded-lg shadow-sm cursor-pointer hover:opacity-90 transition-opacity`}
-                        onClick={() => onEventClick(event)}
-                      >
-                        <div className="flex items-start gap-2">
-                          {event.type === 'Task' ? (
-                            <IconCircleCheckFilled className="text-sm mt-1" />
-                          ) : (
-                            <IconCircleFilled className="text-sm mt-1" />
-                          )}
-                          <div className="flex-1">
-                            <div className="font-semibold text-base mb-1">{event.title}</div>
-                            <div className="text-sm opacity-90 mb-2">
-                              {eventStart.format('h:mm A')} - {eventEnd.format('h:mm A')} (
-                              {duration} min)
-                            </div>
-                            {event.description && (
-                              <div className="text-sm opacity-80">{event.description}</div>
-                            )}
-                            <div className="mt-2 text-xs opacity-75 flex items-center gap-2">
-                              <span className="px-2 py-0.5 bg-white bg-opacity-20 rounded">
-                                {event.category}
-                              </span>
-                              <span className="px-2 py-0.5 bg-white bg-opacity-20 rounded">
-                                {event.type}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
+          {/* Events Layer */}
+          <div className="relative h-full w-full">
+            {eventsWithLayout.map((event, idx) => {
+              const start = dayjs(event.start_time);
+              const end = dayjs(event.end_time);
+              const durationMinutes = end.diff(start, 'minute');
+
+              return (
+                <div
+                  key={event.id + idx}
+                  className={`absolute ${categoryColors[event.category]} text-white p-3 rounded-lg shadow-sm cursor-pointer hover:opacity-90 transition-opacity z-10 overflow-hidden`}
+                  style={event.layout}
+                  onClick={() => onEventClick(event)}
+                >
+                  <div className="flex items-start gap-2 h-full">
+                    {event.type === 'Task' ? (
+                      <IconCircleCheckFilled className="text-sm mt-1 flex-shrink-0" />
+                    ) : (
+                      <IconCircleFilled className="text-sm mt-1 flex-shrink-0" />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-base mb-1 truncate">{event.title}</div>
+                      <div className="text-sm opacity-90 truncate">
+                        {start.format('h:mm A')} - {end.format('h:mm A')} ({durationMinutes} min)
                       </div>
-                    );
-                  })}
+                      {parseInt(event.layout.height as string) > 80 && event.description && (
+                        <div className="text-sm opacity-80 mt-1 line-clamp-2">{event.description}</div>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
