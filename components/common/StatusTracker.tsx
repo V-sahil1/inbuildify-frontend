@@ -70,7 +70,7 @@ const StatusTracker: React.FC<Props> = ({ stages, setIsUploadComplete }) => {
                         size="small"
                         type={btn.type || 'default'}
                         className={btn.className}
-                        // onClick={btn.onClick}
+                        onClick={btn.onClick}
                       >
                         {btn.label}
                       </Button>

@@ -1,7 +1,16 @@
 import React, { useState } from 'react';
-import { Card, Col, Row, Table, Tag, Button, Space, Dropdown, message, Modal } from 'antd';
-import { IconDots, IconFileInvoice, IconPlus, IconReceipt2, IconWallet } from '@tabler/icons-react';
+import { Card, Col, Row, Table, Tag, Button, Space, Dropdown, message, Checkbox } from 'antd';
+import {
+  IconDots,
+  IconFileInvoice,
+  IconPlus,
+  IconReceipt2,
+  IconWallet,
+  IconX,
+} from '@tabler/icons-react';
 import { InvoiceForm } from './InvoiceForm';
+import { SendInvoiceForm } from './SendInvoiceForm';
+import { RecordPaymentForm } from './RecordPaymentForm';
 import InvoicePdf from '@/components/common/pdf/Invoicepdf';
 import { usePdf } from '@hooks/usePdf';
 import InvoiceReceiptPdf from '@/components/common/pdf/InvoiceReceiptPdf';
@@ -16,10 +25,15 @@ const summaryData = [
 ];
 
 const JobInvoicePayment: React.FC = () => {
+  const [rightPanelState, setRightPanelState] = useState<
+    'invoice-form' | 'send-form' | 'status-tracker' | 'record-payment' | 'send-receipt-form' | null
+  >(null);
   const [formMode, setFormMode] = useState<'create' | 'edit' | null>(null);
   const [editingRecord, setEditingRecord] = useState<any>(null);
+  const [currentInvoiceId, setCurrentInvoiceId] = useState<string>('');
   const [isContractDetailsModalVisible, setIsContractDetailsModalVisible] = useState<boolean>();
   const [showContractNotice, setShowContractNotice] = useState(true);
+  const [isSendReceiptModalVisible, setIsSendReceiptModalVisible] = useState<boolean>(false);
   const [invoices, setInvoices] = useState<any[]>(JobinvoiceData);
   const invoicePdf = usePdf(InvoicePdf);
   const invoiceReceiptPdf = usePdf(InvoiceReceiptPdf);
@@ -32,32 +46,161 @@ const JobInvoicePayment: React.FC = () => {
     if (mode === 'create') {
       setInvoices([...invoices, { id: `MYH00${invoices.length + 1}`, ...values, status: 'DRAFT' }]);
       message.success('Invoice created!');
+      setCurrentInvoiceId(`MYH00${invoices.length + 1}`);
+      resetStagesToInitialState();
+      setRightPanelState('send-form');
     } else {
       setInvoices(invoices.map(inv => (inv.id === editingRecord.id ? { ...inv, ...values } : inv)));
       message.success('Invoice updated!');
     }
-    setFormMode(null);
+    setRightPanelState(null);
     setEditingRecord(null);
   };
 
+  const handleSendInvoice = (values: any, mode: 'create' | 'edit') => {
+    if (mode === 'create') {
+      const newInvoice = { id: `MYH00${invoices.length + 1}`, ...values, status: 'DRAFT' };
+      setInvoices([...invoices, newInvoice]);
+      setCurrentInvoiceId(newInvoice.id);
+      message.success('Invoice created!');
+      resetStagesToInitialState();
+      setRightPanelState('send-form');
+    } else {
+      setInvoices(invoices.map(inv => (inv.id === editingRecord.id ? { ...inv, ...values } : inv)));
+      setCurrentInvoiceId(editingRecord.id);
+      message.success('Invoice updated!');
+    }
+  };
+
+  const handleSendEmail = (emailData: any) => {
+    console.log('Sending email:', emailData);
+    message.success('Invoice sent successfully!');
+    setRightPanelState('status-tracker');
+    setFormMode(null);
+    setEditingRecord(null);
+  };
   const handleDelete = (record: any) => {
     setInvoices(invoices.filter(inv => inv.id !== record.id));
     message.success('Invoice deleted!');
-  };
-  const handleContractDetails = () => {
-    setIsContractDetailsModalVisible(true);
   };
 
   const handleResendInvoice = (record: any) => {
     message.success('Resend invoice!');
   };
 
-  const handleSendReceipt = (record: any) => {
-    message.success('Send Receipt!');
+  const handleRecordPayment = (paymentData: any) => {
+    console.log('Recording payment:', paymentData);
+    message.success('Payment recorded successfully!');
+    setRightPanelState(null);
+    setIsSendReceiptModalVisible(true);
+    setInvoices(
+      invoices.map(inv =>
+        inv.id === paymentData.invoiceId
+          ? { ...inv, status: 'PAID', payment: paymentData.amount }
+          : inv
+      )
+    );
   };
 
   const handleSyncToXero = (record: any) => {
     message.success('Synk To Xero!');
+  };
+
+  const handleSendReceipt = (record: any) => {
+    setIsSendReceiptModalVisible(true);
+  };
+
+  const handleSendReceiptNext = (values: any) => {
+    console.log('Send receipt with values:', values);
+    setIsSendReceiptModalVisible(false);
+    setRightPanelState('send-receipt-form');
+  };
+
+  const handleSendReceiptClose = () => {
+    setIsSendReceiptModalVisible(false);
+    setRightPanelState('status-tracker');
+  };
+
+  const resetStagesToInitialState = () => {
+    setStages(prevStages =>
+      prevStages.map((stage, index) => ({
+        ...stage,
+        status: index === 0 ? 'active' : 'disabled',
+        ...(stage.id === 2 && {
+          buttons: [
+            {
+              label: 'Send',
+              type: 'primary',
+              onClick: () => {
+                setStages(prevStages =>
+                  prevStages.map(stage => {
+                    if (stage.id === 2) {
+                      return {
+                        ...stage,
+                        status: 'completed' as const,
+                        buttons: [
+                          {
+                            label: 'Resend',
+                            onClick: () => message.success('Invoice resent successfully!'),
+                          },
+                        ],
+                      };
+                    }
+                    return stage;
+                  })
+                );
+                setStages(prevStages =>
+                  prevStages.map(stage => {
+                    if (stage.id === 3) {
+                      return { ...stage, status: 'active' as const };
+                    }
+                    return stage;
+                  })
+                );
+              },
+            },
+          ],
+        }),
+        ...(stage.id === 4 && {
+          buttons: [
+            {
+              label: 'Send Receipt',
+              type: 'primary',
+              onClick: () => setIsSendReceiptModalVisible(true),
+            },
+            {
+              label: 'Skip Sending',
+              onClick: () => handleStageClick(5),
+            },
+          ],
+        }),
+      }))
+    );
+  };
+
+  const handleSendReceiptEmail = (emailData: any) => {
+    console.log('Sending receipt email:', emailData);
+    message.success('Receipt sent successfully!');
+
+    setStages(prevStages =>
+      prevStages.map(stage => {
+        if (stage.id === 4) {
+          return {
+            ...stage,
+            status: 'completed' as const,
+            buttons: [
+              {
+                label: 'Resend',
+                onClick: () => setRightPanelState('send-receipt-form'),
+              },
+            ],
+          };
+        }
+        return stage;
+      })
+    );
+
+    setRightPanelState('status-tracker');
   };
 
   const [stages, setStages] = useState<Stage[]>([
@@ -81,11 +224,33 @@ const JobInvoicePayment: React.FC = () => {
         {
           label: 'Send',
           type: 'primary',
-          onClick: () => handleStageClick(3),
-        },
-        {
-          label: 'Skip Sending',
-          onClick: () => handleStageClick(3),
+          onClick: () => {
+            setStages(prevStages =>
+              prevStages.map(stage => {
+                if (stage.id === 2) {
+                  return {
+                    ...stage,
+                    status: 'completed' as const,
+                    buttons: [
+                      {
+                        label: 'Resend',
+                        onClick: () => message.success('Invoice resent successfully!'),
+                      },
+                    ],
+                  };
+                }
+                return stage;
+              })
+            );
+            setStages(prevStages =>
+              prevStages.map(stage => {
+                if (stage.id === 3) {
+                  return { ...stage, status: 'active' as const };
+                }
+                return stage;
+              })
+            );
+          },
         },
       ],
     },
@@ -109,6 +274,10 @@ const JobInvoicePayment: React.FC = () => {
         {
           label: 'Send Receipt',
           type: 'primary',
+          onClick: () => setIsSendReceiptModalVisible(true),
+        },
+        {
+          label: 'Skip Sending',
           onClick: () => handleStageClick(5),
         },
       ],
@@ -121,7 +290,19 @@ const JobInvoicePayment: React.FC = () => {
         if (stage.status === 'completed') return stage;
 
         if (stage.id < clickedId) return { ...stage, status: 'completed' };
-        if (stage.id === clickedId) return { ...stage, status: 'active' };
+        if (stage.id === clickedId) {
+          if (clickedId === 4) {
+            setRightPanelState('record-payment');
+            const currentInvoice = invoices.find(inv => inv.id === currentInvoiceId);
+            if (currentInvoice) {
+              setEditingRecord(currentInvoice);
+            }
+          }
+          if (clickedId === 3) {
+            message.success('Invoice sent!');
+          }
+          return { ...stage, status: 'active' };
+        }
         return { ...stage, status: 'disabled' };
       })
     );
@@ -239,11 +420,11 @@ const JobInvoicePayment: React.FC = () => {
           </Col>
         ))}
 
-        {/* Create Invoice Button as card */}
         <Col xs={24} sm={12} md={8} lg={6}>
           <Card
             className="border border-dashed flex cursor-pointer items-center justify-center bg-body-color hover:border hover:border-primary hover:text-primary transition duration-150"
             onClick={() => {
+              setRightPanelState('invoice-form');
               setFormMode('create');
               setEditingRecord(null);
             }}
@@ -272,9 +453,9 @@ const JobInvoicePayment: React.FC = () => {
           </span>
         </Row>
       )}
-      {/* Invoices Table & Workflow */}
+      {/* Invoices Table & Form/Workflow */}
       <Row gutter={[24, 24]} align="top" className="mt-10">
-        <Col xs={24} md={14} lg={14}>
+        <Col xs={24} md={rightPanelState ? 14 : 24} lg={rightPanelState ? 14 : 24}>
           <Card
             title="Invoices"
             className="shadow-sm border border-gray-100"
@@ -283,38 +464,84 @@ const JobInvoicePayment: React.FC = () => {
             <Table dataSource={invoices} columns={columns} pagination={false} rowKey="id" />
           </Card>
         </Col>
-        {/* //show this component when new invoice in successfully created according to selected options the table view is also getting changed*/}
-        <Col xs={24} md={10} lg={10}>
-          <Card
-            title="Invoice Workflow"
-            className="shadow-sm border border-gray-100"
-            bodyStyle={{ padding: 16 }}
-          >
-            <StatusTracker
-              stages={stages.map(stage => ({
-                ...stage,
-                buttons: stage.status === 'disabled' ? [] : stage.buttons,
-              }))}
-            />
-          </Card>
-        </Col>
-      </Row>
-
-      {/* Invoice Modal */}
-      <Modal
-        title={formMode === 'edit' ? 'Edit Invoice' : 'Create Invoice'}
-        open={formMode !== null}
-        onCancel={() => setFormMode(null)}
-        footer={null}
-      >
-        {formMode && (
-          <InvoiceForm
-            mode={formMode}
-            initialValues={formMode === 'edit' ? editingRecord : undefined}
-            onFinish={handleFinish}
-          />
+        {rightPanelState && (
+          <Col xs={24} md={10} lg={10}>
+            {rightPanelState === 'invoice-form' ? (
+              <Card
+                title={formMode === 'edit' ? 'Edit Invoice' : 'Create Invoice'}
+                className="shadow-sm border border-gray-100"
+                extra={
+                  <Button
+                    onClick={() => {
+                      setRightPanelState(null);
+                      setFormMode(null);
+                      setEditingRecord(null);
+                    }}
+                    type="text"
+                  >
+                    <IconX size={18} />
+                  </Button>
+                }
+              >
+                <InvoiceForm
+                  mode={formMode}
+                  initialValues={formMode === 'edit' ? editingRecord : undefined}
+                  onFinish={handleFinish}
+                  onSend={handleSendInvoice}
+                />
+              </Card>
+            ) : rightPanelState === 'send-form' ? (
+              <SendInvoiceForm
+                invoiceId={currentInvoiceId}
+                onCancel={() => {
+                  setRightPanelState(null);
+                  setFormMode(null);
+                  setEditingRecord(null);
+                }}
+                onSend={handleSendEmail}
+              />
+            ) : rightPanelState === 'record-payment' ? (
+              <RecordPaymentForm
+                invoiceId={currentInvoiceId}
+                invoiceAmount={editingRecord?.amount || 0}
+                onCancel={() => {
+                  setRightPanelState('status-tracker');
+                }}
+                onRecord={handleRecordPayment}
+              />
+            ) : rightPanelState === 'send-receipt-form' ? (
+              <SendInvoiceForm
+                invoiceId={currentInvoiceId}
+                recipient="hello@aluxhomes.com.au"
+                subject={`My Home: Receipt ${currentInvoiceId}`}
+                message={`Please find the attached receipt for the payment of Suite 10, 45 Tallis Circuit, Truganina, VIC, 3029.\n\nThank you for your payment.\n\nPlease do not hesitate to contact me if you need any further clarification.\n\nRegards | Kishan`}
+                onCancel={() => {
+                  setRightPanelState('status-tracker');
+                }}
+                onSend={handleSendReceiptEmail}
+              />
+            ) : rightPanelState === 'status-tracker' ? (
+              <Card
+                title="Invoice Workflow"
+                className="shadow-sm border border-gray-100"
+                bodyStyle={{ padding: 16 }}
+                extra={
+                  <Button type="text" onClick={() => setRightPanelState(null)}>
+                    <IconX size={18} />
+                  </Button>
+                }
+              >
+                <StatusTracker
+                  stages={stages.map(stage => ({
+                    ...stage,
+                    buttons: stage.status === 'disabled' ? [] : stage.buttons,
+                  }))}
+                />
+              </Card>
+            ) : null}
+          </Col>
         )}
-      </Modal>
+      </Row>
       <ActionDialogmodel
         open={isContractDetailsModalVisible}
         onCancel={() => setIsContractDetailsModalVisible(false)}
@@ -339,6 +566,35 @@ const JobInvoicePayment: React.FC = () => {
           setShowContractNotice(false);
         }}
         submitButtonText="Confirm"
+      />
+
+      <ActionDialogmodel
+        open={isSendReceiptModalVisible}
+        onCancel={handleSendReceiptClose}
+        title="Send Receipt"
+        onSubmit={handleSendReceiptNext}
+        submitButtonText="Next"
+        fields={[
+          {
+            name: 'paymentInfo',
+            label: 'Please select the payment records to generate the receipt.',
+            type: 'custom',
+            render: (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <Checkbox>
+                    <span className="text-gray-700">
+                      Payment Amount: ${(editingRecord?.amount || 2000).toFixed(2)}
+                    </span>
+                  </Checkbox>
+                  <span className="px-2 py-1 text-xs font-medium bg-gray-200 text-gray-600 rounded">
+                    Never Sent
+                  </span>
+                </div>
+              </div>
+            ),
+          },
+        ]}
       />
     </Card>
   );
