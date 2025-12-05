@@ -1,36 +1,5 @@
 import * as ExcelJS from "exceljs";
-
-type ExcelColumn =
-  | string
-  | {
-    label: string;
-    color?: string;
-    dataColor?: string;
-    dataColorFn?: (value: any, row: any) => string | undefined;
-    children?: {
-      key: string;
-      label: string;
-      color?: string;
-      dataColor?: string;
-      dataColorFn?: (value: any, row: any) => string | undefined;
-    }[];
-  };
-
-interface HeaderBlock {
-  position: "top" | "bottom";
-  layout?: "horizontal" | "vertical";
-  columnHeaders: Record<string, ExcelColumn>;
-  data: any[];
-}
-
-interface ExportToExcelOptions {
-  data: any[];
-  fileName: string;
-  sheetName?: string;
-  columnHeaders: Record<string, ExcelColumn>;
-  title?: string;
-  extraHeaderRows?: HeaderBlock[];
-}
+import { ExcelColumn, ExportOptions } from "types/common.types";
 
 export const exportToExcel = async ({
   data,
@@ -39,7 +8,7 @@ export const exportToExcel = async ({
   columnHeaders,
   title,
   extraHeaderRows = [],
-}: ExportToExcelOptions) => {
+}: ExportOptions) => {
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet(sheetName);
 
