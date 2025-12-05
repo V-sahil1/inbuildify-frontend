@@ -85,20 +85,25 @@ const ListView = ({ currentDate, events, onEventClick }: ListViewProps) => {
                     </p>
                 </div>
             ) : (
-                <div className="divide-y divide-gray-100">
-                    {groupedEvents.map(group => (
-                        <div
-                            key={group.date.format('YYYY-MM-DD')}
-                            className="flex flex-col sm:flex-row hover:bg-gray-50 transition-colors group/day"
-                        >
-                            {/* Date Column */}
-                            <div className="sm:w-32 p-4 flex sm:flex-col items-start sm:items-center justify-start sm:justify-center border-b sm:border-b-0 sm:border-r border-gray-100 bg-white sm:bg-transparent sticky top-0 z-10 sm:static">
-                                <div
-                                    className={`text-2xl font-bold ${group.date.isSame(dayjs(), 'day') ? 'text-blue-600' : 'text-gray-800'}`}
-                                >
+                <div className="flex flex-col pb-20 sm:pb-0">
+                    {/* Added padding bottom for mobile fab clearance if needed */}
+                    {groupedEvents.map((group) => (
+                        <div key={group.date.format('YYYY-MM-DD')} className="flex flex-col sm:flex-row hover:bg-gray-50 transition-colors group/day border-b border-gray-100 last:border-0">
+
+                            {/* Mobile: Top Date Header */}
+                            <div className="sm:hidden px-4 py-2 bg-gray-50 border-b border-gray-100 sticky top-0 z-10 flex items-center justify-between">
+                                <span className={`font-bold text-lg ${group.date.isSame(dayjs(), 'day') ? 'text-blue-600' : 'text-gray-800'}`}>
+                                    {group.date.format('dddd, D MMMM')}
+                                </span>
+                                {group.date.isSame(dayjs(), 'day') && <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">Today</span>}
+                            </div>
+
+                            {/* Desktop: Side Date Column */}
+                            <div className="hidden sm:flex w-32 p-4 flex-col items-center justify-center border-r border-gray-100 bg-white sticky top-0 z-10 flex-shrink-0">
+                                <div className={`text-2xl font-bold ${group.date.isSame(dayjs(), 'day') ? 'text-blue-600' : 'text-gray-800'}`}>
                                     {group.date.format('DD')}
                                 </div>
-                                <div className="text-gray-500 uppercase text-xs font-bold tracking-wider ml-2 sm:ml-0 sm:mt-1">
+                                <div className="text-gray-500 uppercase text-xs font-bold tracking-wider mt-1">
                                     {group.date.format('ddd')}
                                 </div>
                             </div>
@@ -124,19 +129,13 @@ const ListView = ({ currentDate, events, onEventClick }: ListViewProps) => {
                                         >
                                             <div className="flex items-start gap-4">
                                                 {/* Time Column within Card */}
-                                                <div
-                                                    className={`flex flex-col items-center min-w-[80px] border-r ${isToday ? 'border-gray-300/50' : 'border-white/20'} pr-4`}
-                                                >
+                                                <div className={`flex flex-col items-center min-w-[70px] sm:min-w-[80px] border-r ${isToday ? 'border-gray-300/50' : 'border-white/20'} pr-3 sm:pr-4`}>
                                                     {isAllDay ? (
                                                         <span className="text-sm font-semibold">All Day</span>
                                                     ) : (
                                                         <>
-                                                            <span className="text-sm font-bold">
-                                                                {eventStart.format('h:mm A')}
-                                                            </span>
-                                                            <span className={`text-xs ${subTextColorClass}`}>
-                                                                {eventEnd.format('h:mm A')}
-                                                            </span>
+                                                            <span className="text-sm font-bold whitespace-nowrap">{eventStart.format('h:mm A')}</span>
+                                                            <span className={`text-xs ${subTextColorClass} whitespace-nowrap`}>{eventEnd.format('h:mm A')}</span>
                                                         </>
                                                     )}
                                                 </div>
@@ -145,13 +144,9 @@ const ListView = ({ currentDate, events, onEventClick }: ListViewProps) => {
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-center gap-2 mb-1">
                                                         {event.type === 'Task' ? (
-                                                            <IconCircleCheckFilled
-                                                                className={`w-4 h-4 flex-shrink-0 ${isToday ? 'text-gray-700' : 'text-white'}`}
-                                                            />
+                                                            <IconCircleCheckFilled className={`w-4 h-4 flex-shrink-0 ${isToday ? 'text-gray-700' : 'text-white'}`} />
                                                         ) : (
-                                                            <IconCircleFilled
-                                                                className={`w-4 h-4 flex-shrink-0 ${isToday ? 'text-gray-700' : 'text-white'}`}
-                                                            />
+                                                            <IconCircleFilled className={`w-4 h-4 flex-shrink-0 ${isToday ? 'text-gray-700' : 'text-white'}`} />
                                                         )}
                                                         <h4 className="font-bold text-base truncate leading-tight">
                                                             {event.title}
