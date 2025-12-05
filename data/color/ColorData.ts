@@ -19,3 +19,305 @@ export const FieldTypes = [
     {value: "checkbox", name: "Checkbox"},
     {value: "radio button", name: "Radio Button"},
 ]
+
+export type colorItemType = {
+  id:string;
+  name:string;
+  group:string[];
+  supplierId:string;
+  itemCode:string;
+  description:string;
+  colorImage:string[];
+  range:string[];
+  colorSubCategoryId:string;
+  colorType:string[];
+  costType:string;
+  customData:[];
+  customFieldName:string;
+  customFieldType:string;
+  features:string;
+  image:any;
+  price:number;
+  requiredField:boolean;
+  sortOrder:number;
+  specification:any;
+  status:string;
+  units:string;
+  upgradeOption:string
+} 
+
+export const ColorItems: colorItemType[] = [
+  {
+    id: '1',
+    name: "Olive",
+    group: ["colorbondcolor", "darkthemes"],
+    supplierId: "3843adbf-b4b0-4441-a062-a090f3db96b6",
+    itemCode: "ITM-001",
+    description: "A natural olive-green shade suitable for exterior walls.",
+    colorImage: ["https://dummyimage.com/600x400/708238/ffffff"],
+    range: ["premium"],
+    colorSubCategoryId: "sub-olive",
+    colorType: ["matte"],
+    costType: "standard",
+    customData: [],
+    customFieldName: "shadeType",
+    customFieldType: "string",
+    features: "Weather resistant, matte finish",
+    image: null,
+    price: 250,
+    requiredField: false,
+    sortOrder: 1,
+    specification: { durability: "high", texture: "smooth" },
+    status: "active",
+    units: "liters",
+    upgradeOption: "none"
+  },
+
+  {
+    id: '2',
+    name: "Shadow Black",
+    group: ["darkthemes"],
+    supplierId: "3843adbf-b4b0-4441-a062-a090f3db96b6",
+    itemCode: "ITM-002",
+    description: "Deep black tone designed for premium dark theme palettes.",
+    colorImage: ["https://dummyimage.com/600x400/1A1A1A/ffffff"],
+    range: ["premium", "luxury"],
+    colorSubCategoryId: "sub-shadow-black",
+    colorType: ["glossy"],
+    costType: "premium",
+    customData: [],
+    customFieldName: "opacity",
+    customFieldType: "number",
+    features: "High opacity, premium gloss",
+    image: null,
+    price: 320,
+    requiredField: false,
+    sortOrder: 2,
+    specification: { reflectiveness: "high" },
+    status: "active",
+    units: "liters",
+    upgradeOption: "gloss-upgrade"
+  },
+
+  {
+    id: '3',
+    name: "Sunset Brick",
+    group: ["mgcolorgroup"],
+    supplierId: "3843adbf-b4b0-4441-a062-a090f3db96b6",
+    itemCode: "ITM-003",
+    description: "Warm brick-red inspired by sunset tones.",
+    colorImage: ["https://dummyimage.com/600x400/C24A35/ffffff"],
+    range: ["standard"],
+    colorSubCategoryId: "sub-sunset-brick",
+    colorType: ["matte"],
+    costType: "standard",
+    customData: [],
+    customFieldName: "texture",
+    customFieldType: "string",
+    features: "Warm tone, durable",
+    image: null,
+    price: 180,
+    requiredField: false,
+    sortOrder: 3,
+    specification: { heatResistance: "medium" },
+    status: "active",
+    units: "liters",
+    upgradeOption: "texture-upgrade"
+  },
+
+  {
+    id: '4',
+    name: "Desert Sand",
+    group: ["colorbondcolor"],
+    supplierId: "3843adbf-b4b0-4441-a062-a090f3db96b6",
+    itemCode: "ITM-004",
+    description: "Soft sandy beige ideal for neutral interior designs.",
+    colorImage: ["https://dummyimage.com/600x400/C9B28B/ffffff"],
+    range: ["luxury"],
+    colorSubCategoryId: "sub-desert-sand",
+    colorType: ["satin"],
+    costType: "standard",
+    customData: [],
+    customFieldName: "finish",
+    customFieldType: "string",
+    features: "Neutral tone, smooth finish",
+    image: null,
+    price: 210,
+    requiredField: false,
+    sortOrder: 4,
+    specification: { stainResistance: "high" },
+    status: "active",
+    units: "liters",
+    upgradeOption: "finish-upgrade"
+  },
+
+  {
+    id: '5',
+    name: "Midnight Blue",
+    group: ["darkthemes"],
+    supplierId: "3843adbf-b4b0-4441-a062-a090f3db96b6",
+    itemCode: "ITM-005",
+    description: "Rich midnight blue for bold and elegant surfaces.",
+    colorImage: ["https://dummyimage.com/600x400/0B2C51/ffffff"],
+    range: ["premium"],
+    colorSubCategoryId: "sub-midnight-blue",
+    colorType: ["glossy"],
+    costType: "premium",
+    customData: [],
+    customFieldName: "shineLevel",
+    customFieldType: "number",
+    features: "Elegant finish, rich color",
+    image: null,
+    price: 330,
+    requiredField: false,
+    sortOrder: 5,
+    specification: { gloss: "high" },
+    status: "active",
+    units: "liters",
+    upgradeOption: "gloss-plus"
+  },
+
+  {
+    id: '6',
+    name: "Forest Green",
+    group: ["mgcolorgroup"],
+    supplierId: "3843adbf-b4b0-4441-a062-a090f3db96b6",
+    itemCode: "ITM-006",
+    description: "Dark green shade inspired by deep forest tones.",
+    colorImage: ["https://dummyimage.com/600x400/2E5E3A/ffffff"],
+    range: ["standard"],
+    colorSubCategoryId: "sub-forest-green",
+    colorType: ["matte"],
+    costType: "standard",
+    customData: [],
+    customFieldName: "ecoGrade",
+    customFieldType: "boolean",
+    features: "Natural tone, eco-friendly",
+    image: null,
+    price: 200,
+    requiredField: false,
+    sortOrder: 6,
+    specification: { organic: true },
+    status: "active",
+    units: "liters",
+    upgradeOption: "eco-upgrade"
+  },
+
+  {
+    id: '7',
+    name: "Steel Grey",
+    group: ["colorbondcolor"],
+    supplierId: "3843adbf-b4b0-4441-a062-a090f3db96b6",
+    itemCode: "ITM-007",
+    description: "Industrial grey shade ideal for modern themes.",
+    colorImage: ["https://dummyimage.com/600x400/7A7F85/ffffff"],
+    range: ["premium"],
+    colorSubCategoryId: "sub-steel-grey",
+    colorType: ["satin"],
+    costType: "standard",
+    customData: [],
+    customFieldName: "metallic",
+    customFieldType: "boolean",
+    features: "Industrial finish",
+    image: null,
+    price: 260,
+    requiredField: false,
+    sortOrder: 7,
+    specification: { metallicLevel: "medium" },
+    status: "active",
+    units: "liters",
+    upgradeOption: "metalic-upgrade"
+  },
+
+  {
+    id: '8',
+    name: "Maroon Deep",
+    group: ["darkthemes"],
+    supplierId: "3843adbf-b4b0-4441-a062-a090f3db96b6",
+    itemCode: "ITM-008",
+    description: "Deep maroon shade commonly used for premium accents.",
+    colorImage: ["https://dummyimage.com/600x400/7B1E28/ffffff"],
+    range: ["luxury"],
+    colorSubCategoryId: "sub-maroon-deep",
+    colorType: ["glossy"],
+    costType: "premium",
+    customData: [],
+    customFieldName: "depth",
+    customFieldType: "number",
+    features: "High depth tone",
+    image: null,
+    price: 350,
+    requiredField: false,
+    sortOrder: 8,
+    specification: { richness: "high" },
+    status: "active",
+    units: "liters",
+    upgradeOption: "deep-gloss"
+  },
+
+  {
+    id: '9',
+    name: "Golden Mist",
+    group: ["mgcolorgroup", "darkthemes"],
+    supplierId: "3843adbf-b4b0-4441-a062-a090f3db96b6",
+    itemCode: "ITM-009",
+    description: "Metallic golden tone for highlight and luxury surfaces.",
+    colorImage: ["https://dummyimage.com/600x400/D4AF37/ffffff"],
+    range: ["luxury"],
+    colorSubCategoryId: "sub-golden-mist",
+    colorType: ["metallic"],
+    costType: "premium",
+    customData: [],
+    customFieldName: "metallicLevel",
+    customFieldType: "number",
+    features: "Shiny metallic finish",
+    image: null,
+    price: 500,
+    requiredField: false,
+    sortOrder: 9,
+    specification: { metallic: "high" },
+    status: "active",
+    units: "liters",
+    upgradeOption: "metallic-upgrade"
+  },
+
+  {
+    id: '10',
+    name: "Ocean Blue",
+    group: ["colorbondcolor", "darkthemes"],
+    supplierId: "3843adbf-b4b0-4441-a062-a090f3db96b6",
+    itemCode: "ITM-010",
+    description: "Cool ocean blue suitable for interior and exterior walls.",
+    colorImage: ["https://dummyimage.com/600x400/1F4E79/ffffff"],
+    range: ["premium"],
+    colorSubCategoryId: "sub-ocean-blue",
+    colorType: ["satin"],
+    costType: "standard",
+    customData: [],
+    customFieldName: "coolFactor",
+    customFieldType: "number",
+    features: "Cool calming tone",
+    image: null,
+    price: 270,
+    requiredField: false,
+    sortOrder: 10,
+    specification: { coolingEffect: "medium" },
+    status: "active",
+    units: "liters",
+    upgradeOption: "cool-upgrade"
+  }
+];
+
+
+export const colorGroup = [
+            {id:'1',name : 'ColorBond Color', value : 'colorbondcolor' , status : 'active'},
+            {id:'2',name : 'Dark Themes', value : 'darkthemes' , status : 'active'},
+            {id:'3',name : 'MG Color Group', value : 'mgcolorgroup' , status : 'active'},
+        ]
+
+export const colorSupplier = [
+    {label : 'Akshay Bhai', value : 'akshaybhai'},
+    {label : 'Premium Colors', value : 'premiumcolors'},
+    {label : 'Rajesh Traders', value : 'rajeshtraders'},
+    {label : 'PaintWorks Co.', value : 'paintworksc'},
+]

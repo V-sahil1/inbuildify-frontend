@@ -10,29 +10,16 @@ import {
   message,
   Row,
   Col,
-  Switch,
   Button,
   Upload,
   UploadFile,
   Select,
-  DatePicker,
   Checkbox,
   Table,
   Empty,
 } from 'antd';
-import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import {
-  createColourSubCategoryItem,
-  updateColourSubCategoryItem,
-} from '@redux/feature/color/colorThunk';
-import { formDataGenerator } from '@lib/utils/formDataGenerator';
 import { SubCategoryItem } from '@redux/feature/color/iColourState';
-import {
-  nameRules,
-  optionalNotesRule,
-  numberRules,
-  acceptOnlyImageRule,
-} from '@lib/constants/formInputValidations';
+import { nameRules, optionalNotesRule, acceptOnlyImageRule } from '@lib/constants/formInputValidations';
 import dayjs from 'dayjs';
 import { useUsersHook } from '@hooks/useUserData';
 import MultiSelectDropdown from '../MultiSelectDropdown';
@@ -46,11 +33,12 @@ interface ColorCategoryItemModalProps {
   categoryId?: string;
   selectedColorSubCategoryId?: string;
   categoryItem?: SubCategoryItem;
+  handleAddColorItem?: (values) => void;
 }
 
 interface FormValues {
   name: string;
-  code: string;
+  itemCode: string;
   units?: number;
   image: any[];
   costType: 'standard' | 'upgrade';
@@ -72,6 +60,7 @@ const ColorCategoryItemModel = ({
   onClose,
   selectedColorSubCategoryId,
   categoryItem,
+  handleAddColorItem,
 }: ColorCategoryItemModalProps) => {
   const [form] = Form.useForm();
   const [colorTypes, setColorTypes] = useState<{ id: string; name: string }[]>(ColorTypes);
@@ -82,18 +71,16 @@ const ColorCategoryItemModel = ({
   const [specificationItems, setSpecificationItems] = useState<SpecificationItem>();
   const [loading, setLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
-  const [isStandard, setIsStandard] = useState<boolean>(true);
-  const [isTBA, setIsTBA] = useState<boolean>(false);
-  const dispatch = useAppDispatch();
-  const [customFields, setCustomFields] = useState<
-    Array<{
-      fieldType: number;
-      fieldName: string;
-      isRequired: boolean;
-      sortOrder: number;
-    }>
-  >([]);
+  const isStandard = Form.useWatch('costType', form)
+  const isTBA = Form.useWatch('upgradeOption', form)
+  const [customFields, setCustomFields] = useState<Array<{
+    fieldType: number;
+    fieldName: string;
+    isRequired: boolean;
+    sortOrder: number;
+  }>>([]);
   const { users, isLoading: usersLoading } = useUsersHook();
+
 
   useEffect(() => {
     // Set form loading to false once users are loaded
@@ -119,12 +106,7 @@ const ColorCategoryItemModel = ({
     e?.preventDefault();
 
     try {
-      const values = form.getFieldsValue([
-        'customFieldType',
-        'customFieldName',
-        'requiredField',
-        'sortOrder',
-      ]);
+      const values = form.getFieldsValue(['customFieldType', 'customFieldName', 'requiredField', 'sortOrder']);
 
       if (!values.customFieldType || !values.customFieldName) {
         message.error('Please fill in all required fields');
@@ -137,20 +119,21 @@ const ColorCategoryItemModel = ({
           fieldType: values.customFieldType,
           fieldName: values.customFieldName,
           isRequired: values.requiredField || false,
-          sortOrder: Number(values.sortOrder) || 0,
-        },
+          sortOrder: Number(values.sortOrder) || 0
+        }
       ]);
       // Reset the form fields
       form.setFieldsValue({
         customFieldType: undefined,
         customFieldName: '',
         requiredField: false,
-        sortOrder: '',
+        sortOrder: ''
       });
-    } catch (error) {
+    }
+    catch (error) {
       console.error('Error adding custom field:', error);
     }
-  };
+  }
 
   const handleAddNewColorType = useCallback(async (name: string) => {
     // In a real app, you would save this to your backend first
@@ -195,7 +178,7 @@ const ColorCategoryItemModel = ({
 
       // const formDataToSubmit = formDataGenerator(formData);
       console.log('Form Data to Submit:', formData);
-
+      handleAddColorItem(formData);
       // if (categoryItem) {
       //   await dispatch(
       //     updateColourSubCategoryItem({
@@ -225,38 +208,36 @@ const ColorCategoryItemModel = ({
 
   const initialValues = categoryItem
     ? {
-        ...categoryItem,
-        costType: categoryItem.standard ? 'standard' : 'upgrade',
-        image: categoryItem.image
-          ? [
-              {
-                uid: '-1',
-                name: 'current-image',
-                status: 'done',
-                url: categoryItem.image,
-                thumbUrl: categoryItem.image,
-              } as UploadFile,
-            ]
-          : undefined,
-        expirationDate: categoryItem.expirationDate
-          ? dayjs(categoryItem.expirationDate)
-          : undefined,
-        isActive: categoryItem.isActive ?? true,
-      }
+      ...categoryItem,
+      costType: categoryItem.standard ? 'standard' : 'upgrade',
+      image: categoryItem.image
+        ? [
+          {
+            uid: '-1',
+            name: 'current-image',
+            status: 'done',
+            url: categoryItem.image,
+            thumbUrl: categoryItem.image,
+          } as UploadFile,
+        ]
+        : undefined,
+      expirationDate: categoryItem.expirationDate ? dayjs(categoryItem.expirationDate) : undefined,
+      isActive: categoryItem.isActive ?? true,
+    }
     : {
-        isActive: true,
-        highlightNotesOnPdf: false,
-      };
+      isActive: true,
+      highlightNotesOnPdf: false,
+    };
 
   const columns = [
     {
       title: 'Field Type',
       dataIndex: 'fieldType',
       key: 'fieldType',
-      render: fieldType => {
+      render: (fieldType) => {
         const field = FieldTypes.find(ft => ft.value === fieldType);
         return field ? field.name : fieldType;
-      },
+      }
     },
     {
       title: 'Field Name',
@@ -328,7 +309,11 @@ const ColorCategoryItemModel = ({
               <Col xs={20} md={10}>
                 <Row gutter={16}>
                   <Col xs={24} md={24}>
-                    <Form.Item name="name" label="Item Name" rules={nameRules}>
+                    <Form.Item
+                      name="name"
+                      label="Item Name"
+                      rules={nameRules}
+                    >
                       <Input placeholder="Enter item name" />
                     </Form.Item>
                   </Col>
@@ -336,7 +321,7 @@ const ColorCategoryItemModel = ({
                 <Row gutter={16}>
                   <Col xs={12} md={12}>
                     <Form.Item
-                      name="code"
+                      name="itemCode"
                       label="Item Code"
                       rules={[{ required: true, message: 'Please enter item code' }]}
                     >
@@ -350,14 +335,7 @@ const ColorCategoryItemModel = ({
                       initialValue="standard"
                       rules={[{ required: true, message: 'Please select cost type' }]}
                     >
-                      <Radio.Group>
-                        <Radio value="standard" onChange={() => setIsStandard(true)}>
-                          Standard
-                        </Radio>
-                        <Radio value="upgrade" onChange={() => setIsStandard(false)}>
-                          Upgrade
-                        </Radio>
-                      </Radio.Group>
+                      <Radio.Group options={[{ label: 'Standard', value: 'standard' }, { label: 'Upgrade', value: 'upgrade' }]} />
                     </Form.Item>
                   </Col>
                 </Row>
@@ -390,19 +368,10 @@ const ColorCategoryItemModel = ({
                       initialValue="fixed"
                       rules={[{ required: false, message: 'Please select upgrade option' }]}
                     >
-                      <Radio.Group disabled={isStandard}>
-                        <Radio value="fixed" onChange={() => setIsTBA(false)}>
-                          Fixed
-                        </Radio>
-                        <Radio value="startFrom" onChange={() => setIsTBA(false)}>
-                          Start From
-                        </Radio>
-                        <Radio value="tba" onChange={() => setIsTBA(true)}>
-                          TBA
-                        </Radio>
-                      </Radio.Group>
+                      <Radio.Group disabled={isStandard === 'standard'} options={[{ label: 'Fixed', value: 'fixed' }, { label: 'Start From', value: 'startFrom' }, { label: 'TBA', value: 'tba' }]} />
                     </Form.Item>
                   </Col>
+
                 </Row>
 
                 <Row gutter={16}>
@@ -431,7 +400,7 @@ const ColorCategoryItemModel = ({
                       ]}
                     >
                       <InputNumber
-                        disabled={isStandard || isTBA}
+                        disabled={isStandard === 'standard' || isTBA === 'tba'}
                         style={{ width: '100%' }}
                         min={0}
                         step={0.01}
@@ -554,12 +523,7 @@ const ColorCategoryItemModel = ({
                         </Form.Item>
                       </Col>
                       <Col xs={8} md={4}>
-                        <Form.Item
-                          name="requiredField"
-                          valuePropName="checked"
-                          label="Required Field"
-                          className="text-center"
-                        >
+                        <Form.Item name="requiredField" valuePropName="checked" label="Required Field" className='text-center'>
                           <Checkbox />
                         </Form.Item>
                       </Col>
@@ -568,8 +532,12 @@ const ColorCategoryItemModel = ({
                           <Input type="number" placeholder="Enter sort order" />
                         </Form.Item>
                       </Col>
-                      <Col xs={8} md={4} className="flex justify-end items-center">
-                        <Button type="primary" onClick={handleAddCustomField} loading={formLoading}>
+                      <Col xs={8} md={4} className='flex justify-end items-center'>
+                        <Button
+                          type="primary"
+                          onClick={handleAddCustomField}
+                          loading={formLoading}
+                        >
                           Add
                         </Button>
                       </Col>
@@ -598,30 +566,20 @@ const ColorCategoryItemModel = ({
                           />
                         </div>
                       )}
+
                     </div>
                   </Col>
                 </Row>
                 <Row gutter={16}>
                   <Col xs={24} md={24}>
-                    <p className="mt-4">Color Image</p>
+                    <p className='mt-4'>Color Image</p>
                     <Form.Item name="colorImage">
-                      <Button
-                        icon={<IconUpload />}
-                        className="ml-auto flex self-end"
-                        onClick={handleImageUploadClick}
-                      ></Button>
-                      <Upload
-                        ref={imageUploadRef}
-                        beforeUpload={() => false}
-                        maxCount={10}
-                        listType="picture"
-                        accept={acceptOnlyImageRule}
-                        onChange={info => {
-                          const files = info.fileList;
-                          const imageFiles = files.filter(file => file.type.startsWith('image/'));
-                          setColorImages(imageFiles);
-                        }}
-                      >
+                      <Button icon={<IconUpload />} className='ml-auto flex self-end' onClick={handleImageUploadClick} />
+                      <Upload ref={imageUploadRef} beforeUpload={() => false} maxCount={10} listType="picture" accept={acceptOnlyImageRule} onChange={(info) => {
+                        const files = info.fileList;
+                        const imageFiles = files.filter(file => file.type.startsWith('image/'));
+                        setColorImages(imageFiles);
+                      }}>
                         {/* <Button icon={<IconUpload />} className='ml-auto flex self-end'></Button> */}
                       </Upload>
                       <div>
@@ -631,7 +589,9 @@ const ColorCategoryItemModel = ({
                               <Empty
                                 image={Empty.PRESENTED_IMAGE_SIMPLE}
                                 description={
-                                  <span className="text-gray-500">No image uploaded</span>
+                                  <span className="text-gray-500">
+                                    No image uploaded
+                                  </span>
                                 }
                               />
                             </div>
@@ -647,21 +607,20 @@ const ColorCategoryItemModel = ({
                     <Form.Item name="specification">
                       <Button
                         icon={<IconUpload />}
-                        className="ml-auto flex self-end"
+                        className='ml-auto flex self-end'
                         onClick={handleUploadClick}
-                      ></Button>
+                      />
                       <Upload
                         ref={uploadRef}
                         beforeUpload={() => false}
                         maxCount={10}
                         listType="picture"
-                        className="text-center"
+                        className='text-center'
                         accept="image/*,.pdf"
-                        onChange={info => {
+                        onChange={(info) => {
                           const files = info.fileList;
-                          const validFiles = files.filter(
-                            file =>
-                              file.type.startsWith('image/') || file.type === 'application/pdf'
+                          const validFiles = files.filter(file =>
+                            file.type.startsWith('image/') || file.type === 'application/pdf'
                           );
                           setSpecificationItems({ file: validFiles });
                         }}
@@ -670,25 +629,25 @@ const ColorCategoryItemModel = ({
                       </Upload>
                     </Form.Item>
                     <Form.Item name="specificationText">
-                      <Input
-                        placeholder="Enter specification text"
-                        onChange={e => setSpecificationItems({ note: e.target.value })}
-                      />
+                      <Input placeholder="Enter specification text" onChange={(e) => setSpecificationItems({ note: e.target.value })} />
                     </Form.Item>
                     <div>
-                      {specificationItems?.file?.length > 0 || specificationItems?.note ? null : (
+                      {(specificationItems?.file?.length > 0 || specificationItems?.note) ? null : (
                         <div className="w-full">
                           <div className="text-center py-2">
                             <Empty
                               image={Empty.PRESENTED_IMAGE_SIMPLE}
                               description={
-                                <span className="text-gray-500">No Document uploaded</span>
+                                <span className="text-gray-500">
+                                  No Document uploaded
+                                </span>
                               }
                             />
                           </div>
                         </div>
                       )}
                     </div>
+
                   </Col>
                 </Row>
               </Col>
@@ -702,7 +661,7 @@ const ColorCategoryItemModel = ({
 
             {/* Submit Button */}
             <Row gutter={16} justify="end">
-              <Col className="pb-2">
+              <Col className='pb-2'>
                 <Button onClick={handleCancel} style={{ marginRight: 8 }} disabled={loading}>
                   Cancel
                 </Button>
