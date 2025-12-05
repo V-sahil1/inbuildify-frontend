@@ -42,7 +42,7 @@ import DepositModel from '@/components/common/Models/DepositModel';
 import ActivityCard from '@/components/common/ActivityCard';
 import { EmailData, filterTabs } from 'data/activityData';
 import FileExplorer from '@/components/common/FileExplorer';
-import { sdriveRootFolders } from '@/data/sdriveData';
+import { sdriveRootFolders } from '../../data/sdriveData';
 
 const { Text } = Typography;
 const { TabPane } = Tabs;

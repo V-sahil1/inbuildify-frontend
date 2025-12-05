@@ -18,7 +18,7 @@ import ActivityCard from '@/components/common/ActivityCard';
 import { EmailData, filterTabs } from 'data/activityData';
 import { ConstructionModelFields } from '@/components/formFields/constructionModelFields';
 import FileExplorer from '@/components/common/FileExplorer';
-import { sdriveRootFolders } from '@/data/sdriveData';
+import { sdriveRootFolders } from '../../data/sdriveData';
 const { TabPane } = Tabs;
 
 export default function JobDetail() {

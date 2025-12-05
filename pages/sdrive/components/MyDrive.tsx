@@ -1,5 +1,5 @@
 import FileExplorer from '@/components/common/FileExplorer';
-import { getSdriveDataByType } from '@/data/sdriveData';
+import { getSdriveDataByType } from '../../../data/sdriveData';
 import { useDebounce } from '@hooks/useDebounce';
 import { useState, useEffect } from 'react';
 

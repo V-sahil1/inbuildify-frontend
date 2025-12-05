@@ -10,7 +10,7 @@ import AddNotesCard from "@/components/common/TimeLineComponents/AddNotesCard";
 import ReferralLeads from "@/components/agentreferral/ReferralLeads";
 import { initialData } from "data/agentreferralData";
 import FileExplorer from "@/components/common/FileExplorer";
-import { sdriveRootFolders } from "@/data/sdriveData";
+import { sdriveRootFolders } from '../../data/sdriveData';
 
 const { TabPane } = Tabs;
 

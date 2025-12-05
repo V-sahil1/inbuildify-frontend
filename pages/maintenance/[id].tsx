@@ -4,7 +4,7 @@ import ActivityCard from '@/components/common/ActivityCard';
 import FileExplorer from '@/components/common/FileExplorer';
 import StageProgress from '@/components/common/StageProgress';
 import RequestList from '@/components/maintenance/maintenanceDetails/maintananceRequest/maintenanceRequest';
-import { sdriveRootFolders } from '@/data/sdriveData';
+import { sdriveRootFolders } from '../../data/sdriveData';
 import { Result, Tabs } from 'antd';
 import { EmailData, filterTabs } from 'data/activityData';
 const { TabPane } = Tabs;

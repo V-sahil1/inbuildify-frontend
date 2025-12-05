@@ -23,7 +23,6 @@
       "@utils/*": ["utils/*"],
       "@hooks/*": ["hooks/*"],
       "@/pages/*": ["pages/*"],
-      "@/data/*": ["data/*"],
       "/public/*": ["public/*"]
     }
   },

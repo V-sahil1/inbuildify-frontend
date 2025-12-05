@@ -15,7 +15,7 @@ import {
   IconShare,
   IconFileExport,
 } from '@tabler/icons-react';
-import { FolderData, FileData, formatFileSize } from '@/data/sdriveData';
+import { FolderData, FileData, formatFileSize } from '../../data/sdriveData';
 import { Dropdown, MenuProps, Empty, Input, Checkbox } from 'antd';
 import dayjs from 'dayjs';
 import TooltipButton from './TooltipButton';
@@ -412,9 +412,8 @@ export default function FileExplorer({
             {folders.map(folder => (
               <div
                 key={folder.folderId}
-                className={`flex items-center justify-between p-4 bg-card-color rounded-lg hover:bg-gray-50 transition-all cursor-pointer group ${
-                  isSelected(folder.folderId, 'folder') ? 'ring-2 ring-primary ring-opacity-50' : ''
-                }`}
+                className={`flex items-center justify-between p-4 bg-card-color rounded-lg hover:bg-gray-50 transition-all cursor-pointer group ${isSelected(folder.folderId, 'folder') ? 'ring-2 ring-primary ring-opacity-50' : ''
+                  }`}
                 onClick={() => handleFolderClick(folder)}
               >
                 <div className="flex items-center gap-4 flex-1">
@@ -480,9 +479,8 @@ export default function FileExplorer({
             {files.map(file => (
               <div
                 key={file.fileId}
-                className={`flex items-center justify-between p-4 bg-card-color rounded-lg hover:bg-gray-50 transition-all group ${
-                  isSelected(file.fileId, 'file') ? 'ring-2 ring-primary ring-opacity-50' : ''
-                }`}
+                className={`flex items-center justify-between p-4 bg-card-color rounded-lg hover:bg-gray-50 transition-all group ${isSelected(file.fileId, 'file') ? 'ring-2 ring-primary ring-opacity-50' : ''
+                  }`}
               >
                 <div className="flex items-center gap-4 flex-1">
                   {enableMultiSelect && (
