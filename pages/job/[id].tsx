@@ -19,12 +19,15 @@ import { EmailData, filterTabs } from 'data/activityData';
 import { ConstructionModelFields } from '@/components/formFields/constructionModelFields';
 import FileExplorer from '@/components/common/FileExplorer';
 import { sdriveRootFolders } from '../../data/sdriveData';
+import { usePdf } from '@hooks/usePdf';
+import ColorPdf from '@/components/common/pdf/ColorPdf';
 const { TabPane } = Tabs;
 
 export default function JobDetail() {
   const { id } = router.query;
   const [isConstructionModelOpen, setConstructionModelOpen] = useState(false);
   const [constructionReady, setConstructionReady] = useState(false);
+  const { previewPdf } = usePdf(ColorPdf);
   const [workFlowSteps, setWorkflowSteps] = useState([
     {
       key: 'Sales',
@@ -68,7 +71,7 @@ export default function JobDetail() {
       },
       options: [
         { key: 'colors', label: 'Switch to External Colours' },
-        { key: 'pdf', label: 'Preview PDF' },
+        { key: 'pdf', label: 'Preview PDF', onClick: () => previewPdf({}) },
         { key: 'document', label: 'Generate Colors Document', onClick: () => router.push(`${SystemRoutes.COLOR_GENERATE_DOCUMENT}`) },
         { key: 'delete', label: 'Delete' },
         { key: 'skip', label: 'Skip' },

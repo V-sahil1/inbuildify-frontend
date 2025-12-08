@@ -101,7 +101,7 @@ const colorData = [
   },
 ];
 
-export const ColorPdf = ({}) => {
+export const ColorPdf = ({ }) => {
   const Footer = () => (
     <View style={styles.footerWrapper} fixed>
       {/* Top White Row */}
@@ -151,7 +151,7 @@ export const ColorPdf = ({}) => {
   );
 
   const Signature = () => (
-    <View fixed>
+    <View >
       {/* Top White Row */}
       <View style={styles.signatureTop}>
         <View
@@ -275,11 +275,11 @@ export const ColorPdf = ({}) => {
                   <View key={`${index}-${i}`} style={ItemTable.row}>
                     {/* Column 1: Color / Description (col40) */}
                     <Text style={[ItemTable.cell, ItemTable.col40]}>
+                      {item.color}
+                      {'\n'}
                       <Text style={{ fontSize: 8, color: '#999' }}>
                         {item.status || 'Standard'}
                       </Text>
-                      {'\n'}
-                      {item.color}
                     </Text>
 
                     <Image
@@ -307,7 +307,7 @@ export const ColorPdf = ({}) => {
                 style={[
                   ItemTable.cell,
                   ItemTable.col100,
-                  { borderRightWidth: 0, textAlign: 'right' },
+                  { borderRightWidth: 0, textAlign: 'right', backgroundColor: '#FDFF06' },
                 ]}
               >
                 Total Amount : $ 3000
@@ -427,7 +427,8 @@ const ItemTable = StyleSheet.create({
     borderColor: '#000',
   },
   headerRow: {
-    backgroundColor: '#f1f1f1',
+    backgroundColor: '#0854A4',
+    color: '#fff',
   },
   totalRow: {
     backgroundColor: '#e6f0ff',
