@@ -39,7 +39,7 @@ export const UserCard = ({ user, setModalOpen, setSelectedUser, setDrawerOpen })
             title="Edit"
             icon={<IconPencil size={18} />}
             onClick={() => {
-              setDrawerOpen('create');
+              setDrawerOpen(true);
               setSelectedUser(user);
             }}
             type="text"

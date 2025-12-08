@@ -48,7 +48,7 @@ export const UserColumn = (setModalOpen, setSelectedUser, setDrawerOpen, selecte
               title="Edit"
               icon={<IconPencil size={15} />}
               onClick={() => {
-                setDrawerOpen('create');
+                setDrawerOpen(true);
                 setSelectedUser(record);
               }}
             />
@@ -99,13 +99,13 @@ export const UserColumn = (setModalOpen, setSelectedUser, setDrawerOpen, selecte
           prev.map(i => (i.loginId === selectedUser.loginId ? { ...i, ...values } : i))
         )
       : setUserData(prev => [...prev, { ...values, status: 'Active' }]);
-    setDrawerOpen(null);
+    setDrawerOpen(false);
     setModalOpen(null);
     setSelectedUser(null);
   }
 
   function handleClose() {
-    setDrawerOpen(null);
+    setDrawerOpen(false);
     setModalOpen(null);
     setSelectedUser(null);
   }

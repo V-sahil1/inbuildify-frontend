@@ -21,7 +21,7 @@ import { UserList } from '@lib/utils/Reports/user/UserList';
 
 const Users = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
-  const [drawerOpen, setDrawerOpen] = useState<'create'>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState<'resetLoginId' | 'lockUser' | 'changeStatusUser'>(
     null
   );
@@ -74,7 +74,7 @@ const Users = () => {
             type="primary"
             icon={<IconPlus size={16} />}
             onClick={() => {
-              setDrawerOpen('create');
+              setDrawerOpen(true);
             }}
           >
             New User
@@ -114,11 +114,11 @@ const Users = () => {
             ))}
         </div>
       ) : (
-        <Table columns={column} dataSource={users.filter(i => i.status === filters.status)}></Table>
+        <Table columns={column} dataSource={users.filter(i => i.status === filters.status)} />
       )}
-      {drawerOpen === 'create' && (
+      {drawerOpen && (
         <UserFormModal
-          open={drawerOpen === 'create'}
+          open={drawerOpen}
           onCancel={handleClose}
           onSubmit={values => {
             console.log('user submit', values);
@@ -168,9 +168,7 @@ const Users = () => {
           onSubmit={() => {
             const value =
               modalOpen === 'lockUser'
-                ? user?.lock
-                  ? false
-                  : true
+                ? !user?.lock
                 : user?.status === 'Active'
                   ? 'InActive'
                   : 'Active';

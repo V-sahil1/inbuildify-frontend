@@ -1,6 +1,6 @@
 import StageProgress from '@/components/common/StageProgress';
-import BuildingContractForm from '@/components/job/jobDetail/joboptions/BuildingContractDetailForm';
-import ChecklistForm from '@/components/job/jobDetail/joboptions/BuildingContractForm';
+import { BuildingDetailContractForm } from '@/components/job/jobDetail/joboptions/BuildingContractDetailForm';
+import { BuildingContractForm } from '@/components/job/jobDetail/joboptions/BuildingContractForm';
 import { IconUserSquareRounded } from '@tabler/icons-react';
 import { Tag } from 'antd';
 
@@ -18,8 +18,8 @@ export default function BuildingContract() {
           </div>
         </div>
       </div>
-      <ChecklistForm />
       <BuildingContractForm />
+      <BuildingDetailContractForm />
     </div>
   );
 }

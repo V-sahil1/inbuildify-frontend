@@ -77,7 +77,7 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({ question }) => {
   );
 };
 
-export default function ChecklistForm() {
+export function BuildingContractForm() {
   const [form] = Form.useForm();
 
   const onFinish = (values: any) => {

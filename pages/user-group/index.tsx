@@ -5,7 +5,7 @@ import { debouncedURL } from '@lib/utils/debounceURL';
 import { useEffect, useState } from 'react';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import { userGroupField } from '@/components/formFields/userGroupFields';
-const User_Group = () => {
+const UserGroup = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState(null);
   const { debouncedUpdateURL, setParams, filters, resetParams } = debouncedURL({
@@ -79,4 +79,4 @@ const User_Group = () => {
   );
 };
 
-export default User_Group;
+export default UserGroup;

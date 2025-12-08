@@ -31,7 +31,7 @@ const sectionStyle = {
   paddingBottom: '5px',
 };
 
-const BuildingContractForm = () => {
+export const BuildingDetailContractForm = () => {
   const [form] = Form.useForm();
   const [isModalVisible, setIsModalVisible] = React.useState(false);
 
@@ -659,5 +659,3 @@ const BuildingContractForm = () => {
     </>
   );
 };
-
-export default BuildingContractForm;
