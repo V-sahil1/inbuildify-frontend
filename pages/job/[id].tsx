@@ -69,7 +69,7 @@ export default function JobDetail() {
       options: [
         { key: 'colors', label: 'Switch to External Colours' },
         { key: 'pdf', label: 'Preview PDF' },
-        { key: 'document', label: 'Generate Colors Document' },
+        { key: 'document', label: 'Generate Colors Document', onClick: () => router.push(`${SystemRoutes.COLOR_GENERATE_DOCUMENT}`) },
         { key: 'delete', label: 'Delete' },
         { key: 'skip', label: 'Skip' },
       ],

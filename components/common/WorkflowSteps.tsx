@@ -9,7 +9,7 @@ type Steps = {
   icon: string;
   date?: string;
   onClick?: () => void;
-  options?: { key: string; label: string }[];
+  options?: { key: string; label: string, onClick?: () => void }[];
 };
 
 type WorkflowStepsProps = {
@@ -50,8 +50,8 @@ const WorkflowSteps: React.FC<WorkflowStepsProps> = ({ steps }) => {
                   </div>
                 </div>
                 <Button type="link" className='cursor-pointer' onClick={e => {
-              item?.onClick();
-            }}>{item.label}</Button>
+                  item?.onClick();
+                }}>{item.label}</Button>
                 <div className="text-xs flex justify-between px-2">
                   <p>
                     {item?.status} {item.date && 'on'} {item?.date}
