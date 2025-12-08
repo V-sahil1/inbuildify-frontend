@@ -4,6 +4,8 @@ import { QuotationResponse } from '@redux/feature/quotation/IQuotationState';
 import { getQuotationById } from '@redux/feature/quotation/quotationThunk';
 import { useAppDispatch } from '@hooks/redux';
 import { QuotationVersionBasic, QuotationVersions } from 'data/types';
+import { usePdf } from '@hooks/usePdf';
+import { QuotationComparisionPdf } from '@/components/common/pdf/QuotationComparisionPdf';
 
 const { Column } = Table;
 
@@ -18,6 +20,7 @@ const LeadQuotationComparison: React.FC<Props> = ({ open, onClose, quotation }) 
   const [quotationVersion, setQuotationVersion] = useState<QuotationVersions>({});
   const [comparisonResult, setComparisonResult] = useState<any[]>([]);
   const [showAll, setShowAll] = useState(false);
+  const { previewPdf } = usePdf(QuotationComparisionPdf);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -74,18 +77,18 @@ const LeadQuotationComparison: React.FC<Props> = ({ open, onClose, quotation }) 
     ]);
 
     const formatItem = (item: any) => {
-      if (!item) return '-';
+      if (!item) return { value: '-', cost: 0, quantity: 0, total: 0 };
       const quantity = item?.categoryItemQuantity || 1;
       const cost = parseFloat(item?.categoryItemCost);
       const total = quantity * cost;
-      return (
-        <div className="text-font-color align-middle">
-          <div className="font-bold">${total?.toFixed(2)}</div>
-          <div className="text-xs text-gray-500">
-            ({quantity} × ${cost?.toFixed(2)})
-          </div>
-        </div>
-      );
+      return {
+        value: total,
+        cost: cost,
+        quantity: quantity,
+        total: total,
+        formattedValue: `$${total?.toFixed(2)}`,
+        details: `(${quantity} × ${cost?.toFixed(2)})`
+      };
     };
 
     allItemIds.forEach(itemId => {
@@ -105,6 +108,7 @@ const LeadQuotationComparison: React.FC<Props> = ({ open, onClose, quotation }) 
       if (shouldShowAll || rawLeftValue !== rawRightValue) {
         rows.push({
           key: itemId,
+          categoryName: (itemLeft || itemRight)?.caterogyName,
           description: (itemLeft || itemRight)?.categoryItemDescription,
           left: formatItem(itemLeft),
           right: formatItem(itemRight),
@@ -113,6 +117,18 @@ const LeadQuotationComparison: React.FC<Props> = ({ open, onClose, quotation }) 
       }
     });
     setComparisonResult(rows);
+  };
+
+  const renderCell = (item: any) => {
+    if (item.value === '-') return <span>-</span>;
+    return (
+      <div className="text-font-color align-middle">
+        <div className="font-bold">{item.formattedValue}</div>
+        <div className="text-xs text-gray-500">
+          {item.details}
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -145,6 +161,14 @@ const LeadQuotationComparison: React.FC<Props> = ({ open, onClose, quotation }) 
         <div className="flex align-middle items-center gap-2">
           <Button type="primary" onClick={() => handleCompareClick(showAll)}>
             Compare
+          </Button>
+          <Button type="dashed" onClick={() => previewPdf({
+            comparisonResult,
+            propertyAddress: quotation.propertyAddress,
+            selectedVersions: selectedVersions,
+            slugId: quotation.slugId
+          })}>
+            Print
           </Button>
           <Checkbox
             checked={showAll}
@@ -186,6 +210,7 @@ const LeadQuotationComparison: React.FC<Props> = ({ open, onClose, quotation }) 
             key="left"
             width="20%"
             align="center"
+            render={renderCell}
           />
         )}
         {selectedVersions[1] && (
@@ -200,6 +225,7 @@ const LeadQuotationComparison: React.FC<Props> = ({ open, onClose, quotation }) 
             key="right"
             width="20%"
             align="center"
+            render={renderCell}
           />
         )}
       </Table>

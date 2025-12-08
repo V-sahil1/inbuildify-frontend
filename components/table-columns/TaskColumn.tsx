@@ -12,7 +12,7 @@ import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { setTask, updateTask } from '@redux/feature/task/taskSlice';
 import { contactData } from '@/components/common/TimeLineComponents/CreateTaskCard';
 export const TaskColumn = (selectedTask, filters, setParams) => {
-  const { task } = useAppSelector(state => state.task);
+  const { task } = useAppSelector(state => state.task) || { task: [] };
   const dispatch = useAppDispatch();
   const columns: ColumnsType<TaskDetails> = [
     {

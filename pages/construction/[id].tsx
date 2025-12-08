@@ -8,6 +8,7 @@ import LeadActions from '@/components/leadDetail/LeadActions';
 import { EmailData, filterTabs } from 'data/activityData';
 import ActivityCard from '@/components/common/ActivityCard';
 import { CustomSteps } from '@/components/common/CustomSteps';
+import { GanttChart } from '@/components/common/charts/ganttChart';
 
 const index = () => {
   const router = useRouter();
@@ -81,14 +82,7 @@ const index = () => {
     {
       key: '6',
       label: 'Gantt Chart',
-      children: (
-        <div className="bg-card-color">
-          <Result
-            title="Gantt Chart Functionality coming soon"
-            subTitle="Please check back later"
-          />
-        </div>
-      ),
+      children: <GanttChart />,
     },
   ];
   return (
