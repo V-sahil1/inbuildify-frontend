@@ -17,12 +17,10 @@ export const TermsAndCondition = () => {
                 By signing this Sales Quotation, the Client agrees and acknowledges:
               </Text>
               <Text>
-                {' '}
                 (a) The Client agrees with all the terms and conditions contained in this Sales
                 Quotation;
               </Text>
               <Text>
-                {' '}
                 (b) MyHome will prepare a Tender based on the information provided by the Client;
                 and
               </Text>
@@ -99,4 +97,5 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     flexDirection: 'row',
   },
+  
 });

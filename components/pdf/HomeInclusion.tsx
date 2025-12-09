@@ -1,6 +1,6 @@
 import { View, StyleSheet, Text } from '@react-pdf/renderer';
 
-export const HomeInclusion = ({ data, ImportantNotes }) => {
+export const HomeInclusion = ({ data, ImportantNotes, isjobDocument }) => {
   return (
     <>
       <View style={styles.TitleText}>
@@ -10,7 +10,7 @@ export const HomeInclusion = ({ data, ImportantNotes }) => {
         {data.map((item, index) => (
           <View key={index} style={{ marginHorizontal: 10 }}>
             <View>
-              <Text style={styles.headerText}>{item.label}</Text>
+              <Text style={isjobDocument ? styles.subHeader : styles.headerText}>{item.label}</Text>
             </View>
             <View style={{ marginLeft: 5 }}>
               {item.points.map((point, index) => (
@@ -24,7 +24,9 @@ export const HomeInclusion = ({ data, ImportantNotes }) => {
         ))}
         <View style={{ marginHorizontal: 10 }}>
           <View>
-            <Text style={styles.headerText}>Important Notes</Text>
+            <Text style={isjobDocument ? styles.subHeader : styles.headerText}>
+              Important Notes
+            </Text>
           </View>
           <View style={{ marginLeft: 5 }}>
             {ImportantNotes.map((point, index) => (
@@ -59,5 +61,14 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginRight: 35,
     flexDirection: 'row',
+  },
+  subHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: '#1E3A8A',
+    color: 'white',
+    padding: 3,
+    fontSize: 10,
+    textAlign: 'left',
   },
 });

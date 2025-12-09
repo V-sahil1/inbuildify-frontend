@@ -1,6 +1,6 @@
 'use client';
 import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
-import { HomeInclusion } from './HomeInclusion';
+import { HomeInclusion } from '../../pdf/HomeInclusion';
 
 const HomeInclusionPdf = ({}) => {
   const data = [
@@ -158,7 +158,7 @@ const HomeInclusionPdf = ({}) => {
   return (
     <Document>
       <PageLayout>
-        <HomeInclusion data={data} ImportantNotes={ImportantNotes} />
+        <HomeInclusion data={data} ImportantNotes={ImportantNotes} isjobDocument={false} />
       </PageLayout>
     </Document>
   );

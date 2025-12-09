@@ -28,6 +28,7 @@ import { useRouter } from 'next/router';
 import { getDwellingTypes, getRanges } from '@redux/feature/types/typesThunk';
 import { clearFilters } from '@redux/feature/facade/facadeSlice';
 import Loading from '../common/Loading';
+import JobDocumentPdf from '../common/pdf/JobDocumentPdf';
 
 const QuotationManager = () => {
   const dispatch = useAppDispatch();
@@ -214,7 +215,7 @@ const QuotationManager = () => {
     categoryData.length,
     items, // dependency so INCLUDED sync works correctly
   ]);
-  const { previewPdf } = usePdf(QuatationPdf);
+  const { previewPdf } = usePdf(JobDocumentPdf);
   const getCategoryById = useCallback(
     (categoryId: string) => categoryData.find(cat => cat.categoryId === categoryId),
     [categoryData]
@@ -254,7 +255,7 @@ const QuotationManager = () => {
     }
   };
 
-  const handleItemQuantityChange = (itemId: string, quantity: number) => { };
+  const handleItemQuantityChange = (itemId: string, quantity: number) => {};
 
   const getQuotationItems = () => {
     const normalize = (item: any, isExtra = false) => ({
@@ -370,20 +371,7 @@ const QuotationManager = () => {
         };
       });
       const filteredGroupedItems = groupedItems.filter(cat => cat.items.length > 0);
-      previewPdf({
-        user: user,
-        leadDetail: contact,
-        propertyDetail: property,
-        quotePackage: selectedPackageFromSlice,
-        quotationAmount: calculateTotalQuotation(
-          packageFromSlice,
-          itemsFromSlice,
-          Number(facade?.cost)
-        ),
-        floorPlan: plan,
-        facade: facade,
-        items: filteredGroupedItems,
-      });
+      previewPdf({ showedSection: { quotation: true } });
     } catch (error) {
       message.error(error || 'Failed to preview quotation');
     } finally {
@@ -457,7 +445,7 @@ const QuotationManager = () => {
         onPlanSelect={setSelectedPlan}
         onFacadeSelect={setSelectedFacade}
         onPackageSelect={setSelectedPackage}
-        onPropertyUpdate={() => { }}
+        onPropertyUpdate={() => {}}
         isReadOnly={isReadOnly}
       />
 

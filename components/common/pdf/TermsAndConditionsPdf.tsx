@@ -1,6 +1,6 @@
 'use client';
 import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
-import { TermsAndCondition } from './TermsAndCondition';
+import { TermsAndCondition } from '../../pdf/TermsAndCondition';
 
 const TermsAndConditionsPdf = ({}) => {
   const Footer = () => (
