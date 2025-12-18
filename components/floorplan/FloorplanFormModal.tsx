@@ -101,7 +101,7 @@ const FloorPlanFormModal = ({ title, open, onCancel, onSubmit, initialValues, is
             ]}
           />
         </Form.Item>
-        <div className="flex gap-[50%]">
+        <div className="grid grid-cols-2 gap-4">
           <Form.Item
             label="Detailed Image"
             name="detailed_image"

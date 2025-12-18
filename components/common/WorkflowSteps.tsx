@@ -9,7 +9,7 @@ type Steps = {
   icon: string;
   date?: string;
   onClick?: () => void;
-  options?: { key: string; label: string, onClick?: () => void }[];
+  options?: { key: string; label: string; onClick?: () => void }[];
 };
 
 type WorkflowStepsProps = {
@@ -22,10 +22,7 @@ const WorkflowSteps: React.FC<WorkflowStepsProps> = ({ steps }) => {
       {steps.map((item, index) => {
         const isLast = index === steps.length - 1;
         return (
-          <div
-            key={index}
-            className="flex flex-1 "
-          >
+          <div key={index} className="flex flex-1 ">
             <div
               className={`flex-1 flex-col text-center py-2 justify-center ${item.color}
                                           ${index > 0 ? '-ml-40' : ''} z-[${steps.length - index}]
@@ -49,17 +46,23 @@ const WorkflowSteps: React.FC<WorkflowStepsProps> = ({ steps }) => {
                     {item.icon}
                   </div>
                 </div>
-                <Button type="link" className='cursor-pointer' onClick={e => {
-                  item?.onClick();
-                }}>{item.label}</Button>
-                <div className="text-xs flex justify-between px-2">
+                <Button
+                  type="link"
+                  className="cursor-pointer"
+                  onClick={e => {
+                    item?.onClick();
+                  }}
+                >
+                  {item.label}
+                </Button>
+                <div className="text-xs flex justify-between px-2 ml-3">
                   <p>
                     {item?.status} {item.date && 'on'} {item?.date}
                   </p>
 
                   {item.options && (
                     <Dropdown menu={{ items: item.options }} trigger={['click']}>
-                      <IconDotsVertical size={15} className="text-blue cursor-pointer" />
+                      <IconDotsVertical size={15} className="text-blue cursor-pointer mr-7" />
                     </Dropdown>
                   )}
                 </div>

@@ -55,7 +55,7 @@ const DynamicHorizontalChart: React.FC<DynamicHorizontalChartProps> = ({
   title,
   categories,
   seriesData,
-  chartType,
+  chartType = 'bar',
   horizontal = true,
   colors,
   onBarClick,
@@ -89,7 +89,7 @@ const DynamicHorizontalChart: React.FC<DynamicHorizontalChartProps> = ({
     series: chartConfig.useSeriesAsArray ? seriesData : [{ name: title, data: seriesData }],
     options: {
       chart: {
-        type: chartType || 'bar', 
+        type: chartType || 'bar',
         height,
         toolbar: { show: false },
         events: {
@@ -106,8 +106,6 @@ const DynamicHorizontalChart: React.FC<DynamicHorizontalChartProps> = ({
             },
           }),
         },
-        // Only pass horizontal for bar charts
-        ...(chartType === 'bar' ? { horizontal } : {}),
       },
       ...(chartConfig.isPieOrDonut
         ? {
@@ -115,35 +113,52 @@ const DynamicHorizontalChart: React.FC<DynamicHorizontalChartProps> = ({
             legend: { show: chartConfig.showLegend, position: 'right' },
             dataLabels: { enabled: chartConfig.showDataLabels },
           }
-        : {
-            plotOptions: {
-              bar: chartConfig.isBar
-                ? {
-                    horizontal,
-                    barHeight: '70%',
-                    distributed: true,
-                    borderRadius: 4,
-                    dataLabels: { position: 'top' },
-                  }
-                : undefined,
-            },
-            dataLabels: {
-              enabled: chartConfig.showDataLabels,
-              textAnchor: 'start',
-              style: { colors: ['#000'], fontSize: '12px', fontWeight: 'normal' },
-              formatter: (_val: any, opt: any) => categories[opt.dataPointIndex],
-              offsetX: 10,
-            },
-            xaxis: {
-              categories,
-              labels: { show: chartType === 'bar' },
-              axisBorder: { show: false },
-              axisTicks: { show: false },
-            },
-            yaxis: { labels: { show: false } },
-            grid: { show: chartConfig.showGrid },
-            legend: { show: chartConfig.isRadar || chartConfig.isPolar },
-          }),
+        : chartConfig.isBar
+          ? {
+              plotOptions: {
+                bar: {
+                  horizontal: horizontal || false,
+                  barHeight: '70%',
+                  distributed: true,
+                  borderRadius: 4,
+                  dataLabels: { position: 'top' },
+                },
+              },
+              dataLabels: {
+                enabled: chartConfig.showDataLabels,
+                textAnchor: 'start',
+                style: { colors: ['#000'], fontSize: '12px', fontWeight: 'normal' },
+                formatter: (_val: any, opt: any) => categories[opt.dataPointIndex],
+                offsetX: 10,
+              },
+              xaxis: {
+                categories,
+                labels: { show: chartType === 'bar' },
+                axisBorder: { show: false },
+                axisTicks: { show: false },
+              },
+              yaxis: { labels: { show: false } },
+              grid: { show: chartConfig.showGrid },
+              legend: { show: chartConfig.isRadar || chartConfig.isPolar },
+            }
+          : {
+              dataLabels: {
+                enabled: chartConfig.showDataLabels,
+                textAnchor: 'start',
+                style: { colors: ['#000'], fontSize: '12px', fontWeight: 'normal' },
+                formatter: (_val: any, opt: any) => categories[opt.dataPointIndex],
+                offsetX: 10,
+              },
+              xaxis: {
+                categories,
+                labels: { show: chartType === 'bar' },
+                axisBorder: { show: false },
+                axisTicks: { show: false },
+              },
+              yaxis: { labels: { show: false } },
+              grid: { show: chartConfig.showGrid },
+              legend: { show: chartConfig.isRadar || chartConfig.isPolar },
+            }),
       colors: chartColors,
       tooltip: { enabled: true },
     },

@@ -13,7 +13,7 @@ export const CreateAppointmentModal = ({
   onClose: () => void;
   title: string;
   loading: boolean;
-  onSubmit: () => void;
+  onSubmit: (appointmentData: any) => void;
   initialData?: any;
 }) => {
   return (

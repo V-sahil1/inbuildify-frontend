@@ -283,21 +283,36 @@ const HLPackageDetail = () => {
                 <ContentCard title="FloorPlan">
                   <div className="m-3 h-full" onClick={() => setfloorplanModalOpen(true)}>
                     {selectedPlan ? (
-                      <>
-                        <div className="h-full">
-                          <Image src={selectedPlan.image} height={150} />
-                          <div className="flex justify-between items-center mt-[50px]">
-                            <p className="font-medium text-font-color">{selectedPlan.name}</p>
-                            <IconTrash
-                              size={15}
-                              onClick={() => setSelectedPlan(null)}
-                              color="red"
-                            />
+                      <div className="h-full flex flex-col gap-4">
+                        <div className="flex justify-center">
+                          <div
+                            onClick={e => {
+                              e.stopPropagation();
+                            }}
+                          >
+                            <Image src={selectedPlan.image} height={190} />
                           </div>
                         </div>
-                      </>
+                        <div
+                          className="flex justify-between items-center"
+                          onClick={e => {
+                            e.stopPropagation();
+                          }}
+                        >
+                          <p className="font-medium text-font-color">{selectedPlan.name}</p>
+                          <IconTrash
+                            size={15}
+                            onClick={() => setSelectedPlan(null)}
+                            color="red"
+                            cursor="pointer"
+                          />
+                        </div>
+                      </div>
                     ) : (
-                      <div className="text-center mt-[100px] text-blue cursor-pointer">
+                      <div
+                        className="text-center mt-[100px] text-blue cursor-pointer"
+                        onClick={() => setfloorplanModalOpen(true)}
+                      >
                         Select Floor Plan
                       </div>
                     )}
@@ -306,21 +321,35 @@ const HLPackageDetail = () => {
                 <ContentCard title="Facade">
                   <div className="m-3 h-full" onClick={() => setFacadeModalOpen(true)}>
                     {selectedFacade ? (
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="h-full flex flex-col justify-between">
-                          <Image src={selectedFacade.image} height={150} />
-                          <div className="flex justify-between items-center mt-[55px]">
-                            <p className="font-medium text-font-color">{selectedFacade.name}</p>
-                            <IconTrash
-                              size={15}
-                              onClick={() => setSelectedFacade(null)}
-                              color="red"
-                            />
-                          </div>
+                      <div className="h-full flex flex-col gap-4">
+                        <div
+                          className="flex justify-center"
+                          onClick={e => {
+                            e.stopPropagation();
+                          }}
+                        >
+                          <Image src={selectedFacade.image} height={190} width="100%" />
+                        </div>
+                        <div
+                          className="flex justify-between items-center"
+                          onClick={e => {
+                            e.stopPropagation();
+                          }}
+                        >
+                          <p className="font-medium text-font-color">{selectedFacade.name}</p>
+                          <IconTrash
+                            size={15}
+                            onClick={() => setSelectedFacade(null)}
+                            color="red"
+                            cursor="pointer"
+                          />
                         </div>
                       </div>
                     ) : (
-                      <div className="text-center mt-[100px] text-blue cursor-pointer">
+                      <div
+                        className="text-center mt-[100px] text-blue cursor-pointer"
+                        onClick={() => setFacadeModalOpen(true)}
+                      >
                         Select Facade
                       </div>
                     )}

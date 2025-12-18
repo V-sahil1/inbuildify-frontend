@@ -8,7 +8,9 @@ import LeadActions from '@/components/leadDetail/LeadActions';
 import { EmailData, filterTabs } from 'data/activityData';
 import ActivityCard from '@/components/common/ActivityCard';
 import { CustomSteps } from '@/components/common/CustomSteps';
-import { GanttChart } from '@/components/common/charts/ganttChart';
+import { GanttChart } from '@/components/common/charts/GanttChart';
+import FileExplorer from '@/components/common/FileExplorer';
+import { sdriveRootFolders } from 'data/sdriveData';
 
 const index = () => {
   const router = useRouter();
@@ -53,7 +55,23 @@ const index = () => {
       label: 'Documents',
       children: (
         <div className="bg-card-color">
-          <Result title="Document Functionality coming soon" subTitle="Please check back later" />
+          <div className="w-full">
+            <FileExplorer
+              rootFolders={sdriveRootFolders}
+              enableSearch={true}
+              onSearchChange={query => console.log('Search:', query)}
+              enableMultiSelect={true}
+              onDelete={items => console.log('Delete items:', items)}
+              enableAddFolder={true}
+              onAddFolder={parentId => console.log('Add folder to parent:', parentId)}
+              enableAddFile={true}
+              onAddFile={parentId => console.log('Add file to parent:', parentId)}
+              enableShare={true}
+              onShare={items => console.log('Share items:', items)}
+              enableExport={true}
+              onExport={items => console.log('Export items:', items)}
+            />
+          </div>
         </div>
       ),
     },

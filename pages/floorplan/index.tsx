@@ -57,7 +57,15 @@ const FloorPlanMaster = () => {
       dataIndex: 'image',
       key: 'image',
       width: 150,
-      render: (_, record) => <Image src={record.image} />,
+      render: (_, record) => (
+        <div
+          onClick={e => {
+            e.stopPropagation();
+          }}
+        >
+          <Image src={record.image} />
+        </div>
+      ),
     },
     {
       title: (

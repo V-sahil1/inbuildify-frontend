@@ -18,7 +18,7 @@ export const facadeFields = ({
 }) => {
   const dwellingType = useAppSelector(state => state.types.dwellingType);
   const { selectedFilters } = useAppSelector(state => state.quotation);
-  const dwellingTypeOptions = mapToOptions(dwellingType); 
+  const dwellingTypeOptions = mapToOptions(dwellingType);
   const [costType, setCostType] = useState<'standard' | 'upgrade'>(type);
 
   const handleCostTypeChange = (e: any) => {
@@ -82,14 +82,14 @@ export const facadeFields = ({
         name: 'cost',
         type: 'number',
         disabled: costType === 'standard',
-        rules: costRules,
+        rules: costType === 'upgrade' ? costRules : [],
       },
       {
         label: 'Builder cost',
         name: 'builderCost',
         type: 'number',
         disabled: costType === 'standard',
-        rules: costRules,
+        rules: costType === 'upgrade' ? costRules : [],
       },
       {
         label: 'Status',

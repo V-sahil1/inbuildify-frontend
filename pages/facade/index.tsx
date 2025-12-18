@@ -35,13 +35,20 @@ const FacadeMaster = () => {
       title: 'Image',
       dataIndex: 'image',
       key: 'image',
+      width: '10%',
       render: images => (
-        <Image
-          src={images?.[0]?.url || ''}
-          alt="facade"
-          width={100}
-          className="rounded-md shadow-sm"
-        />
+        <div
+          onClick={e => {
+            e.stopPropagation();
+          }}
+        >
+          <Image
+            src={images?.[0]?.url || ''}
+            alt="facade"
+            width={100}
+            className="rounded-md shadow-sm"
+          />
+        </div>
       ),
     },
     {
@@ -53,6 +60,7 @@ const FacadeMaster = () => {
       ),
       dataIndex: 'name',
       key: 'name',
+      width: '20%',
       render: text => <span className="font-medium text-gray-800">{text}</span>,
     },
     {
@@ -64,6 +72,7 @@ const FacadeMaster = () => {
       ),
       dataIndex: 'dwelling_type',
       key: 'dwellingType',
+      width: '15%',
     },
     {
       title: (
@@ -78,6 +87,7 @@ const FacadeMaster = () => {
       ),
       dataIndex: 'costType',
       key: 'costType',
+      width: '15%',
       render: costType =>
         costType.includes('Upgrade') ? (
           <Tag color="orange">{costType}</Tag>
@@ -97,6 +107,7 @@ const FacadeMaster = () => {
       ),
       dataIndex: 'label',
       key: 'label',
+      width: '12%',
       render: label => label !== '-' && <Tag color="green">{label}</Tag>,
     },
     {
@@ -110,6 +121,7 @@ const FacadeMaster = () => {
       ),
       dataIndex: 'location',
       key: 'location',
+      width: '13%',
     },
     {
       title: (
@@ -120,6 +132,7 @@ const FacadeMaster = () => {
       ),
       dataIndex: 'status',
       key: 'status',
+      width: '15%',
       render: status => (
         <div className="flex items-center justify-center gap-2">
           <span

@@ -65,10 +65,13 @@ const ConstructionManager = () => {
   const filteredData = useMemo(() => {
     return constructionData.filter(item => {
       return (
-        item.id.toString().toLowerCase().includes(filters.id?.toLowerCase()) &&
-        item.customerName.toLowerCase().includes(filters.customerName?.toLowerCase()) &&
-        item.jobAddress.toLowerCase().includes(filters.jobAddress?.toLowerCase()) &&
-        item.jobType.toLowerCase().includes(filters.jobType?.toLowerCase()) &&
+        item.id
+          .toString()
+          .toLowerCase()
+          .includes(filters.id?.toLowerCase() || '') &&
+        item.customerName.toLowerCase().includes(filters.customerName?.toLowerCase() || '') &&
+        item.jobAddress.toLowerCase().includes(filters.jobAddress?.toLowerCase() || '') &&
+        item.jobType.toLowerCase().includes(filters.jobType?.toLowerCase() || '') &&
         (filters?.builderName === 'All' || item.builderName === filters?.builderName) &&
         (filters?.currentStage === 'All' || item.currentStage === filters?.currentStage) &&
         (filters?.siteSupervisor === 'All' || item.siteSupervisor === filters?.siteSupervisor) &&
@@ -141,7 +144,7 @@ const ConstructionManager = () => {
       {/* Table */}
       <div className="p-4">
         <Table
-          dataSource={filteredData}
+          dataSource={constructionData}
           columns={columns}
           rowKey="id"
           size="small"

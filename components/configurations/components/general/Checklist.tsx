@@ -152,8 +152,20 @@ const Checklist = () => {
         if (isAdding && index === 0 && !record.id) {
           return (
             <Space>
-              <IconCheck onClick={handleSaveNew} style={{ color: 'green', ...iconStyle }} />
-              <IconX onClick={handleCancelNew} style={{ color: 'red', ...iconStyle }} />
+              <IconCheck
+                onClick={e => {
+                  e.stopPropagation();
+                  handleSaveNew();
+                }}
+                style={{ color: 'green', ...iconStyle }}
+              />
+              <IconX
+                onClick={e => {
+                  e.stopPropagation();
+                  handleCancelNew();
+                }}
+                style={{ color: 'red', ...iconStyle }}
+              />
             </Space>
           );
         }
@@ -162,10 +174,19 @@ const Checklist = () => {
           return (
             <Space>
               <IconCheck
-                onClick={() => handleSaveEdit(record.id)}
+                onClick={e => {
+                  e.stopPropagation();
+                  handleSaveEdit(record.id);
+                }}
                 style={{ color: 'green', ...iconStyle }}
               />
-              <IconX onClick={handleCancelEdit} style={{ color: 'red', ...iconStyle }} />
+              <IconX
+                onClick={e => {
+                  e.stopPropagation();
+                  handleCancelEdit();
+                }}
+                style={{ color: 'red', ...iconStyle }}
+              />
             </Space>
           );
         }
@@ -173,16 +194,29 @@ const Checklist = () => {
         return (
           <Space>
             <IconPlus style={{ color: 'green', ...iconStyle }} />
-            <IconEdit onClick={() => handleEdit(record)} style={iconStyle} />
-            <Popconfirm
-              title="Delete this checklist?"
-              onConfirm={() => handleDelete(record.id)}
-              okText="Yes"
-              cancelText="No"
-              okButtonProps={{ danger: true }}
-            >
-              <IconTrash style={{ color: 'red', ...iconStyle }} />
-            </Popconfirm>
+            <IconEdit
+              onClick={e => {
+                e.stopPropagation();
+                handleEdit(record);
+              }}
+              style={iconStyle}
+            />
+            <div onClick={e => e.stopPropagation()}>
+              <Popconfirm
+                title="Delete this checklist?"
+                onConfirm={() => handleDelete(record.id)}
+                okText="Yes"
+                cancelText="No"
+                okButtonProps={{ danger: true }}
+              >
+                <IconTrash
+                  style={{ color: 'red', ...iconStyle }}
+                  onClick={e => {
+                    e.stopPropagation();
+                  }}
+                />
+              </Popconfirm>
+            </div>
           </Space>
         );
       },

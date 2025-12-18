@@ -20,12 +20,14 @@ import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel'
 import AssociatedEntitiesList from '@/components/common/AssociatedEntitiesList';
 import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineActionsBar';
 import { debouncedURL } from '@lib/utils/debounceURL';
+import ConfirmationModal from '@/components/common/ConfirmationModal';
 
 const LeadPage: React.FC = () => {
   const router = useRouter();
   const [showBlocked, setShowBlocked] = useState(false);
   const [currentFilter, setCurrentFilter] = useState<string>('all');
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [deleteModelOpen, setDeleteModelOpen] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
   const { leads } = useAppSelector(state => state.lead);
@@ -251,7 +253,14 @@ const LeadPage: React.FC = () => {
     { type: 'onHold', label: 'On Hold', count: leads.length },
   ];
 
-  const handleOpenDeleteModal = () => setIsDeleteModalVisible(true);
+  const handleOpenDeleteModal = () => {
+    const selectedLeads = leads.filter(lead => selectedRowKeys.includes(lead.leadId));
+    if (selectedLeads.length === 0) {
+      setDeleteModelOpen(true);
+    } else {
+      setIsDeleteModalVisible(true);
+    }
+  };
   const handleCancelDelete = () => setIsDeleteModalVisible(false);
   const handleDeleteConfirm = (fields: { comments: string }) => {
     setIsDeleteModalVisible(false);
@@ -369,6 +378,14 @@ const LeadPage: React.FC = () => {
         ]}
         onSubmit={handleDeleteConfirm}
         submitButtonText="Confirm"
+      />
+
+      <ConfirmationModal
+        open={deleteModelOpen}
+        type="warning"
+        onClose={() => setDeleteModelOpen(false)}
+        onConfirm={() => setDeleteModelOpen(false)}
+        message="Please select atleast one record to delete"
       />
     </div>
   );

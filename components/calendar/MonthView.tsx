@@ -11,6 +11,8 @@ interface MonthViewProps {
   currentDate: Dayjs;
   events: Event[];
   onEventClick: (event: Event) => void;
+  onDateClick?: (date: Dayjs) => void;
+  onEventDrop?: (eventId: string, newDate: Dayjs) => void;
 }
 
 const categoryColors: Record<string, string> = {
@@ -24,8 +26,15 @@ const categoryColors: Record<string, string> = {
   Holiday: 'bg-red-500',
 };
 
-const MonthView = ({ currentDate, events, onEventClick }: MonthViewProps) => {
+const MonthView = ({
+  currentDate,
+  events,
+  onEventClick,
+  onDateClick,
+  onEventDrop,
+}: MonthViewProps) => {
   const [hoveredEventId, setHoveredEventId] = useState<string | null>(null);
+  const [draggedEvent, setDraggedEvent] = useState<Event | null>(null);
   const startOfMonth = currentDate.startOf('month');
   const endOfMonth = currentDate.endOf('month');
   const startDate = startOfMonth.startOf('week');
@@ -71,8 +80,10 @@ const MonthView = ({ currentDate, events, onEventClick }: MonthViewProps) => {
           const weekEvents = events.filter(event => {
             const eventStart = dayjs(event.start_time);
             const eventEnd = dayjs(event.end_time);
-            return (eventStart.isBefore(weekEnd, 'day') || eventStart.isSame(weekEnd, 'day')) &&
-              (eventEnd.isAfter(weekStart, 'day') || eventEnd.isSame(weekStart, 'day'));
+            return (
+              (eventStart.isBefore(weekEnd, 'day') || eventStart.isSame(weekEnd, 'day')) &&
+              (eventEnd.isAfter(weekStart, 'day') || eventEnd.isSame(weekStart, 'day'))
+            );
           });
 
           weekEvents.sort((a, b) => {
@@ -85,7 +96,9 @@ const MonthView = ({ currentDate, events, onEventClick }: MonthViewProps) => {
           });
 
           const eventSlots: Record<string, number> = {};
-          const slots: (string | null)[][] = Array(7).fill(null).map(() => []);
+          const slots: (string | null)[][] = Array(7)
+            .fill(null)
+            .map(() => []);
 
           weekEvents.forEach(event => {
             const eventStart = dayjs(event.start_time);
@@ -136,17 +149,33 @@ const MonthView = ({ currentDate, events, onEventClick }: MonthViewProps) => {
             const renderLimit = showMoreLabel ? MAX_DISPLAY_ITEMS - 1 : MAX_DISPLAY_ITEMS;
 
             const slotsToRender = Array.from({ length: renderLimit }, (_, i) => i);
-            const hiddenEventsCount = dayEvents.filter(e => (eventSlots[e.id] ?? 0) >= renderLimit).length;
+            const hiddenEventsCount = dayEvents.filter(
+              e => (eventSlots[e.id] ?? 0) >= renderLimit
+            ).length;
 
             return (
               <div
                 key={`${weekIndex}-${dayIndex}`}
-                className={`min-h-[120px] border-r border-b border-gray-200 pb-2 ${!isCurrentMonth ? 'bg-gray-50' : ''
-                  }`}
+                className={`min-h-[120px] border-r border-b border-gray-200 pb-2 cursor-pointer hover:bg-primary-10 ${
+                  !isCurrentMonth ? 'bg-gray-100' : ''
+                }`}
+                onClick={() => onDateClick && day}
+                onDragOver={e => {
+                  e.preventDefault();
+                  e.dataTransfer.dropEffect = 'move';
+                }}
+                onDrop={e => {
+                  e.preventDefault();
+                  const eventId = e.dataTransfer.getData('text/plain');
+                  if (onEventDrop && eventId) {
+                    onEventDrop(eventId, day);
+                  }
+                }}
               >
                 <div
-                  className={`text-sm mb-1 p-2 ${isCurrentMonth ? 'text-gray-700' : 'text-gray-400'
-                    } ${isToday ? 'font-bold text-blue-600' : ''}`}
+                  className={`text-sm mb-1 p-2 ${
+                    isCurrentMonth ? 'text-gray-700' : 'text-gray-400'
+                  } ${isToday ? 'font-bold text-blue-600' : ''}`}
                 >
                   {day.date()}
                 </div>
@@ -180,14 +209,29 @@ const MonthView = ({ currentDate, events, onEventClick }: MonthViewProps) => {
                       return (
                         <div
                           key={event.id + slotIndex}
-                          className={`${categoryColors[event.category]} text-white text-xs px-2 py-1 ${borderRadiusClass} truncate flex items-center gap-1 cursor-pointer transition-opacity mb-1 ${hoveredEventId === event.id ? 'opacity-80' : ''
-                            }`}
+                          className={`${categoryColors[event.category]} text-white text-xs px-2 py-1 ${borderRadiusClass} truncate flex items-center gap-1 cursor-pointer transition-opacity mb-1 ${
+                            hoveredEventId === event.id ? 'opacity-80' : ''
+                          }`}
                           title={event.title}
-                          onClick={() => onEventClick(event)}
+                          draggable
+                          onDragStart={e => {
+                            setDraggedEvent(event);
+                            e.dataTransfer.effectAllowed = 'move';
+                            e.dataTransfer.setData('text/plain', event.id);
+                          }}
+                          onDragEnd={() => {
+                            setDraggedEvent(null);
+                          }}
+                          onClick={e => {
+                            e.stopPropagation();
+                            onEventClick(event);
+                          }}
                           onMouseEnter={() => setHoveredEventId(event.id)}
                           onMouseLeave={() => setHoveredEventId(null)}
                         >
-                          <div className={`flex items-center gap-1 w-full ${showContent ? '' : 'invisible'}`}>
+                          <div
+                            className={`flex items-center gap-1 w-full ${showContent ? '' : 'invisible'}`}
+                          >
                             {event.type === 'Task' ? (
                               <IconCircleCheckFilled className="text-[10px] flex-shrink-0" />
                             ) : (
@@ -200,13 +244,15 @@ const MonthView = ({ currentDate, events, onEventClick }: MonthViewProps) => {
                     } else {
                       // Render spacer if this slot is empty but there are events in this day (or just to keep alignment?)
                       // To strictly match alignment, we should render spacer if there's a higher slot filled?
-                      // Or just always render 3 slots? 
-                      // If we always render 3 slots, empty days will look tall. 
+                      // Or just always render 3 slots?
+                      // If we always render 3 slots, empty days will look tall.
                       // Better: Render spacer if this slot is empty AND (there is an event in a higher slot on this day OR we want to force height).
                       // Actually, if we want "connected" look, we need to respect the slot index.
                       // If slot 0 is empty, but slot 1 has an event, we MUST render spacer for slot 0.
                       // Check if there are any events in higher slots for this day
-                      const hasHigherEvents = slots[dayIndex].some((e, i) => i > slotIndex && e !== null);
+                      const hasHigherEvents = slots[dayIndex].some(
+                        (e, i) => i > slotIndex && e !== null
+                      );
                       if (hasHigherEvents) {
                         return <div key={`spacer-${slotIndex}`} className="h-[24px] mb-1"></div>;
                       }

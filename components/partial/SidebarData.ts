@@ -131,6 +131,11 @@ export const menuList = (pathname: string) => {
       roles: ['builder', 'contractor', 'customer'],
       children: [
         {
+          link: 'Dashboard',
+          url: SystemRoutes.SALES_DASHBOARD,
+          roles: ['builder', 'contractor', 'customer'],
+        },
+        {
           link: 'Leads',
           url: SystemRoutes.LEADS,
           roles: ['builder', 'contractor', 'customer'],
@@ -195,49 +200,49 @@ export const menuList = (pathname: string) => {
               roles: commonRoles,
               onClick: () => {
                 LeadFocusReport();
-              }
+              },
             },
             {
               link: 'Quotation Report',
               roles: commonRoles,
               onClick: () => {
                 QuotationReport();
-              }
+              },
             },
             {
               link: 'Floor Plan & Facade Report',
               roles: commonRoles,
               onClick: () => {
                 FloorPlanFacadeReport();
-              }
+              },
             },
             {
               link: 'Performance Report',
               roles: commonRoles,
               onClick: () => {
                 PerformanceReport();
-              }
+              },
             },
             {
               link: 'Agent Summary Report',
               roles: commonRoles,
               onClick: () => {
                 AgentSummaryReport();
-              }
+              },
             },
             {
               link: 'No Action Leads Report',
               roles: commonRoles,
               onClick: () => {
                 NoActionLeadsReport();
-              }
+              },
             },
             {
               link: 'Commission Report',
               roles: commonRoles,
               onClick: () => {
                 CommissionReport();
-              }
+              },
             },
           ],
         },
@@ -263,56 +268,56 @@ export const menuList = (pathname: string) => {
               roles: commonRoles,
               onClick: () => {
                 CustomerStatusReport();
-              }
+              },
             },
             {
               link: 'Job Status Report',
               roles: commonRoles,
               onClick: () => {
                 JobStatusReport();
-              }
+              },
             },
             {
               link: 'No action Jobs Report',
               roles: commonRoles,
               onClick: () => {
                 NoActionJobReport();
-              }
+              },
             },
             {
               link: 'Contract Report',
               roles: commonRoles,
               onClick: () => {
                 ContractReport();
-              }
+              },
             },
             {
               link: 'Invoices & Payments Report',
               roles: commonRoles,
               onClick: () => {
                 InvoicePaymentsReport();
-              }
+              },
             },
             {
               link: 'Commission Report',
               roles: commonRoles,
               onClick: () => {
                 CommissionReport();
-              }
+              },
             },
             {
               link: 'Cost Summary Report',
               roles: commonRoles,
               onClick: () => {
                 CostSummaryReport();
-              }
+              },
             },
             {
               link: 'Land Title Forecast Report',
               roles: commonRoles,
               onClick: () => {
                 LandTitleForcastReport();
-              }
+              },
             },
 
             {
@@ -320,21 +325,21 @@ export const menuList = (pathname: string) => {
               roles: commonRoles,
               onClick: () => {
                 VariationReport();
-              }
+              },
             },
             {
               link: 'Delay / Extension Notice Report',
               roles: commonRoles,
               onClick: () => {
                 DelayExtensionNoticeReport();
-              }
+              },
             },
             {
               link: 'Survey Report',
               roles: commonRoles,
               onClick: () => {
                 SurveyReport();
-              }
+              },
             },
           ],
         },
@@ -347,14 +352,14 @@ export const menuList = (pathname: string) => {
               roles: commonRoles,
               onClick: () => {
                 MaintenanceDetailReport();
-              }
+              },
             },
             {
               link: 'Maintenance Detailed Report',
               roles: commonRoles,
               onClick: () => {
                 MaintenanceDetailedReport();
-              }
+              },
             },
           ],
         },

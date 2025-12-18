@@ -4,6 +4,7 @@ import {
   IconCircleFilled,
   IconClock,
   IconCalendar,
+  IconUser,
 } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import { Event } from './data';
@@ -69,6 +70,14 @@ const EventModal = ({ event, isOpen, onClose }: EventModalProps) => {
         )}
 
         <div className="space-y-3 border-t pt-4">
+          <div className="flex items-start gap-3">
+            <IconUser className="text-lg text-gray-500 mt-1" />
+            <div>
+              <div className="text-sm font-medium text-gray-600">Responsible</div>
+              <div className="text-base text-gray-800 font-semibold">{event.responsible}</div>
+            </div>
+          </div>
+
           <div className="flex items-start gap-3">
             <IconCalendar className="text-lg text-gray-500 mt-1" />
             <div>

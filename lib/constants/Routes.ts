@@ -51,6 +51,7 @@ class SystemRoutes {
   public static QUOTATION_FORMAT = `/quotation-format`;
   public static WORKFLOW_STATUS_REPORT = `/reports/workflow/workflow-status-report`;
   public static UTILIZATION_GRAPH = `/reports/workflow/utililization-graph`;
+  public static SALES_DASHBOARD = `/sales`;
   public static COLOR_GENERATE_DOCUMENT = `${this.COLOR}/generate-doc`;
 }
 
