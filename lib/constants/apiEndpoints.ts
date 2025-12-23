@@ -103,5 +103,29 @@ class API_ENDPOINTS {
 
   // tags
   public static TAGS_BASE = '/tags';
+
+  //admin general
+  public static GENERAL_SETTING = '/general-setting'
+  public static GET_GENERAL_SETTING=`${this.GENERAL_SETTING}/user`
+  public static SURVEYOR_BASE = '/surveyor';
+  public static CUSTOMFIELD_BASE = '/custom-field';
+  public static CUSTOMFIELD_MODULE_BASE = '/custom-field-module';
+  public static NOTE_TAG_BASE = '/note-tag';
+  public static CHECKLIST_BASE='/checklist';
+  public static CHECKLIST_ITEM='/checklist-item'
+  public static SCREEN_BASE = '/screen';
+  public static FUNCTIONALITY_BASE = '/functionality';
+  public static PASSWORD_POLICY_BASE='/password-policy'
+  public static GET_PASSWORD_POLICY=`${this.PASSWORD_POLICY_BASE}/user`
+
+  //admin sales
+  public static SALES_SETTING='/sales-module-setting'
+  public static SALES_PROCESS='/sales-proccess'
+  public static SALES_STAGE_BASE='/sales-stage'
+  public static SALES_LEAD_SOURCE='/lead-source'
+  public static LEAD_LOST_REASON='/lead-lost-reason'
+  public static CONSTRUCTION_TYPE='/construction-type'
+  public static CONSTRUCTION_STAGE='/construction-stage'
+  public static CLIENT_TYPE='/client-type'
 }
 export default API_ENDPOINTS;

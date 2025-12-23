@@ -1,27 +1,40 @@
 'use client';
-import React, { useState } from 'react';
-import { Button, Input, Table, Space, Form, Popconfirm, Card, ColorPicker } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Button, Input, Table, Space, Form, Popconfirm, Card, ColorPicker, message } from 'antd';
 import { IconEdit, IconTrash, IconCheck, IconX, IconPlus } from '@tabler/icons-react';
-import { notesTagData } from 'data/configuration/ConfigrationData';
-
-type TagRow = {
-  id: number;
-  name: string;
-  backgroundColor: string;
-  fontColor: string;
-  isNew?: boolean;
-};
+import { notesTag } from '@redux/feature/admin/general/notesTag/INotesTagState';
+import {
+  createNotesTag,
+  deleteNotesTag,
+  fetchAllNotesTag,
+  updateNotesTag,
+} from '@redux/feature/admin/general/notesTag/notesTagThunk';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { RootState } from '@redux/feature/store';
+import { Status } from '@lib/constants/enum';
 
 const NotesTag: React.FC = () => {
-  const [selectedSection, setSelectedSection] = useState('lead');
   const [form] = Form.useForm();
-  const [editingRow, setEditingRow] = useState<TagRow | null>(null);
+  const [editingRow, setEditingRow] = useState<notesTag | null>(null);
+  const dispatch = useAppDispatch();
+  const { notesTag, status } = useAppSelector((state: RootState) => state.general.noteTags);
 
-  const [sectionData, setSectionData] = useState<Record<string, TagRow[]>>(notesTagData);
+  useEffect(() => {
+    async function fetchAllNotes() {
+      try {
+        await dispatch(fetchAllNotesTag()).unwrap();
+      } catch (error) {
+        message.error(error || 'Failed to fetch notes tag');
+      }
+    }
+    if (status.fetch === Status.IDLE) {
+      fetchAllNotes();
+    }
+  }, [status.fetch]);
 
   const handleAdd = () => {
-    const newRow: TagRow = {
-      id: Date.now(),
+    const newRow: notesTag = {
+      notesTagId: '',
       name: '',
       backgroundColor: '#1677ff',
       fontColor: '#ffffff',
@@ -33,22 +46,39 @@ const NotesTag: React.FC = () => {
 
   const handleSave = async () => {
     try {
-      const values = await form.validateFields();
-      const newList = [...(sectionData[selectedSection] || [])];
-      if (!editingRow) return;
-
-      if (editingRow.isNew) {
-        newList.unshift({ ...values, id: editingRow.id });
-      } else {
-        const idx = newList.findIndex(i => i.id === editingRow.id);
-        if (idx >= 0) newList[idx] = { ...editingRow, ...values };
+      const values: notesTag = await form.validateFields();
+      if (values) {
+        if (editingRow && !!editingRow.notesTagId) {
+          const prevValues = notesTag.filter(i => i.notesTagId === editingRow.notesTagId)[0];
+          const updatedValues = Object.keys(values).reduce((acc, key) => {
+            if (values[key] !== prevValues[key]) {
+              acc[key] = values[key];
+            }
+            return acc;
+          }, {} as Partial<notesTag>);
+          if (Object.keys(updatedValues).length === 0) {
+            message.info('No changes detected');
+            return;
+          }
+          await dispatch(
+            updateNotesTag({
+              notesTagId: editingRow.notesTagId,
+              data: updatedValues,
+            })
+          ).unwrap();
+          message.success('Notes Tag updated successfully');
+        } else {
+          await dispatch(createNotesTag(values)).unwrap();
+          message.success('Notes Tag created successfully');
+        }
       }
-
-      setSectionData({ ...sectionData, [selectedSection]: newList });
       setEditingRow(null);
       form.resetFields();
-    } catch (e) {
-      console.error(e);
+    } catch (error) {
+      if (error.errorFields) {
+        return;
+      }
+      message.error(error || 'Failed to save notes tag');
     }
   };
 
@@ -57,20 +87,18 @@ const NotesTag: React.FC = () => {
     form.resetFields();
   };
 
-  const handleEdit = (record: TagRow) => {
+  const handleEdit = (record: notesTag) => {
     setEditingRow(record);
     form.setFieldsValue(record);
   };
 
-  const handleDelete = (id: number) => {
-    const updated = (sectionData[selectedSection] || []).filter(i => i.id !== id);
-    setSectionData({ ...sectionData, [selectedSection]: updated });
-  };
-
-  const handleSectionChange = (val: string) => {
-    setSelectedSection(val);
-    setEditingRow(null);
-    form.resetFields();
+  const handleDelete = async (id: string) => {
+    try {
+      await dispatch(deleteNotesTag(id)).unwrap();
+      message.success('Tag deleted successfully');
+    } catch (error) {
+      message.error(error || 'Failed to delete tag');
+    }
   };
 
   const ColorCell = ({
@@ -78,15 +106,22 @@ const NotesTag: React.FC = () => {
     record,
   }: {
     name: 'backgroundColor' | 'fontColor';
-    record: TagRow;
+    record: notesTag;
   }) => {
-    const isEditing = editingRow?.id === record.id;
+    const isEditing = editingRow?.notesTagId === record.notesTagId;
 
     if (isEditing) {
       const currentValue = Form.useWatch(name, form);
 
       return (
-        <Form.Item name={name} style={{ margin: 0 }}>
+        <Form.Item
+          name={name}
+          style={{ margin: 0 }}
+          rules={[
+            { required: true, message: `Please select ${name}` },
+            { min: 4, message: 'Please enter valid hex code' },
+          ]}
+        >
           <div className="flex items-center gap-2">
             <ColorPicker
               value={currentValue}
@@ -103,6 +138,7 @@ const NotesTag: React.FC = () => {
                 form.setFieldValue(name, v.toUpperCase());
               }}
               style={{ width: 90, textTransform: 'uppercase' }}
+              disabled={status.create === Status.PENDING}
             />
           </div>
         </Form.Item>
@@ -124,10 +160,17 @@ const NotesTag: React.FC = () => {
     {
       title: 'Name',
       dataIndex: 'name',
-      render: (_: any, record: TagRow) =>
-        editingRow?.id === record.id ? (
-          <Form.Item name="name" rules={[{ required: true }]} style={{ margin: 0 }}>
-            <Input placeholder="Enter name" />
+      render: (_, record: notesTag) =>
+        editingRow?.notesTagId === record.notesTagId ? (
+          <Form.Item
+            name="name"
+            rules={[
+              { required: true, message: 'Please enter name' },
+              { min: 3, message: 'name should contain at least 3 character' },
+            ]}
+            style={{ margin: 0 }}
+          >
+            <Input placeholder="Enter name" disabled={status.create === Status.PENDING} />
           </Form.Item>
         ) : (
           record.name
@@ -136,12 +179,12 @@ const NotesTag: React.FC = () => {
     {
       title: 'Background Color',
       dataIndex: 'backgroundColor',
-      render: (_: any, record: TagRow) => <ColorCell name="backgroundColor" record={record} />,
+      render: (_, record: notesTag) => <ColorCell name="backgroundColor" record={record} />,
     },
     {
       title: 'Font Color',
       dataIndex: 'fontColor',
-      render: (_: any, record: TagRow) => <ColorCell name="fontColor" record={record} />,
+      render: (_, record: notesTag) => <ColorCell name="fontColor" record={record} />,
     },
     {
       title: (
@@ -155,14 +198,15 @@ const NotesTag: React.FC = () => {
         </Button>
       ),
       width: 120,
-      render: (_: any, record: TagRow) =>
-        editingRow?.id === record.id ? (
+      render: (_, record: notesTag) =>
+        editingRow?.notesTagId === record.notesTagId ? (
           <Space>
             <Button
               icon={<IconCheck size={16} />}
               type="primary"
               size="small"
               onClick={handleSave}
+              loading={status.create === Status.PENDING}
             />
             <Button icon={<IconX size={16} />} danger size="small" onClick={handleCancel} />
           </Space>
@@ -171,7 +215,7 @@ const NotesTag: React.FC = () => {
             <Button icon={<IconEdit size={16} />} size="small" onClick={() => handleEdit(record)} />
             <Popconfirm
               title="Delete this tag?"
-              onConfirm={() => handleDelete(record.id)}
+              onConfirm={() => handleDelete(record.notesTagId)}
               okText="Yes"
               cancelText="No"
               okButtonProps={{ danger: true }}
@@ -183,16 +227,13 @@ const NotesTag: React.FC = () => {
     },
   ];
 
-  const dataSource =
-    editingRow && editingRow.isNew
-      ? [editingRow, ...(sectionData[selectedSection] || [])]
-      : sectionData[selectedSection] || [];
+  const dataSource = editingRow && editingRow.isNew ? [editingRow, ...notesTag] : notesTag || [];
 
   return (
     <div className="p-6 space-y-4">
       <Card>
         <Form form={form} component={false}>
-          <Table rowKey="id" pagination={false} dataSource={dataSource} columns={columns} />
+          <Table rowKey="id" pagination={false} dataSource={dataSource} columns={columns} loading={status.fetch === Status.PENDING}/>
         </Form>
       </Card>
     </div>

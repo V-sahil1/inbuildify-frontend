@@ -1,26 +1,63 @@
 'use client';
-import React, { useState } from 'react';
-import { Switch, Input, Select, Row, Col, Typography, Form, Button } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Switch, Input, Select, Row, Col, Typography, Form, Button, message } from 'antd';
 import { configurationSettingsOptions } from 'data/configuration/ConfigrationData';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import {
+  fetchGeneralSetting,
+  updateGeneralSetting,
+} from '@redux/feature/admin/general/generalSetting/generalSettingThunk';
+import { Status } from '@lib/constants/enum';
+import { GeneralSetting } from '@redux/feature/admin/general/generalSetting/igeneralSettingState';
+import { passwordRules } from '@lib/constants/formInputValidations';
 
 const { Text, Paragraph, Title } = Typography;
 
 const SettingsPage = () => {
   const [form] = Form.useForm();
-  const [isPasswordProtected, setIsPasswordProtected] = useState(true);
-  const [negativeColor, setNegativeColor] = useState('#f00000');
+  const [negativeColor, setNegativeColor] = useState<string | null>(null);
+  const { settings, status } = useAppSelector(state => state.general.generalSetting);
+  const isPasswordProtected = Form.useWatch('pdfPasswordProtected', form);
+  const dispatch = useAppDispatch();
 
-  const onFinish = (values: any) => {
-    console.log('Updated settings:', {
-      ...values,
-      negativeValuesColor: negativeColor,
-    });
+  useEffect(() => {
+    if (status.fetch === Status.IDLE) {
+      fetchSetting();
+    }
+    if (settings) {
+      form.setFieldsValue(settings);
+    }
+  }, [status.fetch]);
+  async function fetchSetting() {
+    try {
+      await dispatch(fetchGeneralSetting()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch Settings');
+    }
+  }
+  const onFinish = async (values: GeneralSetting) => {
+    try {
+      const updatedValues = Object.keys(values).reduce((acc, key) => {
+        if (values[key] !== settings[key]) {
+          acc[key] = values[key];
+        }
+        return acc;
+      }, {} as Partial<GeneralSetting>);
+      if (Object.keys(updatedValues).length === 0) {
+        message.info('No changes detected');
+        return;
+      }
+      await dispatch(updateGeneralSetting({ data: updatedValues, id: settings.id })).unwrap();
+      message.success('Setting updated successfully');
+    } catch (error) {
+      message.error(error || 'Failed to update setting');
+    }
   };
 
-  const handleColorChange = (e: any) => {
+  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const hex = e.target.value.toUpperCase();
     setNegativeColor(hex);
-    form.setFieldsValue({ negativeValuesColorText: hex });
+    form.setFieldsValue({ negativeValueColor: hex });
   };
 
   const renderDescription = (mainText: string, noteText?: string) => (
@@ -40,27 +77,16 @@ const SettingsPage = () => {
         Document & Workflow Settings
       </Title>
 
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={onFinish}
-        initialValues={{
-          referralNotifications: false,
-          restrictPDFs: true,
-          roundOffCosts: true,
-          showNegativeValues: true,
-          negativeValuesColorText: '#F00000',
-          referenceIdType: 'doc_id_job_id',
-          labelOfJobId: '',
-        }}
-      >
+      <Form form={form} layout="vertical" onFinish={onFinish} initialValues={settings}>
         {/* 1. Referral Partner Notifications */}
-        <Form.Item name="referralNotifications" valuePropName="checked" className="mb-1">
-          <Switch />
+        <div className="flex gap-2 items-center">
+          <Form.Item name="notificationReferralPartner" valuePropName="checked" className="mb-1">
+            <Switch disabled={status.update === Status.PENDING}/>
+          </Form.Item>
           <Text strong className="ml-2">
             Send All Email/SMS Notifications to Referral Partner Instead of Customer
           </Text>
-        </Form.Item>
+        </div>
 
         {renderDescription(
           'When turned ON, All mails will be send to Referral Partner.',
@@ -68,13 +94,14 @@ const SettingsPage = () => {
         )}
 
         <div className="border-t border-gray-200 my-6" />
-
-        <Form.Item name="restrictPDFs" valuePropName="checked" className="mb-1">
-          <Switch onChange={setIsPasswordProtected} />
+        <div className="flex gap-2 items-center">
+          <Form.Item name="pdfPasswordProtected" valuePropName="checked" className="mb-1">
+            <Switch disabled={status.update === Status.PENDING}/>
+          </Form.Item>
           <Text strong className="ml-2">
             Restrict PDFs with Password Protection
           </Text>
-        </Form.Item>
+        </div>
 
         {renderDescription(
           'When turned ON and a password is provided, All PDFs will be password-protected, and access will require the password.',
@@ -86,33 +113,35 @@ const SettingsPage = () => {
             name="pdfPassword"
             label="Password"
             className="max-w-[300px] mt-4"
-            rules={[{ required: true, message: 'Please set a password' }]}
+            rules={passwordRules}
           >
-            <Input.Password placeholder="************" />
+            <Input.Password placeholder="************" disabled={status.update === Status.PENDING}/>
           </Form.Item>
         )}
 
         <div className="border-t border-gray-200 my-6" />
-
-        <Form.Item name="roundOffCosts" valuePropName="checked" className="mb-1">
-          <Switch />
+        <div className="flex gap-2 items-center">
+          <Form.Item name="roundOfCost" valuePropName="checked" className="mb-1">
+            <Switch disabled={status.update === Status.PENDING}/>
+          </Form.Item>
           <Text strong className="ml-2">
             Round off Costs
           </Text>
-        </Form.Item>
+        </div>
 
         {renderDescription(
           'Enable this option to round off the costs of individual items and the total cost in Quotations, Colors, Variations, and Invoices.'
         )}
 
         <div className="border-t border-gray-200 my-6" />
-
-        <Form.Item name="showNegativeValues" valuePropName="checked" className="mb-1">
-          <Switch />
+        <div className="flex items-center gap-2">
+          <Form.Item name="negativeValueShow" valuePropName="checked" className="mb-1">
+            <Switch disabled={status.update === Status.PENDING} />
+          </Form.Item>
           <Text strong className="ml-2">
             Show Negative Values as Minus or in Brackets
           </Text>
-        </Form.Item>
+        </div>
 
         {renderDescription(
           'When turned ON, Negative values will be displayed with a minus sign (e.g., -$100). When turned OFF, Negative values will be displayed within brackets (e.g., ($100)).',
@@ -127,14 +156,15 @@ const SettingsPage = () => {
             <Col>
               <Input
                 type="color"
-                value={negativeColor}
+                value={form.getFieldValue('negativeValueColor')}
                 onChange={handleColorChange}
                 className="w-12 h-8 p-0 border border-gray-300 rounded cursor-pointer"
+                disabled={status.update === Status.PENDING}
               />
             </Col>
             <Col>
               <Form.Item
-                name="negativeValuesColorText"
+                name="negativeValueColor"
                 noStyle
                 rules={[
                   {
@@ -147,6 +177,7 @@ const SettingsPage = () => {
                   value={negativeColor}
                   onChange={handleColorChange}
                   className="w-[100px] uppercase"
+                  disabled={status.update === Status.PENDING}
                 />
               </Form.Item>
             </Col>
@@ -165,8 +196,8 @@ const SettingsPage = () => {
 
         <Row gutter={24}>
           <Col span={8}>
-            <Form.Item name="referenceIdType" label="Reference Type">
-              <Select options={configurationSettingsOptions} />
+            <Form.Item name="showReferenceIdInPdf" label="Reference Type">
+              <Select options={configurationSettingsOptions} disabled={status.update === Status.PENDING} />
             </Form.Item>
           </Col>
 
@@ -178,8 +209,8 @@ const SettingsPage = () => {
               const type = getFieldValue('referenceIdType');
               return type === 'none' || type === 'doc_id' ? null : (
                 <Col span={8}>
-                  <Form.Item name="labelOfJobId" label="Label of Job ID">
-                    <Input placeholder="Job No." />
+                  <Form.Item name="jobIdLabel" label="Label of Job ID">
+                    <Input placeholder="Job No." disabled={status.update === Status.PENDING} />
                   </Form.Item>
                 </Col>
               );
@@ -189,7 +220,7 @@ const SettingsPage = () => {
 
         <Row justify="end" className="mt-10">
           <Col>
-            <Button type="primary" size="large" htmlType="submit">
+            <Button type="primary" size="large" htmlType="submit" loading={status.update === Status.PENDING}>
               Save Settings
             </Button>
           </Col>
