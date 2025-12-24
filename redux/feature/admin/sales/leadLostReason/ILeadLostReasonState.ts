@@ -34,5 +34,6 @@ export interface IleadLostReasonState {
   leadLostReason: leadLostReason[];
   status: {
     fetch: Status;
+    create: Status;
   };
 }

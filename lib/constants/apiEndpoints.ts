@@ -122,8 +122,9 @@ class API_ENDPOINTS {
   public static SALES_SETTING='/sales-module-setting'
   public static SALES_PROCESS='/sales-proccess'
   public static SALES_STAGE_BASE='/sales-stage'
-  public static SALES_LEAD_SOURCE='/lead-source'
+  public static SALES_LEAD_SOURCE='/sales/lead-source'
   public static LEAD_LOST_REASON='/lead-lost-reason'
+  public static UPDATE_LEAD_LOST_REASON=`${this.LEAD_LOST_REASON}/is-active`
   public static CONSTRUCTION_TYPE='/construction-type'
   public static CONSTRUCTION_STAGE='/construction-stage'
   public static CLIENT_TYPE='/client-type'
