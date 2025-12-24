@@ -1,45 +1,53 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Table, Input, Button, Space, Tooltip, message, Switch } from 'antd';
 import { IconPencil, IconTrash, IconPlus, IconCheck, IconX } from '@tabler/icons-react';
 import ConfirmationModal from '@/components/common/ConfirmationModal';
-import { leadSourceData } from 'data/configuration/leadsourceData';
-
-type Item = {
-  id: number;
-  name: string;
-  sort: number;
-  allowChange?: boolean;
-  isDefault?: boolean;
-  isActive?: boolean;
-};
-
-const initialData: Item[] = leadSourceData || [];
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { RootState } from '@redux/feature/store';
+import { createleadSource, fetchAllleadSource, updateleadSource } from '@redux/feature/admin/sales/leadSource/leadSourceThunk';
+import { Status } from '@lib/constants/enum';
+import { leadSource } from '@redux/feature/admin/sales/leadSource/ILeadSourceState';
 
 export const LeadSource: React.FC = () => {
-  const [items, setItems] = useState<Item[]>(initialData);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [drafts, setDrafts] = useState<Record<number, Partial<Item>>>({});
+  const dispatch = useAppDispatch();
+  const { leadSource, status } = useAppSelector((state: RootState) => state.sales.leadSource);
+  const [items, setItems] = useState<leadSource[]>([]);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [drafts, setDrafts] = useState<Record<string, Partial<leadSource>>>({});
   const [isAdding, setIsAdding] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState<{
     open: boolean;
     type: 'activate' | 'deactivate' | null;
-    row: Item | null;
+    row: leadSource | null;
   }>({
     open: false,
     type: null,
     row: null,
   });
 
-  const startEdit = (row: Item) => {
-    setEditingId(row.id);
-    setDrafts(d => ({ ...d, [row.id]: { ...row } }));
+  useEffect(() => {
+    const fetchLeadSource = async () => {
+      await dispatch(fetchAllleadSource());
+    };
+    if (status.fetch === Status.IDLE) {
+      fetchLeadSource();
+    }
+  }, []);
+  useEffect(() => {
+    if (leadSource && leadSource.length > 0) {
+      setItems([...leadSource]);
+    }
+  }, [leadSource]);
+  const startEdit = (row: leadSource) => {
+    setEditingId(row.leadSourceId);
+    setDrafts(d => ({ ...d, [row.leadSourceId]: { ...row } }));
   };
 
-  const cancelEdit = (id: number) => {
-    if (id < 0) {
-      setItems(prev => prev.filter(it => it.id !== id));
+  const cancelEdit = (id: string) => {
+    if (id === null) {
+      setItems(prev => prev.filter(it => it.leadSourceId !== id));
       setIsAdding(false);
     }
     setEditingId(null);
@@ -50,11 +58,11 @@ export const LeadSource: React.FC = () => {
     });
   };
 
-  const saveEdit = (id: number) => {
+  const saveEdit =async (id: string) => {
     const draft = drafts[id];
     if (!draft) return;
     const name = (draft.name || '').trim();
-    const sort = Number(draft.sort ?? 0);
+    const sortOrder = Number(draft.sortOrder ?? 0);
     const isDefault = !!draft.isDefault;
     const allowChange = !!draft.allowChange;
 
@@ -62,52 +70,50 @@ export const LeadSource: React.FC = () => {
       message.error('Name cannot be empty');
       return;
     }
-    if (!Number.isInteger(sort) || sort < 1) {
+    if (!Number.isInteger(sortOrder) || sortOrder < 1) {
       message.error('Sort must be a positive integer');
       return;
     }
 
-    const conflict = items.some(it => it.id !== id && it.isActive !== false && it.sort === sort);
+    const conflict = items.some(
+      it => it.leadSourceId !== id && it.isActive !== false && it.sortOrder === sortOrder
+    );
     if (conflict) {
       message.error('Sort order must be unique among active rows');
       return;
     }
+    const exists = leadSource.some(p => p.leadSourceId === id);
+    console.log("-------",exists,{name,sortOrder,allowChange,isActive:true})
+    // let next: leadSource[] = items.map(p => {
+    //   if (p.leadSourceId !== id) return p;
+    //   return {
+    //     ...p,
+    //     name,
+    //     sortOrder,
+    //     allowChange,
+    //     isDefault,
+    //     isActive: p.isActive !== false,
+    //   };
+    // });
 
-    setItems(prev => {
-      const exists = prev.some(p => p.id === id);
-      let next: Item[] = prev.map(p => {
-        if (p.id !== id) return p;
-        return {
-          ...p,
-          name,
-          sort,
-          allowChange,
-          isDefault,
-          isActive: p.isActive !== false,
-        };
-      });
+    if (!exists) {
+      console.log('exisys---',exists)
+      await dispatch(createleadSource({name,sortOrder,allowChange,isActive:true})).unwrap()
+      message.success('leadsource created successfully')
+    }
+    else{
+      await dispatch(updateleadSource({data:{name,sortOrder,allowChange},id:id})).unwrap()
+      message.success('leadsource updated successfully')
+    }
 
-      if (!exists) {
-        const newId = Date.now();
-        next = [
-          ...next,
-          {
-            id: newId,
-            name,
-            sort,
-            allowChange,
-            isDefault,
-            isActive: true,
-          },
-        ];
-      }
+    if (isDefault) {
+      // next = next.map(p => (p.leadSourceId === id ? p : { ...p, isDefault: false }));
+    }
+    // setItems(prev => {
+    //   const exists = prev.some(p => p.leadSourceId === id);
 
-      if (isDefault) {
-        next = next.map(p => (p.id === id ? p : { ...p, isDefault: false }));
-      }
-
-      return next.slice().sort((a, b) => a.sort - b.sort);
-    });
+    //   return next.slice().sort((a, b) => a.sortOrder - b.sortOrder);
+    // });
 
     setEditingId(null);
     setIsAdding(false);
@@ -116,11 +122,9 @@ export const LeadSource: React.FC = () => {
       delete copy[id];
       return copy;
     });
-
-    message.success('Saved');
   };
 
-  const openDeactivateModal = (row: Item) => {
+  const openDeactivateModal = (row: leadSource) => {
     if (row.isDefault) {
       message.warning('Default item cannot be deactivated');
       return;
@@ -132,12 +136,14 @@ export const LeadSource: React.FC = () => {
     const row = isModalOpen.row;
     if (!row) return;
 
-    setItems(prev => prev.map(p => (p.id === row.id ? { ...p, isActive: false } : p)));
+    setItems(prev =>
+      prev.map(p => (p.leadSourceId === row.leadSourceId ? { ...p, isActive: false } : p))
+    );
     message.success('Item deactivated');
     setIsModalOpen({ open: false, type: null, row: null });
   };
 
-  const openActivateModal = (row: Item) => {
+  const openActivateModal = (row: leadSource) => {
     setIsModalOpen({ open: true, type: 'activate', row });
   };
 
@@ -145,24 +151,26 @@ export const LeadSource: React.FC = () => {
     const row = isModalOpen.row;
     if (!row) return;
 
-    setItems(prev => prev.map(p => (p.id === row.id ? { ...p, isActive: true } : p)));
+    setItems(prev =>
+      prev.map(p => (p.leadSourceId === row.leadSourceId ? { ...p, isActive: true } : p))
+    );
     message.success('Item activated');
     setIsModalOpen({ open: false, type: null, row: null });
   };
 
   const handleAddNew = () => {
     if (isAdding) return;
-    const tempId = -Date.now();
-    const nextSort = (items.reduce((max, it) => Math.max(max, it.sort || 0), 0) || 0) + 1;
-    const newRow: Item = {
-      id: tempId,
+    const tempId = Date.now().toString();
+    const nextSort = (items.reduce((max, it) => Math.max(max, it.sortOrder || 0), 0) || 0) + 1;
+    const newRow: leadSource = {
+      leadSourceId: tempId,
       name: '',
-      sort: nextSort,
+      sortOrder: nextSort,
       allowChange: true,
       isDefault: false,
       isActive: true,
     };
-    setItems(prev => [...prev, newRow].slice().sort((a, b) => a.sort - b.sort));
+    setItems(prev => [...prev, newRow].slice().sort((a, b) => a.sortOrder - b.sortOrder));
     setDrafts(d => ({ ...d, [tempId]: { ...newRow } }));
     setEditingId(tempId);
     setIsAdding(true);
@@ -172,10 +180,10 @@ export const LeadSource: React.FC = () => {
     {
       title: 'Lead Source',
       dataIndex: 'name',
-      render: (_: any, row: Item) => {
+      render: (_: any, row: leadSource) => {
         const inactive = row.isActive === false;
-        const editable = editingId === row.id;
-        const draft = drafts[row.id] ?? {};
+        const editable = editingId === row.leadSourceId;
+        const draft = drafts[row.leadSourceId] ?? {};
         return (
           <div className={inactive ? 'opacity-45' : ''}>
             {editable ? (
@@ -184,7 +192,7 @@ export const LeadSource: React.FC = () => {
                 onChange={e =>
                   setDrafts(d => ({
                     ...d,
-                    [row.id]: { ...(d[row.id] ?? row), name: e.target.value },
+                    [row.leadSourceId]: { ...(d[row.leadSourceId] ?? row), name: e.target.value },
                   }))
                 }
                 placeholder="Enter source"
@@ -210,23 +218,23 @@ export const LeadSource: React.FC = () => {
       title: 'Sort',
       dataIndex: 'sort',
       width: 100,
-      render: (_: number, record: Item) => {
+      render: (_: number, record: leadSource) => {
         const inactive = record.isActive === false;
-        const editable = editingId === record.id;
-        const draft = drafts[record.id] ?? {};
+        const editable = editingId === record.leadSourceId;
+        const draft = drafts[record.leadSourceId] ?? {};
         return editable ? (
           <div className={`w-full ${inactive ? 'opacity-50' : ''}`}>
             <Input
               type="number"
-              value={draft.sort ?? record.sort}
+              value={draft.sortOrder ?? record.sortOrder}
               min={1}
               onChange={e => {
                 const val = Number(e.target.value);
                 setDrafts(prev =>
-                  prev?.[record.id]
+                  prev?.[record.leadSourceId]
                     ? {
                         ...prev,
-                        [record.id]: { ...prev[record.id], sort: val },
+                        [record.leadSourceId]: { ...prev[record.leadSourceId], sort: val },
                       }
                     : prev
                 );
@@ -234,7 +242,7 @@ export const LeadSource: React.FC = () => {
             />
           </div>
         ) : (
-          <span className={inactive ? 'opacity-45' : ''}>{record.sort}</span>
+          <span className={inactive ? 'opacity-45' : ''}>{record.sortOrder}</span>
         );
       },
     },
@@ -242,10 +250,10 @@ export const LeadSource: React.FC = () => {
       title: 'Allow to change',
       dataIndex: 'allowChange',
       width: 140,
-      render: (_: any, row: Item) => {
+      render: (_: any, row: leadSource) => {
         const inactive = row.isActive === false;
-        const editable = editingId === row.id;
-        const draft = drafts[row.id] ?? {};
+        const editable = editingId === row.leadSourceId;
+        const draft = drafts[row.leadSourceId] ?? {};
         return (
           <div className={`text-center ${inactive ? 'opacity-45' : ''}`}>
             {editable ? (
@@ -255,8 +263,8 @@ export const LeadSource: React.FC = () => {
                 onChange={e =>
                   setDrafts(d => ({
                     ...d,
-                    [row.id]: {
-                      ...(d[row.id] ?? row),
+                    [row.leadSourceId]: {
+                      ...(d[row.leadSourceId] ?? row),
                       allowChange: e,
                     },
                   }))
@@ -272,7 +280,7 @@ export const LeadSource: React.FC = () => {
     {
       title: '',
       width: 160,
-      render: (_: any, row: Item) => {
+      render: (_: any, row: leadSource) => {
         const inactive = row.isActive === false;
         const isDefault = !!row.isDefault;
 
@@ -290,7 +298,7 @@ export const LeadSource: React.FC = () => {
           );
         }
 
-        const editing = editingId === row.id;
+        const editing = editingId === row.leadSourceId;
 
         if (editing) {
           return (
@@ -300,14 +308,14 @@ export const LeadSource: React.FC = () => {
                   <Button
                     type="text"
                     icon={<IconCheck size={18} className="text-green-500" />}
-                    onClick={() => saveEdit(row.id)}
+                    onClick={() => saveEdit(row.leadSourceId)}
                   />
                 </Tooltip>
                 <Tooltip title="Cancel">
                   <Button
                     type="text"
                     icon={<IconX size={18} className="text-red-500" />}
-                    onClick={() => cancelEdit(row.id)}
+                    onClick={() => cancelEdit(row.leadSourceId)}
                   />
                 </Tooltip>
               </Space>
@@ -341,7 +349,7 @@ export const LeadSource: React.FC = () => {
     },
   ];
 
-  const displayed = useMemo(() => items.slice().sort((a, b) => a.sort - b.sort), [items]);
+  const displayed = useMemo(() => items.slice().sort((a, b) => a.sortOrder - b.sortOrder), [items]);
 
   return (
     <div className="p-4">

@@ -18,8 +18,8 @@ import workflowReducer from './workflow/workflowSlice';
 import colourReducer from './color/ColourSlice';
 import taskReducer from './task/taskSlice';
 import { generalReducer } from './admin/general/generalReducer';
-// import { salesReducer } from './admin/sales/salesReducer';
-// import { constructionReducer } from './admin/construction/constructionReducer';
+import { salesReducer } from './admin/sales/salesReducer';
+import { constructionReducer } from './admin/construction/constructionReducer';
 const authPersistConfig = {
   key: 'auth',
   storage,
@@ -43,9 +43,9 @@ const appReducer = combineReducers({
   workflow: workflowReducer,
   colour: colourReducer,
   task: taskReducer,
-  // sales: salesReducer,
+  sales: salesReducer,
   general: generalReducer,
-  // construction: constructionReducer,
+  construction: constructionReducer,
 });
 
 const rootReducer = (state: ReturnType<typeof appReducer> | undefined, action: any) => {

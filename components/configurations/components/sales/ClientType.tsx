@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Table, Input, Button, Tooltip, message, Space, Popconfirm } from 'antd';
 import {
   IconTrash,
@@ -11,37 +11,51 @@ import {
   IconPencil,
 } from '@tabler/icons-react';
 import ConfirmationModal from '@/components/common/ConfirmationModal';
-import { clientTypeData } from 'data/configuration/leadsourceData';
-
-interface ClientType {
-  id: number;
-  type: string;
-  sort: number;
-  isActive?: boolean;
-  isDraft?: boolean;
-}
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { RootState } from '@redux/feature/store';
+import { clientType } from '@redux/feature/admin/sales/clientType/IClientTypeState';
+import {
+  createClientType,
+  fetchAllClientType,
+  updateClientType,
+  updateClientTypeStatus,
+} from '@redux/feature/admin/sales/clientType/clientTypeThunk';
+import { Status } from '@lib/constants/enum';
 
 export const ClientType: React.FC = () => {
-  const [data, setData] = useState<ClientType[]>(clientTypeData);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [editingRow, setEditingRow] = useState<Partial<ClientType>>({});
+  const dispatch = useAppDispatch();
+  const { clientType, status } = useAppSelector((state: RootState) => state.sales.clientType);
+  const [data, setData] = useState<clientType[]>([]);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingRow, setEditingRow] = useState<Partial<clientType> | null>(null);
   const [isAdding, setIsAdding] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState<{
     open: boolean;
     type: 'activate' | 'deactivate' | null;
-    row: ClientType | null;
+    row: clientType | null;
   }>({
     open: false,
     type: null,
     row: null,
   });
 
-  // Utility: ensure list is sorted by sort asc
-  const sorted = (list: ClientType[]) => [...list].sort((a, b) => a.sort - b.sort);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (status.fetch === Status.IDLE) await dispatch(fetchAllClientType()).unwrap();
+      } catch (error) {
+        message.error(error || 'Failed to fetch cliet Type');
+      }
+    };
+    fetchData();
+  }, []);
+
+  // Utility: ensure list is sorted by sortOrder asc
+  const sorted = (list: clientType[]) => [...list].sort((a, b) => a.sortOrder - b.sortOrder);
 
   // Utility: insert a new item at desiredSort (1-indexed). If desiredSort > length -> append.
-  const insertAtSort = (prev: ClientType[], newItem: ClientType, desiredSort?: number) => {
+  const insertAtSort = (prev: clientType[], newItem: clientType, desiredSort?: number) => {
     const list = sorted(prev);
     const maxPos = list.length + 1;
     const pos = Math.min(
@@ -49,149 +63,176 @@ export const ClientType: React.FC = () => {
       maxPos
     );
     const newList = [...list.slice(0, pos - 1), newItem, ...list.slice(pos - 1)];
-    return newList.map((item, idx) => ({ ...item, sort: idx + 1 }));
+    return newList.map((item, idx) => ({ ...item, sortOrder: idx + 1 }));
   };
 
   // Utility: move existing item to desiredSort and apply updates from editingRow
   const moveExistingItem = (
-    prev: ClientType[],
-    id: number,
-    updates: Partial<ClientType>,
+    prev: clientType[],
+    clientTypeId: string,
+    updates: Partial<clientType>,
     desiredSort?: number
   ) => {
     const list = sorted(prev);
-    const idx = list.findIndex(i => i.id === id);
+    const idx = list.findIndex(i => i.clientTypeId === clientTypeId);
     if (idx === -1) return prev;
     const item = { ...list[idx], ...updates };
     // remove the item
     const others = list.filter((_, i) => i !== idx);
     const maxPos = others.length + 1;
     const pos = Math.min(
-      Math.max(1, Number.isFinite(desiredSort as number) ? (desiredSort as number) : item.sort),
+      Math.max(
+        1,
+        Number.isFinite(desiredSort as number) ? (desiredSort as number) : item.sortOrder
+      ),
       maxPos
     );
     const newList = [...others.slice(0, pos - 1), item, ...others.slice(pos - 1)];
-    return newList.map((it, i) => ({ ...it, sort: i + 1 }));
+    return newList.map((it, i) => ({ ...it, sortOrder: i + 1 }));
   };
 
   // Start edit
-  const startEdit = (record: ClientType) => {
-    setEditingId(record.id);
+  const startEdit = (record: clientType) => {
+    setEditingId(record.clientTypeId);
     setEditingRow({ ...record });
   };
 
   // Save edit (with new insertion/reorder logic)
-  const saveEdit = (id: number) => {
-    if (!editingRow.type || editingRow.type.trim() === '') {
+  const saveEdit = async (clientTypeId: string) => {
+    if (!editingRow.clientType || editingRow.clientType.trim() === '') {
       message.error('Client Type cannot be empty');
       return;
     }
 
-    const isNew = id < 0;
-    const desiredSortRaw = editingRow.sort;
+    const isNew = clientTypeId === '';
+    const desiredSortRaw = editingRow.sortOrder;
     const desiredSort = Number(desiredSortRaw);
+    try {
+      if (isNew) {
+        // Build final new item (assign a real positive clientTypeId)
+        const finalId = '';
+        const newItem: clientType = {
+          ...(editingRow as clientType),
+          clientTypeId: finalId,
+          sortOrder: Number.isFinite(desiredSort) ? desiredSort : 1,
+          isDraft: false,
+        } as clientType;
+        await dispatch(
+          createClientType({ clientType: newItem.clientType, sortOrder: newItem.sortOrder })
+        ).unwrap();
+        message.success('Client Type created successfully');
+        // setData(prev => {
+        //   // remove temporary negative clientTypeId if present, then insert at position
+        //   const prevClean = prev.filter(item => item.clientTypeId !== clientTypeId);
+        //   return insertAtSort(prevClean, newItem, newItem.sortOrder);
+        // });
 
-    if (isNew) {
-      // Build final new item (assign a real positive id)
-      const finalId = Math.abs(id);
-      const newItem: ClientType = {
-        ...(editingRow as ClientType),
-        id: finalId,
-        sort: Number.isFinite(desiredSort) ? desiredSort : 1,
-        isDraft: false,
-      } as ClientType;
-
-      setData(prev => {
-        // remove temporary negative id if present, then insert at position
-        const prevClean = prev.filter(item => item.id !== id);
-        return insertAtSort(prevClean, newItem, newItem.sort);
-      });
-
-      setIsAdding(false);
-    } else {
-      // Existing item: update fields and if sort changed or provided, move accordingly
-      setData(prev => {
-        const current = prev.find(p => p.id === id);
-        if (!current) return prev;
-
-        const updatedFields: Partial<ClientType> = {
+        setIsAdding(false);
+      } else {
+        // Existing item: update fields and if sortOrder changed or provided, move accordingly
+        const updatedFields: Partial<clientType> = {
           ...editingRow,
           isDraft: false,
         };
+        await dispatch(
+          updateClientType({
+            data: { clientType: updatedFields.clientType, sortOrder: updatedFields.sortOrder },
+            id: clientTypeId,
+          })
+        ).unwrap();
+        // setData(prev => {
+        //   const current = prev.find(p => p.clientTypeId === clientTypeId);
+        //   if (!current) return prev;
 
-        // If sort provided and different, move item
-        if (Number.isFinite(desiredSort) && desiredSort !== current.sort) {
-          return moveExistingItem(prev, id, updatedFields, desiredSort);
-        }
+        //   const updatedFields: Partial<clientType> = {
+        //     ...editingRow,
+        //     isDraft: false,
+        //   };
 
-        // Otherwise just update the item in place (keep sort)
-        return prev.map(p => (p.id === id ? { ...p, ...updatedFields } : p));
-      });
+        //   // If sortOrder provided and different, move item
+        //   if (Number.isFinite(desiredSort) && desiredSort !== current.sortOrder) {
+        //     return moveExistingItem(prev, clientTypeId, updatedFields, desiredSort);
+        //   }
+
+        //   // Otherwise just update the item in place (keep sortOrder)
+        //   return prev.map(p => (p.clientTypeId === clientTypeId ? { ...p, ...updatedFields } : p));
+        // });
+        setEditingId(null);
+        setEditingRow({});
+      }
+    } catch (error) {
+      message.error(error || 'Failed to save client type');
     }
-
-    setEditingId(null);
-    setEditingRow({});
-    message.success('Changes saved successfully');
   };
 
   // Cancel edit (remove temporary row if adding)
   const cancelEdit = () => {
     if (isAdding && editingId) {
-      setData(prev => prev.filter(item => item.id !== editingId));
+      // setData(prev => prev.filter(item => item.clientTypeId !== editingId));
       setIsAdding(false);
     }
     setEditingId(null);
-    setEditingRow({});
+    setEditingRow(null);
   };
 
   // Add new (temporary) row
   const handleAdd = () => {
-    const newRow: ClientType = {
-      id: -Date.now(), // temporary negative ID
-      type: '',
-      sort: 1,
+    const newRow: clientType = {
+      clientTypeId: '', // temporary negative ID
+      clientType: '',
+      sortOrder: 1,
       isActive: true,
       isDraft: true,
     };
-    // Insert at start temporarily so user can edit; final position will be decided on save based on the sort value.
-    setData(prev => [newRow, ...prev]);
-    setEditingId(newRow.id);
+    // Insert at start temporarily so user can edit; final position will be decided on save based on the sortOrder value.
+    // setData(prev => [newRow, ...prev]);
+    setEditingId(newRow.clientTypeId);
     setEditingRow(newRow);
     setIsAdding(true);
   };
 
   // Modal openers
-  const openDeactivateModal = (row: ClientType) =>
+  const openDeactivateModal = (row: clientType) =>
     setIsModalOpen({ open: true, type: 'deactivate', row });
 
-  const openActivateModal = (row: ClientType) =>
+  const openActivateModal = (row: clientType) =>
     setIsModalOpen({ open: true, type: 'activate', row });
 
   // Confirm modal actions
-  const handleDeactivateConfirm = () => {
+  const handleDeactivateConfirm = async () => {
     const row = isModalOpen.row;
     if (!row) return;
-
-    setData(prev => prev.map(p => (p.id === row.id ? { ...p, isActive: false } : p)));
-    message.success('Item deactivated');
-    setIsModalOpen({ open: false, type: null, row: null });
+    try {
+      await dispatch(
+        updateClientTypeStatus({ data: { isActive: false }, id: row.clientTypeId })
+      ).unwrap();
+      message.success('Item deactivated');
+      setIsModalOpen({ open: false, type: null, row: null });
+    } catch (error) {
+      message.error(error || 'Failed to deactivate client type');
+    }
   };
 
-  const handleActivateConfirm = () => {
+  const handleActivateConfirm = async () => {
     const row = isModalOpen.row;
     if (!row) return;
-
-    setData(prev => prev.map(p => (p.id === row.id ? { ...p, isActive: true } : p)));
-    message.success('Item activated');
-    setIsModalOpen({ open: false, type: null, row: null });
+    try {
+      await dispatch(
+        updateClientTypeStatus({ data: { isActive: true }, id: row.clientTypeId })
+      ).unwrap();
+      message.success('Item activated');
+      setIsModalOpen({ open: false, type: null, row: null });
+    } catch (error) {
+      message.error(error || 'Failed to deactivate client type');
+    }
   };
 
-  // Sort change handler (updates editingRow.sort)
+  // Sort change handler (updates editingRow.sortOrder)
   const handleSortChange = (value: number | string) => {
     const num = Number(value);
     setEditingRow(prev => ({
       ...prev,
-      sort: isNaN(num) ? undefined : num,
+      sortOrder: isNaN(num) ? undefined : num,
     }));
   };
 
@@ -206,20 +247,20 @@ export const ClientType: React.FC = () => {
           </Tooltip>
         </div>
       ),
-      dataIndex: 'type',
-      key: 'type',
-      render: (_: any, record: ClientType) => {
-        const isEditing = editingId === record.id;
+      dataIndex: 'clientType',
+      key: 'clientType',
+      render: (_, record: clientType) => {
+        const isEditing = editingId === record.clientTypeId;
         if (!record.isActive) {
-          return <span className="text-gray-400 italic">{record.type}</span>;
+          return <span className="text-gray-400 italic">{record.clientType}</span>;
         }
         return isEditing ? (
           <Input
-            value={editingRow.type}
-            onChange={e => setEditingRow(prev => ({ ...prev, type: e.target.value }))}
+            value={editingRow.clientType}
+            onChange={e => setEditingRow(prev => ({ ...prev, clientType: e.target.value }))}
           />
         ) : (
-          record.type
+          record.clientType
         );
       },
     },
@@ -232,17 +273,17 @@ export const ClientType: React.FC = () => {
           </Tooltip>
         </div>
       ),
-      dataIndex: 'sort',
+      dataIndex: 'sortOrder',
       width: 120,
-      render: (sort: number, record: ClientType) => {
-        const isEditing = editingId === record.id;
+      render: (sortOrder: number, record: clientType) => {
+        const isEditing = editingId === record.clientTypeId;
         if (!record.isActive) {
-          return <span className="text-gray-400">{record.sort}</span>;
+          return <span className="text-gray-400">{record.sortOrder}</span>;
         }
         return (
           <Input
             type="number"
-            value={isEditing ? (editingRow.sort ?? '') : sort}
+            value={isEditing ? (editingRow.sortOrder ?? '') : sortOrder}
             onChange={e => isEditing && handleSortChange(e.target.value)}
             disabled={!isEditing}
           />
@@ -252,9 +293,9 @@ export const ClientType: React.FC = () => {
     {
       title: '',
       width: 160,
-      render: (_: any, row: ClientType) => {
+      render: (_, row: clientType) => {
         const inactive = row.isActive === false;
-        const editing = editingId === row.id;
+        const editing = editingId === row.clientTypeId;
 
         if (inactive) {
           return (
@@ -278,7 +319,7 @@ export const ClientType: React.FC = () => {
                   <Button
                     type="text"
                     icon={<IconCheck size={18} className="text-green-500" />}
-                    onClick={() => saveEdit(row.id)}
+                    onClick={() => saveEdit(row.clientTypeId)}
                   />
                 </Tooltip>
                 <Tooltip title="Cancel">
@@ -326,7 +367,7 @@ export const ClientType: React.FC = () => {
       },
     },
   ];
-
+  const dataSource = (isAdding ? [editingRow, ...clientType] : clientType).filter(Boolean);
   return (
     <div className="p-4 rounded-lg">
       <div className="flex justify-between mb-4">
@@ -344,8 +385,8 @@ export const ClientType: React.FC = () => {
       <Table
         pagination={false}
         columns={columns}
-        dataSource={[...data].sort((a, b) => a.sort - b.sort)}
-        rowKey="id"
+        dataSource={[...dataSource].sort((a, b) => a.sortOrder - b.sortOrder)}
+        rowKey="clientTypeId"
         size="middle"
       />
 
@@ -362,7 +403,7 @@ export const ClientType: React.FC = () => {
           isModalOpen.row
             ? `Are you sure you want to ${
                 isModalOpen.type === 'activate' ? 'activate' : 'deactivate'
-              } "${isModalOpen.row.type}"? This will ${
+              } "${isModalOpen.row.clientType}"? This will ${
                 isModalOpen.type === 'activate' ? 'activate' : 'deactivate'
               } it.`
             : 'Confirm Action'

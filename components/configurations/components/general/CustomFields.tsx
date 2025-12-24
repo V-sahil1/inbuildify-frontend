@@ -1,30 +1,65 @@
 'use client';
-import React, { useState } from 'react';
-import { Button, Input, Select, Table, Space, Form, Popconfirm, Card } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Button, Input, Select, Table, Space, Form, Popconfirm, Card, message } from 'antd';
 import { IconEdit, IconTrash, IconCheck, IconX, IconList } from '@tabler/icons-react';
-import { customFieldsData, fieldTypeOptions } from 'data/configuration/ConfigrationData';
+import { fieldTypeOptions } from 'data/configuration/ConfigrationData';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
-
-const sectionOptions = [
-  { label: 'Lead Info', value: 'lead' },
-  { label: 'Client Info', value: 'client' },
-  { label: 'Project Info', value: 'project' },
-];
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { RootState } from '@redux/feature/store';
+import {
+  createCustomField,
+  deleteCustomField,
+  fetchAllCustomField,
+  fetchAllCustomFieldModule,
+  updateCustomField,
+} from '@redux/feature/admin/general/customField/customFieldThunk';
+import { Status } from '@lib/constants/enum';
+import { CustomField } from '@redux/feature/admin/general/customField/ICustomFieldState';
 
 const CustomFields: React.FC = () => {
-  const [selectedSection, setSelectedSection] = useState('lead');
-  const [sectionData, setSectionData] = useState<Record<string, any[]>>(customFieldsData);
-
-  const [editingRow, setEditingRow] = useState<any | null>(null);
+  const { customFieldModule, customField, status } = useAppSelector(
+    (state: RootState) => state.general.customField
+  );
+  const [selectedSection, setSelectedSection] = useState<string | null>();
+  const [editingRow, setEditingRow] = useState<CustomField | null>(null);
   const [listOptionsrecord, setListOptionsrecord] = useState<any | null>(null);
   const [form] = Form.useForm();
+  const dispatch = useAppDispatch();
+  const customFieldModuleOptions =
+    customFieldModule &&
+    customFieldModule.map(item => ({
+      label: item.name,
+      value: item.moduleId,
+    }));
+  useEffect(() => {
+    if (customFieldModule) {
+      setSelectedSection(customFieldModule[0]?.moduleId || null);
+    }
+  }, [customFieldModule]);
+  useEffect(() => {
+    async function fetchCustomFieldModule() {
+      await dispatch(fetchAllCustomFieldModule()).unwrap();
+      // setSelectedSection((customFieldModule && customFieldModule[0]?.moduleId) || null);
+    }
+    if (status.customFieldModule === Status.IDLE) {
+      fetchCustomFieldModule();
+    }
+
+    async function fetchCustomField() {
+      await dispatch(fetchAllCustomField()).unwrap();
+    }
+    if (status.fetch === Status.IDLE) {
+      fetchCustomField();
+    }
+  }, []);
 
   const handleAdd = () => {
-    const newRow = {
-      id: Date.now(),
-      name: '',
+    const newRow: CustomField = {
+      customFieldId: '',
+      moduleId: selectedSection || '',
+      fieldName: '',
       fieldType: undefined,
-      sortOrder: '',
+      sortOrder: null,
       isActive: true,
     };
     setEditingRow(newRow);
@@ -37,26 +72,29 @@ const CustomFields: React.FC = () => {
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
-      const newData = [...(sectionData[selectedSection] || [])];
-
-      if (editingRow && newData.some(item => item.id === editingRow.id)) {
-        const index = newData.findIndex(item => item.id === editingRow.id);
-        newData[index] = { ...editingRow, ...values };
+      if (editingRow && editingRow.customFieldId !== '') {
+        await dispatch(
+          updateCustomField({ customFieldId: editingRow.customFieldId, data: { ...values } })
+        ).unwrap();
+        message.success('CustomField updated Successfully');
       } else {
-        newData.push({ id: Date.now(), ...values });
+        await dispatch(createCustomField({ ...values, moduleId: selectedSection })).unwrap();
+        message.success('CustomField created Successfully');
       }
-
-      setSectionData({ ...sectionData, [selectedSection]: newData });
       setEditingRow(null);
       form.resetFields();
     } catch (err) {
-      console.error('Validation failed:', err);
+      message.error(err);
     }
   };
 
-  const handleDelete = (id: number) => {
-    const updated = sectionData[selectedSection].filter(item => item.id !== id);
-    setSectionData({ ...sectionData, [selectedSection]: updated });
+  const handleDelete = async (id: string) => {
+    try {
+      await dispatch(deleteCustomField(id)).unwrap();
+      message.success('CustomField deleted Successfully');
+    } catch (error) {
+      message.error(error);
+    }
   };
 
   const handleEdit = (record: any) => {
@@ -72,21 +110,25 @@ const CustomFields: React.FC = () => {
   const columns = [
     {
       title: 'Name',
-      dataIndex: 'name',
+      dataIndex: 'fieldName',
       render: (_: any, record: any) =>
-        editingRow?.id === record.id ? (
-          <Form.Item name="name" rules={[{ required: true, message: '' }]} style={{ margin: 0 }}>
+        editingRow?.customFieldId === record.customFieldId ? (
+          <Form.Item
+            name="fieldName"
+            rules={[{ required: true, message: '' }]}
+            style={{ margin: 0 }}
+          >
             <Input />
           </Form.Item>
         ) : (
-          record.name
+          record.fieldName
         ),
     },
     {
       title: 'Field Type',
       dataIndex: 'fieldType',
       render: (_: any, record: any) =>
-        editingRow?.id === record.id ? (
+        editingRow?.customFieldId === record.customFieldId ? (
           <Form.Item
             name="fieldType"
             rules={[{ required: true, message: '' }]}
@@ -112,7 +154,7 @@ const CustomFields: React.FC = () => {
       dataIndex: 'sortOrder',
       width: 120,
       render: (_: any, record: any) =>
-        editingRow?.id === record.id ? (
+        editingRow?.customFieldId === record.customFieldId ? (
           <Form.Item
             name="sortOrder"
             rules={[{ required: true, message: '' }]}
@@ -132,7 +174,7 @@ const CustomFields: React.FC = () => {
       ),
       width: 100,
       render: (_: any, record: any) =>
-        editingRow?.id === record.id ? (
+        editingRow?.customFieldId === record.customFieldId ? (
           <Space>
             <Button
               icon={<IconCheck size={16} />}
@@ -147,7 +189,7 @@ const CustomFields: React.FC = () => {
             <Button icon={<IconEdit size={16} />} size="small" onClick={() => handleEdit(record)} />
             <Popconfirm
               title="Delete this field?"
-              onConfirm={() => handleDelete(record.id)}
+              onConfirm={() => handleDelete(record.customFieldId)}
               okText="Yes"
               cancelText="No"
               okButtonProps={{ danger: true }}
@@ -159,10 +201,11 @@ const CustomFields: React.FC = () => {
     },
   ];
 
+  const filterData = customField && customField.filter(field => field.moduleId === selectedSection);
   const dataSource =
-    editingRow && !sectionData[selectedSection].some(r => r.id === editingRow.id)
-      ? [editingRow, ...sectionData[selectedSection]]
-      : sectionData[selectedSection];
+    editingRow && !filterData.some(r => r.customFieldId === editingRow.customFieldId)
+      ? [editingRow, ...filterData]
+      : filterData;
 
   return (
     <div className="p-6">
@@ -171,7 +214,7 @@ const CustomFields: React.FC = () => {
           <Select
             value={selectedSection}
             onChange={setSelectedSection}
-            options={sectionOptions}
+            options={customFieldModuleOptions}
             className="w-full"
           />
         </div>
@@ -179,7 +222,12 @@ const CustomFields: React.FC = () => {
 
       <Card>
         <Form form={form} component={false}>
-          <Table rowKey="id" pagination={false} dataSource={dataSource} columns={columns} />
+          <Table
+            rowKey="customFieldId"
+            pagination={false}
+            dataSource={dataSource}
+            columns={columns}
+          />
         </Form>
       </Card>
 

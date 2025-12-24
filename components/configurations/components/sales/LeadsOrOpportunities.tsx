@@ -1,17 +1,40 @@
 'use client';
-import React from 'react';
-import { Form, Switch, Input, Select, Radio, Button, Row, Col, Typography, Tooltip } from 'antd';
+import React, { useEffect } from 'react';
+import { Form, Switch, Input, Select, Radio, Button, Row, Col, Typography, Tooltip, message } from 'antd';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { leadMandatoryOption } from 'data/configuration/salesData';
 import { rolesOfRoleMapping } from 'data/configuration/ConfigrationData';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { Status } from '@lib/constants/enum';
+import { RootState } from '@redux/feature/store';
+import { fetchSetting, updateSetting } from '@redux/feature/admin/sales/setting/settingThunk';
 
 const { Title, Text } = Typography;
 
 export const LeadsOrOpportunities: React.FC = () => {
   const [form] = Form.useForm();
+  const dispatch=useAppDispatch();
+  const {setting,status} = useAppSelector((state: RootState) => state.sales.setting)
 
-  const onFinish = (values: any) => {
+  useEffect(() => {
+    async function fetchData() {
+      if (status.fetch === Status.IDLE) {
+        await dispatch(fetchSetting()).unwrap();
+      }
+    }
+    fetchData();
+  }, []);
+
+  console.log('setting',setting)
+  const onFinish = async(values) => {
     console.log('Saved:', values);
+    try{
+      await dispatch(updateSetting({data:values,id:setting.salesModuleSettingsId})).unwrap()
+      message.success('Setting updated successfully')
+    }
+    catch(error){
+      message.error(error || 'Failed to update Setting')
+    }
   };
 
   return (
@@ -20,15 +43,7 @@ export const LeadsOrOpportunities: React.FC = () => {
         form={form}
         layout="vertical"
         onFinish={onFinish}
-        initialValues={{
-          allowDuplicateLead: true,
-          sendEmailOnLeadCreate: true,
-          showCommonFolders: true,
-          mandatoryOption: 'Email and Phone are mandatory',
-          salesWonText: 'Won',
-          roles: undefined,
-          houseSizeUnit: 'sq',
-        }}
+        initialValues={setting}
       >
         <div className="mb-6 space-y-4">
           <Form.Item
@@ -40,8 +55,9 @@ export const LeadsOrOpportunities: React.FC = () => {
                 </div>
               </div>
             }
-            name="allowDuplicateLead"
+            name="allowDuplicateLeads"
             valuePropName="checked"
+            initialValue={false}
           >
             <Switch />
           </Form.Item>
@@ -52,8 +68,9 @@ export const LeadsOrOpportunities: React.FC = () => {
                 <Text strong>Send Email when new Lead is created</Text>
               </div>
             }
-            name="sendEmailOnLeadCreate"
+            name="sendEmailOnNewLead"
             valuePropName="checked"
+            initialValue={false}
           >
             <Switch />
           </Form.Item>
@@ -70,6 +87,7 @@ export const LeadsOrOpportunities: React.FC = () => {
             }
             name="showCommonFolders"
             valuePropName="checked"
+            initialValue={false}
           >
             <Switch />
           </Form.Item>
@@ -90,12 +108,12 @@ export const LeadsOrOpportunities: React.FC = () => {
                   </Tooltip>
                 </div>
               }
-              name="mandatoryOption"
+              name="leadMandatoryOption"
             >
               <Select placeholder="Choose Mandatory Option" options={leadMandatoryOption} />
             </Form.Item>
 
-            <Form.Item label="Sales Won Button Text" name="salesWonText">
+            <Form.Item label="Sales Won Button Text" name="salesWonButtonText">
               <Input placeholder="Won" />
             </Form.Item>
           </Col>
@@ -110,7 +128,7 @@ export const LeadsOrOpportunities: React.FC = () => {
                   </Tooltip>
                 </div>
               }
-              name="roles"
+              name="roleId"
             >
               <Select placeholder="Choose Roles" mode="multiple" showSearch>
                 {rolesOfRoleMapping.map(role => (

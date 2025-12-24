@@ -5,7 +5,6 @@ import {
   optionalEmailRule,
   optionalNotesRule,
   optionalPhoneRule,
-  phoneRules,
 } from '@lib/constants/formInputValidations';
 import { CreateFormField } from '@/components/common/Models/CreateFormModel';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
@@ -25,7 +24,7 @@ const leadCreateFields = (
   const dispatch = useAppDispatch();
   const { leadSources } = useAppSelector(state => state.lead);
   const status = useAppSelector(state => state.lead.status.leadSources);
-  const LeadSourceOptions = leadSources?.map(item => ({
+  const LeadSourceOptions = leadSources && leadSources.length > 0 && leadSources?.map(item => ({
     label: enumToReadable(item.name),
     value: item.name,
   }));

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Table, Input, Button, Tooltip, message, Space, Popconfirm } from 'antd';
 import {
   IconTrash,
@@ -11,38 +11,53 @@ import {
   IconPencil,
 } from '@tabler/icons-react';
 import ConfirmationModal from '@/components/common/ConfirmationModal';
-import { leadLostReasonData } from 'data/configuration/leadsourceData';
-
-interface LostReason {
-  id: number;
-  reason: string;
-  sort: number;
-  isActive?: boolean;
-  isDraft?: boolean;
-}
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { RootState } from '@redux/feature/store';
+import {
+  createLeadLostReason,
+  fetchAllLeadLostReason,
+  updateLeadLostReason,
+  updateLeadLostReasonStatus,
+} from '@redux/feature/admin/sales/leadLostReason/leadLostReasonThunk';
+import { Status } from '@lib/constants/enum';
+import { leadLostReason } from '@redux/feature/admin/sales/leadLostReason/ILeadLostReasonState';
 
 export const LeadLostReasons: React.FC = () => {
-  const [data, setData] = useState<LostReason[]>(leadLostReasonData);
-
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [editingRow, setEditingRow] = useState<Partial<LostReason>>({});
+  const dispatch = useAppDispatch();
+  const { leadLostReason, status } = useAppSelector(
+    (state: RootState) => state.sales.leadLostReason
+  );
+  // const [data, setData] = useState<leadLostReason[]>([]);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingRow, setEditingRow] = useState<Partial<leadLostReason> | null>(null);
   const [isAdding, setIsAdding] = useState(false);
-
   const [isModalOpen, setIsModalOpen] = useState<{
     open: boolean;
     type: 'activate' | 'deactivate' | null;
-    row: LostReason | null;
+    row: leadLostReason | null;
   }>({
     open: false,
     type: null,
     row: null,
   });
+  useEffect(() => {
+    const fetchData = async () => {
+      if (status.fetch === Status.IDLE) {
+        try {
+          await dispatch(fetchAllLeadLostReason()).unwrap();
+        } catch (error) {
+          message.error(error || 'Failed to fetch lead lost reason');
+        }
+      }
+    };
+    fetchData();
+  }, [dispatch]);
 
   // Utility: ensure list is sorted by sort asc
-  const sorted = (list: LostReason[]) => [...list].sort((a, b) => a.sort - b.sort);
+  const sorted = (list: leadLostReason[]) => [...list].sort((a, b) => a.sortOrder - b.sortOrder);
 
   // Utility: insert a new item at desiredSort (1-indexed). If desiredSort > length -> append.
-  const insertAtSort = (prev: LostReason[], newItem: LostReason, desiredSort?: number) => {
+  const insertAtSort = (prev: leadLostReason[], newItem: leadLostReason, desiredSort?: number) => {
     const list = sorted(prev);
     const maxPos = list.length + 1;
     const pos = Math.min(
@@ -50,141 +65,165 @@ export const LeadLostReasons: React.FC = () => {
       maxPos
     );
     const newList = [...list.slice(0, pos - 1), newItem, ...list.slice(pos - 1)];
-    return newList.map((item, idx) => ({ ...item, sort: idx + 1 }));
+    return newList.map((item, idx) => ({ ...item, sortOrder: idx + 1 }));
   };
 
   // Utility: move existing item to desiredSort and apply updates from editingRow
   const moveExistingItem = (
-    prev: LostReason[],
-    id: number,
-    updates: Partial<LostReason>,
+    prev: leadLostReason[],
+    id: string,
+    updates: Partial<leadLostReason>,
     desiredSort?: number
   ) => {
     const list = sorted(prev);
-    const idx = list.findIndex(i => i.id === id);
+    const idx = list.findIndex(i => i.leadLostReasonId === id);
     if (idx === -1) return prev;
     const item = { ...list[idx], ...updates };
     // remove the item
     const others = list.filter((_, i) => i !== idx);
     const maxPos = others.length + 1;
     const pos = Math.min(
-      Math.max(1, Number.isFinite(desiredSort as number) ? (desiredSort as number) : item.sort),
+      Math.max(
+        1,
+        Number.isFinite(desiredSort as number) ? (desiredSort as number) : item.sortOrder
+      ),
       maxPos
     );
     const newList = [...others.slice(0, pos - 1), item, ...others.slice(pos - 1)];
-    return newList.map((it, i) => ({ ...it, sort: i + 1 }));
+    return newList.map((it, i) => ({ ...it, sortOrder: i + 1 }));
   };
-
   // === EDITING ===
-  const startEdit = (record: LostReason) => {
-    setEditingId(record.id);
+  const startEdit = (record: leadLostReason) => {
+    setEditingId(record.leadLostReasonId);
     setEditingRow({ ...record });
   };
 
-  const saveEdit = (id: number) => {
-    if (!editingRow.reason || editingRow.reason.trim() === '') {
+  const saveEdit = async (id: string) => {
+    if (!editingRow.lostReason || editingRow.lostReason.trim() === '') {
       message.error('Lost Reason cannot be empty');
       return;
     }
+    if (!editingRow.sortOrder || editingRow.sortOrder < 1) {
+      message.error('sort order must be greater than 1');
+      return;
+    }
 
-    const isNew = id < 0;
-    const desiredSortRaw = editingRow.sort;
+    const isNew = id === '';
+    const desiredSortRaw = editingRow.sortOrder;
     const desiredSort = Number(desiredSortRaw);
-
-    if (isNew) {
-      // Build final new item (assign a real positive id)
-      const finalId = Math.abs(id);
-      const newItem: LostReason = {
-        ...(editingRow as LostReason),
-        id: finalId,
-        sort: Number.isFinite(desiredSort) ? desiredSort : 1,
-        isDraft: false,
-        isActive: editingRow.isActive ?? true,
-      } as LostReason;
-
-      setData(prev => {
-        // remove temporary negative id if present, then insert at position
-        const prevClean = prev.filter(item => item.id !== id);
-        return insertAtSort(prevClean, newItem, newItem.sort);
-      });
-
-      setIsAdding(false);
-    } else {
-      // Existing item: update fields and if sort changed or provided, move accordingly
-      setData(prev => {
-        const current = prev.find(p => p.id === id);
-        if (!current) return prev;
-
-        const updatedFields: Partial<LostReason> = {
+    try {
+      if (isNew) {
+        // Build final new item (assign a real positive id)
+        const newItem: leadLostReason = {
+          ...(editingRow as leadLostReason),
+          sortOrder: Number.isFinite(desiredSort) ? desiredSort : 1,
+          isDraft: false,
+          isActive: editingRow.isActive ?? true,
+        } as leadLostReason;
+        await dispatch(
+          createLeadLostReason({
+            lostReason: newItem.lostReason,
+            sortOrder: newItem.sortOrder,
+            isActive: newItem.isActive,
+          })
+        ).unwrap();
+        message.success('Lead Lost Reason created successfully');
+        setIsAdding(false);
+      } else {
+        // Existing item: update fields and if sort changed or provided, move accordingly
+        const updatedFields: Partial<leadLostReason> = {
           ...editingRow,
           isDraft: false,
         };
-
-        // If sort provided and different, move item
-        if (Number.isFinite(desiredSort) && desiredSort !== current.sort) {
-          return moveExistingItem(prev, id, updatedFields, desiredSort);
+        const values = { lostReason: updatedFields.lostReason, sortOrder: updatedFields.sortOrder };
+        const prevValues = leadLostReason.filter(i => i.leadLostReasonId === id)[0];
+        const updatedValues = Object.keys(values).reduce((acc, key) => {
+          if (values[key] !== prevValues[key]) {
+            acc[key] = values[key];
+          }
+          return acc;
+        }, {} as Partial<leadLostReason>);
+        if (Object.keys(updatedValues).length === 0) {
+          message.info('No changes detected');
+          return;
         }
-
-        // Otherwise just update the item in place (keep sort)
-        return prev.map(p => (p.id === id ? { ...p, ...updatedFields } : p));
-      });
+        // const current = leadLostReason.find(p => p.leadLostReasonId === id);
+        // if (!current) return leadLostReason;
+        // // If sort provided and different, move item
+        // if (Number.isFinite(desiredSort) && desiredSort !== current.sortOrder) {
+        //   return moveExistingItem(leadLostReason, id, updatedFields, desiredSort);
+        // }
+        await dispatch(
+          updateLeadLostReason({
+            data: updatedValues,
+            id,
+          })
+        ).unwrap();
+        message.success('Lead Lost Reason updated successfully');
+      }
+      setEditingId(null);
+      setEditingRow({});
+    } catch (error) {
+      message.error(error || 'Failed to save lead lost reason');
     }
-
-    setEditingId(null);
-    setEditingRow({});
-    message.success('Changes saved successfully');
   };
 
   const cancelEdit = () => {
     if (isAdding && editingId) {
-      setData(prev => prev.filter(item => item.id !== editingId));
+      // setData(prev => prev.filter(item => item.leadLostReasonId !== editingId));
       setIsAdding(false);
     }
     setEditingId(null);
-    setEditingRow({});
+    setEditingRow(null);
   };
 
   // === ADD ===
   const handleAdd = () => {
-    const newRow: LostReason = {
-      id: -Date.now(), // temporary negative ID
-      reason: '',
-      sort: 1,
+    const newRow: leadLostReason = {
+      leadLostReasonId: '', // temporary negative ID
+      lostReason: '',
+      sortOrder: null,
       isActive: true,
       isDraft: true,
     };
     // Insert at start temporarily so user can edit; final position will be decided on save based on the sort value.
-    setData(prev => [newRow, ...prev]);
-    setEditingId(newRow.id);
+    // setData(prev => [newRow, ...prev]);
+    setEditingId(newRow.leadLostReasonId);
     setEditingRow(newRow);
     setIsAdding(true);
   };
 
   // === DEACTIVATE / ACTIVATE ===
-  const openDeactivateModal = (row: LostReason) => {
+  const openDeactivateModal = (row: leadLostReason) => {
     setIsModalOpen({ open: true, type: 'deactivate', row });
   };
 
-  const openActivateModal = (row: LostReason) => {
+  const openActivateModal = (row: leadLostReason) => {
     setIsModalOpen({ open: true, type: 'activate', row });
   };
 
   const handleDeactivateConfirm = () => {
     const row = isModalOpen.row;
     if (!row) return;
-
-    setData(prev => prev.map(p => (p.id === row.id ? { ...p, isActive: false } : p)));
-    message.success('Item deactivated');
-    setIsModalOpen({ open: false, type: null, row: null });
+    try {
+      dispatch(updateLeadLostReasonStatus({ data: { isActive: false }, id: row.leadLostReasonId }));
+      message.success('Item deactivated');
+      setIsModalOpen({ open: false, type: null, row: null });
+    } catch (error) {
+      message.error(error || 'Failed to deactivate lead lost reason');
+    }
   };
 
   const handleActivateConfirm = () => {
     const row = isModalOpen.row;
     if (!row) return;
-
-    setData(prev => prev.map(p => (p.id === row.id ? { ...p, isActive: true } : p)));
-    message.success('Item activated');
-    setIsModalOpen({ open: false, type: null, row: null });
+    try {
+      dispatch(updateLeadLostReasonStatus({ data: { isActive: true }, id: row.leadLostReasonId }));
+      message.success('Item activated');
+      setIsModalOpen({ open: false, type: null, row: null });
+    } catch (error) {
+      message.error(error || 'Failed to Activate lead lost reason');
+    }
   };
 
   // === SORT INPUT ===
@@ -192,7 +231,7 @@ export const LeadLostReasons: React.FC = () => {
     const num = Number(value);
     setEditingRow(prev => ({
       ...prev,
-      sort: isNaN(num) ? undefined : num,
+      sortOrder: isNaN(num) ? undefined : num,
     }));
   };
 
@@ -208,19 +247,19 @@ export const LeadLostReasons: React.FC = () => {
         </div>
       ),
       dataIndex: 'reason',
-      key: 'reason',
-      render: (_: any, record: LostReason) => {
-        const isEditing = editingId === record.id;
+      key: 'lostReason',
+      render: (_: any, record: leadLostReason) => {
+        const isEditing = editingId === record.leadLostReasonId;
         if (!record.isActive) {
-          return <span className="text-gray-400 italic">{record.reason}</span>;
+          return <span className="text-gray-400 italic">{record.lostReason}</span>;
         }
         return isEditing ? (
           <Input
-            value={editingRow.reason}
-            onChange={e => setEditingRow(prev => ({ ...prev, reason: e.target.value }))}
+            value={editingRow.lostReason}
+            onChange={e => setEditingRow(prev => ({ ...prev, lostReason: e.target.value }))}
           />
         ) : (
-          record.reason
+          record.lostReason
         );
       },
     },
@@ -233,17 +272,17 @@ export const LeadLostReasons: React.FC = () => {
           </Tooltip>
         </div>
       ),
-      dataIndex: 'sort',
+      dataIndex: 'sortOrder',
       width: 120,
-      render: (sort: number, record: LostReason) => {
-        const isEditing = editingId === record.id;
+      render: (sortOrder: number, record: leadLostReason) => {
+        const isEditing = editingId === record.leadLostReasonId;
         if (!record.isActive) {
-          return <span className="text-gray-400">{record.sort}</span>;
+          return <span className="text-gray-400">{record.sortOrder}</span>;
         }
         return (
           <Input
             type="number"
-            value={isEditing ? (editingRow.sort ?? '') : sort}
+            value={isEditing ? (editingRow.sortOrder ?? '') : sortOrder}
             onChange={e => isEditing && handleSortChange(e.target.value)}
             disabled={!isEditing}
           />
@@ -253,9 +292,9 @@ export const LeadLostReasons: React.FC = () => {
     {
       title: '',
       width: 160,
-      render: (_: any, row: LostReason) => {
+      render: (_: any, row: leadLostReason) => {
         const inactive = row.isActive === false;
-        const editing = editingId === row.id;
+        const editing = editingId === row.leadLostReasonId;
 
         if (inactive) {
           return (
@@ -279,7 +318,7 @@ export const LeadLostReasons: React.FC = () => {
                   <Button
                     type="text"
                     icon={<IconCheck size={18} className="text-green-500" />}
-                    onClick={() => saveEdit(row.id)}
+                    onClick={() => saveEdit(row.leadLostReasonId)}
                   />
                 </Tooltip>
                 <Tooltip title="Cancel">
@@ -330,6 +369,8 @@ export const LeadLostReasons: React.FC = () => {
     },
   ];
 
+  const dataSource = (isAdding ? [editingRow, ...leadLostReason] : leadLostReason).filter(Boolean);
+
   return (
     <div className="p-4 rounded-lg">
       <div className="flex justify-between mb-4">
@@ -347,7 +388,7 @@ export const LeadLostReasons: React.FC = () => {
       <Table
         pagination={false}
         columns={columns}
-        dataSource={[...data].sort((a, b) => a.sort - b.sort)}
+        dataSource={[...dataSource].sort((a, b) => a.sortOrder - b.sortOrder)}
         rowKey="id"
         size="middle"
       />
@@ -363,7 +404,7 @@ export const LeadLostReasons: React.FC = () => {
           isModalOpen.row
             ? `Are you sure you want to ${
                 isModalOpen.type === 'activate' ? 'activate' : 'deactivate'
-              } "${isModalOpen.row.reason}"? This will make it ${
+              } "${isModalOpen.row.lostReason}"? This will make it ${
                 isModalOpen.type === 'activate' ? 'available again' : 'unavailable for new leads'
               }.`
             : 'Confirm Action'

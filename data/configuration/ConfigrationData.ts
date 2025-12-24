@@ -1,8 +1,8 @@
 export const configurationSettingsOptions = [
-  { value: 'doc_id', label: 'Document ID' },
+  { value: 'document_id', label: 'Document ID' },
   { value: 'job_id', label: 'Job ID' },
-  { value: 'doc_id_job_id', label: 'Document ID and Job ID' },
-  { value: 'none', label: "Don't show Document ID and Job ID" },
+  { value: 'document_id_and_job_id', label: 'Document ID and Job ID' },
+  { value: 'hide_document_id_and_job_id', label: "Don't show Document ID and Job ID" },
 ];
 
 export const fieldTypeOptions = [
