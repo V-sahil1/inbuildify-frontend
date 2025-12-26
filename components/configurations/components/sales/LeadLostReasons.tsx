@@ -21,6 +21,7 @@ import {
 } from '@redux/feature/admin/sales/leadLostReason/leadLostReasonThunk';
 import { Status } from '@lib/constants/enum';
 import { leadLostReason } from '@redux/feature/admin/sales/leadLostReason/ILeadLostReasonState';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 
 export const LeadLostReasons: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -152,12 +153,7 @@ export const LeadLostReasons: React.FC = () => {
         };
         const values = { lostReason: updatedFields.lostReason, sortOrder: updatedFields.sortOrder };
         const prevValues = leadLostReason.filter(i => i.leadLostReasonId === id)[0];
-        const updatedValues = Object.keys(values).reduce((acc, key) => {
-          if (values[key] !== prevValues[key]) {
-            acc[key] = values[key];
-          }
-          return acc;
-        }, {} as Partial<leadLostReason>);
+        const updatedValues = getUpdatedFields<leadLostReason>(values, prevValues);
         if (Object.keys(updatedValues).length === 0) {
           message.info('No changes detected');
           return;

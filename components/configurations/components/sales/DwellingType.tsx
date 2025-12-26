@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Table, Input, Button, Tooltip, message, Space, Popconfirm } from 'antd';
 import {
   IconTrash,
@@ -11,111 +11,143 @@ import {
   IconPencil,
 } from '@tabler/icons-react';
 import ConfirmationModal from '@/components/common/ConfirmationModal';
-import { DwellingTypeData } from 'data/configuration/leadsourceData';
-
-interface DwellingType {
-  id: number;
-  name: string;
-  isActive?: boolean;
-  isDraft?: boolean;
-}
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import {
+  createDwellingType,
+  fetchDwellingType,
+  updateDwellingStatus,
+  updateDwellingType,
+} from '@redux/feature/admin/sales/dwellingType/dwellingTypeThunk';
+import { Status } from '@lib/constants/enum';
+import { dwellingType } from '@redux/feature/admin/sales/dwellingType/IDwelingTypeState';
 
 export const DwellingType: React.FC = () => {
-  const [data, setData] = useState<DwellingType[]>(DwellingTypeData);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [editingRow, setEditingRow] = useState<Partial<DwellingType>>({});
+  const dispatch = useAppDispatch();
+  const { dwellingType, status } = useAppSelector(state => state.sales.dwellingType);
+  // const [data, setData] = useState<any[]>(DwellingTypeData);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingRow, setEditingRow] = useState<Partial<dwellingType>>({});
   const [isAdding, setIsAdding] = useState(false);
-
+  const [error, setError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState<{
     open: boolean;
     type: 'activate' | 'deactivate' | null;
-    row: DwellingType | null;
+    row: dwellingType | null;
   }>({
     open: false,
     type: null,
     row: null,
   });
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        await dispatch(fetchDwellingType()).unwrap();
+      } catch (error) {
+        message.error('Failed to fetch dwelling type');
+      }
+    }
+    if (status.fetch === Status.IDLE) {
+      fetchData();
+    }
+  }, [status.fetch]);
 
   // === ADD ===
   const handleAdd = () => {
-    const newRow: DwellingType = {
-      id: -Date.now(), // temporary negative ID
+    const newRow: dwellingType = {
+      dwellingTypeId: '', // temporary negative ID
       name: '',
       isActive: true,
-      isDraft: true,
     };
-    setData(prev => [newRow, ...prev]); // add at top
-    setEditingId(newRow.id);
+    // setData(prev => [newRow, ...prev]); // add at top
+    setEditingId(newRow.dwellingTypeId);
     setEditingRow(newRow);
     setIsAdding(true);
   };
 
   // === EDITING ===
-  const startEdit = (record: DwellingType) => {
-    setEditingId(record.id);
+  const startEdit = (record: dwellingType) => {
+    setEditingId(record.dwellingTypeId);
     setEditingRow({ ...record });
   };
 
-  const saveEdit = (id: number) => {
-    if (!editingRow.name || editingRow.name.trim() === '') {
-      message.error('Dwelling Type cannot be empty');
-      return;
-    }
-
-    const isNew = id < 0;
-    const newItem: DwellingType = {
-      ...(editingRow as DwellingType),
-      id: isNew ? Date.now() : id,
-      isActive: editingRow.isActive ?? true,
-      isDraft: false,
-    };
-
-    setData(prev => {
-      if (isNew) {
-        const filtered = prev.filter(item => item.id !== id);
-        return [newItem, ...filtered];
+  const saveEdit = async (id: string) => {
+    try {
+      if (!editingRow.name || editingRow.name.trim() === '') {
+        setError('Dwelling Type cannot be empty');
+        return;
       }
-      return prev.map(p => (p.id === id ? { ...p, ...newItem } : p));
-    });
-
-    setEditingId(null);
-    setEditingRow({});
-    setIsAdding(false);
-    message.success('Changes saved successfully');
+      const isNew = id === '';
+      const newItem: dwellingType = {
+        ...(editingRow as dwellingType),
+        isActive: editingRow.isActive ?? true,
+      };
+      delete newItem.dwellingTypeId;
+      if (isNew) {
+        await dispatch(createDwellingType(newItem)).unwrap();
+        message.success('Dwelling Type created successfully');
+      } else {
+        if (newItem.name !== dwellingType.find(item => item.dwellingTypeId === id)?.name) {
+          await dispatch(updateDwellingType({ data: { name: newItem.name }, id: id })).unwrap();
+          message.success('Dwelling Type updated successfully');
+        } else {
+          message.info('No changes detected');
+          return;
+        }
+      }
+      setEditingId(null);
+      setEditingRow({});
+      setIsAdding(false);
+    } catch (error) {
+      message.error('Failed to save dwelling type');
+    }
   };
 
   const cancelEdit = () => {
     if (isAdding && editingId) {
-      setData(prev => prev.filter(item => item.id !== editingId));
+      // setData(prev => prev.filter(item => item.id !== editingId));
       setIsAdding(false);
     }
     setEditingId(null);
-    setEditingRow({});
+    setEditingRow(null);
   };
 
   // === ACTIVATE / DEACTIVATE ===
-  const openDeactivateModal = (row: DwellingType) => {
+  const openDeactivateModal = (row: dwellingType) => {
     setIsModalOpen({ open: true, type: 'deactivate', row });
   };
 
-  const openActivateModal = (row: DwellingType) => {
+  const openActivateModal = (row: dwellingType) => {
     setIsModalOpen({ open: true, type: 'activate', row });
   };
 
-  const handleDeactivateConfirm = () => {
+  const handleDeactivateConfirm = async () => {
     const row = isModalOpen.row;
     if (!row) return;
-    setData(prev => prev.map(p => (p.id === row.id ? { ...p, isActive: false } : p)));
-    message.success('Item deactivated');
-    setIsModalOpen({ open: false, type: null, row: null });
+    try {
+      await dispatch(
+        updateDwellingStatus({ data: { isActive: false }, id: row.dwellingTypeId })
+      ).unwrap();
+      message.success('Item deactivated successfully');
+      setIsModalOpen({ open: false, type: null, row: null });
+    } catch (error) {
+      message.error('Failed to deactivate dwelling type');
+    }
+    // setData(prev => prev.map(p => (p.id === row.id ? { ...p, isActive: false } : p)));
   };
 
-  const handleActivateConfirm = () => {
+  const handleActivateConfirm = async () => {
     const row = isModalOpen.row;
     if (!row) return;
-    setData(prev => prev.map(p => (p.id === row.id ? { ...p, isActive: true } : p)));
-    message.success('Item activated');
-    setIsModalOpen({ open: false, type: null, row: null });
+    try {
+      await dispatch(
+        updateDwellingStatus({ data: { isActive: true }, id: row.dwellingTypeId })
+      ).unwrap();
+      message.success('Item activated successfully');
+      setIsModalOpen({ open: false, type: null, row: null });
+    } catch (error) {
+      message.error('Failed to deactivate dwelling type');
+    }
+    // setData(prev => prev.map(p => (p.id === row.id ? { ...p, isActive: true } : p)));
   };
 
   // === COLUMNS ===
@@ -131,16 +163,20 @@ export const DwellingType: React.FC = () => {
       ),
       dataIndex: 'name',
       key: 'name',
-      render: (_: any, record: DwellingType) => {
-        const isEditing = editingId === record.id;
+      render: (_: any, record: dwellingType) => {
+        const isEditing = editingId === record.dwellingTypeId;
         if (!record.isActive) {
           return <span className="text-gray-400 italic">{record.name}</span>;
         }
         return isEditing ? (
-          <Input
-            value={editingRow.name}
-            onChange={e => setEditingRow(prev => ({ ...prev, name: e.target.value }))}
-          />
+          <>
+            <Input
+              value={editingRow.name}
+              onChange={e => setEditingRow(prev => ({ ...prev, name: e.target.value }))}
+              disabled={status.create === Status.PENDING}
+            />
+            {error && <span className="text-red-500">{error}</span>}
+          </>
         ) : (
           record.name
         );
@@ -149,9 +185,9 @@ export const DwellingType: React.FC = () => {
     {
       title: '',
       width: 160,
-      render: (_: any, row: DwellingType) => {
+      render: (_: any, row: dwellingType) => {
         const inactive = row.isActive === false;
-        const editing = editingId === row.id;
+        const editing = editingId === row.dwellingTypeId;
 
         if (inactive) {
           return (
@@ -175,7 +211,8 @@ export const DwellingType: React.FC = () => {
                   <Button
                     type="text"
                     icon={<IconCheck size={18} className="text-green-500" />}
-                    onClick={() => saveEdit(row.id)}
+                    onClick={() => saveEdit(row.dwellingTypeId)}
+                    loading={status.create === Status.PENDING}
                   />
                 </Tooltip>
                 <Tooltip title="Cancel">
@@ -183,6 +220,7 @@ export const DwellingType: React.FC = () => {
                     type="text"
                     icon={<IconX size={18} className="text-red-500" />}
                     onClick={cancelEdit}
+                    disabled={status.create === Status.PENDING}
                   />
                 </Tooltip>
               </Space>
@@ -223,7 +261,7 @@ export const DwellingType: React.FC = () => {
       },
     },
   ];
-
+  const dataSource = (isAdding ? [editingRow, ...dwellingType] : dwellingType).filter(Boolean);
   return (
     <div className="p-4 rounded-lg">
       <div className="flex justify-between mb-4">
@@ -238,7 +276,14 @@ export const DwellingType: React.FC = () => {
         </Button>
       </div>
 
-      <Table pagination={false} columns={columns} dataSource={data} rowKey="id" size="middle" />
+      <Table
+        pagination={false}
+        columns={columns}
+        dataSource={dataSource}
+        rowKey="id"
+        size="middle"
+        loading={status.fetch === Status.PENDING}
+      />
 
       <ConfirmationModal
         open={isModalOpen.open}
@@ -256,6 +301,7 @@ export const DwellingType: React.FC = () => {
         }
         type={isModalOpen.type === 'activate' ? 'success' : 'warning'}
         confirmText={isModalOpen.type === 'activate' ? 'Activate' : 'Deactivate'}
+        loading={status.create === Status.PENDING}
       />
     </div>
   );

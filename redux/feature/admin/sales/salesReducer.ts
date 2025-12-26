@@ -9,6 +9,8 @@ import quotationReducer from './quotation/quotationSlice';
 import hlPackageSettingReducer from './hlPackage/hlPackageSlice';
 import rangeReducer from './range/rangeSlice';  
 import dwellingTypeReducer from './dwellingType/dwellingTypeSlice';
+import pricelistReducer from './pricelist/pricelistSlice';
+
 export const salesReducer = combineReducers({
   process: processReducer,
   stage: stageReducer,
@@ -16,8 +18,9 @@ export const salesReducer = combineReducers({
   leadSource: leadSourceReducer,
   leadLostReason: leadLostReasonReducer,
   clientType: clientTypeReducer,
-  // quotation: quotationReducer,
+  quotation: quotationReducer,
   hlPackageSetting: hlPackageSettingReducer,
-  // range:rangeReducer,
-  // dwellingType:dwellingTypeReducer   
+  range:rangeReducer,
+  dwellingType:dwellingTypeReducer,
+  pricelist:pricelistReducer   
 });

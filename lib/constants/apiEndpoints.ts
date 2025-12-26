@@ -133,8 +133,13 @@ class API_ENDPOINTS {
   public static UPDATE_CLIENT_TYPE = `${this.CLIENT_TYPE}/is-active`;
   public static QUOTATION_SETTING = '/quotation-setting';
   public static GET_QUOTATION_SETTING = `${this.QUOTATION_SETTING}/fetch`;
-  public static HL_PACKAGE_SETTING= '/house-land-package-setting';  
-  public static GET_HL_PACKAGE_SETTING = `${this.HL_PACKAGE_SETTING}/fetch`;  
+  public static HL_PACKAGE_SETTING = '/house-land-package-setting';
+  public static GET_HL_PACKAGE_SETTING = `${this.HL_PACKAGE_SETTING}/fetch`;
+  public static RANGE_BASE = '/range';
+  public static UPDATE_RANGE = `${this.RANGE_BASE}/is-active`;
+  public static DWELLING_TYPE_BASE = '/dwelling-type';
+  public static UPDATE_DWELLING_TYPE = `${this.DWELLING_TYPE_BASE}/is-active`;
+  public static PRICELIST_BASE = '/price-list';
 
   public static ROLE_BASE = '/role';
 }

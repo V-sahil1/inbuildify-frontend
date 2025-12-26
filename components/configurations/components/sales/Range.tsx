@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Table, Input, Button, Tooltip, message, Space, Popconfirm, Select, Upload } from 'antd';
 import {
   IconTrash,
@@ -13,42 +13,69 @@ import {
 } from '@tabler/icons-react';
 import ConfirmationModal from '@/components/common/ConfirmationModal';
 import { useUsersHook } from '@hooks/useUserData';
-import { RangeData } from 'data/configuration/leadsourceData';
-
-interface StyledItem {
-  id: number;
-  name: string;
-  sort: number;
-  logo?: string;
-  header?: string;
-  users?: number[];
-  bgColor?: string;
-  fontColor?: string;
-  isActive?: boolean;
-  isDraft?: boolean;
-}
-
-const initialData: StyledItem[] = RangeData;
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import {
+  fetchRange,
+  updateRange,
+  updateRangeStatus,
+} from '@redux/feature/admin/sales/range/rangeThunk';
+import { Status } from '@lib/constants/enum';
+import { range } from '@redux/feature/admin/sales/range/IRangeState';
+import { createRange } from '@redux/feature/admin/sales/range/rangeThunk';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 
 export const Range: React.FC = () => {
-  const [data, setData] = useState<StyledItem[]>(initialData);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [editingRow, setEditingRow] = useState<Partial<StyledItem>>({});
+  const dispatch = useAppDispatch();
+  const { range, status } = useAppSelector(state => state.sales.range);
+  // const [data, setData] = useState<range[]>([]);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingRow, setEditingRow] = useState<Partial<range>>({});
   const [isAdding, setIsAdding] = useState(false);
+  const [error, setError] = useState<{ name?: string; sortOrder?: string } | null>(null);
   const { users } = useUsersHook();
   const [isModalOpen, setIsModalOpen] = useState<{
     open: boolean;
     type: 'activate' | 'deactivate' | null;
-    row: StyledItem | null;
+    row: range | null;
   }>({
     open: false,
     type: null,
     row: null,
   });
+  const isDisabled = status.create === Status.PENDING;
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        await dispatch(fetchRange()).unwrap();
+      } catch (error) {
+        message.error(error || 'Failed to fetchc range');
+      }
+    }
+    if (status.fetch === Status.IDLE) {
+      fetchData();
+    }
+  }, [status.fetch]);
 
-  const sorted = (list: StyledItem[]) => [...list].sort((a, b) => a.sort - b.sort);
+  const validateForm = () => {
+    const errors = {
+      name: '',
+      sortOrder: '',
+    };
+    let isValid = true;
+    if (!editingRow.name?.trim()) {
+      errors.name = 'name is required';
+      isValid = false;
+    }
+    if (!editingRow.sortOrder || editingRow.sortOrder < 1) {
+      errors.sortOrder = 'Sort order must be greater than 0';
+      isValid = false;
+    }
+    setError(errors);
+    return isValid;
+  };
+  const sorted = (list: range[]) => [...list].sort((a, b) => a.sortOrder - b.sortOrder);
 
-  const insertAtSort = (prev: StyledItem[], newItem: StyledItem, desiredSort?: number) => {
+  const insertAtSort = (prev: range[], newItem: range, desiredSort?: number) => {
     const list = sorted(prev);
     const maxPos = list.length + 1;
     const pos = Math.min(
@@ -60,127 +87,157 @@ export const Range: React.FC = () => {
   };
 
   const moveExistingItem = (
-    prev: StyledItem[],
-    id: number,
-    updates: Partial<StyledItem>,
+    prev: range[],
+    id: string,
+    updates: Partial<range>,
     desiredSort?: number
   ) => {
     const list = sorted(prev);
-    const idx = list.findIndex(i => i.id === id);
+    const idx = list.findIndex(i => i.rangeId === id);
     if (idx === -1) return prev;
     const item = { ...list[idx], ...updates };
     const others = list.filter((_, i) => i !== idx);
     const maxPos = others.length + 1;
     const pos = Math.min(
-      Math.max(1, Number.isFinite(desiredSort as number) ? (desiredSort as number) : item.sort),
+      Math.max(
+        1,
+        Number.isFinite(desiredSort as number) ? (desiredSort as number) : item.sortOrder
+      ),
       maxPos
     );
     const newList = [...others.slice(0, pos - 1), item, ...others.slice(pos - 1)];
-    return newList.map((it, i) => ({ ...it, sort: i + 1 }));
+    return newList.map((it, i) => ({ ...it, sortOrder: i + 1 }));
   };
 
-  const startEdit = (record: StyledItem) => {
-    setEditingId(record.id);
+  const startEdit = (record: range) => {
+    setEditingId(record.rangeId);
     setEditingRow({ ...record });
   };
 
-  const saveEdit = (id: number) => {
-    if (!editingRow.name || editingRow.name.trim() === '') {
-      message.error('Name cannot be empty');
+  const saveEdit = async (id: string) => {
+    if (!validateForm()) {
       return;
     }
+    try {
+      if (!editingRow.name || editingRow.name.trim() === '') {
+        message.error('Name cannot be empty');
+        return;
+      }
 
-    const isNew = id < 0;
-    const desiredSort = Number(editingRow.sort);
+      const isNew = id === '';
+      const desiredSort = Number(editingRow.sortOrder);
 
-    if (isNew) {
-      const finalId = Math.abs(id) || Date.now();
-      const newItem: StyledItem = {
-        ...(editingRow as StyledItem),
-        id: finalId,
-        sort: Number.isFinite(desiredSort) ? desiredSort : 1,
-        isDraft: false,
-        isActive: editingRow.isActive ?? true,
-      } as StyledItem;
+      if (isNew) {
+        const newItem: range = {
+          ...(editingRow as range),
 
-      setData(prev => {
-        const prevClean = prev.filter(it => it.id !== id);
-        return insertAtSort(prevClean, newItem, newItem.sort);
-      });
+          sortOrder: Number.isFinite(desiredSort) ? desiredSort : 1,
+          isActive: editingRow.isActive ?? true,
+        } as range;
+        delete newItem.rangeId;
 
-      setIsAdding(false);
-    } else {
-      setData(prev => {
-        const current = prev.find(p => p.id === id);
-        if (!current) return prev;
+        await dispatch(createRange(newItem)).unwrap();
+        message.success('Range created successfully');
+        // setData(prev => {
+        //   const prevClean = prev.filter(it => it.id !== id);
+        //   return insertAtSort(prevClean, newItem, newItem.sort);
+        // });
 
-        const updatedFields: Partial<StyledItem> = {
-          ...editingRow,
-          isDraft: false,
-        };
+        setIsAdding(false);
+      } else {
+        const updatedFields = getUpdatedFields<range>(
+          editingRow,
+          range.find(p => p.rangeId === id)
+        );
+        delete updatedFields.rangeId;
+        await dispatch(updateRange({ data: updatedFields, id })).unwrap();
+        message.success('Range updated successfully');
+        // setData(prev => {
+        //   const current = prev.find(p => p.id === id);
+        //   if (!current) return prev;
 
-        if (Number.isFinite(desiredSort) && desiredSort !== current.sort) {
-          return moveExistingItem(prev, id, updatedFields, desiredSort);
-        }
+        //   const updatedFields: Partial<range> = {
+        //     ...editingRow,
+        //     isDraft: false,
+        //   };
 
-        // just update
-        return prev.map(p => (p.id === id ? { ...p, ...updatedFields } : p));
-      });
+        //   if (Number.isFinite(desiredSort) && desiredSort !== current.sort) {
+        //     return moveExistingItem(prev, id, updatedFields, desiredSort);
+        //   }
+
+        //   // just update
+        //   return prev.map(p => (p.id === id ? { ...p, ...updatedFields } : p));
+        // });
+      }
+
+      setEditingId(null);
+      setEditingRow({});
+    } catch (error) {
+      message.error(error || 'Failed to save range');
     }
-
-    setEditingId(null);
-    setEditingRow({});
-    message.success('Saved successfully');
   };
 
   const cancelEdit = () => {
     if (isAdding && editingId) {
-      setData(prev => prev.filter(item => item.id !== editingId));
+      // setData(prev => prev.filter(item => item.id !== editingId));
       setIsAdding(false);
     }
     setEditingId(null);
-    setEditingRow({});
+    setEditingRow(null);
   };
 
   const handleAdd = () => {
-    const newRow: StyledItem = {
-      id: -Date.now(),
+    const newRow: range = {
+      rangeId: '',
       name: '',
-      sort: 1,
+      sortOrder: 1,
+      bgColor: '#7c3aed',
+      fontColor: '#ffffff',
+      logoUrl: '',
+      headerUrl: '',
+      userId: [],
       isActive: true,
-      isDraft: true,
     };
-    setData(prev => [newRow, ...prev]);
-    setEditingId(newRow.id);
+    // setData(prev => [newRow, ...prev]);
+    setEditingId(newRow.rangeId);
     setEditingRow(newRow);
     setIsAdding(true);
   };
 
-  const openDeactivateModal = (row: StyledItem) =>
+  const openDeactivateModal = (row: range) =>
     setIsModalOpen({ open: true, type: 'deactivate', row });
 
-  const openActivateModal = (row: StyledItem) =>
-    setIsModalOpen({ open: true, type: 'activate', row });
+  const openActivateModal = (row: range) => setIsModalOpen({ open: true, type: 'activate', row });
 
-  const handleDeactivateConfirm = () => {
+  const handleDeactivateConfirm = async () => {
     const row = isModalOpen.row;
     if (!row) return;
-    setData(prev => prev.map(p => (p.id === row.id ? { ...p, isActive: false } : p)));
-    message.success('Item deactivated');
-    setIsModalOpen({ open: false, type: null, row: null });
+    try {
+      await dispatch(updateRangeStatus({ data: { isActive: false }, id: row.rangeId })).unwrap();
+      message.success('Item successfully deactivated');
+      setIsModalOpen({ open: false, type: null, row: null });
+    } catch (error) {
+      message.error(error || 'Failed to deactivate item');
+    }
+    // setData(prev => prev.map(p => (p.id === row.id ? { ...p, isActive: false } : p)));
   };
 
-  const handleActivateConfirm = () => {
+  const handleActivateConfirm = async () => {
     const row = isModalOpen.row;
     if (!row) return;
-    setData(prev => prev.map(p => (p.id === row.id ? { ...p, isActive: true } : p)));
-    message.success('Item activated');
-    setIsModalOpen({ open: false, type: null, row: null });
+    try {
+      await dispatch(updateRangeStatus({ data: { isActive: true }, id: row.rangeId })).unwrap();
+      message.success('Item successfully activated');
+      setIsModalOpen({ open: false, type: null, row: null });
+    } catch (error) {
+      message.error(error || 'Failed to activate item');
+    }
+    // setData(prev => prev.map(p => (p.id === row.id ? { ...p, isActive: true } : p)));
   };
 
   const handleSortChange = (value: number | string) => {
     const num = Number(value);
-    setEditingRow(prev => ({ ...prev, sort: isNaN(num) ? undefined : num }));
+    setEditingRow(prev => ({ ...prev, sortOrder: isNaN(num) ? undefined : num }));
   };
   const columns = [
     {
@@ -194,8 +251,8 @@ export const Range: React.FC = () => {
       ),
       dataIndex: 'name',
       key: 'name',
-      render: (_: any, record: StyledItem) => {
-        const isEditing = editingId === record.id;
+      render: (_, record: range) => {
+        const isEditing = editingId === record.rangeId;
         if (!record.isActive) {
           return <span className="text-gray-400 italic">{record.name}</span>;
         }
@@ -205,6 +262,7 @@ export const Range: React.FC = () => {
               value={editingRow.name}
               placeholder="Enter name"
               onChange={e => setEditingRow(p => ({ ...p, name: e.target.value }))}
+              disabled={isDisabled}
             />
             <div className="flex items-center gap-3">
               <div>
@@ -214,6 +272,7 @@ export const Range: React.FC = () => {
                   value={editingRow.bgColor ?? '#7c3aed'}
                   onChange={e => setEditingRow(p => ({ ...p, bgColor: e.target.value }))}
                   style={{ width: 56, height: 32, padding: 0, borderRadius: 4 }}
+                  disabled={isDisabled}
                 />
               </div>
               <div>
@@ -223,9 +282,11 @@ export const Range: React.FC = () => {
                   value={editingRow.fontColor ?? '#ffffff'}
                   onChange={e => setEditingRow(p => ({ ...p, fontColor: e.target.value }))}
                   style={{ width: 56, height: 32, padding: 0, borderRadius: 4 }}
+                  disabled={isDisabled}
                 />
               </div>
             </div>
+            {error?.name && <div className="text-red-500">{error.name}</div>}
           </div>
         ) : (
           <div>
@@ -248,12 +309,14 @@ export const Range: React.FC = () => {
       dataIndex: 'logo',
       key: 'logo',
       width: 120,
-      render: (_: any, record: StyledItem) => {
-        const isEditing = editingId === record.id;
+      render: (_, record: range) => {
+        const isEditing = editingId === record.rangeId;
         if (!record.isActive) return <div className="text-gray-400">-</div>;
         return isEditing ? (
           <Upload showUploadList={false} listType="picture" beforeUpload={() => false}>
-            <Button icon={<IconUpload />}>Upload</Button>
+            <Button icon={<IconUpload />} disabled={isDisabled}>
+              Upload
+            </Button>
           </Upload>
         ) : (
           <div className="w-12 h-12 bg-gray-100 rounded border flex items-center justify-center">
@@ -268,12 +331,14 @@ export const Range: React.FC = () => {
       dataIndex: 'header',
       key: 'header',
       width: 120,
-      render: (_: any, record: StyledItem) => {
-        const isEditing = editingId === record.id;
+      render: (_, record: range) => {
+        const isEditing = editingId === record.rangeId;
         if (!record.isActive) return <div className="text-gray-400">-</div>;
         return isEditing ? (
           <Upload showUploadList={false} listType="picture" beforeUpload={() => false}>
-            <Button icon={<IconUpload />}>Upload</Button>
+            <Button icon={<IconUpload />} disabled={isDisabled}>
+              Upload
+            </Button>
           </Upload>
         ) : (
           <div className="w-12 h-12 bg-gray-100 rounded border flex items-center justify-center">
@@ -286,41 +351,47 @@ export const Range: React.FC = () => {
       title: 'User',
       dataIndex: 'users',
       key: 'users',
-      render: (_: any, record: StyledItem) => {
-        const isEditing = editingId === record.id;
+      render: (_, record: range) => {
+        const isEditing = editingId === record.rangeId;
         if (!record.isActive) return <div className="text-gray-400">-</div>;
         return isEditing ? (
           <Select
             mode="multiple"
             placeholder="Select Users"
-            value={(editingRow.users as number[]) ?? []}
+            value={(editingRow.userId as string[]) ?? []}
             options={users.map(user => ({ value: user.usersId, label: user.name }))}
-            onChange={vals => setEditingRow(p => ({ ...p, users: vals }))}
+            onChange={vals => setEditingRow(p => ({ ...p, userId: vals }))}
             style={{ minWidth: 220 }}
+            disabled={isDisabled}
           />
         ) : (
           <div className="text-sm text-gray-600">
-            {(record.users ?? []).length > 0 ? `${(record.users ?? []).length} user(s)` : ''}
+            {(record.userId ?? []).length > 0 ? `${(record.userId ?? []).length} user(s)` : ''}
           </div>
         );
       },
     },
     {
       title: 'Sort',
-      dataIndex: 'sort',
-      key: 'sort',
+      dataIndex: 'sortOrder',
+      key: 'sortOrder',
       width: 100,
-      render: (sort: number, record: StyledItem) => {
-        const isEditing = editingId === record.id;
-        if (!record.isActive) return <div className="text-gray-400">{record.sort}</div>;
-        return (
-          <Input
-            type="number"
-            value={isEditing ? (editingRow.sort ?? '') : sort}
-            onChange={e => isEditing && handleSortChange(e.target.value)}
-            disabled={!isEditing}
-            style={{ width: 72 }}
-          />
+      render: (sortOrder: number, record: range) => {
+        const isEditing = editingId === record.rangeId;
+        if (!record.isActive) return <div className="text-gray-400">{record.sortOrder}</div>;
+        return isEditing ? (
+          <>
+            <Input
+              type="number"
+              value={editingRow.sortOrder ?? ''}
+              onChange={e => handleSortChange(e.target.value)}
+              style={{ width: 72 }}
+              disabled={isDisabled}
+            />
+            {error?.sortOrder && <div className="text-red-500">{error.sortOrder}</div>}
+          </>
+        ) : (
+          <div className="text-gray-400">{sortOrder}</div>
         );
       },
     },
@@ -328,9 +399,9 @@ export const Range: React.FC = () => {
       title: '',
       key: 'actions',
       width: 140,
-      render: (_: any, row: StyledItem) => {
+      render: (_, row: range) => {
         const inactive = row.isActive === false;
-        const editing = editingId === row.id;
+        const editing = editingId === row.rangeId;
 
         if (inactive) {
           return (
@@ -354,7 +425,8 @@ export const Range: React.FC = () => {
                   <Button
                     type="text"
                     icon={<IconCheck size={18} className="text-green-500" />}
-                    onClick={() => saveEdit(row.id)}
+                    onClick={() => saveEdit(row.rangeId)}
+                    loading={isDisabled}
                   />
                 </Tooltip>
                 <Tooltip title="Cancel">
@@ -362,6 +434,7 @@ export const Range: React.FC = () => {
                     type="text"
                     icon={<IconX size={18} className="text-red-500" />}
                     onClick={cancelEdit}
+                    disabled={isDisabled}
                   />
                 </Tooltip>
               </Space>
@@ -393,7 +466,7 @@ export const Range: React.FC = () => {
       },
     },
   ];
-
+  const dataSource = (isAdding ? [editingRow, ...range] : range).filter(Boolean);
   return (
     <div className="p-4 rounded-lg shadow-sm">
       <div className="flex justify-between items-center mb-4">
@@ -413,10 +486,11 @@ export const Range: React.FC = () => {
       <Table
         pagination={false}
         columns={columns}
-        dataSource={sorted(data)}
-        rowKey="id"
+        dataSource={[...dataSource].sort((a, b) => a.sortOrder - b.sortOrder)}
+        rowKey="rangeId"
         size="middle"
         className="ant-table-striped"
+        loading={status.fetch === Status.PENDING}
       />
 
       <ConfirmationModal
@@ -435,6 +509,7 @@ export const Range: React.FC = () => {
         }
         type={isModalOpen.type === 'activate' ? 'success' : 'warning'}
         confirmText={isModalOpen.type === 'activate' ? 'Activate' : 'Deactivate'}
+        loading={isDisabled}
       />
     </div>
   );
