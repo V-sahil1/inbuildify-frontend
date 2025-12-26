@@ -8,6 +8,7 @@ import {
 } from '@redux/feature/admin/general/passwordPolicy/passwordPolicyThunk';
 import { Status } from '@lib/constants/enum';
 import { passwordPolicy } from '@redux/feature/admin/general/passwordPolicy/IPasswordPolicyState';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 
 export const PasswordPolicy: React.FC = () => {
   const [form] = Form.useForm();
@@ -34,12 +35,7 @@ export const PasswordPolicy: React.FC = () => {
   }
   const onFinish = async (values: passwordPolicy) => {
     try {
-      const updatedValues = Object.keys(values).reduce((acc, key) => {
-        if (values[key] !== passwordPolicy[key]) {
-          acc[key] = values[key];
-        }
-        return acc;
-      }, {} as Partial<passwordPolicy>);
+      const updatedValues = getUpdatedFields<passwordPolicy>(values, passwordPolicy); 
       if (Object.keys(updatedValues).length === 0) {
         message.info('No changes detected');
         return;

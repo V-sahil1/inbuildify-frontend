@@ -21,14 +21,15 @@ import {
   updateClientTypeStatus,
 } from '@redux/feature/admin/sales/clientType/clientTypeThunk';
 import { Status } from '@lib/constants/enum';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 
 export const ClientType: React.FC = () => {
   const dispatch = useAppDispatch();
   const { clientType, status } = useAppSelector((state: RootState) => state.sales.clientType);
-  const [data, setData] = useState<clientType[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingRow, setEditingRow] = useState<Partial<clientType> | null>(null);
   const [isAdding, setIsAdding] = useState(false);
+  const [error, setError] = useState<{ clientType?: string; sortOrder?: string } | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState<{
     open: boolean;
@@ -39,7 +40,6 @@ export const ClientType: React.FC = () => {
     type: null,
     row: null,
   });
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -49,7 +49,25 @@ export const ClientType: React.FC = () => {
       }
     };
     fetchData();
-  }, []);
+  }, [status.fetch]);
+
+  const validateForm = () => {
+    const errors = {
+      clientType: '',
+      sortOrder: '',
+    };
+    let isValid = true;
+    if (!editingRow.clientType?.trim()) {
+      errors.clientType = 'Lost Reason is required';
+      isValid = false;
+    }
+    if (!editingRow.sortOrder || editingRow.sortOrder < 1) {
+      errors.sortOrder = 'Sort order must be greater than 0';
+      isValid = false;
+    }
+    setError(errors);
+    return isValid;
+  };
 
   // Utility: ensure list is sorted by sortOrder asc
   const sorted = (list: clientType[]) => [...list].sort((a, b) => a.sortOrder - b.sortOrder);
@@ -93,14 +111,15 @@ export const ClientType: React.FC = () => {
 
   // Start edit
   const startEdit = (record: clientType) => {
+    setIsAdding(false);
+    setError(null);
     setEditingId(record.clientTypeId);
     setEditingRow({ ...record });
   };
 
   // Save edit (with new insertion/reorder logic)
   const saveEdit = async (clientTypeId: string) => {
-    if (!editingRow.clientType || editingRow.clientType.trim() === '') {
-      message.error('Client Type cannot be empty');
+    if (!validateForm()) {
       return;
     }
 
@@ -130,13 +149,17 @@ export const ClientType: React.FC = () => {
         setIsAdding(false);
       } else {
         // Existing item: update fields and if sortOrder changed or provided, move accordingly
-        const updatedFields: Partial<clientType> = {
-          ...editingRow,
-          isDraft: false,
-        };
+        // const updatedFields: Partial<clientType> = {
+        //   ...editingRow,
+        //   isDraft: false,
+        // };
+        const values = getUpdatedFields<clientType>(
+          editingRow,
+          clientType.find(i => i.clientTypeId === clientTypeId)
+        );
         await dispatch(
           updateClientType({
-            data: { clientType: updatedFields.clientType, sortOrder: updatedFields.sortOrder },
+            data: values,
             id: clientTypeId,
           })
         ).unwrap();
@@ -168,7 +191,6 @@ export const ClientType: React.FC = () => {
   // Cancel edit (remove temporary row if adding)
   const cancelEdit = () => {
     if (isAdding && editingId) {
-      // setData(prev => prev.filter(item => item.clientTypeId !== editingId));
       setIsAdding(false);
     }
     setEditingId(null);
@@ -180,12 +202,11 @@ export const ClientType: React.FC = () => {
     const newRow: clientType = {
       clientTypeId: '', // temporary negative ID
       clientType: '',
-      sortOrder: 1,
+      sortOrder: null,
       isActive: true,
       isDraft: true,
     };
     // Insert at start temporarily so user can edit; final position will be decided on save based on the sortOrder value.
-    // setData(prev => [newRow, ...prev]);
     setEditingId(newRow.clientTypeId);
     setEditingRow(newRow);
     setIsAdding(true);
@@ -255,10 +276,14 @@ export const ClientType: React.FC = () => {
           return <span className="text-gray-400 italic">{record.clientType}</span>;
         }
         return isEditing ? (
-          <Input
-            value={editingRow.clientType}
-            onChange={e => setEditingRow(prev => ({ ...prev, clientType: e.target.value }))}
-          />
+          <>
+            <Input
+              value={editingRow.clientType}
+              onChange={e => setEditingRow(prev => ({ ...prev, clientType: e.target.value }))}
+              disabled={status.create === Status.PENDING}
+            />
+            {error?.clientType && <span className="text-red-500">{error.clientType}</span>}
+          </>
         ) : (
           record.clientType
         );
@@ -280,13 +305,18 @@ export const ClientType: React.FC = () => {
         if (!record.isActive) {
           return <span className="text-gray-400">{record.sortOrder}</span>;
         }
-        return (
-          <Input
-            type="number"
-            value={isEditing ? (editingRow.sortOrder ?? '') : sortOrder}
-            onChange={e => isEditing && handleSortChange(e.target.value)}
-            disabled={!isEditing}
-          />
+        return isEditing ? (
+          <>
+            <Input
+              type="number"
+              value={isEditing ? (editingRow.sortOrder ?? '') : sortOrder}
+              onChange={e => isEditing && handleSortChange(e.target.value)}
+              disabled={status.create === Status.PENDING}
+            />
+            {error?.sortOrder && <span className="text-red-500">{error.sortOrder}</span>}
+          </>
+        ) : (
+          record.sortOrder
         );
       },
     },
@@ -320,6 +350,7 @@ export const ClientType: React.FC = () => {
                     type="text"
                     icon={<IconCheck size={18} className="text-green-500" />}
                     onClick={() => saveEdit(row.clientTypeId)}
+                    loading={status.create === Status.PENDING}
                   />
                 </Tooltip>
                 <Tooltip title="Cancel">
@@ -327,6 +358,7 @@ export const ClientType: React.FC = () => {
                     type="text"
                     icon={<IconX size={18} className="text-red-500" />}
                     onClick={cancelEdit}
+                    disabled={status.create === Status.PENDING}
                   />
                 </Tooltip>
               </Space>
@@ -388,6 +420,7 @@ export const ClientType: React.FC = () => {
         dataSource={[...dataSource].sort((a, b) => a.sortOrder - b.sortOrder)}
         rowKey="clientTypeId"
         size="middle"
+        loading={status.fetch === Status.PENDING}
       />
 
       <ConfirmationModal
@@ -410,6 +443,7 @@ export const ClientType: React.FC = () => {
         }
         type={isModalOpen.type === 'activate' ? 'success' : 'warning'}
         confirmText={isModalOpen.type === 'activate' ? 'Activate' : 'Deactivate'}
+        loading={status.create === Status.PENDING}
       />
     </div>
   );

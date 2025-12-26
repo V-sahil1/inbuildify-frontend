@@ -4,7 +4,7 @@ export interface clientType {
   clientType: string;
   sortOrder: number;
   isActive?: boolean;
-  isDraft?:boolean
+  isDraft?: boolean;
 }
 
 export interface fetchClientTypeResponse {
@@ -32,5 +32,6 @@ export interface IClientTypeState {
   clientType: clientType[];
   status: {
     fetch: Status;
+    create: Status;
   };
 }

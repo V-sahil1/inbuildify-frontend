@@ -20,6 +20,7 @@ import taskReducer from './task/taskSlice';
 import { generalReducer } from './admin/general/generalReducer';
 import { salesReducer } from './admin/sales/salesReducer';
 import { constructionReducer } from './admin/construction/constructionReducer';
+import roleReducer from './admin/role/roleSlice';
 const authPersistConfig = {
   key: 'auth',
   storage,
@@ -46,6 +47,7 @@ const appReducer = combineReducers({
   sales: salesReducer,
   general: generalReducer,
   construction: constructionReducer,
+  role: roleReducer,
 });
 
 const rootReducer = (state: ReturnType<typeof appReducer> | undefined, action: any) => {
@@ -78,6 +80,7 @@ const persistConfig = {
     'general',
     'sales',
     'construction',
+    'role',
   ],
 };
 

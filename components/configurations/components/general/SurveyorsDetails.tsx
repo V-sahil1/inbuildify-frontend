@@ -20,6 +20,7 @@ import {
   nameRules,
   phoneRules,
 } from '@lib/constants/formInputValidations';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 
 const SurveyorsDetails = () => {
   const [form] = Form.useForm();
@@ -58,12 +59,7 @@ const SurveyorsDetails = () => {
       try {
         if (editingIndex !== null) {
           const prevValues = surveyor.filter(i => i.surveyorId === editingIndex)[0];
-          const updatedValues = Object.keys(values).reduce((acc, key) => {
-            if (values[key] !== prevValues[key]) {
-              acc[key] = values[key];
-            }
-            return acc;
-          }, {} as Partial<Surveyor>);
+          const updatedValues = getUpdatedFields<Surveyor>(values, prevValues);
           if (Object.keys(updatedValues).length === 0) {
             message.info('No changes detected');
             return;

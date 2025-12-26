@@ -2,24 +2,38 @@
 
 import React, { useState, useEffect } from 'react';
 import { Switch, Button, Typography, message } from 'antd';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import {
+  fetchhlPackageSetting,
+  updatehlPackageSetting,
+} from '@redux/feature/admin/sales/hlPackage/hlPackageThunk';
+import { Status } from '@lib/constants/enum';
 
 const { Text } = Typography;
 
 export const HouseAndLandPackage: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const { hlPackageSetting, status } = useAppSelector(state => state.sales.hlPackageSetting);
   const [includeFacadeCost, setIncludeFacadeCost] = useState(false);
   const [initialValue, setInitialValue] = useState(false);
   const [isChanged, setIsChanged] = useState(false);
 
   useEffect(() => {
     const fetchSetting = async () => {
-      // Example API call:
-      // const response = await api.get('/settings/include-facade-cost');
-      const currentValue = true; // assume fetched
-      setIncludeFacadeCost(currentValue);
-      setInitialValue(currentValue);
+      try {
+        await dispatch(fetchhlPackageSetting()).unwrap();
+      } catch (error) {
+        message.error(error || 'Failed to fetch setting');
+      }
     };
-    fetchSetting();
-  }, []);
+    if (status.fetch === Status.IDLE) {
+      fetchSetting();
+    }
+    if (hlPackageSetting) {
+      setIncludeFacadeCost(hlPackageSetting.includeFacadeCostInTotal);
+      setInitialValue(hlPackageSetting.includeFacadeCostInTotal);
+    }
+  }, [status.fetch]);
 
   const handleToggle = (checked: boolean) => {
     setIncludeFacadeCost(checked);
@@ -28,8 +42,12 @@ export const HouseAndLandPackage: React.FC = () => {
 
   const handleSave = async () => {
     try {
-      // await api.post('/settings/include-facade-cost', { includeFacadeCost });
-      console.log('Saving setting:', includeFacadeCost);
+      await dispatch(
+        updatehlPackageSetting({
+          data: { includeFacadeCostInTotal: includeFacadeCost },
+          id: hlPackageSetting.houseLandPackageSettingsId,
+        })
+      ).unwrap();
       message.success('Setting saved successfully');
       setInitialValue(includeFacadeCost);
       setIsChanged(false);
@@ -42,12 +60,16 @@ export const HouseAndLandPackage: React.FC = () => {
     <>
       <div className="flex items-center justify-between w-full">
         <Text strong>Include the Facade Cost in the Total Package Cost</Text>
-        <Switch checked={includeFacadeCost} onChange={handleToggle} />
+        <Switch
+          checked={includeFacadeCost}
+          onChange={handleToggle}
+          disabled={status.update === Status.PENDING}
+        />
       </div>
 
       {isChanged && (
         <div className="text-right mt-6">
-          <Button type="primary" onClick={handleSave}>
+          <Button type="primary" onClick={handleSave} loading={status.update === Status.PENDING}>
             Save
           </Button>
         </div>

@@ -12,6 +12,7 @@ import {
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { RootState } from '@redux/feature/store';
 import { Status } from '@lib/constants/enum';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 
 const NotesTag: React.FC = () => {
   const [form] = Form.useForm();
@@ -50,12 +51,7 @@ const NotesTag: React.FC = () => {
       if (values) {
         if (editingRow && !!editingRow.notesTagId) {
           const prevValues = notesTag.filter(i => i.notesTagId === editingRow.notesTagId)[0];
-          const updatedValues = Object.keys(values).reduce((acc, key) => {
-            if (values[key] !== prevValues[key]) {
-              acc[key] = values[key];
-            }
-            return acc;
-          }, {} as Partial<notesTag>);
+          const updatedValues = getUpdatedFields<notesTag>(values, prevValues);
           if (Object.keys(updatedValues).length === 0) {
             message.info('No changes detected');
             return;

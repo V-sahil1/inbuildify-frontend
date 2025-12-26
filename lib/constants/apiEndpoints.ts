@@ -105,28 +105,37 @@ class API_ENDPOINTS {
   public static TAGS_BASE = '/tags';
 
   //admin general
-  public static GENERAL_SETTING = '/general-setting'
-  public static GET_GENERAL_SETTING=`${this.GENERAL_SETTING}/user`
+  public static GENERAL_SETTING = '/general-setting';
+  public static GET_GENERAL_SETTING = `${this.GENERAL_SETTING}/user`;
   public static SURVEYOR_BASE = '/surveyor';
   public static CUSTOMFIELD_BASE = '/custom-field';
   public static CUSTOMFIELD_MODULE_BASE = '/custom-field-module';
   public static NOTE_TAG_BASE = '/note-tag';
-  public static CHECKLIST_BASE='/checklist';
-  public static CHECKLIST_ITEM='/checklist-item'
+  public static CHECKLIST_BASE = '/checklist';
+  public static CHECKLIST_ITEM = '/checklist-item';
   public static SCREEN_BASE = '/screen';
   public static FUNCTIONALITY_BASE = '/functionality';
-  public static PASSWORD_POLICY_BASE='/password-policy'
-  public static GET_PASSWORD_POLICY=`${this.PASSWORD_POLICY_BASE}/user`
+  public static PASSWORD_POLICY_BASE = '/password-policy';
+  public static GET_PASSWORD_POLICY = `${this.PASSWORD_POLICY_BASE}/user`;
 
   //admin sales
-  public static SALES_SETTING='/sales-module-setting'
-  public static SALES_PROCESS='/sales-proccess'
-  public static SALES_STAGE_BASE='/sales-stage'
-  public static SALES_LEAD_SOURCE='/sales/lead-source'
-  public static LEAD_LOST_REASON='/lead-lost-reason'
-  public static UPDATE_LEAD_LOST_REASON=`${this.LEAD_LOST_REASON}/is-active`
-  public static CONSTRUCTION_TYPE='/construction-type'
-  public static CONSTRUCTION_STAGE='/construction-stage'
-  public static CLIENT_TYPE='/client-type'
+  public static SALES_SETTING = '/sales-module-setting';
+  public static GET_SALES_SETTING = `${this.SALES_SETTING}/fetch `;
+  public static SALES_PROCESS = '/sales-proccess';
+  public static SALES_STAGE_BASE = '/sales-stage';
+  public static SALES_LEAD_SOURCE = '/sales/lead-source';
+  public static UPDATE_LEAD_SOURCE_STATUS = `${this.SALES_LEAD_SOURCE}/is-active`;
+  public static LEAD_LOST_REASON = '/lead-lost-reason';
+  public static UPDATE_LEAD_LOST_REASON = `${this.LEAD_LOST_REASON}/is-active`;
+  public static CONSTRUCTION_TYPE = '/construction-type';
+  public static CONSTRUCTION_STAGE = '/construction-stage';
+  public static CLIENT_TYPE = '/client-type';
+  public static UPDATE_CLIENT_TYPE = `${this.CLIENT_TYPE}/is-active`;
+  public static QUOTATION_SETTING = '/quotation-setting';
+  public static GET_QUOTATION_SETTING = `${this.QUOTATION_SETTING}/fetch`;
+  public static HL_PACKAGE_SETTING= '/house-land-package-setting';  
+  public static GET_HL_PACKAGE_SETTING = `${this.HL_PACKAGE_SETTING}/fetch`;  
+
+  public static ROLE_BASE = '/role';
 }
 export default API_ENDPOINTS;

@@ -1,50 +1,83 @@
 'use client';
 import React, { useEffect } from 'react';
-import { Form, Switch, Input, Select, Radio, Button, Row, Col, Typography, Tooltip, message } from 'antd';
+import {
+  Form,
+  Switch,
+  Input,
+  Select,
+  Radio,
+  Button,
+  Row,
+  Col,
+  Typography,
+  Tooltip,
+  message,
+} from 'antd';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { leadMandatoryOption } from 'data/configuration/salesData';
-import { rolesOfRoleMapping } from 'data/configuration/ConfigrationData';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { Status } from '@lib/constants/enum';
 import { RootState } from '@redux/feature/store';
 import { fetchSetting, updateSetting } from '@redux/feature/admin/sales/setting/settingThunk';
+import { setting } from '@redux/feature/admin/sales/setting/ISettingState';
+import { fetchRole } from '@redux/feature/admin/role/roleThunk';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 
 const { Title, Text } = Typography;
 
 export const LeadsOrOpportunities: React.FC = () => {
   const [form] = Form.useForm();
-  const dispatch=useAppDispatch();
-  const {setting,status} = useAppSelector((state: RootState) => state.sales.setting)
-
+  const dispatch = useAppDispatch();
+  const { setting, status } = useAppSelector((state: RootState) => state.sales.setting);
+  const { role, status: roleStatus } = useAppSelector((state: RootState) => state.role);
+  const roleOptions =
+    role &&
+    role.map(role => ({
+      label: role.name,
+      value: role.roleId,
+    }));
   useEffect(() => {
-    async function fetchData() {
-      if (status.fetch === Status.IDLE) {
-        await dispatch(fetchSetting()).unwrap();
-      }
+    if (setting) {
+      form.setFieldsValue(setting);
     }
-    fetchData();
-  }, []);
+    if (status.fetch === Status.IDLE) {
+      fetchData();
+    }
+    if (roleStatus === Status.IDLE) {
+      fetchRoles();
+    }
+  }, [status.fetch, roleStatus]);
 
-  console.log('setting',setting)
-  const onFinish = async(values) => {
-    console.log('Saved:', values);
-    try{
-      await dispatch(updateSetting({data:values,id:setting.salesModuleSettingsId})).unwrap()
-      message.success('Setting updated successfully')
+  async function fetchData() {
+    try {
+      await dispatch(fetchSetting()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch roles');
     }
-    catch(error){
-      message.error(error || 'Failed to update Setting')
+  }
+  async function fetchRoles() {
+    try {
+      await dispatch(fetchRole()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch roles');
+    }
+  }
+
+  const onFinish = async (values: setting) => {
+    try {
+      const updatedFields = getUpdatedFields<setting>(values, setting);
+      await dispatch(
+        updateSetting({ data: updatedFields, id: setting.salesModuleSettingsId })
+      ).unwrap();
+      message.success('Setting updated successfully');
+    } catch (error) {
+      message.error(error || 'Failed to update Setting');
     }
   };
 
   return (
     <div className="p-6 rounded-lg">
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={onFinish}
-        initialValues={setting}
-      >
+      <Form form={form} layout="vertical" onFinish={onFinish} initialValues={setting}>
         <div className="mb-6 space-y-4">
           <Form.Item
             label={
@@ -57,9 +90,8 @@ export const LeadsOrOpportunities: React.FC = () => {
             }
             name="allowDuplicateLeads"
             valuePropName="checked"
-            initialValue={false}
           >
-            <Switch />
+            <Switch disabled={status.update === Status.PENDING} />
           </Form.Item>
 
           <Form.Item
@@ -70,9 +102,8 @@ export const LeadsOrOpportunities: React.FC = () => {
             }
             name="sendEmailOnNewLead"
             valuePropName="checked"
-            initialValue={false}
           >
-            <Switch />
+            <Switch disabled={status.update === Status.PENDING} />
           </Form.Item>
 
           <Form.Item
@@ -87,9 +118,8 @@ export const LeadsOrOpportunities: React.FC = () => {
             }
             name="showCommonFolders"
             valuePropName="checked"
-            initialValue={false}
           >
-            <Switch />
+            <Switch disabled={status.update === Status.PENDING} />
           </Form.Item>
         </div>
 
@@ -109,12 +139,21 @@ export const LeadsOrOpportunities: React.FC = () => {
                 </div>
               }
               name="leadMandatoryOption"
+              rules={[{ required: true, message: 'Please select mandatory option' }]}
             >
-              <Select placeholder="Choose Mandatory Option" options={leadMandatoryOption} />
+              <Select
+                placeholder="Choose Mandatory Option"
+                options={leadMandatoryOption}
+                disabled={status.update === Status.PENDING}
+              />
             </Form.Item>
 
-            <Form.Item label="Sales Won Button Text" name="salesWonButtonText">
-              <Input placeholder="Won" />
+            <Form.Item
+              label="Sales Won Button Text"
+              name="salesWonButtonText"
+              rules={[{ required: true, message: 'Please enter sales won button text' }]}
+            >
+              <Input placeholder="Won" disabled={status.update === Status.PENDING} />
             </Form.Item>
           </Col>
 
@@ -129,11 +168,17 @@ export const LeadsOrOpportunities: React.FC = () => {
                 </div>
               }
               name="roleId"
+              rules={[{ required: true, message: 'Please select roles' }]}
             >
-              <Select placeholder="Choose Roles" mode="multiple" showSearch>
-                {rolesOfRoleMapping.map(role => (
-                  <Select.Option key={role} value={role}>
-                    {role}
+              <Select
+                placeholder="Choose Roles"
+                mode="multiple"
+                showSearch
+                disabled={status.update === Status.PENDING}
+              >
+                {roleOptions.map(role => (
+                  <Select.Option key={role.value} value={role.value}>
+                    {role.label}
                   </Select.Option>
                 ))}
               </Select>
@@ -149,17 +194,18 @@ export const LeadsOrOpportunities: React.FC = () => {
                 </div>
               }
               name="houseSizeUnit"
+              rules={[{ required: true, message: 'Please select measurement unit' }]}
             >
-              <Radio.Group>
-                <Radio value="sq">sq</Radio>
-                <Radio value="m²">m²</Radio>
+              <Radio.Group disabled={status.update === Status.PENDING}>
+                <Radio value="sq_ft">sq ft</Radio>
+                <Radio value="sq_m2">sq m2</Radio>
               </Radio.Group>
             </Form.Item>
           </Col>
         </Row>
 
         <Form.Item className="text-right mt-4">
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" loading={status.update === Status.PENDING}>
             Save
           </Button>
         </Form.Item>

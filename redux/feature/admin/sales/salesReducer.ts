@@ -5,7 +5,10 @@ import leadSourceReducer from './leadSource/leadSourceSlice';
 import stageReducer from './stage/stageSlice';
 import leadLostReasonReducer from './leadLostReason/leadLostReasonSlice';
 import clientTypeReducer from './clientType/clientTypeSlice';
-
+import quotationReducer from './quotation/quotationSlice';
+import hlPackageSettingReducer from './hlPackage/hlPackageSlice';
+import rangeReducer from './range/rangeSlice';  
+import dwellingTypeReducer from './dwellingType/dwellingTypeSlice';
 export const salesReducer = combineReducers({
   process: processReducer,
   stage: stageReducer,
@@ -13,4 +16,8 @@ export const salesReducer = combineReducers({
   leadSource: leadSourceReducer,
   leadLostReason: leadLostReasonReducer,
   clientType: clientTypeReducer,
+  // quotation: quotationReducer,
+  hlPackageSetting: hlPackageSettingReducer,
+  // range:rangeReducer,
+  // dwellingType:dwellingTypeReducer   
 });

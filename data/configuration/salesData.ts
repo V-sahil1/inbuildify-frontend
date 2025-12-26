@@ -1,23 +1,23 @@
 export const leadMandatoryOption = [
   {
-    value: 'Email and Phone are mandatory',
+    value: 'email_and_phone',
     label: 'Email and Phone are mandatory',
   },
   {
-    value: 'Either Email or Phone is mandatory',
     label: 'Either Email or Phone is mandatory',
+    value: 'either_email_or_phone',
   },
   {
-    value: 'Email is not mandatory',
     label: 'Email is not mandatory',
+    value: 'email_not_mandatory',
   },
   {
-    value: 'Phone is not mandatory',
     label: 'Phone is not mandatory',
+    value: 'phone_not_mandatory',
   },
   {
-    value: 'Email and Phone are not mandatory',
     label: 'Email and Phone are not mandatory',
+    value: 'email_and_phone_not_mandatory',
   },
 ];
 

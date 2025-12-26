@@ -10,6 +10,7 @@ import {
 import { Status } from '@lib/constants/enum';
 import { GeneralSetting } from '@redux/feature/admin/general/generalSetting/igeneralSettingState';
 import { passwordRules } from '@lib/constants/formInputValidations';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 
 const { Text, Paragraph, Title } = Typography;
 
@@ -37,12 +38,7 @@ const SettingsPage = () => {
   }
   const onFinish = async (values: GeneralSetting) => {
     try {
-      const updatedValues = Object.keys(values).reduce((acc, key) => {
-        if (values[key] !== settings[key]) {
-          acc[key] = values[key];
-        }
-        return acc;
-      }, {} as Partial<GeneralSetting>);
+      const updatedValues = getUpdatedFields<GeneralSetting>(values, settings);   
       if (Object.keys(updatedValues).length === 0) {
         message.info('No changes detected');
         return;
