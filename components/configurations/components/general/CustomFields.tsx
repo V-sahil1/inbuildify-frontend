@@ -1,9 +1,8 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Button, Input, Select, Table, Space, Form, Popconfirm, Card, message } from 'antd';
+import { Button, Input, Select, Table, Space, Form, Popconfirm, Card, message, Modal } from 'antd';
 import { IconEdit, IconTrash, IconCheck, IconX, IconList } from '@tabler/icons-react';
 import { fieldTypeOptions } from 'data/configuration/ConfigrationData';
-import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { RootState } from '@redux/feature/store';
 import {
@@ -15,6 +14,8 @@ import {
 } from '@redux/feature/admin/general/customField/customFieldThunk';
 import { Status } from '@lib/constants/enum';
 import { CustomField } from '@redux/feature/admin/general/customField/ICustomFieldState';
+import { GeneralCustomFieldListModal } from '@/components/common/Models/GeneralCustomFieldListModal';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 
 const CustomFields: React.FC = () => {
   const { customFieldModule, customField, status } = useAppSelector(
@@ -22,7 +23,7 @@ const CustomFields: React.FC = () => {
   );
   const [selectedSection, setSelectedSection] = useState<string | null>();
   const [editingRow, setEditingRow] = useState<CustomField | null>(null);
-  const [listOptionsrecord, setListOptionsrecord] = useState<any | null>(null);
+  const [listOptionsrecord, setListOptionsrecord] = useState<CustomField | null>(null);
   const [form] = Form.useForm();
   const dispatch = useAppDispatch();
   const customFieldModuleOptions =
@@ -31,27 +32,33 @@ const CustomFields: React.FC = () => {
       label: item.name,
       value: item.moduleId,
     }));
+
   useEffect(() => {
-    if (customFieldModule) {
-      setSelectedSection(customFieldModule[0]?.moduleId || null);
-    }
-  }, [customFieldModule]);
-  useEffect(() => {
-    async function fetchCustomFieldModule() {
-      await dispatch(fetchAllCustomFieldModule()).unwrap();
-      // setSelectedSection((customFieldModule && customFieldModule[0]?.moduleId) || null);
-    }
     if (status.customFieldModule === Status.IDLE) {
       fetchCustomFieldModule();
     }
-
-    async function fetchCustomField() {
-      await dispatch(fetchAllCustomField()).unwrap();
+    if (customFieldModule) {
+      setSelectedSection(customFieldModule[0]?.moduleId || null);
     }
     if (status.fetch === Status.IDLE) {
       fetchCustomField();
     }
-  }, []);
+  }, [status.customFieldModule, status.fetch]);
+
+  async function fetchCustomFieldModule() {
+    try {
+      await dispatch(fetchAllCustomFieldModule()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch customfield module');
+    }
+  }
+  async function fetchCustomField() {
+    try {
+      await dispatch(fetchAllCustomField()).unwrap();
+    } catch (error) {
+      message.error('Failed to fetch customfield');
+    }
+  }
 
   const handleAdd = () => {
     const newRow: CustomField = {
@@ -66,15 +73,23 @@ const CustomFields: React.FC = () => {
     form.setFieldsValue(newRow);
   };
 
-  const handleOpenListOptions = (record: any) => {
+  const handleOpenListOptions = (record: CustomField) => {
     setListOptionsrecord(record);
   };
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
       if (editingRow && editingRow.customFieldId !== '') {
+        const updatedFields = getUpdatedFields(
+          values,
+          customField.find(item => item.customFieldId === editingRow.customFieldId)
+        );
+        if (Object.keys(updatedFields).length === 0) {
+          message.info('No changes detected');
+          return;
+        }
         await dispatch(
-          updateCustomField({ customFieldId: editingRow.customFieldId, data: { ...values } })
+          updateCustomField({ customFieldId: editingRow.customFieldId, data: updatedFields })
         ).unwrap();
         message.success('CustomField updated Successfully');
       } else {
@@ -84,7 +99,10 @@ const CustomFields: React.FC = () => {
       setEditingRow(null);
       form.resetFields();
     } catch (err) {
-      message.error(err);
+      if (err.errorFields && err.errorFields.length > 0) {
+        return;
+      }
+      message.error(err || 'Failed to save customfield');
     }
   };
 
@@ -97,7 +115,7 @@ const CustomFields: React.FC = () => {
     }
   };
 
-  const handleEdit = (record: any) => {
+  const handleEdit = (record: CustomField) => {
     setEditingRow(record);
     form.setFieldsValue(record);
   };
@@ -111,14 +129,14 @@ const CustomFields: React.FC = () => {
     {
       title: 'Name',
       dataIndex: 'fieldName',
-      render: (_: any, record: any) =>
+      render: (_, record: CustomField) =>
         editingRow?.customFieldId === record.customFieldId ? (
           <Form.Item
             name="fieldName"
-            rules={[{ required: true, message: '' }]}
+            rules={[{ required: true, message: 'Please enter field name' }]}
             style={{ margin: 0 }}
           >
-            <Input />
+            <Input disabled={status.create === Status.PENDING} />
           </Form.Item>
         ) : (
           record.fieldName
@@ -127,14 +145,19 @@ const CustomFields: React.FC = () => {
     {
       title: 'Field Type',
       dataIndex: 'fieldType',
-      render: (_: any, record: any) =>
+      render: (_, record: CustomField) =>
         editingRow?.customFieldId === record.customFieldId ? (
           <Form.Item
             name="fieldType"
-            rules={[{ required: true, message: '' }]}
+            rules={[{ required: true, message: 'Please select field type' }]}
             style={{ margin: 0 }}
           >
-            <Select options={fieldTypeOptions} placeholder="Please select" className="w-full" />
+            <Select
+              options={fieldTypeOptions}
+              placeholder="Please select"
+              className="w-full"
+              disabled={status.create === Status.PENDING}
+            />
           </Form.Item>
         ) : (
           <div className="flex items-center gap-1">
@@ -153,14 +176,14 @@ const CustomFields: React.FC = () => {
       title: 'Sort Order',
       dataIndex: 'sortOrder',
       width: 120,
-      render: (_: any, record: any) =>
+      render: (_, record: CustomField) =>
         editingRow?.customFieldId === record.customFieldId ? (
           <Form.Item
             name="sortOrder"
-            rules={[{ required: true, message: '' }]}
+            rules={[{ required: true, message: 'Please enter sort order' }]}
             style={{ margin: 0 }}
           >
-            <Input type="number" />
+            <Input type="number" disabled={status.create === Status.PENDING} />
           </Form.Item>
         ) : (
           record.sortOrder
@@ -173,7 +196,7 @@ const CustomFields: React.FC = () => {
         </Button>
       ),
       width: 100,
-      render: (_: any, record: any) =>
+      render: (_, record: CustomField) =>
         editingRow?.customFieldId === record.customFieldId ? (
           <Space>
             <Button
@@ -181,8 +204,15 @@ const CustomFields: React.FC = () => {
               type="primary"
               size="small"
               onClick={handleSave}
+              loading={status.create === Status.PENDING}
             />
-            <Button icon={<IconX size={16} />} danger size="small" onClick={handleCancel} />
+            <Button
+              icon={<IconX size={16} />}
+              danger
+              size="small"
+              onClick={handleCancel}
+              disabled={status.create === Status.PENDING}
+            />
           </Space>
         ) : (
           <Space>
@@ -192,9 +222,14 @@ const CustomFields: React.FC = () => {
               onConfirm={() => handleDelete(record.customFieldId)}
               okText="Yes"
               cancelText="No"
-              okButtonProps={{ danger: true }}
+              okButtonProps={{ danger: true, loading: status.create === Status.PENDING }}
             >
-              <Button icon={<IconTrash size={16} />} danger size="small" />
+              <Button
+                icon={<IconTrash size={16} />}
+                danger
+                size="small"
+                disabled={status.create === Status.PENDING}
+              />
             </Popconfirm>
           </Space>
         ),
@@ -227,24 +262,17 @@ const CustomFields: React.FC = () => {
             pagination={false}
             dataSource={dataSource}
             columns={columns}
+            loading={status.fetch === Status.PENDING}
           />
         </Form>
       </Card>
-
-      <ActionDialogmodel
-        open={listOptionsrecord}
-        onCancel={() => setListOptionsrecord(null)}
-        onSubmit={() => setListOptionsrecord(null)}
-        title="List Options"
-        fields={[
-          {
-            label: 'List Options',
-            name: 'listOptions',
-            type: 'text',
-            extra: 'here the list of content will come in tabular format',
-          },
-        ]}
-      />
+      {listOptionsrecord && (
+        <GeneralCustomFieldListModal
+          open={!!listOptionsrecord}
+          onCancel={() => setListOptionsrecord(null)}
+          id={listOptionsrecord.customFieldId}
+        />
+      )}
     </div>
   );
 };

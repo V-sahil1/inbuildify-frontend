@@ -109,6 +109,7 @@ class API_ENDPOINTS {
   public static GET_GENERAL_SETTING = `${this.GENERAL_SETTING}/user`;
   public static SURVEYOR_BASE = '/surveyor';
   public static CUSTOMFIELD_BASE = '/custom-field';
+  public static CUSTOMFIELD_LIST_OPTION_BASE = `${this.CUSTOMFIELD_BASE}/option`;   
   public static CUSTOMFIELD_MODULE_BASE = '/custom-field-module';
   public static NOTE_TAG_BASE = '/note-tag';
   public static CHECKLIST_BASE = '/checklist';
