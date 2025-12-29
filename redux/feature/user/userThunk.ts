@@ -4,6 +4,7 @@ import API_ENDPOINTS from '@lib/constants/apiEndpoints';
 import { ApiResponse } from '../auth/IAuthState';
 import { storeAuthToken, storeRefreshToken } from '@lib/constants/authToken';
 import { invitedUser, invitedUserResponse, user } from './UserState';
+import { Pagination } from '../admin/general/surveyor/ISurveyorState';
 
 export const AcceptInviteThunk = createAsyncThunk(
   'user/acceptInvite',
@@ -38,8 +39,8 @@ export const createUserThunk = createAsyncThunk(
 
 export const getUsersThunk = createAsyncThunk('user/getAll', async (_, { rejectWithValue }) => {
   try {
-    const response: ApiResponse<user[]> = await api.get(API_ENDPOINTS.GET_USERS);
-    return response;
+    const response: ApiResponse<{users:user[],pagination:Pagination }> = await api.get(API_ENDPOINTS.GET_USERS);
+    return response.data;
   } catch (err: any) {
     return rejectWithValue(err.message);
   }
