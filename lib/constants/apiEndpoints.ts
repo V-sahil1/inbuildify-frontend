@@ -17,7 +17,7 @@ class API_ENDPOINTS {
   // user
   public static USER_BASE = '/user';
   public static PROFILE = `${this.USER_BASE}/profile`;
-  public static GET_USERS = `${this.USER_BASE}/users`;
+  public static GET_USERS = `${this.USER_BASE}`;
   public static INVITE_USER = `${this.USER_BASE}/invite-user`;
   public static INVITED_USERS = `${this.USER_BASE}/invited-user`;
   public static ACCEPT_INVITE = `${this.USER_BASE}/accept-invite`;
