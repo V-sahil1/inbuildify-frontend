@@ -8,7 +8,7 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import { Button, Empty, Input, Select } from 'antd';
-import { useUsersHook } from '@hooks/useUserData';
+import { useUsersHook } from '@hooks/useUserHook';
 import { ColorGroupFields } from '@/components/formFields/colorGroupFields';
 import { colorGroup, ColorItems } from 'data/color/ColorData';
 import ConfirmationModal from '@/components/common/ConfirmationModal';

@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Button, Dropdown, Input, Select, message } from 'antd';
 import { IconInfoCircle, IconMapDown } from '@tabler/icons-react';
 import RichTextEditor from '@/components/common/rich-text-editor/RichTextEditor';
-import { useUsersHook } from '@hooks/useUserData';
+import { useUsersHook } from '@hooks/useUserHook';
 import { InsertAtCursor } from '@lib/utils/InsertAtCursor';
 import { TextAreaRef } from 'antd/es/input/TextArea';
 

@@ -12,7 +12,7 @@ import {
   IconUpload,
 } from '@tabler/icons-react';
 import ConfirmationModal from '@/components/common/ConfirmationModal';
-import { useUsersHook } from '@hooks/useUserData';
+import { useUsersHook } from '@hooks/useUserHook';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import {
   fetchRange,

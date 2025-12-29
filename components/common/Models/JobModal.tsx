@@ -25,7 +25,7 @@ import { DefaultOptionType } from 'antd/es/select';
 import { getLeadSourcesThunk } from '@redux/feature/lead/leadThunk';
 import { enumToReadable } from '@lib/utils/enumToRedable';
 import { getDwellingTypes } from '@redux/feature/types/typesThunk';
-import { useUsersHook } from '@hooks/useUserData';
+import { useUsersHook } from '@hooks/useUserHook';
 
 interface LeadFormData {
   contactName: string;

@@ -169,13 +169,6 @@ export const rolesOfRoleMapping = [
   'Sales Manager - MH',
   'Site Supervisor',
 ];
-export const typeOptionsOfRoleMapping = [
-  { label: '--', value: '--' },
-  { label: 'Sales Executive', value: 'Sales Executive' },
-  { label: 'Builder', value: 'Builder' },
-  { label: 'Construction Manager', value: 'Construction Manager' },
-  { label: 'Contract Admin', value: 'Contract Admin' },
-];
 
 export const RoleAndMappingData: RoleMapping[] = [
   { id: 1, type: '--', role: 'Admin Executive', user: 'Ravi Kumar' },

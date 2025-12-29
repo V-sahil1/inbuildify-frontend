@@ -3,7 +3,7 @@ import React from 'react';
 import { Button, Select, Input, Switch, InputNumber, Upload, message } from 'antd';
 import RichTextEditor from '@/components/common/rich-text-editor/RichTextEditor';
 import { IconInfoCircle, IconPin } from '@tabler/icons-react';
-import { useUsersHook } from '@hooks/useUserData'; // ✅ Import your hook
+import { useUsersHook } from '@hooks/useUserHook'; // ✅ Import your hook
 
 export interface SchedulerSettings {
   key: number | string;

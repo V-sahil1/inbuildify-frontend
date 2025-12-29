@@ -1,4 +1,4 @@
-import { useUsersHook } from '@hooks/useUserData';
+import { useUsersHook } from '@hooks/useUserHook';
 import { FormField } from '../common/Models/ActionDialogModel';
 
 export const getIntegrationOptionalSettingFields = (): FormField[] => {

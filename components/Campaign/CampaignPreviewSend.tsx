@@ -3,7 +3,7 @@ import CampaignFilter from './CampaignFilter';
 import { Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { data, DataType } from 'data/CampaignContactData';
-import { useUsersHook } from '@hooks/useUserData';
+import { useUsersHook } from '@hooks/useUserHook';
 
 const CampaignPreviewSend = () => {
   const [form] = Form.useForm();

@@ -1,7 +1,7 @@
 import { Checkbox, Form, Input, Radio, Select } from 'antd';
 import { useEffect } from 'react';
 import DateFilterDropdown from '../common/custom-selects/DateFilterDropdown';
-import { useUsersHook } from '@hooks/useUserData';
+import { useUsersHook } from '@hooks/useUserHook';
 import { debouncedURL } from '@lib/utils/debounceURL';
 export default function CampaignFilter() {
   const { users } = useUsersHook();

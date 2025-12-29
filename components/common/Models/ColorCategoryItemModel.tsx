@@ -21,7 +21,7 @@ import {
 import { SubCategoryItem } from '@redux/feature/color/iColourState';
 import { nameRules, optionalNotesRule, acceptOnlyImageRule } from '@lib/constants/formInputValidations';
 import dayjs from 'dayjs';
-import { useUsersHook } from '@hooks/useUserData';
+import { useUsersHook } from '@hooks/useUserHook';
 import MultiSelectDropdown from '../MultiSelectDropdown';
 import { ColorRange, ColorTypes, FieldTypes } from 'data/color/ColorData';
 import { IconUpload } from '@tabler/icons-react';

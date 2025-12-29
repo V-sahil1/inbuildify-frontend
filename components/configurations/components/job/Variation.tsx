@@ -4,7 +4,7 @@ import InputSwitch from '@/components/common/InputSwitch';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
 import { variationSettingFields } from '@/components/formFields/VariationSettingFields';
-import { useUsersHook } from '@hooks/useUserData';
+import { useUsersHook } from '@hooks/useUserHook';
 interface Variation {
   key: string;
   role: string;

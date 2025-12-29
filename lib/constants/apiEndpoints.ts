@@ -118,6 +118,7 @@ class API_ENDPOINTS {
   public static FUNCTIONALITY_BASE = '/functionality';
   public static PASSWORD_POLICY_BASE = '/password-policy';
   public static GET_PASSWORD_POLICY = `${this.PASSWORD_POLICY_BASE}/user`;
+  public static ROLE_AND_USER_MAPPING_TYPE = '/role-type';
 
   //admin sales
   public static SALES_SETTING = '/sales-module-setting';

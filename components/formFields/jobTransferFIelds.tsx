@@ -2,7 +2,7 @@
 
 import { message } from 'antd';
 import { FormField } from '../common/Models/ActionDialogModel';
-import { useUsersHook } from '@hooks/useUserData';
+import { useUsersHook } from '@hooks/useUserHook';
 
 export const jobTransferFields = (): FormField[] => {
   const { users, isLoading, isError } = useUsersHook();

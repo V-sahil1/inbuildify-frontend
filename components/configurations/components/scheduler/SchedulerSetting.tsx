@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Select, Typography, Card } from 'antd';
 import { IconCheck, IconX } from '@tabler/icons-react';
-import { useUsersHook } from '@hooks/useUserData'; // ✅ import hook
+import { useUsersHook } from '@hooks/useUserHook'; // ✅ import hook
 
 const { Option } = Select;
 const { Text } = Typography;

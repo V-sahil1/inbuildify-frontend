@@ -6,7 +6,7 @@ import { Button, Table, Tag, Avatar, message, Popconfirm, Input } from 'antd';
 import { useState } from 'react';
 import { SchedulerSettingsForm } from './SchedulerSettingsForm';
 import { schedulerInitialData } from 'data/schedulerData';
-import { useUsersHook } from '@hooks/useUserData';
+import { useUsersHook } from '@hooks/useUserHook';
 
 // Create initials from name
 const initials = (name: string) => {

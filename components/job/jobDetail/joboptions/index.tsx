@@ -11,7 +11,7 @@ import DelayExtensionNotice from './DelayExtensionNotice';
 import MailSendModal from '@/components/common/Models/MailSendModal';
 import { useAppSelector } from '@hooks/redux';
 import { jobTransferFields } from '@/components/formFields/jobTransferFIelds';
-import { useUsersHook } from '@hooks/useUserData';
+import { useUsersHook } from '@hooks/useUserHook';
 
 export const jobOptionRenderer = ({ activeAction, onCancel, open }) => {
   const { leadDetail } = useAppSelector(state => state.lead);

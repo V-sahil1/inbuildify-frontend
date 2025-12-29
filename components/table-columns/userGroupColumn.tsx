@@ -1,4 +1,4 @@
-import { useUsersHook } from '@hooks/useUserData';
+import { useUsersHook } from '@hooks/useUserHook';
 import TooltipButton from '../common/TooltipButton';
 import { IconPencil } from '@tabler/icons-react';
 import { Tag } from 'antd';

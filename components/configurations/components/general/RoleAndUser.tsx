@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { Button, Table, Form, Select, Space, Typography, message } from 'antd';
 import { IconCheck, IconEdit, IconPlus, IconX } from '@tabler/icons-react';
-import { useUsersHook } from '@hooks/useUserData';
 import {
   RoleAndMappingData,
   RoleMapping,
   rolesOfRoleMapping,
-  typeOptionsOfRoleMapping,
 } from 'data/configuration/ConfigrationData';
+import { useAppDispatch } from '@hooks/redux';
+import { fetchRoleTypeById } from '@redux/feature/admin/general/roleAndUserMapping/roleAndMappingThunk';
+import { useRoleHook } from '@hooks/useRoleHook';
+import { useUsersHook } from '@hooks/useUserHook';
 
 const { Title, Text } = Typography;
 
@@ -16,7 +18,21 @@ const RoleAndUser: React.FC = () => {
   const [data, setData] = useState<RoleMapping[]>(RoleAndMappingData);
   const [editingKey, setEditingKey] = useState<string | number>('');
   const [taskManager, setTaskManager] = useState('Murthy Muthuswamy');
-  const { users } = useUsersHook();
+  const { userOptions } = useUsersHook();
+  const { roleOptions } = useRoleHook();
+  const dispatch = useAppDispatch();
+  const [typeOptions, setTypeOptions] = useState<Array<{label: string; value: string}>>([]);
+
+  const fetchRoleTypeOptions = async (role: string) => {
+    try {
+      const response = await dispatch(fetchRoleTypeById(role)).unwrap();
+      const options = response.map(r => ({ label: r.typeName, value: r.roleTypeId }));
+      setTypeOptions(options);
+    } catch (error) {
+      message.error('Failed to fetch role type options');
+      setTypeOptions([]);
+    }
+  };
 
   const isEditing = (record: RoleMapping) => record.id === editingKey;
 
@@ -31,7 +47,7 @@ const RoleAndUser: React.FC = () => {
       id: newKey,
       type: '--',
       role: rolesOfRoleMapping[0],
-      user: users[0]?.name,
+      user: userOptions[0]?.value,
     };
 
     setData(prev => [newRow, ...prev]);
@@ -97,18 +113,6 @@ const RoleAndUser: React.FC = () => {
       render: (_, __, index) => index + 1,
     },
     {
-      title: 'Type',
-      dataIndex: 'type',
-      onCell: (record: RoleMapping) => ({
-        record,
-        editing: isEditing(record),
-        dataIndex: 'type',
-        title: 'Type',
-        inputOptions: typeOptionsOfRoleMapping,
-      }),
-      render: text => text || '--',
-    },
-    {
       title: 'Role',
       dataIndex: 'role',
       onCell: (record: RoleMapping) => ({
@@ -116,8 +120,23 @@ const RoleAndUser: React.FC = () => {
         editing: isEditing(record),
         dataIndex: 'role',
         title: 'Role',
-        inputOptions: rolesOfRoleMapping.map(r => ({ label: r, value: r })),
+        inputOptions: roleOptions,
       }),
+    },
+    {
+      title: 'Type',
+      dataIndex: 'type',
+      onCell: (record: RoleMapping) => {
+        console.log('Type options in column:', typeOptions);
+        return {
+        record,
+        editing: isEditing(record),
+        dataIndex: 'type',
+        title: 'Type',
+        inputOptions: typeOptions,
+        };
+      },
+      render: text => text || '--',
     },
     {
       title: 'User',
@@ -127,7 +146,7 @@ const RoleAndUser: React.FC = () => {
         editing: isEditing(record),
         dataIndex: 'user',
         title: 'User',
-        inputOptions: users?.map(u => ({ label: u.name, value: u.name })),
+        inputOptions: userOptions,
       }),
     },
     {
@@ -182,7 +201,7 @@ const RoleAndUser: React.FC = () => {
           <div className="w-full md:w-1/2">
             <Select
               onChange={setTaskManager}
-              options={users?.map(u => ({ label: u.name, value: u.usersId }))}
+              options={userOptions}
               className="w-full"
               placeholder="Select a Task Manager"
             />
@@ -208,16 +227,10 @@ const RoleAndUser: React.FC = () => {
                   if (editing) {
                     const inputOptions =
                       col.dataIndex === 'type'
-                        ? typeOptionsOfRoleMapping
+                        ? typeOptions
                         : col.dataIndex === 'role'
-                          ? rolesOfRoleMapping.map(r => ({
-                              label: r,
-                              value: r,
-                            }))
-                          : users?.map(u => ({
-                              label: u.name,
-                              value: u.usersId,
-                            }));
+                          ? roleOptions
+                          : userOptions;
 
                     return (
                       <Form.Item
@@ -235,6 +248,14 @@ const RoleAndUser: React.FC = () => {
                           options={inputOptions}
                           placeholder={`Select ${col.title}`}
                           showSearch
+                          onChange={(value) => {
+                            if (col.dataIndex === 'role') {
+                              // When role changes, fetch types for that role
+                              fetchRoleTypeOptions(value);
+                              // Clear the type field when role changes
+                              form.setFieldValue('type', undefined);
+                            }
+                          }}
                         />
                       </Form.Item>
                     );

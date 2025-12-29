@@ -5,7 +5,7 @@ import { Button, Select } from 'antd';
 import DynamicHorizontalChart from '@/components/common/charts/DynamicHorizontalChart';
 import { IconSettings } from '@tabler/icons-react';
 import DashboardDrawer from '@/components/sales/DashboardDrawer';
-import { useUsersHook } from '@hooks/useUserData';
+import { useUsersHook } from '@hooks/useUserHook';
 import DateFilterDropdown from '@/components/common/custom-selects/DateFilterDropdown';
 import {
   salesData,

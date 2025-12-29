@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Select, Button, Table } from 'antd';
-import { useUsersHook } from '@hooks/useUserData';
+import { useUsersHook } from '@hooks/useUserHook';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
 import ConfirmationModal from '@/components/common/ConfirmationModal';

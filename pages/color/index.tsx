@@ -11,7 +11,7 @@ import ConfirmationModal from '@/components/common/ConfirmationModal';
 import ColorCategoryItemModel from '@/components/common/Models/ColorCategoryItemModel';
 import NestedItem from '@/components/common/NestedItem';
 import { ColorMasterCategoryFields } from '@/components/formFields/colorCategoryFields';
-import { useUsersHook } from '@hooks/useUserData';
+import { useUsersHook } from '@hooks/useUserHook';
 import { ColorSubCategoryFields } from '@/components/formFields/colorSubCategoryFields';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import { debouncedURL } from '@lib/utils/debounceURL';

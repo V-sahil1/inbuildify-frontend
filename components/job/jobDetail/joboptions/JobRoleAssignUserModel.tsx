@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal, Select, Button, Form } from 'antd';
-import { useUsersHook } from '@hooks/useUserData';
+import { useUsersHook } from '@hooks/useUserHook';
 
 // this is not dummy date it is being used for the form label and the selected label value name
 const rolesList = [

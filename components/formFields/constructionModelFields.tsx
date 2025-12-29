@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FormField } from '../common/Models/ActionDialogModel';
-import { useUsersHook } from '@hooks/useUserData';
+import { useUsersHook } from '@hooks/useUserHook';
 
 export const ConstructionModelFields = (): FormField[] => {
   const [mailOpen, setMailOpen] = useState(false);
