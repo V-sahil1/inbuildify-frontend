@@ -1,11 +1,16 @@
 'use client';
 import React, { useState, useEffect, useMemo } from 'react';
-import { Switch, Table, Select, Button, Form, Input, Space, UploadFile } from 'antd';
+import { Switch, Table, Button, Form, Input, Space, UploadFile, message } from 'antd';
 import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import { colorSettingCustomFields } from '@/components/formFields/ColorSettingCustomFIelds';
 import { colorSettingFields } from '@/components/formFields/ColorSettingFields';
 import { ColorSettings } from 'data/configuration/ColorData';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { fetchJobColor } from '@redux/feature/admin/job/jobColor/jobColorThunk';
+import { Status } from '@lib/constants/enum';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
+import { JobColorSettings } from '@redux/feature/admin/job/jobColor/IJobColorState';
 
 interface CustomSection {
   key: string;
@@ -18,16 +23,12 @@ interface CustomSection {
 
 const initialCustomSections: CustomSection[] = [];
 
-const defaultSettings = {
-  hideColorImages: true,
-  hideColorPrice: true,
-  editColorCode: true,
-  landscape: true,
-};
-
 export const Colors: React.FC = () => {
-  const [settings, setSettings] = useState(defaultSettings);
-  const [initialValues] = useState(defaultSettings);
+  const dispatch = useAppDispatch();
+  const { jobColor, status } = useAppSelector(state => state.job.jobColor);
+  const [settings, setSettings] = useState<JobColorSettings | null>(jobColor || null);
+  const [initialValues] = useState<JobColorSettings | null>(jobColor || null);
+  const [headerText, setHeaderText] = useState(jobColor?.headerText || '');
   const [showSave, setShowSave] = useState(false);
   const [tableData, setTableData] = useState(ColorSettings);
   const [editingRow, setEditingRow] = useState<any>(null);
@@ -36,18 +37,43 @@ export const Colors: React.FC = () => {
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
   const [editingCustomSection, setEditingCustomSection] = useState<CustomSection | null>(null);
   const [customForm] = Form.useForm();
-  const [headerText, setHeaderText] = useState('');
   const [form] = Form.useForm();
 
+  const fetchJobColorData = async () => {
+    try {
+      await dispatch(fetchJobColor()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch job color data');
+    }
+  };
+
   useEffect(() => {
-    const changed = Object.keys(settings).some(
-      key => settings[key as keyof typeof settings] !== initialValues[key as keyof typeof settings]
-    );
-    setShowSave(changed);
+    if (status.fetch === Status.IDLE) {
+      fetchJobColorData();
+    }
+  }, [status.fetch]);
+
+  useEffect(() => {
+    if (jobColor) {
+      setSettings(jobColor);
+      setHeaderText(jobColor.headerText || '');
+    }
+  }, [jobColor]);
+
+  useEffect(() => {
+    if (!settings || !initialValues) {
+      setShowSave(false);
+      return;
+    }
+    
+    const changedValues = getUpdatedFields(settings, initialValues);
+    const hasChanges = Object.keys(changedValues).length > 0;
+    setShowSave(hasChanges);
   }, [settings, initialValues]);
 
   const handleSwitchChange = (key: string, value: boolean) => {
-    setSettings(prev => ({ ...prev, [key]: value }));
+    if (!settings) return;
+    setSettings(prev => (prev ? { ...prev, [key]: value } : null));
   };
 
   const handleSaveSettings = () => {
@@ -193,22 +219,22 @@ export const Colors: React.FC = () => {
         <div className="flex items-center justify-between border p-3 rounded-md">
           <span>Hide color item images</span>
           <Switch
-            checked={settings.hideColorImages}
-            onChange={val => handleSwitchChange('hideColorImages', val)}
+            checked={settings?.hideColorItemImages || false}
+            onChange={val => handleSwitchChange('hideColorItemImages', val)}
           />
         </div>
         <div className="flex items-center justify-between border p-3 rounded-md">
           <span>Hide color item Price</span>
           <Switch
-            checked={settings.hideColorPrice}
-            onChange={val => handleSwitchChange('hideColorPrice', val)}
+            checked={settings?.hideColorItemPrice || false}
+            onChange={val => handleSwitchChange('hideColorItemPrice', val)}
           />
         </div>
         <div className="flex items-center justify-between border p-3 rounded-md">
           <span>Edit Color Code</span>
           <Switch
-            checked={settings.editColorCode}
-            onChange={val => handleSwitchChange('editColorCode', val)}
+            checked={settings?.exitColorCode || false}
+            onChange={val => handleSwitchChange('exitColorCode', val)}
           />
         </div>
         <div className="flex items-center justify-between border p-3 rounded-md">
@@ -217,8 +243,8 @@ export const Colors: React.FC = () => {
             <span className="ml-1 text-gray-500 text-sm">Landscape (Default) / Portrait</span>
           </span>
           <Switch
-            checked={settings.landscape}
-            onChange={val => handleSwitchChange('landscape', val)}
+            checked={settings?.pageOrientationPortrait || false}
+            onChange={val => handleSwitchChange('pageOrientationPortrait', val)}
           />
         </div>
       </div>

@@ -1,38 +1,73 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { Switch, InputNumber, Select, Button, message } from 'antd';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { fetchJobSetting } from '@redux/feature/admin/job/jobSetting/jobSettingThunk';
+import { Status } from '@lib/constants/enum';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
+import { JobSettings } from '@redux/feature/admin/job/jobSetting/IJobSettingState';
 
 export const Setting: React.FC = () => {
-  const [settings, setSettings] = useState({
-    moveToMaintenance: true,
-    markCompleted: true,
-    autoArchive: true,
-    archiveDays: 90,
-    milestoneDays: 15,
-    reportDays: 15,
-    status: 'all',
-    date: 'included',
-  });
+  const dispatch = useAppDispatch();
+  const { jobSetting, status } = useAppSelector(state => state.job.jobSetting);
+  const [settings, setSettings] = useState<JobSettings | null>(jobSetting);
+
+  const fetchJobSettingData = async () => {
+    try {
+      await dispatch(fetchJobSetting()).unwrap();
+    } catch (error) {
+     message.error('Failed to fetch job settings');
+    }
+  };
+
+  useEffect(() => {
+    if (status.fetch === Status.IDLE) {
+      fetchJobSettingData();
+    }
+  }, []);
+
+
+  useEffect(() => {
+    if (jobSetting && !settings) {
+      setSettings(jobSetting);
+    }
+  }, [jobSetting, settings]);
 
   const [isChanged, setIsChanged] = useState(false);
   useEffect(() => {
-    setIsChanged(settings.moveToMaintenance !== settings.moveToMaintenance);
-  }, [settings.moveToMaintenance]);
+    if (jobSetting && settings) {
+      const changedValues = getUpdatedFields(settings, jobSetting);
+      const hasChanges = Object.keys(changedValues).length > 0;
+      setIsChanged(hasChanges);
+    }
+  }, [settings, jobSetting]);
 
-  const handleChange = (key: string, value: any) => {
+  const handleChange = (key: keyof JobSettings, value: string | number | boolean) => {
     setSettings(prev => {
+      if (!prev) return prev;
       const updated = { ...prev, [key]: value };
-      if (JSON.stringify(updated) !== JSON.stringify(prev)) {
-        setIsChanged(true);
-      }
       return updated;
     });
   };
 
-  const handleSave = () => {
-    console.log('✅ Saved Settings:', settings);
-    message.success('Settings saved successfully!');
-    setIsChanged(false);
+  const handleSave = async () => {
+    if (!settings || !jobSetting) return;
+    
+    // Log changed values
+    const changedValues = getUpdatedFields(settings, jobSetting);
+    
+    console.log('🔄 Changed values:', changedValues);
+    console.log('✅ Full Settings to Save:', settings);
+    
+    try {
+      // Here you would dispatch the update thunk when it's implemented
+      // await dispatch(updateJobSetting(settings)).unwrap();
+      message.success('Settings saved successfully!');
+      setIsChanged(false);
+    } catch (error) {
+      message.error('Failed to save settings');
+      console.error('Save error:', error);
+    }
   };
 
   return (
@@ -40,8 +75,8 @@ export const Setting: React.FC = () => {
       {/* Move to Maintenance */}
       <div className="flex items-start gap-4">
         <Switch
-          checked={settings.moveToMaintenance}
-          onChange={val => handleChange('moveToMaintenance', val)}
+          checked={settings?.autoMoveToMaintenance}
+          onChange={val => handleChange('autoMoveToMaintenance', val)}
         />
         <div>
           <div className="font-medium text-base">
@@ -52,8 +87,8 @@ export const Setting: React.FC = () => {
 
       <div className="flex items-start gap-4">
         <Switch
-          checked={settings.markCompleted}
-          onChange={val => handleChange('markCompleted', val)}
+          checked={settings?.autoMarkCompleted}
+          onChange={val => handleChange('autoMarkCompleted', val)}
         />
         <div>
           <div className="font-medium text-base">Automatically Mark Job as Completed</div>
@@ -65,15 +100,18 @@ export const Setting: React.FC = () => {
       </div>
 
       <div className="flex items-start gap-4">
-        <Switch checked={settings.autoArchive} onChange={val => handleChange('autoArchive', val)} />
+        <Switch
+          checked={settings?.autoArchiveAfterCompletion}
+          onChange={val => handleChange('autoArchiveAfterCompletion', val)}
+        />
         <div className="flex flex-col gap-1">
           <div className="font-medium text-base">Automatically Archive Job After Completion</div>
           <div className="flex items-center gap-2 text-sm text-gray-600">
             <span>After</span>
             <InputNumber
               min={1}
-              value={settings.archiveDays}
-              onChange={val => handleChange('archiveDays', val)}
+              value={settings?.autoArchiveAfterDays}
+              onChange={val => handleChange('autoArchiveAfterDays', val)}
             />
             <span>days, the job will automatically move to Archived status.</span>
           </div>
@@ -90,8 +128,8 @@ export const Setting: React.FC = () => {
           <span>Report will be generated after</span>
           <InputNumber
             min={1}
-            value={settings.milestoneDays}
-            onChange={val => handleChange('milestoneDays', val)}
+            value={settings?.milestoneStatusCheckDays}
+            onChange={val => handleChange('milestoneStatusCheckDays', val)}
           />
           <span>days for all referred jobs.</span>
         </div>
@@ -104,31 +142,31 @@ export const Setting: React.FC = () => {
             <div className="font-medium">Number Of Days</div>
             <InputNumber
               min={1}
-              value={settings.reportDays}
-              onChange={val => handleChange('reportDays', val)}
+              value={settings?.reportCustomDays}
+              onChange={val => handleChange('reportCustomDays', val)}
             />
           </div>
           <div>
             <div className="font-medium">Status</div>
             <Select
-              value={settings.status}
+              value={settings?.reportStatusFilter}
               options={['all', 'completed', 'incompleted'].map(item => ({
                 label: item,
                 value: item,
               }))}
-              onChange={val => handleChange('status', val)}
+              onChange={val => handleChange('reportStatusFilter', val)}
               className="w-full mt-1"
             />
           </div>
           <div>
             <div className="font-medium">Date</div>
             <Select
-              value={settings.date}
-              options={['included', 'excluded'].map(item => ({
-                label: item,
-                value: item,
+              value={settings?.reportIncludeDate}
+              options={[{label:'included', value:true}, {label:'excluded', value:false}].map(item => ({
+                label: item.label,
+                value: item.value,
               }))}
-              onChange={val => handleChange('date', val)}
+              onChange={val => handleChange('reportIncludeDate', val)}
               className="w-full mt-1"
             />
           </div>

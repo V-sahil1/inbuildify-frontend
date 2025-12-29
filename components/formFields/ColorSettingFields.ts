@@ -8,11 +8,15 @@ export const colorSettingFields = (): FormField[] => {
       type: 'select',
       options: [
         {
-          value: 'Show as a separate Column',
+          value: 'dont_show',
+          label: 'Dont Show',
+        },
+        {
+          value: 'show_as_separate_column',
           label: 'Show as a separate Column',
         },
         {
-          value: 'Show in existing ‘Items’ Column',
+          value: 'show_in_existing_items_column',
           label: 'Show in existing ‘Items’ Column',
         },
       ],

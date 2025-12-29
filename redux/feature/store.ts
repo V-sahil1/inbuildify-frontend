@@ -21,6 +21,7 @@ import { generalReducer } from './admin/general/generalReducer';
 import { salesReducer } from './admin/sales/salesReducer';
 import { constructionReducer } from './admin/construction/constructionReducer';
 import roleReducer from './admin/role/roleSlice';
+import { JobReducer } from './admin/job/JobReducer';
 const authPersistConfig = {
   key: 'auth',
   storage,
@@ -47,6 +48,7 @@ const appReducer = combineReducers({
   sales: salesReducer,
   general: generalReducer,
   construction: constructionReducer,
+  job: JobReducer,
   role: roleReducer,
 });
 
@@ -80,6 +82,7 @@ const persistConfig = {
     'general',
     'sales',
     'construction',
+    'job',
     'role',
   ],
 };

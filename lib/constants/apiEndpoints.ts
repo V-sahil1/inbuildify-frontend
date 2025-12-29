@@ -140,7 +140,11 @@ class API_ENDPOINTS {
   public static UPDATE_RANGE = `${this.RANGE_BASE}/is-active`;
   public static DWELLING_TYPE_BASE = '/dwelling-type';
   public static UPDATE_DWELLING_TYPE = `${this.DWELLING_TYPE_BASE}/is-active`;
-  public static PRICELIST_BASE = '/price-list';
+  public static PRICELIST_BASE = '/price-list'; 
+
+  // admin job
+  public static JOB_SETTING = '/job-setting';
+  public static JOB_COLOR = '/job-color-setting';
 
   public static ROLE_BASE = '/role';
 }
