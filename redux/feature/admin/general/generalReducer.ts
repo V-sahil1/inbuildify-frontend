@@ -8,6 +8,7 @@ import screenReducer from './screen/screenSlice';
 import functionalityReducer from './functionality/functionalitySlice';
 import passwordPolicyReducer from './passwordPolicy/passwordPolicySlice';
 import checklistItemsReducer from './checklistItem/checklistItemSlice';
+import roleAndUserMappingReducer from './roleAndUserMapping/roleAndMappingSlice';
 
 export const generalReducer = combineReducers({
   generalSetting: generalSettingReducer,
@@ -19,4 +20,5 @@ export const generalReducer = combineReducers({
   screen: screenReducer,
   functionality: functionalityReducer,
   passwordPolicy: passwordPolicyReducer,
+  roleAndUserMapping: roleAndUserMappingReducer
 });

@@ -1,32 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Table, Form, Select, Space, Typography, message } from 'antd';
 import { IconCheck, IconEdit, IconPlus, IconX } from '@tabler/icons-react';
-import {
-  RoleAndMappingData,
-  RoleMapping,
-  rolesOfRoleMapping,
-} from 'data/configuration/ConfigrationData';
-import { useAppDispatch } from '@hooks/redux';
-import { fetchRoleTypeById } from '@redux/feature/admin/general/roleAndUserMapping/roleAndMappingThunk';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { fetchRoleTypeById, fetchRoleAndUsersMapping, createRoleAndUserMapping, updateRoleAndUserMapping } from '@redux/feature/admin/general/roleAndUserMapping/roleAndMappingThunk';
 import { useRoleHook } from '@hooks/useRoleHook';
 import { useUsersHook } from '@hooks/useUserHook';
+import { RoleAndUserMapping, RoleAndUserMappingCreatePayload } from '@redux/feature/admin/general/roleAndUserMapping/IRoleAndUserMappingState';
+import { Status } from '@lib/constants/enum';
+import { addRoleMapping } from '@redux/feature/admin/general/roleAndUserMapping/roleAndMappingSlice';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 
 const { Title, Text } = Typography;
 
 const RoleAndUser: React.FC = () => {
   const [form] = Form.useForm();
-  const [data, setData] = useState<RoleMapping[]>(RoleAndMappingData);
-  const [editingKey, setEditingKey] = useState<string | number>('');
-  const [taskManager, setTaskManager] = useState('Murthy Muthuswamy');
+  const [editingKey, setEditingKey] = useState<string>('');
   const { userOptions } = useUsersHook();
   const { roleOptions } = useRoleHook();
+  const { userRoleMapping, status } = useAppSelector(state => state.general.roleAndUserMapping);
   const dispatch = useAppDispatch();
-  const [typeOptions, setTypeOptions] = useState<Array<{label: string; value: string}>>([]);
+  const [typeOptions, setTypeOptions] = useState<Array<{ label: string; value: string }>>([]);
+
+  useEffect(() => {
+    if (status.fetch === Status.IDLE) {
+      dispatch(fetchRoleAndUsersMapping(undefined));
+    }
+  }, [dispatch, status.fetch]);
+
+  const handleTaskManagerChange = (value: string | undefined) => {
+    dispatch(fetchRoleAndUsersMapping(value));
+  };
 
   const fetchRoleTypeOptions = async (role: string) => {
     try {
       const response = await dispatch(fetchRoleTypeById(role)).unwrap();
-      const options = response.map(r => ({ label: r.typeName, value: r.roleTypeId }));
+      const options = response?.map(r => ({ label: r.typeName, value: r.roleTypeId }));
       setTypeOptions(options);
     } catch (error) {
       message.error('Failed to fetch role type options');
@@ -34,141 +42,186 @@ const RoleAndUser: React.FC = () => {
     }
   };
 
-  const isEditing = (record: RoleMapping) => record.id === editingKey;
+  const isEditing = (record: RoleAndUserMapping) => record.userRoleMappingId === editingKey;
 
   const handleAdd = () => {
     if (editingKey) {
-      message.warning('Please save or cancel the current edit first.');
+      message.warning('Please save or cancel current edit first.');
       return;
     }
 
-    const newKey = Date.now();
-    const newRow: RoleMapping = {
-      id: newKey,
-      type: '--',
-      role: rolesOfRoleMapping[0],
-      user: userOptions[0]?.value,
+    const newKey = Date.now().toString();
+    const newRow: RoleAndUserMapping = {
+      userRoleMappingId: newKey,
+      roleType: { id: '', name: '' },
+      user: { id: '', name: '' },
+      role: { id: '', name: '' },
+      assignedBy: { id: '', name: '' },
+      assignedAt: '',
+      isNew: true,
     };
 
-    setData(prev => [newRow, ...prev]);
+    dispatch(addRoleMapping(newRow));
     setEditingKey(newKey);
-    form.setFieldsValue(newRow);
+    form.setFieldsValue({
+      role: undefined,
+      type: undefined,
+      user: undefined,
+    });
   };
 
-  const handleEdit = (record: RoleMapping) => {
+  const handleEdit = (record: RoleAndUserMapping) => {
     if (editingKey) {
       message.warning('Please save or cancel the current edit first.');
       return;
     }
-    setEditingKey(record.id);
-    form.setFieldsValue(record);
+    // Fetch role types for the selected role
+    if (record.role?.id) {
+      fetchRoleTypeOptions(record.role.id);
+    }
+
+    setEditingKey(record.userRoleMappingId);
+    form.setFieldsValue({
+      ...record,
+      role: record.role?.id,
+      type: record.roleType?.id,
+      user: record.user?.id
+    });
   };
 
-  const handleSave = async (key: string | number) => {
+  const handleSave = async (key: string) => {
     try {
-      const row = (await form.validateFields()) as RoleMapping;
+      const row = (await form.validateFields()) as {
+        role: string;
+        type: string;
+        user: string;
+      };
 
-      const newData = [...data];
-      const index = newData.findIndex(item => key === item.id);
+      const item = userRoleMapping.find(i => i.userRoleMappingId === key);
 
-      if (index > -1) {
-        const item = newData[index];
-        newData.splice(index, 1, {
-          ...item,
-          ...row,
-          id: item?.isNew ? item.id : key,
-        });
-
-        setData(newData);
+      if (item && item.isNew) {
+        const payload: RoleAndUserMappingCreatePayload = {
+          roleId: row.role,
+          roleTypeId: row.type,
+          userId: row.user,
+          assignedBy: row.user,
+        };
+        await dispatch(createRoleAndUserMapping(payload)).unwrap();
+        message.success('Role mapping created successfully.');
         setEditingKey('');
-        message.success(
-          item?.isNew
-            ? 'New role mapping added successfully.'
-            : 'Role mapping updated successfully.'
-        );
-      } else {
-        newData.push(row);
-        setData(newData);
+      } else if (item) {
+        const initialValues = {
+          role: item.role?.id,
+          type: item.roleType?.id,
+          user: item.user?.id,
+        };
+        const updatedFields = getUpdatedFields(row, initialValues);
+
+        if (Object.keys(updatedFields).length === 0) {
+          message.info('Updated successfully');
+          setEditingKey('');
+          return;
+        }
+
+        const payload: Partial<RoleAndUserMappingCreatePayload> = {};
+        if (updatedFields.role) payload.roleId = updatedFields.role;
+        if (updatedFields.type) payload.roleTypeId = updatedFields.type;
+        if (updatedFields.user) {
+          payload.userId = updatedFields.user;
+          payload.assignedBy = updatedFields.user;
+        }
+
+        await dispatch(updateRoleAndUserMapping({ id: key, data: payload })).unwrap();
+        message.success('Role mapping updated successfully.');
         setEditingKey('');
       }
-    } catch (errInfo) {
-      console.error('Validate Failed:', errInfo);
+    } catch (error) {
+      console.error(error);
+      message.error(error || 'Failed to save role mapping');
     }
   };
 
   const handleCancel = () => {
-    const item = data.find(i => i.id === editingKey);
+    const item = userRoleMapping.find(i => i.userRoleMappingId === editingKey);
     if (item && item.isNew) {
-      setData(data.filter(i => i.id !== editingKey));
+      setEditingKey('');
+      form.resetFields();
+    } else {
+      setEditingKey('');
+      form.resetFields();
     }
-    setEditingKey('');
-    form.resetFields();
   };
+
+  const isActionLoading = status.create === Status.PENDING || status.update === Status.PENDING;
 
   const columns = [
     {
       title: 'S.No',
-      dataIndex: 'id',
+      dataIndex: 'userRoleMappingId',
       width: 70,
       render: (_, __, index) => index + 1,
     },
     {
       title: 'Role',
       dataIndex: 'role',
-      onCell: (record: RoleMapping) => ({
+      onCell: (record: RoleAndUserMapping) => ({
         record,
         editing: isEditing(record),
         dataIndex: 'role',
         title: 'Role',
         inputOptions: roleOptions,
       }),
+      render: (_, record: RoleAndUserMapping) => record.role?.name || '--',
     },
     {
       title: 'Type',
       dataIndex: 'type',
-      onCell: (record: RoleMapping) => {
-        console.log('Type options in column:', typeOptions);
+      onCell: (record: RoleAndUserMapping) => {
         return {
-        record,
-        editing: isEditing(record),
-        dataIndex: 'type',
-        title: 'Type',
-        inputOptions: typeOptions,
+          record,
+          editing: isEditing(record),
+          dataIndex: 'type',
+          title: 'Type',
+          inputOptions: typeOptions,
         };
       },
-      render: text => text || '--',
+      render: (_, record: RoleAndUserMapping) => record.roleType?.name || '--',
     },
     {
       title: 'User',
       dataIndex: 'user',
-      onCell: (record: RoleMapping) => ({
+      onCell: (record: RoleAndUserMapping) => ({
         record,
         editing: isEditing(record),
         dataIndex: 'user',
         title: 'User',
         inputOptions: userOptions,
       }),
+      render: (_, record: RoleAndUserMapping) => record.user?.name || '--',
     },
     {
-      title: (
-        <Button type="primary" icon={<IconPlus />} onClick={handleAdd} disabled={!!editingKey}>
-          New
-        </Button>
-      ),
+      title: 'Action',
       key: 'actions',
       align: 'right' as const,
       width: 100,
-      render: (_: any, record: RoleMapping) => {
+      render: (_, record: RoleAndUserMapping) => {
         const editing = isEditing(record);
         return editing ? (
           <Space size="small">
             <Button
+              loading={isActionLoading}
               icon={<IconCheck />}
               type="primary"
               size="small"
-              onClick={() => handleSave(record.id)}
+              onClick={() => handleSave(record.userRoleMappingId)}
             />
-            <Button icon={<IconX />} danger size="small" onClick={handleCancel} />
+            <Button
+              disabled={isActionLoading}
+              icon={<IconX />}
+              danger
+              size="small"
+              onClick={handleCancel}
+            />
           </Space>
         ) : (
           <Button
@@ -183,7 +236,7 @@ const RoleAndUser: React.FC = () => {
   ];
 
   return (
-    <div className="p-6">
+    <>
       <div className="mb-8 p-4 border rounded-lg bg-white shadow-sm">
         <Title level={4} style={{ marginBottom: 4 }}>
           Assign Task Manager
@@ -200,7 +253,8 @@ const RoleAndUser: React.FC = () => {
           </div>
           <div className="w-full md:w-1/2">
             <Select
-              onChange={setTaskManager}
+              allowClear
+              onChange={handleTaskManagerChange}
               options={userOptions}
               className="w-full"
               placeholder="Select a Task Manager"
@@ -210,11 +264,18 @@ const RoleAndUser: React.FC = () => {
       </div>
 
       <div className="p-4 border rounded-lg bg-white shadow-sm">
-        <Title level={4}>Assign User for Role Mapping</Title>
+        <div className="flex justify-between items-center mb-4">
+          <Title level={4} style={{ margin: 0 }}>
+            Assign User for Role Mapping
+          </Title>
+          <Button type="primary" icon={<IconPlus />} onClick={handleAdd} disabled={!!editingKey}>
+            Create
+          </Button>
+        </div>
 
         <Form form={form} component={false}>
           <Table
-            dataSource={data}
+            dataSource={userRoleMapping}
             columns={columns.map((col, index) => {
               if (!col.onCell) {
                 return col;
@@ -222,8 +283,8 @@ const RoleAndUser: React.FC = () => {
 
               return {
                 ...col,
-                render: (text, record) => {
-                  const editing = isEditing(record as RoleMapping);
+                render: (text, record, index) => {
+                  const editing = isEditing(record as RoleAndUserMapping);
                   if (editing) {
                     const inputOptions =
                       col.dataIndex === 'type'
@@ -240,7 +301,7 @@ const RoleAndUser: React.FC = () => {
                         rules={[
                           {
                             required: true,
-                            message: `Please select ${col.title}!`,
+                            message: col.dataIndex === 'user' ? 'Please select User!' : `Please select ${col.title}!`,
                           },
                         ]}
                       >
@@ -250,9 +311,7 @@ const RoleAndUser: React.FC = () => {
                           showSearch
                           onChange={(value) => {
                             if (col.dataIndex === 'role') {
-                              // When role changes, fetch types for that role
                               fetchRoleTypeOptions(value);
-                              // Clear the type field when role changes
                               form.setFieldValue('type', undefined);
                             }
                           }}
@@ -260,7 +319,7 @@ const RoleAndUser: React.FC = () => {
                       </Form.Item>
                     );
                   }
-                  return text;
+                  return col.render ? col.render(text, record, index) : text;
                 },
               };
             })}
@@ -269,7 +328,7 @@ const RoleAndUser: React.FC = () => {
           />
         </Form>
       </div>
-    </div>
+    </>
   );
 };
 

@@ -32,7 +32,7 @@ export const Range: React.FC = () => {
   const [editingRow, setEditingRow] = useState<Partial<range>>({});
   const [isAdding, setIsAdding] = useState(false);
   const [error, setError] = useState<{ name?: string; sortOrder?: string } | null>(null);
-  const { users } = useUsersHook();
+  const { userOptions } = useUsersHook();
   const [isModalOpen, setIsModalOpen] = useState<{
     open: boolean;
     type: 'activate' | 'deactivate' | null;
@@ -359,7 +359,7 @@ export const Range: React.FC = () => {
             mode="multiple"
             placeholder="Select Users"
             value={(editingRow.userId as string[]) ?? []}
-            options={users.map(user => ({ value: user.usersId, label: user.name }))}
+            options={userOptions}
             onChange={vals => setEditingRow(p => ({ ...p, userId: vals }))}
             style={{ minWidth: 220 }}
             disabled={isDisabled}
