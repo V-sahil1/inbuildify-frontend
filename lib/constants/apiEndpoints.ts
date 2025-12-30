@@ -147,6 +147,10 @@ class API_ENDPOINTS {
   public static JOB_SETTING = '/job-setting';
   public static JOB_COLOR = '/job-color-setting';
 
+  // admin maintenance
+  public static MAINTENANCE_SETTING = '/maintenance-setting';
+  public static MAINTENANCE_AREA = '/maintenance-area';
+
   public static ROLE_BASE = '/role';
 }
 export default API_ENDPOINTS;

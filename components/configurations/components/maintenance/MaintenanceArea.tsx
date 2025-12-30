@@ -1,91 +1,165 @@
-import React, { useState } from 'react';
-import { Table, Input, Button, Space, Tooltip } from 'antd';
+import React, { useEffect, useState, useMemo } from 'react';
+import { Table, Input, Button, Space, Tooltip, message } from 'antd';
 import { IconCheck, IconEdit, IconPlus, IconTrash, IconX } from '@tabler/icons-react';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import {
+  createMaintenanceArea,
+  fetchMaintenanceArea,
+  updateMaintenanceArea,
+  deleteMaintenanceArea,
+} from '@redux/feature/admin/maintenance/maintenanceArea/maintenanceAreaThunk';
+import { Status } from '@lib/constants/enum';
+import { MaintenanceArea } from '@redux/feature/admin/maintenance/maintenanceArea/IMaintenanceAreaState';
+import ConfirmationModal from '@/components/common/ConfirmationModal';
 
-export const MaintenanceArea = () => {
-  const [data, setData] = useState([
-    { key: 1, name: 'Bathroom' },
-    { key: 2, name: 'Doors' },
-    { key: 3, name: 'Kitchen' },
-    { key: 4, name: 'Others' },
-    { key: 5, name: 'Paint' },
-    { key: 6, name: 'Wall' },
-  ]);
-  const [editingKey, setEditingKey] = useState<number | null>(null);
+export const MaintenanceAreaPage = () => {
+  const dispatch = useAppDispatch();
+  const { maintenanceArea, status } = useAppSelector(state => state.maintenance.maintenanceArea);
+
+  const [deleteId, setDeleteId] = useState<string | number | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const fetchMaintenanceAreaData = async () => {
+    try {
+      await dispatch(fetchMaintenanceArea());
+    } catch (error) {
+      console.error(error)
+      message.error('Failed to fetch maintenance area data');
+    }
+  };
+
+  useEffect(() => {
+    if (status.fetch === Status.IDLE) {
+      fetchMaintenanceAreaData();
+    }
+  }, [status.fetch]);
+
+  const [editingKey, setEditingKey] = useState<string | number | null>(null);
   const [newValue, setNewValue] = useState('');
   const [isAdding, setIsAdding] = useState(false);
 
+  const dataSource = useMemo(() => {
+    if (isAdding && editingKey && String(editingKey).startsWith('new-')) {
+      const tempItem: MaintenanceArea = {
+        maintenanceAreaId: editingKey as string,
+        name: newValue,
+      };
+      return [tempItem, ...(maintenanceArea || [])];
+    }
+    return maintenanceArea || [];
+  }, [maintenanceArea, isAdding, editingKey]);
+
+  const getRowKey = (record: MaintenanceArea) => record.maintenanceAreaId;
+
   const handleAddNew = () => {
     setIsAdding(true);
-    const newKey = data.length + 1;
-    setData([...data, { key: newKey, name: '' }]);
-    setEditingKey(newKey);
-  };
-
-  const handleSave = (key: number) => {
-    const newData = data.map(item =>
-      item.key === key ? { ...item, name: newValue || item.name } : item
-    );
-    setData(newData);
-    setEditingKey(null);
-    setIsAdding(false);
+    const tempKey = `new-${Date.now()}`;
+    setEditingKey(tempKey);
     setNewValue('');
   };
 
-  const handleDelete = (key: number) => {
-    setData(data.filter(item => item.key !== key));
+  const handleSave = async (id: string | number) => {
+    try {
+      if (isAdding && id === editingKey) {
+        await dispatch(createMaintenanceArea({ name: newValue })).unwrap();
+        setIsAdding(false);
+      } else {
+        const item = maintenanceArea?.find(i => i.maintenanceAreaId === id);
+        await dispatch(
+          updateMaintenanceArea({
+            maintenanceAreaId: id as string,
+            name: newValue || item?.name || ''
+          })
+        ).unwrap();
+      }
+      setEditingKey(null);
+      setNewValue('');
+    } catch (error) {
+      console.error('Failed to save:', error);
+      message.error('Failed to save');
+    }
   };
 
-  const handleEdit = (record: any) => {
-    setEditingKey(record.key);
+  const handleDeleteClick = (id: string | number) => {
+    setDeleteId(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteId) return;
+    try {
+      await dispatch(deleteMaintenanceArea(deleteId as string)).unwrap();
+      message.success('Maintenance area deleted successfully');
+      if (String(deleteId).startsWith('new-') && editingKey === deleteId) {
+        setIsAdding(false);
+        setEditingKey(null);
+      }
+
+      setIsDeleteModalOpen(false);
+      setDeleteId(null);
+    } catch (error) {
+      message.error('Failed to delete maintenance area');
+    }
+  };
+
+  const handleEdit = (record: MaintenanceArea) => {
+    const key = getRowKey(record);
+    setEditingKey(key);
     setNewValue(record.name);
   };
 
-  const handleCancel = (key: number) => {
+  const handleCancel = () => {
     if (isAdding) {
-      setData(data.filter(item => item.key !== key));
       setIsAdding(false);
     }
     setEditingKey(null);
     setNewValue('');
   };
 
+  const isLoading = status.update === Status.PENDING;
+
   const columns = [
     {
       title: 'S.No',
-      dataIndex: 'key',
+      dataIndex: 'maintenanceAreaId',
       width: '80px',
       render: (_, __, index) => index + 1,
     },
     {
       title: 'Maintenance Area',
       dataIndex: 'name',
-      render: (text: string, record: any) =>
-        editingKey === record.key ? (
-          <Input value={newValue} onChange={e => setNewValue(e.target.value)} autoFocus />
+      render: (text: string, record: MaintenanceArea) => {
+        const currentKey = getRowKey(record);
+        return editingKey === currentKey ? (
+          <Input value={newValue} onChange={e => setNewValue(e.target.value)} autoFocus disabled={isLoading} />
         ) : (
           <span>{text}</span>
-        ),
+        );
+      },
     },
     {
       title: '',
       align: 'right' as const,
-      render: (_: any, record: any) => {
-        if (editingKey === record.key) {
+      render: (_, record: MaintenanceArea) => {
+        const currentKey = getRowKey(record);
+        if (editingKey === currentKey) {
           return (
             <Space>
               <Tooltip title="Save">
                 <Button
                   type="text"
                   icon={<IconCheck style={{ color: 'green' }} />}
-                  onClick={() => handleSave(record.key)}
+                  onClick={() => handleSave(currentKey)}
+                  loading={isLoading}
+                  disabled={isLoading}
                 />
               </Tooltip>
               <Tooltip title="Cancel">
                 <Button
                   type="text"
                   icon={<IconX style={{ color: 'red' }} />}
-                  onClick={() => handleCancel(record.key)}
+                  onClick={() => handleCancel()}
+                  disabled={isLoading}
                 />
               </Tooltip>
             </Space>
@@ -98,13 +172,15 @@ export const MaintenanceArea = () => {
                 type="text"
                 icon={<IconEdit style={{ color: '#ff9d00ff' }} />}
                 onClick={() => handleEdit(record)}
+                disabled={isLoading}
               />
             </Tooltip>
             <Tooltip title="Delete">
               <Button
                 type="text"
                 icon={<IconTrash style={{ color: 'red' }} />}
-                onClick={() => handleDelete(record.key)}
+                onClick={() => handleDeleteClick(currentKey)}
+                disabled={isLoading}
               />
             </Tooltip>
           </Space>
@@ -121,7 +197,7 @@ export const MaintenanceArea = () => {
           type="primary"
           icon={<IconPlus />}
           onClick={handleAddNew}
-          disabled={isAdding || editingKey !== null}
+          disabled={isAdding || editingKey !== null || isLoading}
         >
           New
         </Button>
@@ -129,10 +205,21 @@ export const MaintenanceArea = () => {
 
       <Table
         columns={columns}
-        dataSource={data}
-        pagination={false}
+        dataSource={dataSource}
         bordered
+        rowKey={record => record.maintenanceAreaId}
         rowClassName="text-sm"
+      />
+
+      <ConfirmationModal
+        open={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Maintenance Area"
+        message="Are you sure you want to delete this maintenance area? This action cannot be undone."
+        type="danger"
+        confirmText="Delete"
+        loading={isLoading}
       />
     </div>
   );

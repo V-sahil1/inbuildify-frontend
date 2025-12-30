@@ -1,6 +1,15 @@
-import React, { useState } from 'react';
-import { Form, Input, Select, Button, Typography, Tooltip } from 'antd';
+'use client';
+import React, { useState, useEffect } from 'react';
+import { Form, Input, Select, Button, Typography, Tooltip, message } from 'antd';
 import InputSwitch from '@/components/common/InputSwitch';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import {
+  fetchMaintenanceSetting,
+  updateMaintenanceSetting,
+} from '@redux/feature/admin/maintenance/maintenanceSetting/maintenanceSettingThunk';
+import { Status } from '@lib/constants/enum';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
+import { useRoleHook } from '@hooks/useRoleHook';
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -8,38 +17,64 @@ const { Option } = Select;
 export const SettingPage = () => {
   const [form] = Form.useForm();
   const [isChanged, setIsChanged] = useState(false);
+  const { roleOptions, isLoading } = useRoleHook();
+  const dispatch = useAppDispatch();
+  const { maintenanceSetting, status } = useAppSelector(
+    state => state.maintenance.maintenanceSetting
+  );
 
-  const initialValues = {
-    area: false,
-    supplier: false,
-    requestDate: false,
-    taskDate: false,
-    repairCost: false,
-    hoursSpent: false,
-    maintenanceStartDate: '',
-    handoverDate: '',
-    maintenanceDuration: '1 days',
-    maintenancePeriod: '365 days',
-    rolesForSupervisor: undefined,
+  const fetchMaintenanceSettingData = async () => {
+    try {
+      await dispatch(fetchMaintenanceSetting());
+    } catch (error) {
+      message.error(error || 'failed to fetch maintenance setting');
+    }
   };
+
+  useEffect(() => {
+    if (status.fetch === Status.IDLE) {
+      fetchMaintenanceSettingData();
+    }
+  }, [dispatch, status.fetch]);
+
+  useEffect(() => {
+    if (status.fetch === Status.SUCCESS && maintenanceSetting) {
+      form.setFieldsValue(maintenanceSetting);
+    }
+  }, [maintenanceSetting, status.fetch, form]);
 
   const handleValuesChange = (_, allValues) => {
-    const changed = Object.keys(initialValues).some(key => initialValues[key] !== allValues[key]);
-    setIsChanged(changed);
+    if (!maintenanceSetting) return;
+    const updatedFields = getUpdatedFields(allValues, maintenanceSetting);
+    setIsChanged(Object.keys(updatedFields).length > 0);
   };
 
-  const handleSave = () => {
-    console.log('Saved Values:', form.getFieldsValue());
-    setIsChanged(false);
+  const handleSave = async () => {
+    try {
+      if (!maintenanceSetting) return;
+      const currentValues = form.getFieldsValue();
+      const updatedFields = getUpdatedFields(currentValues, maintenanceSetting);
+
+      if (Object.keys(updatedFields).length === 0) {
+        setIsChanged(false);
+        return;
+      }
+
+      await dispatch(updateMaintenanceSetting(updatedFields)).unwrap();
+      setIsChanged(false);
+      message.success('Maintenance settings updated successfully');
+    } catch (err) {
+      message.error(err || 'Failed to update settings');
+    }
   };
 
-  const supplier = Form.useWatch('supplier', form);
+  const supplier = Form.useWatch('supplierEnabled', form);
   return (
     <div className="">
       <Form
         layout="vertical"
         form={form}
-        initialValues={initialValues}
+        initialValues={maintenanceSetting}
         onValuesChange={handleValuesChange}
       >
         <div className="mb-6">
@@ -56,12 +91,12 @@ export const SettingPage = () => {
           {/* Left column — Switches */}
           <div>
             {/* when this switch is true at that time the sidebar in one more sidebar option will be added as the maintenance area  */}
-            <InputSwitch label="Area" name="area" />
-            <InputSwitch label="Supplier" name="supplier" />
+            <InputSwitch label="Area" name="areaEnabled" />
+            <InputSwitch label="Supplier" name="supplierEnabled" />
             {supplier && (
               <InputSwitch
                 label="Allow to complete the request even the supplier is not responded"
-                name="allowToCompleteRequest"
+                name="allowCompletionWithoutSupplierResponse"
                 description={
                   <div className="text-[13px]">
                     <p>
@@ -81,10 +116,10 @@ export const SettingPage = () => {
                 }
               />
             )}
-            <InputSwitch label="Request Date" name="requestDate" />
-            <InputSwitch label="Task Date" name="taskDate" />
-            <InputSwitch label="Repair Cost" name="repairCost" />
-            <InputSwitch label="Hours Spent" name="hoursSpent" />
+            <InputSwitch label="Request Date" name="requestDateEnabled" />
+            <InputSwitch label="Task Date" name="taskDateEnabled" />
+            <InputSwitch label="Repair Cost" name="repairCostEnabled" />
+            <InputSwitch label="Hours Spent" name="hoursSpentEnabled" />
           </div>
 
           {/* Right column — Other fields */}
@@ -100,8 +135,8 @@ export const SettingPage = () => {
               <Select
                 placeholder="select"
                 options={[
-                  { label: 'Handover Date', value: 'handoverDate' },
-                  { label: 'Occupancy Permit date', value: 'occupancyPermitDate' },
+                  { label: 'Handover Date', value: 'handover_date' },
+                  { label: 'Occupancy Permit date', value: 'occupancy_permit_date' },
                 ]}
               />
             </Form.Item>
@@ -112,7 +147,7 @@ export const SettingPage = () => {
                   <Tooltip title="Default period for maintenance tasks" />
                 </span>
               }
-              name="maintenanceDuration"
+              name="maintenanceDurationDays"
             >
               <Input />
             </Form.Item>
@@ -123,7 +158,7 @@ export const SettingPage = () => {
                   <Tooltip title="Default period for maintenance tasks" />
                 </span>
               }
-              name="maintenancePeriod"
+              name="maintenancePeriodDays"
             >
               <Input />
             </Form.Item>
@@ -133,20 +168,21 @@ export const SettingPage = () => {
                   Roles for Supervisor <Tooltip title="Assign roles for supervisor view" />
                 </span>
               }
-              name="rolesForSupervisor"
+              name="supervisorRoles"
             >
-              <Select placeholder="Choose Roles">
-                <Option value="manager">Manager</Option>
-                <Option value="technician">Technician</Option>
-                <Option value="inspector">Inspector</Option>
-              </Select>
+              <Select
+                placeholder="Choose Roles"
+                mode="multiple"
+                options={roleOptions}
+                loading={isLoading}
+              ></Select>
             </Form.Item>
           </div>
         </div>
 
         {isChanged && (
           <div className="flex justify-end mt-6">
-            <Button type="primary" onClick={handleSave}>
+            <Button type="primary" onClick={handleSave} loading={status.update === Status.PENDING}>
               Save Changes
             </Button>
           </div>

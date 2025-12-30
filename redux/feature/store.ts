@@ -3,11 +3,11 @@ import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import { authReducer } from './auth/authSlice';
 import { leadReducer } from './lead/leadSlice';
+import quotationReducer from './quotation/quotationSlice';
 import masterPriceListReducer from './masterPriceList/masterPriceListSlice';
 import floorPlanReducer from './floorPlan/floorPlanSlice';
 import facadeReducer from './facade/facadeSlice';
 import packageReducer from './package/packageSlice';
-import quotationReducer from './quotation/quotationSlice';
 import { dashboardReducer } from './dashboard/dashboardSlice';
 import typesReducer from './types/typesSlice';
 import locationReducer from './location/locationSlice';
@@ -22,20 +22,20 @@ import { salesReducer } from './admin/sales/salesReducer';
 import { constructionReducer } from './admin/construction/constructionReducer';
 import roleReducer from './admin/role/roleSlice';
 import { JobReducer } from './admin/job/JobReducer';
+import { MaintenanceReducer } from './admin/maintenance/maintenanceReducer';
 const authPersistConfig = {
   key: 'auth',
   storage,
-  whitelist: ['auth', 'lead', 'quotation'],
 };
 
 const appReducer = combineReducers({
   auth: persistReducer(authPersistConfig, authReducer),
   lead: leadReducer,
+  quotation: quotationReducer,
   masterPriceList: masterPriceListReducer,
   floorPlan: floorPlanReducer,
   facade: facadeReducer,
   package: packageReducer,
-  quotation: quotationReducer,
   dashboard: dashboardReducer,
   types: typesReducer,
   location: locationReducer,
@@ -50,9 +50,13 @@ const appReducer = combineReducers({
   construction: constructionReducer,
   job: JobReducer,
   role: roleReducer,
+  maintenance: MaintenanceReducer,
 });
 
-const rootReducer = (state: ReturnType<typeof appReducer> | undefined, action: any) => {
+const rootReducer = (
+  state: ReturnType<typeof appReducer> | undefined,
+  action: any
+) => {
   if (action.type === 'auth/logout') {
     storage.removeItem('persist:root');
     storage.removeItem('persist:auth');
@@ -64,27 +68,7 @@ const rootReducer = (state: ReturnType<typeof appReducer> | undefined, action: a
 const persistConfig = {
   key: 'root',
   storage,
-  blacklist: [
-    'lead',
-    'masterPriceList',
-    'floorPlan',
-    'facade',
-    'dashboard',
-    'package',
-    'types',
-    'location',
-    'contractor',
-    'action',
-    'user',
-    'workflow',
-    'colour',
-    'task',
-    'general',
-    'sales',
-    'construction',
-    'job',
-    'role',
-  ],
+  whitelist: ['auth', 'lead', 'quotation'],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
