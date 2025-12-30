@@ -2,10 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { Button, Table, Form, Select, Space, Typography, message } from 'antd';
 import { IconCheck, IconEdit, IconPlus, IconX } from '@tabler/icons-react';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import { fetchRoleTypeById, fetchRoleAndUsersMapping, createRoleAndUserMapping, updateRoleAndUserMapping } from '@redux/feature/admin/general/roleAndUserMapping/roleAndMappingThunk';
+import {
+  fetchRoleTypeById,
+  fetchRoleAndUsersMapping,
+  createRoleAndUserMapping,
+  updateRoleAndUserMapping,
+} from '@redux/feature/admin/general/roleAndUserMapping/roleAndMappingThunk';
 import { useRoleHook } from '@hooks/useRoleHook';
 import { useUsersHook } from '@hooks/useUserHook';
-import { RoleAndUserMapping, RoleAndUserMappingCreatePayload } from '@redux/feature/admin/general/roleAndUserMapping/IRoleAndUserMappingState';
+import {
+  RoleAndUserMapping,
+  RoleAndUserMappingCreatePayload,
+} from '@redux/feature/admin/general/roleAndUserMapping/IRoleAndUserMappingState';
 import { Status } from '@lib/constants/enum';
 import { addRoleMapping } from '@redux/feature/admin/general/roleAndUserMapping/roleAndMappingSlice';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
@@ -21,14 +29,20 @@ const RoleAndUser: React.FC = () => {
   const dispatch = useAppDispatch();
   const [typeOptions, setTypeOptions] = useState<Array<{ label: string; value: string }>>([]);
 
-  useEffect(() => {
-    if (status.fetch === Status.IDLE) {
-      dispatch(fetchRoleAndUsersMapping(undefined));
+  const fetchRoleData = async (assignedBy: string | undefined) => {
+    try {
+      await dispatch(fetchRoleAndUsersMapping(assignedBy)).unwrap();
+    } catch (error) {
+      message.error('Failed to fetch role mapping');
     }
+  };
+
+  useEffect(() => {
+    if (status.fetch === Status.IDLE) fetchRoleData(undefined);
   }, [dispatch, status.fetch]);
 
   const handleTaskManagerChange = (value: string | undefined) => {
-    dispatch(fetchRoleAndUsersMapping(value));
+    fetchRoleData(value);
   };
 
   const fetchRoleTypeOptions = async (role: string) => {
@@ -85,7 +99,7 @@ const RoleAndUser: React.FC = () => {
       ...record,
       role: record.role?.id,
       type: record.roleType?.id,
-      user: record.user?.id
+      user: record.user?.id,
     });
   };
 
@@ -301,7 +315,10 @@ const RoleAndUser: React.FC = () => {
                         rules={[
                           {
                             required: true,
-                            message: col.dataIndex === 'user' ? 'Please select User!' : `Please select ${col.title}!`,
+                            message:
+                              col.dataIndex === 'user'
+                                ? 'Please select User!'
+                                : `Please select ${col.title}!`,
                           },
                         ]}
                       >
@@ -309,7 +326,7 @@ const RoleAndUser: React.FC = () => {
                           options={inputOptions}
                           placeholder={`Select ${col.title}`}
                           showSearch
-                          onChange={(value) => {
+                          onChange={value => {
                             if (col.dataIndex === 'role') {
                               fetchRoleTypeOptions(value);
                               form.setFieldValue('type', undefined);

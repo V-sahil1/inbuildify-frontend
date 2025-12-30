@@ -26,15 +26,6 @@ const roleAndMappingSlice = createSlice({
     },
   },
   extraReducers: builder => {
-    builder.addCase(fetchRoleTypeById.pending, (state) => {
-      state.status.fetch = Status.PENDING;
-    })
-    builder.addCase(fetchRoleTypeById.fulfilled, (state, action) => {
-      state.status.fetch = Status.SUCCESS;
-    });
-    builder.addCase(fetchRoleTypeById.rejected, (state) => {
-      state.status.fetch = Status.ERROR;
-    })
     builder.addCase(fetchRoleAndUsersMapping.pending, (state) => {
       state.status.fetch = Status.PENDING;
     })

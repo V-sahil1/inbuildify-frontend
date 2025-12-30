@@ -9,7 +9,7 @@ export const fetchPasswordPolicy = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await api.get<ApiResponse<passwordPolicyResponse>>(
-        API_ENDPOINTS.GET_PASSWORD_POLICY
+        API_ENDPOINTS.PASSWORD_POLICY_BASE
       );
       return response.data;
     } catch (error) {
@@ -26,7 +26,7 @@ export const updatePasswordPolicy = createAsyncThunk(
   ) => {
     try {
       const response = await api.put<ApiResponse<passwordPolicyResponse>>(
-        `${API_ENDPOINTS.PASSWORD_POLICY_BASE}/${payload.passwordPolicyId}`,
+        API_ENDPOINTS.PASSWORD_POLICY_BASE,
         { data: payload.data }
       );
       return response.data;

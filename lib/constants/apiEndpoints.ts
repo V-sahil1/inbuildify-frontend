@@ -109,7 +109,7 @@ class API_ENDPOINTS {
   public static GET_GENERAL_SETTING = `${this.GENERAL_SETTING}/user`;
   public static SURVEYOR_BASE = '/surveyor';
   public static CUSTOMFIELD_BASE = '/custom-field';
-  public static CUSTOMFIELD_LIST_OPTION_BASE = `${this.CUSTOMFIELD_BASE}/option`;   
+  public static CUSTOMFIELD_LIST_OPTION_BASE = `${this.CUSTOMFIELD_BASE}/option`;
   public static CUSTOMFIELD_MODULE_BASE = '/custom-field-module';
   public static NOTE_TAG_BASE = '/note-tag';
   public static CHECKLIST_BASE = '/checklist';
@@ -117,7 +117,6 @@ class API_ENDPOINTS {
   public static SCREEN_BASE = '/screen';
   public static FUNCTIONALITY_BASE = '/functionality';
   public static PASSWORD_POLICY_BASE = '/password-policy';
-  public static GET_PASSWORD_POLICY = `${this.PASSWORD_POLICY_BASE}/user`;
   public static ROLE_AND_USER_MAPPING_TYPE = '/role-type';
   public static ROLE_AND_USER_MAPPING = '/user-role-mapping';
 
@@ -142,7 +141,7 @@ class API_ENDPOINTS {
   public static UPDATE_RANGE = `${this.RANGE_BASE}/is-active`;
   public static DWELLING_TYPE_BASE = '/dwelling-type';
   public static UPDATE_DWELLING_TYPE = `${this.DWELLING_TYPE_BASE}/is-active`;
-  public static PRICELIST_BASE = '/price-list'; 
+  public static PRICELIST_BASE = '/price-list';
 
   // admin job
   public static JOB_SETTING = '/job-setting';
