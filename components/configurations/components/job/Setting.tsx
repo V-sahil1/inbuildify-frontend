@@ -53,7 +53,6 @@ export const Setting: React.FC = () => {
   const handleSave = async () => {
     if (!settings || !jobSetting) return;
     const changedValues = getUpdatedFields(settings, jobSetting);
-
     if (Object.keys(changedValues).length === 0) {
       message.info('No changes to save');
       return;
@@ -63,8 +62,7 @@ export const Setting: React.FC = () => {
       await dispatch(updateJobSetting(changedValues)).unwrap();
       message.success('Settings saved successfully!');
     } catch (error) {
-      message.error('Failed to save settings');
-      console.error('Save error:', error);
+      message.error(error || 'Failed to save settings');
     }
   };
 
@@ -110,15 +108,17 @@ export const Setting: React.FC = () => {
           <div className="font-medium text-base">Automatically Archive Job After Completion</div>
           <div className="flex items-center gap-2 text-sm text-gray-600">
             <span>After</span>
-            <InputNumber
-              min={1}
-              value={settings?.autoArchiveAfterDays}
-              onChange={val => handleChange('autoArchiveAfterDays', val)}
-            />
-            <span>days, the job will automatically move to Archived status.</span>
+            {settings?.autoArchiveAfterCompletion && (
+              <InputNumber
+                min={1}
+                value={settings?.autoArchiveAfterDays}
+                onChange={val => handleChange('autoArchiveAfterDays', val)}
+              />
+            )}
+            <span>days, job will automatically move to Archived status.</span>
           </div>
           <div className="text-sm text-gray-500">
-            Ex: If the auto-archive period is set to 15 days and the job is completed on June 1st,
+            Ex: If the auto-archive period is set to 15 days and a job is completed on June 1st,
             it will be archived on June 16th.
           </div>
         </div>

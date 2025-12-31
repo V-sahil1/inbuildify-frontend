@@ -146,6 +146,7 @@ class API_ENDPOINTS {
   // admin job
   public static JOB_SETTING = '/job-setting';
   public static JOB_COLOR = '/job-color-setting';
+  public static JOB_WORKFLOW = '/job-workflow-setting';
 
   // admin maintenance
   public static MAINTENANCE_SETTING = '/maintenance-setting';
