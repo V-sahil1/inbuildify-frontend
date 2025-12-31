@@ -1317,3 +1317,16 @@ body .apexcharts-legend-marker {
 .ant-steps-item-process .ant-steps-item-tail::after {
   background-color: #d8d8d8 !important;
 }
+
+/* Remove border from the upload list */
+.custom-upload .ant-upload-list-picture .ant-upload-list-item {
+  border: none !important;
+  padding: 0 !important;
+  margin-top: 0px !important;
+}
+
+/* Optionally, remove the card-like styling */
+.custom-upload .ant-upload-list-picture .ant-upload-list-item-card-actions {
+  right: 0;
+  top: 0;
+}

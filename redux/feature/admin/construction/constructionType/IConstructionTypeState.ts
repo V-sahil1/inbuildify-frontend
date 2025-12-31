@@ -1,11 +1,20 @@
 import { Status } from '@lib/constants/enum';
 export interface Type {
-  constructionTypeId?:string,
+  constructionTypeId?: string;
   builder: string;
   typesName: string;
   startConstructionDays: number;
   sortOrder: number;
-  dwellingType:string[]
+  dwellingType: string[];
+}
+
+export interface ConstructionTypeResponse {
+  constructionTypeId: string;
+  builder: string;
+  typesName: string;
+  startConstructionDays: number;
+  sortOrder: number;
+  dwellingType: string[];
 }
 
 export interface ITypeState {
@@ -14,5 +23,5 @@ export interface ITypeState {
     fetch: Status;
     update: Status;
     create: Status;
-  }
+  };
 }

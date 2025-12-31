@@ -25,8 +25,8 @@ const leadCreateFields = (
   const { leadSources } = useAppSelector(state => state.lead);
   const status = useAppSelector(state => state.lead.status.leadSources);
   const LeadSourceOptions = leadSources && leadSources.length > 0 && leadSources?.map(item => ({
-    label: enumToReadable(item.name),
-    value: item.name,
+    label: enumToReadable(item?.name),
+    value: item?.name,
   }));
 
   useEffect(() => {

@@ -5,8 +5,7 @@ import { useEffect, useMemo } from 'react';
 
 export const TodoFormDrawer = ({ open, onCancel, onSubmit }) => {
   const [form] = Form.useForm();
-  const { users } = useUsersHook();
-  const userOptions = users.map(user => ({ label: user.name, value: user.usersId }));
+  const { userOptions } = useUsersHook();
   const supplier = Form.useWatch('supplier', form);
   const start = Form.useWatch('start', form);
   const finish = Form.useWatch('finish', form);

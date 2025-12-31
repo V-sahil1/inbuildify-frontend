@@ -56,3 +56,8 @@ export interface ExportOptions {
   title?: string;
   extraHeaderRows?: HeaderBlock[];
 }
+
+export interface Entity {
+  id: string;
+  name: string;
+}

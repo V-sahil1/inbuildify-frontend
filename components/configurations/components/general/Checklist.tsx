@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Input, Select, Button, Space, Popconfirm, Drawer, message } from 'antd';
+import { Table, Input, Select, Button, Space, Popconfirm, message } from 'antd';
 import { IconCheck, IconTrash, IconEdit, IconPlus, IconX } from '@tabler/icons-react';
 import ChecklistDrawer from '../ChecklistDrawer';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
@@ -12,55 +12,103 @@ import {
   fetchAllChecklist,
   updateChecklist,
 } from '@redux/feature/admin/general/checklist/checklistThunk';
-import { fetchAllFunctionality } from '@redux/feature/admin/general/functionality/functionalityThunk';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
+import { checklist } from '@redux/feature/admin/general/checklist/IChecklistState';
+import { screenTypeResponse } from '@redux/feature/admin/general/screen/IScreenState';
+import { fetchAllFunctionality } from '@redux/feature/common/commonThunk';
 
 const Checklist = () => {
   const dispatch = useAppDispatch();
   const { checklist, status } = useAppSelector((state: RootState) => state.general.checklist);
-  const { screen, status: screenStatus } = useAppSelector((state: RootState) => state.general.screen);
-  const { functionality, status: functionalityStatus } = useAppSelector(
-    (state: RootState) => state.general.functionality
+  const { screen, status: screenStatus } = useAppSelector(
+    (state: RootState) => state.general.screen
   );
+  const { functionality, status: commonStatus } = useAppSelector(state => state.common);
   const [isAdding, setIsAdding] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [isDrawerVisible, setIsDrawerVisible] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState<any>(null);
-  const [formRow, setFormRow] = useState({
-    name: '',
-    screenId: '',
-    functionalityId: '',
-  });
+  const [selectedRecord, setSelectedRecord] = useState<checklist | null>(null);
+  const [formRow, setFormRow] = useState<{
+    name: string;
+    screenId: string;
+    functionalityId: string;
+  } | null>(null);
+  const [error, setError] = useState({ name: '', screenId: '', functionalityId: '' });
   const screenOption =
-    screen && screen.map((item: any) => ({ label: item.name, value: item.screenId }));
+    screen &&
+    screen.map((item: screenTypeResponse) => ({ label: item.name, value: item.screenId }));
 
   useEffect(() => {
-    async function fetchScreen() {
-      await dispatch(fetchAllScreen()).unwrap();
-    }
-    if (screenStatus.fetch === Status.IDLE) {
+    if (screenStatus === Status.IDLE) {
       fetchScreen();
     }
-    async function fetchFunctionality() {
-      await dispatch(fetchAllFunctionality()).unwrap();
-    }
-    if (functionalityStatus.fetch === Status.IDLE) {
+
+    if (commonStatus.functionality === Status.IDLE) {
       fetchFunctionality();
     }
-    async function fetchChecklist() {
-      await dispatch(fetchAllChecklist()).unwrap();
-    }
+
     if (status.fetch === Status.IDLE) {
       fetchChecklist();
     }
-  }, []);
+  }, [status.fetch, commonStatus.functionality, screenStatus]);
+
+  async function fetchScreen() {
+    try {
+      await dispatch(fetchAllScreen()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch screen');
+    }
+  }
+  async function fetchFunctionality() {
+    try {
+      await dispatch(fetchAllFunctionality()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch functionality');
+    }
+  }
+  async function fetchChecklist() {
+    try {
+      await dispatch(fetchAllChecklist()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch checklist');
+    }
+  }
+
+  const validateForm = () => {
+    const errors = {
+      name: '',
+      screenId: '',
+      functionalityId: '',
+    };
+    let isValid = true;
+    if (!formRow.name?.trim()) {
+      errors.name = 'Lost Reason is required';
+      isValid = false;
+    }
+    if (formRow.screenId === '') {
+      errors.screenId = 'Screen is required';
+      isValid = false;
+    }
+    if (!formRow.functionalityId) {
+      errors.functionalityId = 'Functionality is required';
+      isValid = false;
+    }
+
+    setError(errors);
+    return isValid;
+  };
+
   const handleAddNew = () => {
+    setError(null);
     setIsAdding(true);
     setFormRow({ name: '', screenId: '', functionalityId: '' });
   };
 
   const handleSaveNew = async () => {
+    if (!validateForm()) {
+      return;
+    }
     try {
-      if (!formRow.name || !formRow.screenId || !formRow.functionalityId) return;
       await dispatch(createChecklist(formRow)).unwrap();
       message.success('Checklist created Successfully');
     } catch (error) {
@@ -73,22 +121,37 @@ const Checklist = () => {
     setIsAdding(false);
   };
 
-  const handleEdit = (record: any) => {
+  const handleEdit = record => {
+    setError(null);
     setEditingId(record.checklistId);
     setFormRow({
       name: record.name,
-      screenId: record.screenId,
-      functionalityId: record.functionalityId,
+      screenId: record.screen?.id || '',
+      functionalityId: record.functionality?.id || '',
     });
   };
 
   const handleSaveEdit = (id: string) => {
+    if (!validateForm()) {
+      return;
+    }
+   
+    let prevCheklist = checklist.find(i => i.checklistId === id);
+    const updatedFields = getUpdatedFields(formRow, {
+      name: prevCheklist.name,
+      functionalityId: prevCheklist.functionality.id,
+      screenId: prevCheklist.screen.id,
+    });
+    if (Object.keys(updatedFields).length === 0) {
+      setEditingId(null);
+      return;
+    }
     try {
-      dispatch(updateChecklist({ checklistId: id, data: formRow }));
+      dispatch(updateChecklist({ checklistId: id, data: updatedFields }));
+      setEditingId(null);
     } catch (error) {
       message.error(error || 'Failed to update checklist');
-    }
-    setEditingId(null);
+    }   
   };
 
   const handleCancelEdit = () => {
@@ -104,7 +167,7 @@ const Checklist = () => {
     }
   };
 
-  const handleRowClick = (record: any) => {
+  const handleRowClick = (record: checklist) => {
     setSelectedRecord(record);
     setIsDrawerVisible(true);
   };
@@ -114,27 +177,21 @@ const Checklist = () => {
       title: 'Checklist Name',
       dataIndex: 'name',
       key: 'name',
-      render: (text: string, record: any, index: number) => {
-        if (isAdding && index === 0 && !record.checklistId) {
+      render: (_, record: checklist, index: number) => {
+        if ((isAdding && index === 0 && !record.checklistId) || editingId === record.checklistId) {
+          console.log(error);
           return (
-            <Input
-              value={formRow.name}
-              onChange={e => {
-                e.stopPropagation();
-                setFormRow({ ...formRow, name: e.target.value });
-              }}
-            />
-          );
-        }
-        if (editingId === record.checklistId) {
-          return (
-            <Input
-              value={formRow.name}
-              onChange={e => {
-                e.stopPropagation();
-                setFormRow({ ...formRow, name: e.target.value });
-              }}
-            />
+            <>
+              <Input
+                value={formRow.name}
+                onChange={e => {
+                  e.stopPropagation();
+                  setFormRow({ ...formRow, name: e.target.value });
+                }}
+                disabled={status.create === Status.PENDING}
+              />
+              {error?.name && <span className="text-red-500">{error?.name}</span>}
+            </>
           );
         }
         return record.name;
@@ -144,92 +201,77 @@ const Checklist = () => {
       title: 'Screen',
       dataIndex: 'screen',
       key: 'screen',
-      render: (text: string, record: any, index: number) => {
-        if (isAdding && index === 0 && !record.checklistId) {
+      render: (_, record, index: number) => {
+        if ((isAdding && index === 0 && !record.checklistId) || editingId === record.checklistId) {
           return (
             // on the chnage of the screen the functionality will be chnaged
-            <Select
-              value={formRow.screenId}
-              options={screenOption}
-              style={{ width: '100%' }}
-              onChange={val => setFormRow({ ...formRow, screenId: val })}
-            />
+            <>
+              <Select
+                value={formRow.screenId}
+                options={screenOption}
+                style={{ width: '100%' }}
+                onChange={val => setFormRow({ ...formRow, screenId: val ,functionalityId:''})}
+                disabled={status.create === Status.PENDING}
+              />
+              {error?.screenId && <span className="text-red-500">{error?.screenId}</span>}
+            </>
           );
         }
-        if (editingId === record.checklistId) {
-          return (
-            <Select
-              value={formRow.screenId}
-              options={screenOption}
-              style={{ width: '100%' }}
-              onChange={val => setFormRow({ ...formRow, screenId: val })}
-            />
-          );
-        }
-        return screen && screen.filter(i => i.screenId === record.screenId)[0]?.name;
+        return record.screen.name;
       },
     },
     {
       title: 'Functionality',
       dataIndex: 'functionality',
       key: 'functionality',
-      render: (_, record: any) => {
-        if (isAdding && !record.checklistId) {
+      render: (_, record) => {
+        if ((isAdding && !record.checklistId) || editingId === record.checklistId) {
           return (
-            <Select
-              value={formRow.functionalityId}
-              options={
-                functionality &&
-                functionality
-                  .filter(i => i.screenId === formRow.screenId)
-                  .map(i => ({ label: i.name, value: i.functionalityId }))
-              }
-              style={{ width: '100%' }}
-              onChange={val => setFormRow({ ...formRow, functionalityId: val })}
-            />
+            <>
+              <Select
+                value={formRow.functionalityId}
+                options={
+                  functionality &&
+                  functionality
+                    .filter(i => i.screen.id === formRow.screenId)
+                    .map(i => ({ label: i.functionalityName, value: i.functionalityId }))
+                }
+                style={{ width: '100%' }}
+                onChange={val => setFormRow({ ...formRow, functionalityId: val })}
+                disabled={status.create === Status.PENDING}
+              />
+              {error?.functionalityId && (
+                <span className="text-red-500">{error?.functionalityId}</span>
+              )}
+            </>
           );
         }
-        if (editingId === record.checklistId) {
-          return (
-            <Select
-              value={formRow.functionalityId}
-              options={
-                functionality &&
-                functionality
-                  .filter(i => i.screenId === formRow.screenId)
-                  .map(i => ({ label: i.name, value: i.functionalityId }))
-              }
-              style={{ width: '100%' }}
-              onChange={val => setFormRow({ ...formRow, functionalityId: val })}
-            />
-          );
-        }
-        return (
-          functionality &&
-          functionality.filter(i => i.functionalityId === record.functionalityId)[0]?.name
-        );
+        return record.functionality?.name;
       },
     },
     {
       key: 'actions',
-      render: (_: any, record: any, index: number) => {
+      render: (_, record, index: number) => {
         const iconStyle = { cursor: 'pointer' };
         if (isAdding && index === 0 && !record.checklistId) {
           return (
             <Space>
-              <IconCheck
+              <Button
+                icon={<IconCheck style={{ color: 'green', ...iconStyle }} />}
                 onClick={e => {
                   e.stopPropagation();
                   handleSaveNew();
                 }}
-                style={{ color: 'green', ...iconStyle }}
+                loading={status.create === Status.PENDING}
               />
-              <IconX
+
+              <Button
+                icon={<IconX style={{ color: 'red', ...iconStyle }} />}
                 onClick={e => {
                   e.stopPropagation();
                   handleCancelNew();
                 }}
-                style={{ color: 'red', ...iconStyle }}
+                disabled={status.create === Status.PENDING}
               />
             </Space>
           );
@@ -238,19 +280,22 @@ const Checklist = () => {
         if (editingId === record.checklistId) {
           return (
             <Space>
-              <IconCheck
+              <Button
+                icon={<IconCheck style={{ color: 'green', ...iconStyle }} />}
                 onClick={e => {
                   e.stopPropagation();
                   handleSaveEdit(record.checklistId);
                 }}
-                style={{ color: 'green', ...iconStyle }}
+                loading={status.create === Status.PENDING}
               />
-              <IconX
+
+              <Button
+                icon={<IconX style={{ color: 'red', ...iconStyle }} />}
                 onClick={e => {
                   e.stopPropagation();
                   handleCancelEdit();
                 }}
-                style={{ color: 'red', ...iconStyle }}
+                disabled={status.create === Status.PENDING}
               />
             </Space>
           );
@@ -311,14 +356,9 @@ const Checklist = () => {
       <Table
         columns={columns}
         dataSource={tableData}
-        // onRow={record => ({
-        //   onClick: e => {
-        //     e.preventDefault();
-        //     handleRowClick(record);
-        //   },
-        // })}
         pagination={false}
         rowKey="id"
+        loading={status.fetch === Status.PENDING}
       />
     </div>
   );

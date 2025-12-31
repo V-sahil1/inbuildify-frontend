@@ -15,10 +15,12 @@ import { getStatesByCountryIdThunk } from '@redux/feature/location/locationThunk
 import { Status } from '@lib/constants/enum';
 import { Surveyor } from '@redux/feature/admin/general/surveyor/ISurveyorState';
 import {
+  abnRules,
   addressRules,
   emailRules,
   nameRules,
   phoneRules,
+  zipCodeRules,
 } from '@lib/constants/formInputValidations';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 
@@ -149,21 +151,21 @@ const SurveyorsDetails = () => {
               />
             </Form.Item>
             <Form.Item label="Phone" name="phone" rules={phoneRules}>
-              <Input placeholder="7654832318" disabled={status.create === Status.PENDING} />
+              <Input placeholder="7654832318" disabled={status.create === Status.PENDING} maxLength={15} minLength={10}/>
             </Form.Item>
             <Form.Item
               label="ABN"
               name="abnNumber"
-              rules={[{ len: 11, message: 'ABN number must be of 11 digits' }]}
+              rules={abnRules}
             >
-              <Input placeholder="47021213123" disabled={status.create === Status.PENDING} />
+              <Input placeholder="47021213123" disabled={status.create === Status.PENDING} maxLength={11}/>
             </Form.Item>
             <Form.Item
               label="Register Number"
               name="registrationNumber"
               rules={[{ len: 4, message: 'Regestration number must be of 4 digits' }]}
             >
-              <Input placeholder="9793" disabled={status.create === Status.PENDING} />
+              <Input placeholder="9793" disabled={status.create === Status.PENDING} maxLength={4}/>
             </Form.Item>
             <div></div> {/* spacer */}
             <Form.Item label="Address1" name="address1" rules={addressRules}>
@@ -203,12 +205,9 @@ const SurveyorsDetails = () => {
             <Form.Item
               label="Zip / Postal Code"
               name="zipPostalCode"
-              rules={[
-                { required: true, message: 'Enter Zip / Postal Code' },
-                { len: 4, message: 'Zip / Postal Code must be of 4 digits' },
-              ]}
+              rules={zipCodeRules}
             >
-              <Input placeholder="4067" disabled={status.create === Status.PENDING} />
+              <Input placeholder="4067" disabled={status.create === Status.PENDING} maxLength={4} />
             </Form.Item>
             <div></div> {/* spacer */}
             <div className="col-span-3 flex justify-end gap-4 pt-4">

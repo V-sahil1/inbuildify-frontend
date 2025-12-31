@@ -77,8 +77,8 @@ const CustomFields: React.FC = () => {
     setListOptionsrecord(record);
   };
   const handleSave = async () => {
+    const values = await form.validateFields();
     try {
-      const values = await form.validateFields();
       if (editingRow && editingRow.customFieldId !== '') {
         const updatedFields = getUpdatedFields(
           values,
@@ -99,9 +99,6 @@ const CustomFields: React.FC = () => {
       setEditingRow(null);
       form.resetFields();
     } catch (err) {
-      if (err.errorFields && err.errorFields.length > 0) {
-        return;
-      }
       message.error(err || 'Failed to save customfield');
     }
   };

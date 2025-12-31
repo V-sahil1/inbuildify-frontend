@@ -23,20 +23,20 @@ import { Status } from '@lib/constants/enum';
 import { range } from '@redux/feature/admin/sales/range/IRangeState';
 import { createRange } from '@redux/feature/admin/sales/range/rangeThunk';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
+import { formDataGenerator } from '@lib/utils/formDataGenerator';
 
 export const Range: React.FC = () => {
   const dispatch = useAppDispatch();
   const { range, status } = useAppSelector(state => state.sales.range);
-  // const [data, setData] = useState<range[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editingRow, setEditingRow] = useState<Partial<range>>({});
+  const [editingRow, setEditingRow] = useState<range | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [error, setError] = useState<{ name?: string; sortOrder?: string } | null>(null);
   const { userOptions } = useUsersHook();
   const [isModalOpen, setIsModalOpen] = useState<{
     open: boolean;
     type: 'activate' | 'deactivate' | null;
-    row: range | null;
+    row: range | null;  
   }>({
     open: false,
     type: null,
@@ -44,18 +44,17 @@ export const Range: React.FC = () => {
   });
   const isDisabled = status.create === Status.PENDING;
   useEffect(() => {
-    async function fetchData() {
-      try {
-        await dispatch(fetchRange()).unwrap();
-      } catch (error) {
-        message.error(error || 'Failed to fetchc range');
-      }
-    }
     if (status.fetch === Status.IDLE) {
       fetchData();
     }
   }, [status.fetch]);
-
+  async function fetchData() {
+    try {
+      await dispatch(fetchRange()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetchc range');
+    }
+  }
   const validateForm = () => {
     const errors = {
       name: '',
@@ -110,6 +109,7 @@ export const Range: React.FC = () => {
   };
 
   const startEdit = (record: range) => {
+    setError(null);
     setEditingId(record.rangeId);
     setEditingRow({ ...record });
   };
@@ -128,50 +128,34 @@ export const Range: React.FC = () => {
       const desiredSort = Number(editingRow.sortOrder);
 
       if (isNew) {
-        const newItem: range = {
-          ...(editingRow as range),
-
+        let newItem = {
+          ...editingRow,
           sortOrder: Number.isFinite(desiredSort) ? desiredSort : 1,
           isActive: editingRow.isActive ?? true,
-        } as range;
+        };
         delete newItem.rangeId;
 
-        await dispatch(createRange(newItem)).unwrap();
+        const formData = formDataGenerator(newItem);
+        await dispatch(createRange(formData)).unwrap();
         message.success('Range created successfully');
-        // setData(prev => {
-        //   const prevClean = prev.filter(it => it.id !== id);
-        //   return insertAtSort(prevClean, newItem, newItem.sort);
-        // });
-
         setIsAdding(false);
       } else {
         const updatedFields = getUpdatedFields<range>(
           editingRow,
           range.find(p => p.rangeId === id)
         );
+        if (Object.keys(updatedFields).length === 0) {
+          setEditingId(null);
+          setEditingRow(null);
+          return;
+        }
         delete updatedFields.rangeId;
-        await dispatch(updateRange({ data: updatedFields, id })).unwrap();
+        await dispatch(updateRange({ data: formDataGenerator(updatedFields), id })).unwrap();
         message.success('Range updated successfully');
-        // setData(prev => {
-        //   const current = prev.find(p => p.id === id);
-        //   if (!current) return prev;
-
-        //   const updatedFields: Partial<range> = {
-        //     ...editingRow,
-        //     isDraft: false,
-        //   };
-
-        //   if (Number.isFinite(desiredSort) && desiredSort !== current.sort) {
-        //     return moveExistingItem(prev, id, updatedFields, desiredSort);
-        //   }
-
-        //   // just update
-        //   return prev.map(p => (p.id === id ? { ...p, ...updatedFields } : p));
-        // });
       }
 
       setEditingId(null);
-      setEditingRow({});
+      setEditingRow(null);
     } catch (error) {
       message.error(error || 'Failed to save range');
     }
@@ -179,7 +163,6 @@ export const Range: React.FC = () => {
 
   const cancelEdit = () => {
     if (isAdding && editingId) {
-      // setData(prev => prev.filter(item => item.id !== editingId));
       setIsAdding(false);
     }
     setEditingId(null);
@@ -187,6 +170,7 @@ export const Range: React.FC = () => {
   };
 
   const handleAdd = () => {
+    setError(null)
     const newRow: range = {
       rangeId: '',
       name: '',
@@ -198,7 +182,7 @@ export const Range: React.FC = () => {
       userId: [],
       isActive: true,
     };
-    // setData(prev => [newRow, ...prev]);
+
     setEditingId(newRow.rangeId);
     setEditingRow(newRow);
     setIsAdding(true);
@@ -219,7 +203,6 @@ export const Range: React.FC = () => {
     } catch (error) {
       message.error(error || 'Failed to deactivate item');
     }
-    // setData(prev => prev.map(p => (p.id === row.id ? { ...p, isActive: false } : p)));
   };
 
   const handleActivateConfirm = async () => {
@@ -232,7 +215,6 @@ export const Range: React.FC = () => {
     } catch (error) {
       message.error(error || 'Failed to activate item');
     }
-    // setData(prev => prev.map(p => (p.id === row.id ? { ...p, isActive: true } : p)));
   };
 
   const handleSortChange = (value: number | string) => {
@@ -313,7 +295,15 @@ export const Range: React.FC = () => {
         const isEditing = editingId === record.rangeId;
         if (!record.isActive) return <div className="text-gray-400">-</div>;
         return isEditing ? (
-          <Upload showUploadList={false} listType="picture" beforeUpload={() => false}>
+          <Upload
+            listType="picture"
+            beforeUpload={() => false}
+            onChange={info =>
+              setEditingRow(prev => ({ ...prev, logoUrl: info.fileList[0].originFileObj }))
+            }
+            className='custom-upload'
+            maxCount={1}
+          >
             <Button icon={<IconUpload />} disabled={isDisabled}>
               Upload
             </Button>
@@ -335,7 +325,15 @@ export const Range: React.FC = () => {
         const isEditing = editingId === record.rangeId;
         if (!record.isActive) return <div className="text-gray-400">-</div>;
         return isEditing ? (
-          <Upload showUploadList={false} listType="picture" beforeUpload={() => false}>
+          <Upload
+            listType="picture"
+            beforeUpload={() => false}
+            onChange={info =>
+              setEditingRow(prev => ({ ...prev, headerUrl: info.fileList[0].originFileObj }))
+            }
+            className='custom-upload'
+            maxCount={1}
+          >
             <Button icon={<IconUpload />} disabled={isDisabled}>
               Upload
             </Button>

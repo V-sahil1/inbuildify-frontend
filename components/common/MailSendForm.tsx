@@ -38,9 +38,8 @@ const MainSendForm = forwardRef<MainSendFormRef, MainSendFormProps>(
     const [toEmails, setToEmails] = useState<string[]>(initialValue?.to || []);
     const [inputValue, setInputValue] = useState('');
     const [editedContent, setEditedContent] = useState(initialValue?.content || '');
-    const { users } = useUsersHook();
-    const userOptions = users.map(user => ({ label: user.name, value: user.usersId }));
-
+    const { userOptions } = useUsersHook();
+    
     const handleInputConfirm = () => {
       const email = inputValue.trim();
 

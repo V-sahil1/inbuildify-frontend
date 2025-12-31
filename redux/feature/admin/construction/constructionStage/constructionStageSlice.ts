@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { Status } from '@lib/constants/enum'
+import { Status } from '@lib/constants/enum';
 import { IStageState } from './IConstructionStageState';
 import { createStage, deleteStage, fetchAllStage, updateStage } from './constructionStageThunk';
 
@@ -7,7 +7,6 @@ const initialState: IStageState = {
   stage: [],
   status: {
     fetch: Status.IDLE,
-    update: Status.IDLE,
     create: Status.IDLE,
   },
 };
@@ -20,15 +19,23 @@ const stageSlice = createSlice({
     builder.addCase(createStage.fulfilled, (state, action) => {
       state.stage.unshift(action.payload);
     });
+    builder.addCase(fetchAllStage.pending, state => {
+      state.status.fetch = Status.PENDING;
+    });
     builder.addCase(fetchAllStage.fulfilled, (state, action) => {
       state.stage = action.payload.constructionStages;
       state.status.fetch = Status.SUCCESS;
     });
+    builder.addCase(fetchAllStage.rejected, state => {
+      state.status.fetch = Status.ERROR;
+    });
     builder.addCase(updateStage.fulfilled, (state, action) => {
-      state.stage = state.stage.map((i => i.constructionStage === action.payload.constructionStage ? action.payload : i))
+      state.stage = state.stage.map(i =>
+        i.constructionStage === action.payload.constructionStage ? action.payload : i
+      );
     });
     builder.addCase(deleteStage.fulfilled, (state, action) => {
-      state.stage = state.stage.filter((i => i.constructionStage !== action.payload))
+      state.stage = state.stage.filter(i => i.constructionStage !== action.payload);
     });
   },
 });

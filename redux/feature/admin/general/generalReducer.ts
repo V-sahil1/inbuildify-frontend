@@ -5,9 +5,7 @@ import customFieldReducer from './customField/customFieldSlice';
 import noteTagsReducer from './notesTag/notesTagSlice';
 import checklistReducer from './checklist/checklistSlice';
 import screenReducer from './screen/screenSlice';
-import functionalityReducer from './functionality/functionalitySlice';
 import passwordPolicyReducer from './passwordPolicy/passwordPolicySlice';
-import checklistItemsReducer from './checklistItem/checklistItemSlice';
 import roleAndUserMappingReducer from './roleAndUserMapping/roleAndMappingSlice';
 
 export const generalReducer = combineReducers({
@@ -16,9 +14,7 @@ export const generalReducer = combineReducers({
   customField: customFieldReducer,
   noteTags: noteTagsReducer,
   checklist: checklistReducer,
-  checklistItems: checklistItemsReducer,
   screen: screenReducer,
-  functionality: functionalityReducer,
   passwordPolicy: passwordPolicyReducer,
   roleAndUserMapping: roleAndUserMappingReducer
 });

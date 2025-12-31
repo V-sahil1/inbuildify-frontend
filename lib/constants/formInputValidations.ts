@@ -469,3 +469,11 @@ export const firmNameRules = [
     },
   },
 ];
+
+export const zipCodeRules = [
+  { required: true, message: 'Please enter your zip code' },
+  {
+    pattern: /^[0-9]{4}$/,
+    message: 'Zip code must be of 4 digits',
+  },
+];

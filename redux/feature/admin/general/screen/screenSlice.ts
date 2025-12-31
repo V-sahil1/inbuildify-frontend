@@ -1,15 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { Status } from '@lib/constants/enum';
 import { IScreenState } from './IScreenState';
-import { createScreen, deleteScreen, fetchAllScreen, updateScreen } from './screenThunk';
+import { fetchAllScreen } from './screenThunk';
 
 const initialState: IScreenState = {
   screen: [],
-  status: {
-    fetch: Status.IDLE,
-    update: Status.IDLE,
-    create: Status.IDLE,
-  },
+  status: Status.IDLE,
 };
 
 const screenSlice = createSlice({
@@ -17,18 +13,15 @@ const screenSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: builder => {
-    builder.addCase(createScreen.fulfilled, (state, action) => {
-      state.screen.unshift(action.payload);
+    builder.addCase(fetchAllScreen.pending, state => {
+      state.status = Status.PENDING;
     });
     builder.addCase(fetchAllScreen.fulfilled, (state, action) => {
       state.screen = action.payload.screens;
-      state.status.fetch = Status.SUCCESS;
+      state.status = Status.SUCCESS;
     });
-    builder.addCase(updateScreen.fulfilled, (state, action) => {
-      state.screen = state.screen.map((i => i.screenId === action.payload.screenId ? action.payload : i))
-    });
-    builder.addCase(deleteScreen.fulfilled, (state, action) => {
-      state.screen = state.screen.filter((i => i.screenId !== action.payload))
+    builder.addCase(fetchAllScreen.rejected, state => {
+      state.status = Status.ERROR;
     });
   },
 });

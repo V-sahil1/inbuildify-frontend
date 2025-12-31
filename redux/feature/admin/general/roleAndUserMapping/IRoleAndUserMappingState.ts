@@ -1,13 +1,10 @@
 import { Status } from '@lib/constants/enum';
+import { Entity } from 'types/common.types';
 export interface RoleAndUserType {
   roleTypeId: string;
   typeName: string;
 }
 
-export interface Entity {
-  id: string;
-  name: string;
-}
 
 export interface RoleAndUserMapping {
   userRoleMappingId: string;

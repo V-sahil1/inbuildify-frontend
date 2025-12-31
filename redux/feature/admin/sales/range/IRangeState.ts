@@ -20,8 +20,8 @@ export type RangeResponse = {
 export type range = {
   rangeId?: string;
   name: string;
-  logoUrl: string | null;
-  headerUrl: string | null;
+  logoUrl: File | Object | null;
+  headerUrl: File | Object | null;
   userId: string[];
   sortOrder: number;
   bgColor: string;
