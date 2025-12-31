@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { Status } from '@lib/constants/enum';
-import { fetchJobSetting } from './jobSettingThunk';
+import { fetchJobSetting, updateJobSetting } from './jobSettingThunk';
 import { IJobSettingState } from './IJobSettingState';
 
 const initialState: IJobSettingState = {
@@ -25,6 +25,17 @@ const JobSettingSlice = createSlice({
     });
     builder.addCase(fetchJobSetting.rejected, (state, action) => {
       state.status.fetch = Status.ERROR;
+    });
+
+    builder.addCase(updateJobSetting.pending, (state, action) => {
+      state.status.update = Status.PENDING;
+    });
+    builder.addCase(updateJobSetting.fulfilled, (state, action) => {
+      state.jobSetting = action.payload;
+      state.status.update = Status.SUCCESS;
+    });
+    builder.addCase(updateJobSetting.rejected, (state, action) => {
+      state.status.update = Status.ERROR;
     });
   },
 });

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Switch, InputNumber, Select, Button, message } from 'antd';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import { fetchJobSetting } from '@redux/feature/admin/job/jobSetting/jobSettingThunk';
+import { fetchJobSetting, updateJobSetting } from '@redux/feature/admin/job/jobSetting/jobSettingThunk';
 import { Status } from '@lib/constants/enum';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import { JobSettings } from '@redux/feature/admin/job/jobSetting/IJobSettingState';
@@ -16,7 +16,7 @@ export const Setting: React.FC = () => {
     try {
       await dispatch(fetchJobSetting()).unwrap();
     } catch (error) {
-     message.error('Failed to fetch job settings');
+      message.error('Failed to fetch job settings');
     }
   };
 
@@ -52,22 +52,24 @@ export const Setting: React.FC = () => {
 
   const handleSave = async () => {
     if (!settings || !jobSetting) return;
-    
-    // Log changed values
     const changedValues = getUpdatedFields(settings, jobSetting);
-    
-    console.log('🔄 Changed values:', changedValues);
-    console.log('✅ Full Settings to Save:', settings);
-    
+
+    if (Object.keys(changedValues).length === 0) {
+      message.info('No changes to save');
+      return;
+    }
+
     try {
-      // Here you would dispatch the update thunk when it's implemented
-      // await dispatch(updateJobSetting(settings)).unwrap();
+      await dispatch(updateJobSetting(changedValues)).unwrap();
       message.success('Settings saved successfully!');
-      setIsChanged(false);
     } catch (error) {
       message.error('Failed to save settings');
       console.error('Save error:', error);
     }
+  };
+
+  const handleCancel = () => {
+    setSettings(jobSetting);
   };
 
   return (
@@ -162,7 +164,7 @@ export const Setting: React.FC = () => {
             <div className="font-medium">Date</div>
             <Select
               value={settings?.reportIncludeDate}
-              options={[{label:'included', value:true}, {label:'excluded', value:false}].map(item => ({
+              options={[{ label: 'included', value: true }, { label: 'excluded', value: false }].map(item => ({
                 label: item.label,
                 value: item.value,
               }))}
@@ -183,8 +185,22 @@ export const Setting: React.FC = () => {
       </div>
 
       {isChanged && (
-        <div className="flex justify-end pt-6 border-t mt-10">
-          <Button type="primary" size="large" onClick={handleSave} className="px-10">
+        <div className="flex justify-end gap-3 pt-6 border-t mt-10">
+          <Button
+            size="large"
+            onClick={handleCancel}
+            disabled={status.update === Status.PENDING}
+            className="px-10"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="primary"
+            size="large"
+            onClick={handleSave}
+            loading={status.update === Status.PENDING}
+            className="px-10"
+          >
             Save
           </Button>
         </div>

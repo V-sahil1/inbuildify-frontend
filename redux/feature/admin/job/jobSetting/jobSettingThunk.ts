@@ -16,13 +16,13 @@ export const fetchJobSetting = createAsyncThunk(
   }
 );
 
-export const updateStage = createAsyncThunk(
-  'stage/update',
-  async (payload: { data: any; id: string }, { rejectWithValue }) => {
+export const updateJobSetting = createAsyncThunk(
+  'jobSetting/update',
+  async (payload: Partial<JobSettings>, { rejectWithValue }) => {
     try {
-      const response = await api.put<ApiResponse<any>>(
-        `${API_ENDPOINTS.CONSTRUCTION_STAGE}/${payload.id}`,
-        { data: payload.data }
+      const response = await api.put<ApiResponse<JobSettings>>(
+        API_ENDPOINTS.JOB_SETTING,
+        { data: payload }
       );
       return response.data;
     } catch (error) {
