@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { Status } from '@lib/constants/enum';
-import { fetchJobColor } from './jobColorThunk';
+import { fetchJobColor, updateJobColor } from './jobColorThunk';
 import { IJobColorState } from './IJobColorState';
 
 const initialState: IJobColorState = {
@@ -25,6 +25,17 @@ const JobColorSlice = createSlice({
     });
     builder.addCase(fetchJobColor.rejected, (state, action) => {
       state.status.fetch = Status.ERROR;
+    });
+
+    builder.addCase(updateJobColor.pending, (state, action) => {
+      state.status.update = Status.PENDING;
+    });
+    builder.addCase(updateJobColor.fulfilled, (state, action) => {
+      state.jobColor = action.payload;
+      state.status.update = Status.SUCCESS;
+    });
+    builder.addCase(updateJobColor.rejected, (state, action) => {
+      state.status.update = Status.ERROR;
     });
   },
 });

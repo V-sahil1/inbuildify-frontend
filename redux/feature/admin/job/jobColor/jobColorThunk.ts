@@ -18,11 +18,11 @@ export const fetchJobColor = createAsyncThunk(
 
 export const updateJobColor = createAsyncThunk(
   'jobColor/update',
-  async (payload: { data: any; id: string }, { rejectWithValue }) => {
-    try { 
-      const response = await api.put<ApiResponse<any>>(
-        `${API_ENDPOINTS.JOB_COLOR}/${payload.id}`,
-        { data: payload.data }
+  async (payload: Partial<JobColorSettings>, { rejectWithValue }) => {
+    try {
+      const response = await api.put<ApiResponse<JobColorSettings>>(
+        API_ENDPOINTS.JOB_COLOR,
+        { data: payload }
       );
       return response.data;
     } catch (error) {

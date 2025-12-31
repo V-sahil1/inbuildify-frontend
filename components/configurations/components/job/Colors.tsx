@@ -7,7 +7,7 @@ import { colorSettingCustomFields } from '@/components/formFields/ColorSettingCu
 import { colorSettingFields } from '@/components/formFields/ColorSettingFields';
 import { ColorSettings } from 'data/configuration/ColorData';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import { fetchJobColor } from '@redux/feature/admin/job/jobColor/jobColorThunk';
+import { fetchJobColor, updateJobColor } from '@redux/feature/admin/job/jobColor/jobColorThunk';
 import { Status } from '@lib/constants/enum';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import { JobColorSettings } from '@redux/feature/admin/job/jobColor/IJobColorState';
@@ -27,9 +27,10 @@ export const Colors: React.FC = () => {
   const dispatch = useAppDispatch();
   const { jobColor, status } = useAppSelector(state => state.job.jobColor);
   const [settings, setSettings] = useState<JobColorSettings | null>(jobColor || null);
-  const [initialValues] = useState<JobColorSettings | null>(jobColor || null);
   const [headerText, setHeaderText] = useState(jobColor?.headerText || '');
+  const [initialHeaderText, setInitialHeaderText] = useState(jobColor?.headerText || '');
   const [showSave, setShowSave] = useState(false);
+  const [showHeaderSave, setShowHeaderSave] = useState(false);
   const [tableData, setTableData] = useState(ColorSettings);
   const [editingRow, setEditingRow] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -57,28 +58,52 @@ export const Colors: React.FC = () => {
     if (jobColor) {
       setSettings(jobColor);
       setHeaderText(jobColor.headerText || '');
+      setInitialHeaderText(jobColor.headerText || '');
     }
   }, [jobColor]);
 
   useEffect(() => {
-    if (!settings || !initialValues) {
+    if (!settings || !jobColor) {
       setShowSave(false);
       return;
     }
-    
-    const changedValues = getUpdatedFields(settings, initialValues);
+
+    const changedValues = getUpdatedFields(settings, jobColor);
     const hasChanges = Object.keys(changedValues).length > 0;
     setShowSave(hasChanges);
-  }, [settings, initialValues]);
+  }, [settings, jobColor]);
+
+  useEffect(() => {
+    const hasHeaderChanged = headerText !== initialHeaderText;
+    setShowHeaderSave(hasHeaderChanged);
+  }, [headerText, initialHeaderText]);
 
   const handleSwitchChange = (key: string, value: boolean) => {
     if (!settings) return;
     setSettings(prev => (prev ? { ...prev, [key]: value } : null));
   };
 
-  const handleSaveSettings = () => {
-    console.log('Saved settings:', settings);
-    setShowSave(false);
+  const handleSaveSettings = async () => {
+    if (!settings || !jobColor) return;
+
+    const changedValues = getUpdatedFields(settings, jobColor);
+
+    if (Object.keys(changedValues).length === 0) {
+      message.info('No changes to save');
+      return;
+    }
+
+    try {
+      await dispatch(updateJobColor(changedValues)).unwrap();
+      message.success('Settings saved successfully!');
+    } catch (error) {
+      message.error('Failed to save settings');
+      console.error('Save error:', error);
+    }
+  };
+
+  const handleCancelSettings = () => {
+    setSettings(jobColor);
   };
 
   const handleEdit = (record: any) => {
@@ -140,8 +165,23 @@ export const Colors: React.FC = () => {
     setCustomSections(prev => prev.filter(section => section.key !== key));
   };
 
-  const handleColorUISettings = () => {
-    console.log('Color UI settings saved', headerText);
+  const handleColorUISettings = async () => {
+    if (headerText === initialHeaderText) {
+      message.info('No changes to save');
+      return;
+    }
+
+    try {
+      await dispatch(updateJobColor({ headerText })).unwrap();
+      message.success('Header text saved successfully!');
+    } catch (error) {
+      message.error('Failed to save header text');
+      console.error('Save error:', error);
+    }
+  };
+
+  const handleCancelHeaderText = () => {
+    setHeaderText(initialHeaderText);
   };
   const columns = useMemo(
     () => [
@@ -251,8 +291,18 @@ export const Colors: React.FC = () => {
 
       {/* Save Button */}
       {showSave && (
-        <div className="mb-6">
-          <Button type="primary" onClick={handleSaveSettings}>
+        <div className="flex gap-3 mb-6">
+          <Button
+            onClick={handleCancelSettings}
+            disabled={status.update === Status.PENDING}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="primary"
+            onClick={handleSaveSettings}
+            loading={status.update === Status.PENDING}
+          >
             Save Changes
           </Button>
         </div>
@@ -307,11 +357,23 @@ export const Colors: React.FC = () => {
                 className="w-full"
               />
             </div>
-            <div className="flex justify-end">
-              <Button type="primary" onClick={handleColorUISettings}>
-                Save
-              </Button>
-            </div>
+            {showHeaderSave && (
+              <div className="flex justify-end gap-3">
+                <Button
+                  onClick={handleCancelHeaderText}
+                  disabled={status.update === Status.PENDING}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="primary"
+                  onClick={handleColorUISettings}
+                  loading={status.update === Status.PENDING}
+                >
+                  Save
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>
