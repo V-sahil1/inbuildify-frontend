@@ -4,11 +4,13 @@ export const InvoiceSettingFields: FormField[] = [
   {
     label: 'Description',
     name: 'description',
+    placeholder: 'Ex. Deposit',
     type: 'text',
   },
   {
     label: 'Percentage',
     name: 'percentage',
+    placeholder: '10',
     type: 'number',
     rules: [
       {
@@ -21,11 +23,12 @@ export const InvoiceSettingFields: FormField[] = [
   {
     label: 'Sort Order',
     name: 'sortOrder',
+    placeholder: '12',
     type: 'number',
   },
-  {
-    label: 'Is Deposit',
-    name: 'isDeposit',
-    type: 'switch',
-  },
+  // {
+  //   label: 'Is Deposit',
+  //   name: 'isDeposit',
+  //   type: 'switch',
+  // },
 ];

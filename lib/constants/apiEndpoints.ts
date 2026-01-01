@@ -147,6 +147,9 @@ class API_ENDPOINTS {
   public static JOB_SETTING = '/job-setting';
   public static JOB_COLOR = '/job-color-setting';
   public static JOB_WORKFLOW = '/job-workflow-setting';
+  public static JOB_INVOICE = '/job-invoice-setting';
+  public static JOB_INVOICE_STAGE = '/job-invoice-stage-payment';
+  public static JOB_INVOICE_STAGE_ACTIVE = `${this.JOB_INVOICE_STAGE}/is-active`;
 
   // admin maintenance
   public static MAINTENANCE_SETTING = '/maintenance-setting';

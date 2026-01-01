@@ -2,6 +2,8 @@ export function getUpdatedFields<T extends Record<string, any>>(
   values: Partial<T>,
   original: Partial<T>
 ): Partial<T> {
+  if (!values || !original) return {};
+  
   return (Object.keys(values) as Array<keyof T>).reduce((acc, key) => {
     const currentValue = values[key];
     const originalValue = original[key];
