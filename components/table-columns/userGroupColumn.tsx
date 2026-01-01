@@ -5,7 +5,7 @@ import { Tag } from 'antd';
 import { useState } from 'react';
 
 export const userGroupColumn = (setModalOpen, setSelectedGroup, selectedGroup) => {
-  const { users } = useUsersHook();
+  const { userOptions } = useUsersHook();
   const [userGroupData, setUserGroupData] = useState([]);
   const column = [
     {
@@ -20,7 +20,7 @@ export const userGroupColumn = (setModalOpen, setSelectedGroup, selectedGroup) =
       key: 'users',
       render: (_, record) =>
         record.users &&
-        record?.users.map(user => <Tag>{users.filter(i => i.usersId === user)[0].name}</Tag>),
+        record?.users.map(userId => <Tag>{userOptions.find(u => u.value === userId)?.label}</Tag>),
     },
     {
       render: (_, record) => {

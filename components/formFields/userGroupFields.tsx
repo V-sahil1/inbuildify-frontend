@@ -4,8 +4,7 @@ import { FormField } from '../common/Models/ActionDialogModel';
 import { CustomBulkSelect } from '../common/CustomBulkSelect';
 
 export const userGroupField = () => {
-  const { users } = useUsersHook();
-  const userOptions = users.map(user => ({ label: user.name, value: user.usersId }));
+  const { userOptions } = useUsersHook();
   return [
     { label: 'Group Name', name: 'name', type: 'text' },
     {

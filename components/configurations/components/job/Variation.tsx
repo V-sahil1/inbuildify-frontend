@@ -18,7 +18,7 @@ export const Variation = () => {
   const [variations, setVariations] = useState<Variation[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingVariation, setEditingVariation] = useState<Variation | null>(null);
-  const { users } = useUsersHook();
+  const { userOptions } = useUsersHook();
 
   const notifyAfterContract = Form.useWatch('notifySignedVariationAfterContract', form);
   const notifySignedVariation = Form.useWatch('notifySignedVariation', form);
@@ -140,10 +140,7 @@ export const Variation = () => {
           >
             <Select
               placeholder="Select a type"
-              options={users.map(user => ({
-                label: user.name,
-                value: user.usersId,
-              }))}
+              options={userOptions}
             />
           </Form.Item>
         )}
@@ -161,10 +158,7 @@ export const Variation = () => {
           >
             <Select
               placeholder="Select a type"
-              options={users.map(user => ({
-                label: user.name,
-                value: user.usersId,
-              }))}
+              options={userOptions}
             />
           </Form.Item>
         )}
