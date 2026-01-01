@@ -1,61 +1,112 @@
 'use client';
-import React, { useState } from 'react';
-import { Table, Switch, Button, Form, Space, message, Typography } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Table, Switch, Button, Form, Space, message, Typography, Popconfirm } from 'antd';
 import { IconEdit, IconTrash, IconPlus, IconPin } from '@tabler/icons-react';
 import type { ColumnsType } from 'antd/es/table';
-import { comissionData } from 'data/configuration/comissionData';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import {
   getChildFields,
   getIncomingFields,
   getParentFields,
 } from '@/components/formFields/comissionSettingFields';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import {
+  createCommissionStage,
+  createOutgoingCommission,
+  deleteCommissionStage,
+  deleteOutgoingCommission,
+  fetchAllCommissionStage,
+  fetchAllOutgoingCommission,
+  fetchJobCommissionSetting,
+  updateCommissionStage,
+  updateJobCommissionSetting,
+  updateOutgoingCommission,
+} from '@redux/feature/admin/job/jobCommission/jobCommissionThunk';
+import { Status } from '@lib/constants/enum';
+import {
+  CommissionStage,
+  JobCommission,
+} from '@redux/feature/admin/job/jobCommission/IJobCommissionState';
+import { toggleExpand } from '@redux/feature/admin/job/jobCommission/jobCommissionSlice';
 
 const { Text } = Typography;
 
-interface Stage {
-  id: string;
-  name: string;
-  commissionValue: string;
-  sort: number;
-}
-
-interface CommissionRecord {
-  id: string;
-  name: string;
-  recipient: string;
-  commissionValue: string;
-  sort: number;
-  stages: Stage[];
-}
-
-interface IncomingRecord {
-  id: string;
-  name: string;
-  commissionValue: string;
-  sort: number;
-}
-
 export const Comission: React.FC = () => {
-  const [outgoingEnabled, setOutgoingEnabled] = useState(true);
-  const [incomingEnabled, setIncomingEnabled] = useState(false);
-  const [data, setData] = useState<CommissionRecord[]>(comissionData);
-  const [incomingData, setIncomingData] = useState<IncomingRecord[]>([
-    { id: 'i1', name: 'Distributor', commissionValue: '$10,000.00', sort: 1 },
-  ]);
-
-  const [modalOpen, setModalOpen] = useState(false);
-  const [childModalOpen, setChildModalOpen] = useState(false);
-  const [incomingModalOpen, setIncomingModalOpen] = useState(false);
-
-  const [editingItem, setEditingItem] = useState<CommissionRecord | null>(null);
-  const [editingStage, setEditingStage] = useState<Stage | null>(null);
+  const dispatch = useAppDispatch();
+  const {
+    commissionSetting,
+    outgoingCommission,
+    incomingCommission,
+    commissionStageStatus,
+    outgoingCommissionStatus,
+    incomingCommissionStatus,
+    status,
+  } = useAppSelector(state => state.job.jobCommission);
+  const [outgoingEnabled, setOutgoingEnabled] = useState<boolean>();
+  const [incomingEnabled, setIncomingEnabled] = useState<boolean>();
+  const [modalOpen, setModalOpen] = useState<'outgoing' | 'incoming' | 'outgoingChild' | null>(
+    null
+  );
+  const [editingItem, setEditingItem] = useState<JobCommission | null>(null);
+  const [editingStage, setEditingStage] = useState<CommissionStage | null>(null);
   const [editingParent, setEditingParent] = useState<string | null>(null);
-  const [editingIncoming, setEditingIncoming] = useState<IncomingRecord | null>(null);
-
+  const [editingIncoming, setEditingIncoming] = useState<CommissionStage | null>(null);
   const [form] = Form.useForm();
   const [childForm] = Form.useForm();
   const [incomingForm] = Form.useForm();
+
+  useEffect(() => {
+    if (status.fetch === Status.IDLE) {
+      fetchCommissionSetting();
+    }
+    if (commissionSetting) {
+      setOutgoingEnabled(commissionSetting.defineOutgoingCommission);
+      setIncomingEnabled(commissionSetting.defineIncomingCommission);
+    }
+
+    if (
+      outgoingCommissionStatus.fetch === Status.IDLE &&
+      commissionSetting?.defineOutgoingCommission
+    ) {
+      fetchOutgoingommission();
+    }
+
+    if (
+      incomingCommissionStatus.fetch === Status.IDLE &&
+      commissionSetting?.defineIncomingCommission
+    ) {
+      fetchIncomingommission();
+    }
+  }, [
+    status.fetch,
+    commissionSetting,
+    outgoingCommissionStatus.fetch,
+    incomingCommissionStatus.fetch,
+  ]);
+
+  const fetchCommissionSetting = async () => {
+    try {
+      await dispatch(fetchJobCommissionSetting()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch job commission setting');
+    }
+  };
+
+  const fetchOutgoingommission = async () => {
+    try {
+      await dispatch(fetchAllOutgoingCommission({ commission_type: 'outgoing' })).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch outgoing commission');
+    }
+  };
+
+  const fetchIncomingommission = async () => {
+    try {
+      await dispatch(fetchAllOutgoingCommission({ commission_type: 'incoming' })).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch outgoing commission');
+    }
+  };
 
   // --- Sorting helpers ---
   const sortData = (arr: any[]) => [...arr].sort((a, b) => a.sort - b.sort);
@@ -77,45 +128,65 @@ export const Comission: React.FC = () => {
       }));
   };
 
+  //save setting
+  async function handleSaveSetting() {
+    try {
+      await dispatch(
+        updateJobCommissionSetting({
+          defineOutgoingCommission: outgoingEnabled,
+          defineIncomingCommission: incomingEnabled,
+        })
+      ).unwrap();
+      message.success('Job commission setting updated successfully');
+    } catch (error) {
+      message.error(error || 'Failed to update job commission setting');
+    }
+  }
+
   // --- CRUD: Outgoing Parent ---
   const handleAddParent = () => {
     form.resetFields();
     setEditingItem(null);
-    setModalOpen(true);
+    setModalOpen('outgoing');
   };
 
-  const handleSaveParent = () => {
-    form.validateFields().then(values => {
-      const newSort = Number(values.sort);
+  const handleSaveParent = async values => {
+    await form.validateFields();
+    try {
       if (editingItem) {
-        const adjusted = adjustSort(data, newSort, editingItem.id).map(item =>
-          item.id === editingItem.id ? { ...item, ...values } : item
-        );
-        setData(adjusted);
-        message.success('Updated successfully');
+        await dispatch(
+          updateOutgoingCommission({
+            data: values,
+            id: editingItem.jobCommissionId,
+            commissionType: 'outgoing',
+          })
+        ).unwrap();
+        message.success('Outgoing commission updated successfully');
       } else {
-        const newItem: CommissionRecord = {
-          id: Date.now().toString(),
-          stages: [],
-          ...values,
-        };
-        const adjusted = adjustSort([...data, newItem], newSort);
-        setData(adjusted);
-        message.success('Added successfully');
+        await dispatch(
+          createOutgoingCommission({ ...values, commissionType: 'outgoing' })
+        ).unwrap();
+        message.success('Outgoing commission created successfully');
       }
-      setModalOpen(false);
-    });
+      setModalOpen(null);
+    } catch (error) {
+      message.error(error || 'Failed to save outgoing commission');
+    }
   };
 
-  const handleEditParent = (record: CommissionRecord) => {
+  const handleEditParent = (record: JobCommission) => {
     setEditingItem(record);
     form.setFieldsValue(record);
-    setModalOpen(true);
+    setModalOpen('outgoing');
   };
 
-  const handleDeleteParent = (id: string) => {
-    setData(prev => prev.filter(item => item.id !== id));
-    message.success('Deleted successfully');
+  const handleDeleteParent = async (id: string) => {
+    try {
+      await dispatch(deleteOutgoingCommission({ id, commissionType: 'outgoing' })).unwrap();
+      message.success('Outgoing commission deleted successfully');
+    } catch (error) {
+      message.error(error || 'Failed to delete outgoing commission');
+    }
   };
 
   // --- CRUD: Outgoing Child (Stage) ---
@@ -123,96 +194,100 @@ export const Comission: React.FC = () => {
     setEditingParent(parentId);
     setEditingStage(null);
     childForm.resetFields();
-    setChildModalOpen(true);
+    setModalOpen('outgoingChild');
   };
 
-  const handleEditChild = (parentId: string, stage: Stage) => {
+  const handleEditChild = (parentId: string, stage: CommissionStage) => {
     setEditingParent(parentId);
     setEditingStage(stage);
     childForm.setFieldsValue(stage);
-    setChildModalOpen(true);
+    setModalOpen('outgoingChild');
   };
 
-  const handleSaveChild = () => {
-    childForm.validateFields().then(values => {
-      const parentIdx = data.findIndex(d => d.id === editingParent);
-      if (parentIdx === -1) return;
-      const parent = data[parentIdx];
-      const newSort = Number(values.sort);
-
-      let updatedStages;
+  const handleSaveChild = async values => {
+    await childForm.validateFields();
+    try {
       if (editingStage) {
-        updatedStages = adjustSort(parent.stages, newSort, editingStage.id).map(s =>
-          s.id === editingStage.id ? { ...s, ...values } : s
-        );
+        await dispatch(
+          updateCommissionStage({
+            data: values,
+            id: editingStage.jobCommissionSubStageId,
+            commissionId: editingParent,
+          })
+        ).unwrap();
+        message.success('Outgoing commission stage updated successfully');
       } else {
-        const newStage: Stage = {
-          id: Date.now().toString(),
-          ...values,
-        };
-        updatedStages = adjustSort([...parent.stages, newStage], newSort);
+        await dispatch(
+          createCommissionStage({ ...values, jobCommissionId: editingParent })
+        ).unwrap();
+        message.success('Outgoing commission stage created successfully');
       }
-
-      parent.stages = updatedStages;
-      const newData = [...data];
-      newData[parentIdx] = { ...parent };
-      setData(newData);
-      setChildModalOpen(false);
-      message.success('Stage saved successfully');
-    });
+      setModalOpen(null);
+    } catch (error) {
+      message.error(error || 'Failed to save outgoing commission stage');
+    }
   };
 
-  const handleDeleteChild = (parentId: string, stageId: string) => {
-    setData(prev =>
-      prev.map(p =>
-        p.id === parentId ? { ...p, stages: p.stages.filter(s => s.id !== stageId) } : p
-      )
-    );
-    message.success('Stage deleted');
+  const handleDeleteChild = async (parentId: string, stageId: string) => {
+    try {
+      await dispatch(deleteCommissionStage({ id: stageId, commissionId: parentId })).unwrap();
+      message.success('Stage deleted successfully');
+    } catch (error) {
+      message.error(error || 'Failed to delete stage');
+    }
   };
 
   // --- CRUD: Incoming ---
   const handleAddIncoming = () => {
     incomingForm.resetFields();
     setEditingIncoming(null);
-    setIncomingModalOpen(true);
+    setModalOpen('incoming');
   };
 
-  const handleEditIncoming = (record: IncomingRecord) => {
+  const handleEditIncoming = (record: CommissionStage) => {
     setEditingIncoming(record);
     incomingForm.setFieldsValue(record);
-    setIncomingModalOpen(true);
+    setModalOpen('incoming');
   };
 
-  const handleSaveIncoming = () => {
-    incomingForm.validateFields().then(values => {
-      const newSort = Number(values.sort);
+  const handleSaveIncoming = async values => {
+    await incomingForm.validateFields();
+    try {
       if (editingIncoming) {
-        const adjusted = adjustSort(incomingData, newSort, editingIncoming.id).map(i =>
-          i.id === editingIncoming.id ? { ...i, ...values } : i
-        );
-        setIncomingData(adjusted);
+        await dispatch(
+          updateOutgoingCommission({
+            data: values,
+            id: editingIncoming.jobCommissionId,
+            commissionType: 'incoming',
+          })
+        ).unwrap();
+        message.success('Outgoing commission updated successfully');
       } else {
-        const newItem: IncomingRecord = { id: Date.now().toString(), ...values };
-        const adjusted = adjustSort([...incomingData, newItem], newSort);
-        setIncomingData(adjusted);
+        await dispatch(
+          createOutgoingCommission({ ...values, commissionType: 'incoming' })
+        ).unwrap();
+        message.success('Outgoing commission created successfully');
       }
-      message.success('Incoming record saved');
-      setIncomingModalOpen(false);
-    });
+      setModalOpen(null);
+    } catch (error) {
+      message.error(error || 'Failed to save incoming record');
+    }
   };
 
-  const handleDeleteIncoming = (id: string) => {
-    setIncomingData(prev => prev.filter(i => i.id !== id));
-    message.success('Deleted successfully');
+  const handleDeleteIncoming = async (id: string) => {
+    try {
+      await dispatch(deleteOutgoingCommission({ id, commissionType: 'incoming' })).unwrap();
+      message.success('Outgoing commission deleted successfully');
+    } catch (error) {
+      message.error(error || 'Failed to delete outgoing commission');
+    }
   };
 
-  const outgoingColumns: ColumnsType<CommissionRecord> = [
-    { title: 'S.No', dataIndex: 'sort', width: 80 },
+  const outgoingColumns: ColumnsType<JobCommission> = [
     { title: 'Name', dataIndex: 'name' },
     { title: 'Recipient', dataIndex: 'recipient' },
     { title: 'Commission Value', dataIndex: 'commissionValue' },
-    { title: 'Sort', dataIndex: 'sort', width: 100 },
+    { title: 'Sort', dataIndex: 'sortOrder', width: 100 },
     {
       title: '',
       width: 150,
@@ -223,43 +298,55 @@ export const Comission: React.FC = () => {
             icon={<IconEdit size={16} />}
             onClick={() => handleEditParent(record)}
           />
-          <Button
-            size="small"
-            danger
-            icon={<IconTrash size={16} />}
-            onClick={() => handleDeleteParent(record.id)}
-          />
+          <Popconfirm
+            title="Are you sure to delete this commission?"
+            onConfirm={() => handleDeleteParent(record.jobCommissionId)}
+          >
+            <Button size="small" danger icon={<IconTrash size={16} />} />
+          </Popconfirm>
+
           <Button
             size="small"
             icon={<IconPlus size={16} />}
-            onClick={() => handleAddChild(record.id)}
+            onClick={() => handleAddChild(record.jobCommissionId)}
           />
         </Space>
       ),
     },
   ];
-
-  const expandedRowRender = (record: CommissionRecord) => {
-    const stageColumns: ColumnsType<Stage> = [
+  const getStageData = async record => {
+    if (!record.isExpanded) {
+      dispatch(toggleExpand(record.jobCommissionId));
+      try {
+        await dispatch(fetchAllCommissionStage(record.jobCommissionId)).unwrap();
+      } catch (error) {
+        message.error(error || 'Failed to fetch stage data');
+      }
+    }
+  };
+  const expandedRowRender = (record: JobCommission) => {
+    const id = record.jobCommissionId;
+    getStageData(record);
+    const stageColumns: ColumnsType<CommissionStage> = [
       { title: '', dataIndex: 'icon', width: 40, render: () => <IconPin size={16} /> },
       { title: 'Stage', dataIndex: 'name' },
       { title: 'Commission Value', dataIndex: 'commissionValue' },
-      { title: 'Sort', dataIndex: 'sort', width: 80 },
+      { title: 'Sort', dataIndex: 'sortOrder', width: 80 },
       {
         title: '',
         width: 120,
-        render: (_, stage) => (
+        render: (_, record) => (
           <Space>
             <Button
               size="small"
               icon={<IconEdit size={14} />}
-              onClick={() => handleEditChild(record.id, stage)}
+              onClick={() => handleEditChild(id, record)}
             />
             <Button
               size="small"
               danger
               icon={<IconTrash size={14} />}
-              onClick={() => handleDeleteChild(record.id, stage.id)}
+              onClick={() => handleDeleteChild(id, record.jobCommissionSubStageId)}
             />
           </Space>
         ),
@@ -268,19 +355,19 @@ export const Comission: React.FC = () => {
     return (
       <Table
         columns={stageColumns}
-        dataSource={sortData(record.stages)}
+        dataSource={record.stages}
         pagination={false}
         rowKey="id"
         size="small"
+        loading={commissionStageStatus.fetch === Status.PENDING}
       />
     );
   };
 
-  const incomingColumns: ColumnsType<IncomingRecord> = [
-    { title: 'S.No', dataIndex: 'sort', width: 80 },
+  const incomingColumns: ColumnsType<CommissionStage> = [
     { title: 'Name', dataIndex: 'name' },
     { title: 'Commission Value', dataIndex: 'commissionValue' },
-    { title: 'Sort', dataIndex: 'sort', width: 100 },
+    { title: 'Sort', dataIndex: 'sortOrder', width: 100 },
     {
       title: '',
       render: (_, record) => (
@@ -294,7 +381,7 @@ export const Comission: React.FC = () => {
             size="small"
             danger
             icon={<IconTrash size={16} />}
-            onClick={() => handleDeleteIncoming(record.id)}
+            onClick={() => handleDeleteIncoming(record.jobCommissionId)}
           />
         </Space>
       ),
@@ -318,84 +405,115 @@ export const Comission: React.FC = () => {
       </Text>
 
       <div className="flex items-center mt-4 gap-2">
-        <Switch checked={outgoingEnabled} onChange={setOutgoingEnabled} />
+        <Switch
+          checked={outgoingEnabled}
+          onChange={setOutgoingEnabled}
+          disabled={status.update === Status.PENDING}
+        />
         <p>Define Outgoing Commission Settings</p>
       </div>
-
-      {outgoingEnabled && (
+      <div className="flex items-center mt-4 gap-2">
+        <Switch
+          checked={incomingEnabled}
+          onChange={setIncomingEnabled}
+          disabled={status.update === Status.PENDING}
+        />
+        <p>Define Incoming Commission Settings</p>
+      </div>
+      <div className="flex items-center justify-end mb-4 gap-2">
+        {(outgoingEnabled !== commissionSetting?.defineOutgoingCommission ||
+          incomingEnabled !== commissionSetting?.defineIncomingCommission) && (
+          <Button
+            type="primary"
+            onClick={handleSaveSetting}
+            loading={status.update === Status.PENDING}
+          >
+            Save
+          </Button>
+        )}
+      </div>
+      {commissionSetting?.defineOutgoingCommission && (
         <>
-          <div className="flex items-end justify-end mb-2">
+          <div className="flex items-center justify-between my-2">
+            <p>Outgoing Commission</p>
             <Button type="primary" icon={<IconPlus size={18} />} onClick={handleAddParent}>
               New
             </Button>
           </div>
           <Table
             columns={outgoingColumns}
-            dataSource={sortData(data)}
+            dataSource={sortData(outgoingCommission)}
             expandable={{ expandedRowRender }}
             pagination={false}
-            rowKey="id"
+            rowKey="jobCommissionId"
+            loading={outgoingCommissionStatus.fetch === Status.PENDING}
           />
         </>
       )}
 
-      <div className="flex items-center mt-4 gap-2">
-        <Switch checked={incomingEnabled} onChange={setIncomingEnabled} />
-        <p>Define Incoming Commission Settings</p>
-      </div>
-
-      {incomingEnabled && (
+      {commissionSetting?.defineIncomingCommission && (
         <>
-          <div className="flex items-end justify-end mb-2">
+          <div className="flex items-center justify-between my-2">
+            <p>Incoming Commission</p>
             <Button type="primary" icon={<IconPlus size={18} />} onClick={handleAddIncoming}>
               New
             </Button>
           </div>
           <Table
             columns={incomingColumns}
-            dataSource={sortData(incomingData)}
+            dataSource={sortData(incomingCommission)}
             pagination={false}
             rowKey="id"
             bordered
+            loading={incomingCommissionStatus.fetch === Status.PENDING}
           />
         </>
       )}
 
       {/* Outgoing Parent Modal */}
-      <ActionDialogmodel
-        title={editingItem ? 'Edit Commission Setting' : 'Add Commission Setting'}
-        open={modalOpen}
-        onCancel={() => setModalOpen(false)}
-        isEditing={!!editingItem}
-        onSubmit={handleSaveParent}
-        fields={getParentFields()}
-        initialValues={editingItem || {}}
-        submitButtonText={editingItem ? 'Update' : 'Create'}
-      />
+      {modalOpen === 'outgoing' && (
+        <ActionDialogmodel
+          title={editingItem ? 'Edit Commission Setting' : 'Add Commission Setting'}
+          open={modalOpen === 'outgoing'}
+          onCancel={() => setModalOpen(null)}
+          isEditing={!!editingItem}
+          onSubmit={handleSaveParent}
+          fields={getParentFields()}
+          initialValues={editingItem || {}}
+          submitButtonText={editingItem ? 'Update' : 'Create'}
+          loading={outgoingCommissionStatus.update === Status.PENDING}
+        />
+      )}
 
       {/* Outgoing Child Modal */}
-      <ActionDialogmodel
-        title={editingStage ? 'Edit Stage' : 'Add Stage'}
-        open={childModalOpen}
-        onCancel={() => setChildModalOpen(false)}
-        isEditing={!!editingStage}
-        onSubmit={handleSaveChild}
-        fields={getChildFields()}
-        initialValues={editingStage || {}}
-        submitButtonText={editingStage ? 'Update' : 'Create'}
-      />
+      {modalOpen === 'outgoingChild' && (
+        <ActionDialogmodel
+          title={editingStage ? 'Edit Stage' : 'Add Stage'}
+          open={modalOpen === 'outgoingChild'}
+          onCancel={() => setModalOpen(null)}
+          isEditing={!!editingStage}
+          onSubmit={handleSaveChild}
+          fields={getChildFields()}
+          initialValues={editingStage || {}}
+          submitButtonText={editingStage ? 'Update' : 'Create'}
+          loading={commissionStageStatus.update === Status.PENDING}
+        />
+      )}
 
       {/* Incoming Modal */}
-      <ActionDialogmodel
-        title={editingIncoming ? 'Edit Incoming Commission' : 'Add Incoming Commission'}
-        open={incomingModalOpen}
-        onCancel={() => setIncomingModalOpen(false)}
-        isEditing={!!editingIncoming}
-        onSubmit={handleSaveIncoming}
-        fields={getIncomingFields()}
-        initialValues={editingIncoming || {}}
-        submitButtonText={editingIncoming ? 'Update' : 'Create'}
-      />
+      {modalOpen === 'incoming' && (
+        <ActionDialogmodel
+          title={editingIncoming ? 'Edit Incoming Commission' : 'Add Incoming Commission'}
+          open={modalOpen === 'incoming'}
+          onCancel={() => setModalOpen(null)}
+          isEditing={!!editingIncoming}
+          onSubmit={handleSaveIncoming}
+          fields={getIncomingFields()}
+          initialValues={editingIncoming || {}}
+          submitButtonText={editingIncoming ? 'Update' : 'Create'}
+          loading={incomingCommissionStatus.update === Status.PENDING}
+        />
+      )}
     </div>
   );
 };

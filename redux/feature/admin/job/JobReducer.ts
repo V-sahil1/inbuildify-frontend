@@ -4,11 +4,13 @@ import JobColorReducer from './jobColor/jobColorSlice';
 import JobWorkflowReducer from './jobWorkflow/jobWorkflowSlice';
 import JobInvoiceReducer from './jobInvoice/jobInvoiceSlice';
 import JobVariationReducer from './jobVariation/jobVariationSlice';
+import JobCommissionReducer from './jobCommission/jobCommissionSlice';
 
 export const JobReducer = combineReducers({
   jobSetting: JobSettingReducer,
   jobColor: JobColorReducer,
   jobWorkflow: JobWorkflowReducer,
   jobInvoice: JobInvoiceReducer,
-  jobVariation: JobVariationReducer
+  jobVariation: JobVariationReducer,
+  jobCommission: JobCommissionReducer,
 });

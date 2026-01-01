@@ -11,9 +11,26 @@ export const getParentFields = (): FormField[] => [
   {
     label: 'Recipient',
     name: 'recipient',
-    type: 'text',
+    type: 'select',
+    options: [
+      { label: 'Sales Person', value: 'sales_person' },
+      { label: 'Reporting To', value: 'reporting_to' },
+      { label: 'Referral Partner', value: 'referral_partner' },
+      { label: 'Customer', value: 'customer' },
+      { label: 'Other User', value: 'other_user' },
+    ],
     placeholder: 'e.g., Sales Person',
     rules: [{ required: true, message: 'Please enter a recipient' }],
+  },
+  {
+    label: 'Commission Unit',
+    name: 'commissionUnit',
+    type: 'radio',
+    options: [
+      { label: 'Percentage', value: 'percentage' },
+      { label: 'Amount', value: 'amount' },
+    ],
+    rules: [{ required: true, message: 'Please enter a commission value' }],
   },
   {
     label: 'Commission Value',
@@ -24,7 +41,7 @@ export const getParentFields = (): FormField[] => [
   },
   {
     label: 'Sort',
-    name: 'sort',
+    name: 'sortOrder',
     type: 'number',
     rules: [{ required: true, message: 'Please enter a sort order' }],
   },
@@ -39,6 +56,16 @@ export const getChildFields = (): FormField[] => [
     rules: [{ required: true, message: 'Please enter a stage name' }],
   },
   {
+    label: 'Commission Unit',
+    name: 'commissionUnit',
+    type: 'radio',
+    options: [
+      { label: 'Percentage', value: 'percentage' },
+      { label: 'Amount', value: 'amount' },
+    ],
+    rules: [{ required: true, message: 'Please enter a commission value' }],
+  },
+  {
     label: 'Commission Value',
     name: 'commissionValue',
     type: 'text',
@@ -47,7 +74,7 @@ export const getChildFields = (): FormField[] => [
   },
   {
     label: 'Sort',
-    name: 'sort',
+    name: 'sortOrder',
     type: 'number',
     rules: [{ required: true, message: 'Please enter a sort order' }],
   },
@@ -63,13 +90,12 @@ export const getIncomingFields = (): FormField[] => [
   },
   {
     label: 'Commission Type',
-    name: 'commissionType',
+    name: 'commissionUnit',
     type: 'radio',
     options: [
       { label: 'Percentage', value: 'percentage' },
       { label: 'Amount', value: 'amount' },
     ],
-    placeholder: '$5,000 or 10%',
     rules: [{ required: true, message: 'Please enter a commission value' }],
   },
   {
@@ -81,7 +107,7 @@ export const getIncomingFields = (): FormField[] => [
   },
   {
     label: 'Sort',
-    name: 'sort',
+    name: 'sortOrder',
     type: 'number',
     rules: [{ required: true, message: 'Please enter a sort order' }],
   },

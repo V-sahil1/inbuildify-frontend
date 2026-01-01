@@ -150,6 +150,9 @@ class API_ENDPOINTS {
   public static JOB_INVOICE = '/job-invoice-setting';
   public static JOB_INVOICE_STAGE = '/job-invoice-stage-payment';
   public static JOB_INVOICE_STAGE_ACTIVE = `${this.JOB_INVOICE_STAGE}/is-active`;
+  public static JOB_COMMISSION_SETTING = '/job-commission-setting';
+  public static JOB_COMMISSION='/job-commission'
+  public static JOB_COMMISSION_SUB_STAGE='/job-commission-sub-stage'
 
   // admin maintenance
   public static MAINTENANCE_SETTING = '/maintenance-setting';
