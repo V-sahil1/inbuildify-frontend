@@ -22,6 +22,7 @@ export const Variation = () => {
 
   const notifyAfterContract = Form.useWatch('notifySignedVariationAfterContract', form);
   const notifySignedVariation = Form.useWatch('notifySignedVariation', form);
+  const contractBasedVariationHeader = Form.useWatch('contractBasedVariationHeader', form);
 
   const handleDelete = (key: string) => {
     setVariations(variations.filter(item => item.key !== key));
@@ -192,9 +193,21 @@ export const Variation = () => {
             description="When enabled, system shows Pre/Post contract header based on Signed Date. You can configure the labels below."
           />
         </Form.Item>
-        <Form.Item name="variationTitle" label="Title" valuePropName="checked">
-          <Input />
-        </Form.Item>
+        
+        {contractBasedVariationHeader ? (
+          <div className='flex gap-4'>
+            <Form.Item name="preContractHeader" label="Pre Contract Header">
+              <Input placeholder="Variation - Pre Contract" />
+            </Form.Item>
+            <Form.Item name="postContractHeader" label="Post Contract Header">
+              <Input placeholder="Variation - Post Contract" />
+            </Form.Item>
+          </div>
+        ) : (
+          <Form.Item name="variationTitle" label="Title">
+            <Input />
+          </Form.Item>
+        )}
 
         {isChanged && (
           <div className="flex justify-end w-full">

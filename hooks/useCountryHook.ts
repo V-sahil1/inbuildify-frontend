@@ -1,6 +1,6 @@
 import { Status } from '@lib/constants/enum';
 import { getCountriesThunk } from '@redux/feature/location/locationThunk';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 
 export const useCountryHook = () => {
@@ -16,16 +16,26 @@ export const useCountryHook = () => {
 
   useEffect(() => {
     if (status === Status.IDLE) {
-      dispatch(getCountriesThunk())
-        .unwrap()
-        .catch(err => {
-          setError(err);
-        });
+      const fetchCountries = async () => {
+        try {
+          await dispatch(getCountriesThunk()).unwrap();
+        } catch (err) {
+          setError(err as string);
+        }
+      };
+      fetchCountries();
     }
   }, [status, dispatch]);
 
+  const countryOptions = useMemo(() => {
+    return countries.map(country => ({
+      label: country.name,
+      value: country.countryId
+    }));
+  }, [countries]);
+
   return {
-    countries,
+    countryOptions,
     isLoading,
     isError,
     isSuccess,

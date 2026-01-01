@@ -23,7 +23,7 @@ export const updateGeneralSetting = createAsyncThunk(
   async (payload: { data: Partial<GeneralSetting>; id: string }, { rejectWithValue }) => {
     try {
       const response = await api.put<ApiResponse<GeneralSettingResponse>>(
-        `${API_ENDPOINTS.GENERAL_SETTING}/${payload.id}`,
+        API_ENDPOINTS.GENERAL_SETTING,
         { data: payload.data }
       );
       return response.data;

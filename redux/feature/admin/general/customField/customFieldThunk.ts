@@ -17,21 +17,23 @@ export const createCustomField = createAsyncThunk(
       );
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error?.message);
     }
   }
 );
 
 export const fetchAllCustomField = createAsyncThunk(
   'customField/fetchAll',
-  async (_, { rejectWithValue }) => {
+  async ({ moduleId }: { moduleId?: string }, { rejectWithValue }) => {
     try {
       const response = await api.get<
         ApiResponse<{ customFields: CustomFieldResponse[]; pagination: Pagination }>
-      >(API_ENDPOINTS.CUSTOMFIELD_BASE);
+      >(API_ENDPOINTS.CUSTOMFIELD_BASE, {
+        params: moduleId ? { module_id:moduleId } : undefined,
+      });
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error?.message);
     }
   }
 );
@@ -46,7 +48,7 @@ export const updateCustomField = createAsyncThunk(
       );
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error?.message);
     }
   }
 );
@@ -60,7 +62,7 @@ export const deleteCustomField = createAsyncThunk(
       );
       return payload;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error?.message);
     }
   }
 );
@@ -74,7 +76,7 @@ export const fetchAllCustomFieldModule = createAsyncThunk(
       >(API_ENDPOINTS.CUSTOMFIELD_MODULE_BASE);
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error?.message);
     }
   }
 );
@@ -91,7 +93,7 @@ export const createCustomFieldListOption = createAsyncThunk(
       );
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error?.message);
     }
   }
 );
@@ -106,7 +108,7 @@ export const deleteCustomFieldListOption = createAsyncThunk(
       );
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error?.message);
     }
   }
 );

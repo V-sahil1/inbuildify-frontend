@@ -8,9 +8,18 @@ export interface functionalityResponse {
   updatedAt:string;
 }
 
+export interface Timezone {
+  timezoneId: string;
+  countryCode: string;
+  timezoneName: string;
+  displayName: string;
+}
+
 export interface ICommonState {
   functionality: functionalityResponse[];
+  timezone: Timezone[];
   status: {
-    functionality:Status
+    functionality: Status;
+    timezoneStatus: Status;
   }
 }

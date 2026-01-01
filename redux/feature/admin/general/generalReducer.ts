@@ -1,5 +1,6 @@
 import { combineReducers } from '@reduxjs/toolkit';
 import generalSettingReducer from './generalSetting/generalSettingSlice';
+import companyReducer from './company/companySlice';
 import serveyorReducer from './surveyor/surveyorSlice';
 import customFieldReducer from './customField/customFieldSlice';
 import noteTagsReducer from './notesTag/notesTagSlice';
@@ -10,6 +11,7 @@ import roleAndUserMappingReducer from './roleAndUserMapping/roleAndMappingSlice'
 
 export const generalReducer = combineReducers({
   generalSetting: generalSettingReducer,
+  company: companyReducer,
   surveyor: serveyorReducer,
   customField: customFieldReducer,
   noteTags: noteTagsReducer,

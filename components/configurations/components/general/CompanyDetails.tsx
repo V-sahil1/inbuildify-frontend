@@ -1,13 +1,74 @@
 'use client';
-import { Form, Input, Select, Upload, Button } from 'antd';
+import { Form, Input, Select, Upload, Button, message } from 'antd';
 import { IconUpload } from '@tabler/icons-react';
-import { stateRegionOptions, timezoneOptions } from 'data/options';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { useEffect } from 'react';
+import { fetchCompanyInfo, updateCompanyDetails } from '@redux/feature/admin/general/company/companyThunk';
+import { useTimezoneHook } from '@hooks/useTImezoneHook';
+import { useCountryHook } from '@hooks/useCountryHook';
+import { useStateHook } from '@hooks/useStateHook';
+import { formDataGenerator } from '@lib/utils/formDataGenerator';
+import { Status } from '@lib/constants/enum';
 
 const CompanyDetails = () => {
   const [form] = Form.useForm();
+  const dispatch = useAppDispatch();
+  const { company, status } = useAppSelector(state => state.general.company);
+  const { timezoneOptions } = useTimezoneHook();
+  const { countryOptions } = useCountryHook();
+  const selectedCountryId = Form.useWatch('countryId', form);
+  const { stateOptions } = useStateHook(selectedCountryId);
+  
+  const fetchCompanyInfoData = async () => {
+    try {
+      await dispatch(fetchCompanyInfo()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed fetch company detail');
+    }
+  };
 
-  const onFinish = (values: any) => {
-    console.log('Form values:', values);
+  useEffect(() => {
+    if (status.fetch === Status.IDLE) {
+      fetchCompanyInfoData();
+    }
+  }, [dispatch, status.fetch]);
+
+  useEffect(() => {
+    if (company) {
+      form.setFieldsValue({
+        ...company,
+        timezoneId: company.timezoneId
+      });
+    }
+  }, [company]);
+
+  const onFinish = async (values: any) => {
+    if (!company) return;
+    
+    try {
+      const processedValues = { ...values };
+      if (values.emailSignatureLogo && values.emailSignatureLogo.length > 0) {
+        const file = values.emailSignatureLogo[0];
+        processedValues.emailSignatureLogo = file.originFileObj || file;
+      } else {
+        delete processedValues.emailSignatureLogo;
+      }
+      
+      if (values.companyLogo && values.companyLogo.length > 0) {
+        const file = values.companyLogo[0];
+        processedValues.companyLogo = file.originFileObj || file;
+      } else {
+        delete processedValues.companyLogo;
+      }
+      
+      const formData = formDataGenerator(processedValues);
+      
+      await dispatch(updateCompanyDetails(formData)).unwrap();
+      message.success('Company details updated successfully');
+      
+    } catch (error) {
+      message.error(error || 'Failed to update company details');
+    } 
   };
 
   return (
@@ -16,31 +77,18 @@ const CompanyDetails = () => {
         form={form}
         layout="vertical"
         onFinish={onFinish}
-        initialValues={{
-          companyName: 'My Home',
-          abn: '82 156 644 478',
-          timezoneName: 'GMT+10',
-          address1: '9 Broadmeadows Cres',
-          citySuburb: 'Bohle Plains',
-          stateRegion: 'Victoria',
-          zipPostalCode: '4817',
-          country: 'Australia',
-          accountName: 'My Home Pty Ltd',
-          accountNumber: '034 567',
-          accountBSB: '12345678',
-        }}
         className="space-y-10"
       >
         {/* Basic Info */}
         <h2 className="text-xl font-semibold border-b pb-2">Basic Information</h2>
         <div className="grid grid-cols-2 gap-8">
-          <Form.Item label="Company Name" name="companyName">
+          <Form.Item label="Company Name" name="name">
             <Input />
           </Form.Item>
-          <Form.Item label="ABN" name="abn">
+          <Form.Item label="ABN" name="abnNumber">
             <Input />
           </Form.Item>
-          <Form.Item label="Timezone Name" name="timezoneName">
+          <Form.Item label="Timezone Name" name="timezoneId">
             <Select options={timezoneOptions} />
           </Form.Item>
         </div>
@@ -54,17 +102,17 @@ const CompanyDetails = () => {
           <Form.Item label="Address 2" name="address2">
             <Input />
           </Form.Item>
-          <Form.Item label="City / Suburb" name="citySuburb">
+          <Form.Item label="City / Suburb" name="city">
             <Input />
           </Form.Item>
           <Form.Item label="Zip / Postal Code" name="zipPostalCode">
             <Input />
           </Form.Item>
-          <Form.Item label="State / Region" name="stateRegion">
-            <Select options={stateRegionOptions} />
+          <Form.Item label="State / Region" name="stateId">
+            <Select options={stateOptions} />
           </Form.Item>
-          <Form.Item label="Country" name="country">
-            <Input readOnly className="bg-gray-100 text-gray-500" />
+          <Form.Item label="Country" name="countryId">
+            <Select options={countryOptions} className="bg-gray-100 text-gray-500" />
           </Form.Item>
         </div>
 
@@ -80,7 +128,7 @@ const CompanyDetails = () => {
           <Form.Item label="Account Number" name="accountNumber">
             <Input />
           </Form.Item>
-          <Form.Item label="Account BSB" name="accountBSB">
+          <Form.Item label="Account BSB" name="accountBsb">
             <Input />
           </Form.Item>
         </div>
@@ -90,28 +138,42 @@ const CompanyDetails = () => {
         <div className="grid grid-cols-2 gap-8">
           <div className="flex flex-col gap-3">
             <span className="font-medium">Email Signature</span>
-            <Upload
-              name="image"
-              listType="picture"
-              multiple={false}
-              maxCount={1}
-              beforeUpload={() => false}
-            >
-              <Button icon={<IconUpload />}>Upload</Button>
-            </Upload>
+            <Form.Item name="emailSignatureLogo" valuePropName="fileList" getValueFromEvent={(e) => {
+              if (e && e.fileList) {
+                return e.fileList;
+              }
+              return [];
+            }}>
+              <Upload
+                name="emailSignatureLogo"
+                listType="picture"
+                multiple={false}
+                maxCount={1}
+                beforeUpload={() => false}
+              >
+                <Button icon={<IconUpload />}>Upload</Button>
+              </Upload>
+            </Form.Item>
           </div>
 
           <div className="flex flex-col gap-3">
             <span className="font-medium">Company Logo</span>
-            <Upload
-              name="image"
-              listType="picture"
-              multiple={false}
-              maxCount={1}
-              beforeUpload={() => false}
-            >
-              <Button icon={<IconUpload />}>Upload</Button>
-            </Upload>
+            <Form.Item name="companyLogo" valuePropName="fileList" getValueFromEvent={(e) => {
+              if (e && e.fileList) {
+                return e.fileList;
+              }
+              return [];
+            }}>
+              <Upload
+                name="companyLogo"
+                listType="picture"
+                multiple={false}
+                maxCount={1}
+                beforeUpload={() => false}
+              >
+                <Button icon={<IconUpload />}>Upload</Button>
+              </Upload>
+            </Form.Item>
           </div>
         </div>
 

@@ -2,13 +2,15 @@ import { createSlice } from '@reduxjs/toolkit';
 
 import { Status } from '@lib/constants/enum';
 import { ICommonState } from './ICommonState';
-import { fetchAllFunctionality } from './commonThunk';
+import { fetchAllFunctionality, fetchTimeZone } from './commonThunk';
 
 
 const initialState: ICommonState = {
   functionality: [],
+  timezone: [],
   status:{
     functionality: Status.IDLE, 
+    timezoneStatus: Status.IDLE
   },
 };
 
@@ -26,6 +28,19 @@ const commonSlice = createSlice({
     });
     builder.addCase(fetchAllFunctionality.rejected, state => {
       state.status.functionality = Status.ERROR;
+    });
+
+    builder.addCase(fetchTimeZone.pending, (state) => {
+      state.status.timezoneStatus = Status.PENDING;
+    });
+
+    builder.addCase(fetchTimeZone.fulfilled, (state, action) => {
+      state.timezone = action.payload.timezones;
+      state.status.timezoneStatus = Status.SUCCESS;
+    });
+
+    builder.addCase(fetchTimeZone.rejected, (state) => {
+      state.status.timezoneStatus = Status.ERROR;
     });
   },
 });

@@ -37,13 +37,25 @@ const CustomFields: React.FC = () => {
     if (status.customFieldModule === Status.IDLE) {
       fetchCustomFieldModule();
     }
+  }, [status.customFieldModule]);
+
+  useEffect(() => {
     if (customFieldModule) {
       setSelectedSection(customFieldModule[0]?.moduleId || null);
     }
-    if (status.fetch === Status.IDLE) {
+  }, [customFieldModule]);
+
+  useEffect(() => {
+    if (selectedSection && status.fetch === Status.IDLE) {
       fetchCustomField();
     }
-  }, [status.customFieldModule, status.fetch]);
+  }, [selectedSection, status.fetch]);
+
+  useEffect(() => {
+    if (selectedSection) {
+      fetchCustomField();
+    }
+  }, [selectedSection]);
 
   async function fetchCustomFieldModule() {
     try {
@@ -54,7 +66,7 @@ const CustomFields: React.FC = () => {
   }
   async function fetchCustomField() {
     try {
-      await dispatch(fetchAllCustomField()).unwrap();
+      await dispatch(fetchAllCustomField({ moduleId: selectedSection || undefined })).unwrap();
     } catch (error) {
       message.error('Failed to fetch customfield');
     }
@@ -233,11 +245,9 @@ const CustomFields: React.FC = () => {
     },
   ];
 
-  const filterData = customField && customField.filter(field => field.moduleId === selectedSection);
-  const dataSource =
-    editingRow && !filterData.some(r => r.customFieldId === editingRow.customFieldId)
-      ? [editingRow, ...filterData]
-      : filterData;
+  const dataSource = editingRow && !customField.some(r => r.customFieldId === editingRow.customFieldId)
+    ? [editingRow, ...customField]
+    : customField;
 
   return (
     <div className="p-6">

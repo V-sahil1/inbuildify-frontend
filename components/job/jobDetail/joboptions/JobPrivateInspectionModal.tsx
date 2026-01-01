@@ -1,11 +1,11 @@
 import { Form, Modal, Select, Input, Row, Col, message } from 'antd';
-import { useCountryHook } from '@hooks/useLocationHook';
+import { useCountryHook } from '@hooks/useCountryHook';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { getStatesByCountryIdThunk } from '@redux/feature/location/locationThunk';
 
 export const JobPrivateInspectionModal = ({ open, onCancel }) => {
   const [form] = Form.useForm();
-  const { countries } = useCountryHook();
+  const { countryOptions } = useCountryHook();
   const { states } = useAppSelector(state => state.location);
   const dispatch = useAppDispatch();
 
@@ -74,10 +74,7 @@ export const JobPrivateInspectionModal = ({ open, onCancel }) => {
                 onChange={value => {
                   handleCountryChange(value);
                 }}
-                options={countries?.map(country => ({
-                  value: country.countryId,
-                  label: country.name,
-                }))}
+                options={countryOptions}
               />
             </Form.Item>
           </Col>

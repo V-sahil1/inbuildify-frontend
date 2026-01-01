@@ -18,3 +18,17 @@ export const fetchAllFunctionality = createAsyncThunk(
     }
   }
 );
+
+export const fetchTimeZone = createAsyncThunk(
+  'common/fetchTimeZone',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get<
+        ApiResponse<{ timezones: any[] }>
+      >(API_ENDPOINTS.TIMEZONE_BASE);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);

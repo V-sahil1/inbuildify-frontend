@@ -107,6 +107,7 @@ class API_ENDPOINTS {
   //admin general
   public static GENERAL_SETTING = '/general-setting';
   public static GET_GENERAL_SETTING = `${this.GENERAL_SETTING}/user`;
+  public static COMPANY_BASE = '/company';
   public static SURVEYOR_BASE = '/surveyor';
   public static CUSTOMFIELD_BASE = '/custom-field';
   public static CUSTOMFIELD_LIST_OPTION_BASE = `${this.CUSTOMFIELD_BASE}/option`;
@@ -115,11 +116,10 @@ class API_ENDPOINTS {
   public static CHECKLIST_BASE = '/checklist';
   public static CHECKLIST_ITEM = '/checklist-item';
   public static SCREEN_BASE = '/screen';
-  public static FUNCTIONALITY_BASE = '/functionality';
   public static PASSWORD_POLICY_BASE = '/password-policy';
   public static ROLE_AND_USER_MAPPING_TYPE = '/role-type';
   public static ROLE_AND_USER_MAPPING = '/user-role-mapping';
-
+  
   //admin sales
   public static SALES_SETTING = '/sales-module-setting';
   public static GET_SALES_SETTING = `${this.SALES_SETTING}/fetch `;
@@ -142,7 +142,7 @@ class API_ENDPOINTS {
   public static DWELLING_TYPE_BASE = '/dwelling-type';
   public static UPDATE_DWELLING_TYPE = `${this.DWELLING_TYPE_BASE}/is-active`;
   public static PRICELIST_BASE = '/price-list';
-
+  
   // admin job
   public static JOB_SETTING = '/job-setting';
   public static JOB_COLOR = '/job-color-setting';
@@ -159,5 +159,9 @@ class API_ENDPOINTS {
   public static MAINTENANCE_AREA = '/maintenance-area';
 
   public static ROLE_BASE = '/role';
+
+  // common 
+  public static FUNCTIONALITY_BASE = '/functionality';
+  public static TIMEZONE_BASE = '/timezone';
 }
 export default API_ENDPOINTS;
