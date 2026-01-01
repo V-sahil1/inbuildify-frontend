@@ -6,7 +6,7 @@ import { jobVariationLimit, JobVariationSetting } from './IJobVariationState';
 
 
 export const fetchJobVariationSetting = createAsyncThunk(
-  'jobVariationLimit/fetch',
+  'jobVariationSetting/fetch',
   async (_, { rejectWithValue }) => {
     try {
       const response = await api.get<ApiResponse<JobVariationSetting>>(API_ENDPOINTS.JOB_INVOICE);
