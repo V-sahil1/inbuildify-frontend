@@ -1,11 +1,14 @@
 import { FormField } from '../common/Models/ActionDialogModel';
 
-export const colorSettingFields = (): FormField[] => {
+export const colorSettingFields = (
+  displayOption: string,
+  onChange?: (value: string) => void
+): FormField[] => {
   return [
     {
       label: 'Options',
-      name: 'options',
-      type: 'select',
+      name: 'displayOption',
+      type: 'dynamic-select',
       options: [
         {
           value: 'dont_show',
@@ -17,16 +20,17 @@ export const colorSettingFields = (): FormField[] => {
         },
         {
           value: 'show_in_existing_items_column',
-          label: 'Show in existing ‘Items’ Column',
+          label: "Show in existing 'Items' Column",
         },
       ],
+      onChange: onChange,
     },
-    {
+    displayOption !== 'show_in_existing_items_column' && {
       label: 'Sort Order',
       name: 'sortOrder',
       type: 'number',
     },
-    {
+    displayOption !== 'show_in_existing_items_column' && {
       label: 'Width',
       name: 'width',
       type: 'number',
@@ -36,5 +40,5 @@ export const colorSettingFields = (): FormField[] => {
       name: 'columnName',
       type: 'text',
     },
-  ];
+  ].filter(Boolean) as FormField[];
 };

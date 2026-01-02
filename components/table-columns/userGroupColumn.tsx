@@ -1,12 +1,14 @@
-import { useUsersHook } from '@hooks/useUserHook';
 import TooltipButton from '../common/TooltipButton';
 import { IconPencil } from '@tabler/icons-react';
-import { Tag } from 'antd';
-import { useState } from 'react';
+import { message, Tag } from 'antd';
+import { useAppDispatch } from '@hooks/redux';
+import { createUserGroup, updateUserGroup } from '@redux/feature/userGroup/userGroupThunk';
+import { userGroup } from '@redux/feature/userGroup/IUserGroupState';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 
 export const userGroupColumn = (setModalOpen, setSelectedGroup, selectedGroup) => {
-  const { userOptions } = useUsersHook();
-  const [userGroupData, setUserGroupData] = useState([]);
+  const dispatch = useAppDispatch();
+
   const column = [
     {
       title: 'Group Name',
@@ -20,7 +22,9 @@ export const userGroupColumn = (setModalOpen, setSelectedGroup, selectedGroup) =
       key: 'users',
       render: (_, record) =>
         record.users &&
-        record?.users.map(userId => <Tag>{userOptions.find(u => u.value === userId)?.label}</Tag>),
+        record?.users.map(user => (
+          <Tag>{user.name}</Tag>
+        )),
     },
     {
       render: (_, record) => {
@@ -39,17 +43,25 @@ export const userGroupColumn = (setModalOpen, setSelectedGroup, selectedGroup) =
     },
   ];
 
-  function handleSubmit(values) {
-    selectedGroup
-      ? setUserGroupData(prev =>
-          prev.map(i => (i.id === selectedGroup.id ? { ...i, ...values } : i))
-        )
-      : setUserGroupData(prev => [
-          ...prev,
-          { ...values, id: Math.floor(Math.random() * 100000).toString() },
-        ]);
-    setModalOpen(false);
-    setSelectedGroup(null);
+  function handleSubmit(values: userGroup) {
+    try {
+      if (selectedGroup) {
+        const updatedFields = getUpdatedFields(values, selectedGroup);
+        if (Object.keys(updatedFields).length == 0) {
+          message.error('No changes made');
+          setModalOpen(false);
+          setSelectedGroup(null);
+          return;
+        }
+        dispatch(updateUserGroup({ data: updatedFields, id: selectedGroup.userGroupId })).unwrap();
+      } else {
+        dispatch(createUserGroup(values)).unwrap();
+      }
+      setModalOpen(false);
+      setSelectedGroup(null);
+    } catch (error) {
+      message.error(error || 'Failed to save user group');
+    }
   }
-  return { column, userGroupData, userGroupSubmit: handleSubmit };
+  return { column, userGroupSubmit: handleSubmit };
 };

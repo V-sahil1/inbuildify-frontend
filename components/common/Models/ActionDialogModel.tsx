@@ -259,14 +259,18 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
             ) : field.type === 'image' ? (
               <Form.Item
                 name={field.name}
-                valuePropName="fileList"
-                getValueFromEvent={({ fileList }) => fileList}
+                getValueFromEvent={({ fileList }) => {
+                  if (fileList && fileList.length > 0) {
+                    return fileList[0].originFileObj;
+                  }
+                  return null;
+                }}
                 rules={[
                   {
                     validator: (_, value) => {
                       if (
                         field.rules?.some(r => 'required' in r && r.required) &&
-                        (!value || value.length === 0)
+                        !value
                       ) {
                         return Promise.reject(new Error('Image is required'));
                       }

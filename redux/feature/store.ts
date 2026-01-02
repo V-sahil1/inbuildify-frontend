@@ -24,6 +24,8 @@ import roleReducer from './admin/role/roleSlice';
 import { JobReducer } from './admin/job/JobReducer';
 import { MaintenanceReducer } from './admin/maintenance/maintenanceReducer';
 import commonReducer from './common/commonSlice';
+import userGroupReducer from './userGroup/userGroupSlice';  
+
 const authPersistConfig = {
   key: 'auth',
   storage,
@@ -53,6 +55,7 @@ const appReducer = combineReducers({
   role: roleReducer,
   maintenance: MaintenanceReducer,
   common: commonReducer,
+  userGroup:userGroupReducer
 });
 
 const rootReducer = (

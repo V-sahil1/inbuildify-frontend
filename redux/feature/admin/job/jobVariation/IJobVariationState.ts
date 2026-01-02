@@ -1,4 +1,4 @@
-import { Status } from "@lib/constants/enum";
+import { Status } from '@lib/constants/enum';
 
 export interface JobVariationSetting {
   allowNotesInVariation: boolean;
@@ -20,23 +20,30 @@ export interface JobVariationSetting {
   notifyAfterContractGroupIds: string[];
 }
 
-export interface jobVariationLimit {
-  jobVariationLimitId: string;
-  description: string;
-  percentage: number;
-  sortOrder: number;
-  active?: boolean;
+export interface jobVariationApproval {
+  jobVariationApprovalId: string;
+  roleId: string;
+  amount: number;
+}
+
+export interface jobVariationApprovalResponse {
+  jobVariationApprovalId: string;
+  role: {
+    id: string;
+    name: string;
+  };
+  amount: number;
 }
 
 export interface IJobVariationState {
-   jobVariationSetting: JobVariationSetting | null,
-  jobVariationLimit: jobVariationLimit[],
+  jobVariationSetting: JobVariationSetting | null;
+  jobVariationLimit: jobVariationApprovalResponse[];
   VariationLimitStatus: {
     fetch: Status;
     update: Status;
-  },
+  };
   status: {
     fetch: Status;
     update: Status;
-  }
+  };
 }

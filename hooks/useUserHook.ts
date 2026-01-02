@@ -3,33 +3,37 @@ import { getUsersThunk } from '@redux/feature/user/userThunk';
 import { useEffect, useMemo, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { user } from '@redux/feature/user/UserState';
+import { message } from 'antd';
 
-export const useUsersHook = () => {
-  const [error, setError] = useState<string | null>(null);
+export const useUsersHook = (verified: boolean = true) => {
   const dispatch = useAppDispatch();
+  const { users, status } = useAppSelector(state => state.user);
 
-  const users = useAppSelector(state => state.user?.users || []);
-  const status = useAppSelector(state => state.user?.status?.users || Status.IDLE); 
-  useEffect(() => {
-    if (status === Status.IDLE) {
-      dispatch(getUsersThunk())
-        .unwrap()
-        .catch(err => {
-          setError(err);
-        });
+  const getUsers = async () => {
+    try {
+      await dispatch(getUsersThunk()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch users');
     }
-  }, [status, dispatch]);
+  };
+  useEffect(() => {
+    if (status.users === Status.IDLE) {
+      getUsers();
+    }
+  }, [status.users]);
 
- const userOptions = useMemo(() => {
-     return users.map((role: user) => ({
-       label: role.name,
-       value: role.usersId
-     }));
-   }, [users]);
+  const userOptions = useMemo(() => {
+    return users
+      .filter(i => i.isVerified === verified)
+      .map((role: user) => ({
+        label: role.name,
+        value: role.usersId,
+      }));
+  }, [users]);
 
   return {
     userOptions,
-    isLoading: status === Status.PENDING,   
-    error:status === Status.ERROR,
+    isLoading: status.users === Status.PENDING,
+    error: status.users === Status.ERROR,
   };
 };

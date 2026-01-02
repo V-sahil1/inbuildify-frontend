@@ -22,6 +22,7 @@ class API_ENDPOINTS {
   public static INVITED_USERS = `${this.USER_BASE}/invited-user`;
   public static ACCEPT_INVITE = `${this.USER_BASE}/accept-invite`;
   // users
+  public static USER_GROUP = '/user-group';
 
   // contractors
   public static CONTRACTOR_BASE = '/contractor';
@@ -119,7 +120,7 @@ class API_ENDPOINTS {
   public static PASSWORD_POLICY_BASE = '/password-policy';
   public static ROLE_AND_USER_MAPPING_TYPE = '/role-type';
   public static ROLE_AND_USER_MAPPING = '/user-role-mapping';
-  
+
   //admin sales
   public static SALES_SETTING = '/sales-module-setting';
   public static GET_SALES_SETTING = `${this.SALES_SETTING}/fetch `;
@@ -142,17 +143,21 @@ class API_ENDPOINTS {
   public static DWELLING_TYPE_BASE = '/dwelling-type';
   public static UPDATE_DWELLING_TYPE = `${this.DWELLING_TYPE_BASE}/is-active`;
   public static PRICELIST_BASE = '/price-list';
-  
+
   // admin job
   public static JOB_SETTING = '/job-setting';
   public static JOB_COLOR = '/job-color-setting';
+  public static JOB_COLOR_COLUMN = '/job-color-column';
+  public static JOB_COLOR_SECTION = '/job-color-column-section';
   public static JOB_WORKFLOW = '/job-workflow-setting';
   public static JOB_INVOICE = '/job-invoice-setting';
   public static JOB_INVOICE_STAGE = '/job-invoice-stage-payment';
   public static JOB_INVOICE_STAGE_ACTIVE = `${this.JOB_INVOICE_STAGE}/is-active`;
+  public static JOB_VARIATION = '/job-variation-setting';
+  public static JOB_VARIATION_APPROVAL = '/job-variation-approval';
   public static JOB_COMMISSION_SETTING = '/job-commission-setting';
-  public static JOB_COMMISSION='/job-commission'
-  public static JOB_COMMISSION_SUB_STAGE='/job-commission-sub-stage'
+  public static JOB_COMMISSION = '/job-commission';
+  public static JOB_COMMISSION_SUB_STAGE = '/job-commission-sub-stage';
 
   // admin maintenance
   public static MAINTENANCE_SETTING = '/maintenance-setting';
@@ -160,7 +165,7 @@ class API_ENDPOINTS {
 
   public static ROLE_BASE = '/role';
 
-  // common 
+  // common
   public static FUNCTIONALITY_BASE = '/functionality';
   public static TIMEZONE_BASE = '/timezone';
 }

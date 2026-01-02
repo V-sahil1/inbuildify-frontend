@@ -1,44 +1,53 @@
 'use client';
 import React, { useState, useEffect, useMemo } from 'react';
-import { Switch, Table, Button, Form, Input, Space, UploadFile, message } from 'antd';
+import { Switch, Table, Button, Form, Input, Space, message, Popconfirm } from 'antd';
 import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import { colorSettingCustomFields } from '@/components/formFields/ColorSettingCustomFIelds';
 import { colorSettingFields } from '@/components/formFields/ColorSettingFields';
-import { ColorSettings } from 'data/configuration/ColorData';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import { fetchJobColor, updateJobColor } from '@redux/feature/admin/job/jobColor/jobColorThunk';
+import {
+  createJobColorSection,
+  deleteJobColorSection,
+  fetchJobColor,
+  fetchJobColorColumn,
+  fetchJobColorSection,
+  updateJobColor,
+  updateJobColorColumn,
+  updateJobColorSection,
+} from '@redux/feature/admin/job/jobColor/jobColorThunk';
 import { Status } from '@lib/constants/enum';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
-import { JobColorSettings } from '@redux/feature/admin/job/jobColor/IJobColorState';
-
-interface CustomSection {
-  key: string;
-  sectionName: string;
-  attachments: UploadFile[];
-  sortOrder: number;
-  options: string;
-  width: number;
-}
-
-const initialCustomSections: CustomSection[] = [];
+import {
+  JobColorColumnType,
+  JobColorSection,
+  JobColorSettings,
+} from '@redux/feature/admin/job/jobColor/IJobColorState';
+import { formDataGenerator } from '@lib/utils/formDataGenerator';
 
 export const Colors: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { jobColor, status } = useAppSelector(state => state.job.jobColor);
+  const {
+    jobColor,
+    jobColorSection,
+    jobColorColumn,
+    jobColorColumnStatus,
+    jobColorSectionStatus,
+    status,
+  } = useAppSelector(state => state.job.jobColor);
   const [settings, setSettings] = useState<JobColorSettings | null>(jobColor || null);
   const [headerText, setHeaderText] = useState(jobColor?.headerText || '');
   const [initialHeaderText, setInitialHeaderText] = useState(jobColor?.headerText || '');
-  const [showSave, setShowSave] = useState(false);
-  const [showHeaderSave, setShowHeaderSave] = useState(false);
-  const [tableData, setTableData] = useState(ColorSettings);
-  const [editingRow, setEditingRow] = useState<any>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [customSections, setCustomSections] = useState<CustomSection[]>(initialCustomSections);
-  const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
-  const [editingCustomSection, setEditingCustomSection] = useState<CustomSection | null>(null);
+  const [showSave, setShowSave] = useState<{ setting: boolean; header: boolean }>({
+    setting: false,
+    header: false,
+  });
+  const [editingRow, setEditingRow] = useState<JobColorColumnType>(null);
+  const [isModalOpen, setIsModalOpen] = useState<'colorColumn' | 'colorSection' | null>(null);
+  const [editingCustomSection, setEditingCustomSection] = useState<JobColorSection | null>(null);
   const [customForm] = Form.useForm();
   const [form] = Form.useForm();
+  const [currentDisplayOption, setCurrentDisplayOption] = useState<string>('');
 
   const fetchJobColorData = async () => {
     try {
@@ -48,11 +57,33 @@ export const Colors: React.FC = () => {
     }
   };
 
+  const fetchJobColorSectionData = async () => {
+    try {
+      await dispatch(fetchJobColorSection()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch job color data');
+    }
+  };
+
+  const fetchJobColorColumnData = async () => {
+    try {
+      await dispatch(fetchJobColorColumn()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch job column color data');
+    }
+  };
+
   useEffect(() => {
     if (status.fetch === Status.IDLE) {
       fetchJobColorData();
     }
-  }, [status.fetch]);
+    if (jobColorSectionStatus.fetch === Status.IDLE) {
+      fetchJobColorSectionData();
+    }
+    if (jobColorColumnStatus.fetch === Status.IDLE) {
+      fetchJobColorColumnData();
+    }
+  }, [status.fetch, jobColorSectionStatus.fetch, jobColorColumnStatus.fetch]);
 
   useEffect(() => {
     if (jobColor) {
@@ -64,18 +95,18 @@ export const Colors: React.FC = () => {
 
   useEffect(() => {
     if (!settings || !jobColor) {
-      setShowSave(false);
+      setShowSave(prev => ({ ...prev, setting: false }));
       return;
     }
 
     const changedValues = getUpdatedFields(settings, jobColor);
     const hasChanges = Object.keys(changedValues).length > 0;
-    setShowSave(hasChanges);
+    setShowSave(prev => ({ ...prev, setting: hasChanges }));
   }, [settings, jobColor]);
 
   useEffect(() => {
     const hasHeaderChanged = headerText !== initialHeaderText;
-    setShowHeaderSave(hasHeaderChanged);
+    setShowSave(prev => ({ ...prev, header: hasHeaderChanged }));
   }, [headerText, initialHeaderText]);
 
   const handleSwitchChange = (key: string, value: boolean) => {
@@ -106,63 +137,87 @@ export const Colors: React.FC = () => {
     setSettings(jobColor);
   };
 
-  const handleEdit = (record: any) => {
+  const handleEdit = (record: JobColorColumnType) => {
     setEditingRow(record);
+    setCurrentDisplayOption(record.displayOption || '');
     form.setFieldsValue(record);
-    setIsModalOpen(true);
+    setIsModalOpen('colorColumn');
   };
 
-  const handleModalOk = () => {
-    form.validateFields().then(values => {
-      const updated = tableData.map(item =>
-        item.key === editingRow.key ? { ...item, ...values } : item
-      );
-
-      // sort logic
-      const sorted = [...updated].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
-
-      setTableData(sorted);
-      setIsModalOpen(false);
-    });
+  const handleModalOk = async values => {
+    await form.validateFields();
+    try {
+      const updatedField = getUpdatedFields(values, editingRow);
+      if (Object.keys(updatedField).length === 0) {
+        message.info('No changes detect');
+        setIsModalOpen(null);
+        return;
+      }
+      await dispatch(
+        updateJobColorColumn({ data: updatedField, id: editingRow.jobColorColumnId })
+      ).unwrap();
+      message.success('Color column updated successfully');
+      setIsModalOpen(null);
+    } catch (error) {
+      message.error(error?.message || 'Failed to update color column');
+    }
   };
 
   const handleAddCustomSection = () => {
     setEditingCustomSection(null);
-    setIsCustomModalOpen(true);
+    setIsModalOpen('colorSection');
   };
 
-  const handleCustomModalSave = (values: any) => {
-    console.log('Custom section saved', values);
-    setCustomSections(prev => [
-      ...prev,
-      {
-        ...values,
-        key: Date.now().toString(),
-      },
-    ]);
-    setIsCustomModalOpen(false);
-    customForm.resetFields();
-  };
-
-  const handleEditCustomSection = (values: any) => {
-    if (editingCustomSection) {
-      setCustomSections(prev =>
-        prev.map(section =>
-          section.key === editingCustomSection.key
-            ? { ...values, key: editingCustomSection.key }
-            : section
-        )
-      );
-    } else {
-      setCustomSections(prev => [...prev, { ...values, key: Date.now().toString() }]);
+  const handleCustomModalSave = async (values: JobColorSection) => {
+    await customForm.validateFields();
+    try {
+      if (values) {
+        const formData = formDataGenerator(values);
+        await dispatch(createJobColorSection(formData)).unwrap();
+        message.success('Custom section created successfully');
+        setIsModalOpen(null);
+        customForm.resetFields();
+      }
+    } catch (error) {
+      message.error(error || 'Failed to create color custom section');
     }
-    setIsCustomModalOpen(false);
-    setEditingCustomSection(null);
-    customForm.resetFields();
   };
 
-  const handleDeleteCustomSection = (key: string) => {
-    setCustomSections(prev => prev.filter(section => section.key !== key));
+  const handleEditCustomSection = async (values: JobColorSection) => {
+    await customForm.validateFields();
+    try {
+      if (editingCustomSection && values) {
+        const updatedFields = getUpdatedFields(values, editingCustomSection);
+        if (Object.keys(updatedFields).length === 0) {
+          setIsModalOpen(null);
+          setEditingCustomSection(null);
+          customForm.resetFields();
+          return;
+        }
+        const formData = formDataGenerator(updatedFields);
+        await dispatch(
+          updateJobColorSection({
+            data: formData,
+            id: editingCustomSection.jobColorColumnSectionId,
+          })
+        ).unwrap();
+        message.success('custom secction updated successfully');
+        setIsModalOpen(null);
+        setEditingCustomSection(null);
+        customForm.resetFields();
+      }
+    } catch (error) {
+      message.error(error || 'Failed to update color custom section');
+    }
+  };
+
+  const handleDeleteCustomSection = async (id: string) => {
+    try {
+      await dispatch(deleteJobColorSection(id)).unwrap();
+      message.success('custom section deleted succcessfully');
+    } catch (error) {
+      message.error(error || 'Failed to delete color custom section');
+    }
   };
 
   const handleColorUISettings = async () => {
@@ -188,7 +243,7 @@ export const Colors: React.FC = () => {
       { title: 'Column Name', dataIndex: 'columnName' },
       {
         title: 'Options',
-        dataIndex: 'options',
+        dataIndex: 'displayOption',
       },
       {
         title: 'Sort Order',
@@ -201,12 +256,12 @@ export const Colors: React.FC = () => {
       {
         title: 'Edit',
         key: 'edit',
-        render: (_: any, record: any) => (
+        render: (_, record: JobColorColumnType) => (
           <Button icon={<IconEdit />} type="link" onClick={() => handleEdit(record)} />
         ),
       },
     ],
-    [tableData]
+    [jobColorColumn]
   );
 
   const customSectionColumns = [
@@ -218,7 +273,7 @@ export const Colors: React.FC = () => {
     {
       title: 'Attachments',
       key: 'attachments',
-      render: (record: any) => <p>{record.attachments?.[0]?.name}</p>,
+      render: (record: JobColorSection) => <p>{record.attachments?.[0]?.name}</p>,
     },
     {
       title: 'Sort Order',
@@ -228,7 +283,7 @@ export const Colors: React.FC = () => {
     {
       title: 'Actions',
       key: 'actions',
-      render: (_: any, record: CustomSection) => (
+      render: (_, record: JobColorSection) => (
         <Space>
           <Button
             type="text"
@@ -236,15 +291,15 @@ export const Colors: React.FC = () => {
             onClick={() => {
               setEditingCustomSection(record);
               customForm.setFieldsValue(record);
-              setIsCustomModalOpen(true);
+              setIsModalOpen('colorSection');
             }}
           />
-          <Button
-            type="text"
-            danger
-            icon={<IconTrash size={18} />}
-            onClick={() => handleDeleteCustomSection(record.key)}
-          />
+          <Popconfirm
+            title="Are you sure you want to delete custom section?"
+            onConfirm={() => handleDeleteCustomSection(record.jobColorColumnSectionId)}
+          >
+            <Button type="text" danger icon={<IconTrash size={18} />} />
+          </Popconfirm>
         </Space>
       ),
     },
@@ -290,12 +345,9 @@ export const Colors: React.FC = () => {
       </div>
 
       {/* Save Button */}
-      {showSave && (
+      {showSave?.setting && (
         <div className="flex gap-3 mb-6">
-          <Button
-            onClick={handleCancelSettings}
-            disabled={status.update === Status.PENDING}
-          >
+          <Button onClick={handleCancelSettings} disabled={status.update === Status.PENDING}>
             Cancel
           </Button>
           <Button
@@ -313,9 +365,10 @@ export const Colors: React.FC = () => {
         bordered
         size="middle"
         columns={columns}
-        dataSource={tableData}
+        dataSource={jobColorColumn}
         pagination={false}
         className="rounded-lg"
+        loading={jobColorColumnStatus.fetch === Status.PENDING}
       />
 
       <div className="mt-8">
@@ -335,9 +388,10 @@ export const Colors: React.FC = () => {
           bordered
           size="middle"
           columns={customSectionColumns}
-          dataSource={customSections}
+          dataSource={jobColorSection}
           pagination={false}
           className="rounded-lg mb-8"
+          loading={jobColorSectionStatus.fetch === Status.PENDING}
         />
 
         <div className="mt-8">
@@ -357,7 +411,7 @@ export const Colors: React.FC = () => {
                 className="w-full"
               />
             </div>
-            {showHeaderSave && (
+            {showSave?.header && (
               <div className="flex justify-end gap-3">
                 <Button
                   onClick={handleCancelHeaderText}
@@ -377,31 +431,37 @@ export const Colors: React.FC = () => {
           </div>
         </div>
       </div>
-      <ActionDialogmodel
-        title="Edit Color"
-        open={isModalOpen}
-        isEditing={true}
-        onCancel={() => setIsModalOpen(false)}
-        onSubmit={handleModalOk}
-        submitButtonText="Save"
-        initialValues={editingRow}
-        fields={colorSettingFields()}
-      />
+      {isModalOpen === 'colorColumn' && (
+        <ActionDialogmodel
+          title="Edit Color"
+          open={isModalOpen === 'colorColumn'}
+          isEditing={true}
+          onCancel={() => setIsModalOpen(null)}
+          onSubmit={handleModalOk}
+          submitButtonText="Save"
+          initialValues={editingRow}
+          fields={colorSettingFields(currentDisplayOption, value => setCurrentDisplayOption(value))}
+          loading={jobColorColumnStatus.update === Status.PENDING}
+        />
+      )}
 
-      <ActionDialogmodel
-        title={editingCustomSection ? 'Edit Section' : 'Add Section'}
-        open={isCustomModalOpen}
-        onCancel={() => {
-          setIsCustomModalOpen(false);
-          setEditingCustomSection(null);
-          customForm.resetFields();
-        }}
-        onSubmit={editingCustomSection ? handleEditCustomSection : handleCustomModalSave}
-        submitButtonText="Save"
-        isEditing={editingCustomSection !== null}
-        initialValues={editingCustomSection || undefined}
-        fields={colorSettingCustomFields()}
-      />
+      {isModalOpen === 'colorSection' && (
+        <ActionDialogmodel
+          title={editingCustomSection ? 'Edit Section' : 'Add Section'}
+          open={isModalOpen === 'colorSection'}
+          onCancel={() => {
+            setIsModalOpen(null);
+            setEditingCustomSection(null);
+            customForm.resetFields();
+          }}
+          onSubmit={editingCustomSection ? handleEditCustomSection : handleCustomModalSave}
+          submitButtonText="Save"
+          isEditing={editingCustomSection !== null}
+          initialValues={editingCustomSection || undefined}
+          fields={colorSettingCustomFields()}
+          loading={jobColorSectionStatus.update === Status.PENDING}
+        />
+      )}
     </div>
   );
 };

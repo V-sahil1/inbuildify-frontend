@@ -2,14 +2,18 @@ import api from '@lib/constants/api';
 import API_ENDPOINTS from '@lib/constants/apiEndpoints';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { ApiResponse } from '../../../auth/IAuthState';
-import { jobVariationLimit, JobVariationSetting } from './IJobVariationState';
-
+import {
+  jobVariationApproval,
+  jobVariationApprovalResponse,
+  JobVariationSetting,
+} from './IJobVariationState';
+import { Pagination } from '../../general/surveyor/ISurveyorState';
 
 export const fetchJobVariationSetting = createAsyncThunk(
   'jobVariationSetting/fetch',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get<ApiResponse<JobVariationSetting>>(API_ENDPOINTS.JOB_INVOICE);
+      const response = await api.get<ApiResponse<JobVariationSetting>>(API_ENDPOINTS.JOB_VARIATION);
       return response.data;
     } catch (error) {
       return rejectWithValue(error?.message);
@@ -21,9 +25,12 @@ export const updateJobVariationSetting = createAsyncThunk(
   'jobVariationSetting/update',
   async (payload: Partial<JobVariationSetting>, { rejectWithValue }) => {
     try {
-      const response = await api.put<ApiResponse<JobVariationSetting>>(API_ENDPOINTS.JOB_INVOICE, {
-        data: payload,
-      });
+      const response = await api.put<ApiResponse<JobVariationSetting>>(
+        API_ENDPOINTS.JOB_VARIATION,
+        {
+          data: payload,
+        }
+      );
       return response.data;
     } catch (error) {
       return rejectWithValue(error?.message);
@@ -35,10 +42,13 @@ export const fetchJobVariationLimit = createAsyncThunk(
   'jobVariationLimit/fetch',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get<ApiResponse<{ jobInvoiceStagePayments: jobVariationLimit[] }>>(
-        API_ENDPOINTS.JOB_INVOICE_STAGE
-      );
-      return response.data.jobInvoiceStagePayments;
+      const response = await api.get<
+        ApiResponse<{
+          jobVariationApproval: jobVariationApprovalResponse[];
+          pagination: Pagination;
+        }>
+      >(API_ENDPOINTS.JOB_VARIATION_APPROVAL);
+      return response.data.jobVariationApproval;
     } catch (error) {
       return rejectWithValue(error?.message);
     }
@@ -47,16 +57,16 @@ export const fetchJobVariationLimit = createAsyncThunk(
 
 export const createJobVariationLimit = createAsyncThunk(
   'jobVariationLimit/create',
-  async (payload: jobVariationLimit, { rejectWithValue }) => {
+  async (payload: jobVariationApproval, { rejectWithValue }) => {
     try {
-      const response = await api.post<ApiResponse<jobVariationLimit>>(
-        API_ENDPOINTS.JOB_INVOICE_STAGE,
+      const response = await api.post<ApiResponse<jobVariationApprovalResponse>>(
+        API_ENDPOINTS.JOB_VARIATION_APPROVAL,
         {
           data: payload,
         }
       );
       return response.data;
-    } catch (error: any) {
+    } catch (error) {
       return rejectWithValue(error?.message ?? 'Create failed');
     }
   }
@@ -64,13 +74,10 @@ export const createJobVariationLimit = createAsyncThunk(
 
 export const updateJobVariationLimit = createAsyncThunk(
   'jobVariationLimit/update',
-  async (
-    payload: { data: Partial<jobVariationLimit>; jobVariationLimitId: string },
-    { rejectWithValue }
-  ) => {
+  async (payload: { data: Partial<jobVariationApproval>; id: string }, { rejectWithValue }) => {
     try {
-      const response = await api.put<ApiResponse<jobVariationLimit>>(
-        `${API_ENDPOINTS.JOB_INVOICE_STAGE}/${payload.jobVariationLimitId}`,
+      const response = await api.put<ApiResponse<jobVariationApprovalResponse>>(
+        `${API_ENDPOINTS.JOB_VARIATION_APPROVAL}/${payload.id}`,
         {
           data: payload.data,
         }
@@ -84,12 +91,12 @@ export const updateJobVariationLimit = createAsyncThunk(
 
 export const deleteJobVariationLimit = createAsyncThunk(
   'jobVariationLimit/delete',
-  async (jobVariationLimitId: string, { rejectWithValue }) => {
+  async (jobVariationApprovalId: string, { rejectWithValue }) => {
     try {
-      const response = await api.delete<ApiResponse<jobVariationLimit>>(
-        `${API_ENDPOINTS.JOB_INVOICE_STAGE}/${jobVariationLimitId}`
+      const response = await api.delete<ApiResponse>(
+        `${API_ENDPOINTS.JOB_VARIATION_APPROVAL}/${jobVariationApprovalId}`
       );
-      return { jobVariationLimitId };
+      return { jobVariationApprovalId };
     } catch (error) {
       return rejectWithValue(error?.message);
     }

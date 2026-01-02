@@ -1,67 +1,132 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Button, Input, Space, Table, Popconfirm, Select } from 'antd';
+import { Form, Button, Input, Space, Table, Popconfirm, message } from 'antd';
 import InputSwitch from '@/components/common/InputSwitch';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
 import { variationSettingFields } from '@/components/formFields/VariationSettingFields';
 import { useUsersHook } from '@hooks/useUserHook';
-interface Variation {
-  key: string;
-  role: string;
-  amount: number;
-}
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import {
+  createJobVariationLimit,
+  deleteJobVariationLimit,
+  fetchJobVariationLimit,
+  fetchJobVariationSetting,
+  updateJobVariationLimit,
+  updateJobVariationSetting,
+} from '@redux/feature/admin/job/jobVariation/jobVariationThunk';
+import { Status } from '@lib/constants/enum';
+import { CustomBulkSelect } from '@/components/common/CustomBulkSelect';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
+import {
+  jobVariationApproval,
+  jobVariationApprovalResponse,
+  JobVariationSetting,
+} from '@redux/feature/admin/job/jobVariation/IJobVariationState';
+import { useUserGroupHook } from '@hooks/useUserGroupHook';
+import { useRoleHook } from '@hooks/useRoleHook';
 
 export const Variation = () => {
+  const dispatch = useAppDispatch();
+  const { jobVariationSetting, jobVariationLimit, VariationLimitStatus, status } = useAppSelector(
+    state => state.job.jobVariation
+  );
+  const { userGroupOptions } = useUserGroupHook();
   const [form] = Form.useForm();
-  const [initialValues, setInitialValues] = useState({});
   const [isChanged, setIsChanged] = useState(false);
-  const [variations, setVariations] = useState<Variation[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingVariation, setEditingVariation] = useState<Variation | null>(null);
+  const [editingVariation, setEditingVariation] = useState<jobVariationApprovalResponse | null>(
+    null
+  );
   const { userOptions } = useUsersHook();
-
-  const notifyAfterContract = Form.useWatch('notifySignedVariationAfterContract', form);
+  const { roleOptions } = useRoleHook();
+  const notifyAfterContract = Form.useWatch('notifySignedVariationOnlyAfterContractPrepared', form);
   const notifySignedVariation = Form.useWatch('notifySignedVariation', form);
   const contractBasedVariationHeader = Form.useWatch('contractBasedVariationHeader', form);
 
-  const handleDelete = (key: string) => {
-    setVariations(variations.filter(item => item.key !== key));
-  };
-
-  const handleVariationSave = (values: any) => {
-    if (editingVariation) {
-      setVariations(
-        variations.map(item =>
-          item.key === editingVariation.key ? { ...values, key: item.key } : item
-        )
-      );
-    } else {
-      setVariations([...variations, { ...values, key: Date.now().toString() }]);
-    }
-    setIsModalOpen(false);
-    setEditingVariation(null);
-  };
-
-  const defaultValues = {
-    role: '',
-    amount: 0,
-  };
-
   useEffect(() => {
-    form.setFieldsValue(defaultValues);
-    setInitialValues(defaultValues);
-  }, [form]);
+    if (status.fetch === Status.IDLE) {
+      fetchVariationSetting();
+    }
+    if (VariationLimitStatus.fetch === Status.IDLE) {
+      fetchVariationLimit();
+    }
+    if (jobVariationSetting) {
+      form.setFieldsValue(jobVariationSetting);
+    }
+  }, [status.fetch, VariationLimitStatus.fetch]);
+
+  const fetchVariationSetting = async () => {
+    try {
+      await dispatch(fetchJobVariationSetting()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch variation setting');
+    }
+  };
+
+  const fetchVariationLimit = async () => {
+    try {
+      await dispatch(fetchJobVariationLimit()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch variation limit');
+    }
+  };
+  const handleDelete = async (id: string) => {
+    try {
+      await dispatch(deleteJobVariationLimit(id)).unwrap();
+      message.success('Variation deleted successfully');
+    } catch (error) {
+      message.error(error || 'Failed to delete variation');
+    }
+  };
+
+  const handleVariationSave = async (values: jobVariationApproval) => {
+    try {
+      if (values) {
+        if (editingVariation) {
+          const updatedFields = getUpdatedFields(values, editingVariation);
+          if (Object.keys(updatedFields).length === 0) {
+            setIsModalOpen(false);
+            setEditingVariation(null);
+            return;
+          }
+          await dispatch(
+            updateJobVariationLimit({
+              data: updatedFields,
+              id: editingVariation.jobVariationApprovalId,
+            })
+          ).unwrap();
+          message.success('variation updated successfully');
+        } else {
+          await dispatch(createJobVariationLimit(values)).unwrap();
+          message.success('variation created successfully');
+        }
+        setIsModalOpen(false);
+        setEditingVariation(null);
+      }
+    } catch (error) {
+      message.error(error || 'Failed to create variation');
+    }
+  };
 
   const handleValuesChange = (_, allValues) => {
-    const changed = Object.keys(allValues).some(key => allValues[key] !== initialValues[key]);
+    const changed = Object.keys(allValues).some(key => allValues[key] !== jobVariationSetting[key]);
     setIsChanged(changed);
   };
 
-  const handleSave = () => {
-    const values = form.getFieldsValue();
-    console.log('✅ Saved Values:', values);
-    setInitialValues(values);
-    setIsChanged(false);
+  const handleSave = async () => {
+    const values: JobVariationSetting = form.getFieldsValue();
+    try {
+      const updatedFields = getUpdatedFields(values, jobVariationSetting);
+      if (Object.keys(updatedFields).length === 0) {
+        setIsChanged(false);
+        return;
+      }
+      await dispatch(updateJobVariationSetting(updatedFields)).unwrap();
+      message.success('Variation setting updated successfully');
+      setIsChanged(false);
+    } catch (error) {
+      message.error(error || 'Failed to save variation setting');
+    }
   };
 
   const columns = [
@@ -69,6 +134,9 @@ export const Variation = () => {
       title: 'Role',
       dataIndex: 'role',
       key: 'role',
+      render: role => {
+        return role.name;
+      },
     },
     {
       title: 'Amount',
@@ -79,7 +147,7 @@ export const Variation = () => {
       title: 'Actions',
       key: 'actions',
       width: '10%',
-      render: (_: any, record: Variation) => (
+      render: (_, record: jobVariationApprovalResponse) => (
         <Space size="middle">
           <Button
             type="text"
@@ -91,7 +159,7 @@ export const Variation = () => {
           />
           <Popconfirm
             title="Are you sure you want to delete this variation?"
-            onConfirm={() => handleDelete(record.key)}
+            onConfirm={() => handleDelete(record.jobVariationApprovalId)}
             okText="Yes"
             cancelText="No"
           >
@@ -107,8 +175,9 @@ export const Variation = () => {
       <Form
         layout="vertical"
         form={form}
-        initialValues={defaultValues}
+        initialValues={jobVariationSetting}
         onValuesChange={handleValuesChange}
+        disabled={status.update === Status.PENDING}
       >
         <Form.Item name="allowNotesInVariation" valuePropName="checked" noStyle>
           <InputSwitch name="allowNotesInVariation" label="Allow Notes in Variation" />
@@ -118,8 +187,11 @@ export const Variation = () => {
           <InputSwitch name="allowCostAdjustment" label="Allow Cost Adjustment" />
         </Form.Item>
 
-        <Form.Item name="showNotesByDefault" valuePropName="checked" noStyle>
-          <InputSwitch name="showNotesByDefault" label="Show Notes in Variation by Default" />
+        <Form.Item name="showNotesInVariationByDefault" valuePropName="checked" noStyle>
+          <InputSwitch
+            name="showNotesInVariationByDefault"
+            label="Show Notes in Variation by Default"
+          />
         </Form.Item>
 
         <Form.Item name="drawingChangesRequired" valuePropName="checked" noStyle>
@@ -128,45 +200,83 @@ export const Variation = () => {
 
         <InputSwitch
           name="notifySignedVariation"
-          label="Notify Signed Variation only after Contract Prepared"
+          label="Notify Signed Variation"
           description="Murthy Muthuswarny"
         />
 
         {notifySignedVariation && (
-          <Form.Item
-            name="notifySignedVariation"
-            label="Select Notification Type"
-            className="ml-9"
-            rules={[{ required: true, message: 'Please select a type!' }]}
-          >
-            <Select
-              placeholder="Select a type"
-              options={userOptions}
-            />
-          </Form.Item>
+          <div className="flex gap-4">
+            <Form.Item
+              name="notifySignedVariationUserIds"
+              label="Select User"
+              className="ml-9"
+              rules={[{ required: true, message: 'Please select a type!' }]}
+            >
+              <CustomBulkSelect
+                placeholder="Select User"
+                options={userOptions}
+                onChange={() => {}}
+                className="min-w-[200px]"
+              />
+            </Form.Item>
+            <Form.Item
+              name="notifySignedVariationGroupIds"
+              label="Select User Group"
+              className="ml-9"
+              rules={[{ required: true, message: 'Please select a type!' }]}
+            >
+              <CustomBulkSelect
+                placeholder="Select User Group"
+                options={userGroupOptions}
+                onChange={() => {}}
+                className="min-w-[200px]"
+              />
+            </Form.Item>
+          </div>
         )}
         <InputSwitch
-          name="notifySignedVariationAfterContract"
+          name="notifySignedVariationOnlyAfterContractPrepared"
           label="Notify Signed Variation only after Contract Prepared"
           description="Murthy Muthuswarny"
         />
         {notifyAfterContract && (
-          <Form.Item
-            name="notifySignedVariationAfterContract"
-            label="Select Notification Type"
-            className="ml-9"
-            rules={[{ required: true, message: 'Please select a type!' }]}
-          >
-            <Select
-              placeholder="Select a type"
-              options={userOptions}
-            />
-          </Form.Item>
+          <div className="flex gap-4">
+            <Form.Item
+              name="notifyAfterContractUserIds"
+              label="Select User"
+              className="ml-9"
+              rules={[{ required: true, message: 'Please select a type!' }]}
+            >
+              <CustomBulkSelect
+                placeholder="Select User"
+                options={userOptions}
+                onChange={() => {}}
+                className="min-w-[200px]"
+              />
+            </Form.Item>
+            <Form.Item
+              name="notifyAfterContractGroupIds"
+              label="Select User Group"
+              className="ml-9"
+              rules={[{ required: true, message: 'Please select a type!' }]}
+            >
+              <CustomBulkSelect
+                placeholder="Select User Group"
+                options={userGroupOptions}
+                onChange={() => {}}
+                className="min-w-[200px]"
+              />
+            </Form.Item>
+          </div>
         )}
 
-        <Form.Item name="allowJobMoveWithPendingVariation" valuePropName="checked" noStyle>
+        <Form.Item
+          name="allowedMoveJobToConstructionWithPendingVariation"
+          valuePropName="checked"
+          noStyle
+        >
           <InputSwitch
-            name="allowJobMoveWithPendingVariation"
+            name="allowedMoveJobToConstructionWithPendingVariation"
             label="Allowed to Move the Job to Construction Even there is a Pending Variation"
           />
         </Form.Item>
@@ -178,9 +288,9 @@ export const Variation = () => {
           />
         </Form.Item>
 
-        <Form.Item name="sendMailOnSelfApproval" valuePropName="checked" noStyle>
+        <Form.Item name="sendMailWhenVariationSelfApproved" valuePropName="checked" noStyle>
           <InputSwitch
-            name="sendMailOnSelfApproval"
+            name="sendMailWhenVariationSelfApproved"
             label="Send Mail when Variation is Self Approved"
             description="If the toggle button is On - Mail will be sent once the variation is self approved"
           />
@@ -193,9 +303,9 @@ export const Variation = () => {
             description="When enabled, system shows Pre/Post contract header based on Signed Date. You can configure the labels below."
           />
         </Form.Item>
-        
+
         {contractBasedVariationHeader ? (
-          <div className='flex gap-4'>
+          <div className="flex gap-4">
             <Form.Item name="preContractHeader" label="Pre Contract Header">
               <Input placeholder="Variation - Pre Contract" />
             </Form.Item>
@@ -204,14 +314,19 @@ export const Variation = () => {
             </Form.Item>
           </div>
         ) : (
-          <Form.Item name="variationTitle" label="Title">
+          <Form.Item name="contractBasedVariationHeaderTitle" label="Title">
             <Input />
           </Form.Item>
         )}
 
         {isChanged && (
           <div className="flex justify-end w-full">
-            <Button type="primary" onClick={handleSave} disabled={!isChanged}>
+            <Button
+              type="primary"
+              onClick={handleSave}
+              disabled={!isChanged}
+              loading={status.update === Status.PENDING}
+            >
               Save
             </Button>
           </div>
@@ -239,21 +354,34 @@ export const Variation = () => {
           </Button>
         </div>
 
-        <Table columns={columns} dataSource={variations} rowKey="key" bordered />
-
-        <ActionDialogmodel
-          title={editingVariation ? 'Edit Variation' : 'Add New Variation'}
-          open={isModalOpen}
-          onCancel={() => {
-            setIsModalOpen(false);
-            setEditingVariation(null);
-          }}
-          isEditing={!!editingVariation}
-          onSubmit={handleVariationSave}
-          submitButtonText={editingVariation ? 'Update' : 'Create'}
-          initialValues={editingVariation || undefined}
-          fields={variationSettingFields}
+        <Table
+          columns={columns}
+          dataSource={jobVariationLimit}
+          rowKey="key"
+          bordered
+          loading={VariationLimitStatus.fetch === Status.PENDING}
         />
+
+        {isModalOpen && (
+          <ActionDialogmodel
+            title={editingVariation ? 'Edit Variation' : 'Add New Variation'}
+            open={isModalOpen}
+            onCancel={() => {
+              setIsModalOpen(false);
+              setEditingVariation(null);
+            }}
+            isEditing={!!editingVariation}
+            onSubmit={handleVariationSave}
+            submitButtonText={editingVariation ? 'Update' : 'Create'}
+            initialValues={
+              editingVariation
+                ? { ...editingVariation, roleId: editingVariation.role.id }
+                : undefined
+            }
+            fields={variationSettingFields(roleOptions)}
+            loading={VariationLimitStatus.update === Status.PENDING}
+          />
+        )}
       </div>
     </div>
   );

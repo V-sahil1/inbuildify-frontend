@@ -11,7 +11,6 @@ import {
 } from './jobVariationThunk';
 import { IJobVariationState } from './IJobVariationState';
 
-
 const initialState: IJobVariationState = {
   jobVariationSetting: null,
   jobVariationLimit: [],
@@ -52,6 +51,7 @@ const JobVariationSlice = createSlice({
       state.status.update = Status.ERROR;
     });
 
+    //variation approval
     builder.addCase(fetchJobVariationLimit.pending, state => {
       state.VariationLimitStatus.fetch = Status.PENDING;
     });
@@ -79,7 +79,7 @@ const JobVariationSlice = createSlice({
     });
     builder.addCase(updateJobVariationLimit.fulfilled, (state, action) => {
       const index = state.jobVariationLimit.findIndex(
-        item => item.jobVariationLimitId === action.payload.jobVariationLimitId
+        item => item.jobVariationApprovalId === action.payload.jobVariationApprovalId
       );
       if (index !== -1) {
         state.jobVariationLimit[index] = action.payload;
@@ -95,7 +95,7 @@ const JobVariationSlice = createSlice({
     });
     builder.addCase(deleteJobVariationLimit.fulfilled, (state, action) => {
       const index = state.jobVariationLimit.findIndex(
-        item => item.jobVariationLimitId === action.payload.jobVariationLimitId
+        item => item.jobVariationApprovalId === action.payload.jobVariationApprovalId
       );
       if (index !== -1) {
         state.jobVariationLimit.splice(index, 1);

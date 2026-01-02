@@ -1,27 +1,47 @@
 import StatusSelect from '@/components/common/custom-selects/StatusSelect';
 import { userGroupColumn } from '@/components/table-columns/userGroupColumn';
-import { Button, Input, Table } from 'antd';
+import { Button, Input, message, Table } from 'antd';
 import { debouncedURL } from '@lib/utils/debounceURL';
 import { useEffect, useState } from 'react';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
-import { userGroupField } from '@/components/formFields/userGroupFields';
+import { useUserGroupField } from '@/components/formFields/userGroupFields';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { fetchAllUserGroup } from '@redux/feature/userGroup/userGroupThunk';
+import { Status } from '@lib/constants/enum';
+
 const UserGroup = () => {
+  const dispatch = useAppDispatch();
+  const { userGroups, status } = useAppSelector(state => state.userGroup);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState(null);
+  const userGroupFields = useUserGroupField();
+  const { column, userGroupSubmit } = userGroupColumn(
+    setModalOpen,
+    setSelectedGroup,
+    selectedGroup
+  );
   const { debouncedUpdateURL, setParams, filters, resetParams } = debouncedURL({
     filtersKey: ['groupName', 'status'],
     initialValue: { status: 'Active' },
   });
   useEffect(() => {
+    if (status.fetch === Status.IDLE) {
+      fetchUserGroup();
+    }
+  }, [status.fetch]);
+
+  const fetchUserGroup = () => {
+    try {
+      dispatch(fetchAllUserGroup()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch user group');
+    }
+  };
+  useEffect(() => {
     return () => {
       debouncedUpdateURL.cancel();
     };
   }, [debouncedUpdateURL]);
-  const { column, userGroupData, userGroupSubmit } = userGroupColumn(
-    setModalOpen,
-    setSelectedGroup,
-    selectedGroup
-  );
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
@@ -57,24 +77,22 @@ const UserGroup = () => {
             onChange={e => setParams({ groupName: e.target.value })}
           />
         </div>
-        {/* <Button>Search</Button> */}
         <Button onClick={() => resetParams()}>Clear</Button>
       </div>
-      <Table columns={column} dataSource={userGroupData} />
-      {
+      <Table columns={column} dataSource={userGroups} />
+      {modalOpen && (
         <ActionDialogmodel
           title="User Group"
           open={modalOpen}
           onCancel={() => setModalOpen(false)}
           onSubmit={values => {
-            console.log('values', values);
             userGroupSubmit(values);
           }}
-          fields={userGroupField()}
+          fields={userGroupFields}
           isEditing={!!selectedGroup}
-          initialValues={selectedGroup}
+          initialValues={selectedGroup && {...selectedGroup,usersId:selectedGroup.users?.map((i)=> i.id)}}
         />
-      }
+      )}
     </div>
   );
 };
