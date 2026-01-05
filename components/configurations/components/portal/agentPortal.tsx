@@ -1,38 +1,67 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Form, Button } from 'antd';
+import { Form, Button, message } from 'antd';
 import InputSwitch from '@/components/common/InputSwitch';
 import { ConfirmationContentModal } from '@/components/common/ConfirmationContentModal';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import {
+  fetchCustomerPortalInfo,
+  updateCustomerPortalDetails,
+} from '@redux/feature/admin/portal/customerPortal/customerPortalThunk';
+import { Status } from '@lib/constants/enum';
+import { formDataGenerator } from '@lib/utils/formDataGenerator';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
+import { CustomerPortalInfo } from '@redux/feature/admin/portal/customerPortal/icustomerPortalState';
 
 const AgentPortal = () => {
   const [form] = Form.useForm();
   const [showConfirm, setShowConfirm] = useState(false);
   const [isChanged, setIsChanged] = useState(false);
 
-  const initialValues = {
-    publishToAgentPortal: true,
+  const dispatch = useAppDispatch();
+  const { customer, status } = useAppSelector(state => state.portal.customerPortal);
+  const fetchCustomerPortal = async () => {
+    try {
+      await dispatch(fetchCustomerPortalInfo()).unwrap();
+    } catch (error) {
+      message.error(error || 'failde to get customer portal details');
+    }
   };
 
   useEffect(() => {
-    form.setFieldsValue(initialValues);
-  }, []);
+    if (status.fetch === Status.IDLE) {
+      fetchCustomerPortal();
+    }
+    if (customer) {
+      form.resetFields();
+      form.setFieldsValue(customer);
+    }
+  }, [status.fetch, customer]);
 
-  const handleValuesChange = (_, allValues) => {
-    const changed = Object.keys(initialValues).some(key => allValues[key] !== initialValues[key]);
+  const handleValuesChange = (_, allValues: CustomerPortalInfo) => {
+    const changed = Object.keys(allValues).some(key => allValues[key] !== customer?.[key]);
     setIsChanged(changed);
   };
 
-  const handleSave = () => {
-    console.log('✅ Agent Portal Saved Settings:', form.getFieldsValue());
-    setIsChanged(false);
+  const handleSave = async () => {
+    try {
+      const formValues = form.getFieldsValue();
+      const updatedFields = getUpdatedFields(formValues, customer || {});
+      const formData = formDataGenerator(updatedFields);
+      await dispatch(updateCustomerPortalDetails(formData)).unwrap();
+      setIsChanged(false);
+      message.success('Agent portal settings updated successfully');
+    } catch (error) {
+      message.error(error || 'failde to update agent portal details');
+    }
   };
 
   return (
     <div className="p-6 bg-white rounded-lg shadow-sm">
       <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
         <InputSwitch
-          name="publishToAgentPortal"
+          name="publishPackagesToAgentPortal"
           label="Publish Packages to Agent Portal"
           description={
             <div className="flex flex-col gap-2">
