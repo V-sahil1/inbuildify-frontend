@@ -1,71 +1,100 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Table, Button, Space, message } from 'antd';
 import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import ConfirmationModal from '@/components/common/ConfirmationModal';
-
-interface OptionItem {
-  id: number;
-  name: string;
-}
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { IConstructionOption } from '@redux/feature/admin/construction/constructionOption/ICostructionOptionState';
+import {
+  createConstructionOption,
+  deleteConstructionOption,
+  fetchAllConstructionOption,
+  updateContructionOption,
+} from '@redux/feature/admin/construction/constructionOption/constructionOptionThunk';
+import { Status } from '@lib/constants/enum';
 
 export const Options: React.FC = () => {
-  const [data, setData] = useState<OptionItem[]>([
-    { id: 1, name: 'Polyethylene Foam' },
-    { id: 2, name: 'Bricks' },
-    { id: 3, name: 'Hebel' },
-  ]);
+  const dispatch = useAppDispatch();
+  const { constructionOption, status } = useAppSelector(
+    state => state.construction.constructionOption
+  );
 
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
-  const [currentItem, setCurrentItem] = useState<OptionItem | null>(null);
+  const [isModalVisible, setModalVisible] = useState<'create' | 'delete' | null>(null);
+  const [currentItem, setCurrentItem] = useState<IConstructionOption | null>(null);
 
-  const handleOpenModal = (item?: OptionItem) => {
+  const fetchAllConstructionOptionData = async () => {
+    try {
+      await dispatch(fetchAllConstructionOption()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch option data');
+    }
+  };
+
+  useEffect(() => {
+    if (status.fetch === Status.IDLE) {
+      fetchAllConstructionOptionData();
+    }
+  }, [status.fetch]);
+
+  const handleOpenModal = (item?: IConstructionOption) => {
     setCurrentItem(item || null);
-    setModalVisible(true);
+    setModalVisible('create');
   };
 
-  const handleSave = (values: any) => {
-    console.log(values);
-    if (currentItem) {
-      setData(prev => prev.map(i => (i.id === currentItem.id ? { ...i, name: values.name } : i)));
-      message.success('Option updated');
-    } else {
-      setData(prev => [...prev, { id: Date.now(), name: values.name }]);
-      message.success('Option added');
+  const handleSave = async (values: IConstructionOption) => {
+    try {
+      if (currentItem) {
+        if (values.optionName === currentItem.optionName) {
+          setModalVisible(null);
+          return;
+        }
+        await dispatch(
+          updateContructionOption({ data: values, id: currentItem.constructionOptionId })
+        ).unwrap();
+        message.success('Option updated');
+      } else {
+        await dispatch(createConstructionOption(values)).unwrap();
+        message.success('Option added');
+      }
+      setModalVisible(null);
+    } catch (error) {
+      message.error(error || 'Failed to save option ');
     }
-    setModalVisible(false);
   };
 
-  const confirmDelete = (item: OptionItem) => {
+  const confirmDelete = (item: IConstructionOption) => {
     setCurrentItem(item);
-    setDeleteModalVisible(true);
+    setModalVisible('delete');
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (currentItem) {
-      setData(prev => prev.filter(i => i.id !== currentItem.id));
-      message.success('Option deleted');
+      try {
+        await dispatch(deleteConstructionOption(currentItem.constructionOptionId)).unwrap();
+        message.success('Option deleted');
+        setModalVisible(null);
+      } catch (error) {
+        message.error(error || 'Failed to delete option ');
+      }
     }
-    setDeleteModalVisible(false);
   };
 
   const columns = [
     {
       title: 'S.No',
-      render: (_: any, __: any, index: number) => index + 1,
+      render: (_, __, index: number) => index + 1,
       width: 80,
     },
     {
       title: 'Options',
-      dataIndex: 'name',
-      key: 'name',
+      dataIndex: 'optionName',
+      key: 'optionName',
     },
     {
       title: 'Actions',
       align: 'right' as const,
-      render: (_: any, record: OptionItem) => (
+      render: (_, record: IConstructionOption) => (
         <Space>
           <Button
             type="default"
@@ -93,36 +122,44 @@ export const Options: React.FC = () => {
 
       <Table
         columns={columns}
-        dataSource={data}
+        dataSource={constructionOption}
         rowKey="id"
         pagination={false}
         bordered
         className="text-sm"
+        loading={status.fetch === Status.PENDING}
       />
 
-      <ActionDialogmodel
-        title={currentItem ? 'Edit Option' : 'Add Option'}
-        open={isModalVisible}
-        onCancel={() => setModalVisible(false)}
-        isEditing={!!currentItem}
-        initialValues={currentItem}
-        onSubmit={handleSave}
-        fields={[
-          {
-            label: 'Option Name',
-            name: 'name',
-            type: 'text',
-          },
-        ]}
-      />
+      {isModalVisible === 'create' && (
+        <ActionDialogmodel
+          title={currentItem ? 'Edit Option' : 'Add Option'}
+          open={isModalVisible === 'create'}
+          onCancel={() => setModalVisible(null)}
+          isEditing={!!currentItem}
+          initialValues={currentItem}
+          onSubmit={handleSave}
+          fields={[
+            {
+              label: 'Option Name',
+              name: 'optionName',
+              type: 'text',
+              rules: [{ required: true, message: 'Please enter option name' }],
+            },
+          ]}
+          loading={status.create === Status.PENDING}
+        />
+      )}
 
-      <ConfirmationModal
-        open={isDeleteModalVisible}
-        onClose={() => setDeleteModalVisible(false)}
-        onConfirm={handleDelete}
-        type="danger"
-        message={`Are you sure you want to delete ${currentItem?.name}`}
-      />
+      {isModalVisible === 'delete' && (
+        <ConfirmationModal
+          open={isModalVisible === 'delete'}
+          onClose={() => setModalVisible(null)}
+          onConfirm={handleDelete}
+          type="danger"
+          message={`Are you sure you want to delete ${currentItem?.optionName}`}
+          loading={status.create === Status.PENDING}
+        />
+      )}
     </div>
   );
 };

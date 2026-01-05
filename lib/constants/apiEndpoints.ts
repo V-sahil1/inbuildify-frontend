@@ -109,6 +109,7 @@ class API_ENDPOINTS {
   public static GENERAL_SETTING = '/general-setting';
   public static GET_GENERAL_SETTING = `${this.GENERAL_SETTING}/user`;
   public static COMPANY_BASE = '/company';
+  // public static BUILDER_BASE = '/builder';
   public static SURVEYOR_BASE = '/surveyor';
   public static CUSTOMFIELD_BASE = '/custom-field';
   public static CUSTOMFIELD_LIST_OPTION_BASE = `${this.CUSTOMFIELD_BASE}/option`;
@@ -130,8 +131,6 @@ class API_ENDPOINTS {
   public static UPDATE_LEAD_SOURCE_STATUS = `${this.SALES_LEAD_SOURCE}/is-active`;
   public static LEAD_LOST_REASON = '/lead-lost-reason';
   public static UPDATE_LEAD_LOST_REASON = `${this.LEAD_LOST_REASON}/is-active`;
-  public static CONSTRUCTION_TYPE = '/construction-type';
-  public static CONSTRUCTION_STAGE = '/construction-stage';
   public static CLIENT_TYPE = '/client-type';
   public static UPDATE_CLIENT_TYPE = `${this.CLIENT_TYPE}/is-active`;
   public static QUOTATION_SETTING = '/quotation-setting';
@@ -166,6 +165,12 @@ class API_ENDPOINTS {
   // admin portal
   public static CUSTOMER_PORTAL_BASE = '/portal-setting'
 
+
+  //construcction
+  public static CONSTRUCTION_SETTING = '/construction-setting';
+  public static CONSTRUCTION_OPTION = '/construction-option';
+  public static CONSTRUCTION_TYPE = '/construction-type';
+  public static CONSTRUCTION_STAGE = '/construction-stage';
 
   public static ROLE_BASE = '/role';
 

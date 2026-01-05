@@ -1,109 +1,113 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import {
-  Form,
-  Button,
-  Input,
-  Select,
-  Typography,
-  Divider,
-  Row,
-  Col,
-  DatePicker,
-  Switch,
-} from 'antd';
+import { Form, Button, Input, Select, Typography, Divider, Row, Col, Switch, message } from 'antd';
 import InputSwitch from '@/components/common/InputSwitch';
 import { ConfirmationContentModal } from '@/components/common/ConfirmationContentModal';
+import { ConstructionSetting } from '@redux/feature/admin/construction/construtionSetting/iconstructionSettingState';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import {
+  fetchConstructionSetting,
+  updateConstructionSetting,
+} from '@redux/feature/admin/construction/construtionSetting/constructionSettingThunk';
+import { Status } from '@lib/constants/enum';
+import { useRoleHook } from '@hooks/useRoleHook';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 
 const { Title } = Typography;
 const { Option } = Select;
 
 export const SettingPage = () => {
+  const dispatch = useAppDispatch();
+  const { constructionSetting, status } = useAppSelector(state => state.construction.setting);
+  const { roleOptions } = useRoleHook();
   const [form] = Form.useForm();
-  const [optionalForm] = Form.useForm();
   const [isChanged, setIsChanged] = useState(false);
   const [checklistStageChanged, setChecklistStageChanged] = useState(false);
-  const [isOptionalChanged, setIsOptionalChanged] = useState(false);
-
-  // Simulated initial values from API
-  const initialValues = {
-    makeSupplierMandatory: true,
-    allowChecklistWithoutSupplier: true,
-    showWarningSupplierSameDay: false,
-    emailPrivateInspector: true,
-    inspectionChecklistMandatory: false,
-    includeWeekend: true,
-    includeHoliday: false,
-    includeOnHold: false,
-    allowStageDateChange: true,
-    defaultLeadTime: '7',
-    allowMoveWithoutChecklist: true,
-    rebookOnDateChange: true,
-    sendEmailWhenStageCompleted: true,
-    autoMoveToConstruction: true,
-    recalcDatesOnDelay: true,
-    enableForecast: false,
-  };
-
-  const optionalInitial = {
-    rolesSupervisor: ['Builder', 'Site Supervisor'],
-    rolesCoordinator: [],
-    permitLabel: '',
-    siteStartDays: '90 days',
+  const [applyChangesAllExistingJobs, setApplyChangesAllExistingJobs] = useState(false);
+  const defaultLeadTimeForSupplierTrade = Form.useWatch('defaultLeadTimeForSupplierTrade', form);
+  const fetchSetting = async () => {
+    try {
+      await dispatch(fetchConstructionSetting()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch settings');
+    }
   };
 
   useEffect(() => {
-    form.setFieldsValue(initialValues);
-    optionalForm.setFieldsValue(optionalInitial);
-  }, []);
+    if (status.fetch === Status.IDLE) {
+      fetchSetting();
+    }
+    if (constructionSetting) {
+      form.setFieldsValue(constructionSetting);
+      setApplyChangesAllExistingJobs(constructionSetting.applyChangesAllExistingJobs);
+    }
+  }, [status.fetch]);
 
   const handleValuesChange = (_, allValues) => {
-    const changed = Object.keys(initialValues).some(key => allValues[key] !== initialValues[key]);
-    setIsChanged(changed);
+    const updatedFields = getUpdatedFields(allValues, constructionSetting);  
+   if(Object.keys(updatedFields).length > 0){
+    setIsChanged(true);
+    return;
+   }
+    setIsChanged(false);  
   };
 
-  const handleOptionalChange = (_, allValues) => {
-    const changed = Object.keys(optionalInitial).some(
-      key => JSON.stringify(allValues[key]) !== JSON.stringify(optionalInitial[key])
-    );
-    setIsOptionalChanged(changed);
-  };
-
-  const handleSave = () => {
-    console.log('Saving main form:', form.getFieldsValue());
-    setIsChanged(false);
-  };
-
-  const handleOptionalSave = () => {
-    console.log('Saving optional settings:', optionalForm.getFieldsValue());
-    setIsOptionalChanged(false);
+  const handleSave = async () => {
+    const values: ConstructionSetting = await form.getFieldsValue();
+    try {
+      const updatedFields = getUpdatedFields(
+        { ...values, applyChangesAllExistingJobs },
+        constructionSetting
+      );
+      if (Object.keys(updatedFields).length === 0) {
+        setIsChanged(false);
+        return;
+      }
+      await dispatch(updateConstructionSetting(updatedFields)).unwrap();
+      message.success('Settings updated successfully');
+      setIsChanged(false);
+    } catch (error) {
+      message.error(error || 'Failed to update settings');
+    }
   };
 
   //   for the model open
-  const allowMoveWithoutChecklist = Form.useWatch('allowMoveWithoutChecklist', form);
-  const makeSupplierMandatory = Form.useWatch('makeSupplierMandatory', form);
+  const allowMoveNextStageEvenChecklistNotCompleted = Form.useWatch(
+    'allowMoveNextStageEvenChecklistNotCompleted',
+    form
+  );
+  const suppliersTradiesMadatoryToCompleteChecklist = Form.useWatch(
+    'suppliersTradiesMadatoryToCompleteChecklist',
+    form
+  );
   useEffect(() => {
-    if (allowMoveWithoutChecklist !== undefined) {
+    if (allowMoveNextStageEvenChecklistNotCompleted !== undefined) {
       setChecklistStageChanged(
-        allowMoveWithoutChecklist !== initialValues.allowMoveWithoutChecklist
+        allowMoveNextStageEvenChecklistNotCompleted !==
+          constructionSetting.allowMoveNextStageEvenChecklistNotCompleted
       );
     }
-  }, [allowMoveWithoutChecklist]);
+  }, [allowMoveNextStageEvenChecklistNotCompleted]);
 
   return (
     <div className="p-6 bg-white rounded-lg shadow-sm">
-      <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
+      <Form
+        form={form}
+        layout="vertical"
+        onValuesChange={handleValuesChange}
+        initialValues={constructionSetting}
+      >
         <Title level={5}>Checklist and Stage Settings</Title>
 
         <InputSwitch
-          name="makeSupplierMandatory"
+          name="suppliersTradiesMadatoryToCompleteChecklist"
           label="Make Suppliers/Tradies selection mandatory to complete the checklist."
           description="A Supplier or Tradie must be selected for each checklist item. The system will not allow the checklist to be completed without this selection."
         />
 
-        {makeSupplierMandatory && (
+        {suppliersTradiesMadatoryToCompleteChecklist && (
           <InputSwitch
-            name="allowChecklistWithoutSupplier"
+            name="allowChecklistEvenSupplierTradiesNotResponded"
             label="Allow to complete the checklist even the Suppliers/Tradies has not responded"
             description={
               <div className="flex flex-col gap-2">
@@ -121,25 +125,25 @@ export const SettingPage = () => {
         )}
 
         <InputSwitch
-          name="showWarningSupplierSameDay"
+          name="showWarningWhenSupplierTradeBookedSameDayForChecklist"
           label="Show a warning when a supplier or trade is booked on the same day for other checklist."
           description="The system shows a warning if the same supplier or trade is already booked on the same day for other checklists or jobs."
         />
 
         <InputSwitch
-          name="emailPrivateInspector"
+          name="sendingEmailPrivateInspectorMandatory"
           label="Sending an email to the Private Inspector is mandatory,"
           description="An email must be sent to the assigned Private Inspector after completing the stage. The job can't move to next stage until the email has been sent."
         />
 
         <InputSwitch
-          name="inspectionChecklistMandatory"
+          name="makeInspectionChacklistMandatory"
           label="Make Inspection Checklist Mandatory"
           description="Inspection checklist mandatory option works for stage start inspection type only"
         />
 
         <InputSwitch
-          name="includeWeekend"
+          name="includeWeekendDate"
           label="Include Weekend Date"
           description={
             <div className="flex flex-col gap-2">
@@ -160,7 +164,7 @@ export const SettingPage = () => {
         />
 
         <InputSwitch
-          name="includeHoliday"
+          name="includeHolidayDate"
           label="Include Holiday Date"
           description={
             <div className="flex flex-col gap-2">
@@ -186,7 +190,7 @@ export const SettingPage = () => {
         />
 
         <InputSwitch
-          name="includeOnHold"
+          name="includeOnholdDate"
           label="Include OnHold Date"
           description={
             <div>
@@ -218,7 +222,7 @@ export const SettingPage = () => {
         />
 
         <InputSwitch
-          name="defaultLeadTime"
+          name="defaultLeadTimeForSupplierTrade"
           label="Default Lead Time for any Supplier/Trade"
           description={
             <div>
@@ -235,18 +239,17 @@ export const SettingPage = () => {
           }
         />
 
-        <Form.Item label="No. of remider days" name="defaultLeadTime">
-          <Select>
-            <Option value="3">3 days</Option>
-            <Option value="7">7 days</Option>
-            <Option value="14">14 days</Option>
-          </Select>
-        </Form.Item>
-
-        <Divider />
+        {defaultLeadTimeForSupplierTrade && (
+          <>
+            <Form.Item label="No. of reminder days" name="noOfReminderDays">
+              <Input type="number" />
+            </Form.Item>
+            <Divider />
+          </>
+        )}
 
         <InputSwitch
-          name="allowMoveWithoutChecklist"
+          name="allowMoveNextStageEvenChecklistNotCompleted"
           label="Allow to Move to Next Stage even if Checklists are not Completed"
           description={
             <div>
@@ -264,7 +267,7 @@ export const SettingPage = () => {
         />
 
         <InputSwitch
-          name="rebookOnDateChange"
+          name="rebookConfrimedBookingsOnDateChanges"
           label="Rebook the Confirmed Bookings on Date Changes (rescheduling)"
           description="When the toggle is ON- Confirmed bookings will be cancelled and rebooked wherever the checklists are rescheduled.
 When the toggle is OFF-Confirmed bookings won't be affected when the checklists are rescheduled."
@@ -277,7 +280,7 @@ When the toggle is OFF-Confirmed bookings won't be affected when the checklists 
         />
 
         <InputSwitch
-          name="autoMoveToConstruction"
+          name="moveJobsFromReadyForConstructionToUnderConstruction"
           label="Move the jobs automatically from Ready for Construction to Under Construction"
           description={
             <div>
@@ -291,7 +294,7 @@ When the toggle is OFF-Confirmed bookings won't be affected when the checklists 
         />
 
         <InputSwitch
-          name="recalcDatesOnDelay"
+          name="recalculateStageDateConstructionDaysWhenDeleysCaptured"
           label="Recalculate Stage Dates and Construction Days When Delays Are Captured"
           description={
             <div>
@@ -310,7 +313,7 @@ When the toggle is OFF-Confirmed bookings won't be affected when the checklists 
         />
 
         <InputSwitch
-          name="enableForecast"
+          name="enableForcastDate"
           label="Enable Forecast Dates"
           description={
             <div>
@@ -323,13 +326,47 @@ When the toggle is OFF-Confirmed bookings won't be affected when the checklists 
           }
         />
 
-        <Form.Item label="Number of days for Site Start from Title Date" name="siteStartDays">
-          <Input placeholder="90 days" />
+        <Form.Item
+          label="Number of days for Site Start from Title Date"
+          name="numberOfDaysSiteStartFromTitleDate"
+        >
+          <Input placeholder="90" type="number" />
         </Form.Item>
-        <Form.Item label="Label for permit received date" name="permitLabel" className="w-full">
-          <DatePicker placeholder="Permit Received Date" />
+        <Form.Item
+          label="Label for permit received date"
+          name="labelForPermitReceivedDate"
+          className="w-full"
+        >
+          <Input placeholder="Permit Received Date" />
         </Form.Item>
 
+        <Divider />
+
+        <Title level={5}>Optional Settings</Title>
+
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item label="Roles for Site Supervisor" name="siteSupervisorRoles">
+              <Select mode="multiple" options={roleOptions} />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item label="Roles for admin coordinator" name="adminCoordinatorRoles">
+              <Select mode="multiple" options={roleOptions} />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item label="Actual stage completion Date" name="stageCompletionDate">
+              <Select placeholder="select">
+                <Option value="claim">Claim</Option>
+                <Option value="move_to_next_page">Move to next stage</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+        </Row>
         {isChanged && (
           <div className="text-right mt-6">
             <Button type="primary" onClick={handleSave}>
@@ -339,70 +376,37 @@ When the toggle is OFF-Confirmed bookings won't be affected when the checklists 
         )}
       </Form>
 
-      <Divider />
-
-      <Form form={optionalForm} layout="vertical" onValuesChange={handleOptionalChange}>
-        <Title level={5}>Optional Settings</Title>
-
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item label="Roles for Site Supervisor" name="rolesSupervisor">
-              <Select mode="multiple">
-                <Option value="Builder">Builder</Option>
-                <Option value="Company Administrator">Company Administrator</Option>
-                <Option value="Site Supervisor">Site Supervisor</Option>
-              </Select>
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item label="Actual stage completion Date" name="rolesCoordinator">
-              <Select placeholder="select">
-                <Option value="Admin Coordinator">Claim</Option>
-                <Option value="Project Manager">Move to next stage</Option>
-              </Select>
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item label="Role for admin coordinator" name="permitLabel" className="w-full">
-              <Select placeholder="Choose Roles">
-                <Option value="Admin Coordinator">Claim</Option>
-                <Option value="Project Manager">Move to next stage</Option>
-              </Select>
-            </Form.Item>
-          </Col>
-        </Row>
-
-        {isOptionalChanged && (
-          <div className="text-right mt-6">
-            <Button type="primary" onClick={handleOptionalSave}>
-              Save Optional Settings
-            </Button>
-          </div>
-        )}
-      </Form>
-
-      <ConfirmationContentModal
-        title="Confirmation"
-        open={checklistStageChanged}
-        onClose={() => setChecklistStageChanged(false)}
-        onSubmit={() => {
-          setChecklistStageChanged(false);
-        }}
-        okText="Yes"
-        cancelText="No"
-        content={
-          <div className=" space-y-2">
-            <p>Are you sure you want to update the following details?</p>
-            <div className="flex gap-2 items-center">
-              <Switch size="small" onChange={e => console.log(e)} />
-              <p>Apply this change to all existing job</p>
+      {checklistStageChanged && (
+        <ConfirmationContentModal
+          title="Confirmation"
+          open={checklistStageChanged}
+          onClose={() => {
+            setApplyChangesAllExistingJobs(constructionSetting.applyChangesAllExistingJobs);
+            setChecklistStageChanged(false);
+          }}
+          onSubmit={() => {
+            if (constructionSetting.applyChangesAllExistingJobs !== applyChangesAllExistingJobs) {
+              setIsChanged(true);
+            }
+            setChecklistStageChanged(false);
+          }}
+          okText="Yes"
+          cancelText="No"
+          content={
+            <div className=" space-y-2">
+              <p>Are you sure you want to update the following details?</p>
+              <div className="flex gap-2 items-center">
+                <Switch
+                  size="small"
+                  onChange={checked => setApplyChangesAllExistingJobs(checked)}
+                  checked={applyChangesAllExistingJobs}
+                />
+                <p>Apply this change to all existing job</p>
+              </div>
             </div>
-          </div>
-        }
-      />
+          }
+        />
+      )}
     </div>
   );
 };
