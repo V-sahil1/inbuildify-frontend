@@ -1,9 +1,18 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Form, Button, InputNumber, Typography } from 'antd';
+import { Form, Button, Input, Typography, message, Upload } from 'antd';
 import InputSwitch from '@/components/common/InputSwitch';
 import { ConfirmationContentModal } from '@/components/common/ConfirmationContentModal';
-import { IconUpload } from '@tabler/icons-react';
+import { IconPlus } from '@tabler/icons-react';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import {
+  fetchCustomerPortalInfo,
+  updateCustomerPortalDetails,
+} from '@redux/feature/admin/portal/customerPortal/customerPortalThunk';
+import { Status } from '@lib/constants/enum';
+import { CustomerPortalInfo } from '@redux/feature/admin/portal/customerPortal/icustomerPortalState';
+import { formDataGenerator } from '@lib/utils/formDataGenerator';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 
 const { Text } = Typography;
 
@@ -11,46 +20,120 @@ export const CustomerPortal = () => {
   const [form] = Form.useForm();
   const [showConfirm, setShowConfirm] = useState(false);
   const [isChanged, setIsChanged] = useState(false);
-  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
-
-  const initialValues = {
-    sendLoginCredentials: true,
-    portalActiveDays: 365,
-    sendEmailOnDeactivate: false,
-    showSupervisorDetails: false,
-    showBalanceToPay: false,
-    addNotes: false,
-    allowColorSelection: false,
-    showColorCost: false,
-    showConstructionStages: false,
-    autoShareImages: false,
-    showProgressTab: false,
-    showInvoiceTab: false,
+  const [portalDaysValue, setPortalDaysValue] = useState<string | number | null | undefined>(null);
+  const [fileList, setFileList] = useState<any[]>([]);
+  const dispatch = useAppDispatch();
+  const { customer, status } = useAppSelector(state => state.portal.customerPortal);
+  const fetchCustomerPortal = async () => {
+    try {
+      await dispatch(fetchCustomerPortalInfo()).unwrap();
+    } catch (error) {
+      message.error(error || 'failde to get customer portal details');
+    }
   };
 
   useEffect(() => {
-    form.setFieldsValue(initialValues);
-  }, []);
+    if (status.fetch === Status.IDLE) {
+      fetchCustomerPortal();
+    }
+    if (customer && Object.keys(customer).length > 0) {
+      form.resetFields();
+      form.setFieldsValue(customer);
+      if (customer.portalActiveDaysAfterHandover !== undefined && customer.portalActiveDaysAfterHandover !== null) {
+        setPortalDaysValue(customer.portalActiveDaysAfterHandover);
+        setTimeout(() => {
+          form.setFieldValue('portalActiveDaysAfterHandover', customer.portalActiveDaysAfterHandover);
+        }, 0);
+      }
+      if (customer.defaultFacadeImage) {
+        setFileList([
+          {
+            uid: '-1',
+            name: 'Default Facade',
+            status: 'done',
+            url: customer.defaultFacadeImage,
+          },
+        ]);
+      }
+    }
+  }, [status.fetch, customer]);
 
-  const handleValuesChange = (_, allValues) => {
-    const mergedValues = { ...initialValues, ...allValues };
-    const changed = JSON.stringify(mergedValues) !== JSON.stringify(initialValues);
-    setIsChanged(changed);
+  const handleValuesChange = (_, allValues: CustomerPortalInfo) => {
+    const updatedFields = getUpdatedFields(allValues, customer || {});
+    const hasChanges = Object.keys(updatedFields).length > 0;
+    setIsChanged(hasChanges);
   };
 
-  const handleSave = () => {
-    const values = { ...initialValues, ...form.getFieldsValue() };
-    form.setFieldsValue(values);
-    setIsChanged(false);
-    console.log('✅ Saved:', values);
+  const handleSave = async () => {
+    try {
+      const formValues = form.getFieldsValue();
+
+      const updatedFields = getUpdatedFields(formValues, customer || {});
+
+      if (
+        formValues.portalActiveDaysAfterHandover !== null &&
+        formValues.portalActiveDaysAfterHandover !== undefined &&
+        (customer?.portalActiveDaysAfterHandover === null ||
+          customer?.portalActiveDaysAfterHandover === undefined)
+      ) {
+        updatedFields.portalActiveDaysAfterHandover = formValues.portalActiveDaysAfterHandover;
+      } else if (
+        formValues.portalActiveDaysAfterHandover !== null &&
+        formValues.portalActiveDaysAfterHandover !== undefined &&
+        customer?.portalActiveDaysAfterHandover !== null &&
+        customer?.portalActiveDaysAfterHandover !== undefined &&
+        formValues.portalActiveDaysAfterHandover !== customer.portalActiveDaysAfterHandover
+      ) {
+        updatedFields.portalActiveDaysAfterHandover = formValues.portalActiveDaysAfterHandover;
+      }
+
+      const formData = formDataGenerator(updatedFields);
+
+      if (fileList.length > 0 && fileList[0].originFileObj) {
+        formData.append('defaultFacadeImage', fileList[0].originFileObj);
+      }
+
+      await dispatch(updateCustomerPortalDetails(formData)).unwrap();
+
+      setIsChanged(false);
+      message.success('Customer portal settings updated successfully');
+    } catch (error) {
+      message.error(error || 'Failed to update customer portal settings');
+    }
   };
 
-  const sendLoginCredentials = Form.useWatch('sendLoginCredentials', form);
+  const sendLoginCredentials = Form.useWatch('sendLoginCredentialsToCustomer', form);
   const allowColorSelection = Form.useWatch('allowColorSelection', form);
   const showConstructionStages = Form.useWatch('showConstructionStages', form);
+  const portalActiveDays = Form.useWatch('portalActiveDaysAfterHandover', form);
 
-  const handleIconClick = () => fileInputRef.current?.click();
-  const handleFile = () => {
+  useEffect(() => {
+    if (
+      portalActiveDays !== undefined &&
+      customer?.portalActiveDaysAfterHandover !== portalActiveDays
+    ) {
+      setIsChanged(true);
+    }
+  }, [portalActiveDays, customer]);
+
+  const handleFileChange = (info: any) => {
+    const { fileList: newFileList } = info;
+
+    const latestFileList = newFileList.slice(-1);
+
+    if (latestFileList.length > 0 && latestFileList[0].originFileObj) {
+      const file = latestFileList[0].originFileObj;
+      if (!file.type.startsWith('image/')) {
+        message.error('Please select an image file');
+        return;
+      }
+      if (file.size / 1024 / 1024 > 10) {
+        message.error('Image must be smaller than 10MB!');
+        return;
+      }
+    }
+
+    setFileList(latestFileList);
     setIsChanged(true);
   };
 
@@ -58,7 +141,7 @@ export const CustomerPortal = () => {
     <div className="p-6 bg-white rounded-lg shadow-sm">
       <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
         <InputSwitch
-          name="sendLoginCredentials"
+          name="sendLoginCredentialsToCustomer"
           label="Options To Send Login Credentials to Customer"
           description="Enables authorized users to send login details to customers from the job screen, providing them access to the customer portal."
         />
@@ -67,12 +150,23 @@ export const CustomerPortal = () => {
           <>
             <Form.Item
               label="How many Days Customer Online Portal can be Active after Handover?"
-              name="portalActiveDays"
+              name="portalActiveDaysAfterHandover"
             >
-              <InputNumber
+              <Input
+                type="number"
                 min={1}
                 max={9999}
+                placeholder="Enter days"
+                value={portalDaysValue || ''}
                 onKeyPress={e => !/[0-9]/.test(e.key) && e.preventDefault()}
+                onChange={e => {
+                  const value = e.target.value ? Number(e.target.value) : null;
+                  setPortalDaysValue(value);
+                  form.setFieldValue('portalActiveDaysAfterHandover', value);
+                  if (value !== null && value !== Number(customer?.portalActiveDaysAfterHandover || 0)) {
+                    setIsChanged(true);
+                  }
+                }}
               />
               <Text type="secondary"> days</Text>
             </Form.Item>
@@ -82,13 +176,13 @@ export const CustomerPortal = () => {
             </Text>
 
             <InputSwitch
-              name="sendEmailOnDeactivate"
+              name="sendMailWhenPortalInactive"
               label="Send Email when Deactivating Customer Portal"
               description="Automatically send an email when customer portal access is deactivated."
             />
 
             <InputSwitch
-              name="showSupervisorDetails"
+              name="showSiteSupervisorDetails"
               label="Show Site Supervisor Details"
               description="Customers can view supervisor's contact details."
             />
@@ -100,7 +194,7 @@ export const CustomerPortal = () => {
             />
 
             <InputSwitch
-              name="addNotes"
+              name="addNotesEnabled"
               label="Add Notes"
               description="Customers can add or reply to notes in Communications tab."
             />
@@ -127,7 +221,7 @@ export const CustomerPortal = () => {
 
             {showConstructionStages && (
               <InputSwitch
-                name="autoShareImages"
+                name="autoShareSiteImages"
                 label="Auto-share Site Images"
                 description="All uploaded site images auto-shared to portal."
               />
@@ -140,31 +234,45 @@ export const CustomerPortal = () => {
             />
 
             <InputSwitch
-              name="showInvoiceTab"
+              name="publishPackagesToAgentPortal"
               label="Show Invoice Tab"
               description="Customers can view invoices & receipts."
             />
 
             <h1 className="font-semibold text-lg">Default Facade</h1>
+
+            <div className="mt-4">
+              <Upload
+                name="defaultFacadeImage"
+                listType="picture-card"
+                className="avatar-uploader"
+                fileList={fileList}
+                onChange={handleFileChange}
+                beforeUpload={file => {
+                  if (!file.type.startsWith('image/')) {
+                    message.error('You can only upload image files!');
+                    return false;
+                  }
+                  if (file.size / 1024 / 1024 > 5) {
+                    message.error('Image must be smaller than 5MB!');
+                    return false;
+                  }
+                  return false;
+                }}
+              >
+                {fileList.length === 0 && (
+                  <div className="flex flex-col items-center">
+                    <IconPlus size={20} />
+                    <div className="mt-1 text-sm text-gray-500">Upload</div>
+                  </div>
+                )}
+              </Upload>
+            </div>
           </>
         )}
 
         <div className="text-right mt-6 flex justify-between items-center">
-          <div className="flex justify-start mt-2">
-            <input
-              type="file"
-              ref={fileInputRef}
-              style={{ display: 'none' }}
-              onChange={handleFile}
-            />
-            <button
-              type="button"
-              onClick={handleIconClick}
-              className="p-2 rounded-md border hover:bg-gray-50 transition"
-            >
-              <IconUpload size={20} className="text-blue-500" />
-            </button>
-          </div>
+          <div className="flex justify-start mt-2"/>
 
           {isChanged && (
             <Button type="primary" onClick={() => setShowConfirm(true)}>
@@ -178,8 +286,8 @@ export const CustomerPortal = () => {
         title="Confirm Change"
         open={showConfirm}
         onClose={() => setShowConfirm(false)}
-        onSubmit={() => {
-          handleSave();
+        onSubmit={async () => {
+          await handleSave();
           setShowConfirm(false);
         }}
         okText="Yes"

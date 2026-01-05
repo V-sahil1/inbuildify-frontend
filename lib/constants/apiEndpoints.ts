@@ -163,6 +163,10 @@ class API_ENDPOINTS {
   public static MAINTENANCE_SETTING = '/maintenance-setting';
   public static MAINTENANCE_AREA = '/maintenance-area';
 
+  // admin portal
+  public static CUSTOMER_PORTAL_BASE = '/portal-setting'
+
+
   public static ROLE_BASE = '/role';
 
   // common
