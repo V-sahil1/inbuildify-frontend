@@ -163,8 +163,12 @@ class API_ENDPOINTS {
   public static MAINTENANCE_AREA = '/maintenance-area';
 
   // admin portal
-  public static CUSTOMER_PORTAL_BASE = '/portal-setting'
+  public static CUSTOMER_PORTAL_BASE = '/portal-setting';
 
+  // admin schedule
+  public static SCHEDULE_BASE = '/scheduler-setting';
+  public static SCHEDULER_EMAIL = '/scheduler-email';
+  public static SCHEDULER_EMAIL_ACTIVE = '/scheduler-email/is-active';
 
   //construcction
   public static CONSTRUCTION_SETTING = '/construction-setting';

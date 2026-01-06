@@ -1,24 +1,55 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Select, Typography, Card } from 'antd';
+import React, { useEffect, useState, useCallback } from 'react';
+import { Select, Typography, Card, message, Button } from 'antd';
 import { IconCheck, IconX } from '@tabler/icons-react';
-import { useUsersHook } from '@hooks/useUserHook'; // ✅ import hook
-
-const { Option } = Select;
+import { useUsersHook } from '@hooks/useUserHook';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { fetchSchedularSetting, updateSchedularSetting } from '@redux/feature/admin/scheduler/schedularSetting/schedularSettingThunk';
+import { Status } from '@lib/constants/enum';
 const { Text } = Typography;
 
 export default function SchedulerSetting() {
-  const { users } = useUsersHook(); // ✅ Get users from hook
-
+  const { userOptions } = useUsersHook();
   const [replyReceivers, setReplyReceivers] = useState<string[]>([]);
-  const [tempUsers, setTempUsers] = useState<string[]>(replyReceivers);
+  const { receiverOfReplies, status } = useAppSelector(state => state.schedular.schedularSetting);
+  const [tempUsers, setTempUsers] = useState<string[]>(receiverOfReplies);
   const [selectMode, setSelectMode] = useState(false);
+  const dispatch = useAppDispatch();
 
-  const handleConfirm = () => {
-    setReplyReceivers(tempUsers);
-    setSelectMode(false);
-  };
+  const handleFetch = useCallback(async () => {
+    try {
+      await dispatch(fetchSchedularSetting()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch schedular setting');
+    }
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (status.fetch === Status.IDLE) {
+      handleFetch();
+    }
+  }, [status.fetch]);
+
+  useEffect(() => {
+    if (receiverOfReplies) {
+      setReplyReceivers(receiverOfReplies);
+      setTempUsers(receiverOfReplies);
+    }
+  }, [receiverOfReplies]);
+
+  const handleConfirm = useCallback(async () => {
+    if (status.update === Status.PENDING) return;
+    
+    try {
+      await dispatch(updateSchedularSetting({ receiverOfReplies: tempUsers })).unwrap();
+      setReplyReceivers(tempUsers);
+      setSelectMode(false);
+      message.success('Scheduler settings updated successfully');
+    } catch (error) {
+      message.error(error || 'Failed to update scheduler settings');
+    }
+  }, [dispatch, tempUsers, status.update]);
 
   const handleCancel = () => {
     setTempUsers(replyReceivers);
@@ -26,7 +57,7 @@ export default function SchedulerSetting() {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       <Card className="p-5">
         <div className="flex gap-[5%] items-center mb-1">
           <Text strong className="text-base text-font-color">
@@ -34,12 +65,13 @@ export default function SchedulerSetting() {
           </Text>
 
           {!selectMode ? (
-            <button
-              className=" px-4 py-1 border-b-2 rounded w-[200px] text-sm text-left"
+            <Button
+              className="w-[200px] text-left"
               onClick={() => setSelectMode(true)}
+              disabled={status.fetch === Status.PENDING}
             >
               Choose user
-            </button>
+            </Button>
           ) : (
             <div className="flex items-center gap-2">
               <Select
@@ -49,19 +81,25 @@ export default function SchedulerSetting() {
                 value={tempUsers}
                 onChange={v => setTempUsers(v)}
                 autoFocus
-                options={users.map((u: any) => ({
-                  label: u.name,
-                  value: u.usersId,
-                }))}
+                options={userOptions}
               />
 
-              <button onClick={handleConfirm}>
-                <IconCheck size={22} className="text-theme-green cursor-pointer" />
-              </button>
+              <Button 
+                onClick={handleConfirm}
+                disabled={status.update === Status.PENDING}
+                loading={status.update === Status.PENDING}
+                type="text"
+                icon={status.update !== Status.PENDING && <IconCheck size={22} className="text-theme-green cursor-pointer" />}
+              >
+                {status.update === Status.PENDING ? 'Saving...' : ''}
+              </Button>
 
-              <button onClick={handleCancel}>
-                <IconX size={22} className="text-danger cursor-pointer" />
-              </button>
+              <Button 
+                onClick={handleCancel}
+                disabled={status.update === Status.PENDING}
+                type="text"
+                icon={<IconX size={22} className="text-danger cursor-pointer" />}
+              />
             </div>
           )}
         </div>

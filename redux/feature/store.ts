@@ -26,6 +26,7 @@ import { MaintenanceReducer } from './admin/maintenance/maintenanceReducer';
 import commonReducer from './common/commonSlice';
 import userGroupReducer from './userGroup/userGroupSlice';
 import { portalReducer } from './admin/portal/portalReducer';
+import { schedularReducer } from './admin/scheduler/schedularReducer';
 
 const authPersistConfig = {
   key: 'auth',
@@ -57,7 +58,8 @@ const appReducer = combineReducers({
   maintenance: MaintenanceReducer,
   common: commonReducer,
   userGroup: userGroupReducer,
-  portal: portalReducer
+  portal: portalReducer,
+  schedular: schedularReducer,
 });
 
 const rootReducer = (

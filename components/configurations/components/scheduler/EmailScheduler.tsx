@@ -1,12 +1,16 @@
 'use client';
 
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineActionsBar';
 import { IconEdit, IconTrash, IconPlus } from '@tabler/icons-react';
 import { Button, Table, Tag, Avatar, message, Popconfirm, Input } from 'antd';
-import { useState } from 'react';
 import { SchedulerSettingsForm } from './SchedulerSettingsForm';
-import { schedulerInitialData } from 'data/schedulerData';
 import { useUsersHook } from '@hooks/useUserHook';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { fetchAllScheduleEmail, updateScheduleEmail, updateScheduleEmailActive } from '@redux/feature/admin/scheduler/schedularEmail/scheduleEmailThunk';
+import { Status } from '@lib/constants/enum';
+import { ScheduleEmail } from '@redux/feature/admin/scheduler/schedularEmail/ischeduleEmailState';
+import { formDataGenerator } from '@lib/utils/formDataGenerator';
 
 // Create initials from name
 const initials = (name: string) => {
@@ -17,37 +21,92 @@ const initials = (name: string) => {
 };
 
 export const EmailScheduler = () => {
-  const { users } = useUsersHook(); // ✅ Load users list
-  const [data, setData] = useState(schedulerInitialData);
-  const [openSchedulerForm, setOpenSchedulerForm] = useState<any>(null);
+  const { userOptions } = useUsersHook();
+  const [data, setData] = useState<ScheduleEmail[]>([]);
+  const [openSchedulerForm, setOpenSchedulerForm] = useState<ScheduleEmail | null>(null);
   const [searchValue, setSearchValue] = useState('');
+  
+  const dispatch = useAppDispatch();
+  const { scheduleEmail, status } = useAppSelector(state => state.schedular.scheduleEmail);
 
-  // ✅ Convert userId to user Full Name
-  const getUserName = (id: string) => {
-    const user = users?.find((u: any) => u.usersId === id);
-    return user?.name || id;
-  };
+  const handleFetch = useCallback(async () => {
+    try {
+      await dispatch(fetchAllScheduleEmail()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch schedule emails');
+    }
+  }, [dispatch]);
 
-  const filteredData = data.filter(
-    item =>
-      item.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchValue.toLowerCase())
-  );
+  useEffect(() => {
+    if (status.fetch === Status.IDLE) {
+      handleFetch();
+    }
+  }, [status.fetch]);
 
-  const handleSave = (updatedRow: any) => {
-    const newData = data.map(item =>
-      item.key === updatedRow.key ? { ...item, ...updatedRow, scheduled: true } : item
+  useEffect(() => {
+    if (scheduleEmail && scheduleEmail.length > 0) {
+      setData(scheduleEmail);
+    }
+  }, [scheduleEmail]);
+
+  const getUserName = useCallback((id: string) => {
+    const user = userOptions?.find((u: any) => u.value === id);
+    return user?.label || id;
+  }, [userOptions]);
+
+  const handleActivateScheduler = useCallback(async (record: ScheduleEmail) => {
+    if (status.update === Status.PENDING) return;
+    
+    try {
+      await dispatch(updateScheduleEmailActive(record.schedulerEmailId)).unwrap();
+      message.success('Scheduler activated successfully');
+    } catch (error) {
+      message.error(error || 'Failed to activate scheduler');
+    }
+  }, [dispatch, status.update]);
+
+  const handleDeactivateScheduler = useCallback(async (record: ScheduleEmail) => {
+    if (status.update === Status.PENDING) return;
+    
+    try {
+      await dispatch(updateScheduleEmailActive(record.schedulerEmailId)).unwrap();
+      message.success('Scheduler deactivated successfully');
+    } catch (error) {
+      message.error(error || 'Failed to deactivate scheduler');
+    }
+  }, [dispatch, status.update]);
+
+  const filteredData = useMemo(() => {
+    return data.filter(
+      item =>
+        item.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+        item.messageBody.toLowerCase().includes(searchValue.toLowerCase())
     );
-    setData(newData);
-    message.success('Scheduler settings saved successfully');
-    setOpenSchedulerForm(null);
-  };
+  }, [data, searchValue]);
 
-  const filterOptions = [
+  const handleSave = useCallback(async (updatedRow: ScheduleEmail) => {
+    if (status.update === Status.PENDING) return;
+    
+    try {
+      const formData = formDataGenerator(updatedRow);
+      
+      await dispatch(updateScheduleEmail({ 
+        data: formData, 
+        schedulerEmailId: openSchedulerForm.schedulerEmailId 
+      })).unwrap();
+      
+      message.success('Scheduler settings saved successfully');
+      setOpenSchedulerForm(null);
+    } catch (error) {
+      message.error(error || 'Failed to update scheduler settings');
+    }
+  }, [dispatch, openSchedulerForm, status.update]);
+
+  const filterOptions = useMemo(() => [
     { type: 'All', label: 'All', count: data.length },
     { type: 'Standard', label: 'Standard', count: 2 },
-    { type: 'Nonscheduled', label: 'Non Scheduled', count: data.filter(d => !d.scheduled).length },
-  ];
+    { type: 'Nonscheduled', label: 'Non Scheduled', count: data.filter(d => !d.isActive).length },
+  ], [data]);
 
   const columns = [
     {
@@ -68,10 +127,10 @@ export const EmailScheduler = () => {
       render: (_: any, record: any) => (
         <div className="flex flex-col gap-1">
           <p className="font-semibold text-sm">{record.name}</p>
-          <p className="text-xs text-gray-600">{record.description}</p>
+          <p className="text-xs text-gray-600">{record.messageBody || 'No description available'}</p>
 
           <div className="flex gap-2 mt-1">
-            {record.scheduled ? (
+            {record.isActive ? (
               <>
                 <Tag color="green">Scheduled</Tag>
                 {record.frequency && <Tag color="blue">{record.frequency}</Tag>}
@@ -88,13 +147,13 @@ export const EmailScheduler = () => {
       title: 'Targeted Recipients',
       width: '25%',
       render: (_: any, r: any) => {
-        if (!r.scheduled) return;
-        if (r.sendToActive) return 'Send to all users';
+        if (!r.isActive) return;
+        if (r.sendToAllActiveUsers) return 'Send to all users';
 
-        if (Array.isArray(r.notificationUsers) && r.notificationUsers.length) {
+        if (Array.isArray(r.notificationRecipientUsers) && r.notificationRecipientUsers.length) {
           return (
             <div className="flex gap-2">
-              {r.notificationUsers.map((id: string, i: number) => {
+              {r.notificationRecipientUsers.map((id: string, i: number) => {
                 const name = getUserName(id);
                 return (
                   <Avatar key={i} className="bg-gray-400 text-white text-xs">
@@ -113,9 +172,9 @@ export const EmailScheduler = () => {
       title: 'Exclude Recipients',
       width: '20%',
       render: (_: any, r: any) =>
-        r.scheduled && r.sendToActive && Array.isArray(r.excludeUsers) && r.excludeUsers.length ? (
+        r.isActive && r.sendToAllActiveUsers && Array.isArray(r.excludeRecipients) && r.excludeRecipients.length ? (
           <div className="flex gap-2">
-            {r.excludeUsers.map((id: string, i: number) => {
+            {r.excludeRecipients.map((id: string, i: number) => {
               const name = getUserName(id);
               return (
                 <Avatar key={i} className="bg-gray-400 text-white text-xs">
@@ -134,33 +193,48 @@ export const EmailScheduler = () => {
       width: '15%',
       render: (_: any, record: any) => (
         <div className="flex items-center gap-2">
-          {record.scheduled ? (
+          {record.isActive ? (
             <>
-              <Button onClick={() => setOpenSchedulerForm(record)}>
+              <Button 
+                onClick={() => setOpenSchedulerForm(record)}
+                disabled={status.update === Status.PENDING}
+              >
                 <IconEdit size={18} />
               </Button>
 
               <Popconfirm
-                title="Disable scheduler?"
+                title="Deactivate scheduler?"
+                description="Are you sure you want to deactivate this scheduler?"
                 okText="Yes"
                 cancelText="No"
-                onConfirm={() => {
-                  const updated = data.map(item =>
-                    item.key === record.key ? { ...item, scheduled: false } : item
-                  );
-                  setData(updated);
-                  message.success('Scheduler disabled');
-                }}
+                onConfirm={() => handleDeactivateScheduler(record)}
+                disabled={status.update === Status.PENDING}
               >
-                <Button danger>
+                <Button 
+                  danger 
+                  loading={status.update === Status.PENDING}
+                  disabled={status.update === Status.PENDING}
+                >
                   <IconTrash size={18} />
                 </Button>
               </Popconfirm>
             </>
           ) : (
-            <Button onClick={() => setOpenSchedulerForm(record)}>
-              <IconPlus size={18} />
-            </Button>
+            <Popconfirm
+              title="Activate scheduler?"
+              description="Are you sure you want to activate this scheduler?"
+              okText="Yes"
+              cancelText="No"
+              onConfirm={() => handleActivateScheduler(record)}
+              disabled={status.update === Status.PENDING}
+            >
+              <Button 
+                loading={status.update === Status.PENDING}
+                disabled={status.update === Status.PENDING}
+              >
+                <IconPlus size={18} />
+              </Button>
+            </Popconfirm>
           )}
         </div>
       ),
@@ -174,6 +248,7 @@ export const EmailScheduler = () => {
           data={openSchedulerForm}
           onCancel={() => setOpenSchedulerForm(null)}
           onSave={handleSave}
+          isSubmitting={status.update === Status.PENDING}
         />
       ) : (
         <>
@@ -188,7 +263,13 @@ export const EmailScheduler = () => {
             isCountShow={true}
           />
 
-          <Table columns={columns} dataSource={filteredData} pagination={false} />
+          <Table 
+            columns={columns} 
+            dataSource={filteredData} 
+            rowKey="schedulerEmailId"
+            pagination={false}
+            loading={status.fetch === Status.PENDING}
+          />
         </>
       )}
     </div>

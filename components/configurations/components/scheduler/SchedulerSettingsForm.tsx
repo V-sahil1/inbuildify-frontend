@@ -1,74 +1,88 @@
 'use client';
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { Button, Select, Input, Switch, InputNumber, Upload, message } from 'antd';
 import RichTextEditor from '@/components/common/rich-text-editor/RichTextEditor';
 import { IconInfoCircle, IconPin } from '@tabler/icons-react';
-import { useUsersHook } from '@hooks/useUserHook'; // ✅ Import your hook
+import { useUsersHook } from '@hooks/useUserHook';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
+import { ScheduleEmail } from '@redux/feature/admin/scheduler/schedularEmail/ischeduleEmailState';
 
-export interface SchedulerSettings {
-  key: number | string;
-  name: string;
-  description: string;
-  scheduled?: boolean;
-  frequency: 'Daily' | 'Weekly' | 'Monthly';
-  sendToActive: boolean;
-  notificationUsers?: string[];
-  excludeUsers?: string[];
-  replyToUsers?: string[];
-  subject: string;
-  actionDays: number;
-  noRecordMessage?: boolean;
-  noRecordMessageBody?: string;
-  attachments?: any[];
+export interface SchedulerSettings extends ScheduleEmail {
+  key?: string;
 }
 
-export const SchedulerSettingsForm = ({ data, onCancel, onSave }: any) => {
-  const { users } = useUsersHook();
-  const userOptions =
-    users?.map((u: any) => ({
-      label: u.name,
-      value: u.usersId,
-    })) || [];
+interface SchedulerSettingsFormProps {
+  data: SchedulerSettings;
+  onCancel: () => void;
+  onSave: (updatedFields: Partial<SchedulerSettings>) => void;
+  isSubmitting?: boolean;
+}
 
-  const [formData, setFormData] = React.useState<SchedulerSettings>({
-    key: data?.key,
-    name: data?.name || '',
-    description: data?.description || '',
-    scheduled: data?.scheduled || false,
-    frequency: data?.frequency || 'Daily',
-    sendToActive: data?.sendToActive || false,
-    notificationUsers: data?.notificationUsers || [],
-    excludeUsers: data?.excludeUsers || [],
-    replyToUsers: data?.replyToUsers || [],
-    subject: data?.subject || data?.name || '',
-    actionDays: data?.actionDays || 30,
-    noRecordMessage: data?.noRecordMessage || false,
-    noRecordMessageBody: data?.noRecordMessageBody || '',
-    attachments: data?.attachments || [],
-  });
+export const SchedulerSettingsForm: React.FC<SchedulerSettingsFormProps> = ({ data, onCancel, onSave, isSubmitting = false }) => {
+  const { userOptions } = useUsersHook();
+  const [formData, setFormData] = useState<SchedulerSettings>(data);
 
-  const updateField = (key: keyof SchedulerSettings, value: any) => {
-    setFormData(p => ({ ...p, [key]: value }));
-  };
+  const updateField = useCallback((key: keyof SchedulerSettings, value: any) => {
+    setFormData(prev => ({ ...prev, [key]: value }));
+  }, []);
 
   const uploadProps = {
     multiple: true,
-    fileList: formData.attachments,
+    fileList: Array.isArray(formData.attachFiles)
+      ? (formData.attachFiles || []).map((file: any, index: number) => ({
+          uid: file.uid || `file-${index}-${file.name}`,
+          name: file.name,
+          status: 'done' as const,
+          originFileObj: file,
+        }))
+      : typeof formData.attachFiles === 'string' && formData.attachFiles
+        ? [
+            {
+              uid: 'existing-file',
+              name: 'attachment',
+              status: 'done' as const,
+              url: formData.attachFiles,
+              originFileObj: null,
+            },
+          ]
+        : [],
     beforeUpload: () => false,
-    onChange: ({ fileList }: any) => updateField('attachments', fileList),
-    onRemove: (file: any) =>
-      updateField(
-        'attachments',
-        formData.attachments.filter((f: any) => f.uid !== file.uid)
-      ),
+    onChange: ({ fileList }: any) => {
+      const files = fileList
+        .filter((file: any) => file.originFileObj)
+        .map((file: any) => {
+          const fileObj = file.originFileObj;
+          return Object.assign(fileObj, { uid: file.uid });
+        });
+      updateField('attachFiles', files);
+    },
+    onRemove: (file: any) => {
+      if (Array.isArray(formData.attachFiles)) {
+        const currentFiles = formData.attachFiles;
+        updateField(
+          'attachFiles',
+          currentFiles.filter((f: any) => f.uid !== file.uid)
+        );
+      } else {
+        updateField('attachFiles', []);
+      }
+    },
   };
 
-  const handleSave = () => {
+  const handleSave = useCallback(async () => {
+    if (isSubmitting) return;
+    
     if (!formData.frequency) {
       return message.error('Frequency is required.');
     }
-    onSave(formData);
-  };
+
+    try {
+      const updatedFields = getUpdatedFields(formData, data || {});
+      onSave(updatedFields);
+    } catch (error) {
+      message.error(error || 'Failed to save scheduler settings');
+    }
+  }, [formData, data, onSave, isSubmitting]);
 
   return (
     <div className="bg-card-color p-6 rounded shadow space-y-5">
@@ -95,7 +109,10 @@ export const SchedulerSettingsForm = ({ data, onCancel, onSave }: any) => {
 
         <div>
           <label className="text-sm font-medium">Send to all active users</label> <br />
-          <Switch checked={formData.sendToActive} onChange={v => updateField('sendToActive', v)} />
+          <Switch
+            checked={formData.sendToAllActiveUsers}
+            onChange={v => updateField('sendToAllActiveUsers', v)}
+          />
         </div>
 
         <div>
@@ -103,36 +120,36 @@ export const SchedulerSettingsForm = ({ data, onCancel, onSave }: any) => {
           <InputNumber
             className="w-full"
             min={1}
-            value={formData.actionDays}
-            onChange={v => updateField('actionDays', v)}
+            value={formData.noOfActionDays}
+            onChange={v => updateField('noOfActionDays', v)}
           />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        {!formData.sendToActive && (
+        {!formData.sendToAllActiveUsers && (
           <div>
             <label className="text-sm font-medium">Notification Recipients</label>
             <Select
               mode="multiple"
               className="w-full"
               placeholder="Select users"
-              value={formData.notificationUsers}
-              onChange={v => updateField('notificationUsers', v)}
+              value={formData.notificationRecipientUsers}
+              onChange={v => updateField('notificationRecipientUsers', v)}
               options={userOptions}
             />
           </div>
         )}
 
-        {formData.sendToActive && (
+        {formData.sendToAllActiveUsers && (
           <div>
             <label className="text-sm font-medium">Exclude Recipients</label>
             <Select
               mode="multiple"
               className="w-full"
               placeholder="Select users"
-              value={formData.excludeUsers}
-              onChange={v => updateField('excludeUsers', v)}
+              value={formData.excludeRecipients}
+              onChange={v => updateField('excludeRecipients', v)}
               options={userOptions}
             />
           </div>
@@ -159,8 +176,8 @@ export const SchedulerSettingsForm = ({ data, onCancel, onSave }: any) => {
       <div>
         <label className="text-sm font-medium">Body</label>
         <RichTextEditor
-          value={formData.description}
-          onChange={v => updateField('description', v)}
+          value={formData.messageBody}
+          onChange={v => updateField('messageBody', v)}
           maxHeight="180px"
         />
 
@@ -191,9 +208,19 @@ export const SchedulerSettingsForm = ({ data, onCancel, onSave }: any) => {
       </div>
 
       <div className="flex justify-end gap-2">
-        <Button onClick={onCancel}>Cancel</Button>
-        <Button type="primary" onClick={handleSave}>
-          Save
+        <Button 
+          onClick={onCancel}
+          disabled={isSubmitting}
+        >
+          Cancel
+        </Button>
+        <Button 
+          type="primary" 
+          onClick={handleSave}
+          loading={isSubmitting}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Saving...' : 'Save'}
         </Button>
       </div>
     </div>

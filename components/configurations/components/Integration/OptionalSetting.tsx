@@ -8,7 +8,7 @@ import { getIntegrationOptionalSettingFields } from '@/components/formFields/Int
 import { intergrationOptionalSettingData } from 'data/configuration/IntergrationOptionalSettingData';
 
 export const OptionalSettings = () => {
-  const { users } = useUsersHook();
+  const { userOptions } = useUsersHook();
   const [modelOpen, setModelOpen] = useState<boolean>(false);
   const [deleteModelOpen, setDeleteModelOpen] = useState<boolean>(false);
   const [selectedRecord, setSelectedRecord] = useState<any>(null);
@@ -98,10 +98,7 @@ export const OptionalSettings = () => {
           <Select
             className="w-full"
             value={formValues.assignLeads}
-            options={users.map(user => ({
-              label: user.name,
-              value: user.usersId,
-            }))}
+              options={userOptions}
             onChange={value => setFormValues(prev => ({ ...prev, assignLeads: value }))}
           />
         </div>
@@ -118,10 +115,7 @@ export const OptionalSettings = () => {
           <Select
             className="w-full"
             value={formValues.alwaysAssign}
-            options={users.map(user => ({
-              label: user.name,
-              value: user.usersId,
-            }))}
+            options={userOptions}
             onChange={value => setFormValues(prev => ({ ...prev, alwaysAssign: value }))}
           />
         </div>

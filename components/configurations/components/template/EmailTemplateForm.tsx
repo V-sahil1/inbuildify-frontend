@@ -19,7 +19,7 @@ export const EmailTemplateForm = ({
   template: any;
   onCancel: () => void;
 }) => {
-  const { users } = useUsersHook();
+  const { userOptions } = useUsersHook();
   const inputRef = useRef<TextAreaRef>(null);
 
   const [formData, setFormData] = useState({
@@ -64,7 +64,6 @@ export const EmailTemplateForm = ({
       console.log('Saving template:', payload);
       // Example API call here:
       // await api.saveTemplate(payload);
-
       message.success('Template saved successfully');
     } catch (error) {
       message.error('Failed to save template');
@@ -102,10 +101,7 @@ export const EmailTemplateForm = ({
           placeholder="Select recipient"
           value={formData.additionalRecipient}
           onChange={value => updateField('additionalRecipient', value)}
-          options={users.map((user: any) => ({
-            label: user.name,
-            value: user.usersId,
-          }))}
+          options={userOptions}
         />
       </div>
 
