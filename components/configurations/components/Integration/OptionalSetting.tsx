@@ -1,41 +1,62 @@
 import { useEffect, useState } from 'react';
-import { Select, Button, Table } from 'antd';
+import { Select, Button, Table, message } from 'antd';
 import { useUsersHook } from '@hooks/useUserHook';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
 import ConfirmationModal from '@/components/common/ConfirmationModal';
 import { getIntegrationOptionalSettingFields } from '@/components/formFields/IntegrationOptionalSettingFields';
 import { intergrationOptionalSettingData } from 'data/configuration/IntergrationOptionalSettingData';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import {
+  fetchIntegrationSetting,
+  updateIntegrationSetting,
+} from '@redux/feature/admin/integration/optionalSetting/integrationOptionalThunk';
+import { Status } from '@lib/constants/enum';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 
 export const OptionalSettings = () => {
   const { userOptions } = useUsersHook();
   const [modelOpen, setModelOpen] = useState<boolean>(false);
   const [deleteModelOpen, setDeleteModelOpen] = useState<boolean>(false);
   const [selectedRecord, setSelectedRecord] = useState<any>(null);
+  const dispatch = useAppDispatch();
+  const { integrationSetting, status } = useAppSelector(state => state.integration.optionalSetting);
+  const [formValues, setFormValues] = useState(integrationSetting);
+  const fetchIntegrationSettinf = async () => {
+    try {
+      await dispatch(fetchIntegrationSetting()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch integration setting');
+    }
+  };
+  useEffect(() => {
+    if (status.fetch === Status.IDLE) fetchIntegrationSettinf();
 
-  const [initialValues, setInitialValues] = useState({
-    assignLeads: 1,
-    alwaysAssign: 2,
-  });
-
-  const [formValues, setFormValues] = useState({
-    assignLeads: 1,
-    alwaysAssign: 2,
-  });
+    if (integrationSetting) setFormValues(integrationSetting);
+  }, [status.fetch]);
 
   const [showSave, setShowSave] = useState(false);
 
   useEffect(() => {
     const isChanged =
-      formValues.assignLeads !== initialValues.assignLeads ||
-      formValues.alwaysAssign !== initialValues.alwaysAssign;
+      formValues?.assignLeadsIfAssigneeNotFound !==
+        integrationSetting?.assignLeadsIfAssigneeNotFound ||
+      formValues?.alwaysAssignLeadsTo !== integrationSetting?.alwaysAssignLeadsTo;
     setShowSave(isChanged);
-  }, [formValues, initialValues]);
+  }, [formValues, integrationSetting]);
 
-  const handleSave = () => {
-    setInitialValues(formValues);
-    setShowSave(false);
-    console.log('Saved values:', formValues);
+  const handleSave = async () => {
+    const updatedvalues = getUpdatedFields(formValues, integrationSetting);
+    try {
+      if (Object.keys(updatedvalues).length > 0) {
+        await dispatch(updateIntegrationSetting(updatedvalues)).unwrap();
+        setShowSave(false);
+      } else {
+        message.info('no changes Updated');
+      }
+    } catch (error) {
+      message.error(error || 'Failed to update setting');
+    }
   };
 
   const columns = [
@@ -97,9 +118,11 @@ export const OptionalSettings = () => {
         <div className="w-64">
           <Select
             className="w-full"
-            value={formValues.assignLeads}
-              options={userOptions}
-            onChange={value => setFormValues(prev => ({ ...prev, assignLeads: value }))}
+            value={formValues?.assignLeadsIfAssigneeNotFound}
+            options={userOptions}
+            onChange={value =>
+              setFormValues(prev => ({ ...prev, assignLeadsIfAssigneeNotFound: value }))
+            }
           />
         </div>
       </div>
@@ -114,9 +137,9 @@ export const OptionalSettings = () => {
         <div className="w-64">
           <Select
             className="w-full"
-            value={formValues.alwaysAssign}
+            value={formValues?.alwaysAssignLeadsTo}
             options={userOptions}
-            onChange={value => setFormValues(prev => ({ ...prev, alwaysAssign: value }))}
+            onChange={value => setFormValues(prev => ({ ...prev, alwaysAssignLeadsTo: value }))}
           />
         </div>
       </div>

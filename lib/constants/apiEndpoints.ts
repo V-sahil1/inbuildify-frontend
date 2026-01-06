@@ -170,11 +170,14 @@ class API_ENDPOINTS {
   public static SCHEDULER_EMAIL = '/scheduler-email';
   public static SCHEDULER_EMAIL_ACTIVE = '/scheduler-email/is-active';
 
-  //construcction
+  //construction
   public static CONSTRUCTION_SETTING = '/construction-setting';
   public static CONSTRUCTION_OPTION = '/construction-option';
   public static CONSTRUCTION_TYPE = '/construction-type';
   public static CONSTRUCTION_STAGE = '/construction-stage';
+
+  // integration
+  public static INTEGRATION_SETTING = '/integration-setting';
 
   public static ROLE_BASE = '/role';
 

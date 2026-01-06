@@ -30,21 +30,21 @@ export const SchedulerSettingsForm: React.FC<SchedulerSettingsFormProps> = ({ da
     multiple: true,
     fileList: Array.isArray(formData.attachFiles)
       ? (formData.attachFiles || []).map((file: any, index: number) => ({
-          uid: file.uid || `file-${index}-${file.name}`,
-          name: file.name,
-          status: 'done' as const,
-          originFileObj: file,
-        }))
+        uid: file.uid || `file-${index}-${file.name}`,
+        name: file.name,
+        status: 'done' as const,
+        originFileObj: file,
+      }))
       : typeof formData.attachFiles === 'string' && formData.attachFiles
         ? [
-            {
-              uid: 'existing-file',
-              name: 'attachment',
-              status: 'done' as const,
-              url: formData.attachFiles,
-              originFileObj: null,
-            },
-          ]
+          {
+            uid: 'existing-file',
+            name: 'attachment',
+            status: 'done' as const,
+            url: formData.attachFiles,
+            originFileObj: null,
+          },
+        ]
         : [],
     beforeUpload: () => false,
     onChange: ({ fileList }: any) => {
@@ -71,7 +71,7 @@ export const SchedulerSettingsForm: React.FC<SchedulerSettingsFormProps> = ({ da
 
   const handleSave = useCallback(async () => {
     if (isSubmitting) return;
-    
+
     if (!formData.frequency) {
       return message.error('Frequency is required.');
     }
@@ -208,14 +208,14 @@ export const SchedulerSettingsForm: React.FC<SchedulerSettingsFormProps> = ({ da
       </div>
 
       <div className="flex justify-end gap-2">
-        <Button 
+        <Button
           onClick={onCancel}
           disabled={isSubmitting}
         >
           Cancel
         </Button>
-        <Button 
-          type="primary" 
+        <Button
+          type="primary"
           onClick={handleSave}
           loading={isSubmitting}
           disabled={isSubmitting}

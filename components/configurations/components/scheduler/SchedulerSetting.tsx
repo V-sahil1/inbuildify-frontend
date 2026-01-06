@@ -5,7 +5,10 @@ import { Select, Typography, Card, message, Button } from 'antd';
 import { IconCheck, IconX } from '@tabler/icons-react';
 import { useUsersHook } from '@hooks/useUserHook';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import { fetchSchedularSetting, updateSchedularSetting } from '@redux/feature/admin/scheduler/schedularSetting/schedularSettingThunk';
+import {
+  fetchSchedularSetting,
+  updateSchedularSetting,
+} from '@redux/feature/admin/scheduler/schedularSetting/schedularSettingThunk';
 import { Status } from '@lib/constants/enum';
 const { Text } = Typography;
 
@@ -40,7 +43,7 @@ export default function SchedulerSetting() {
 
   const handleConfirm = useCallback(async () => {
     if (status.update === Status.PENDING) return;
-    
+
     try {
       await dispatch(updateSchedularSetting({ receiverOfReplies: tempUsers })).unwrap();
       setReplyReceivers(tempUsers);
@@ -84,17 +87,21 @@ export default function SchedulerSetting() {
                 options={userOptions}
               />
 
-              <Button 
+              <Button
                 onClick={handleConfirm}
                 disabled={status.update === Status.PENDING}
                 loading={status.update === Status.PENDING}
                 type="text"
-                icon={status.update !== Status.PENDING && <IconCheck size={22} className="text-theme-green cursor-pointer" />}
+                icon={
+                  status.update !== Status.PENDING && (
+                    <IconCheck size={22} className="text-theme-green cursor-pointer" />
+                  )
+                }
               >
                 {status.update === Status.PENDING ? 'Saving...' : ''}
               </Button>
 
-              <Button 
+              <Button
                 onClick={handleCancel}
                 disabled={status.update === Status.PENDING}
                 type="text"

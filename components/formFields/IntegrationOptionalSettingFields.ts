@@ -2,7 +2,7 @@ import { useUsersHook } from '@hooks/useUserHook';
 import { FormField } from '../common/Models/ActionDialogModel';
 
 export const getIntegrationOptionalSettingFields = (): FormField[] => {
-  const { users } = useUsersHook();
+  const { userOptions } = useUsersHook();
   return [
     {
       label: 'Field Name',
@@ -18,7 +18,7 @@ export const getIntegrationOptionalSettingFields = (): FormField[] => {
       label: 'Assignee',
       name: 'assignee',
       type: 'select',
-      options: users?.map(user => ({ label: user.name, value: user.usersId })) || [],
+      options: userOptions || [],
     },
   ];
 };
