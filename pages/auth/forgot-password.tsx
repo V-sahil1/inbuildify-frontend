@@ -28,7 +28,8 @@ export default function ForgotPassword() {
       const values = await form.validateFields();
       setLoading(true);
       const response = await dispatch(ForgetPasswordThunk(values)).unwrap();
-      message.success(response.message);
+      message.success('Reset password link has been sent to your email');
+      form.resetFields();
       router.push(SystemRoutes.LOGIN);
     } catch (error: any) {
       message.error(error);

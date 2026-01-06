@@ -12,8 +12,8 @@ const publicRoutes = [
   SystemRoutes.SIGNUP,
   SystemRoutes.FORGOT_PASSWORD,
   SystemRoutes.RESET_PASSWORD,
-  SystemRoutes.TWO_FACTOR_AUTH,
   SystemRoutes.INVITE,
+  SystemRoutes.VERIFY_EMAIL,
 ];
 
 type AuthState = 'checking' | 'authenticated' | 'unauthenticated' | 'redirecting';

@@ -27,14 +27,15 @@ export default function Signin() {
     setShowPassword(!showPassword);
   };
 
-  const onFinish = async (values: any) => {
+  const onFinish = async (values) => {
     try {
       setLoading(true);
       const response = await dispatch(SignInThunk(values)).unwrap();
       await dispatch(getUserThunk()).unwrap();
       message.success(response.message);
+      
       router.push('/');
-    } catch (error: any) {
+    } catch (error) {
       message.error(error || 'sign in failed');
     } finally {
       setLoading(false);
@@ -123,10 +124,10 @@ export default function Signin() {
 
       {/* Footer */}
       <div className="text-center sm:mt-30 mt-6 text-font-color-100">
-        {/* <p>Don't have an account?</p> */}
-        {/* <Link href={SystemRoutes.SIGNUP} className="text-primary">
+        <p>Don't have an account?</p>
+        <Link href={SystemRoutes.SIGNUP} className="text-primary">
           Sign up here
-        </Link> */}
+        </Link>
       </div>
     </>
   );

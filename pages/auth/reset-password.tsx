@@ -59,7 +59,7 @@ const ResetPassword = () => {
           email: token.email,
         })
       ).unwrap();
-      message.success(response.message);
+      message.success('Password reset successfully');
       router.push(SystemRoutes.LOGIN);
     } catch (error: any) {
       message.error(error || 'Failed to reset password');

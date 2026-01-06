@@ -126,7 +126,7 @@ export default function Header({
     try {
       setIsLogoutLoading(true);
       const response = await dispatch(logoutThunk()).unwrap();
-      message.success(response);
+      message.success("logout successfully");
       dispatch(logout());
       persister.purge();
       router.push(SystemRoutes.LOGIN);

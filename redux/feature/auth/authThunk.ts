@@ -1,8 +1,22 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import api, { apiWithFormDataMethods } from '@lib/constants/api';
 import API_ENDPOINTS from '@lib/constants/apiEndpoints';
-import { ApiResponse, LoginResponse, User } from './IAuthState';
+import { ApiResponse, LoginResponse, RegisterUser, User } from './IAuthState';
 import { storeAuthToken, storeRefreshToken } from '@lib/constants/authToken';
+
+export const SignUpThunk = createAsyncThunk(
+  'auth/signUp',
+  async (payload: RegisterUser, { rejectWithValue }) => {
+    try {
+      const response: ApiResponse = await api.post(API_ENDPOINTS.REGISTER_BASE, {
+        data: payload,
+      });
+      return response;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
 
 export const SignInThunk = createAsyncThunk(
   'auth/signIn',
@@ -14,7 +28,7 @@ export const SignInThunk = createAsyncThunk(
       storeAuthToken(response.data.accessToken);
       storeRefreshToken(response.data.refreshToken);
       return response;
-    } catch (err: any) {
+    } catch (err) {
       return rejectWithValue(err.message);
     }
   }
@@ -28,7 +42,7 @@ export const ForgetPasswordThunk = createAsyncThunk(
         data: payload,
       });
       return response;
-    } catch (err: any) {
+    } catch (err) {
       return rejectWithValue(err.message);
     }
   }
@@ -45,7 +59,7 @@ export const ResetPasswordThunk = createAsyncThunk(
         data: payload,
       });
       return response;
-    } catch (err: any) {
+    } catch (err) {
       return rejectWithValue(err.message);
     }
   }
@@ -53,29 +67,31 @@ export const ResetPasswordThunk = createAsyncThunk(
 
 export const VerifyEmailThunk = createAsyncThunk(
   'auth/verifyEmail',
-  async (payload: { otp: string }, { rejectWithValue }) => {
+  async (payload: { otp: string; email: string }, { rejectWithValue }) => {
     try {
       const response: ApiResponse<LoginResponse> = await api.post(API_ENDPOINTS.VERIFY_EMAIL, {
         data: payload,
       });
       return response;
-    } catch (err: any) {
+    } catch (err) {
       return rejectWithValue(err.message);
     }
   }
 );
-// refgister api with payload
-// export const SignUpThunk = createAsyncThunk(
-//   "auth/signup",
-//   async (payload: { email: string; password: string, firstName: string, lastName: string }, thunkAPI) => {
-//     try {
-//       const response = api.post("/auth/signup", { data: payload });
-//       return response;
-//     } catch (err: any) {
-//       return thunkAPI.rejectWithValue(err.message);
-//     }
-//   }
-// );
+
+export const ResendOtpThunk = createAsyncThunk(
+  'auth/resendOtp',
+  async (payload: { email: string }, { rejectWithValue }) => {
+    try {
+      const response: ApiResponse<LoginResponse> = await api.post(API_ENDPOINTS.RESEND_OTP, {
+        data: payload,
+      });
+      return response;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
 
 export const getUserThunk = createAsyncThunk('auth/getUser', async (_, { rejectWithValue }) => {
   try {

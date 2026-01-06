@@ -7,8 +7,8 @@ class API_ENDPOINTS {
   public static LOGIN = `${this.AUTH_BASE}/login`;
   public static REFRESH_TOKEN = `${this.AUTH_BASE}/refresh-token`;
   public static REGISTER_BASE = `${this.AUTH_BASE}/register`;
-  public static VERIFY_EMAIL = `${this.AUTH_BASE}/verify-email-otp`;
-  public static RESEND_OTP = `${this.AUTH_BASE}/resend-email-otp`;
+  public static VERIFY_EMAIL = `${this.AUTH_BASE}/verify-email`;
+  public static RESEND_OTP = `${this.AUTH_BASE}/resend-otp`;
   public static FORGOT_PASSWORD = `${this.AUTH_BASE}/forgot-password`;
   public static RESET_PASSWORD = `${this.AUTH_BASE}/reset-password`;
   public static UPDATE_PASSWORD = `${this.AUTH_BASE}/update-password`;
