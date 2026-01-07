@@ -29,6 +29,7 @@ import { portalReducer } from './admin/portal/portalReducer';
 import { schedularReducer } from './admin/scheduler/schedularReducer';
 import integrationReducer from './admin/integration/integrationReducer';
 import { documentReducer } from './admin/document/documentReducer';
+import { templateReducer } from './admin/template/templateReducer';
 
 const authPersistConfig = {
   key: 'auth',
@@ -64,6 +65,7 @@ const appReducer = combineReducers({
   schedular: schedularReducer,
   integration: integrationReducer,
   document: documentReducer
+  template: templateReducer,
 });
 
 const rootReducer = (

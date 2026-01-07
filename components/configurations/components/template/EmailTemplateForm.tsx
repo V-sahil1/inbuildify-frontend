@@ -1,12 +1,15 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Dropdown, Input, Select, message } from 'antd';
 import { IconInfoCircle, IconMapDown } from '@tabler/icons-react';
 import RichTextEditor from '@/components/common/rich-text-editor/RichTextEditor';
 import { useUsersHook } from '@hooks/useUserHook';
 import { InsertAtCursor } from '@lib/utils/InsertAtCursor';
 import { TextAreaRef } from 'antd/es/input/TextArea';
+import { useAppDispatch } from '@hooks/redux';
+import { updateEmailTemplate } from '@redux/feature/admin/template/email/emailThunk';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 
 export const EmailTemplateForm = ({
   templateId,
@@ -16,24 +19,37 @@ export const EmailTemplateForm = ({
 }: {
   templateId: string;
   templateName: string;
-  template: any;
+  template: {
+    additionalRecipientUsers: string[];
+    subject: string;
+    emailContent: string;
+  };
   onCancel: () => void;
 }) => {
   const { userOptions } = useUsersHook();
+  const dispatch = useAppDispatch();
   const inputRef = useRef<TextAreaRef>(null);
+  console.log('template', template);
 
   const [formData, setFormData] = useState({
-    additionalRecipient: template?.additionalRecipient || [],
+    additionalRecipientUsers: template?.additionalRecipientUsers || [],
     subject: template?.subject || '',
-    content: template?.content || '',
+    emailContent: template?.emailContent || '',
   });
+
+  // Memoize original template for comparison
+  const originalTemplate = useMemo(() => ({
+    additionalRecipientUsers: template?.additionalRecipientUsers || [],
+    subject: template?.subject || '',
+    emailContent: template?.emailContent || '',
+  }), [template]);
 
   useEffect(() => {
     if (template) {
       setFormData({
-        additionalRecipient: template?.additionalRecipient || [],
+        additionalRecipientUsers: template?.additionalRecipientUsers || [],
         subject: template?.subject || '',
-        content: template?.content || '',
+        emailContent: template?.emailContent || '',
       });
     }
   }, [template]);
@@ -49,41 +65,31 @@ export const EmailTemplateForm = ({
     'Last Name',
   ];
 
-  const updateField = (key: string, value: any) => {
+  const updateField = (key: string, value: string | string[]) => {
     setFormData(prev => ({ ...prev, [key]: value }));
   };
 
   const handleSave = async () => {
-    const payload = {
-      templateId: templateId,
-      templateName: templateName,
-      ...formData,
-    };
-
     try {
-      console.log('Saving template:', payload);
-      // Example API call here:
-      // await api.saveTemplate(payload);
+      // Only send fields that have changed
+      const updatedFields = getUpdatedFields(formData, originalTemplate);
+
+      if (Object.keys(updatedFields).length === 0) {
+        message.info('No changes to save');
+        return;
+      }
+
+      await dispatch(updateEmailTemplate({ data: updatedFields, templateId: templateId }));
       message.success('Template saved successfully');
+      onCancel();
     } catch (error) {
       message.error('Failed to save template');
     }
   };
 
-  // Cancel functionality
-  const handleCancel = () => {
-    setFormData({
-      additionalRecipient: template?.additionalRecipient || [],
-      subject: template?.subject || '',
-      content: template?.content || '',
-    });
-    message.info('Changes reverted');
-    onCancel();
-  };
-
   return (
     <div className="space-y-4 bg-white p-4 rounded">
-      <p className="text-base font-medium">Template Settings – {template?.templateName}</p>
+      <p className="text-base font-medium">Template Settings – {templateName}</p>
 
       <div className="flex gap-2 items-center text-gray-600">
         <IconInfoCircle size={18} />
@@ -99,8 +105,8 @@ export const EmailTemplateForm = ({
           className="flex-1"
           mode="multiple"
           placeholder="Select recipient"
-          value={formData.additionalRecipient}
-          onChange={value => updateField('additionalRecipient', value)}
+          value={formData.additionalRecipientUsers}
+          onChange={value => updateField('additionalRecipientUsers', value)}
           options={userOptions}
         />
       </div>
@@ -141,15 +147,15 @@ export const EmailTemplateForm = ({
       <div>
         <label className="block mb-1">Email Content</label>
         <RichTextEditor
-          value={formData.content}
-          onChange={value => updateField('content', value)}
+          value={formData.emailContent}
+          onChange={value => updateField('emailContent', value)}
           maxHeight="400px"
           placeholder="Write your email content..."
         />
       </div>
 
       <div className="flex justify-end gap-3 pt-3">
-        <Button onClick={handleCancel}>Cancel</Button>
+        <Button onClick={onCancel}>Cancel</Button>
         <Button type="primary" onClick={handleSave}>
           Save Template
         </Button>

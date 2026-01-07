@@ -188,6 +188,9 @@ class API_ENDPOINTS {
   public static INTEGRATION_CUSTOM_FIELD = '/integration-custom-field-header';
   public static INTEGRATION_CUSTOM_FIELD_ITEM = '/integration-custom-field-item'
 
+  // Template
+  public static EMAIL_TEMPLATE = '/template-email';
+
   public static ROLE_BASE = '/role';
 
   // common

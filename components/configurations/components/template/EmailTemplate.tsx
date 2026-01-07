@@ -1,17 +1,36 @@
 import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineActionsBar';
 import { IconEdit } from '@tabler/icons-react';
-import { Button, Table } from 'antd';
-import { emailTemplateData } from 'data/configuration/TemplateData';
-import { useState } from 'react';
+import { Button, message, Table } from 'antd';
+import { useEffect, useMemo, useState } from 'react';
 import { EmailTemplateForm } from './EmailTemplateForm';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { Status } from '@lib/constants/enum';
+import { fetchEmailTemplate } from '@redux/feature/admin/template/email/emailThunk';
 
 export const EmailTemplate = () => {
   const [EditTemplate, setEditTemplate] = useState(null);
-  const filterOptions = [
-    { type: 'All', label: 'All', count: 1 },
-    { type: 'Standard', label: 'Standard', count: 2 },
-    { type: 'Customized', label: 'Customized', count: 5 },
-  ];
+  const { emailTemplate, count, status } = useAppSelector(state => state.template.emailTemplate);
+  const dispatch = useAppDispatch();
+
+  const fetchEmailTemplateData = async () => {
+    try {
+      await dispatch(fetchEmailTemplate()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch email template');
+    }
+  };
+
+  useEffect(() => {
+    if (status.fetch === Status.IDLE) {
+      fetchEmailTemplateData();
+    }
+  }, [status.fetch]);
+
+  const filterOptions = useMemo(() => [
+    { type: 'All', label: 'All', count: count?.total ?? 0 },
+    { type: 'Standard', label: 'Standard', count: count?.standard ?? 0 },
+    { type: 'Customized', label: 'Customized', count: count?.customized ?? 0 },
+  ], [count]);
 
   const handleFilterChange = (tab: string) => {
     console.log('Selected filter:', tab);
@@ -20,7 +39,7 @@ export const EmailTemplate = () => {
   const column = [
     {
       title: 'Template Name',
-      dataIndex: 'templateName',
+      dataIndex: 'name',
       key: 'templateName',
       width: '70%',
       render: (templateName: string, record: any) => (
@@ -62,9 +81,13 @@ export const EmailTemplate = () => {
     <div className="space-y-4">
       {EditTemplate ? (
         <EmailTemplateForm
-          templateId={EditTemplate.key}
-          templateName={EditTemplate.templateName}
-          template={EditTemplate.template}
+          templateId={EditTemplate.templateEmailId}
+          templateName={EditTemplate.name}
+          template={{
+            additionalRecipientUsers: EditTemplate.additionalRecipientUsers || [],
+            subject: EditTemplate.subject || '',
+            emailContent: EditTemplate.emailContent || ''
+          }}
           onCancel={() => setEditTemplate(null)}
         />
       ) : (
@@ -75,7 +98,7 @@ export const EmailTemplate = () => {
             isActionShow={false}
             isCountShow={true}
           />
-          <Table columns={column} dataSource={emailTemplateData} />
+          <Table columns={column} dataSource={emailTemplate} />
         </>
       )}
     </div>
