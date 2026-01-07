@@ -8,10 +8,12 @@ import checklistReducer from './checklist/checklistSlice';
 import screenReducer from './screen/screenSlice';
 import passwordPolicyReducer from './passwordPolicy/passwordPolicySlice';
 import roleAndUserMappingReducer from './roleAndUserMapping/roleAndMappingSlice';
+import builderReducer from './builder/builderSlice';
 
 export const generalReducer = combineReducers({
   generalSetting: generalSettingReducer,
   company: companyReducer,
+  builder: builderReducer,
   surveyor: serveyorReducer,
   customField: customFieldReducer,
   noteTags: noteTagsReducer,

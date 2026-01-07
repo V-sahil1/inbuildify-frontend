@@ -15,22 +15,20 @@ export const useStateHook = (countryId?: string) => {
   const isSuccess = status === Status.SUCCESS;
 
   useEffect(() => {
-    if (countryId) {
-      const fetchStates = async () => {
-        try {
-          await dispatch(getStatesByCountryIdThunk(countryId)).unwrap();
-        } catch (err) {
-          setError(err as string);
-        }
-      };
-      fetchStates();
-    }
+    const fetchStates = async () => {
+      try {
+        await dispatch(getStatesByCountryIdThunk(countryId || null)).unwrap();
+      } catch (err) {
+        setError(err as string);
+      }
+    };
+    fetchStates();
   }, [countryId, dispatch]);
 
   const stateOptions = useMemo(() => {
     return states.map(state => ({
       label: state.name,
-      value: state.stateId
+      value: state.stateId,
     }));
   }, [states]);
 

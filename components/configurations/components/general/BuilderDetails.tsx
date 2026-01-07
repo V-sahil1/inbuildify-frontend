@@ -1,14 +1,79 @@
 'use client';
-import React from 'react';
-import { Form, Input, Select, Upload, Button } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Form, Input, Select, Upload, Button, message } from 'antd';
 import { IconUpload } from '@tabler/icons-react';
-import { stateRegionOptions } from 'data/options';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import {
+  fetchBuilderInfo,
+  updateBuilderDetails,
+} from '@redux/feature/admin/general/builder/builderThunk';
+import { Status } from '@lib/constants/enum';
+import { BuilderInfo } from '@redux/feature/admin/general/builder/ibuilderState';
+import { formDataGenerator } from '@lib/utils/formDataGenerator';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
+import { useCountryHook } from '@hooks/useCountryHook';
+import { useStateHook } from '@hooks/useStateHook';
+import { abnRules, phoneRules } from '@lib/constants/formInputValidations';
 
 const BuilderDetails = () => {
   const [form] = Form.useForm();
+  const dispatch = useAppDispatch();
+  const [fileList, setfileList] = useState([]);
+  const [isChanged, setIsChanged] = useState(false);
+  const { builder, status } = useAppSelector(state => state.general.builder);
+  const { countryOptions } = useCountryHook();
+  const { stateOptions } = useStateHook();
 
-  const onFinish = (values: any) => {
-    console.log('Form values:', values);
+  const fetchBuilderDetatil = async () => {
+    try {
+      await dispatch(fetchBuilderInfo()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch builder details');
+    }
+  };
+
+  useEffect(() => {
+    if (status.fetch === Status.IDLE) {
+      fetchBuilderDetatil();
+    }
+    if (builder) {
+      form.setFieldsValue(builder);
+      if (builder.logo) {
+        setfileList([
+          {
+            uid: '-1',
+            name: 'Default Logo ',
+            status: 'done',
+            url: builder.logo,
+          },
+        ]);
+      }
+    }
+  }, [status.fetch]);
+
+  const onFinish = async (values: BuilderInfo) => {
+    await form.validateFields();
+    if (values) {
+      try {
+        if (fileList.length > 0) {
+          values.logo = fileList[0].originFileObj;
+        }
+        const updatedFields = getUpdatedFields(values, builder);
+        if (Object.keys(updatedFields).length === 0) {
+          return;
+        }
+        const formData = formDataGenerator(updatedFields);
+        await dispatch(updateBuilderDetails(formData)).unwrap();
+        message.success('Builder details updated successfully');
+      } catch (error) {
+        message.error(error || 'Failed to update builder details');
+      }
+    }
+  };
+
+  const handleValueChange = (_, allValues: BuilderInfo) => {
+    const updatedFields = getUpdatedFields(allValues, builder);
+    setIsChanged(Object.keys(updatedFields).length > 0);
   };
 
   return (
@@ -17,33 +82,33 @@ const BuilderDetails = () => {
         form={form}
         layout="vertical"
         onFinish={onFinish}
-        initialValues={{
-          country: 'Australia',
-        }}
+        initialValues={builder}
         className="space-y-10"
+        onValuesChange={handleValueChange}
+        disabled={status.update === Status.PENDING}
       >
         {/* Builder Section */}
         <h2 className="text-xl font-semibold border-b pb-2">Builder Details</h2>
         <div className="grid grid-cols-2 gap-6">
-          <Form.Item label="Builder Name" name="builderName">
+          <Form.Item label="Builder Name" name="name">
             <Input />
           </Form.Item>
           <Form.Item label="Email" name="email">
             <Input />
           </Form.Item>
-          <Form.Item label="Phone" name="phone">
+          <Form.Item label="Phone" name="phoneNumber" rules={phoneRules}>
             <Input />
           </Form.Item>
-          <Form.Item label="ABN" name="abn">
+          <Form.Item label="ABN" name="abnNumber" rules={abnRules}>
             <Input />
           </Form.Item>
-          <Form.Item label="ACN" name="acn">
+          <Form.Item label="ACN" name="acnNumber">
             <Input />
           </Form.Item>
           <Form.Item label="HIA Membership No" name="hiaMembershipNo">
             <Input />
           </Form.Item>
-          <Form.Item label="Register Number" name="registerNumber">
+          <Form.Item label="Register Number" name="registrationNumber">
             <Input />
           </Form.Item>
           <Form.Item label="Registered Building Practitioner" name="registeredBuildingPractitioner">
@@ -52,7 +117,7 @@ const BuilderDetails = () => {
           <Form.Item label="Practitioner Reg No" name="practitionerRegNo">
             <Input />
           </Form.Item>
-          <Form.Item label="Builders Name (Licensed)" name="buildersNameLicensed">
+          <Form.Item label="Builders Name (Licensed)" name="licensedBuilderName">
             <Input />
           </Form.Item>
         </div>
@@ -60,22 +125,22 @@ const BuilderDetails = () => {
         {/* Address Section */}
         <h2 className="text-xl font-semibold border-b pb-2">Address Details</h2>
         <div className="grid grid-cols-2 gap-6">
-          <Form.Item label="Address 1" name="address1">
+          <Form.Item label="Address 1" name={['address', 'addressLine1']}>
             <Input />
           </Form.Item>
-          <Form.Item label="Address 2" name="address2">
+          <Form.Item label="Address 2" name={['address', 'addressLine2']}>
             <Input />
           </Form.Item>
-          <Form.Item label="City / Suburb" name="citySuburb">
+          <Form.Item label="City / Suburb" name={['address', 'city']}>
             <Input />
           </Form.Item>
-          <Form.Item label="State / Region" name="stateRegion">
-            <Select options={stateRegionOptions} />
+          <Form.Item label="State / Region" name={['address', 'stateId']}>
+            <Select options={stateOptions} />
           </Form.Item>
-          <Form.Item label="Country" name="country">
-            <Input readOnly className="bg-gray-100 text-gray-500" />
+          <Form.Item label="Country" name={['address', 'countryId']}>
+            <Select options={countryOptions} />
           </Form.Item>
-          <Form.Item label="Zip / Postal Code" name="zipPostalCode">
+          <Form.Item label="Zip / Postal Code" name={['address', 'zipCode']}>
             <Input />
           </Form.Item>
         </div>
@@ -89,10 +154,10 @@ const BuilderDetails = () => {
           <Form.Item label="Account Name" name="accountName">
             <Input />
           </Form.Item>
-          <Form.Item label="Account Number" name="accountNo">
+          <Form.Item label="Account Number" name="accountNumber">
             <Input />
           </Form.Item>
-          <Form.Item label="Account BSB" name="accountBSB">
+          <Form.Item label="Account BSB" name="accountBsb">
             <Input />
           </Form.Item>
         </div>
@@ -100,25 +165,45 @@ const BuilderDetails = () => {
         {/* Building Insurer */}
         <h2 className="text-xl font-semibold border-b pb-2">Building Insurer</h2>
         <div className="grid grid-cols-2 gap-6">
-          <Form.Item label="Insurer" name="insurer">
+          <Form.Item
+            label="Insurer"
+            name={['insurer', 'insurerName']}
+            rules={[{ required: true, message: 'Please Enter Insurer Name' }]}
+          >
             <Input />
           </Form.Item>
-          <Form.Item label="Insurer Address 1" name="insurerAddress1">
+          <Form.Item
+            label="Insurer Address 1"
+            name={['insurer', 'addressLine1']}
+            rules={[{ required: true, message: 'Please Enter Insurer Address 1' }]}
+          >
             <Input />
           </Form.Item>
-          <Form.Item label="Insurer Address 2" name="insurerAddress2">
+          <Form.Item label="Insurer Address 2" name={['insurer', 'addressLine2']}>
             <Input />
           </Form.Item>
-          <Form.Item label="State / Region" name="insurerStateRegion">
-            <Select options={stateRegionOptions} />
+          <Form.Item
+            label="State / Region"
+            name={['insurer', 'stateId']}
+            rules={[{ required: true, message: 'Please Select State' }]}
+          >
+            <Select options={stateOptions} />
           </Form.Item>
-          <Form.Item label="Zip / Postal Code" name="insurerZipPostalCode">
+          <Form.Item
+            label="Zip / Postal Code"
+            name={['insurer', 'zipCode']}
+            rules={[{ required: true, message: 'Please Enter Zip Code' }]}
+          >
             <Input />
           </Form.Item>
-          <Form.Item label="Phone" name="insurerPhone">
+          <Form.Item label="Phone" name={['insurer', 'phoneNumber']} rules={phoneRules}>
             <Input />
           </Form.Item>
-          <Form.Item label="Name of Insured" name="nameOfInsured">
+          <Form.Item
+            label="Name of Insured"
+            name={['insurer', 'insuredName']}
+            rules={[{ required: true, message: 'Please Enter Name of Insured' }]}
+          >
             <Input />
           </Form.Item>
         </div>
@@ -128,35 +213,43 @@ const BuilderDetails = () => {
         <div className="grid grid-cols-2 gap-6">
           <div className="flex flex-col gap-3">
             <span className="font-medium">Builder Logo</span>
-            <Upload
-              name="builderLogo"
-              listType="picture"
-              multiple={false}
-              maxCount={1}
-              beforeUpload={() => false}
+            <Form.Item
+              name="logo"
+              getValueFromEvent={({ fileList }) => {
+                if (fileList && fileList.length > 0) {
+                  return fileList[0].originFileObj;
+                }
+                return null;
+              }}
             >
-              <Button icon={<IconUpload />}>Upload</Button>
-            </Upload>
-          </div>
-
-          <div className="flex flex-col gap-3">
-            <span className="font-medium">Practitioner License</span>
-            <Upload
-              name="practitionerLicense"
-              listType="picture"
-              multiple={false}
-              maxCount={1}
-              beforeUpload={() => false}
-            >
-              <Button icon={<IconUpload />}>Upload</Button>
-            </Upload>
+              <Upload
+                name="builderLogo"
+                listType="picture"
+                multiple={false}
+                maxCount={1}
+                beforeUpload={() => false}
+                fileList={fileList}
+                onChange={({ fileList: newFileList }) => {
+                  setfileList(newFileList);
+                }}
+              >
+                <Button icon={<IconUpload />}>Upload</Button>
+              </Upload>
+            </Form.Item>
           </div>
         </div>
 
         <div className="flex justify-end pt-6">
-          <Button type="primary" size="large" htmlType="submit">
-            Save
-          </Button>
+          {isChanged && (
+            <Button
+              type="primary"
+              size="large"
+              htmlType="submit"
+              loading={status.update === Status.PENDING}
+            >
+              Save
+            </Button>
+          )}
         </div>
       </Form>
     </div>
