@@ -18,10 +18,10 @@ export const getCountriesThunk = createAsyncThunk(
 
 export const getStatesByCountryIdThunk = createAsyncThunk(
   'location/getStatesByCountryId',
-  async (countryId: string, { rejectWithValue }) => {
+  async (countryId: string | null, { rejectWithValue }) => {
     try {
       const response: ApiResponse<IStateResponse[]> = await api.get(
-        API_ENDPOINTS.STATE_BASE + '/' + countryId
+        `${API_ENDPOINTS.STATE_BASE}${countryId ? '/' + countryId : ''}`
       );
       return response.data;
     } catch (err: any) {
