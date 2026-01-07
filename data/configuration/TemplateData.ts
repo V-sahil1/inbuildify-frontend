@@ -1,36 +1,3 @@
-export const notesTemplateData = [
-  {
-    key: 1,
-    notestemplate: 'Request Quote Sign',
-    content: `Hi [FirstName],
-    This is a follow-up to your quotation.
-    Please sign the quote and send it back asap.`,
-  },
-  {
-    key: 2,
-    notestemplate: 'Construction update',
-    content: `Update for [Address] .....`,
-  },
-  {
-    key: 3,
-    notestemplate: 'Base update',
-    content: `Hello [FullName],
-    ergtryhj`,
-  },
-  {
-    key: 4,
-    notestemplate: 'Client Update',
-    content: `Hi [FirstName],
-    Update on the [Address]`,
-  },
-  {
-    key: 5,
-    notestemplate: 'Supervisor Details to Client',
-    content: `Your Supervisor details below,
-    Name: [SiteSupervisorName]`,
-  },
-];
-
 export const PdfTemplateData = [
   { key: 1, name: 'Invoice Format' },
   { key: 2, name: 'Receipt Format' },

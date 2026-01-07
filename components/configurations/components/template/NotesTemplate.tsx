@@ -1,67 +1,119 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Modal, Table, message, Input, Dropdown, Menu } from 'antd';
 import { IconEdit, IconPlus, IconTrash, IconCheck, IconX } from '@tabler/icons-react';
-import { notesTemplateData, personalizationList } from 'data/configuration/TemplateData';
+import { personalizationList } from 'data/configuration/TemplateData';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import {
+  activateNotesTemplate,
+  createNotesTemplate,
+  fetchNotesTemplate,
+  updateNotesTemplate,
+} from '@redux/feature/admin/template/notes/notesThunk';
+import { Status } from '@lib/constants/enum';
 
 export const TemplateNotes = () => {
-  const [templates, setTemplates] = useState(notesTemplateData);
+  const dispatch = useAppDispatch();
+  const { notes, status } = useAppSelector(state => state.template.notesTemplate);
+
   const [modalMode, setModalMode] = useState<false | 'activate' | 'deactivate'>(false);
   const [selectedRow, setSelectedRow] = useState<any>(null);
 
   const [isCreating, setIsCreating] = useState(false);
-  const [isEditing, setIsEditing] = useState<number | null>(null);
+  const [isEditing, setIsEditing] = useState<string | null>(null);
 
   const [templateForm, setTemplateForm] = useState({
     notestemplate: '',
     content: '',
   });
 
+  const fetchNotesData = async () => {
+    try {
+      await dispatch(fetchNotesTemplate()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch the notes');
+    }
+  };
+
+  useEffect(() => {
+    if (status.fetch === Status.IDLE) {
+      fetchNotesData();
+    }
+  }, [dispatch, status.fetch]);
+
   const insertToken = (token: string) =>
     setTemplateForm(prev => ({ ...prev, content: prev.content + ` [${token}]` }));
 
-  const saveTemplate = () => {
+  const saveTemplate = async () => {
     if (!templateForm.notestemplate.trim()) {
       return message.error('Template name required.');
     }
 
-    const newEntry = {
-      key: templates.length + 1,
-      ...templateForm,
-      activated: false,
-    };
-
-    setTemplates([newEntry, ...templates]);
-    resetForm();
-    message.success('Template added. Click + to activate.');
+    try {
+      await dispatch(
+        createNotesTemplate({
+          name: templateForm.notestemplate,
+          content: templateForm.content,
+        })
+      ).unwrap();
+      message.success('Template added. Click + to activate.');
+      resetForm();
+    } catch (error: any) {
+      message.error(error || 'Failed to create template');
+    }
   };
 
-  const updateTemplate = () => {
-    setTemplates(prev =>
-      prev.map(item => (item.key === isEditing ? { ...item, ...templateForm } : item))
-    );
+  const updateTemplate = async () => {
+    if (!isEditing) return;
 
-    resetForm();
-    message.success('Template updated.');
+    try {
+      await dispatch(
+        updateNotesTemplate({
+          id: isEditing,
+          data: {
+            name: templateForm.notestemplate,
+            content: templateForm.content,
+          },
+        })
+      ).unwrap();
+      message.success('Template updated.');
+      resetForm();
+    } catch (error: any) {
+      message.error(error || 'Failed to update template');
+    }
   };
 
-  const activateTemplate = () => {
-    setTemplates(prev =>
-      prev.map(t => (t.key === selectedRow.key ? { ...t, activated: true } : t))
-    );
+  const activateTemplate = async () => {
+    if (!selectedRow) return;
 
-    closeModal();
-    message.success('Template activated.');
+    try {
+      await dispatch(
+        activateNotesTemplate({
+          id: selectedRow.templateNoteId,
+        })
+      ).unwrap();
+      message.success('Template activated.');
+      closeModal();
+    } catch (error: any) {
+      message.error(error || 'Failed to activate template');
+    }
   };
 
-  const deactivateTemplate = () => {
-    setTemplates(prev =>
-      prev.map(t => (t.key === selectedRow.key ? { ...t, activated: false } : t))
-    );
+  const deactivateTemplate = async () => {
+    if (!selectedRow) return;
 
-    closeModal();
-    message.success('Template deactivated.');
+    try {
+      await dispatch(
+        activateNotesTemplate({
+          id: selectedRow.templateNoteId,
+        })
+      ).unwrap();
+      message.success('Template deactivated.');
+      closeModal();
+    } catch (error: any) {
+      message.error(error || 'Failed to deactivate template');
+    }
   };
 
   const resetForm = () => {
@@ -95,7 +147,7 @@ export const TemplateNotes = () => {
       title: 'Notes Template',
       width: '75%',
       render: (_: any, record: any) => {
-        const editing = isEditing === record.key;
+        const editing = isEditing === record.templateNoteId;
         const creating = record.newRow;
 
         if (creating || editing) {
@@ -125,7 +177,7 @@ export const TemplateNotes = () => {
 
         return (
           <div>
-            <div className="font-medium text-sm">{record.notestemplate}</div>
+            <div className="font-medium text-sm">{record.name}</div>
 
             <div className="text-xs mt-1 whitespace-pre-line">{record.content}</div>
           </div>
@@ -136,7 +188,11 @@ export const TemplateNotes = () => {
       title: (
         <div className="flex justify-end">
           {!isCreating && !isEditing && (
-            <Button type="primary" onClick={() => setIsCreating(true)}>
+            <Button
+              type="primary"
+              onClick={() => setIsCreating(true)}
+              disabled={status.create === Status.PENDING}
+            >
               <IconPlus /> New
             </Button>
           )}
@@ -144,17 +200,22 @@ export const TemplateNotes = () => {
       ),
       width: '10%',
       render: (_: any, record: any) => {
-        const editing = isEditing === record.key;
+        const editing = isEditing === record.templateNoteId;
         const creating = record.newRow;
 
         if (creating) {
           return (
             <div className="flex gap-1 mt-2">
-              <Button type="text" onClick={saveTemplate}>
+              <Button type="text" onClick={saveTemplate} loading={status.create === Status.PENDING}>
                 <IconCheck size={18} className="text-primaary" />
               </Button>
 
-              <Button type="text" danger onClick={resetForm}>
+              <Button
+                type="text"
+                danger
+                onClick={resetForm}
+                disabled={status.create === Status.PENDING}
+              >
                 <IconX size={18} />
               </Button>
             </div>
@@ -164,11 +225,20 @@ export const TemplateNotes = () => {
         if (editing) {
           return (
             <div className="flex gap-1 mt-2">
-              <Button type="text" onClick={updateTemplate}>
+              <Button
+                type="text"
+                onClick={updateTemplate}
+                loading={status.update === Status.PENDING}
+              >
                 <IconCheck size={18} className="text-primaary" />
               </Button>
 
-              <Button type="text" danger onClick={resetForm}>
+              <Button
+                type="text"
+                danger
+                onClick={resetForm}
+                disabled={status.update === Status.PENDING}
+              >
                 <IconX size={18} />
               </Button>
             </div>
@@ -177,7 +247,7 @@ export const TemplateNotes = () => {
 
         return (
           <div className="flex justify-end gap-2">
-            {!record.activated ? (
+            {!record.isActive ? (
               <Button
                 type="text"
                 onClick={() => {
@@ -185,16 +255,16 @@ export const TemplateNotes = () => {
                   setModalMode('activate');
                 }}
               >
-                <IconPlus size={18} />
+                <IconPlus size={18} className="text-gray-400" />
               </Button>
             ) : (
               <>
                 <Button
                   type="text"
                   onClick={() => {
-                    setIsEditing(record.key);
+                    setIsEditing(record.templateNoteId);
                     setTemplateForm({
-                      notestemplate: record.notestemplate,
+                      notestemplate: record.name,
                       content: record.content,
                     });
                   }}
@@ -220,11 +290,17 @@ export const TemplateNotes = () => {
     },
   ];
 
-  const tableData = isCreating ? [{ key: 'new', newRow: true }, ...templates] : templates;
+  const tableData = isCreating ? [{ templateNoteId: 'new', newRow: true }, ...notes] : notes;
 
   return (
     <div className="space-y-4">
-      <Table columns={columns} dataSource={tableData} pagination={false} />
+      <Table
+        columns={columns}
+        dataSource={tableData}
+        pagination={false}
+        loading={status.fetch === Status.PENDING}
+        rowKey="templateNoteId"
+      />
 
       <Modal
         title="Confirmation"
@@ -232,23 +308,33 @@ export const TemplateNotes = () => {
         onCancel={closeModal}
         centered
         footer={[
-          <Button key="cancel" onClick={closeModal}>
+          <Button key="cancel" onClick={closeModal} disabled={status.activate === Status.PENDING}>
             Cancel
           </Button>,
           modalMode === 'activate' && (
-            <Button key="ok" type="primary" onClick={activateTemplate}>
+            <Button
+              key="ok"
+              type="primary"
+              onClick={activateTemplate}
+              loading={status.activate === Status.PENDING}
+            >
               Activate
             </Button>
           ),
           modalMode === 'deactivate' && (
-            <Button key="deact" type="primary" onClick={deactivateTemplate}>
+            <Button
+              key="deact"
+              type="primary"
+              onClick={deactivateTemplate}
+              loading={status.activate === Status.PENDING}
+            >
               Deactivate
             </Button>
           ),
         ]}
       >
         <p>
-          <strong>Template Name:</strong> {selectedRow?.notestemplate}
+          <strong>Template Name:</strong> {selectedRow?.name}
         </p>
         <p>
           {modalMode === 'deactivate'
