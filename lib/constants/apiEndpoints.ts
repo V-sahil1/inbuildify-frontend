@@ -190,6 +190,7 @@ class API_ENDPOINTS {
 
   // Template
   public static EMAIL_TEMPLATE = '/template-email';
+  public static EMAIL_SIGNATURE = '/template-email-signature';
 
   public static ROLE_BASE = '/role';
 

@@ -3,7 +3,6 @@
 import React, { KeyboardEvent, MouseEvent, useCallback, useMemo, useRef } from 'react';
 import { Descendant, Editor, Element as SlateElement, Transforms, createEditor } from 'slate';
 import DOMPurify from 'dompurify';
-import { jsx } from 'slate-hyperscript';
 import { withHistory } from 'slate-history';
 import {
   Editable,
@@ -68,15 +67,29 @@ const safeMarks = (editor: Editor) => {
   }
 };
 
-const RichTextEditor: React.FC<RichTextEditorProps> = ({
+export interface RichTextEditorRef {
+  insertAtCursor: (text: string) => void;
+}
+
+const RichTextEditor = React.forwardRef<RichTextEditorRef, RichTextEditorProps>(({
   value,
   onChange,
   placeholder = 'Enter your message...',
   maxHeight = '300px',
-}) => {
+}, ref) => {
   const renderElement = useCallback((props: RenderElementProps) => <Element {...props} />, []);
   const renderLeaf = useCallback((props: RenderLeafProps) => <Leaf {...props} />, []);
   const editor = useMemo(() => withHistory(withReact(createEditor())), []);
+
+  React.useImperativeHandle(ref, () => ({
+    insertAtCursor: (text: string) => {
+      if (!editor.selection) {
+        // If no selection, focus at the end of the document
+        Transforms.select(editor, Editor.end(editor, []));
+      }
+      Transforms.insertText(editor, text);
+    },
+  }));
 
   const slateValue = useMemo(() => {
     if (!value) return [{ type: 'paragraph', children: [{ text: '' }] }];
@@ -172,7 +185,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       </Slate>
     </div>
   );
-};
+});
 
 /** ---------------- Helper Functions ---------------- */
 

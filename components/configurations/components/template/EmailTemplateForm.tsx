@@ -7,9 +7,10 @@ import RichTextEditor from '@/components/common/rich-text-editor/RichTextEditor'
 import { useUsersHook } from '@hooks/useUserHook';
 import { InsertAtCursor } from '@lib/utils/InsertAtCursor';
 import { TextAreaRef } from 'antd/es/input/TextArea';
-import { useAppDispatch } from '@hooks/redux';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { updateEmailTemplate } from '@redux/feature/admin/template/email/emailThunk';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
+import { Status } from '@lib/constants/enum';
 
 export const EmailTemplateForm = ({
   templateId,
@@ -28,6 +29,7 @@ export const EmailTemplateForm = ({
 }) => {
   const { userOptions } = useUsersHook();
   const dispatch = useAppDispatch();
+  const { status } = useAppSelector(state => state.template.emailTemplate);
   const inputRef = useRef<TextAreaRef>(null);
   console.log('template', template);
 
@@ -156,7 +158,12 @@ export const EmailTemplateForm = ({
 
       <div className="flex justify-end gap-3 pt-3">
         <Button onClick={onCancel}>Cancel</Button>
-        <Button type="primary" onClick={handleSave}>
+        <Button 
+          type="primary" 
+          onClick={handleSave} 
+          loading={status.update === Status.PENDING} 
+          disabled={status.update === Status.PENDING}
+        >
           Save Template
         </Button>
       </div>
