@@ -64,7 +64,7 @@ const appReducer = combineReducers({
   portal: portalReducer,
   schedular: schedularReducer,
   integration: integrationReducer,
-  document: documentReducer
+  document: documentReducer,
   template: templateReducer,
 });
 
