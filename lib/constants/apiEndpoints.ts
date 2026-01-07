@@ -176,8 +176,17 @@ class API_ENDPOINTS {
   public static CONSTRUCTION_TYPE = '/construction-type';
   public static CONSTRUCTION_STAGE = '/construction-stage';
 
+  //document
+  public static DOCUMENT_AREA = '/document-common-folder'; 
+  public static DOCUMENT_SUB_FOLDER = '/document-common-subfolder'; 
+  public static DOCUMENT_FILE_NAMING = '/document-file-naming-rule';
+  public static DOCUMENT_FILE_NAMING_FORMAT = `${this.DOCUMENT_FILE_NAMING}/naming-format`
+  public static DOCUMENT_FOLDER_MAPPING = '/document-folder-mapping'; 
+
   // integration
   public static INTEGRATION_SETTING = '/integration-setting';
+  public static INTEGRATION_CUSTOM_FIELD = '/integration-custom-field-header';
+  public static INTEGRATION_CUSTOM_FIELD_ITEM = '/integration-custom-field-item'
 
   public static ROLE_BASE = '/role';
 

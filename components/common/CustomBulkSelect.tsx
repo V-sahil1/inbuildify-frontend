@@ -6,7 +6,7 @@ import { useMemo } from 'react';
 export const CustomBulkSelect = ({ value = [], onChange, options, className = '', placeholder = '' }) => {
   const ALL_VALUE = 'All';
   const allValues = useMemo(() => options.map(o => o.value), [options]);
-  const isAllSelected = value.length === allValues.length;
+  const isAllSelected = value?.length === allValues.length;
   const displayValue = value;
   const handleChange = selectedValues => {
     if (selectedValues.includes(ALL_VALUE)) {

@@ -2,38 +2,138 @@
 import ConfirmationModal from '@/components/common/ConfirmationModal';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import { IconCheck, IconEdit, IconMapDown, IconPlus, IconTrash, IconX } from '@tabler/icons-react';
-import { Button, Dropdown, Input, Table } from 'antd';
-import type { TableProps } from 'antd';
-import { useRef, useState } from 'react';
+import { Button, Dropdown, Input, message, Table } from 'antd';
+import { useEffect, useRef, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import {
+  createFileNaming,
+  createFileNamingFormat,
+  deleteFileNaming,
+  fetchAllFileNaming,
+  fetchAllFileNamingFormat,
+  updateFileNaming,
+} from '@redux/feature/admin/document/fileNaming/fileNamingThunk';
+import { Status } from '@lib/constants/enum';
+import { fetchAllDocumentArea } from '@redux/feature/admin/document/area/documentAreaThunk';
+import { CustomBulkSelect } from '@/components/common/CustomBulkSelect';
+import { FileNamingRule } from '@redux/feature/admin/document/fileNaming/IFileNamingState';
+import { TextAreaRef } from 'antd/es/input/TextArea';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 
 const options = ['Address', 'Created Date', 'FileType', 'Full Name', 'Reference Number'];
 
 export const FileNaming = () => {
-  const [modelOpen, setModelOpen] = useState<boolean>(false);
-  const [deleteModelOpen, setDeleteModelOpen] = useState<boolean>(false);
-  const [selectedRecord, setSelectedRecord] = useState<any>(null);
+  const dispatch = useAppDispatch();
+  const { files, namingFormat, status, namingFormatStatus } = useAppSelector(
+    state => state.document.files
+  );
+  const { commonFolder, status: folderStatus } = useAppSelector(state => state.document.area);
+  const [modelOpen, setModelOpen] = useState<'create' | 'delete' | null>(null);
+  const [selectedRecord, setSelectedRecord] = useState<FileNamingRule | null>(null);
 
   // For naming format input
   const [value, setValue] = useState('');
-  const [savedValue, setSavedValue] = useState(''); // last confirmed value
-  const inputRef = useRef<any>(null);
+  const inputRef = useRef<TextAreaRef>(null);
+  const folderOptions =
+    commonFolder &&
+    commonFolder.map(item => ({ label: item.name, value: item.documentCommonFolderId }));
+
+  const fetchFolders = async () => {
+    try {
+      await dispatch(fetchAllDocumentArea()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch folders');
+    }
+  };
+
+  const fetchFileNamingFormat = async () => {
+    try {
+      await dispatch(fetchAllFileNamingFormat()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch file naming format');
+    }
+  };
+
+  const fetchFileNaming = async () => {
+    try {
+      await dispatch(fetchAllFileNaming()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch file naming');
+    }
+  };
+
+  useEffect(() => {
+    if (status.fetch === Status.IDLE) {
+      fetchFileNaming();
+    }
+    if (folderStatus.fetch === Status.IDLE) {
+      fetchFolders();
+    }
+    if (namingFormatStatus.fetch === Status.IDLE) {
+      fetchFileNamingFormat();
+    }
+    if (namingFormat) {
+      setValue(namingFormat);
+    }
+  }, [status.fetch, folderStatus.fetch, namingFormatStatus.fetch]);
+
+  const handleSave = async values => {
+    try {
+      if (selectedRecord) {
+        const updatedFields = getUpdatedFields(values, {
+          fileType: selectedRecord.fileType,
+          folderIds: selectedRecord.folderNames.map(i => i.id),
+        });
+        if (Object.keys(updatedFields).length === 0) {
+          setModelOpen(null);
+          setSelectedRecord(null);
+          return;
+        }
+
+        await dispatch(
+          updateFileNaming({ data: updatedFields, id: selectedRecord.documentFileNamingRuleId })
+        ).unwrap();
+        message.success('File naming updated successfully');
+      } else {
+        await dispatch(createFileNaming(values)).unwrap();
+        message.success('File naming created successfully');
+      }
+      setSelectedRecord(null);
+      setModelOpen(null);
+    } catch (error) {
+      message.error(error || 'Failed to save file');
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await dispatch(deleteFileNaming(selectedRecord.documentFileNamingRuleId)).unwrap();
+      message.success('File naming deleted successfully');
+      setSelectedRecord(null);
+      setModelOpen(null);
+    } catch (error) {
+      message.error(error || 'Failed to delete file');
+    }
+  };
 
   const columns = [
     {
       title: 'File Type',
-      dataIndex: 'name',
-      key: 'name',
-      render: (text: any) => <p>{text}</p>,
+      dataIndex: 'fileType',
+      key: 'fileType',
     },
     {
       title: 'Folder',
-      dataIndex: 'folder',
-      key: 'folder',
+      dataIndex: 'folderNames',
+      key: 'folderNames',
+      render: folderNames => {
+        return folderNames && folderNames.map(folder => folder.name).join(', ');
+      },
     },
     {
       title: 'Action',
       key: 'action',
-      render: (_: any, record: any) => (
+      render: (_, record) => (
         <div className="flex gap-2">
           <Button
             icon={<IconEdit />}
@@ -41,7 +141,7 @@ export const FileNaming = () => {
             onClick={e => {
               e.stopPropagation();
               setSelectedRecord(record);
-              setModelOpen(true);
+              setModelOpen('create');
             }}
           />
           <Button
@@ -51,7 +151,7 @@ export const FileNaming = () => {
             onClick={e => {
               e.stopPropagation();
               setSelectedRecord(record);
-              setDeleteModelOpen(true);
+              setModelOpen('delete');
             }}
           />
         </div>
@@ -59,18 +159,14 @@ export const FileNaming = () => {
     },
   ];
 
-  const data = [
-    {
-      key: '1',
-      name: 'Parent Folder 1',
-      folder: 'Folder 1',
-    },
-    {
-      key: '2',
-      name: 'Parent Folder 2',
-      folder: 'Folder 2',
-    },
-  ];
+  const handleSaveNamingFormat = async (value: string) => {
+    try {
+      await dispatch(createFileNamingFormat({ namingFormat: value })).unwrap();
+      message.success('File naming format saved successfully');
+    } catch (error) {
+      message.error(error || 'Failed to save file');
+    }
+  };
 
   const insertAtCursor = (text: string) => {
     const input = inputRef.current?.resizableTextArea?.textArea;
@@ -100,7 +196,7 @@ export const FileNaming = () => {
           icon={<IconPlus />}
           onClick={() => {
             setSelectedRecord(null);
-            setModelOpen(true);
+            setModelOpen('create');
           }}
         >
           New
@@ -110,37 +206,41 @@ export const FileNaming = () => {
       {/* Table */}
       <Table
         columns={columns}
-        dataSource={data}
+        dataSource={files}
         pagination={false}
         rowClassName="hover:bg-gray-50"
+        loading={status.fetch === Status.PENDING}
       />
 
       {/* Model for add/edit */}
-      <ActionDialogmodel
-        open={modelOpen}
-        title={selectedRecord ? 'Edit Folder' : 'New Folder'}
-        isEditing={!!selectedRecord}
-        initialValues={selectedRecord}
-        onCancel={() => setModelOpen(false)}
-        onSubmit={() => setModelOpen(false)}
-        fields={[
-          {
-            label: 'Name',
-            name: 'name',
-            type: 'text',
-          },
-          {
-            label: 'Folder',
-            name: 'folder',
-            type: 'select',
-            options: [
-              { label: 'Receipts', value: 'receipts' },
-              { label: 'Invoices', value: 'invoices' },
-              { label: 'Sketches', value: 'sketches' },
-            ],
-          },
-        ]}
-      />
+      {modelOpen === 'create' && (
+        <ActionDialogmodel
+          open={modelOpen === 'create'}
+          title={selectedRecord ? 'Edit Folder' : 'New Folder'}
+          isEditing={!!selectedRecord}
+          initialValues={{
+            ...selectedRecord,
+            folderIds: selectedRecord?.folderNames?.map(folder => folder.id),
+          }}
+          onCancel={() => setModelOpen(null)}
+          onSubmit={values => handleSave(values)}
+          fields={[
+            {
+              label: 'Name',
+              name: 'fileType',
+              type: 'text',
+              rules: [{ required: true, message: 'Please enter file type' }],
+            },
+            {
+              label: 'Folder',
+              name: 'folderIds',
+              type: 'custom',
+              render: <CustomBulkSelect options={folderOptions} onChange={() => {}} />,
+            },
+          ]}
+          loading={status.create === Status.PENDING}
+        />
+      )}
 
       {/* Naming Format Section */}
       <div className="w-full p-4">
@@ -176,23 +276,33 @@ export const FileNaming = () => {
           </Dropdown>
 
           {/* Only show save/cancel when changed */}
-          {value !== savedValue && (
+          {value !== namingFormat && (
             <>
-              <Button type="text" icon={<IconCheck />} onClick={() => setSavedValue(value)} />
-              <Button type="text" icon={<IconX />} onClick={() => setValue(savedValue)} />
+              <Button
+                type="text"
+                icon={<IconCheck />}
+                onClick={() => {
+                  handleSaveNamingFormat(value);
+                }}
+                loading={namingFormatStatus.create === Status.PENDING}
+              />
+              <Button type="text" icon={<IconX />} onClick={() => setValue(namingFormat)} />
             </>
           )}
         </div>
       </div>
 
       {/* Delete confirmation */}
-      <ConfirmationModal
-        open={deleteModelOpen}
-        type="danger"
-        onClose={() => setDeleteModelOpen(false)}
-        onConfirm={() => setDeleteModelOpen(false)}
-        message="Are you sure you want to delete this folder?"
-      />
+      {modelOpen === 'delete' && (
+        <ConfirmationModal
+          open={modelOpen === 'delete'}
+          type="danger"
+          onClose={() => setModelOpen(null)}
+          onConfirm={() => handleDelete()}
+          message="Are you sure you want to delete this folder?"
+          loading={status.create === Status.PENDING}
+        />
+      )}
     </>
   );
 };
