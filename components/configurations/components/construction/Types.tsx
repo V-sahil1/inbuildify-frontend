@@ -1,102 +1,109 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Space, message, Tooltip, Select, Form } from 'antd';
+import { Table, Button, Space, message, Tooltip, Select } from 'antd';
 import { IconCopy, IconEdit, IconFileText, IconTrash } from '@tabler/icons-react';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import { getDwellingTypes } from '@redux/feature/types/typesThunk';
 import { Status } from '@lib/constants/enum';
 import { constructionTypesFields } from '@/components/formFields/constructionTypesFields';
-import { constructionData } from 'data/configuration/constructionType';
 import ConfirmationModal from '@/components/common/ConfirmationModal';
-
-interface BuildType {
-  id: number;
-  name: string;
-  level: string;
-  dwellingType: string;
-  daysToStart: number;
-  sortOrder: number;
-}
+import { useBuildersHook } from '@hooks/useBuildersHook';
+import { useDwellingTypeHook } from '@hooks/useDwellingTypeHook';
+import {
+  createType,
+  deleteType,
+  fetchAllType,
+  updateType,
+} from '@redux/feature/admin/construction/constructionType/constructionTypeThunk';
+import { ConstructionType } from '@redux/feature/admin/construction/constructionType/IConstructionTypeState';
+import { ColumnType } from 'antd/es/table';
 
 export const Types: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { status } = useAppSelector(state => state.types);
-  const [copyItemModel, setCopyItemModel] = useState<boolean>(false);
-  const [data, setData] = useState<BuildType[]>(constructionData);
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [isDeleteVisible, setDeleteVisible] = useState(false);
-  const [currentItem, setCurrentItem] = useState<BuildType | null>(null);
+  const [modalOpen, setModalOpen] = useState<'copy' | 'create' | 'delete'>(null);
+  const [currentItem, setCurrentItem] = useState<ConstructionType | null>(null);
+  const { builderOptions } = useBuildersHook();
+  const { dwellingTypeOptions } = useDwellingTypeHook();
+  const [builderId, setBuilderId] = useState<string>('');
+  const {
+    type,
+    status: constructionTypeStatus,
+    pagination,
+  } = useAppSelector(state => state.construction.constructionType);
+  const { currentPage = 1, pageSize = 10, totalRecords = 0 } = pagination || {};
+
+  const fetchData = async (page: number = currentPage, limit: number = pageSize) => {
+    try {
+      const result = await dispatch(fetchAllType({ page, limit })).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch construction type');
+    }
+  };
+
+  const handleTableChange = async paginationConfig => {
+    const { current, pageSize: newPageSize } = paginationConfig;
+    await fetchData(current, newPageSize);
+  };
 
   useEffect(() => {
-    if (status.dwellingType === Status.IDLE) {
-      dispatch(getDwellingTypes());
+    if (constructionTypeStatus.fetch === Status.IDLE) {
+      fetchData(1, 10);
     }
-  }, [dispatch, status.dwellingType]);
+  }, [constructionTypeStatus.fetch]);
 
-  const handleOpenModal = (item?: BuildType) => {
-    setCurrentItem(item || null);
-    setModalVisible(true);
-  };
-
-  const handleSave = (values: any) => {
-    if (currentItem?.id) {
-      // Update existing item
-      const updatedData = data.map(item =>
-        item.id === currentItem.id
-          ? {
-              ...item,
-              ...values,
-              daysToStart: Number(values.daysToStart),
-              sortOrder: Number(values.sortOrder),
-            }
-          : item
-      );
-      setData(updatedData);
-      message.success('Build type updated');
-    } else {
-      // Add new item
-      const newItem: BuildType = {
-        id: Date.now(),
-        name: values.name,
-        level: values.level,
-        dwellingType: values.dwellingType,
-        daysToStart: Number(values.daysToStart),
-        sortOrder: Number(values.sortOrder),
-      };
-      setData(prev => [...prev, newItem]);
-      message.success('Build type added');
+  useEffect(() => {
+    if (builderOptions && builderOptions.length > 0 && !builderId) {
+      setBuilderId(builderOptions[0].value);
     }
-    setModalVisible(false);
-    setCopyItemModel(false);
-    setCurrentItem(null);
-  };
+  }, [builderOptions, builderId]);
 
-  const handleCopy = (item: BuildType) => {
+  const handleOpenModal = (item?: ConstructionType) => {
     setCurrentItem(item || null);
-    setCopyItemModel(true);
+    setModalOpen('create');
   };
 
-  const confirmDelete = (item: BuildType) => {
+  const handleSave = async values => {
+    try {
+      if (currentItem?.constructionTypeId) {
+        await dispatch(updateType({ data: values, id: currentItem?.constructionTypeId })).unwrap();
+        message.success('Build type updated');
+      } else {
+        await dispatch(createType({ ...values, builder: builderId })).unwrap();
+        message.success('Build type added');
+      }
+      setModalOpen(null);
+      setCurrentItem(null);
+    } catch (error) {
+      message.error(error || 'Failed to save construction type');
+    }
+  };
+
+  const handleCopy = (item: ConstructionType) => {
+    setCurrentItem(item || null);
+    setModalOpen('copy');
+  };
+
+  const confirmDelete = (item: ConstructionType) => {
     setCurrentItem(item);
-    setDeleteVisible(true);
+    setModalOpen('delete');
   };
 
-  const handleDelete = () => {
-    if (currentItem) {
-      const updatedData = data
-        .filter(i => i.id !== currentItem.id)
-        .map((i, index) => ({ ...i, sortOrder: index + 1 }));
-      setData(updatedData);
-      message.success('Build type deleted');
+  const handleDelete = async () => {
+    try {
+      if (currentItem) {
+        await dispatch(deleteType(currentItem.constructionTypeId)).unwrap();
+        message.success('Build type deleted');
+      }
+      setModalOpen(null);
+    } catch (error) {
+      message.error(error || 'Failed to delete construction type');
     }
-    setDeleteVisible(false);
   };
 
-  const columns = [
+  const columns: ColumnType<ConstructionType>[] = [
     {
       title: 'S.No',
-      render: (_: any, __: any, index: number) => index + 1,
+      render: (_, __, index: number) => index + 1,
       width: 60,
     },
     {
@@ -105,16 +112,16 @@ export const Types: React.FC = () => {
           <span>Types</span>
         </div>
       ),
-      dataIndex: 'name',
-      render: (text: string, record: BuildType) => (
+      dataIndex: 'typesName',
+      render: (_, record: ConstructionType) => (
         <div>
-          <div className="font-medium">{text}</div>
+          <div className="font-medium">{record.typesName || 'No name'}</div>
           <div className="flex gap-2 text-xs mt-1">
             <span className="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-md font-medium">
-              {record.level}
+              {record.builder.name}
             </span>
             <span className="bg-pink-100 text-pink-600 px-2 py-0.5 rounded-md font-medium">
-              {record.dwellingType}
+              {record.dwellingType.map(item => item.name).join(', ')}
             </span>
           </div>
         </div>
@@ -126,8 +133,8 @@ export const Types: React.FC = () => {
           <span>No of days To start construction</span>
         </div>
       ),
-      dataIndex: 'daysToStart',
-      render: (days: number) => `${days} Days`,
+      dataIndex: 'startConstructionDays',
+      render: (startConstructionDays: number) => `${startConstructionDays} Days`,
     },
     {
       title: 'Sort',
@@ -138,7 +145,7 @@ export const Types: React.FC = () => {
     {
       title: 'Actions',
       align: 'right' as const,
-      render: (_: any, record: BuildType) => (
+      render: (_, record: ConstructionType) => (
         <Space>
           <Tooltip title="Edit">
             <Button
@@ -172,11 +179,9 @@ export const Types: React.FC = () => {
         <div className="w-full flex flex-col gap-2">
           <p className="text-medium font-semibold">Builder</p>
           <Select
-            defaultValue="My Home"
-            options={[
-              { label: 'My Home', value: 'My Home' },
-              { label: 'Company Level', value: 'Company Level' },
-            ]}
+            value={builderId}
+            options={builderOptions}
+            onChange={value => setBuilderId(value)}
           />
         </div>
         <Button type="primary" onClick={() => handleOpenModal()}>
@@ -186,61 +191,79 @@ export const Types: React.FC = () => {
 
       <Table
         columns={columns}
-        dataSource={data}
-        rowKey="id"
-        pagination={false}
+        dataSource={type || []}
+        rowKey="constructionTypeId"
+        pagination={{
+          current: currentPage,
+          pageSize: pageSize,
+          total: totalRecords,
+          showSizeChanger: false,
+          showQuickJumper: false,
+          showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
+        }}
+        onChange={handleTableChange}
         bordered
         className="text-sm"
+        loading={constructionTypeStatus.fetch === Status.PENDING}
       />
 
       {/* on the create it is showing the id in the UI but it will be set by the backend response so it is not error */}
-      <ActionDialogmodel
-        title={currentItem ? 'Edit Build Type' : 'Add Build Type'}
-        open={isModalVisible}
-        onCancel={() => setModalVisible(false)}
-        onSubmit={handleSave}
-        isEditing={!!currentItem}
-        submitButtonText={currentItem ? 'Update' : 'Create'}
-        fields={constructionTypesFields()}
-        initialValues={currentItem}
-      />
+      {modalOpen === 'create' && (
+        <ActionDialogmodel
+          title={currentItem ? 'Edit Build Type' : 'Add Build Type'}
+          open={modalOpen === 'create'}
+          onCancel={() => setModalOpen(null)}
+          onSubmit={handleSave}
+          isEditing={!!currentItem}
+          submitButtonText={currentItem ? 'Update' : 'Create'}
+          fields={constructionTypesFields(dwellingTypeOptions)}
+          initialValues={{
+            ...currentItem,
+            dwellingType: currentItem?.dwellingType?.map(item => item.id),
+          }}
+          loading={constructionTypeStatus.create === Status.PENDING}
+        />
+      )}
 
-      <ActionDialogmodel
-        title="copy construction Type"
-        open={copyItemModel}
-        onCancel={() => setCopyItemModel(false)}
-        onSubmit={handleSave}
-        isEditing={true}
-        submitButtonText="Copy"
-        fields={[
-          {
-            label: 'Builder',
-            name: 'builder',
-            type: 'select',
-            options: [
-              { label: 'My Home', value: 'My Home' },
-              { label: 'Company Level', value: 'Company Level' },
-            ],
-          },
-          {
-            label: 'New construction type',
-            name: 'newConstructionType',
-            type: 'text',
-          },
-        ]}
-        initialValues={currentItem}
-      />
+      {modalOpen === 'copy' && (
+        <ActionDialogmodel
+          title="copy construction Type"
+          open={modalOpen === 'copy'}
+          onCancel={() => setModalOpen(null)}
+          onSubmit={handleSave}
+          isEditing={true}
+          submitButtonText="Copy"
+          fields={[
+            {
+              label: 'Builder',
+              name: 'builder',
+              type: 'select',
+              options: builderOptions,
+            },
+            {
+              label: 'New construction type',
+              name: 'newConstructionType',
+              type: 'text',
+            },
+          ]}
+          initialValues={currentItem}
+          loading={constructionTypeStatus.create === Status.PENDING}
+        />
+      )}
 
       {/* Delete Confirmation Modal */}
-      <ConfirmationModal
-        title="Confirm Delete"
-        open={isDeleteVisible}
-        onConfirm={handleDelete}
-        onClose={() => setDeleteVisible(false)}
-        confirmText="Delete"
-        message={`Are you sure you want to delete  ${currentItem?.name}`}
-        type="danger"
-      />
+      {modalOpen === 'delete' && (
+        <ConfirmationModal
+          title="Confirm Delete"
+          open={modalOpen === 'delete'}
+          onConfirm={handleDelete}
+          onClose={() => setModalOpen(null)}
+          confirmText="Delete"
+          message={`Are you sure you want to delete  ${currentItem?.typesName}`}
+          type="danger"
+          loading={constructionTypeStatus.create === Status.PENDING}
+        />
+      )}
     </div>
   );
 };

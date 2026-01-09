@@ -1,27 +1,20 @@
 import { Status } from '@lib/constants/enum';
-export interface Type {
+import { CommonPagination } from '@redux/feature/common/ICommonState';
+import { Entity } from 'types/common.types';
+export interface ConstructionType {
   constructionTypeId?: string;
-  builder: string;
+  builder: Entity;
   typesName: string;
   startConstructionDays: number;
   sortOrder: number;
-  dwellingType: string[];
-}
-
-export interface ConstructionTypeResponse {
-  constructionTypeId: string;
-  builder: string;
-  typesName: string;
-  startConstructionDays: number;
-  sortOrder: number;
-  dwellingType: string[];
+  dwellingType: Entity[];
 }
 
 export interface ITypeState {
-  type: Type[];
+  type: ConstructionType[];
+  pagination: CommonPagination;
   status: {
     fetch: Status;
-    update: Status;
     create: Status;
   };
 }

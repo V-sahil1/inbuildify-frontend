@@ -1,7 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { Status } from '@lib/constants/enum';
 import { IStageState } from './IConstructionStageState';
-import { createStage, deleteStage, fetchAllStage, updateStage } from './constructionStageThunk';
+import {
+  createStage,
+  deleteStage,
+  fetchAllConstructionStage,
+  updateStage,
+} from './constructionStageThunk';
 
 const initialState: IStageState = {
   stage: [],
@@ -16,26 +21,47 @@ const stageSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: builder => {
+    builder.addCase(createStage.pending, state => {
+      state.status.create = Status.PENDING;
+    });
     builder.addCase(createStage.fulfilled, (state, action) => {
       state.stage.unshift(action.payload);
+      state.status.create = Status.SUCCESS;
     });
-    builder.addCase(fetchAllStage.pending, state => {
+    builder.addCase(createStage.rejected, state => {
+      state.status.create = Status.ERROR;
+    });
+    builder.addCase(fetchAllConstructionStage.pending, state => {
       state.status.fetch = Status.PENDING;
     });
-    builder.addCase(fetchAllStage.fulfilled, (state, action) => {
+    builder.addCase(fetchAllConstructionStage.fulfilled, (state, action) => {
       state.stage = action.payload.constructionStages;
       state.status.fetch = Status.SUCCESS;
     });
-    builder.addCase(fetchAllStage.rejected, state => {
+    builder.addCase(fetchAllConstructionStage.rejected, state => {
       state.status.fetch = Status.ERROR;
+    });
+    builder.addCase(updateStage.pending, state => {
+      state.status.create = Status.PENDING;
     });
     builder.addCase(updateStage.fulfilled, (state, action) => {
       state.stage = state.stage.map(i =>
         i.constructionStage === action.payload.constructionStage ? action.payload : i
       );
+      state.status.create = Status.SUCCESS;
+    });
+    builder.addCase(updateStage.rejected, state => {
+      state.status.create = Status.ERROR;
+    });
+    builder.addCase(deleteStage.pending, state => {
+      state.status.create = Status.PENDING;
     });
     builder.addCase(deleteStage.fulfilled, (state, action) => {
       state.stage = state.stage.filter(i => i.constructionStage !== action.payload);
+      state.status.create = Status.SUCCESS;
+    });
+    builder.addCase(deleteStage.rejected, state => {
+      state.status.create = Status.ERROR;
     });
   },
 });

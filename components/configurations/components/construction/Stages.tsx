@@ -1,5 +1,5 @@
 'use client';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Table,
   Input,
@@ -12,33 +12,27 @@ import {
   ColorPicker,
 } from 'antd';
 import { IconPlus, IconEdit, IconTrash, IconCheck, IconX } from '@tabler/icons-react';
-import { stagesData } from 'data/configuration/StagesData';
+import { useBuildersHook } from '@hooks/useBuildersHook';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { Status } from '@lib/constants/enum';
+import { fetchAllType } from '@redux/feature/admin/construction/constructionType/constructionTypeThunk';
+import {
+  createStage,
+  deleteStage,
+  fetchAllConstructionStage,
+  updateStage,
+} from '@redux/feature/admin/construction/constructionStage/constructionStageThunk';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
+import { ConstructionStage } from '@redux/feature/admin/construction/constructionStage/IConstructionStageState';
 
-const { Option } = Select;
-
-type StageRow = {
-  id: number;
-  name: string;
-  days: number;
-  sortOrder: number;
-  siteImage: boolean;
-  inspection: string;
-  bgColor: string;
-  fontColor: string;
-};
-
-const INSPECTION_OPTIONS = ['Stage Start', 'Stage End', 'Stage Mid'];
-
-const dummyInitial: StageRow[] = stagesData || [];
-
-function normalizeAndSort(arr: StageRow[]) {
+function normalizeAndSort(arr: ConstructionStage[]) {
   return arr
     .slice()
     .sort((a, b) => a.sortOrder - b.sortOrder)
     .map((r, i) => ({ ...r, sortOrder: i + 1 }));
 }
 
-function insertAtSort(rows: StageRow[], newRow: StageRow, desiredSort: number) {
+function insertAtSort(rows: ConstructionStage[], newRow: ConstructionStage, desiredSort: number) {
   const max = rows.length + 1;
   const pos = Math.min(Math.max(1, Math.floor(desiredSort)), max);
   // bump all with sort >= pos
@@ -48,18 +42,18 @@ function insertAtSort(rows: StageRow[], newRow: StageRow, desiredSort: number) {
 }
 
 function moveAndReindex(
-  rows: StageRow[],
-  id: number,
+  rows: ConstructionStage[],
+  id: string,
   newSort: number,
-  updatedValues?: Partial<StageRow>
+  updatedValues?: Partial<ConstructionStage>
 ) {
-  const old = rows.find(r => r.id === id);
+  const old = rows.find(r => r.constructionStage === id);
   if (!old) return normalizeAndSort(rows);
   const oldSort = old.sortOrder;
   const max = rows.length;
   const pos = Math.min(Math.max(1, Math.floor(newSort)), max);
 
-  const others = rows.filter(r => r.id !== id).map(r => ({ ...r }));
+  const others = rows.filter(r => r.constructionStage !== id).map(r => ({ ...r }));
   const shifted = others.map(r => {
     if (pos < oldSort) {
       if (r.sortOrder >= pos && r.sortOrder < oldSort) return { ...r, sortOrder: r.sortOrder + 1 };
@@ -74,28 +68,69 @@ function moveAndReindex(
 }
 
 export function Stages() {
-  const [rows, setRows] = useState<StageRow[]>(() => normalizeAndSort(dummyInitial));
-  const [editingId, setEditingId] = useState<number | 'new' | null>(null);
-  const [local, setLocal] = useState<Partial<StageRow> | null>(null);
+  const dispatch = useAppDispatch();
+  const [editingId, setEditingId] = useState<string | 'new' | null>(null);
+  const [selectedStage, setSelectedStage] = useState<ConstructionStage | null>(null);
+  const [local, setLocal] = useState<Partial<ConstructionStage> | null>(null);
+  const [builderId, setBuilderId] = useState<string>('');
+  const [typeId, setTypeId] = useState<string>('');
+  const { builderOptions } = useBuildersHook();
+  const { type, status: typeStatus } = useAppSelector(state => state.construction.constructionType);
+  const { stage, status } = useAppSelector(state => state.construction.constructionStage);
+  const typeOptions =
+    type && type.length > 0
+      ? type.map(i => ({ value: i.constructionTypeId, label: i.typesName }))
+      : [];
 
-  const totalCount = rows.length;
+  const fetchTypeData = async () => {
+    try {
+      await dispatch(fetchAllType({})).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch construction type');
+    }
+  };
+  const fetchStageData = async () => {
+    try {
+      await dispatch(fetchAllConstructionStage()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch construction stage');
+    }
+  };
+  useEffect(() => {
+    if (typeStatus.fetch === Status.IDLE) {
+      fetchTypeData();
+    }
+    if (type && type.length > 0) {
+      setTypeId(type[0].constructionTypeId);
+    }
+    if (status.fetch === Status.IDLE) {
+      fetchStageData();
+    }
+  }, [typeStatus.fetch, status.fetch]);
 
-  const startEdit = (row?: StageRow) => {
+  useEffect(() => {
+    if (builderOptions && builderOptions.length > 0 && !builderId) {
+      setBuilderId(builderOptions[0].value);
+    }
+  }, [builderOptions, builderId]);
+
+  const startEdit = (row?: ConstructionStage) => {
     if (!row) {
       // new row mode
       setEditingId('new');
       setLocal({
-        id: Date.now(),
-        name: '',
+        constructionStage: 'new',
+        stageName: '',
         days: 0,
-        sortOrder: rows.length + 1,
+        sortOrder: stage.length + 1,
         siteImage: false,
-        inspection: INSPECTION_OPTIONS[0],
+        inspection: 'stage_start',
         bgColor: '#6f2ca8',
         fontColor: '#ffffff',
       });
     } else {
-      setEditingId(row.id);
+      setSelectedStage(row);
+      setEditingId(row.constructionStage);
       setLocal({ ...row });
     }
   };
@@ -107,53 +142,61 @@ export function Stages() {
 
   const saveRow = async () => {
     if (!local) return;
-    if (!local.name || !local.days) {
-    }
-    if (!local.name?.trim()) {
-      message.error('Stage name is required');
+    if (!local.stageName?.trim() || !local.days) {
+      message.error('Stage name and days are required');
       return;
     }
-    const desiredSort = Number(local.sortOrder) || rows.length + (editingId === 'new' ? 1 : 0);
-
-    if (editingId === 'new') {
-      // insert
-      const newRow: StageRow = {
-        id: local.id as number,
-        name: local.name!,
-        days: Number(local.days || 0),
-        sortOrder: Math.min(Math.max(1, Math.floor(desiredSort)), rows.length + 1),
-        siteImage: Boolean(local.siteImage),
-        inspection: String(local.inspection),
-        bgColor: local.bgColor || '#6f2ca8',
-        fontColor: local.fontColor || '#ffffff',
-      };
-      const updated = insertAtSort(rows, newRow, newRow.sortOrder);
-      setRows(updated);
-      message.success('Stage added');
-    } else {
-      const id = editingId as number;
-      const newSort = Number(local.sortOrder) || rows.length;
-      const updatedValues: Partial<StageRow> = {
-        name: local.name,
-        days: Number(local.days || 0),
-        siteImage: Boolean(local.siteImage),
-        inspection: String(local.inspection),
-        bgColor: local.bgColor,
-        fontColor: local.fontColor,
-      };
-      const updated = moveAndReindex(rows, id, newSort, updatedValues);
-      setRows(updated);
-      message.success('Stage updated');
+    try {
+      if (editingId === 'new') {
+        // insert
+        const newRow: ConstructionStage = {
+          constructionTypeId: typeId,
+          builder: builderId,
+          stageName: local.stageName!,
+          days: Number(local.days || 0),
+          sortOrder: 1,
+          siteImage: Boolean(local.siteImage),
+          inspection: String(local.inspection),
+          bgColor: local.bgColor || '#6f2ca8',
+          fontColor: local.fontColor || '#ffffff',
+        };
+        await dispatch(createStage(newRow)).unwrap();
+        message.success('Stage added');
+      } else {
+        const id = editingId as string;
+        const updatedValues: Partial<ConstructionStage> = {
+          stageName: local.stageName,
+          days: Number(local.days || 0),
+          siteImage: Boolean(local.siteImage),
+          inspection: String(local.inspection),
+          bgColor: local.bgColor,
+          fontColor: local.fontColor,
+          sortOrder: local.sortOrder,
+        };
+        const updatedFields = getUpdatedFields(updatedValues, selectedStage);
+        if (Object.keys(updatedFields).length === 0) {
+          setSelectedStage(null);
+          setEditingId(null);
+          setLocal(null);
+          return;
+        }
+        await dispatch(updateStage({ data: updatedValues, id })).unwrap();
+        message.success('Stage updated');
+      }
+      setEditingId(null);
+      setLocal(null);
+    } catch (error) {
+      message.error(error || 'Failed to save stage');
     }
-
-    setEditingId(null);
-    setLocal(null);
   };
 
-  const deleteRow = (id: number) => {
-    const filtered = rows.filter(r => r.id !== id);
-    setRows(normalizeAndSort(filtered));
-    message.info('Stage deleted');
+  const deleteRow = async (id: string) => {
+    try {
+      await dispatch(deleteStage(id)).unwrap();
+      message.success('Stage deleted succcessfully');
+    } catch (error) {
+      message.error(error || 'Failed to delete stage');
+    }
   };
 
   const columns = useMemo(() => {
@@ -162,29 +205,31 @@ export function Stages() {
         title: 'S.No',
         key: 'sno',
         width: 70,
-        render: (_: any, __: StageRow, idx: number) => <div>{idx + 1}</div>,
+        render: (_, __, idx: number) => <div>{idx + 1}</div>,
       },
       {
         title: 'Stage Name',
-        key: 'name',
-        render: (_: any, rec: StageRow) =>
-          editingId === rec.id || (editingId === 'new' && rec.id === (local?.id ?? 0)) ? (
+        key: 'stageName',
+        render: (_, rec: ConstructionStage) =>
+          editingId === rec.constructionStage ||
+          (editingId === 'new' && rec.constructionStage === (local?.constructionStage ?? 0)) ? (
             <Input
-              value={local?.name}
-              onChange={e => setLocal(s => ({ ...(s || {}), name: e.target.value }))}
+              value={local?.stageName}
+              onChange={e => setLocal(s => ({ ...(s || {}), stageName: e.target.value }))}
               placeholder="Stage name"
               className="w-full"
             />
           ) : (
-            <div>{rec.name}</div>
+            <div>{rec.stageName}</div>
           ),
       },
       {
         title: 'Days',
         key: 'days',
         width: 120,
-        render: (_: any, rec: StageRow) =>
-          editingId === rec.id || (editingId === 'new' && rec.id === (local?.id ?? 0)) ? (
+        render: (_, rec: ConstructionStage) =>
+          editingId === rec.constructionStage ||
+          (editingId === 'new' && rec.constructionStage === (local?.constructionStage ?? 0)) ? (
             <InputNumber
               min={0}
               value={local?.days}
@@ -199,22 +244,14 @@ export function Stages() {
         title: 'Sort',
         key: 'sortOrder',
         width: 110,
-        render: (_: any, rec: StageRow) =>
-          editingId === rec.id || (editingId === 'new' && rec.id === (local?.id ?? 0)) ? (
-            <Select
+        render: (_, rec: ConstructionStage) =>
+          editingId === rec.constructionStage ||
+          (editingId === 'new' && rec.constructionStage === (local?.constructionStage ?? 0)) ? (
+            <InputNumber
               value={local?.sortOrder}
               onChange={v => setLocal(s => ({ ...(s || {}), sortOrder: Number(v) }))}
               style={{ width: 90 }}
-            >
-              {Array.from(
-                { length: rows.length + (editingId === 'new' ? 1 : 0) },
-                (_, i) => i + 1
-              ).map(n => (
-                <Option key={n} value={n}>
-                  {n}
-                </Option>
-              ))}
-            </Select>
+            />
           ) : (
             <div>{rec.sortOrder}</div>
           ),
@@ -228,8 +265,9 @@ export function Stages() {
         ),
         key: 'siteImage',
         width: 120,
-        render: (_: any, rec: StageRow) =>
-          editingId === rec.id || (editingId === 'new' && rec.id === (local?.id ?? 0)) ? (
+        render: (_, rec: ConstructionStage) =>
+          editingId === rec.constructionStage ||
+          (editingId === 'new' && rec.constructionStage === (local?.constructionStage ?? 0)) ? (
             <Switch
               checked={Boolean(local?.siteImage)}
               onChange={v => setLocal(s => ({ ...(s || {}), siteImage: v }))}
@@ -242,29 +280,29 @@ export function Stages() {
         title: 'Inspection',
         key: 'inspection',
         width: 180,
-        render: (_: any, rec: StageRow) =>
-          editingId === rec.id || (editingId === 'new' && rec.id === (local?.id ?? 0)) ? (
+        render: (_, rec: ConstructionStage) =>
+          editingId === rec.constructionStage ||
+          (editingId === 'new' && rec.constructionStage === (local?.constructionStage ?? 0)) ? (
             <Select
               value={local?.inspection}
               onChange={v => setLocal(s => ({ ...(s || {}), inspection: String(v) }))}
               style={{ width: 160 }}
-            >
-              {INSPECTION_OPTIONS.map(opt => (
-                <Option key={opt} value={opt}>
-                  {opt}
-                </Option>
-              ))}
-            </Select>
+              options={[
+                { label: 'Not Required', value: 'not_required' },
+                { label: 'Stage Start', value: 'stage_start' },
+                { label: 'Stage Completed', value: 'stage_completed' },
+              ]}
+            />
           ) : (
             <div>{rec.inspection}</div>
           ),
       },
       {
         title: 'Color',
-        key: 'color',
         width: 220,
-        render: (_: any, rec: StageRow) =>
-          editingId === rec.id || (editingId === 'new' && rec.id === (local?.id ?? 0)) ? (
+        render: (_, rec: ConstructionStage) =>
+          editingId === rec.constructionStage ||
+          (editingId === 'new' && rec.constructionStage === (local?.constructionStage ?? 0)) ? (
             <div className="flex items-center gap-3">
               <div className="flex flex-col items-center">
                 <div className="text-xs mb-1">BG color</div>
@@ -314,47 +352,60 @@ export function Stages() {
         title: 'Actions',
         key: 'actions',
         width: 160,
-        render: (_: any, rec: StageRow) =>
-          editingId === rec.id || (editingId === 'new' && rec.id === (local?.id ?? 0)) ? (
+        render: (_, rec: ConstructionStage) =>
+          editingId === rec.constructionStage ||
+          (editingId === 'new' && rec.constructionStage === (local?.constructionStage ?? 0)) ? (
             <div className="flex items-center gap-2">
               <Button
                 type="primary"
                 size="small"
                 onClick={saveRow}
                 icon={<IconCheck size={14} />}
+                loading={status.create === Status.PENDING}
+                disabled={status.create === Status.PENDING}
               />
               <Button size="small" onClick={cancel} icon={<IconX size={14} />} />
             </div>
           ) : (
             <div className="flex items-center gap-2">
               <Button size="small" icon={<IconEdit size={16} />} onClick={() => startEdit(rec)} />
-              <Popconfirm title="Delete this stage?" onConfirm={() => deleteRow(rec.id)}>
-                <Button size="small" danger icon={<IconTrash size={16} />} />
+              <Popconfirm
+                title="Delete this stage?"
+                onConfirm={() => deleteRow(rec.constructionStage)}
+              >
+                <Button
+                  size="small"
+                  danger
+                  icon={<IconTrash size={16} />}
+                  disabled={status.create === Status.PENDING}
+                />
               </Popconfirm>
             </div>
           ),
       },
     ];
-  }, [rows, editingId, local]);
+  }, [stage, editingId, local]);
 
   const dataSource = useMemo(() => {
     if (editingId === 'new' && local) {
-      return normalizeAndSort([
-        ...rows,
+      return [
+        ...stage,
         {
-          id: local.id as number,
-          name: local.name || '',
+          constructionStage: local.constructionStage as string,
+          constructionTypeId: typeId,
+          builder: builderId,
+          stageName: local.stageName || '',
           days: Number(local.days || 0),
-          sortOrder: Number(local.sortOrder || rows.length + 1),
+          sortOrder: Number(local.sortOrder || stage.length + 1),
           siteImage: Boolean(local.siteImage),
           inspection: String(local.inspection),
           bgColor: local.bgColor || '#6f2ca8',
           fontColor: local.fontColor || '#fff',
         },
-      ]);
+      ];
     }
-    return rows;
-  }, [rows, editingId, local]);
+    return stage;
+  }, [stage, editingId, local]);
 
   return (
     <div className="p-4 bg-white rounded-lg shadow-sm">
@@ -363,20 +414,18 @@ export function Stages() {
           <p className="text-base font-bold">Builder</p>
           <Select
             className="w-full"
-            options={[
-              { label: 'company level', value: 'companylevel' },
-              { label: 'builder level', value: 'builderlevel' },
-            ]}
+            options={builderOptions}
+            value={builderId}
+            onChange={value => setBuilderId(value)}
           />
         </div>
         <div className="w-full">
           <p className="text-base font-bold">Construction type</p>
           <Select
             className="w-full"
-            options={[
-              { label: 'Single storey', value: 'singlestorey' },
-              { label: 'Multi storey', value: 'multistorey' },
-            ]}
+            options={typeOptions}
+            value={typeId}
+            onChange={value => setTypeId(value)}
           />
         </div>
         <div>
@@ -394,10 +443,11 @@ export function Stages() {
       <Table
         columns={columns}
         dataSource={dataSource}
-        rowKey="id"
+        rowKey="constructionStage"
         pagination={false}
         bordered
         size="middle"
+        loading={status.fetch === Status.PENDING}
       />
     </div>
   );

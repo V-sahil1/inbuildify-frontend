@@ -1,6 +1,7 @@
 import { Status } from '@lib/constants/enum';
 
 export interface BuilderInfo {
+  builderId?:string;
   name: string;
   email: string;
   logo: string;

@@ -2,14 +2,14 @@ import api from '@lib/constants/api';
 import API_ENDPOINTS from '@lib/constants/apiEndpoints';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { ApiResponse } from '../../../auth/IAuthState';
-import { ConstructionStageResponse, Stage } from './IConstructionStageState';
 import { Pagination } from '../../general/surveyor/ISurveyorState';
+import { ConstructionStage } from './IConstructionStageState';
 
 export const createStage = createAsyncThunk(
   'stage/create',
-  async (payload: Stage, { rejectWithValue }) => {
+  async (payload: ConstructionStage, { rejectWithValue }) => {
     try {
-      const response = await api.post<ApiResponse<ConstructionStageResponse>>(
+      const response = await api.post<ApiResponse<ConstructionStage>>(
         API_ENDPOINTS.CONSTRUCTION_STAGE,
         {
           data: payload,
@@ -22,22 +22,25 @@ export const createStage = createAsyncThunk(
   }
 );
 
-export const fetchAllStage = createAsyncThunk('stage/fetchAll', async (_, { rejectWithValue }) => {
-  try {
-    const response = await api.get<
-      ApiResponse<{ constructionStages: ConstructionStageResponse[]; pagination: Pagination }>
-    >(API_ENDPOINTS.CONSTRUCTION_STAGE);
-    return response.data;
-  } catch (error) {
-    return rejectWithValue(error.message);
+export const fetchAllConstructionStage = createAsyncThunk(
+  'stage/fetchAll',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get<
+        ApiResponse<{ constructionStages: ConstructionStage[]; pagination: Pagination }>
+      >(API_ENDPOINTS.CONSTRUCTION_STAGE);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
   }
-});
+);
 
 export const updateStage = createAsyncThunk(
   'stage/update',
-  async (payload: { data: Stage; id: string }, { rejectWithValue }) => {
+  async (payload: { data: Partial<ConstructionStage>; id: string }, { rejectWithValue }) => {
     try {
-      const response = await api.put<ApiResponse<ConstructionStageResponse>>(
+      const response = await api.put<ApiResponse<ConstructionStage>>(
         `${API_ENDPOINTS.CONSTRUCTION_STAGE}/${payload.id}`,
         { data: payload.data }
       );

@@ -1,41 +1,28 @@
-import { useAppSelector } from '@hooks/redux';
 import { FormField } from '../common/Models/ActionDialogModel';
+import { CustomBulkSelect } from '../common/CustomBulkSelect';
 
-export const constructionTypesFields = (): FormField[] => {
-  const { dwellingType } = useAppSelector(state => state.types);
+export const constructionTypesFields = (
+  dwellingTypeOptions: { label: string; value: string }[] = []
+): FormField[] => {
   return [
     {
       label: 'Name',
-      name: 'name',
+      name: 'typesName',
       type: 'text',
       placeholder: 'Enter name',
       rules: [{ required: true, message: 'Please enter a name' }],
     },
     {
-      label: 'Level',
-      name: 'level',
-      type: 'select',
-      placeholder: 'Select level',
-      options: [
-        { value: 'Company Level', label: 'Company Level' },
-        { value: 'Builder Level', label: 'Builder Level' },
-      ],
-      rules: [{ required: true, message: 'Please select a level' }],
-    },
-    {
       label: 'Dwelling Type',
       name: 'dwellingType',
-      type: 'select',
+      type: 'custom',
       placeholder: 'Select dwelling type',
-      options: dwellingType?.map((item: any) => ({
-        value: item?.dwellingTypeId,
-        label: item?.name,
-      })),
+      render: <CustomBulkSelect options={dwellingTypeOptions} onChange={() => {}} />,
       rules: [{ required: true, message: 'Please select a dwelling type' }],
     },
     {
       label: 'Days to start construction',
-      name: 'daysToStart',
+      name: 'startConstructionDays',
       type: 'number',
       placeholder: 'Enter number of days',
       rules: [{ required: true, message: 'Please enter days' }],

@@ -127,6 +127,8 @@ class API_ENDPOINTS {
   public static GET_SALES_SETTING = `${this.SALES_SETTING}/fetch `;
   public static SALES_PROCESS = '/sales-proccess';
   public static SALES_STAGE_BASE = '/sales-stage';
+  public static GET_SALES_STAGE_BY_PROCCESSID = `${this.SALES_STAGE_BASE}/process`;
+  public static SALES_STAGE_FUNCTIONALITY = '/sales-proccess-stage-functionality';
   public static SALES_LEAD_SOURCE = '/sales/lead-source';
   public static UPDATE_LEAD_SOURCE_STATUS = `${this.SALES_LEAD_SOURCE}/is-active`;
   public static LEAD_LOST_REASON = '/lead-lost-reason';
@@ -180,25 +182,26 @@ class API_ENDPOINTS {
   public static DOCUMENT_AREA = '/document-common-folder';
   public static DOCUMENT_SUB_FOLDER = '/document-common-subfolder';
   public static DOCUMENT_FILE_NAMING = '/document-file-naming-rule';
-  public static DOCUMENT_FILE_NAMING_FORMAT = `${this.DOCUMENT_FILE_NAMING}/naming-format`
+  public static DOCUMENT_FILE_NAMING_FORMAT = `${this.DOCUMENT_FILE_NAMING}/naming-format`;
   public static DOCUMENT_FOLDER_MAPPING = '/document-folder-mapping';
 
   // integration
   public static INTEGRATION_SETTING = '/integration-setting';
   public static INTEGRATION_CUSTOM_FIELD = '/integration-custom-field-header';
-  public static INTEGRATION_CUSTOM_FIELD_ITEM = '/integration-custom-field-item'
+  public static INTEGRATION_CUSTOM_FIELD_ITEM = '/integration-custom-field-item';
 
   // Template
   public static EMAIL_TEMPLATE = '/template-email';
   public static EMAIL_SIGNATURE = '/template-email-signature';
   public static NOTES_TEMPLATE = '/template-note';
   public static ACTIVATE_NOTES_TEMPLATE = `${this.NOTES_TEMPLATE}/is-active`;
-  public static PDF_TEMPLATE = '/template-pdf'
+  public static PDF_TEMPLATE = '/template-pdf';
 
   public static ROLE_BASE = '/role';
 
   // common
   public static FUNCTIONALITY_BASE = '/functionality';
   public static TIMEZONE_BASE = '/timezone';
+  public static BUILDER_ALL = `${this.BUILDER_BASE}/all`;
 }
 export default API_ENDPOINTS;
