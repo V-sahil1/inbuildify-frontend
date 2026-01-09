@@ -79,7 +79,7 @@ const ColorCategoryItemModel = ({
     isRequired: boolean;
     sortOrder: number;
   }>>([]);
-  const { users, isLoading: usersLoading } = useUsersHook();
+  const { userOptions, isLoading: usersLoading } = useUsersHook();
 
 
   useEffect(() => {
@@ -353,10 +353,7 @@ const ColorCategoryItemModel = ({
                         filterOption={(input, option) =>
                           (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                         }
-                        options={users.map(user => ({
-                          value: user?.usersId,
-                          label: user.name,
-                        }))}
+                        options={userOptions}
                         loading={formLoading}
                       />
                     </Form.Item>

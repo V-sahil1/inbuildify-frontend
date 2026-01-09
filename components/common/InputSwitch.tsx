@@ -10,7 +10,7 @@ const InputSwitch = ({
 }: {
   label: string;
   description?: string | React.ReactNode;
-  name: string;
+  name: string | string[];
   value?: boolean;
   onChange?: (checked: boolean) => void;
 }) => {

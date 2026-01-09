@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit';
-
 import { Status } from '@lib/constants/enum';
 import { IonstructionOptionState } from './ICostructionOptionState';
 import {
@@ -54,7 +53,7 @@ const constructionOptionSlice = createSlice({
     builder.addCase(updateContructionOption.rejected, state => {
       state.status.create = Status.ERROR;
     });
-    builder.addCase(deleteConstructionOption.pending, (state, action) => {
+    builder.addCase(deleteConstructionOption.pending, (state) => {
       state.status.create = Status.PENDING;
     });
     builder.addCase(deleteConstructionOption.fulfilled, (state, action) => {

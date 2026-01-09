@@ -1,18 +1,37 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Table, Button } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Table, Button, message } from 'antd';
 import { IconEdit } from '@tabler/icons-react';
 import PdfFormatForm from './PdfFormats';
-import { PdfTemplateData } from 'data/configuration/TemplateData';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { Status } from '@lib/constants/enum';
+import { fetchPdfTemplate } from '@redux/feature/admin/template/pdf/pdfTemplateThunk';
+import { PdfTemplate } from '@redux/feature/admin/template/pdf/IpdfTemplateState';
 export const PdfTemplates = () => {
-  const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
+  const dispatch = useAppDispatch();
+  const { pdfTemplate, status } = useAppSelector(state => state.template.pdfTemplate);
+  const [selectedTemplate, setSelectedTemplate] = useState<PdfTemplate | null>(null);
+
+  const fetchPdfTemplateData = async () => {
+    try {
+      await dispatch(fetchPdfTemplate()).unwrap();
+    } catch (error) {
+      message.error(error || 'failed to fetch pdf template');
+    }
+  };
+
+  useEffect(() => {
+    if (status.fetch === Status.IDLE) {
+      fetchPdfTemplateData();
+    }
+  }, [status.fetch]);
 
   const columns = [
     {
       title: 'S.No',
       width: '10%',
-      render: (_: any, __: any, index: number) => index + 1,
+      render: (_, __, index: number) => index + 1,
     },
     {
       title: 'Template Name',
@@ -22,7 +41,7 @@ export const PdfTemplates = () => {
     {
       title: '',
       width: '10%',
-      render: (_: any, record: any) => (
+      render: (_, record: any) => (
         <Button type="text" onClick={() => setSelectedTemplate(record)}>
           <IconEdit size={18} />
         </Button>
@@ -36,9 +55,17 @@ export const PdfTemplates = () => {
         <PdfFormatForm
           templateName={selectedTemplate.name}
           goBack={() => setSelectedTemplate(null)}
+          template={selectedTemplate.templateJson}
+          templatePdfId={selectedTemplate.templatePdfId}
         />
       ) : (
-        <Table dataSource={PdfTemplateData} columns={columns} pagination={false} rowKey="key" />
+        <Table
+          dataSource={pdfTemplate}
+          columns={columns}
+          loading={status.fetch === Status.PENDING}
+          pagination={false}
+          rowKey="key"
+        />
       )}
     </div>
   );

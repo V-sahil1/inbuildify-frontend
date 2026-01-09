@@ -177,11 +177,11 @@ class API_ENDPOINTS {
   public static CONSTRUCTION_STAGE = '/construction-stage';
 
   //document
-  public static DOCUMENT_AREA = '/document-common-folder'; 
-  public static DOCUMENT_SUB_FOLDER = '/document-common-subfolder'; 
+  public static DOCUMENT_AREA = '/document-common-folder';
+  public static DOCUMENT_SUB_FOLDER = '/document-common-subfolder';
   public static DOCUMENT_FILE_NAMING = '/document-file-naming-rule';
   public static DOCUMENT_FILE_NAMING_FORMAT = `${this.DOCUMENT_FILE_NAMING}/naming-format`
-  public static DOCUMENT_FOLDER_MAPPING = '/document-folder-mapping'; 
+  public static DOCUMENT_FOLDER_MAPPING = '/document-folder-mapping';
 
   // integration
   public static INTEGRATION_SETTING = '/integration-setting';
@@ -193,6 +193,7 @@ class API_ENDPOINTS {
   public static EMAIL_SIGNATURE = '/template-email-signature';
   public static NOTES_TEMPLATE = '/template-note';
   public static ACTIVATE_NOTES_TEMPLATE = `${this.NOTES_TEMPLATE}/is-active`;
+  public static PDF_TEMPLATE = '/template-pdf'
 
   public static ROLE_BASE = '/role';
 
