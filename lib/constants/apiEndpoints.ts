@@ -159,6 +159,12 @@ class API_ENDPOINTS {
   public static JOB_COMMISSION_SETTING = '/job-commission-setting';
   public static JOB_COMMISSION = '/job-commission';
   public static JOB_COMMISSION_SUB_STAGE = '/job-commission-sub-stage';
+  // job process
+  public static JOB_PROCESS_BASE = '/job-process';
+  public static JOB_PROCESS_FUNTIONALITY = '/job-process-stage-functionality';
+  public static JOB_PROCESS_STAGE = `${this.JOB_PROCESS_BASE}/stages`;
+  public static JOB_PROCESS_SUB_STAGE_BASE = `${this.JOB_PROCESS_BASE}/sub-stages`;
+  public static JOB_PROCESS_SUB_STAGE = (stageId: string) => { return `${this.JOB_PROCESS_STAGE}/${stageId}/sub-stages`};
 
   // admin maintenance
   public static MAINTENANCE_SETTING = '/maintenance-setting';

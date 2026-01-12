@@ -22,7 +22,7 @@ export const CustomSteps: React.FC<CustomStepsPropsType> = ({
   status,
 }) => {
   return (
-    <div>
+    <div className='overflow-hidden overflow-x-scroll custom-scrollbar'>
       <div>
         <Steps
           labelPlacement={titlePlacement}

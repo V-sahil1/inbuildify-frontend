@@ -5,6 +5,7 @@ import { Button, Modal, Input, Form, Space, Tooltip, message, Select, InputNumbe
 const { Option } = Select;
 import { IconPlus, IconEdit, IconTrash, IconArrowRight } from '@tabler/icons-react';
 import { PredecessorTable } from './PredecessorTable';
+import { useUsersHook } from '@hooks/useUserHook';
 
 type Task = {
   id: string;
@@ -58,7 +59,6 @@ const sortAndReindexTasks = (arr: Task[]) =>
     .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0))
     .map((t, i) => ({ ...t, sort: i + 1 }));
 
-const SAMPLE_ASSIGNEES = ['My Home Admin', 'John Doe', 'Sales Rep'];
 const SAMPLE_FOLDERS = ['Sales Folder', 'Marketing', 'Default'];
 
 export const TaskTable: React.FC<TaskTableProps> = ({ currentStep }) => {
@@ -72,7 +72,7 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [form] = Form.useForm();
-
+  const { userOptions } = useUsersHook();
   const openTaskModal = (task?: Task) => {
     if (task) {
       setEditingTaskId(task.id);
@@ -121,7 +121,7 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep }) => {
           id: newId(),
           name,
           duration: Number(values.duration ?? 1),
-          assignee: values.assignee || SAMPLE_ASSIGNEES[0],
+          assignee: values.assignee || userOptions[0].label,
           folder: values.folder || SAMPLE_FOLDERS[0],
           sort: desiredSort,
           info: values.info,
@@ -290,7 +290,7 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep }) => {
       </div>
 
       {/* Table Wrapper */}
-      <div className="border rounded-md overflow-hidden w-full ant-table-wrapper overflow-x-auto overflow-x-hidden">
+      <div className="border rounded-md overflow-hidden w-full ant-table-wrapper overflow-x-auto overflow-x-hidden custom-scrollbar overflow-x-scroll">
         <div className="ant-table ant-table-small">
           <div className="ant-table-container">
             <div className="ant-table-content">
@@ -433,13 +433,7 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep }) => {
 
             <div className="grid grid-cols-3 gap-4">
               <Form.Item label="Assignee" name="assignee">
-                <Select placeholder="Select Assignee">
-                  {SAMPLE_ASSIGNEES.map(a => (
-                    <Option value={a} key={a}>
-                      {a}
-                    </Option>
-                  ))}
-                </Select>
+                <Select placeholder="Select Assignee" options={userOptions}/>
               </Form.Item>
 
               <Form.Item label="Folder Name" name="folder">

@@ -1,417 +1,116 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
-import {
-  Table,
-  Input,
-  Checkbox,
-  Button,
-  Select,
-  Space,
-  Tag,
-  Tooltip,
-  message,
-  InputNumber,
-} from 'antd';
-import {
-  IconPencil,
-  IconTrash,
-  IconPlus,
-  IconCheck,
-  IconX,
-  IconJumpRope,
-} from '@tabler/icons-react';
+import React, { useState } from 'react';
+import { Table, Button, Space, Tag, Tooltip, TableProps, message, Popconfirm } from 'antd';
+import { IconPencil, IconTrash, IconPlus, IconJumpRope } from '@tabler/icons-react';
 import { JobWorkflowDrawer } from '../JobWorkflowDrawer';
-import { DEFAULT_DATA } from 'data/jobProcessData';
-import { FunctionalityKey, StageItem } from 'data/types';
-
-const FUNCTIONALITY_OPTIONS: { value: FunctionalityKey; color: string }[] = [
-  { value: 'Sales', color: 'purple' },
-  { value: 'Workflow', color: 'orange' },
-  { value: 'Color', color: 'cyan' },
-  { value: 'Construction', color: 'green' },
-  { value: 'Maintenance', color: 'volcano' },
-];
+import { useJobProcess } from '../../hooks/useJobProcess';
+import { JobProcessStage } from '@redux/feature/admin/job/jobProcess/IJobProcessState';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
+import { jobProcessStageFields } from '@/components/formFields/jobProcessStageFields';
+import {
+  createJobProcessStages,
+  deleteJobProcessStage,
+  updateJobProcessStages,
+} from '@redux/feature/admin/job/jobProcess/jobProcessThunk';
+import { Status } from '@lib/constants/enum';
 
 export const JobProcess: React.FC = () => {
-  const [list, setList] = useState<StageItem[]>(DEFAULT_DATA);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [drafts, setDrafts] = useState<Record<number, Partial<StageItem>>>({});
-  const [funcModal, setFuncModal] = useState<{
-    open: boolean;
-    type?: FunctionalityKey;
-    row?: StageItem;
-  }>({ open: false });
-
-  const activeSorted = useMemo(() => {
-    return [...list].sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0));
-  }, [list]);
-
-  const nextPositiveId = () => Date.now();
-
-  // Insert a new item into list at targetSort (1-based). If targetSort > activeCount, insert at end.
-  const insertAtSort = (prev: StageItem[], newItem: StageItem, desiredSort?: number) => {
-    const active = prev.slice().sort((a, b) => a.sort - b.sort);
-    const activeCount = active.length;
-    const pos =
-      desiredSort && Number.isFinite(desiredSort)
-        ? Math.max(1, Math.min(desiredSort, activeCount + 1))
-        : activeCount + 1;
-    // Note: when calling this, caller should have removed any temporary item from prev first if necessary.
-    const newList = [...active.slice(0, pos - 1), newItem, ...active.slice(pos - 1)];
-    return newList.map((it, idx) => ({ ...it, sort: idx + 1 }));
+  const [modal, setModal] = useState<{ type: string; stage: Partial<JobProcessStage> }>(null);
+  const [workflowModal, setWorkflowModal] = useState<JobProcessStage>(null);
+  const { jobProcessFunctionalityOptions } = useJobProcess();
+  const { jobProcessStage = [], status } = useAppSelector(state => state.job.jobProcess);
+  const dispatch = useAppDispatch();
+  const loading = status.stage.create === Status.PENDING || status.stage.update === Status.PENDING;
+  const renderFuncTag = (f: string) => {
+    return <Tag style={{ fontWeight: 600 }}>{f}</Tag>;
   };
 
-  // Move/update an existing item to desired sort and apply updates. Keeps sequence contiguous.
-  const moveExistingAndUpdate = (
-    prev: StageItem[],
-    id: number,
-    updates: Partial<StageItem>,
-    desiredSort?: number
-  ) => {
-    const active = prev.slice().sort((a, b) => a.sort - b.sort);
-    const idx = active.findIndex(x => x.id === id);
-    if (idx === -1) return prev; // not found
-    const item = { ...active[idx], ...updates };
-    const others = active.filter((_, i) => i !== idx);
-    const pos =
-      desiredSort && Number.isFinite(desiredSort)
-        ? Math.max(1, Math.min(desiredSort, others.length + 1))
-        : item.sort;
-    const newList = [...others.slice(0, pos - 1), item, ...others.slice(pos - 1)];
-    return newList.map((it, i) => ({ ...it, sort: i + 1 }));
+  const handleModal = (type: string, value?: Partial<JobProcessStage>) => {
+    setModal({ type: type, stage: value });
   };
 
-  const handleAdd = () => {
-    if (editingId !== null) {
-      message.warning('Finish current edit before adding a new stage');
-      return;
-    }
-    const tempId = -Date.now();
-    const newRow: StageItem = {
-      id: tempId,
-      name: '',
-      dependent: false,
-      functionality: 'Workflow',
-      sort: 1, // visible input; real sort will be resolved on save
-      isActive: true,
-    };
-    // Add to top in UI so user can edit immediately
-    setList(prev => [newRow, ...prev]);
-    setDrafts(d => ({ ...d, [tempId]: { ...newRow } }));
-    setEditingId(tempId);
-  };
-
-  const startEdit = (row: StageItem) => {
-    if (editingId !== null && editingId !== row.id) {
-      message.warning('Finish current edit before editing another row');
-      return;
-    }
-    setEditingId(row.id);
-    setDrafts(d => ({ ...d, [row.id]: { ...row } }));
-  };
-
-  const cancelEdit = (id: number) => {
-    setDrafts(d => {
-      const c = { ...d };
-      delete c[id];
-      return c;
-    });
-    setEditingId(null);
-    if (id < 0) {
-      // remove temp row
-      setList(prev => prev.filter(p => p.id !== id));
+  const handleSubmitStage = async (values: Partial<JobProcessStage>) => {
+    try {
+      if (modal.type === 'create') {
+        await dispatch(createJobProcessStages(values)).unwrap();
+      } else if (modal.type === 'edit') {
+        await dispatch(
+          updateJobProcessStages({ data: values, jobStageId: modal.stage.stageId })
+        ).unwrap();
+      }
+      setModal(null);
+    } catch (error) {
+      message.error(error);
     }
   };
 
-  const saveEdit = (id: number) => {
-    const draft = drafts[id];
-    if (!draft) {
-      message.error('Nothing to save');
-      return;
-    }
-    const name = (draft.name || '').trim();
-    if (!name) {
-      message.error('Stage name is required');
-      return;
-    }
-
-    let desiredSort = Number(draft.sort ?? NaN);
-    if (!Number.isFinite(desiredSort) || desiredSort < 1) {
-      desiredSort = 1;
-    }
-
-    const activeCount =
-      list.filter(p => p.isActive !== false && p.id !== id).length +
-      (id > 0 && list.some(l => l.id === id) ? 1 : 0);
-
-    if (desiredSort > activeCount + (id < 0 ? 0 : 0)) {
-      desiredSort = activeCount + 1;
-    }
-
-    if (id < 0) {
-      const finalId = nextPositiveId();
-      const newItem: StageItem = {
-        id: finalId,
-        name,
-        dependent: !!draft.dependent,
-        functionality: (draft.functionality || 'Workflow') as FunctionalityKey,
-        meta: draft.meta,
-        sort: desiredSort,
-        isActive: true,
-      };
-
-      setList(prev => {
-        const prevClean = prev.filter(p => p.id !== id);
-        return insertAtSort(prevClean, newItem, desiredSort);
-      });
-
-      setDrafts(d => {
-        const c = { ...d };
-        delete c[id];
-        return c;
-      });
-      setEditingId(null);
-      message.success('Stage added');
-      return;
-    } else {
-      setList(prev => {
-        const updated = moveExistingAndUpdate(
-          prev,
-          id,
-          {
-            name,
-            dependent: !!draft.dependent,
-            functionality: (draft.functionality || 'Workflow') as FunctionalityKey,
-            meta: draft.meta,
-          },
-          desiredSort
-        );
-        return updated;
-      });
-      setDrafts(d => {
-        const c = { ...d };
-        delete c[id];
-        return c;
-      });
-      setEditingId(null);
-      message.success('Stage updated');
-      return;
+  const handleDelete = async (stageId: string) => {
+    try {
+      await dispatch(deleteJobProcessStage(stageId)).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to delete stage');
     }
   };
 
-  const confirmDelete = (id: number) => {
-    if (editingId === id) {
-      setEditingId(null);
-      setDrafts(d => {
-        const c = { ...d };
-        delete c[id];
-        return c;
-      });
-    }
-
-    setList(prev => {
-      const filtered = prev.filter(p => p.id !== id);
-      const reordered = filtered
-        .slice()
-        .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0))
-        .map((it, idx) => ({ ...it, sort: idx + 1 }));
-      return reordered;
-    });
-    message.success('Deleted');
-  };
-
-  const openFuncModal = (type: FunctionalityKey, row?: StageItem) => {
-    setFuncModal({ open: true, type, row });
-  };
-  const closeFuncModal = () => setFuncModal({ open: false });
-  const renderFuncTag = (f: FunctionalityKey) => {
-    const opt = FUNCTIONALITY_OPTIONS.find(o => o.value === f);
-    return (
-      <Tag color={opt?.color} style={{ fontWeight: 600 }}>
-        {f}
-      </Tag>
-    );
-  };
-
-  const columns = [
+  const columns: TableProps<JobProcessStage>['columns'] = [
     {
       title: 'S.No',
       dataIndex: 'sno',
       width: 70,
-      render: (_: any, __: StageItem, index: number) => index + 1,
+      render: (_, __: JobProcessStage, index: number) => index + 1,
     },
     {
       title: 'Stage Name',
       dataIndex: 'name',
-      render: (_: any, row: StageItem) => {
-        const editing = editingId === row.id;
-        const draft = drafts[row.id] ?? {};
-        return editing ? (
-          <Input
-            value={draft.name ?? ''}
-            onChange={e =>
-              setDrafts(d => ({
-                ...d,
-                [row.id]: { ...(d[row.id] ?? row), name: e.target.value },
-              }))
-            }
-            placeholder="Enter stage name"
-            autoFocus
-          />
-        ) : (
-          <span>{row.name}</span>
-        );
-      },
-    },
-    {
-      title: 'Dependent',
-      dataIndex: 'dependent',
-      width: 120,
-      render: (_: any, row: StageItem) => {
-        const editing = editingId === row.id;
-        const draft = drafts[row.id] ?? {};
-        return editing ? (
-          <Checkbox
-            checked={!!draft.dependent}
-            onChange={e =>
-              setDrafts(d => ({
-                ...d,
-                [row.id]: {
-                  ...(d[row.id] ?? row),
-                  dependent: e.target.checked,
-                },
-              }))
-            }
-          />
-        ) : (
-          <Checkbox checked={!!row.dependent} disabled />
-        );
-      },
     },
     {
       title: 'Functionality',
       dataIndex: 'functionality',
-      render: (_: any, row: StageItem) => {
-        const editing = editingId === row.id;
-        const draft = drafts[row.id] ?? {};
-        if (editing) {
-          return (
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <Select
-                value={(draft.functionality as FunctionalityKey) ?? row.functionality}
-                style={{ minWidth: 160 }}
-                onChange={val =>
-                  setDrafts(d => ({
-                    ...d,
-                    [row.id]: { ...(d[row.id] ?? row), functionality: val },
-                  }))
-                }
-                options={FUNCTIONALITY_OPTIONS.map(o => ({
-                  key: o.value,
-                  label: o.value,
-                  value: o.value,
-                }))}
-              />
-            </div>
-          );
-        } else {
-          return (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              {renderFuncTag(row.functionality)}
-              {/* <Tooltip title="Open functionality settings">
-                <Button type="text" icon={<IconDots size={16} />} onClick={() => openFuncModal(row.functionality, row)} />
-              </Tooltip> */}
-            </div>
-          );
-        }
+      render: (_, row: JobProcessStage) => {
+        return renderFuncTag(row.functionality.name);
       },
     },
     {
       title: 'Sort',
-      dataIndex: 'sort',
+      dataIndex: 'sortOrder',
       width: 120,
-      render: (_: any, row: StageItem) => {
-        const editing = editingId === row.id;
-        const draft = drafts[row.id] ?? {};
-        return editing ? (
-          <InputNumber
-            min={1}
-            value={draft.sort ?? row.sort}
-            onChange={val =>
-              setDrafts(d => ({
-                ...d,
-                [row.id]: { ...(d[row.id] ?? row), sort: Number(val ?? 1) },
-              }))
-            }
-            style={{ width: 120 }}
-          />
-        ) : (
-          <span>{row.sort}</span>
-        );
-      },
     },
     {
       title: '',
       width: 160,
-      render: (_: any, row: StageItem) => {
-        const editing = editingId === row.id;
+      render: (_, row: JobProcessStage) => {
         return (
           <div style={{ textAlign: 'right' }}>
             <Space>
-              {editing ? (
-                <>
-                  <Tooltip title="Save">
-                    <Button
-                      type="text"
-                      icon={<IconCheck size={18} color="green" />}
-                      onClick={() => saveEdit(row.id)}
-                    />
-                  </Tooltip>
-                  <Tooltip title="Cancel">
-                    <Button
-                      type="text"
-                      icon={<IconX size={18} color="red" />}
-                      onClick={() => cancelEdit(row.id)}
-                    />
-                  </Tooltip>
-                </>
-              ) : (
-                <>
-                  {row.functionality === 'Workflow' && (
-                    <Tooltip title="Job workflow">
-                      <Button
-                        type="text"
-                        icon={<IconJumpRope size={16} />}
-                        onClick={() => openFuncModal(row.functionality, row)}
-                      />
-                    </Tooltip>
-                  )}
-                  <Tooltip title="Edit">
-                    <Button
-                      type="text"
-                      icon={<IconPencil size={18} />}
-                      onClick={() => startEdit(row)}
-                    />
-                  </Tooltip>
-                  <Tooltip title="Delete">
-                    <Button
-                      type="text"
-                      icon={<IconTrash size={18} color="red" />}
-                      onClick={
-                        () => {}
-                        // Modal.confirm({
-                        //   title: "Delete stage?",
-                        //   content: `Are you sure you want to delete "${row.name}"?`,
-                        //   okText: "Delete",
-                        //   okType: "danger",
-                        //   onOk: () => confirmDelete(row.id),
-                        // })
-                      }
-                    />
-                  </Tooltip>
-                </>
+              {row.isWorkflow && (
+                <Tooltip title="Job workflow">
+                  <Button
+                    type="text"
+                    icon={<IconJumpRope size={16} />}
+                    onClick={() => setWorkflowModal(row)}
+                  />
+                </Tooltip>
               )}
+              <Tooltip title="Edit">
+                <Button
+                  type="text"
+                  icon={<IconPencil size={18} />}
+                  onClick={() => handleModal('edit', row)}
+                />
+              </Tooltip>
+              <Tooltip title="Delete">
+                <Popconfirm
+                  title="Are you sure you want to delete this stage?"
+                  description="This action cannot be undone."
+                  onConfirm={() => handleDelete(row.stageId)}
+                  okText="Yes"
+                  cancelText="No"
+                >
+                  <Button type="text" icon={<IconTrash size={18} color="red" />} />
+                </Popconfirm>
+              </Tooltip>
             </Space>
           </div>
         );
@@ -429,7 +128,7 @@ export const JobProcess: React.FC = () => {
           </div>
         </div>
 
-        <Button type="primary" icon={<IconPlus size={16} />} onClick={handleAdd}>
+        <Button type="primary" icon={<IconPlus size={16} />} onClick={() => handleModal('create')}>
           New
         </Button>
       </div>
@@ -437,16 +136,33 @@ export const JobProcess: React.FC = () => {
       <Table
         rowKey="id"
         columns={columns}
-        dataSource={[...list].sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0))}
+        dataSource={jobProcessStage}
+        loading={status.stage.fetch === Status.IDLE}
         pagination={false}
         size="middle"
         bordered
       />
-      {funcModal.open && (
+      {modal && (
+        <ActionDialogmodel
+          title="Job Stage"
+          open={modal.type === 'create' || modal.type === 'edit'}
+          onCancel={() => setModal(null)}
+          loading={loading}
+          onSubmit={handleSubmitStage}
+          fields={jobProcessStageFields(jobProcessFunctionalityOptions)}
+          initialValues={{
+            ...modal.stage,
+            functionalityId: modal.stage?.functionality?.name,
+          }}
+          isEditing={modal.type === 'edit'}
+        />
+      )}
+
+      {workflowModal && (
         <JobWorkflowDrawer
-          open={funcModal.open}
-          onClose={() => setFuncModal({ open: false })}
-          record={funcModal.row}
+          open={!!workflowModal}
+          onClose={() => setWorkflowModal(null)}
+          record={workflowModal}
         />
       )}
     </div>

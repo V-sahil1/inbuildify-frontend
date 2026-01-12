@@ -1,13 +1,3 @@
-// export interface Quotation {
-//     id: string;
-//     version: string;
-//     status: 'Draft' | 'Approved' | 'Sent';
-//     // range: string;
-//     // dwellingType: string;
-//     expiryDate: string;
-//     total: number;
-//   }
-
 export interface LeadDetails {
   lead_id?: string;
   name: string;
@@ -64,80 +54,10 @@ export interface Plan {
   area: string;
 }
 
-// export interface Facade {
-//   id: string;
-//   name: string;
-//   type: string;
-// }
-
-//   export interface PackageItem {
-//   id: string;
-//   name: string;
-//   description?: string;
-//   quantity?: number;
-//   unit?: string;
-// }
-
-// export interface Package {
-//   id: string;
-//   name: string;
-//   price: number;
-//   description?: string;
-//   items?: PackageItem[];
-// }
-
 // For TimeLine Functionality
 export type ActionType = 'addNotes' | 'sendSms' | 'bookAppointment' | 'createTask' | null;
 export type TimelineType = 'Tasks' | 'Notes' | 'Sms' | 'Appointments';
 
-// export interface NoteDetails {
-//   // title: string;
-//   // description: string;
-//   type?: string;
-//   message: string;
-//   tags: string[];
-//   sendToCustomer?: boolean;
-//   createFollowUpTask?: boolean;
-//   task:{
-//     due_date?: string;
-//     name?: string;
-//     priority?: string;
-//     dueDate?: string;
-//   }
-//   attachment?: Array<{ uid: string; name: string; status?: string; url?: string }>;
-//   // attachment?: { uid: string; name: string; status?: string; url?: string };
-// }
-
-// export interface AppointmentDetails {
-//   type?: string;
-//   title: string;
-//   date: string;
-//   startTime: string;
-//   endTime: string;
-//   location: string;
-//   user: string;
-//   notes: string;
-//   sendToCustomer?: boolean;
-// }
-
-// export interface TaskDetails {
-//   type?: string;
-//   task:{
-//     name: string;
-//     dueDate: string;
-//     time: string;
-//     priority: "LOW" | "MEDIUM" | "HIGH";
-//     description: string;
-//     assignee: string;
-//   }
-//   attachment?: any[]; // You might want to define a more specific type for files
-// }
-
-// export interface SmsDetails {
-//   type?: string;
-//   message: string;
-//   recipient: string;
-// }
 export interface NoteTag {
   name: string;
 }
@@ -234,11 +154,6 @@ export interface BaseTimelineCardProps {
   children?: React.ReactNode;
 }
 
-// export type TimelineCardProps =
-//   | (BaseTimelineCardProps & { type: "NOTES"; notes: NoteDetails })
-//   | (BaseTimelineCardProps & { type: "APPOINTMENT"; appointment: AppointmentDetails })
-//   | (BaseTimelineCardProps & { type: "TASK"; task: TaskDetails })
-//   | (BaseTimelineCardProps & { type: "SMS"; sms: SmsDetails });
 export interface TimelineCardProps extends BaseTimelineCardProps {
   type: 'NOTES' | 'APPOINTMENT' | 'TASK' | 'SMS';
   actionId?: string;
@@ -395,15 +310,4 @@ export interface StatusCard {
   label: string;
   color: string;
   icon: React.ReactNode;
-}
-
-export type FunctionalityKey = 'Sales' | 'Workflow' | 'Color' | 'Construction' | 'Maintenance';
-export interface StageItem {
-  id: number;
-  name: string;
-  dependent?: boolean;
-  functionality: FunctionalityKey;
-  meta?: Record<string, any>;
-  sort: number;
-  isActive?: boolean;
 }
