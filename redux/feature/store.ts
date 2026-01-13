@@ -30,6 +30,7 @@ import { schedularReducer } from './admin/scheduler/schedularReducer';
 import integrationReducer from './admin/integration/integrationReducer';
 import { documentReducer } from './admin/document/documentReducer';
 import { templateReducer } from './admin/template/templateReducer';
+import driveReducer from './drive/driveSlice';
 
 const authPersistConfig = {
   key: 'auth',
@@ -66,12 +67,10 @@ const appReducer = combineReducers({
   integration: integrationReducer,
   document: documentReducer,
   template: templateReducer,
+  drive: driveReducer,
 });
 
-const rootReducer = (
-  state: ReturnType<typeof appReducer> | undefined,
-  action: any
-) => {
+const rootReducer = (state: ReturnType<typeof appReducer> | undefined, action: any) => {
   if (action.type === 'auth/logout') {
     storage.removeItem('persist:root');
     storage.removeItem('persist:auth');

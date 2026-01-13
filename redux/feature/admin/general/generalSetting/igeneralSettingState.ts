@@ -12,20 +12,6 @@ export interface GeneralSetting {
   jobIdLabel: string;
 }
 
-export interface GeneralSettingResponse {
-  id: string;
-  notificationReferralPartner: boolean;
-  pdfPasswordProtected: boolean;
-  pdfPassword: string;
-  roundOfCost: boolean;
-  negativeValueShow: boolean;
-  negativeValueColor: string;
-  showReferenceIdInPdf: string;
-  jobIdLabel: string;
-  companyId: string;
-  builderId: string;
-}
-
 export interface IGeneralSettingState {
   settings: GeneralSetting;
   status: {

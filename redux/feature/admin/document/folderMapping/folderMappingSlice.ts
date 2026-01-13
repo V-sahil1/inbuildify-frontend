@@ -2,10 +2,10 @@ import { createSlice } from '@reduxjs/toolkit';
 
 import { Status } from '@lib/constants/enum';
 import { fetchFolderMapping, updateFolderMapping } from './folderMappingThunk';
-import { IFolderMappingState } from './IFolderMappingState';
+import { IDocumentFolderMapping, IFolderMappingState } from './IFolderMappingState';
 
 const initialState: IFolderMappingState = {
-  folderMapping: [],
+  folderMapping: <IDocumentFolderMapping>{},
   status: {
     fetch: Status.IDLE,
     create: Status.IDLE,
@@ -21,7 +21,7 @@ const folderMappingSlice = createSlice({
       state.status.fetch = Status.PENDING;
     });
     builder.addCase(fetchFolderMapping.fulfilled, (state, action) => {
-      state.folderMapping = action.payload.records;
+      state.folderMapping = action.payload;
       state.status.fetch = Status.SUCCESS;
     });
     builder.addCase(fetchFolderMapping.rejected, state => {

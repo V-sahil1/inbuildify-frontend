@@ -1,112 +1,154 @@
 'use client';
-import { useState } from 'react';
-import { Select, Switch, Button, Tooltip, Form } from 'antd';
+import { useEffect, useState, useMemo } from 'react';
+import { Select, Switch, Button, Tooltip, Form, message } from 'antd';
 import { IconInfoCircle } from '@tabler/icons-react';
-
-interface MappingItem {
-  label: string;
-  name: string;
-  info?: boolean;
-  value?: string;
-  options: string[];
-}
-
-interface MappingGroup {
-  title: string;
-  items: MappingItem[];
-}
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import {
+  fetchFolderMapping,
+  updateFolderMapping,
+} from '@redux/feature/admin/document/folderMapping/folderMappingThunk';
+import { fetchDrive } from '@redux/feature/drive/driveThunk';
+import { Status } from '@lib/constants/enum';
+import { IDocumentFolderMapping } from '@redux/feature/admin/document/folderMapping/IFolderMappingState';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 
 export const FolderMapping = () => {
   const [form] = Form.useForm();
-  const initialGroups = [
-    {
-      title: 'Signed Documents Mapping',
-      items: [
-        {
-          label: 'Signed Quotation',
-          value: 'Quotes',
-          options: ['Quotes', 'Invoices', 'Sketches'],
-          name: 'signedQuotation',
-        },
-        {
-          label: 'Signed Color',
-          value: '',
-          options: ['Quotes', 'Invoices', 'Sketches'],
-          name: 'signedColor',
-        },
-        {
-          label: 'Signed Variation',
-          value: '',
-          options: ['Quotes', 'Invoices', 'Sketches'],
-          name: 'signedVariation',
-        },
-        {
-          label: 'Signed Maintenance',
-          value: '',
-          options: ['Quotes', 'Invoices', 'Sketches'],
-          name: 'signedMaintenance',
-        },
-        {
-          label: 'Signed Contract Document',
-          value: '',
-          options: ['Quotes', 'Invoices', 'Sketches'],
-          name: 'signedContractDocument',
-        },
-      ],
-    },
-    {
-      title: 'Construction Documents Mapping',
-      items: [
-        {
-          label: 'Compliance Certificate',
-          info: true,
-          value: 'Certificates',
-          options: ['Certificates', 'Orders', 'Docs'],
-          name: 'complianceCertificate',
-        },
-        {
-          label: 'Purchase Order',
-          info: true,
-          value: 'Purchase Orders',
-          options: ['Certificates', 'Orders', 'Docs'],
-          name: 'purchaseOrder',
-        },
-        {
-          label: 'Job Documents',
-          info: true,
-          value: 'Final Construction Documents',
-          options: ['Certificates', 'Orders', 'Docs'],
-          name: 'jobDocuments',
-        },
-      ],
-    },
-  ];
-
-  const [groups, setGroups] = useState(initialGroups);
-  const [selectAll, setSelectAll] = useState(false);
+  const dispatch = useAppDispatch();
   const [isChanged, setIsChanged] = useState(false);
+  const { drives, status: driveStatus } = useAppSelector(state => state.drive);
+  const { folderMapping, status: folderMappingStatus } = useAppSelector(
+    state => state.document.folderMapping
+  );
+  const folderOptions =
+    drives &&
+    drives.length > 0 &&
+    drives.map(drive => ({ label: drive.name, value: drive.driveId }));
 
-  const handleChange = (groupIdx: number, itemIdx: number, newValue: string) => {
-    const updated = [...groups];
-    updated[groupIdx].items[itemIdx].value = newValue;
-    setGroups(updated);
-    setIsChanged(true);
+  const fetchFolderMappingData = async () => {
+    try {
+      await dispatch(fetchFolderMapping()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch folder mapping');
+    }
   };
 
-  const handleToggle = (checked: boolean) => {
-    setSelectAll(checked);
-    setIsChanged(true);
+  const fetchDriveData = async () => {
+    try {
+      await dispatch(fetchDrive()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch drives');
+    }
   };
 
-  const handleSave = () => {
-    console.log('Saved Data:', { groups, selectAll });
-    setIsChanged(false);
+  useEffect(() => {
+    if (folderMappingStatus.fetch === Status.IDLE) {
+      fetchFolderMappingData();
+    }
+    if (folderMapping) {
+      form.setFieldsValue(folderMapping);
+    }
+
+    if (driveStatus.fetch === Status.IDLE) {
+      fetchDriveData();
+    }
+  }, [driveStatus.fetch, folderMappingStatus.fetch]);
+  const initialGroups = useMemo(
+    () => [
+      {
+        title: 'Signed Documents Mapping',
+        items: [
+          {
+            label: 'Signed Quotation',
+            value: '',
+            options: folderOptions,
+            name: 'signedQuotation',
+          },
+          {
+            label: 'Signed Color',
+            value: '',
+            options: folderOptions,
+            name: 'signedColor',
+          },
+          {
+            label: 'Signed Variation',
+            value: '',
+            options: folderOptions,
+            name: 'signedVariation',
+          },
+          {
+            label: 'Signed Maintenance',
+            value: '',
+            options: folderOptions,
+            name: 'signedMaintenance',
+          },
+          {
+            label: 'Signed Contract Document',
+            value: '',
+            options: folderOptions,
+            name: 'signedContractDocument',
+          },
+        ],
+      },
+      {
+        title: 'Construction Documents Mapping',
+        items: [
+          {
+            label: 'Compliance Certificate',
+            info: true,
+            value: '',
+            options: folderOptions,
+            name: 'complianceCertificate',
+          },
+          {
+            label: 'Purchase Order',
+            info: true,
+            value: '',
+            options: folderOptions,
+            name: 'purchaseOrder',
+          },
+          {
+            label: 'Job Documents',
+            info: true,
+            value: '',
+            options: folderOptions,
+            name: 'jobDocuments',
+          },
+        ],
+      },
+    ],
+    [folderOptions]
+  );
+
+  const handleChange = (name, value) => {
+    setIsChanged(value !== folderMapping?.[name]);
+  };
+
+  const handleSave = async () => {
+    const values: IDocumentFolderMapping = await form.validateFields();
+    try {
+      const { isUpdated, updatedFields } = getUpdatedFields(values, folderMapping);
+      if (!isUpdated) {
+        message.error('No changes detected');
+        setIsChanged(false);
+        return;
+      }
+      await dispatch(updateFolderMapping(updatedFields)).unwrap();
+      message.success('Folder mapping updated successfully');
+      setIsChanged(false);
+    } catch (error) {
+      message.error(error || 'Failed to update folder mapping');
+    }
   };
 
   return (
     <div className="w-full p-6 bg-white rounded-md">
-      <Form form={form}>
-        {groups.map((group, gIdx) => (
+      <Form
+        form={form}
+        initialValues={folderMapping}
+        disabled={folderMappingStatus.create === Status.PENDING}
+      >
+        {initialGroups.map(group => (
           <div key={group.title} className="mb-8">
             <h3 className="text-base font-semibold text-gray-800 mb-3">{group.title}</h3>
             <div className="grid grid-cols-2 gap-y-4">
@@ -120,14 +162,13 @@ export const FolderMapping = () => {
                       </Tooltip>
                     )}
                   </div>
-                  <Form.Item name={item.label}>
+                  <Form.Item name={item.name}>
                     <Select
                       className="w-full"
                       value={item.value || undefined}
                       placeholder="Please select a folder"
-                      onChange={val => handleChange(gIdx, iIdx, val)}
-                      //   the options are of the folder name here as the created folders list for all the select option
-                      options={item.options.map(o => ({ label: o, value: o }))}
+                      onChange={val => handleChange(item.name, val)}
+                      options={item.options}
                     />
                   </Form.Item>
                 </div>
@@ -137,8 +178,8 @@ export const FolderMapping = () => {
         ))}
 
         <div className="flex items-start gap-3 mt-6 border-t pt-4">
-          <Form.Item name="selectAll" valuePropName="checked">
-            <Switch checked={selectAll} onChange={handleToggle} />
+          <Form.Item name="selectAllFilesFromFolder" valuePropName="checked">
+            <Switch onChange={checked => handleChange('selectAllFilesFromFolder', checked)} />
           </Form.Item>
 
           <div className="text-sm text-gray-700">
@@ -155,7 +196,13 @@ export const FolderMapping = () => {
 
       {isChanged && (
         <div className="mt-6 text-right">
-          <Button type="primary" onClick={handleSave}>
+          <Button
+            type="primary"
+            htmlType="submit"
+            onClick={handleSave}
+            loading={folderMappingStatus.create === Status.PENDING}
+            disabled={folderMappingStatus.create === Status.PENDING}
+          >
             Save Changes
           </Button>
         </div>

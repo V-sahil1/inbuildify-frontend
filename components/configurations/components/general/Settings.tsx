@@ -17,6 +17,7 @@ const { Text, Paragraph, Title } = Typography;
 const SettingsPage = () => {
   const [form] = Form.useForm();
   const [negativeColor, setNegativeColor] = useState<string | null>(null);
+  const [isChange, setIsChange] = useState(false);
   const { settings, status } = useAppSelector(state => state.general.generalSetting);
   const isPasswordProtected = Form.useWatch('pdfPasswordProtected', form);
   const dispatch = useAppDispatch();
@@ -29,6 +30,7 @@ const SettingsPage = () => {
       form.setFieldsValue(settings);
     }
   }, [status.fetch]);
+
   async function fetchSetting() {
     try {
       await dispatch(fetchGeneralSetting()).unwrap();
@@ -38,16 +40,21 @@ const SettingsPage = () => {
   }
   const onFinish = async (values: GeneralSetting) => {
     try {
-      const updatedValues = getUpdatedFields<GeneralSetting>(values, settings);   
-      if (Object.keys(updatedValues).length === 0) {
+      const { isUpdated, updatedFields } = getUpdatedFields<GeneralSetting>(values, settings);
+      if (isUpdated) {
         message.info('No changes detected');
         return;
       }
-      await dispatch(updateGeneralSetting({ data: updatedValues, id: settings.id })).unwrap();
+      await dispatch(updateGeneralSetting({ data: updatedFields, id: settings.id })).unwrap();
       message.success('Setting updated successfully');
     } catch (error) {
       message.error(error || 'Failed to update setting');
     }
+  };
+
+  const handleValueChange = (_, allValues: GeneralSetting) => {
+    const { isUpdated } = getUpdatedFields(allValues, settings);
+    setIsChange(isUpdated);
   };
 
   const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,11 +80,18 @@ const SettingsPage = () => {
         Document & Workflow Settings
       </Title>
 
-      <Form form={form} layout="vertical" onFinish={onFinish} initialValues={settings}>
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={onFinish}
+        initialValues={settings}
+        onValuesChange={handleValueChange}
+        disabled={status.update === Status.PENDING}
+      >
         {/* 1. Referral Partner Notifications */}
         <div className="flex gap-2 items-center">
           <Form.Item name="notificationReferralPartner" valuePropName="checked" className="mb-1">
-            <Switch disabled={status.update === Status.PENDING}/>
+            <Switch />
           </Form.Item>
           <Text strong className="ml-2">
             Send All Email/SMS Notifications to Referral Partner Instead of Customer
@@ -92,7 +106,7 @@ const SettingsPage = () => {
         <div className="border-t border-gray-200 my-6" />
         <div className="flex gap-2 items-center">
           <Form.Item name="pdfPasswordProtected" valuePropName="checked" className="mb-1">
-            <Switch disabled={status.update === Status.PENDING}/>
+            <Switch />
           </Form.Item>
           <Text strong className="ml-2">
             Restrict PDFs with Password Protection
@@ -111,14 +125,14 @@ const SettingsPage = () => {
             className="max-w-[300px] mt-4"
             rules={passwordRules}
           >
-            <Input.Password placeholder="************" disabled={status.update === Status.PENDING}/>
+            <Input.Password placeholder="************" />
           </Form.Item>
         )}
 
         <div className="border-t border-gray-200 my-6" />
         <div className="flex gap-2 items-center">
           <Form.Item name="roundOfCost" valuePropName="checked" className="mb-1">
-            <Switch disabled={status.update === Status.PENDING}/>
+            <Switch />
           </Form.Item>
           <Text strong className="ml-2">
             Round off Costs
@@ -132,7 +146,7 @@ const SettingsPage = () => {
         <div className="border-t border-gray-200 my-6" />
         <div className="flex items-center gap-2">
           <Form.Item name="negativeValueShow" valuePropName="checked" className="mb-1">
-            <Switch disabled={status.update === Status.PENDING} />
+            <Switch />
           </Form.Item>
           <Text strong className="ml-2">
             Show Negative Values as Minus or in Brackets
@@ -155,7 +169,6 @@ const SettingsPage = () => {
                 value={form.getFieldValue('negativeValueColor')}
                 onChange={handleColorChange}
                 className="w-12 h-8 p-0 border border-gray-300 rounded cursor-pointer"
-                disabled={status.update === Status.PENDING}
               />
             </Col>
             <Col>
@@ -173,7 +186,6 @@ const SettingsPage = () => {
                   value={negativeColor}
                   onChange={handleColorChange}
                   className="w-[100px] uppercase"
-                  disabled={status.update === Status.PENDING}
                 />
               </Form.Item>
             </Col>
@@ -193,7 +205,7 @@ const SettingsPage = () => {
         <Row gutter={24}>
           <Col span={8}>
             <Form.Item name="showReferenceIdInPdf" label="Reference Type">
-              <Select options={configurationSettingsOptions} disabled={status.update === Status.PENDING} />
+              <Select options={configurationSettingsOptions} />
             </Form.Item>
           </Col>
 
@@ -206,7 +218,7 @@ const SettingsPage = () => {
               return type === 'none' || type === 'doc_id' ? null : (
                 <Col span={8}>
                   <Form.Item name="jobIdLabel" label="Label of Job ID">
-                    <Input placeholder="Job No." disabled={status.update === Status.PENDING} />
+                    <Input placeholder="Job No." />
                   </Form.Item>
                 </Col>
               );
@@ -214,13 +226,21 @@ const SettingsPage = () => {
           </Form.Item>
         </Row>
 
-        <Row justify="end" className="mt-10">
-          <Col>
-            <Button type="primary" size="large" htmlType="submit" loading={status.update === Status.PENDING}>
-              Save Settings
-            </Button>
-          </Col>
-        </Row>
+        {isChange && (
+          <Row justify="end" className="mt-10">
+            <Col>
+              <Button
+                type="primary"
+                size="large"
+                htmlType="submit"
+                loading={status.update === Status.PENDING}
+                disabled={status.update === Status.PENDING}
+              >
+                Save Settings
+              </Button>
+            </Col>
+          </Row>
+        )}
       </Form>
     </div>
   );

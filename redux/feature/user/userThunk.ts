@@ -17,7 +17,7 @@ export const AcceptInviteThunk = createAsyncThunk(
       storeAuthToken(response.data.accessToken);
       storeRefreshToken(response.data.refreshToken);
       return response;
-    } catch (err: any) {
+    } catch (err) {
       return rejectWithValue(err.message);
     }
   }
@@ -31,7 +31,7 @@ export const createUserThunk = createAsyncThunk(
         data: payload,
       });
       return response.data;
-    } catch (err: any) {
+    } catch (err) {
       return rejectWithValue(err.message);
     }
   }
@@ -39,9 +39,11 @@ export const createUserThunk = createAsyncThunk(
 
 export const getUsersThunk = createAsyncThunk('user/getAll', async (_, { rejectWithValue }) => {
   try {
-    const response: ApiResponse<{users:user[],pagination:Pagination }> = await api.get(API_ENDPOINTS.GET_USERS);
+    const response: ApiResponse<{ rows: user[]; pagination: Pagination }> = await api.get(
+      API_ENDPOINTS.GET_USERS
+    );
     return response.data;
-  } catch (err: any) {
+  } catch (err) {
     return rejectWithValue(err.message);
   }
 });
@@ -52,7 +54,7 @@ export const getInvitedUsersThunk = createAsyncThunk(
     try {
       const response: ApiResponse<invitedUserResponse> = await api.get(API_ENDPOINTS.INVITED_USERS);
       return response.data;
-    } catch (err: any) {
+    } catch (err) {
       return rejectWithValue(err.message);
     }
   }
@@ -82,7 +84,7 @@ export const updateUserThunk = createAsyncThunk(
 //       );
 
 //       return response;
-//     } catch (err: any) {
+//     } catch (err) {
 //       return thunkAPI.rejectWithValue(err.message);
 //     }
 //   }

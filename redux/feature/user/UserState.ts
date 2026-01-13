@@ -2,14 +2,16 @@
 import { Status } from '@lib/constants/enum';
 
 export type user = {
-  usersId?: string;
-  builderId?: string;
-  name?: string;
+   usersId: string;
+  name: string;
   email: string;
-  isVerified?: boolean;
-  role: string[];
-  createdAt?: string;
-  updatedAt?: string;
+  loginId: string | null;
+  phone: string | null;
+  secondaryPhone: string | null;
+  roleId: string;
+  roleName: string;
+  isActive: boolean;
+  isLocked: boolean;
 };
 
 export type invitedUser = {

@@ -23,12 +23,16 @@ export const useUsersHook = (verified: boolean = true) => {
   }, [status.users]);
 
   const userOptions = useMemo(() => {
-    return users
-      .filter(i => i.isVerified === verified)
-      .map((role: user) => ({
-        label: role.name,
-        value: role.usersId,
-      }));
+    return (
+      users &&
+      users.length > 0 &&
+      users
+        .filter(i => i.isActive === verified)
+        .map((role: user) => ({
+          label: role.name,
+          value: role.usersId,
+        }))
+    );
   }, [users]);
 
   return {

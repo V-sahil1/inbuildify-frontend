@@ -183,6 +183,8 @@ class API_ENDPOINTS {
   public static CONSTRUCTION_OPTION = '/construction-option';
   public static CONSTRUCTION_TYPE = '/construction-type';
   public static CONSTRUCTION_STAGE = '/construction-stage';
+  public static ETS_RECHARGE_SETTING = '/construction-ets-recharge';
+  public static ETS_RECHARGE_APPROVAL = '/construction-ets-recharge-approval';
 
   //document
   public static DOCUMENT_AREA = '/document-common-folder';
@@ -204,6 +206,7 @@ class API_ENDPOINTS {
   public static PDF_TEMPLATE = '/template-pdf';
 
   public static ROLE_BASE = '/role';
+  public static DRIVE_BASE = '/drive';
 
   // common
   public static FUNCTIONALITY_BASE = '/functionality';
