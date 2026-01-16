@@ -1,41 +1,49 @@
+import { useBuildersHook } from '@hooks/useBuildersHook';
+import { useConstructionTypeHook } from '@hooks/useConstructionTypeHook';
+import { useConstructionStageHook } from '@hooks/useConstrutcionStageHook';
 import { Col, Form, Row, Select } from 'antd';
+import { useEffect } from 'react';
 
-export const ChecklistHeader = () => {
+export const ChecklistHeader = ({ onChange, data }) => {
+  const { builderOptions } = useBuildersHook();
+  const { typeOptions } = useConstructionTypeHook();
+  const { stageOptions } = useConstructionStageHook();
+
+  useEffect(() => {
+    if (builderOptions && typeOptions && stageOptions && !data.builder && !data.constructionType && !data.constructionStage) {
+      onChange({
+        builder: builderOptions[0].value,
+        constructionType: typeOptions[0].value,
+        constructionStage: stageOptions[0].value
+      });
+    }
+  }, [builderOptions, typeOptions, stageOptions, data.builder, data.constructionType, data.constructionStage, onChange]);
   return (
     <Form layout="vertical" className="mb-6">
       <Row gutter={16}>
         <Col span={8}>
-          <Form.Item label="Builder" required>
-            <Select
-              placeholder="Select Builder"
-              options={[
-                { label: 'Company Level', value: 'companyLevel' },
-                { label: 'Project Level', value: 'projectLevel' },
-              ]}
-            />
-          </Form.Item>
+          <Select
+            value={data.builder}
+            placeholder="Select Builder"
+            options={builderOptions}
+            onChange={val => onChange(prev => ({ ...prev, builder: val }))}
+          />
         </Col>
         <Col span={8}>
-          <Form.Item label="Construction Types" required>
-            <Select
-              placeholder="Select Construction Type"
-              options={[
-                { label: 'Single Storey Build', value: 'singleStoreyBuilding' },
-                { label: 'Multi Storey Build', value: 'multiStoreyBuilding' },
-              ]}
-            />
-          </Form.Item>
+          <Select
+            value={data.constructionType}
+            placeholder="Select Construction Type"
+            options={typeOptions}
+            onChange={val => onChange(prev => ({ ...prev, constructionType: val }))}
+          />
         </Col>
         <Col span={8}>
-          <Form.Item label="Stage" required>
-            <Select
-              placeholder="Select Stage"
-              options={[
-                { label: 'Base Stage', value: 'baseStage' },
-                { label: 'Project Stage', value: 'projectLevel' },
-              ]}
-            />
-          </Form.Item>
+          <Select
+            value={data.constructionStage}
+            placeholder="Select Stage"
+            options={stageOptions}
+            onChange={val => onChange(prev => ({ ...prev, constructionStage: val }))}
+          />
         </Col>
       </Row>
     </Form>

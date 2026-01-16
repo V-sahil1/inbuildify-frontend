@@ -11,9 +11,14 @@ export function Checklist() {
   const [editing, setEditing] = useState<number | null>(null);
   const [subChecklistModal, setSubChecklistModal] = useState(false);
   const [addChecklistModal, setAddChecklistModal] = useState(false);
+   const [headerData, setHeaderData] = useState({
+      builder: null,
+      constructionType: null,
+      constructionStage: null,
+    });
   return (
     <div className="p-6 bg-white rounded-lg shadow border border-gray-200">
-      <ChecklistHeader />
+      <ChecklistHeader onChange={setHeaderData} data={headerData} />
 
       {/* Table Header */}
       <Row
