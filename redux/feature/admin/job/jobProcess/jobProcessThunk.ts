@@ -2,7 +2,7 @@ import api from '@lib/constants/api';
 import API_ENDPOINTS from '@lib/constants/apiEndpoints';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { ApiResponse } from '../../../auth/IAuthState';
-import { JobProcessFunctionality, JobProcessStage, JobProcessSubStage } from './IJobProcessState';
+import { JobPredecessorTask, JobProcessFunctionality, JobProcessStage, JobProcessSubStage, JobProcessSubTask, JobProcessTask } from './IJobProcessState';
 
 export const fetchJobProcessFunctionality = createAsyncThunk(
   'jobProcessFunctionality/fetch',
@@ -10,6 +10,20 @@ export const fetchJobProcessFunctionality = createAsyncThunk(
     try {
       const response = await api.get<ApiResponse<JobProcessFunctionality[]>>(
         API_ENDPOINTS.JOB_PROCESS_FUNTIONALITY
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const fetchJobPredecessorTask = createAsyncThunk(
+  'predecessorTask/fetch',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get<ApiResponse<JobPredecessorTask[]>>(
+        API_ENDPOINTS.JOB_TASK_BASE
       );
       return response.data;
     } catch (error) {
@@ -80,7 +94,6 @@ export const deleteJobProcessStage = createAsyncThunk(
 );
 
 // job process sub stage
-
 export const fetchJobProcessSubStages = createAsyncThunk(
   'jobProcessSubStage/fetch',
   async (stageId: string, { rejectWithValue }) => {
@@ -138,6 +151,120 @@ export const deleteJobProcessSubStages = createAsyncThunk(
         `${API_ENDPOINTS.JOB_PROCESS_SUB_STAGE_BASE}/${subStageId}`
       );
       return subStageId;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+// job process task
+export const fetchJobProcessSubStageTasks = createAsyncThunk(
+  'jobProcessSubStageTask/fetch',
+  async (subStageId: string, { rejectWithValue }) => {
+    try {
+      const response = await api.get<ApiResponse<JobProcessTask[]>>(
+        API_ENDPOINTS.JOB_PROCESS_TASK(subStageId)
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const createJobProcessTasks = createAsyncThunk(
+  'jobProcessSubStageTask/create',
+  async (payload: { stageId: string; data: Partial<JobProcessTask> }, { rejectWithValue }) => {
+    try {
+      const response = await api.post<ApiResponse<JobProcessTask>>(
+        API_ENDPOINTS.JOB_PROCESS_TASK(payload.stageId),
+        {
+          data: payload.data,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error?.message ?? 'Create failed');
+    }
+  }
+);
+
+export const updateJobProcessTasks = createAsyncThunk(
+  'jobProcessSubStageTask/update',
+  async (
+    payload: { taskId: string; data: Partial<JobProcessTask> },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await api.put<ApiResponse<JobProcessTask>>(
+        `${API_ENDPOINTS.JOB_TASK_BASE}/${payload.taskId}`,
+        { data: payload.data }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const deleteJobProcessTasks = createAsyncThunk(
+  'jobProcessSubStageTask/delete',
+  async (subStageId: string, { rejectWithValue }) => {
+    try {
+      const response = await api.delete<ApiResponse<JobProcessTask>>(
+        `${API_ENDPOINTS.JOB_TASK_BASE}/${subStageId}`
+      );
+      return subStageId;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+// job process sub task 
+export const createJobProcessSubTasks = createAsyncThunk(
+  'jobProcessSubTask/create',
+  async (payload: { taskId: string; data: Partial<JobProcessSubTask> }, { rejectWithValue }) => {
+    try {
+      const response = await api.post<ApiResponse<JobProcessSubTask>>(
+        API_ENDPOINTS.JOB_PROCESS_SUB_TASK(payload.taskId),
+        {
+          data: payload.data,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error?.message ?? 'Create failed');
+    }
+  }
+);
+
+export const updateJobProcessSubTasks = createAsyncThunk(
+  'jobProcessSubTask/update',
+  async (
+    payload: { subTaskId: string; data: Partial<JobProcessSubTask> },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await api.put<ApiResponse<JobProcessSubTask>>(
+        `${API_ENDPOINTS.JOB_SUB_TASK_BASE}/${payload.subTaskId}`,
+        { data: payload.data }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const deleteJobProcessSubTasks = createAsyncThunk(
+  'jobProcessSubTask/delete',
+  async (subTaskId: string, { rejectWithValue }) => {
+    try {
+      const response = await api.delete<ApiResponse<JobProcessSubTask>>(
+        `${API_ENDPOINTS.JOB_SUB_TASK_BASE}/${subTaskId}`
+      );
+      return subTaskId;
     } catch (error) {
       return rejectWithValue(error.message);
     }

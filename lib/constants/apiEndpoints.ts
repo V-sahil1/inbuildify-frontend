@@ -164,7 +164,11 @@ class API_ENDPOINTS {
   public static JOB_PROCESS_FUNTIONALITY = '/job-process-stage-functionality';
   public static JOB_PROCESS_STAGE = `${this.JOB_PROCESS_BASE}/stages`;
   public static JOB_PROCESS_SUB_STAGE_BASE = `${this.JOB_PROCESS_BASE}/sub-stages`;
-  public static JOB_PROCESS_SUB_STAGE = (stageId: string) => { return `${this.JOB_PROCESS_STAGE}/${stageId}/sub-stages`};
+  public static JOB_PROCESS_SUB_STAGE = (stageId: string) => { return `${this.JOB_PROCESS_STAGE}/${stageId}/sub-stages` };
+  public static JOB_TASK_BASE = `${this.JOB_PROCESS_BASE}/tasks`;
+  public static JOB_PROCESS_TASK = (subStageId: string) => { return `${this.JOB_PROCESS_SUB_STAGE_BASE}/${subStageId}/tasks` };
+  public static JOB_SUB_TASK_BASE = `${this.JOB_PROCESS_BASE}/sub-tasks`;
+  public static JOB_PROCESS_SUB_TASK = (taskId: string) => { return `${this.JOB_TASK_BASE}/${taskId}/sub-tasks` };
 
   // admin maintenance
   public static MAINTENANCE_SETTING = '/maintenance-setting';

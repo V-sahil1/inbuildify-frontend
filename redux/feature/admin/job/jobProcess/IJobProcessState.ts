@@ -6,6 +6,11 @@ export interface JobProcessFunctionality {
   name: string;
 }
 
+export interface JobPredecessorTask {
+  taskId: string;
+  name: string;
+}
+
 export interface JobProcessStage {
   stageId: string;
   name: string;
@@ -21,14 +26,37 @@ export interface JobProcessSubStage {
   sortOrder: number;
 }
 
+export interface JobProcessSubTask {
+  jobProcessSubtaskId?: string;
+  subTaskId: string;
+  name: string;
+  sortOrder: number;
+}
+
+export interface JobProcessTask {
+  taskId: string;
+  name: string;
+  description: string;
+  sortOrder: number;
+  noOfDays: number;
+  assignee: Entity;
+  notify: boolean;
+  milestone: boolean;
+  attachmentMandatory: boolean;
+  dependencies: JobPredecessorTask[];
+  subTasks: JobProcessSubTask[];
+}
+
 export interface IJobSettingState {
   jobProcessFunctionality: JobProcessFunctionality[] | null;
+  jobPredecessorTask: JobPredecessorTask[];
   jobProcessStage: JobProcessStage[];
   jobProcessSubStage: JobProcessSubStage[];
-  jobProcessTask: [];
-  jobProcessSubTask: [];
+  jobProcessTask: JobProcessTask[];
+  jobProcessSubTask: JobProcessSubTask[];
   status: {
     fetchFunctionality: Status;
+    fetchbPredecessorTask: Status;
     stage: {
       fetch: Status;
       update: Status;
@@ -45,11 +73,12 @@ export interface IJobSettingState {
       fetch: Status;
       update: Status;
       create: Status;
+      delete: Status;
     };
     subTask: {
-      fetch: Status;
       update: Status;
       create: Status;
+      delete: Status;
     };
   };
 }

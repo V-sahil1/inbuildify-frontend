@@ -10,17 +10,27 @@ import {
   createJobProcessSubStages,
   updateJobProcessSubStages,
   deleteJobProcessSubStages,
+  fetchJobPredecessorTask,
+  fetchJobProcessSubStageTasks,
+  createJobProcessTasks,
+  updateJobProcessTasks,
+  deleteJobProcessTasks,
+  createJobProcessSubTasks,
+  updateJobProcessSubTasks,
+  deleteJobProcessSubTasks,
 } from './jobProcessThunk';
 import { IJobSettingState } from './IJobProcessState';
 
 const initialState: IJobSettingState = {
   jobProcessFunctionality: [],
+  jobPredecessorTask: [],
   jobProcessStage: [],
   jobProcessSubStage: [],
   jobProcessTask: [],
   jobProcessSubTask: [],
   status: {
     fetchFunctionality: Status.IDLE,
+    fetchbPredecessorTask: Status.IDLE,
     stage: {
       fetch: Status.IDLE,
       update: Status.IDLE,
@@ -37,11 +47,12 @@ const initialState: IJobSettingState = {
       fetch: Status.IDLE,
       update: Status.IDLE,
       create: Status.IDLE,
+      delete: Status.IDLE,
     },
     subTask: {
-      fetch: Status.IDLE,
       update: Status.IDLE,
       create: Status.IDLE,
+      delete: Status.IDLE,
     },
   },
 };
@@ -61,6 +72,18 @@ const JobProcessSlice = createSlice({
       })
       .addCase(fetchJobProcessFunctionality.rejected, state => {
         state.status.fetchFunctionality = Status.ERROR;
+      });
+
+    builder
+      .addCase(fetchJobPredecessorTask.pending, state => {
+        state.status.fetchbPredecessorTask = Status.PENDING;
+      })
+      .addCase(fetchJobPredecessorTask.fulfilled, (state, action) => {
+        state.jobPredecessorTask = action.payload;
+        state.status.fetchbPredecessorTask = Status.SUCCESS;
+      })
+      .addCase(fetchJobPredecessorTask.rejected, state => {
+        state.status.fetchbPredecessorTask = Status.ERROR;
       });
 
     // Stages
@@ -173,6 +196,126 @@ const JobProcessSlice = createSlice({
       })
       .addCase(deleteJobProcessSubStages.rejected, state => {
         state.status.stage.delete = Status.ERROR;
+      });
+
+    // Task
+    builder
+      .addCase(fetchJobProcessSubStageTasks.pending, state => {
+        state.status.task.fetch = Status.PENDING;
+      })
+      .addCase(fetchJobProcessSubStageTasks.fulfilled, (state, action) => {
+        state.jobProcessTask = action.payload;
+        state.status.task.fetch = Status.SUCCESS;
+      })
+      .addCase(fetchJobProcessSubStageTasks.rejected, state => {
+        state.status.task.fetch = Status.ERROR;
+      });
+
+    builder
+      .addCase(createJobProcessTasks.pending, state => {
+        state.status.task.create = Status.PENDING;
+      })
+      .addCase(createJobProcessTasks.fulfilled, (state, action) => {
+        state.jobProcessTask.push(action.payload);
+        state.status.task.create = Status.SUCCESS;
+      })
+      .addCase(createJobProcessTasks.rejected, state => {
+        state.status.task.create = Status.ERROR;
+      });
+
+    builder
+      .addCase(updateJobProcessTasks.pending, state => {
+        state.status.task.update = Status.PENDING;
+      })
+      .addCase(updateJobProcessTasks.fulfilled, (state, action) => {
+        state.jobProcessTask = state.jobProcessTask.map(task => {
+          if (task.taskId === action.payload.taskId) {
+            return action.payload;
+          }
+          return task;
+        });
+        state.status.task.update = Status.SUCCESS;
+      })
+      .addCase(updateJobProcessTasks.rejected, state => {
+        state.status.task.update = Status.ERROR;
+      });
+
+    builder
+      .addCase(deleteJobProcessTasks.pending, state => {
+        state.status.task.delete = Status.PENDING;
+      })
+      .addCase(deleteJobProcessTasks.fulfilled, (state, action) => {
+        state.jobProcessTask = state.jobProcessTask.filter(task => task.taskId !== action.payload);
+        state.status.task.delete = Status.SUCCESS;
+      })
+      .addCase(deleteJobProcessTasks.rejected, state => {
+        state.status.task.delete = Status.ERROR;
+      });
+
+    // Sub-Task
+    builder
+      .addCase(createJobProcessSubTasks.pending, state => {
+        state.status.subTask.create = Status.PENDING;
+      })
+      .addCase(createJobProcessSubTasks.fulfilled, (state, action) => {
+        // Find the parent task and add the sub-task to it
+        const parentTask = state.jobProcessTask.find(
+          task => task.taskId === action.meta.arg.taskId
+        );
+        if (parentTask) {
+          if (!parentTask.subTasks) {
+            parentTask.subTasks = [];
+          }
+          parentTask.subTasks.push({
+            ...action.payload,
+            subTaskId: action.payload.jobProcessSubtaskId,
+          });
+        }
+        state.status.subTask.create = Status.SUCCESS;
+      })
+      .addCase(createJobProcessSubTasks.rejected, state => {
+        state.status.subTask.create = Status.ERROR;
+      });
+
+    builder
+      .addCase(updateJobProcessSubTasks.pending, state => {
+        state.status.subTask.update = Status.PENDING;
+      })
+      .addCase(updateJobProcessSubTasks.fulfilled, (state, action) => {
+        // Find the parent task and update the sub-task within it
+        const parentTask = state.jobProcessTask.find(
+          task => task.taskId === action.meta.arg.subTaskId
+        );
+        if (parentTask && parentTask.subTasks) {
+          const subTaskIndex = parentTask.subTasks.findIndex(
+            subTask => subTask.subTaskId === action.payload.subTaskId
+          );
+          if (subTaskIndex !== -1) {
+            parentTask.subTasks[subTaskIndex] = action.payload;
+          }
+        }
+        state.status.subTask.update = Status.SUCCESS;
+      })
+      .addCase(updateJobProcessSubTasks.rejected, state => {
+        state.status.subTask.update = Status.ERROR;
+      });
+
+    builder
+      .addCase(deleteJobProcessSubTasks.pending, state => {
+        state.status.subTask.delete = Status.PENDING;
+      })
+      .addCase(deleteJobProcessSubTasks.fulfilled, (state, action) => {
+        // Find the parent task and remove the sub-task from it
+        const parentTask = state.jobProcessTask.find(task => task.taskId === action.meta.arg);
+        if (parentTask && parentTask.subTasks) {
+          parentTask.subTasks = parentTask.subTasks.filter(
+            subTask => subTask.subTaskId !== action.payload
+          );
+        }
+        state.status.subTask.delete = Status.SUCCESS;
+      })
+      .addCase(deleteJobProcessSubTasks.rejected, state => {
+        state.status.subTask.delete = Status.ERROR;
       });
   },
 });

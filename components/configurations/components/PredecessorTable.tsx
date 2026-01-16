@@ -2,6 +2,9 @@ import { Button, Space, Table, Popconfirm, Form } from 'antd';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { Status } from '@lib/constants/enum';
+import { fetchJobPredecessorTask } from '@redux/feature/admin/job/jobProcess/jobProcessThunk';
 
 export const PredecessorTable = ({
   predecessors,
@@ -14,6 +17,8 @@ export const PredecessorTable = ({
   onDelete: (id: string) => void;
   onAdd: (values: any) => void;
 }) => {
+  const dispatch = useAppDispatch();
+  const { jobPredecessorTask, status } = useAppSelector(state => state.job.jobProcess);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form] = Form.useForm();
@@ -21,6 +26,9 @@ export const PredecessorTable = ({
   const [editingProcessor, setEditingProcessor] = useState<any>(null);
 
   useEffect(() => {
+    if (status.fetchbPredecessorTask === Status.IDLE) {
+      dispatch(fetchJobPredecessorTask()).unwrap();
+    }
     if (editingId) {
       const predecessor = predecessors.find(p => p.id === editingId);
       if (predecessor) {
@@ -31,7 +39,7 @@ export const PredecessorTable = ({
     }
   }, [editingId, form, predecessors]);
 
-  const handleSubmit = (values: { name: string; sort: number }) => {
+  const handleSubmit = (values: { task: string; sort: number }) => {
     if (editingId) {
       onEdit(editingId, values);
     } else {
@@ -98,14 +106,10 @@ export const PredecessorTable = ({
         onSubmit={handleSubmit}
         fields={[
           {
-            name: 'name',
+            name: 'task',
             label: 'Name',
-            type: 'text',
-          },
-          {
-            name: 'sort',
-            label: 'Sort',
-            type: 'number',
+            type: 'select',
+            options: jobPredecessorTask.map(pTask => ({ label: pTask.name, value: pTask.taskId })),
           },
         ]}
       />

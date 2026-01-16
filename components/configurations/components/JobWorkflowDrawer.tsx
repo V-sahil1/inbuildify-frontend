@@ -168,7 +168,10 @@ export const JobWorkflowDrawer: React.FC<JobWorkflowDrawerProps> = ({ open, onCl
         }}
       />
       <div className="w-full mt-2 overflow-x-hidden overflow-x-scroll custom-scrollbar ">
-        <TaskTable currentStep={jobProcessSubStage[currentStep]?.name || ''} />
+        <TaskTable 
+          currentStep={jobProcessSubStage[currentStep]?.name || ''} 
+          subStageId={jobProcessSubStage[currentStep]?.subStageId || ''} 
+        />
       </div>
       {modal && (
         <ConfirmationModal
