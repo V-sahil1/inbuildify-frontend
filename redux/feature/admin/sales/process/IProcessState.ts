@@ -1,16 +1,42 @@
 import { Status } from '@lib/constants/enum';
+import { Entity } from 'types/common.types';
 
-export interface Process {
-  salesProcessId?:string,
+export interface ProcessType {
+  salesProcessId?: string;
   name: string;
-  isDefault:boolean
+  isDefault: boolean;
+  isExpanded?: boolean;
+  Stages?: StageType[];
+}
+
+export interface StageType {
+  salesStageId?: string;
+  salesProcessId: string;
+  stageName: string;
+  functionality: Entity[];
+  category: string;
+  sortOrder: number;
+  isActive: boolean;
+}
+
+export interface StageTypePayload {
+  salesProcessId?: string;
+  stageName: string;
+  functionalityId: string[];
+  category: string;
+  sortOrder: number;
 }
 
 export interface IProcessState {
-  process:Process[];
+  process: ProcessType[];
+  functionality: { functionalityId: string; name: string }[];
+  functionalityStatus: Status;
+  stageStatus: {
+    create: Status;
+    fetch: Status;
+  };
   status: {
-   create:Status,
-   fetch:Status,
-   update:Status
-  }
+    create: Status;
+    fetch: Status;
+  };
 }

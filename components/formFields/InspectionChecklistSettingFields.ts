@@ -1,6 +1,12 @@
 import { FormField } from '../common/Models/ActionDialogModel';
 
-export const inspectionChecklistSettingFields = (type: 'checklist' | 'stage'): FormField[] => {
+export const inspectionChecklistSettingFields = (
+  type: 'checklist' | 'section' | 'deleteChecklist' | 'deleteSection',
+  sectionOptions,
+  options,
+  onExistingJob,
+  setExistingJob
+): FormField[] => {
   if (type === 'checklist') {
     return [
       {
@@ -12,36 +18,32 @@ export const inspectionChecklistSettingFields = (type: 'checklist' | 'stage'): F
       },
       {
         label: 'Options',
-        name: 'options',
+        name: 'constructionOptionId',
         type: 'select',
-        options: [
-          { value: 'bricks', label: 'Bricks' },
-          { value: 'hebel', label: 'Hebel' },
-          { value: 'concrete', label: 'Concrete' },
-        ],
+        options: options,
         rules: [{ required: true, message: 'Please enter options' }],
       },
-      // this options will be of the table we are rendering it's type stage and by choosing this it will be added under that stage children
       {
         label: 'Section Title',
-        name: 'sectionTitle',
+        name: 'sectionId',
         type: 'select',
-        options: [
-          { value: 'Foundation', label: 'Foundation' },
-          { value: 'project', label: 'Project' },
-        ],
+        options: sectionOptions,
         rules: [{ required: true, message: 'Please enter section title' }],
       },
       {
         label: 'Sort',
-        name: 'sort',
+        name: 'sortOrder',
         type: 'number',
         rules: [{ required: true, message: 'Please enter sort' }],
       },
       {
         label: 'Add the insoection into all the existing jobs',
-        name: 'addInsoectionIntoAllTheExistingJobs',
+        name: 'addAllExistingJobs',
         type: 'switch',
+        initialValue: onExistingJob.checklist,
+        onChange: value => {
+          setExistingJob(prev => ({ ...prev, checklist: value }));
+        },
       },
     ];
   }
@@ -55,14 +57,18 @@ export const inspectionChecklistSettingFields = (type: 'checklist' | 'stage'): F
     },
     {
       label: 'Sort',
-      name: 'sort',
+      name: 'sortOrder',
       type: 'number',
       rules: [{ required: true, message: 'Please enter sort' }],
     },
     {
       label: 'Add the insoection into all the existing jobs',
-      name: 'addInsoectionIntoAllTheExistingJobs',
+      name: 'addAllExistingJobs',
       type: 'switch',
+      initialValue: onExistingJob.section,
+      onChange: value => {
+        setExistingJob(prev => ({ ...prev, section: value }));
+      },
     },
   ];
 };

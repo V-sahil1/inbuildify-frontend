@@ -108,6 +108,15 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
   useEffect(() => {
     if (!open) return;
 
+    // Initialize switch values from initial values
+    const initialSwitchValues: Record<string, boolean> = {};
+    fields.forEach(field => {
+      if (field.type === 'switch' && initialValues[field.name] !== undefined) {
+        initialSwitchValues[field.name] = initialValues[field.name];
+      }
+    });
+    setSwitchValues(initialSwitchValues);
+
     if (isEditing && initialValues) {
       const values = { ...initialValues };
       if (initialValues.logo) {
@@ -193,6 +202,7 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
         layout="vertical"
         style={{ maxHeight: '70vh', overflowY: 'auto', scrollbarWidth: 'none' }}
         onValuesChange={(_, allValues) => onValuesChange?.(allValues, form)}
+        disabled={loading}
       >
         {fields.map(field => (
           <Form.Item
@@ -218,6 +228,7 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
             name={field.name}
             rules={field.rules}
             initialValue={field.initialValue}
+            // valuePropName={field.type === 'switch' ? 'checked':null}
             extra={field.extra}
           >
             {field.type === 'select' ? (

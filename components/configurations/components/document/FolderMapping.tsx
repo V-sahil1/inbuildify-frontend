@@ -7,23 +7,23 @@ import {
   fetchFolderMapping,
   updateFolderMapping,
 } from '@redux/feature/admin/document/folderMapping/folderMappingThunk';
-import { fetchDrive } from '@redux/feature/drive/driveThunk';
 import { Status } from '@lib/constants/enum';
 import { IDocumentFolderMapping } from '@redux/feature/admin/document/folderMapping/IFolderMappingState';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
+import { fetchAllDocumentArea } from '@redux/feature/admin/document/area/documentAreaThunk';
 
 export const FolderMapping = () => {
   const [form] = Form.useForm();
   const dispatch = useAppDispatch();
   const [isChanged, setIsChanged] = useState(false);
-  const { drives, status: driveStatus } = useAppSelector(state => state.drive);
+  const { commonFolder, status } = useAppSelector(state => state.document.area);
   const { folderMapping, status: folderMappingStatus } = useAppSelector(
     state => state.document.folderMapping
   );
   const folderOptions =
-    drives &&
-    drives.length > 0 &&
-    drives.map(drive => ({ label: drive.name, value: drive.driveId }));
+    commonFolder &&
+    commonFolder.length > 0 &&
+    commonFolder.map(folder => ({ label: folder.name, value: folder.documentCommonFolderId }));
 
   const fetchFolderMappingData = async () => {
     try {
@@ -33,9 +33,9 @@ export const FolderMapping = () => {
     }
   };
 
-  const fetchDriveData = async () => {
+  const fetchFolderData = async () => {
     try {
-      await dispatch(fetchDrive()).unwrap();
+      await dispatch(fetchAllDocumentArea()).unwrap();
     } catch (error) {
       message.error(error || 'Failed to fetch drives');
     }
@@ -49,10 +49,11 @@ export const FolderMapping = () => {
       form.setFieldsValue(folderMapping);
     }
 
-    if (driveStatus.fetch === Status.IDLE) {
-      fetchDriveData();
+    if (status.fetch === Status.IDLE) {
+      fetchFolderData();
     }
-  }, [driveStatus.fetch, folderMappingStatus.fetch]);
+  }, [status.fetch, folderMappingStatus.fetch]);
+
   const initialGroups = useMemo(
     () => [
       {

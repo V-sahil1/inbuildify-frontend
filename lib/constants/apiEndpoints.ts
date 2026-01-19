@@ -187,8 +187,16 @@ class API_ENDPOINTS {
   public static CONSTRUCTION_OPTION = '/construction-option';
   public static CONSTRUCTION_TYPE = '/construction-type';
   public static CONSTRUCTION_STAGE = '/construction-stage';
+  public static CONSTRUCTION_CHECKLIST='/construction-checklist'
+  public static CONSTRUCTION_SUB_CHECKLIST='/construction-sub-checklist'
+  public static CONSTRUCTION_CHECKLIST_PREDECESSOR='/construction-checklist-predecessor'
+  public static INSPECTION_CHECKLIST='/construction-inspection-checklist'
+  public static OHS_LIST='/construction-ohs';
+  public static OHS_SETTING=`${this.OHS_LIST}/settings`;
+  public static OHS_ITEM=`${this.OHS_LIST}/list`;
   public static ETS_RECHARGE_SETTING = '/construction-ets-recharge';
   public static ETS_RECHARGE_APPROVAL = '/construction-ets-recharge-approval';
+
 
   //document
   public static DOCUMENT_AREA = '/document-common-folder';

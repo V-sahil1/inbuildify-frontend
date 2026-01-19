@@ -5,74 +5,97 @@ import { Table, Input, Checkbox, Button, Select, Space, Tag, message, Popconfirm
 import { IconPencil, IconTrash, IconPlus, IconCheck, IconX } from '@tabler/icons-react';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { RootState } from '@redux/feature/store';
-import { Process } from '@redux/feature/admin/sales/process/IProcessState';
+import {
+  ProcessType,
+  StageType,
+  StageTypePayload,
+} from '@redux/feature/admin/sales/process/IProcessState';
 import {
   createProcess,
+  createStage,
   deleteProcess,
+  deleteStage,
   fetchAllProcess,
+  fetchAllStage,
+  fetchFunctionality,
   updateProcess,
+  updateStage,
 } from '@redux/feature/admin/sales/process/processThunk';
 import { Status } from '@lib/constants/enum';
-import {
-  createStage,
-  deleteStage,
-  fetchAllStage,
-  updateStage,
-} from '@redux/feature/admin/sales/stage/stageThunk';
-import { Stage } from '@redux/feature/admin/sales/stage/IStageState';
-
-const { Option } = Select;
+import { toggleExpand } from '@redux/feature/admin/sales/process/processSlice';
 
 export const SalesProcess: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { process, status } = useAppSelector((state: RootState) => state.sales.process);
-  const { stage, status: stageStatus } = useAppSelector((state: RootState) => state.sales.stage);
-  const [localProcesses, setLocalProcesses] = useState<Process[]>([]);
-  const [stages, setStages] = useState<Stage[]>([]);
-  const [selectedProcessId, setSelectedProcessId] = useState<string | null>(null);
+  const { process, functionality, functionalityStatus, stageStatus, status } = useAppSelector(
+    (state: RootState) => state.sales.process
+  );
+
+  const [localProcesses, setLocalProcesses] = useState<ProcessType[]>([]);
+  const [stages, setStages] = useState([]);
+  const [selectedProcess, setSelectedProcess] = useState<ProcessType | null>();
   const [editingProcessId, setEditingProcessId] = useState<string | null>(null);
   const [editingStageId, setEditingStageId] = useState<string | null>(null);
-  const [newProcess, setNewProcess] = useState(false);
-  const [newStage, setNewStage] = useState(false);
+  const [newStageRow, setNewStageRow] = useState(null);
+  const [newProcess, setNewProcess] = useState<boolean>(false);
+  const functionalityOptions =
+    functionality && functionality.map(i => ({ label: i.name, value: i.functionalityId }));
 
-  console.log("process----",process);
-  console.log("local process----",localProcesses);
+  const fetchProcesses = async () => {
+    try {
+      await dispatch(fetchAllProcess()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch processes');
+    }
+  };
 
+  const fetchFunctionalityData = async () => {
+    try {
+      await dispatch(fetchFunctionality()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to  fetch functionality');
+    }
+  };
 
-  // Sync Redux state with local state
+  useEffect(() => {
+    if (status.fetch === Status.IDLE) {
+      fetchProcesses();
+    }
+
+    if (functionalityStatus === Status.IDLE) {
+      fetchFunctionalityData();
+    }
+  }, [status.fetch, functionalityStatus]);
+
   useEffect(() => {
     if (process && process.length > 0) {
       setLocalProcesses([...process]);
+
+      if (selectedProcess) {
+        const stage = process.find(i => i.salesProcessId === selectedProcess.salesProcessId);
+        if (stage) setStages(stage?.Stages);
+        else {
+          setSelectedProcess(process[0]);
+          fetchStagesData(process[0]);
+          setStages(process[0].Stages);
+        }
+      } else {
+        setSelectedProcess(process[0]);
+        fetchStagesData(process[0]);
+        setStages(process[0].Stages);
+      }
     }
   }, [process]);
 
-  useEffect(() => {
-    if (stage && stage.length > 0) {
-      setStages([...stage]);
-    }
-  }, [stage]);
-  useEffect(() => {
-    const fetchData = async () => {
-      if (status.fetch === Status.IDLE) {
-        dispatch(fetchAllProcess()).unwrap();
-      }
-      if (stageStatus.fetch === Status.IDLE) {
-        dispatch(fetchAllStage()).unwrap();
-      }
-    };
-    fetchData();
-  }, []);
   // ---- Process Logic ----
   const handleAddProcess = () => {
-    const tempId = `new-${Date.now()}`;
     const newRow = {
-      salesProcessId: tempId,
+      salesProcessId: '',
       name: '',
       isDefault: false,
     };
-    setLocalProcesses(prev => [...prev, newRow]);
-    setEditingProcessId(tempId);
     setNewProcess(true);
+    setLocalProcesses(prev => [newRow, ...prev]);
+    setEditingProcessId('');
   };
 
   const handleSaveProcess = async record => {
@@ -85,121 +108,132 @@ export const SalesProcess: React.FC = () => {
     };
 
     try {
-      const exists = process.find(p => p.salesProcessId === record.salesProcessId);
-      if (exists) {
-        await dispatch(updateProcess({ data: payload, id: record.salesProcessId })).unwrap();
-        message.success('Process updated successfully');
-      } else {
+      if (newProcess) {
         await dispatch(createProcess(payload)).unwrap();
         message.success('Process created successfully');
+      } else {
+        const res = await dispatch(
+          updateProcess({ data: payload, id: record.salesProcessId })
+        ).unwrap();
+        if (selectedProcess.salesProcessId === record.salesProcessId) {
+          setSelectedProcess(prev => ({ ...prev, ...res }));
+        }
+
+        message.success('Process updated successfully');
       }
       setEditingProcessId(null);
       setNewProcess(false);
     } catch (error) {
-      message.error(error || 'Failed to save process');
+      message.error(error?.message || error || 'Failed to save process');
     }
-    setEditingProcessId(null);
-    setNewProcess(false);
   };
 
-  const handleDeleteProcess = async (id: string) => {
-    const process = localProcesses.find(p => p.salesProcessId === id);
-    if (process?.isDefault) return message.warning('Default process cannot be deleted');
+  const handleDeleteProcess = async record => {
+    if (record?.isDefault) return message.warning('Default process cannot be deleted');
     try {
-      await dispatch(deleteProcess(id)).unwrap();
+      await dispatch(deleteProcess(record.salesProcessId)).unwrap();
       message.success('Process deleted successfully');
     } catch (error) {
-      message.error(error || 'Failed to delete process');
+      message.error(error?.message || error || 'Failed to delete process');
     }
-    if (selectedProcessId === id) setSelectedProcessId(null);
   };
 
   const handleCancelProcess = () => {
-    if (newProcess) {
-      setLocalProcesses(prev => prev.filter(p => p.name.trim() !== ''));
-    }
     setEditingProcessId(null);
     setNewProcess(false);
   };
 
   // ---- Stage Logic ----
   const handleAddStage = () => {
-    if (!selectedProcessId) return message.warning('Select a process first');
-    const tempId = Date.now().toString();
-    const nextSort =
-      Math.max(
-        0,
-        ...stages.filter(s => s.salesProcessId === selectedProcessId).map(s => s.sortOrder)
-      ) + 1;
-    const newStageObj: Stage = {
-      salesStageId: tempId,
-      salesProcessId: selectedProcessId,
+    if (!selectedProcess) return message.warning('Select a process first');
+    const newStageObj: StageType = {
+      salesStageId: '',
+      salesProcessId: selectedProcess.salesProcessId,
       stageName: '',
-      functionalityId: [],
+      functionality: [],
       category: '',
-      sortOrder: nextSort,
+      sortOrder: 1,
       isActive: true,
     };
-    setStages(prev => [...prev, newStageObj]);
-    setEditingStageId(tempId);
-    setNewStage(true);
+    setNewStageRow(newStageObj);
+    setEditingStageId('');
   };
 
-  const handleSaveStage = async (record: Stage) => {
-    const trimmedName = record.stageName.trim();
-    if (!trimmedName) return message.warning('Stage name cannot be empty');
-    // validate unique sort per process
-    const sameProcessStages = stages.filter(
-      s => s.salesProcessId === record.salesProcessId && s.salesStageId !== record.salesStageId
-    );
-    if (record.sortOrder < 1) return message.error('Sort value must be greater than 0');
-    if (sameProcessStages.some(s => s.sortOrder === record.sortOrder)) {
-      return message.error('Sort value must be unique within a process');
-    }
+  const handleSaveStage = async record => {
+    const functionalityId =
+      record.functionality
+        ?.map(item => {
+          if (typeof item === 'string') {
+            return item;
+          } else if (item?.id) {
+            return item.id;
+          }
+          return null;
+        })
+        .filter(Boolean) || [];
 
+    const payload: StageTypePayload = {
+      stageName: record.stageName,
+      salesProcessId: record.salesProcessId,
+      category: record.category,
+      functionalityId,
+      sortOrder: record.sortOrder,
+    };
+
+    const id = record.salesStageId;
     try {
-      const exists = stage.find(s => s.salesStageId === record.salesStageId);
-      if (exists) {
-        await dispatch(updateStage({ data: record, id: record.salesStageId })).unwrap();
+      if (record.salesStageId === '') {
+        await dispatch(createStage(payload)).unwrap();
+        message.success('stage created successfully');
       } else {
-        await dispatch(createStage(record)).unwrap();
+        delete payload.salesProcessId;
+        // const { isUpdated, updatedFields } = getUpdatedFields(
+        //   payload,
+        //   selectedProcess.Stages.find(stage => stage.salesStageId === id)
+        // );
+        // if (!isUpdated) {
+        //   setEditingStageId(null);
+        //   setNewStageRow(null);
+        //   message.info("hihi")
+        //   return;
+        // }
+        await dispatch(updateStage({ data: payload, id: id })).unwrap();
+        message.success('stage updated successfully');
       }
+      setEditingStageId(null);
+      setNewStageRow(null);
     } catch (error) {
       message.error(error || 'Failed to save stage');
     }
-    setEditingStageId(null);
-    setNewStage(false);
   };
 
-  const handleDeleteStage = async (id: string) => {
+  const handleDeleteStage = async record => {
     try {
-      await dispatch(deleteStage(id)).unwrap();
+      await dispatch(
+        deleteStage({ id: record.salesStageId, processId: record.salesProcessId })
+      ).unwrap();
       message.success('stage deleted successfully');
     } catch (error) {
-      message.error('Failed to delete stage');
+      message.error(error || 'Failed to delete stage');
     }
-    // setStages(prev => prev.filter(s => s.salesStageId !== id));
   };
 
   const handleCancelStage = () => {
-    if (newStage) {
-      setStages(prev => prev.filter(s => s.stageName.trim() !== ''));
-    }
     setEditingStageId(null);
-    setNewStage(false);
+    setNewStageRow(null);
   };
 
   // ---- Columns ----
   const processColumns = [
     {
       title: 'S.No',
-      render: (_: any, __: any, index: number) => index + 1,
+      render: (_, __, index: number) => index + 1,
       width: 60,
     },
     {
       title: 'Process Name',
       dataIndex: 'name',
-      render: (_: string, record) => {
+      render: (_, record) => {
         const editable = editingProcessId === record.salesProcessId;
         return editable ? (
           <Input
@@ -212,8 +246,9 @@ export const SalesProcess: React.FC = () => {
                 )
               );
             }}
+            onClick={e => e.stopPropagation()}
             autoFocus
-            onKeyDown={e => e.stopPropagation()}
+            disabled={status.create === Status.PENDING}
           />
         ) : (
           record.name || <i className="text-gray-400">Enter name...</i>
@@ -224,20 +259,23 @@ export const SalesProcess: React.FC = () => {
       title: 'Default',
       dataIndex: 'isDefault',
       width: 90,
-      render: (_: boolean, record) => {
+      render: (_, record) => {
         const editable = editingProcessId === record.salesProcessId;
         return editable ? (
           <Checkbox
             checked={record.isDefault}
-            onChange={e =>
+            onChange={e => {
+              e.stopPropagation();
               setLocalProcesses(prev =>
                 prev.map(p =>
                   p.salesProcessId === record.salesProcessId
                     ? { ...p, isDefault: e.target.checked }
                     : p
                 )
-              )
-            }
+              );
+            }}
+            onClick={e => e.stopPropagation()}
+            disabled={status.create === Status.PENDING}
           />
         ) : (
           <Checkbox checked={record.isDefault} disabled />
@@ -248,7 +286,7 @@ export const SalesProcess: React.FC = () => {
     {
       title: '',
       width: 140,
-      render: (_: any, record) => {
+      render: (_, record) => {
         const editable = editingProcessId === record.salesProcessId;
         return (
           <Space>
@@ -257,12 +295,21 @@ export const SalesProcess: React.FC = () => {
                 <Button
                   type="text"
                   icon={<IconCheck size={18} color="green" />}
-                  onClick={() => handleSaveProcess(record)}
+                  onClick={e => {
+                    e.stopPropagation();
+                    handleSaveProcess(record);
+                  }}
+                  loading={status.create === Status.PENDING}
+                  disabled={status.create === Status.PENDING}
                 />
                 <Button
                   type="text"
                   icon={<IconX size={18} color="red" />}
-                  onClick={handleCancelProcess}
+                  onClick={e => {
+                    e.stopPropagation();
+                    handleCancelProcess();
+                  }}
+                  disabled={status.create === Status.PENDING}
                 />
               </>
             ) : (
@@ -270,16 +317,26 @@ export const SalesProcess: React.FC = () => {
                 <Button
                   type="text"
                   icon={<IconPencil size={18} />}
-                  onClick={() => setEditingProcessId(record.salesProcessId)}
+                  onClick={e => {
+                    e.stopPropagation();
+                    setEditingProcessId(record.salesProcessId);
+                  }}
                 />
                 {!record.isDefault && (
                   <Popconfirm
                     title="Are you sure to delete this process?"
-                    onConfirm={() => handleDeleteProcess(record.salesProcessId)}
+                    onConfirm={e => {
+                      e.stopPropagation();
+                      handleDeleteProcess(record);
+                    }}
                     okText="Yes"
                     cancelText="No"
                   >
-                    <Button type="text" icon={<IconTrash size={18} color="red" />} />
+                    <Button
+                      type="text"
+                      icon={<IconTrash size={18} color="red" />}
+                      onClick={e => e.stopPropagation()}
+                    />
                   </Popconfirm>
                 )}
               </>
@@ -293,24 +350,30 @@ export const SalesProcess: React.FC = () => {
   const stageColumns = [
     {
       title: 'S.No',
-      render: (_: any, __: any, index: number) => index + 1,
+      render: (_, __, index: number) => index + 1,
       width: 60,
     },
     {
       title: 'Stage Name',
       dataIndex: 'stageName',
-      render: (_: string, record: Stage) => {
-        const editable = editingStageId === record.salesStageId;
+      render: (_, record: StageType) => {
+        const editable =
+          editingStageId === record.salesStageId || (newStageRow && record.salesStageId === '');
         return editable ? (
           <Input
             value={record.stageName}
-            onChange={e =>
-              setStages(prev =>
-                prev.map(s =>
-                  s.salesStageId === record.salesStageId ? { ...s, stageName: e.target.value } : s
-                )
-              )
-            }
+            onChange={e => {
+              if (record.salesStageId === '' && newStageRow) {
+                setNewStageRow({ ...newStageRow, stageName: e.target.value });
+              } else {
+                setStages(prev =>
+                  prev.map(s =>
+                    s.salesStageId === record.salesStageId ? { ...s, stageName: e.target.value } : s
+                  )
+                );
+              }
+            }}
+            disabled={stageStatus.create === Status.PENDING}
           />
         ) : (
           record.stageName || <i className="text-gray-400">Enter stage name...</i>
@@ -320,50 +383,60 @@ export const SalesProcess: React.FC = () => {
     {
       title: 'Functionality',
       dataIndex: 'functionality',
-      render: (_: string[], record: Stage) => {
-        const editable = editingStageId === record.salesStageId;
+      render: (_, record: StageType) => {
+        const editable =
+          editingStageId === record.salesStageId || (newStageRow && record.salesStageId === '');
         return editable ? (
           <Select
             mode="tags"
             style={{ width: '100%' }}
-            value={record.functionalityId}
-            onChange={v =>
-              setStages(prev =>
-                prev.map(s =>
-                  s.salesStageId === record.salesStageId ? { ...s, functionalityId: v } : s
-                )
-              )
-            }
-          >
-            <Option value="Contact">Contact</Option>
-            <Option value="Property">Property</Option>
-            <Option value="Quotation">Quotation</Option>
-            <Option value="Capture Deposit">Capture Deposit</Option>
-            <Option value="Close">Close</Option>
-          </Select>
+            value={record.functionality?.map(i => (typeof i === 'string' ? i : i.id)) || []}
+            onChange={v => {
+              if (record.salesStageId === '' && newStageRow) {
+                setNewStageRow({ ...newStageRow, functionality: v });
+              } else {
+                setStages(prev =>
+                  prev.map(s =>
+                    s.salesStageId === record.salesStageId ? { ...s, functionality: v } : s
+                  )
+                );
+              }
+            }}
+            options={functionalityOptions}
+            disabled={stageStatus.create === Status.PENDING}
+          />
         ) : (
-          record.functionalityId?.map(tag => <Tag key={tag}>{tag}</Tag>)
+          record.functionality?.map(tag => <Tag key={tag.id}>{tag.name}</Tag>)
         );
       },
     },
     {
       title: 'Category',
       dataIndex: 'category',
-      render: (_: string, record: Stage) => {
-        const editable = editingStageId === record.salesStageId;
+      render: (_: string, record: StageType) => {
+        const editable =
+          editingStageId === record.salesStageId || (newStageRow && record.salesStageId === '');
         return editable ? (
           <Select
             value={record.category}
             style={{ width: '100%' }}
-            onChange={v =>
-              setStages(prev =>
-                prev.map(s => (s.salesStageId === record.salesStageId ? { ...s, category: v } : s))
-              )
-            }
-          >
-            <Option value="Lead">Lead</Option>
-            <Option value="Opportunity">Opportunity</Option>
-          </Select>
+            onChange={v => {
+              if (record.salesStageId === '' && newStageRow) {
+                setNewStageRow({ ...newStageRow, category: v });
+              } else {
+                setStages(prev =>
+                  prev.map(s =>
+                    s.salesStageId === record.salesStageId ? { ...s, category: v } : s
+                  )
+                );
+              }
+            }}
+            options={[
+              { label: 'Lead', value: 'lead' },
+              { label: 'Opportunity', value: 'opportunity' },
+            ]}
+            disabled={stageStatus.create === Status.PENDING}
+          />
         ) : (
           record.category
         );
@@ -373,8 +446,9 @@ export const SalesProcess: React.FC = () => {
       title: 'Sort',
       dataIndex: 'sort',
       width: 100,
-      render: (_: number, record: Stage) => {
-        const editable = editingStageId === record.salesStageId;
+      render: (_: number, record: StageType) => {
+        const editable =
+          editingStageId === record.salesStageId || (newStageRow && record.salesStageId === '');
         return editable ? (
           <Input
             type="number"
@@ -382,10 +456,17 @@ export const SalesProcess: React.FC = () => {
             min={1}
             onChange={e => {
               const val = Number(e.target.value);
-              setStages(prev =>
-                prev.map(s => (s.salesStageId === record.salesStageId ? { ...s, sort: val } : s))
-              );
+              if (record.salesStageId === '' && newStageRow) {
+                setNewStageRow({ ...newStageRow, sortOrder: val });
+              } else {
+                setStages(prev =>
+                  prev.map(s =>
+                    s.salesStageId === record.salesStageId ? { ...s, sortOrder: val } : s
+                  )
+                );
+              }
             }}
+            disabled={stageStatus.create === Status.PENDING}
           />
         ) : (
           record.sortOrder
@@ -395,8 +476,9 @@ export const SalesProcess: React.FC = () => {
     {
       title: '',
       width: 140,
-      render: (_: any, record: Stage) => {
-        const editable = editingStageId === record.salesStageId;
+      render: (_, record: StageType) => {
+        const editable =
+          editingStageId === record.salesStageId || (newStageRow && record.salesStageId === '');
         return (
           <Space>
             {editable ? (
@@ -405,11 +487,14 @@ export const SalesProcess: React.FC = () => {
                   type="text"
                   icon={<IconCheck size={18} color="green" />}
                   onClick={() => handleSaveStage(record)}
+                  loading={stageStatus.create === Status.PENDING}
+                  disabled={stageStatus.create === Status.PENDING}
                 />
                 <Button
                   type="text"
                   icon={<IconX size={18} color="red" />}
                   onClick={handleCancelStage}
+                  disabled={stageStatus.create === Status.PENDING}
                 />
               </>
             ) : (
@@ -421,11 +506,15 @@ export const SalesProcess: React.FC = () => {
                 />
                 <Popconfirm
                   title="Are you sure to delete this stage?"
-                  onConfirm={() => handleDeleteStage(record.salesStageId)}
+                  onConfirm={() => handleDeleteStage(record)}
                   okText="Yes"
                   cancelText="No"
                 >
-                  <Button type="text" icon={<IconTrash size={18} color="red" />} />
+                  <Button
+                    type="text"
+                    icon={<IconTrash size={18} color="red" />}
+                    disabled={stageStatus.create === Status.PENDING}
+                  />
                 </Popconfirm>
               </>
             )}
@@ -434,9 +523,21 @@ export const SalesProcess: React.FC = () => {
       },
     },
   ];
+  const fetchStagesData = async record => {
+    if (record.salesProcessId !== '') {
+      if (!record.isExpanded) {
+        dispatch(toggleExpand(record.salesProcessId));
+        try {
+          const response = await dispatch(fetchAllStage(record.salesProcessId)).unwrap();
+          setStages(response?.data?.records);
+        } catch (error) {
+          message.error(error?.message || error || 'Failed to fetch stages');
+        }
+      }
+    }
+  };
 
-  const filteredStages = stages.filter(s => s.salesProcessId === selectedProcessId);
-
+  const stageDataSource = selectedProcess ? (newStageRow ? [newStageRow, ...stages] : stages) : [];
   return (
     <div className="space-y-6">
       {/* Left Table */}
@@ -449,14 +550,21 @@ export const SalesProcess: React.FC = () => {
         </div>
         <Table
           size="small"
-          rowKey="id"
+          rowKey="salesProcessId"
           columns={processColumns}
           dataSource={[...localProcesses]}
           pagination={false}
           onRow={record => ({
-            onClick: () => setSelectedProcessId(record.salesProcessId),
+            onClick: () => {
+              setSelectedProcess(record);
+              fetchStagesData(record);
+              setStages(record.Stages || []);
+            },
           })}
-          rowClassName={record => (record.salesProcessId === selectedProcessId ? 'bg-blue-50' : '')}
+          rowClassName={record =>
+            record.salesProcessId === selectedProcess?.salesProcessId ? 'bg-blue-50' : ''
+          }
+          loading={status.fetch === Status.PENDING}
         />
       </div>
 
@@ -464,26 +572,19 @@ export const SalesProcess: React.FC = () => {
       <div>
         <div className="flex justify-between items-center mb-2">
           <h3 className="text-lg font-semibold">
-            Stages —{' '}
-            {selectedProcessId
-              ? process.find(p => p.salesProcessId === selectedProcessId)?.name
-              : '—'}
+            Stages — {selectedProcess ? selectedProcess.name : '—'}
           </h3>
-          <Button
-            type="primary"
-            icon={<IconPlus size={16} />}
-            onClick={handleAddStage}
-            disabled={!selectedProcessId}
-          >
+          <Button type="primary" icon={<IconPlus size={16} />} onClick={handleAddStage}>
             New
           </Button>
         </div>
         <Table
           size="small"
-          rowKey="id"
+          rowKey="salesStageId"
           columns={stageColumns}
-          dataSource={filteredStages.sort((a, b) => a.sortOrder - b.sortOrder)}
+          dataSource={stageDataSource}
           pagination={false}
+          loading={stageStatus.fetch === Status.PENDING}
         />
       </div>
     </div>
