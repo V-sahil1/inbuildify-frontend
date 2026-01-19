@@ -1,41 +1,82 @@
 import { useEffect, useState } from 'react';
-import { Select, Button, Table, message } from 'antd';
+import { Select, Button, Table, message, Dropdown } from 'antd';
 import { useUsersHook } from '@hooks/useUserHook';
-import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
-import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
+import { ActionDialogmodel, FormField } from '@/components/common/Models/ActionDialogModel';
+import { IconDotsVertical, IconEdit, IconTrash } from '@tabler/icons-react';
 import ConfirmationModal from '@/components/common/ConfirmationModal';
-import { getIntegrationOptionalSettingFields } from '@/components/formFields/IntegrationOptionalSettingFields';
-import { intergrationOptionalSettingData } from 'data/configuration/IntergrationOptionalSettingData';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import {
+  createCustomFieldHeader,
+  createCustomFieldItem,
+  deleteCustomFieldHeader,
+  deleteCustomFieldItem,
+  fetchAllCustomFieldHeader,
+  fetchAllCustomFieldItem,
   fetchIntegrationSetting,
+  updateCustomFieldHeader,
+  updateCustomFieldItem,
   updateIntegrationSetting,
 } from '@redux/feature/admin/integration/optionalSetting/integrationOptionalThunk';
 import { Status } from '@lib/constants/enum';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
+import {
+  CustomerFieldItem,
+  CustomerFieldItemPayload,
+  CustomFieldName,
+} from '@redux/feature/admin/integration/optionalSetting/IintegrationOptionalState';
+import { Entity } from 'types/common.types';
 
 export const OptionalSettings = () => {
   const { userOptions } = useUsersHook();
-  const [modelOpen, setModelOpen] = useState<boolean>(false);
-  const [deleteModelOpen, setDeleteModelOpen] = useState<boolean>(false);
-  const [selectedRecord, setSelectedRecord] = useState<any>(null);
+  const [modelOpen, setModelOpen] = useState<
+    'customField' | 'lead' | 'deleteCustomField' | 'deleteLead' | null
+  >(null);
+  const [selectedCustomField, setCustomField] = useState<CustomFieldName>(null);
+  const [selectedRecord, setSelectedRecord] = useState<CustomerFieldItem>(null);
   const dispatch = useAppDispatch();
-  const { integrationSetting, status } = useAppSelector(state => state.integration.optionalSetting);
+  const {
+    integrationSetting,
+    customFields,
+    customFieldItems,
+    customFieldItemStatus,
+    customFieldStatus,
+    status,
+  } = useAppSelector(state => state.integration.optionalSetting);
   const [formValues, setFormValues] = useState(integrationSetting);
-  const fetchIntegrationSettinf = async () => {
+  const [showSave, setShowSave] = useState(false);
+
+  const fetchIntegrationSettingData = async () => {
     try {
       await dispatch(fetchIntegrationSetting()).unwrap();
     } catch (error) {
       message.error(error || 'Failed to fetch integration setting');
     }
   };
+  const fetchCustomFieldHeaderData = async () => {
+    try {
+      await dispatch(fetchAllCustomFieldHeader()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch custom Field header');
+    }
+  };
+  const fetchCustomFieldItems = async () => {
+    try {
+      await dispatch(fetchAllCustomFieldItem()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch items data');
+    }
+  };
   useEffect(() => {
-    if (status.fetch === Status.IDLE) fetchIntegrationSettinf();
+    if (status.fetch === Status.IDLE) fetchIntegrationSettingData();
+    if (customFieldStatus.fetch === Status.IDLE) {
+      fetchCustomFieldHeaderData();
+    }
+    if (customFieldItemStatus.fetch === Status.IDLE) {
+      fetchCustomFieldItems();
+    }
 
     if (integrationSetting) setFormValues(integrationSetting);
-  }, [status.fetch]);
-
-  const [showSave, setShowSave] = useState(false);
+  }, [status.fetch, customFieldStatus.fetch, customFieldItemStatus.fetch]);
 
   useEffect(() => {
     const isChanged =
@@ -46,39 +87,189 @@ export const OptionalSettings = () => {
   }, [formValues, integrationSetting]);
 
   const handleSave = async () => {
-    const updatedvalues = getUpdatedFields(formValues, integrationSetting);
+    const { isUpdated, updatedFields } = getUpdatedFields(formValues, integrationSetting);
     try {
-      if (Object.keys(updatedvalues).length > 0) {
-        await dispatch(updateIntegrationSetting(updatedvalues)).unwrap();
-        setShowSave(false);
+      if (isUpdated) {
+        await dispatch(updateIntegrationSetting(updatedFields)).unwrap();
       } else {
         message.info('no changes Updated');
       }
+      setShowSave(false);
     } catch (error) {
       message.error(error || 'Failed to update setting');
     }
   };
 
-  const columns = [
+  const handleSaveCustomFieldItem = async values => {
+    try {
+      // Map form values to API format using helper function
+      const payload = mapFormToApi(values);
+      if (selectedRecord) {
+        await dispatch(
+          updateCustomFieldItem({ data: payload, id: selectedRecord.integrationCustomFieldItemId })
+        ).unwrap();
+        message.success('Custom Field item updated successfully');
+      } else {
+        await dispatch(createCustomFieldItem(payload)).unwrap();
+        message.success('Custom field item saved successfully');
+      }
+
+      setModelOpen(null);
+      setSelectedRecord(null);
+    } catch (error) {
+      message.error(error || 'Failed to save custom field item');
+    }
+  };
+
+  const handleDeleteCustomFieldItem = async () => {
+    try {
+      await dispatch(deleteCustomFieldItem(selectedRecord.integrationCustomFieldItemId)).unwrap();
+      message.success('Custom field item deleted successfully');
+      setModelOpen(null);
+    } catch (error) {
+      message.error(error || 'Failed to delete custom field item');
+    }
+  };
+
+  const handleSaveCustomField = async values => {
+    try {
+      if (selectedCustomField) {
+        await dispatch(
+          updateCustomFieldHeader({
+            data: values,
+            id: selectedCustomField.integrationCustomFieldHeaderId,
+          })
+        ).unwrap();
+        message.success('custom field header updated successfully');
+      } else {
+        await dispatch(createCustomFieldHeader(values)).unwrap();
+        message.success('Custom field header saved successfully');
+      }
+      setCustomField(null);
+      setModelOpen(null);
+    } catch (error) {
+      message.error(error || 'Failed to save custom field header');
+    }
+  };
+
+  const handleDeleteCustomField = async (id: string) => {
+    try {
+      await dispatch(deleteCustomFieldHeader(id)).unwrap();
+      await dispatch(fetchAllCustomFieldItem()).unwrap();
+      message.success('custom field header deleted successfully');
+    } catch (error) {
+      message.error(error || 'Failed to delete custom field header');
+    }
+  };
+
+  // Helper function to map API response to form format
+  const mapApiToForm = (apiItem: CustomerFieldItem) => {
+    const formValues: CustomerFieldItemPayload = {
+      header1Id: apiItem.header1Id,
+      value1: apiItem.value1,
+      assigneeUserId: apiItem.assigneeUser?.id || '',
+    };
+
+    // Map custom field values
+    if (apiItem.header1Id && apiItem.value1) {
+      const field1 = customFields.find(f => f.integrationCustomFieldHeaderId === apiItem.header1Id);
+      if (field1) {
+        formValues[field1.headerName] = apiItem.value1;
+      }
+    }
+
+    if (apiItem.header2Id && apiItem.value2) {
+      const field2 = customFields.find(f => f.integrationCustomFieldHeaderId === apiItem.header2Id);
+      if (field2) {
+        formValues[field2.headerName] = apiItem.value2;
+      }
+    }
+
+    return formValues;
+  };
+
+  // Helper function to map form values to API format
+  const mapFormToApi = (formValues: CustomerFieldItemPayload) => {
+    const payload: CustomerFieldItemPayload = {
+      header1Id: null,
+      value1: null,
+      assigneeUserId: null,
+      header2Id: null,
+      value2: null,
+    };
+
+    // Map custom fields to headerId and value format
+    customFields.forEach((field, index) => {
+      const headerKey = `header${index + 1}Id`;
+      const valueKey = `value${index + 1}`;
+
+      payload[headerKey] = field.integrationCustomFieldHeaderId;
+      payload[valueKey] = formValues[field.headerName] || '';
+    });
+
+    // Map assignee if present
+    if (formValues.assigneeUserId) {
+      payload.assigneeUserId = formValues.assigneeUserId;
+    }
+
+    return payload;
+  };
+
+  const customFieldItemsFormFields: FormField[] = [
+    ...customFields.map(field => ({
+      label: field.headerName,
+      name: field.headerName,
+      type: 'text' as const,
+    })),
     {
-      title: 'Field Name',
-      dataIndex: 'fieldName',
-      key: 'fieldName',
+      label: 'Assignee',
+      name: 'assigneeUserId',
+      type: 'select' as const,
+      options: userOptions || [],
     },
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-    },
+  ];
+  // Dynamic columns that include custom fields
+  const dynamicColumns = [
+    ...customFields.map((field, index) => ({
+      title: (
+        <div className="flex items-center justify-between">
+          <span>{field.headerName}</span>
+          <Dropdown
+            menu={{
+              items: [
+                { key: 'delete', label: 'Delete' },
+                { key: 'edit', label: 'Edit' },
+              ],
+              onClick: e => {
+                if (e.key === 'delete') {
+                  handleDeleteCustomField(field.integrationCustomFieldHeaderId);
+                } else if (e.key === 'edit') {
+                  setCustomField(field);
+                  setModelOpen('customField');
+                }
+              },
+            }}
+          >
+            <IconDotsVertical />
+          </Dropdown>
+        </div>
+      ),
+      dataIndex: `value${index + 1}`, // Use value1, value2, etc. from API
+      key: field.headerName.toLowerCase().replace(/\s+/g, '_'),
+      render: text => text || '-', // Display fallback for empty values
+    })),
+
     {
       title: 'Assignee',
-      dataIndex: 'assignee',
+      dataIndex: 'assigneeUser',
       key: 'assignee',
+      render: (assigneeUser: Entity) => assigneeUser?.name || '-',
     },
+
     {
-      title: 'Action',
+      title: <Button onClick={() => setModelOpen('lead')}>New</Button>,
       key: 'action',
-      render: (_: any, record: any) => (
+      render: (_, record: CustomerFieldItem) => (
         <div className="flex gap-2">
           <Button
             icon={<IconEdit />}
@@ -86,7 +277,7 @@ export const OptionalSettings = () => {
             onClick={e => {
               e.stopPropagation();
               setSelectedRecord(record);
-              setModelOpen(true);
+              setModelOpen('lead');
             }}
           />
           <Button
@@ -96,7 +287,7 @@ export const OptionalSettings = () => {
             onClick={e => {
               e.stopPropagation();
               setSelectedRecord(record);
-              setDeleteModelOpen(true);
+              setModelOpen('deleteLead');
             }}
           />
         </div>
@@ -156,43 +347,70 @@ export const OptionalSettings = () => {
       <div>
         <div className="mb-4 flex items-center justify-between">
           <p className="text-sm font-semibold text-gray-500">Customize and assign lead enquires</p>
-          <Button
-            type="primary"
-            icon={<IconPlus />}
-            onClick={() => {
-              setSelectedRecord(null);
-              setModelOpen(true);
-            }}
-          >
-            New
-          </Button>
+          {customFields && customFields.length < 2 && (
+            <Button type="primary" onClick={() => setModelOpen('customField')}>
+              New Custom Field
+            </Button>
+          )}
         </div>
-        <Table
-          columns={columns}
-          dataSource={intergrationOptionalSettingData}
-          pagination={false}
-          rowClassName="hover:bg-gray-50"
-        />
+
+        {customFields && customFields.length > 0 && (
+          <Table
+            columns={dynamicColumns}
+            dataSource={customFieldItems}
+            pagination={false}
+            rowClassName="hover:bg-gray-50"
+          />
+        )}
 
         {/* Model for add/edit */}
-        <ActionDialogmodel
-          open={modelOpen}
-          title={selectedRecord ? 'Edit Folder' : 'New Folder'}
-          isEditing={!!selectedRecord}
-          initialValues={selectedRecord}
-          onCancel={() => setModelOpen(false)}
-          onSubmit={() => setModelOpen(false)}
-          fields={getIntegrationOptionalSettingFields()}
-        />
+        {modelOpen === 'lead' && (
+          <ActionDialogmodel
+            open={modelOpen === 'lead'}
+            title={selectedRecord ? 'Edit Lead Item' : 'New Lead Item'}
+            isEditing={!!selectedRecord}
+            initialValues={selectedRecord ? mapApiToForm(selectedRecord) : {}}
+            onCancel={() => {
+              setModelOpen(null);
+              setSelectedRecord(null);
+            }}
+            onSubmit={handleSaveCustomFieldItem}
+            fields={customFieldItemsFormFields}
+          />
+        )}
+
+        {modelOpen === 'customField' && (
+          <ActionDialogmodel
+            open={modelOpen === 'customField'}
+            title={selectedCustomField ? 'Edit Custom Field' : 'New Custom Field'}
+            isEditing={!!selectedCustomField}
+            initialValues={selectedCustomField}
+            onCancel={() => {
+              setModelOpen(null);
+              setCustomField(null);
+            }}
+            onSubmit={handleSaveCustomField}
+            fields={[
+              {
+                label: 'Custom Field Name',
+                type: 'text' as const,
+                name: 'headerName',
+                rules: [{ required: true, message: 'Please enter field name' }],
+              },
+            ]}
+          />
+        )}
 
         {/* Delete confirmation */}
-        <ConfirmationModal
-          open={deleteModelOpen}
-          type="danger"
-          onClose={() => setDeleteModelOpen(false)}
-          onConfirm={() => setDeleteModelOpen(false)}
-          message="Are you sure you want to delete this folder?"
-        />
+        {modelOpen === 'deleteLead' && (
+          <ConfirmationModal
+            open={modelOpen === 'deleteLead'}
+            type="danger"
+            onClose={() => setModelOpen(null)}
+            onConfirm={() => handleDeleteCustomFieldItem()}
+            message="Are you sure you want to delete this folder?"
+          />
+        )}
       </div>
     </div>
   );
