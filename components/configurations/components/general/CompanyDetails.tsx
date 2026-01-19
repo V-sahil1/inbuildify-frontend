@@ -2,13 +2,17 @@
 import { Form, Input, Select, Upload, Button, message } from 'antd';
 import { IconUpload } from '@tabler/icons-react';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import { useEffect } from 'react';
-import { fetchCompanyInfo, updateCompanyDetails } from '@redux/feature/admin/general/company/companyThunk';
+import { useEffect, useState } from 'react';
+import {
+  fetchCompanyInfo,
+  updateCompanyDetails,
+} from '@redux/feature/admin/general/company/companyThunk';
 import { useTimezoneHook } from '@hooks/useTImezoneHook';
 import { useCountryHook } from '@hooks/useCountryHook';
 import { useStateHook } from '@hooks/useStateHook';
 import { formDataGenerator } from '@lib/utils/formDataGenerator';
 import { Status } from '@lib/constants/enum';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 
 const CompanyDetails = () => {
   const [form] = Form.useForm();
@@ -18,7 +22,8 @@ const CompanyDetails = () => {
   const { countryOptions } = useCountryHook();
   const selectedCountryId = Form.useWatch('countryId', form);
   const { stateOptions } = useStateHook(selectedCountryId);
-  
+  const [isChanged, setIsChanged] = useState(false);
+
   const fetchCompanyInfoData = async () => {
     try {
       await dispatch(fetchCompanyInfo()).unwrap();
@@ -34,41 +39,57 @@ const CompanyDetails = () => {
   }, [dispatch, status.fetch]);
 
   useEffect(() => {
-    if (company) {
-      form.setFieldsValue({
-        ...company,
-        timezoneId: company.timezoneId
-      });
-    }
-  }, [company]);
-
-  const onFinish = async (values: any) => {
     if (!company) return;
-    
+
+    form.setFieldsValue({
+      ...company,
+      timezoneId: company.timezoneId,
+      emailSignatureLogo: [
+        {
+          uid: '-1',
+          name: 'Email Logo',
+          status: 'done',
+          url: company.emailSignatureLogo,
+        },
+      ],
+      companyLogo: [
+        {
+          uid: '-1',
+          name: 'Company Logo',
+          status: 'done',
+          url: company.companyLogo,
+        },
+      ],
+    });
+  }, [company]);
+  const onFinish = async values => {
+    if (!company) return;
     try {
-      const processedValues = { ...values };
-      if (values.emailSignatureLogo && values.emailSignatureLogo.length > 0) {
-        const file = values.emailSignatureLogo[0];
-        processedValues.emailSignatureLogo = file.originFileObj || file;
-      } else {
-        delete processedValues.emailSignatureLogo;
+      const { emailSignatureLogo, companyLogo, ...rest } = values;
+      let companyLogoFile = company.companyLogo;
+      let emailSignatureLogoFile = company.emailSignatureLogo;
+      if (emailSignatureLogo && emailSignatureLogo.length > 0) {
+        emailSignatureLogoFile = emailSignatureLogo[0].originFileObj || companyLogoFile;
       }
-      
-      if (values.companyLogo && values.companyLogo.length > 0) {
-        const file = values.companyLogo[0];
-        processedValues.companyLogo = file.originFileObj || file;
-      } else {
-        delete processedValues.companyLogo;
+      if (companyLogo && companyLogo.length > 0) {
+        companyLogoFile = companyLogo[0].originFileObj || companyLogoFile;
       }
-      
-      const formData = formDataGenerator(processedValues);
-      
+      const formData = formDataGenerator({
+        ...rest,
+        companyLogo: companyLogoFile,
+        emailSignatureLogo: emailSignatureLogoFile,
+      });
+
       await dispatch(updateCompanyDetails(formData)).unwrap();
       message.success('Company details updated successfully');
-      
     } catch (error) {
       message.error(error || 'Failed to update company details');
-    } 
+    }
+  };
+
+  const handleValueChange = (_, allValues) => {
+    const updatedFields = getUpdatedFields(allValues, company);
+    setIsChanged(Object.keys(updatedFields).length > 0);
   };
 
   return (
@@ -78,6 +99,8 @@ const CompanyDetails = () => {
         layout="vertical"
         onFinish={onFinish}
         className="space-y-10"
+        onValuesChange={handleValueChange}
+        disabled={status.update === Status.PENDING}
       >
         {/* Basic Info */}
         <h2 className="text-xl font-semibold border-b pb-2">Basic Information</h2>
@@ -138,12 +161,16 @@ const CompanyDetails = () => {
         <div className="grid grid-cols-2 gap-8">
           <div className="flex flex-col gap-3">
             <span className="font-medium">Email Signature</span>
-            <Form.Item name="emailSignatureLogo" valuePropName="fileList" getValueFromEvent={(e) => {
-              if (e && e.fileList) {
-                return e.fileList;
-              }
-              return [];
-            }}>
+            <Form.Item
+              name="emailSignatureLogo"
+              valuePropName="fileList"
+              getValueFromEvent={e => {
+                if (e && e.fileList) {
+                  return e.fileList;
+                }
+                return [];
+              }}
+            >
               <Upload
                 name="emailSignatureLogo"
                 listType="picture"
@@ -158,12 +185,16 @@ const CompanyDetails = () => {
 
           <div className="flex flex-col gap-3">
             <span className="font-medium">Company Logo</span>
-            <Form.Item name="companyLogo" valuePropName="fileList" getValueFromEvent={(e) => {
-              if (e && e.fileList) {
-                return e.fileList;
-              }
-              return [];
-            }}>
+            <Form.Item
+              name="companyLogo"
+              valuePropName="fileList"
+              getValueFromEvent={e => {
+                if (e && e.fileList) {
+                  return e.fileList;
+                }
+                return [];
+              }}
+            >
               <Upload
                 name="companyLogo"
                 listType="picture"
@@ -177,11 +208,19 @@ const CompanyDetails = () => {
           </div>
         </div>
 
-        <div className="flex justify-end pt-6">
-          <Button type="primary" size="large" htmlType="submit">
-            Save
-          </Button>
-        </div>
+        {isChanged && (
+          <div className="flex justify-end pt-6">
+            <Button
+              type="primary"
+              size="large"
+              htmlType="submit"
+              loading={status.update === Status.PENDING}
+              disabled={status.update === Status.PENDING}
+            >
+              Save
+            </Button>
+          </div>
+        )}
       </Form>
     </div>
   );
