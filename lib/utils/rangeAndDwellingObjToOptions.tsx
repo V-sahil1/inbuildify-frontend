@@ -1,7 +1,7 @@
 import { LeadSource } from '@redux/feature/lead/ILeadState';
 import { DwellingType, Range } from '@redux/feature/types/ITypesState';
 import { enumToReadable } from './enumToRedable';
-
+ 
 export type Option = {
   label: string;
   value: string;

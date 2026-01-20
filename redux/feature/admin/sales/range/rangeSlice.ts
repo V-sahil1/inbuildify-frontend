@@ -30,7 +30,7 @@ const rangeSlice = createSlice({
       state.status.fetch = Status.PENDING;
     });
     builder.addCase(fetchRange.fulfilled, (state, action) => {
-      state.range = action.payload.ranges;
+      state.range = action.payload;
       state.status.fetch = Status.SUCCESS;
     });
     builder.addCase(fetchRange.rejected, state => {

@@ -1,6 +1,6 @@
 import { Status } from '@lib/constants/enum';
 import { getUsersThunk } from '@redux/feature/user/userThunk';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { user } from '@redux/feature/user/UserState';
 import { message } from 'antd';

@@ -3,7 +3,6 @@ import {
   IconChartFunnel,
   IconServer2,
   IconProgress,
-  IconClockHour3,
   IconCalendarMonth,
   IconTool,
   IconLabelImportant,
@@ -20,7 +19,6 @@ import { Status } from '@lib/constants/enum';
 const RangeAndDwelling = dynamic(() => import('./components/RangeAndDwelling'), { ssr: false });
 const MasterPriceList = dynamic(() => import('./components/MasterPriceList'), { ssr: false });
 const FloorPlan = dynamic(() => import('./components/FloorPlan'), { ssr: false });
-const Facade = dynamic(() => import('./components/Facade'), { ssr: false });
 const Package = dynamic(() => import('./components/Package'), { ssr: false });
 const Service = dynamic(() => import('./components/Service'), { ssr: false });
 const LeadSource = dynamic(() => import('./components/LeadSource'), { ssr: false });
@@ -49,7 +47,6 @@ const TABS = [
     breadcrumb: 'Floor Plan',
     component: FloorPlan,
   },
-  { id: 'facade', label: 'Facade', icon: IconClockHour3, breadcrumb: 'Facade', component: Facade },
   {
     id: 'package',
     label: 'Package',

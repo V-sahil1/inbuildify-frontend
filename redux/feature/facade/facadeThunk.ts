@@ -4,23 +4,31 @@ import api, { apiWithFormDataMethods } from '@lib/constants/api';
 import { ApiResponse } from '../auth/IAuthState';
 import { IFacadeState } from './IFacadeState';
 
+interface GetFacadesParams {
+  status?: boolean;
+  cost_type?: string;
+  name?: string;
+  dwelling_type_id?: string;
+  range_id?: string;
+  page?: number;
+  limit?: number;
+}
+
+interface FacadeResponse {
+  facades: IFacadeState[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalRecords: number;
+    limit: number;
+  };
+}
+
 export const getFacades = createAsyncThunk(
   'facade/getAll',
-  async (
-    filters: { dwelling_type?: string; standard?: boolean; upgrade?: boolean } = {},
-    { rejectWithValue }
-  ) => {
+  async (params: GetFacadesParams = {}, { rejectWithValue }) => {
     try {
-      const queryParams = new URLSearchParams();
-      if (filters && filters.dwelling_type) {
-        queryParams.append('dwelling_type', filters.dwelling_type);
-      }
-
-      queryParams.append('standard', filters.standard?.toString() || 'false');
-      queryParams.append('upgrade', filters.upgrade?.toString() || 'false');
-
-      const url = `${API_ENDPOINTS.FACADE_BASE}?${queryParams.toString()}`;
-      const res = await api.get<ApiResponse<{ facades: IFacadeState[] }>>(url);
+      const res = await api.get<ApiResponse<FacadeResponse>>(API_ENDPOINTS.FACADE_BASE, { params });
       return res.data;
     } catch (error) {
       return rejectWithValue(error.message);

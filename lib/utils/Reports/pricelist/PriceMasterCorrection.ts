@@ -1,4 +1,4 @@
-import { PriceMasterCorrectionData } from '@/data/pricelistMasterData';
+import { PriceMasterCorrectionData } from 'data/pricelistMasterData';
 import { exportToExcel } from '@lib/utils/exportToExcel';
 
 export const PriceMasterCorrection = () => {

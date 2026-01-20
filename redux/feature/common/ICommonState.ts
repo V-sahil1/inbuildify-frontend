@@ -23,13 +23,20 @@ export interface CommonPagination {
   totalPages: number;
 }
 
+export interface Location {
+  locationId: string;
+  name: string;
+}
+
 export interface ICommonState {
   functionality: functionalityResponse[];
   builders: BuilderInfo[];
   timezone: Timezone[];
+  locations: Location[];
   status: {
     builder: Status;
     functionality: Status;
     timezoneStatus: Status;
+    locationStatus: Status;
   };
 }

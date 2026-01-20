@@ -2,10 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { debounce } from 'lodash';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
-// delay:  debounce time
-// filtersKey: string[] — list of query parameter keys to manage and sync with the URL.
-// initialValue?: object — optional default values that are applied first and override URL search params.
-// shouldSyncURL?: new prop to control URL syncing
 interface DebouncedURLOptions {
   delay?: number;
   filtersKey: string[];

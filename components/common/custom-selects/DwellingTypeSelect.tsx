@@ -1,10 +1,5 @@
-import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import CustomSelect from './CustomSelect';
-import { mapToOptions } from '@lib/utils/rangeAndDwellingObjToOptions';
-import { useEffect } from 'react';
-import { Status } from '@lib/constants/enum';
-import { getDwellingTypes } from '@redux/feature/types/typesThunk';
-import { message } from 'antd';
+import useDwellingAndRangeHook from '@hooks/useDwellingAndRangeHook';
 
 interface DwellingTypeSelectProps {
   value?: string;
@@ -19,27 +14,12 @@ const DwellingTypeSelect: React.FC<DwellingTypeSelectProps> = ({
   width,
   disabled,
 }) => {
-  const { dwellingType } = useAppSelector(state => state.types);
-  const typesStatus = useAppSelector(state => state.types.status);
-  const dwellingOptions = dwellingType && mapToOptions(dwellingType);
-  const dispatch = useAppDispatch();
-  useEffect(() => {
-    const fetchTypesData = async () => {
-      try {
-        if (typesStatus?.dwellingType === Status.IDLE) {
-          await dispatch(getDwellingTypes()).unwrap();
-        }
-      } catch (error) {
-        message.error(error);
-      }
-    };
-    fetchTypesData();
-  }, [dispatch]);
+  const { dwellingTypeOptions } = useDwellingAndRangeHook({ type: 'dwellingType' });
   return (
     <CustomSelect
       value={value}
       onChange={onChange}
-      options={dwellingOptions}
+      options={dwellingTypeOptions}
       placeholder="Dwelling Type"
       width={width}
       disabled={disabled}

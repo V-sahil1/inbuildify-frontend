@@ -224,5 +224,6 @@ class API_ENDPOINTS {
   public static FUNCTIONALITY_BASE = '/functionality';
   public static TIMEZONE_BASE = '/timezone';
   public static BUILDER_ALL = `${this.BUILDER_BASE}/all`;
+  public static LOCATION_BASE = '/location';
 }
 export default API_ENDPOINTS;

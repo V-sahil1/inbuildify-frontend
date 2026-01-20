@@ -23,7 +23,7 @@ export const createRange = createAsyncThunk(
 export const fetchRange = createAsyncThunk('range/fetchAll', async (_, { rejectWithValue }) => {
   try {
     const response = await api.get<
-      ApiResponse<{ ranges: RangeResponse[]; pagination: Pagination }>
+      ApiResponse<RangeResponse[]>
     >(API_ENDPOINTS.RANGE_BASE);
     return response.data;
   } catch (error) {

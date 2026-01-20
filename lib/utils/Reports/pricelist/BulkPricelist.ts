@@ -1,5 +1,6 @@
-import { bulkPricelistData } from '@/data/pricelistMasterData';
+
 import { exportToExcel } from '@lib/utils/exportToExcel';
+import { bulkPricelistData } from 'data/pricelistMasterData';
 
 export const BulkPricelist = () => {
   const bulkPricelist = {

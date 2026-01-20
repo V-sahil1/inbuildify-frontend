@@ -7,18 +7,18 @@ import {
   fetchCompanyInfo,
   updateCompanyDetails,
 } from '@redux/feature/admin/general/company/companyThunk';
-import { useTimezoneHook } from '@hooks/useTImezoneHook';
 import { useCountryHook } from '@hooks/useCountryHook';
 import { useStateHook } from '@hooks/useStateHook';
 import { formDataGenerator } from '@lib/utils/formDataGenerator';
 import { Status } from '@lib/constants/enum';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
+import { useLocationAndTimezoneHook } from '@hooks/useLocationAndTimezoneHook';
 
 const CompanyDetails = () => {
   const [form] = Form.useForm();
   const dispatch = useAppDispatch();
   const { company, status } = useAppSelector(state => state.general.company);
-  const { timezoneOptions } = useTimezoneHook();
+  const { timezoneOptions } = useLocationAndTimezoneHook({ type: 'timezone' });
   const { countryOptions } = useCountryHook();
   const selectedCountryId = Form.useWatch('countryId', form);
   const { stateOptions } = useStateHook(selectedCountryId);

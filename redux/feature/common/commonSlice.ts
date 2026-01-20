@@ -1,17 +1,18 @@
 import { createSlice } from '@reduxjs/toolkit';
-
 import { Status } from '@lib/constants/enum';
 import { ICommonState } from './ICommonState';
-import { fetchAllBuiders, fetchAllFunctionality, fetchTimeZone } from './commonThunk';
+import { fetchAllBuiders, fetchAllFunctionality, fetchLocation, fetchTimeZone } from './commonThunk';
 
 const initialState: ICommonState = {
   functionality: [],
   builders: [],
   timezone: [],
+  locations: [],
   status: {
     builder: Status.IDLE,
     functionality: Status.IDLE,
     timezoneStatus: Status.IDLE,
+    locationStatus: Status.IDLE,
   },
 };
 
@@ -53,6 +54,16 @@ const commonSlice = createSlice({
     });
     builder.addCase(fetchAllBuiders.rejected, state => {
       state.status.builder = Status.ERROR;
+    });
+    builder.addCase(fetchLocation.pending, state => {
+      state.status.locationStatus = Status.PENDING;
+    });
+    builder.addCase(fetchLocation.fulfilled, (state, action) => {
+      state.locations = action.payload;
+      state.status.locationStatus = Status.SUCCESS;
+    });
+    builder.addCase(fetchLocation.rejected, state => {
+      state.status.locationStatus = Status.ERROR;
     });
   },
 });

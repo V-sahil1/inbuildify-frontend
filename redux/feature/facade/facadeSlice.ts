@@ -8,6 +8,12 @@ export const facadeSlice = createSlice({
   initialState: {
     facades: [] as IFacadeState[],
     status: Status.IDLE,
+    pagination: {
+      currentPage: 1,
+      totalPages: 0,
+      totalRecords: 0,
+      limit: 10,
+    },
     selectedFilters: { dwelling_type: '', standard: false, upgrade: false },
   },
   reducers: {
@@ -30,6 +36,7 @@ export const facadeSlice = createSlice({
     });
     builder.addCase(getFacades.fulfilled, (state, action) => {
       state.facades = action.payload.facades;
+      state.pagination = action.payload.pagination;
       state.status = Status.SUCCESS;
     });
     builder.addCase(getFacades.rejected, state => {
@@ -45,6 +52,7 @@ export const facadeSlice = createSlice({
     });
     builder.addCase(deleteFacade.fulfilled, (state, action) => {
       state.facades = state.facades.filter(facade => facade.facadeId !== action.payload);
+      state.pagination.totalRecords -= 1;
     });
   },
 });

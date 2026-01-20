@@ -1,10 +1,5 @@
-import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import CustomSelect from './CustomSelect';
-import { mapToOptions } from '@lib/utils/rangeAndDwellingObjToOptions';
-import { useEffect } from 'react';
-import { Status } from '@lib/constants/enum';
-import { getRanges } from '@redux/feature/types/typesThunk';
-import { message } from 'antd';
+import useDwellingAndRangeHook from '@hooks/useDwellingAndRangeHook';
 
 interface RangeSelectProps {
   value?: string;
@@ -14,22 +9,7 @@ interface RangeSelectProps {
 }
 
 const RangeSelect: React.FC<RangeSelectProps> = ({ value, onChange, width, disabled }) => {
-  const { range } = useAppSelector(state => state.types);
-  const typesStatus = useAppSelector(state => state.types.status);
-  const rangeOptions = range && mapToOptions(range);
-  const dispatch = useAppDispatch();
-  useEffect(() => {
-    const fetchTypesData = async () => {
-      try {
-        if (typesStatus?.range === Status.IDLE) {
-          await dispatch(getRanges()).unwrap();
-        }
-      } catch (error) {
-        message.error(error);
-      }
-    };
-    fetchTypesData();
-  }, [dispatch]);
+  const { rangeOptions } = useDwellingAndRangeHook({ type: 'range' });
   return (
     <CustomSelect
       value={value}

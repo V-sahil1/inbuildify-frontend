@@ -8,7 +8,7 @@ import { Status } from '@lib/constants/enum';
 import { constructionTypesFields } from '@/components/formFields/constructionTypesFields';
 import ConfirmationModal from '@/components/common/ConfirmationModal';
 import { useBuildersHook } from '@hooks/useBuildersHook';
-import { useDwellingTypeHook } from '@hooks/useDwellingTypeHook';
+import { useDwellingAndRangeHook } from '@hooks/useDwellingAndRangeHook';
 import {
   createType,
   deleteType,
@@ -23,7 +23,7 @@ export const Types: React.FC = () => {
   const [modalOpen, setModalOpen] = useState<'copy' | 'create' | 'delete'>(null);
   const [currentItem, setCurrentItem] = useState<ConstructionType | null>(null);
   const { builderOptions } = useBuildersHook();
-  const { dwellingTypeOptions } = useDwellingTypeHook();
+  const { dwellingTypeOptions } = useDwellingAndRangeHook({ type: 'dwellingType' });
   const [builderId, setBuilderId] = useState<string>('');
   const {
     type,

@@ -35,7 +35,7 @@ const dwellingTypeSlice = createSlice({
       state.status.fetch = Status.PENDING;
     });
     builder.addCase(fetchDwellingType.fulfilled, (state, action) => {
-      state.dwellingType = action.payload.dwellingType;
+      state.dwellingType = action.payload;
       state.status.fetch = Status.SUCCESS;
     });
     builder.addCase(fetchDwellingType.rejected, state => {

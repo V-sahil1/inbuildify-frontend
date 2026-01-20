@@ -27,7 +27,7 @@ export const fetchDwellingType = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await api.get<
-        ApiResponse<{ dwellingType: dwellingTypeResponse[]; pagination: Pagination }>
+        ApiResponse<dwellingTypeResponse[]>
       >(API_ENDPOINTS.DWELLING_TYPE_BASE);
       return response.data;
     } catch (error) {
