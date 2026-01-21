@@ -164,11 +164,17 @@ class API_ENDPOINTS {
   public static JOB_PROCESS_FUNTIONALITY = '/job-process-stage-functionality';
   public static JOB_PROCESS_STAGE = `${this.JOB_PROCESS_BASE}/stages`;
   public static JOB_PROCESS_SUB_STAGE_BASE = `${this.JOB_PROCESS_BASE}/sub-stages`;
-  public static JOB_PROCESS_SUB_STAGE = (stageId: string) => { return `${this.JOB_PROCESS_STAGE}/${stageId}/sub-stages` };
+  public static JOB_PROCESS_SUB_STAGE = (stageId: string) => {
+    return `${this.JOB_PROCESS_STAGE}/${stageId}/sub-stages`;
+  };
   public static JOB_TASK_BASE = `${this.JOB_PROCESS_BASE}/tasks`;
-  public static JOB_PROCESS_TASK = (subStageId: string) => { return `${this.JOB_PROCESS_SUB_STAGE_BASE}/${subStageId}/tasks` };
+  public static JOB_PROCESS_TASK = (subStageId: string) => {
+    return `${this.JOB_PROCESS_SUB_STAGE_BASE}/${subStageId}/tasks`;
+  };
   public static JOB_SUB_TASK_BASE = `${this.JOB_PROCESS_BASE}/sub-tasks`;
-  public static JOB_PROCESS_SUB_TASK = (taskId: string) => { return `${this.JOB_TASK_BASE}/${taskId}/sub-tasks` };
+  public static JOB_PROCESS_SUB_TASK = (taskId: string) => {
+    return `${this.JOB_TASK_BASE}/${taskId}/sub-tasks`;
+  };
 
   // admin maintenance
   public static MAINTENANCE_SETTING = '/maintenance-setting';
@@ -187,16 +193,15 @@ class API_ENDPOINTS {
   public static CONSTRUCTION_OPTION = '/construction-option';
   public static CONSTRUCTION_TYPE = '/construction-type';
   public static CONSTRUCTION_STAGE = '/construction-stage';
-  public static CONSTRUCTION_CHECKLIST='/construction-checklist'
-  public static CONSTRUCTION_SUB_CHECKLIST='/construction-sub-checklist'
-  public static CONSTRUCTION_CHECKLIST_PREDECESSOR='/construction-checklist-predecessor'
-  public static INSPECTION_CHECKLIST='/construction-inspection-checklist'
-  public static OHS_LIST='/construction-ohs';
-  public static OHS_SETTING=`${this.OHS_LIST}/settings`;
-  public static OHS_ITEM=`${this.OHS_LIST}/list`;
+  public static CONSTRUCTION_CHECKLIST = '/construction-checklist';
+  public static CONSTRUCTION_SUB_CHECKLIST = '/construction-sub-checklist';
+  public static CONSTRUCTION_CHECKLIST_PREDECESSOR = '/construction-checklist-predecessor';
+  public static INSPECTION_CHECKLIST = '/construction-inspection-checklist';
+  public static OHS_LIST = '/construction-ohs';
+  public static OHS_SETTING = `${this.OHS_LIST}/settings`;
+  public static OHS_ITEM = `${this.OHS_LIST}/list`;
   public static ETS_RECHARGE_SETTING = '/construction-ets-recharge';
   public static ETS_RECHARGE_APPROVAL = '/construction-ets-recharge-approval';
-
 
   //document
   public static DOCUMENT_AREA = '/document-common-folder';
@@ -219,6 +224,9 @@ class API_ENDPOINTS {
 
   public static ROLE_BASE = '/role';
   public static DRIVE_BASE = '/drive';
+  public static SUPPLIER_TYPE = '/supplier-type';
+  public static COMPLIANCE_TYPE = '/compliance-type';
+  public static COST_CENTER = '/cost-center';
 
   // common
   public static FUNCTIONALITY_BASE = '/functionality';

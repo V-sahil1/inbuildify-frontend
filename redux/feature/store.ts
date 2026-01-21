@@ -31,6 +31,8 @@ import integrationReducer from './admin/integration/integrationReducer';
 import { documentReducer } from './admin/document/documentReducer';
 import { templateReducer } from './admin/template/templateReducer';
 import driveReducer from './drive/driveSlice';
+import supplierReducer from './supplier/supplierSlice';
+import costCenterReducer from './costCenter/costCenterSlice';
 
 const authPersistConfig = {
   key: 'auth',
@@ -67,7 +69,9 @@ const appReducer = combineReducers({
   integration: integrationReducer,
   document: documentReducer,
   template: templateReducer,
+  supplier: supplierReducer,
   drive: driveReducer,
+  costCenter: costCenterReducer,
 });
 
 const rootReducer = (state: ReturnType<typeof appReducer> | undefined, action: any) => {

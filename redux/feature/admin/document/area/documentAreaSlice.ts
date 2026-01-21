@@ -56,7 +56,7 @@ const documentAreaSlice = createSlice({
       state.status.fetch = Status.PENDING;
     });
     builder.addCase(fetchAllDocumentArea.fulfilled, (state, action) => {
-      state.commonFolder = action.payload.folders.map(i => ({
+      state.commonFolder = action.payload.commonFolders.map(i => ({
         ...i,
         isExpanded: false,
         subFolder: [],

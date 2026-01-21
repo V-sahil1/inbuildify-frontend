@@ -6,13 +6,15 @@ import constructionOptionReducer from './constructionOption/construtionOptionSli
 import etsRechargeReducer from './constructionETSRecharge/ETSRechargeSlice';
 import ohsListReducer from './constructionOHS/OHSListSlice';
 import inspectionChecklistReducer from './InspectionChecklist/InspectionchecklistSlice';
+import constructionChecklistReducer from './constructionChecklist/constructionChecklistSlice';
 
 export const constructionReducer = combineReducers({
   setting: constructionSettingReducer,
   constructionOption: constructionOptionReducer,
   constructionType: constructionTypeReducer,
   constructionStage: constructionStageReducer,
-  inspectionChecklist:inspectionChecklistReducer,
+  constructionChecklist: constructionChecklistReducer,
+  inspectionChecklist: inspectionChecklistReducer,
   ohsList: ohsListReducer,
   etsRecharge: etsRechargeReducer,
 });

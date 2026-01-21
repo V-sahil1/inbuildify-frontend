@@ -27,7 +27,7 @@ export const fetchAllDocumentArea = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await api.get<
-        ApiResponse<{ folders: IDocumentCommonFolder[]; pagination: Pagination }>
+        ApiResponse<{ commonFolders: IDocumentCommonFolder[]; pagination: Pagination }>
       >(API_ENDPOINTS.DOCUMENT_AREA);
       return response.data;
     } catch (error) {

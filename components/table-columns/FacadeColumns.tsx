@@ -68,4 +68,3 @@ export const FacadeColumns = () => {
   ];
   return { columns, facadeData };
 };
-

@@ -28,15 +28,22 @@ export interface Location {
   name: string;
 }
 
+export interface ComplianceType {
+  complianceTypeId: string;
+  name: string;
+}
+
 export interface ICommonState {
   functionality: functionalityResponse[];
   builders: BuilderInfo[];
   timezone: Timezone[];
   locations: Location[];
+  complianceType: ComplianceType[];
   status: {
     builder: Status;
     functionality: Status;
     timezoneStatus: Status;
     locationStatus: Status;
+    complianceTypeStatus: Status;
   };
 }

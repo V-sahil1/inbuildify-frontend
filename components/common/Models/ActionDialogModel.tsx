@@ -104,14 +104,16 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
       field.onChange(checked);
     }
   };
-
   useEffect(() => {
     if (!open) return;
 
     // Initialize switch values from initial values
     const initialSwitchValues: Record<string, boolean> = {};
     fields.forEach(field => {
-      if (field.type === 'switch' && initialValues[field.name] !== undefined) {
+      if (
+        (field.type === 'switch' || (field.type === 'checkbox' && !field?.options)) &&
+        initialValues[field.name] !== undefined
+      ) {
         initialSwitchValues[field.name] = initialValues[field.name];
       }
     });
@@ -228,7 +230,6 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
             name={field.name}
             rules={field.rules}
             initialValue={field.initialValue}
-            // valuePropName={field.type === 'switch' ? 'checked':null}
             extra={field.extra}
           >
             {field.type === 'select' ? (
@@ -279,10 +280,7 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
                 rules={[
                   {
                     validator: (_, value) => {
-                      if (
-                        field.rules?.some(r => 'required' in r && r.required) &&
-                        !value
-                      ) {
+                      if (field.rules?.some(r => 'required' in r && r.required) && !value) {
                         return Promise.reject(new Error('Image is required'));
                       }
                       return Promise.resolve();
@@ -367,13 +365,22 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
                 field.render
               )
             ) : field.type === 'checkbox' ? (
-              <Checkbox.Group onChange={field.onChange}>
-                {field.options.map(option => (
-                  <Checkbox key={option.value} value={option.value}>
-                    {option.label}
-                  </Checkbox>
-                ))}
-              </Checkbox.Group>
+              field.options ? (
+                <Checkbox.Group onChange={field.onChange}>
+                  {field.options.map(option => (
+                    <Checkbox key={option.value} value={option.value}>
+                      {option.label}
+                    </Checkbox>
+                  ))}
+                </Checkbox.Group>
+              ) : (
+                <Checkbox
+                  checked={switchValues[field.name] || false}
+                  onChange={e => {
+                    handleSwitchChange(field.name, e.target.checked);
+                  }}
+                />
+              )
             ) : (
               <Input placeholder={field.placeholder} type={field.type} disabled={field.disabled} />
             )}

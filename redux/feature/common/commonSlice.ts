@@ -1,25 +1,33 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { Status } from '@lib/constants/enum';
 import { ICommonState } from './ICommonState';
-import { fetchAllBuiders, fetchAllFunctionality, fetchLocation, fetchTimeZone } from './commonThunk';
+import {
+  fetchAllBuiders,
+  fetchAllFunctionality,
+  fetchLocation,
+  fetchComplianceType,
+  fetchTimeZone,
+} from './commonThunk';
 
 const initialState: ICommonState = {
   functionality: [],
   builders: [],
   timezone: [],
   locations: [],
+  complianceType: [],
   status: {
     builder: Status.IDLE,
     functionality: Status.IDLE,
     timezoneStatus: Status.IDLE,
     locationStatus: Status.IDLE,
+    complianceTypeStatus: Status.IDLE,
   },
 };
 
 const commonSlice = createSlice({
   name: 'common',
   initialState,
-  reducers:{},
+  reducers: {},
   extraReducers: builder => {
     builder.addCase(fetchAllFunctionality.pending, state => {
       state.status.functionality = Status.PENDING;
@@ -64,6 +72,17 @@ const commonSlice = createSlice({
     });
     builder.addCase(fetchLocation.rejected, state => {
       state.status.locationStatus = Status.ERROR;
+    });
+
+    builder.addCase(fetchComplianceType.pending, state => {
+      state.status.complianceTypeStatus = Status.PENDING;
+    });
+    builder.addCase(fetchComplianceType.fulfilled, (state, action) => {
+      state.complianceType = action.payload;
+      state.status.complianceTypeStatus = Status.SUCCESS;
+    });
+    builder.addCase(fetchComplianceType.rejected, state => {
+      state.status.complianceTypeStatus = Status.ERROR;
     });
   },
 });
