@@ -3,7 +3,10 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Typography, Button, message } from 'antd';
 import InputSwitch from '@/components/common/InputSwitch';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import { fetchJobWorkflow, updateJobWorkflow } from '@redux/feature/admin/job/jobWorkflow/jobWorkflowThunk';
+import {
+  fetchJobWorkflow,
+  updateJobWorkflow,
+} from '@redux/feature/admin/job/jobWorkflow/jobWorkflowThunk';
 import { Status } from '@lib/constants/enum';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import { JobWorkflow } from '@redux/feature/admin/job/jobWorkflow/IJobWorkflowState';
@@ -38,9 +41,8 @@ export const Workflow = () => {
 
   useEffect(() => {
     if (jobWorkflow && settings) {
-      const changedValues = getUpdatedFields(settings, jobWorkflow);
-      const hasChanges = Object.keys(changedValues).length > 0;
-      setIsChanged(hasChanges);
+      const { isUpdated } = getUpdatedFields(settings, jobWorkflow);
+      setIsChanged(isUpdated);
     }
   }, [settings, jobWorkflow]);
 
@@ -53,15 +55,14 @@ export const Workflow = () => {
 
   const handleSave = async () => {
     if (!settings || !jobWorkflow) return;
-    const changedValues = getUpdatedFields(settings, jobWorkflow);
+    const { isUpdated, updatedFields } = getUpdatedFields(settings, jobWorkflow);
 
-    if (Object.keys(changedValues).length === 0) {
+    if (!isUpdated) {
       message.info('No changes to save');
       return;
     }
-
     try {
-      await dispatch(updateJobWorkflow(changedValues)).unwrap();
+      await dispatch(updateJobWorkflow(updatedFields)).unwrap();
       message.success('Workflow settings saved successfully!');
     } catch (error) {
       message.error(error || 'Failed to save workflow settings');
@@ -93,9 +94,9 @@ export const Workflow = () => {
               <br />
               If weekend is turned off – Estimated date calculation will not consider weekends.
               <br />
-              <b>Ex:</b> If days given for task is 31 days – Estimated date is 1st January and
-              there are 4 weekends (8 days). Estimated date will be 31st January if weekend is
-              on, 10th February if off.
+              <b>Ex:</b> If days given for task is 31 days – Estimated date is 1st January and there
+              are 4 weekends (8 days). Estimated date will be 31st January if weekend is on, 10th
+              February if off.
             </Text>
           </>
         }
@@ -109,16 +110,15 @@ export const Workflow = () => {
         description={
           <>
             <Text type="secondary">
-              If holidays is turned on – Estimated date calculation will consider company
-              holidays.
+              If holidays is turned on – Estimated date calculation will consider company holidays.
               <br />
               If holidays is turned off – it won't consider company holidays.
               <br />
-              <b>Note:</b> If a holiday falls under weekend and weekend is turned on, it's
-              counted as a holiday.
+              <b>Note:</b> If a holiday falls under weekend and weekend is turned on, it's counted
+              as a holiday.
               <br />
-              <b>Ex:</b> If task days are 31 – Estimated date is 1st January and 14–15 January
-              are holidays. Date will be 31st Jan if on, 2nd Feb if off.
+              <b>Ex:</b> If task days are 31 – Estimated date is 1st January and 14–15 January are
+              holidays. Date will be 31st Jan if on, 2nd Feb if off.
             </Text>
           </>
         }
@@ -149,8 +149,8 @@ export const Workflow = () => {
             <br />
             When turned OFF: A confirmation popup will appear before applying changes.
             <br />
-            <b>Note:</b> This controls how estimated dates are recalculated when actual dates
-            are updated.
+            <b>Note:</b> This controls how estimated dates are recalculated when actual dates are
+            updated.
           </Text>
         }
         value={settings?.recalculateEstimatedDatesBasedOnActualChanges || false}

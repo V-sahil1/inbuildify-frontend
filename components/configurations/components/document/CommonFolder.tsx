@@ -52,8 +52,8 @@ export const CommonFolder = () => {
   const handleSaveParent = async values => {
     try {
       if (selectedRecord) {
-        const updatedFields = getUpdatedFields(values, selectedRecord);
-        if (Object.keys(updatedFields).length === 0) {
+        const {isUpdated, updatedFields} = getUpdatedFields(values, selectedRecord);
+        if (!isUpdated) {
           setModelOpen(null);
           setSelectedRecord(null);
           return;
@@ -84,8 +84,8 @@ export const CommonFolder = () => {
   const handleSaveChild = async values => {
     try {
       if (selectedRecord) {
-        const updatedFields = getUpdatedFields(values, selectedRecord);
-        if (Object.keys(updatedFields).length === 0) {
+        const {isUpdated, updatedFields} = getUpdatedFields(values, selectedRecord);
+        if (!isUpdated) {
           setModelOpen(null);
           setSelectedRecord(null);
           return;

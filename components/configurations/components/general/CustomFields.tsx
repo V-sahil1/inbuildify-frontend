@@ -92,11 +92,11 @@ const CustomFields: React.FC = () => {
     const values = await form.validateFields();
     try {
       if (editingRow && editingRow.customFieldId !== '') {
-        const updatedFields = getUpdatedFields(
+        const { isUpdated, updatedFields } = getUpdatedFields(
           values,
           customField.find(item => item.customFieldId === editingRow.customFieldId)
         );
-        if (Object.keys(updatedFields).length === 0) {
+        if (!isUpdated) {
           message.info('No changes detected');
           return;
         }
@@ -245,9 +245,10 @@ const CustomFields: React.FC = () => {
     },
   ];
 
-  const dataSource = editingRow && !customField.some(r => r.customFieldId === editingRow.customFieldId)
-    ? [editingRow, ...customField]
-    : customField;
+  const dataSource =
+    editingRow && !customField.some(r => r.customFieldId === editingRow.customFieldId)
+      ? [editingRow, ...customField]
+      : customField;
 
   return (
     <div className="p-6">

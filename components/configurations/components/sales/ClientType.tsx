@@ -72,43 +72,7 @@ export const ClientType: React.FC = () => {
   // Utility: ensure list is sorted by sortOrder asc
   const sorted = (list: clientType[]) => [...list].sort((a, b) => a.sortOrder - b.sortOrder);
 
-  // Utility: insert a new item at desiredSort (1-indexed). If desiredSort > length -> append.
-  const insertAtSort = (prev: clientType[], newItem: clientType, desiredSort?: number) => {
-    const list = sorted(prev);
-    const maxPos = list.length + 1;
-    const pos = Math.min(
-      Math.max(1, Number.isFinite(desiredSort as number) ? (desiredSort as number) : 1),
-      maxPos
-    );
-    const newList = [...list.slice(0, pos - 1), newItem, ...list.slice(pos - 1)];
-    return newList.map((item, idx) => ({ ...item, sortOrder: idx + 1 }));
-  };
-
-  // Utility: move existing item to desiredSort and apply updates from editingRow
-  const moveExistingItem = (
-    prev: clientType[],
-    clientTypeId: string,
-    updates: Partial<clientType>,
-    desiredSort?: number
-  ) => {
-    const list = sorted(prev);
-    const idx = list.findIndex(i => i.clientTypeId === clientTypeId);
-    if (idx === -1) return prev;
-    const item = { ...list[idx], ...updates };
-    // remove the item
-    const others = list.filter((_, i) => i !== idx);
-    const maxPos = others.length + 1;
-    const pos = Math.min(
-      Math.max(
-        1,
-        Number.isFinite(desiredSort as number) ? (desiredSort as number) : item.sortOrder
-      ),
-      maxPos
-    );
-    const newList = [...others.slice(0, pos - 1), item, ...others.slice(pos - 1)];
-    return newList.map((it, i) => ({ ...it, sortOrder: i + 1 }));
-  };
-
+  
   // Start edit
   const startEdit = (record: clientType) => {
     setIsAdding(false);
@@ -128,7 +92,6 @@ export const ClientType: React.FC = () => {
     const desiredSort = Number(desiredSortRaw);
     try {
       if (isNew) {
-        // Build final new item (assign a real positive clientTypeId)
         const finalId = '';
         const newItem: clientType = {
           ...(editingRow as clientType),
@@ -140,46 +103,25 @@ export const ClientType: React.FC = () => {
           createClientType({ clientType: newItem.clientType, sortOrder: newItem.sortOrder })
         ).unwrap();
         message.success('Client Type created successfully');
-        // setData(prev => {
-        //   // remove temporary negative clientTypeId if present, then insert at position
-        //   const prevClean = prev.filter(item => item.clientTypeId !== clientTypeId);
-        //   return insertAtSort(prevClean, newItem, newItem.sortOrder);
-        // });
-
         setIsAdding(false);
       } else {
-        // Existing item: update fields and if sortOrder changed or provided, move accordingly
-        // const updatedFields: Partial<clientType> = {
-        //   ...editingRow,
-        //   isDraft: false,
-        // };
-        const values = getUpdatedFields<clientType>(
+        
+        const { isUpdated, updatedFields } = getUpdatedFields<clientType>(
           editingRow,
           clientType.find(i => i.clientTypeId === clientTypeId)
         );
+        if (!isUpdated) {
+          setEditingId(null);
+          setEditingRow({});
+          return;
+        }
         await dispatch(
           updateClientType({
-            data: values,
+            data: updatedFields,
             id: clientTypeId,
           })
         ).unwrap();
-        // setData(prev => {
-        //   const current = prev.find(p => p.clientTypeId === clientTypeId);
-        //   if (!current) return prev;
-
-        //   const updatedFields: Partial<clientType> = {
-        //     ...editingRow,
-        //     isDraft: false,
-        //   };
-
-        //   // If sortOrder provided and different, move item
-        //   if (Number.isFinite(desiredSort) && desiredSort !== current.sortOrder) {
-        //     return moveExistingItem(prev, clientTypeId, updatedFields, desiredSort);
-        //   }
-
-        //   // Otherwise just update the item in place (keep sortOrder)
-        //   return prev.map(p => (p.clientTypeId === clientTypeId ? { ...p, ...updatedFields } : p));
-        // });
+       
         setEditingId(null);
         setEditingRow({});
       }
@@ -200,13 +142,13 @@ export const ClientType: React.FC = () => {
   // Add new (temporary) row
   const handleAdd = () => {
     const newRow: clientType = {
-      clientTypeId: '', // temporary negative ID
+      clientTypeId: '', 
       clientType: '',
       sortOrder: null,
       isActive: true,
       isDraft: true,
     };
-    // Insert at start temporarily so user can edit; final position will be decided on save based on the sortOrder value.
+   
     setEditingId(newRow.clientTypeId);
     setEditingRow(newRow);
     setIsAdding(true);

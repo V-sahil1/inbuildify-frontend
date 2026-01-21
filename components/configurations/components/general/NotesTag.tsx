@@ -51,15 +51,15 @@ const NotesTag: React.FC = () => {
       if (values) {
         if (editingRow && !!editingRow.notesTagId) {
           const prevValues = notesTag.filter(i => i.notesTagId === editingRow.notesTagId)[0];
-          const updatedValues = getUpdatedFields<notesTag>(values, prevValues);
-          if (Object.keys(updatedValues).length === 0) {
+          const { isUpdated, updatedFields } = getUpdatedFields<notesTag>(values, prevValues);
+          if (!isUpdated) {
             message.info('No changes detected');
             return;
           }
           await dispatch(
             updateNotesTag({
               notesTagId: editingRow.notesTagId,
-              data: updatedValues,
+              data: updatedFields,
             })
           ).unwrap();
           message.success('Notes Tag updated successfully');
@@ -229,7 +229,13 @@ const NotesTag: React.FC = () => {
     <div className="p-6 space-y-4">
       <Card>
         <Form form={form} component={false}>
-          <Table rowKey="id" pagination={false} dataSource={dataSource} columns={columns} loading={status.fetch === Status.PENDING}/>
+          <Table
+            rowKey="id"
+            pagination={false}
+            dataSource={dataSource}
+            columns={columns}
+            loading={status.fetch === Status.PENDING}
+          />
         </Form>
       </Card>
     </div>

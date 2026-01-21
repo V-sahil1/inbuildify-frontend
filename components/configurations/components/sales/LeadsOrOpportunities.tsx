@@ -65,7 +65,11 @@ export const LeadsOrOpportunities: React.FC = () => {
 
   const onFinish = async (values: setting) => {
     try {
-      const updatedFields = getUpdatedFields<setting>(values, setting);
+      const { isUpdated, updatedFields } = getUpdatedFields<setting>(values, setting);
+      if (!isUpdated) {
+        message.info('No changes detected');
+        return;
+      }
       await dispatch(
         updateSetting({ data: updatedFields, id: setting.salesModuleSettingsId })
       ).unwrap();

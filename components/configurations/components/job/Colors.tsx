@@ -99,9 +99,9 @@ export const Colors: React.FC = () => {
       return;
     }
 
-    const changedValues = getUpdatedFields(settings, jobColor);
-    const hasChanges = Object.keys(changedValues).length > 0;
-    setShowSave(prev => ({ ...prev, setting: hasChanges }));
+    const { isUpdated } = getUpdatedFields(settings, jobColor);
+
+    setShowSave(prev => ({ ...prev, setting: isUpdated }));
   }, [settings, jobColor]);
 
   useEffect(() => {
@@ -117,15 +117,15 @@ export const Colors: React.FC = () => {
   const handleSaveSettings = async () => {
     if (!settings || !jobColor) return;
 
-    const changedValues = getUpdatedFields(settings, jobColor);
+    const { isUpdated, updatedFields } = getUpdatedFields(settings, jobColor);
 
-    if (Object.keys(changedValues).length === 0) {
+    if (!isUpdated) {
       message.info('No changes to save');
       return;
     }
 
     try {
-      await dispatch(updateJobColor(changedValues)).unwrap();
+      await dispatch(updateJobColor(updatedFields)).unwrap();
       message.success('Settings saved successfully!');
     } catch (error) {
       message.error('Failed to save settings');
@@ -147,14 +147,14 @@ export const Colors: React.FC = () => {
   const handleModalOk = async values => {
     await form.validateFields();
     try {
-      const updatedField = getUpdatedFields(values, editingRow);
-      if (Object.keys(updatedField).length === 0) {
+      const { isUpdated, updatedFields } = getUpdatedFields(values, editingRow);
+      if (!isUpdated) {
         message.info('No changes detect');
         setIsModalOpen(null);
         return;
       }
       await dispatch(
-        updateJobColorColumn({ data: updatedField, id: editingRow.jobColorColumnId })
+        updateJobColorColumn({ data: updatedFields, id: editingRow.jobColorColumnId })
       ).unwrap();
       message.success('Color column updated successfully');
       setIsModalOpen(null);
@@ -187,8 +187,8 @@ export const Colors: React.FC = () => {
     await customForm.validateFields();
     try {
       if (editingCustomSection && values) {
-        const updatedFields = getUpdatedFields(values, editingCustomSection);
-        if (Object.keys(updatedFields).length === 0) {
+        const { isUpdated, updatedFields } = getUpdatedFields(values, editingCustomSection);
+        if (!isUpdated) {
           setIsModalOpen(null);
           setEditingCustomSection(null);
           customForm.resetFields();

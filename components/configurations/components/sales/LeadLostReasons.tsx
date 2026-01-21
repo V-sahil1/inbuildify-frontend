@@ -146,27 +146,22 @@ export const LeadLostReasons: React.FC = () => {
         message.success('Lead Lost Reason created successfully');
         setIsAdding(false);
       } else {
-        // Existing item: update fields and if sort changed or provided, move accordingly
-        const updatedFields: Partial<leadLostReason> = {
+        const updatedValues: Partial<leadLostReason> = {
           ...editingRow,
           isDraft: false,
         };
-        const values = { lostReason: updatedFields.lostReason, sortOrder: updatedFields.sortOrder };
+        const values = { lostReason: updatedValues.lostReason, sortOrder: updatedValues.sortOrder };
         const prevValues = leadLostReason.filter(i => i.leadLostReasonId === id)[0];
-        const updatedValues = getUpdatedFields<leadLostReason>(values, prevValues);
-        if (Object.keys(updatedValues).length === 0) {
-          message.info('No changes detected');
+        const { isUpdated, updatedFields } = getUpdatedFields<leadLostReason>(values, prevValues);
+        if (!isUpdated) {
+          setEditingId(null);
+          setEditingRow({});
           return;
         }
-        // const current = leadLostReason.find(p => p.leadLostReasonId === id);
-        // if (!current) return leadLostReason;
-        // // If sort provided and different, move item
-        // if (Number.isFinite(desiredSort) && desiredSort !== current.sortOrder) {
-        //   return moveExistingItem(leadLostReason, id, updatedFields, desiredSort);
-        // }
+
         await dispatch(
           updateLeadLostReason({
-            data: updatedValues,
+            data: updatedFields,
             id,
           })
         ).unwrap();

@@ -36,7 +36,7 @@ export const Range: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState<{
     open: boolean;
     type: 'activate' | 'deactivate' | null;
-    row: range | null;  
+    row: range | null;
   }>({
     open: false,
     type: null,
@@ -140,11 +140,11 @@ export const Range: React.FC = () => {
         message.success('Range created successfully');
         setIsAdding(false);
       } else {
-        const updatedFields = getUpdatedFields<range>(
+        const { isUpdated, updatedFields } = getUpdatedFields<range>(
           editingRow,
           range.find(p => p.rangeId === id)
         );
-        if (Object.keys(updatedFields).length === 0) {
+        if (!isUpdated) {
           setEditingId(null);
           setEditingRow(null);
           return;
@@ -170,7 +170,7 @@ export const Range: React.FC = () => {
   };
 
   const handleAdd = () => {
-    setError(null)
+    setError(null);
     const newRow: range = {
       rangeId: '',
       name: '',
@@ -301,7 +301,7 @@ export const Range: React.FC = () => {
             onChange={info =>
               setEditingRow(prev => ({ ...prev, logoUrl: info.fileList[0].originFileObj }))
             }
-            className='custom-upload'
+            className="custom-upload"
             maxCount={1}
           >
             <Button icon={<IconUpload />} disabled={isDisabled}>
@@ -331,7 +331,7 @@ export const Range: React.FC = () => {
             onChange={info =>
               setEditingRow(prev => ({ ...prev, headerUrl: info.fileList[0].originFileObj }))
             }
-            className='custom-upload'
+            className="custom-upload"
             maxCount={1}
           >
             <Button icon={<IconUpload />} disabled={isDisabled}>

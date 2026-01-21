@@ -2,7 +2,10 @@
 import React, { useEffect, useState } from 'react';
 import { Switch, InputNumber, Select, Button, message } from 'antd';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import { fetchJobSetting, updateJobSetting } from '@redux/feature/admin/job/jobSetting/jobSettingThunk';
+import {
+  fetchJobSetting,
+  updateJobSetting,
+} from '@redux/feature/admin/job/jobSetting/jobSettingThunk';
 import { Status } from '@lib/constants/enum';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import { JobSettings } from '@redux/feature/admin/job/jobSetting/IJobSettingState';
@@ -26,7 +29,6 @@ export const Setting: React.FC = () => {
     }
   }, []);
 
-
   useEffect(() => {
     if (jobSetting && !settings) {
       setSettings(jobSetting);
@@ -36,9 +38,8 @@ export const Setting: React.FC = () => {
   const [isChanged, setIsChanged] = useState(false);
   useEffect(() => {
     if (jobSetting && settings) {
-      const changedValues = getUpdatedFields(settings, jobSetting);
-      const hasChanges = Object.keys(changedValues).length > 0;
-      setIsChanged(hasChanges);
+      const { isUpdated } = getUpdatedFields(settings, jobSetting);
+      setIsChanged(isUpdated);
     }
   }, [settings, jobSetting]);
 
@@ -52,14 +53,14 @@ export const Setting: React.FC = () => {
 
   const handleSave = async () => {
     if (!settings || !jobSetting) return;
-    const changedValues = getUpdatedFields(settings, jobSetting);
-    if (Object.keys(changedValues).length === 0) {
+    const { isUpdated, updatedFields } = getUpdatedFields(settings, jobSetting);
+    if (!isUpdated) {
       message.info('No changes to save');
       return;
     }
 
     try {
-      await dispatch(updateJobSetting(changedValues)).unwrap();
+      await dispatch(updateJobSetting(updatedFields)).unwrap();
       message.success('Settings saved successfully!');
     } catch (error) {
       message.error(error || 'Failed to save settings');
@@ -118,8 +119,8 @@ export const Setting: React.FC = () => {
             <span>days, job will automatically move to Archived status.</span>
           </div>
           <div className="text-sm text-gray-500">
-            Ex: If the auto-archive period is set to 15 days and a job is completed on June 1st,
-            it will be archived on June 16th.
+            Ex: If the auto-archive period is set to 15 days and a job is completed on June 1st, it
+            will be archived on June 16th.
           </div>
         </div>
       </div>
@@ -164,7 +165,10 @@ export const Setting: React.FC = () => {
             <div className="font-medium">Date</div>
             <Select
               value={settings?.reportIncludeDate}
-              options={[{ label: 'included', value: true }, { label: 'excluded', value: false }].map(item => ({
+              options={[
+                { label: 'included', value: true },
+                { label: 'excluded', value: false },
+              ].map(item => ({
                 label: item.label,
                 value: item.value,
               }))}

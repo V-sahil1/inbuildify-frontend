@@ -47,7 +47,11 @@ const AgentPortal = () => {
   const handleSave = async () => {
     try {
       const formValues = form.getFieldsValue();
-      const updatedFields = getUpdatedFields(formValues, customer || {});
+      const { isUpdated, updatedFields } = getUpdatedFields(formValues, customer || {});
+      if (!isUpdated) {
+        setIsChanged(false);
+        return;
+      }
       const formData = formDataGenerator(updatedFields);
       await dispatch(updateCustomerPortalDetails(formData)).unwrap();
       setIsChanged(false);

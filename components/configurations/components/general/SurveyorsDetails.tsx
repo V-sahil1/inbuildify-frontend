@@ -61,13 +61,13 @@ const SurveyorsDetails = () => {
       try {
         if (editingIndex !== null) {
           const prevValues = surveyor.filter(i => i.surveyorId === editingIndex)[0];
-          const updatedValues = getUpdatedFields<Surveyor>(values, prevValues);
-          if (Object.keys(updatedValues).length === 0) {
+          const { isUpdated, updatedFields } = getUpdatedFields<Surveyor>(values, prevValues);
+          if (!isUpdated) {
             message.info('No changes detected');
             return;
           }
           await dispatch(
-            updateServeyor({ data: updatedValues, surveyorId: editingIndex })
+            updateServeyor({ data: updatedFields, surveyorId: editingIndex })
           ).unwrap();
           message.success('Surveyor details updated successfully!');
           setEditingIndex(null);
@@ -151,21 +151,26 @@ const SurveyorsDetails = () => {
               />
             </Form.Item>
             <Form.Item label="Phone" name="phone" rules={phoneRules}>
-              <Input placeholder="7654832318" disabled={status.create === Status.PENDING} maxLength={15} minLength={10}/>
+              <Input
+                placeholder="7654832318"
+                disabled={status.create === Status.PENDING}
+                maxLength={15}
+                minLength={10}
+              />
             </Form.Item>
-            <Form.Item
-              label="ABN"
-              name="abnNumber"
-              rules={abnRules}
-            >
-              <Input placeholder="47021213123" disabled={status.create === Status.PENDING} maxLength={11}/>
+            <Form.Item label="ABN" name="abnNumber" rules={abnRules}>
+              <Input
+                placeholder="47021213123"
+                disabled={status.create === Status.PENDING}
+                maxLength={11}
+              />
             </Form.Item>
             <Form.Item
               label="Register Number"
               name="registrationNumber"
               rules={[{ len: 4, message: 'Regestration number must be of 4 digits' }]}
             >
-              <Input placeholder="9793" disabled={status.create === Status.PENDING} maxLength={4}/>
+              <Input placeholder="9793" disabled={status.create === Status.PENDING} maxLength={4} />
             </Form.Item>
             <div></div> {/* spacer */}
             <Form.Item label="Address1" name="address1" rules={addressRules}>
@@ -202,11 +207,7 @@ const SurveyorsDetails = () => {
                 disabled={status.create === Status.PENDING}
               />
             </Form.Item>
-            <Form.Item
-              label="Zip / Postal Code"
-              name="zipPostalCode"
-              rules={zipCodeRules}
-            >
+            <Form.Item label="Zip / Postal Code" name="zipPostalCode" rules={zipCodeRules}>
               <Input placeholder="4067" disabled={status.create === Status.PENDING} maxLength={4} />
             </Form.Item>
             <div></div> {/* spacer */}
@@ -249,7 +250,6 @@ const SurveyorsDetails = () => {
             pagination={false}
             rowKey={record => record.email || record.phone}
             loading={status.fetch === Status.PENDING}
-
           />
         </>
       )}

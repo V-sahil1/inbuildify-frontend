@@ -52,7 +52,14 @@ export const Quotation: React.FC = () => {
 
   const handleSubmit = async (values: quotationSetting) => {
     try {
-      const updatedFields = getUpdatedFields<quotationSetting>(values, quotationSetting);
+      const { isUpdated, updatedFields } = getUpdatedFields<quotationSetting>(
+        values,
+        quotationSetting
+      );
+      if (!isUpdated) {
+        message.info('No changes detected');
+        return;
+      }
       await dispatch(
         updateQuotationSetting({ data: updatedFields, id: quotationSetting?.quotationSettingsId })
       ).unwrap();
@@ -64,14 +71,20 @@ export const Quotation: React.FC = () => {
 
   return (
     <div className=" rounded-lg shadow-sm">
-      <Form form={form} layout="vertical" initialValues={quotationSetting} onFinish={handleSubmit}>
+      <Form
+        form={form}
+        layout="vertical"
+        initialValues={quotationSetting}
+        onFinish={handleSubmit}
+        disabled={isDisabled}
+      >
         {/* --- Switch Settings Section --- */}
         <Form.Item
           label="Allow 'Save as New Version' Option in Quotation"
           name="allowSaveAsNewVersion"
           valuePropName="checked"
         >
-          <Switch disabled={isDisabled} />
+          <Switch />
         </Form.Item>
 
         <Form.Item
@@ -80,7 +93,7 @@ export const Quotation: React.FC = () => {
           valuePropName="checked"
           extra="When contact details are marked as mandatory, user cannot issue quotation (Preview / Email)."
         >
-          <Switch disabled={isDisabled} />
+          <Switch />
         </Form.Item>
 
         <Form.Item
@@ -89,7 +102,7 @@ export const Quotation: React.FC = () => {
           valuePropName="checked"
           extra="User can only view or add pricelist items in quotation after selecting the dwelling type."
         >
-          <Switch disabled={isDisabled} />
+          <Switch />
         </Form.Item>
 
         <Form.Item
@@ -98,7 +111,7 @@ export const Quotation: React.FC = () => {
           valuePropName="checked"
           extra="Lead cannot be closed won without a Sketch Number for the approved quotation."
         >
-          <Switch disabled={isDisabled} />
+          <Switch />
         </Form.Item>
 
         <Form.Item
@@ -106,23 +119,23 @@ export const Quotation: React.FC = () => {
           name="mandatoryLandTitle"
           valuePropName="checked"
         >
-          <Switch disabled={isDisabled} />
+          <Switch />
         </Form.Item>
 
         <Form.Item label="Enable Dwelling Size" name="enableDwellingSize" valuePropName="checked">
-          <Switch disabled={isDisabled} />
+          <Switch />
         </Form.Item>
 
         <Form.Item label="Enable Builder Cost" name="enableBuilderCost" valuePropName="checked">
-          <Switch disabled={isDisabled} />
+          <Switch />
         </Form.Item>
 
         <Form.Item label="Allow Notes in Quotation" name="allowNotes" valuePropName="checked">
-          <Switch disabled={isDisabled} />
+          <Switch />
         </Form.Item>
 
         <Form.Item label="Allow Cost Adjustment" name="allowCostAdjustment" valuePropName="checked">
-          <Switch disabled={isDisabled} />
+          <Switch />
         </Form.Item>
 
         <Form.Item
@@ -130,7 +143,7 @@ export const Quotation: React.FC = () => {
           name="showNotesByDefault"
           valuePropName="checked"
         >
-          <Switch disabled={isDisabled} />
+          <Switch />
         </Form.Item>
 
         <Form.Item
@@ -138,7 +151,7 @@ export const Quotation: React.FC = () => {
           name="allowMultiplePackages"
           valuePropName="checked"
         >
-          <Switch disabled={isDisabled} />
+          <Switch />
         </Form.Item>
 
         <Form.Item
@@ -146,7 +159,7 @@ export const Quotation: React.FC = () => {
           name="includeAdditionalItemsInPriceAdjustedList"
           valuePropName="checked"
         >
-          <Switch disabled={isDisabled} />
+          <Switch />
         </Form.Item>
 
         <Form.Item
@@ -155,7 +168,7 @@ export const Quotation: React.FC = () => {
           valuePropName="checked"
           extra="Enabling this option will automatically update the quotation status to Approved when closing a lead/opportunity as WON."
         >
-          <Switch disabled={isDisabled} />
+          <Switch />
         </Form.Item>
 
         <Form.Item
@@ -163,7 +176,7 @@ export const Quotation: React.FC = () => {
           name="showDefaultPricelistInAdditionalItems"
           valuePropName="checked"
         >
-          <Switch disabled={isDisabled} />
+          <Switch />
         </Form.Item>
 
         <Form.Item
@@ -172,7 +185,7 @@ export const Quotation: React.FC = () => {
           valuePropName="checked"
           extra="The quotations issued by the builders checked below will hide the price of individual variations and facades from their customers."
         >
-          <Switch disabled={isDisabled} />
+          <Switch />
         </Form.Item>
 
         <Form.Item
@@ -181,7 +194,7 @@ export const Quotation: React.FC = () => {
           valuePropName="checked"
           extra="When this toggle is enabled, user can view the price range while viewing the quotation in PDF."
         >
-          <Switch disabled={isDisabled} />
+          <Switch />
         </Form.Item>
 
         {/* Conditional Field: Estimated Price Range */}

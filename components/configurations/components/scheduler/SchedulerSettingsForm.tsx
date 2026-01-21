@@ -18,7 +18,12 @@ interface SchedulerSettingsFormProps {
   isSubmitting?: boolean;
 }
 
-export const SchedulerSettingsForm: React.FC<SchedulerSettingsFormProps> = ({ data, onCancel, onSave, isSubmitting = false }) => {
+export const SchedulerSettingsForm: React.FC<SchedulerSettingsFormProps> = ({
+  data,
+  onCancel,
+  onSave,
+  isSubmitting = false,
+}) => {
   const { userOptions } = useUsersHook();
   const [formData, setFormData] = useState<SchedulerSettings>(data);
 
@@ -30,21 +35,21 @@ export const SchedulerSettingsForm: React.FC<SchedulerSettingsFormProps> = ({ da
     multiple: true,
     fileList: Array.isArray(formData.attachFiles)
       ? (formData.attachFiles || []).map((file: any, index: number) => ({
-        uid: file.uid || `file-${index}-${file.name}`,
-        name: file.name,
-        status: 'done' as const,
-        originFileObj: file,
-      }))
+          uid: file.uid || `file-${index}-${file.name}`,
+          name: file.name,
+          status: 'done' as const,
+          originFileObj: file,
+        }))
       : typeof formData.attachFiles === 'string' && formData.attachFiles
         ? [
-          {
-            uid: 'existing-file',
-            name: 'attachment',
-            status: 'done' as const,
-            url: formData.attachFiles,
-            originFileObj: null,
-          },
-        ]
+            {
+              uid: 'existing-file',
+              name: 'attachment',
+              status: 'done' as const,
+              url: formData.attachFiles,
+              originFileObj: null,
+            },
+          ]
         : [],
     beforeUpload: () => false,
     onChange: ({ fileList }: any) => {
@@ -77,7 +82,10 @@ export const SchedulerSettingsForm: React.FC<SchedulerSettingsFormProps> = ({ da
     }
 
     try {
-      const updatedFields = getUpdatedFields(formData, data || {});
+      const { isUpdated, updatedFields } = getUpdatedFields(formData, data || {});
+      if (!isUpdated) {
+        return;
+      }
       onSave(updatedFields);
     } catch (error) {
       message.error(error || 'Failed to save scheduler settings');
@@ -208,18 +216,10 @@ export const SchedulerSettingsForm: React.FC<SchedulerSettingsFormProps> = ({ da
       </div>
 
       <div className="flex justify-end gap-2">
-        <Button
-          onClick={onCancel}
-          disabled={isSubmitting}
-        >
+        <Button onClick={onCancel} disabled={isSubmitting}>
           Cancel
         </Button>
-        <Button
-          type="primary"
-          onClick={handleSave}
-          loading={isSubmitting}
-          disabled={isSubmitting}
-        >
+        <Button type="primary" onClick={handleSave} loading={isSubmitting} disabled={isSubmitting}>
           {isSubmitting ? 'Saving...' : 'Save'}
         </Button>
       </div>

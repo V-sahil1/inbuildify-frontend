@@ -135,14 +135,14 @@ const Checklist = () => {
     if (!validateForm()) {
       return;
     }
-   
+
     let prevCheklist = checklist.find(i => i.checklistId === id);
-    const updatedFields = getUpdatedFields(formRow, {
+    const { isUpdated, updatedFields } = getUpdatedFields(formRow, {
       name: prevCheklist.name,
       functionalityId: prevCheklist.functionality.id,
       screenId: prevCheklist.screen.id,
     });
-    if (Object.keys(updatedFields).length === 0) {
+    if (!isUpdated) {
       setEditingId(null);
       return;
     }
@@ -151,7 +151,7 @@ const Checklist = () => {
       setEditingId(null);
     } catch (error) {
       message.error(error || 'Failed to update checklist');
-    }   
+    }
   };
 
   const handleCancelEdit = () => {
@@ -210,7 +210,7 @@ const Checklist = () => {
                 value={formRow.screenId}
                 options={screenOption}
                 style={{ width: '100%' }}
-                onChange={val => setFormRow({ ...formRow, screenId: val ,functionalityId:''})}
+                onChange={val => setFormRow({ ...formRow, screenId: val, functionalityId: '' })}
                 disabled={status.create === Status.PENDING}
               />
               {error?.screenId && <span className="text-red-500">{error?.screenId}</span>}

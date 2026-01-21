@@ -58,8 +58,8 @@ const BuilderDetails = () => {
         if (fileList.length > 0) {
           values.logo = fileList[0].originFileObj;
         }
-        const updatedFields = getUpdatedFields(values, builder);
-        if (Object.keys(updatedFields).length === 0) {
+        const { isUpdated, updatedFields } = getUpdatedFields(values, builder);
+        if (!isUpdated) {
           return;
         }
         const formData = formDataGenerator(updatedFields);
@@ -72,8 +72,8 @@ const BuilderDetails = () => {
   };
 
   const handleValueChange = (_, allValues: BuilderInfo) => {
-    const updatedFields = getUpdatedFields(allValues, builder);
-    setIsChanged(Object.keys(updatedFields).length > 0);
+    const { isUpdated } = getUpdatedFields(allValues, builder);
+    setIsChanged(isUpdated);
   };
 
   return (

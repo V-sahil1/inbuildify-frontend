@@ -43,8 +43,8 @@ export const Invoice: React.FC = () => {
 
   const hasUnsavedChanges = useMemo(() => {
     if (!jobInvoiceSetting) return false;
-    const changedFields = getUpdatedFields(invoiceSettings, jobInvoiceSetting);
-    return Object.keys(changedFields).length > 0;
+    const { isUpdated } = getUpdatedFields(invoiceSettings, jobInvoiceSetting);
+    return isUpdated;
   }, [invoiceSettings, jobInvoiceSetting]);
 
   const fetchJobInvoiceSettingData = useCallback(async () => {
@@ -144,14 +144,14 @@ export const Invoice: React.FC = () => {
   const handleSaveInvoiceSettings = async () => {
     if (!invoiceSettings || !jobInvoiceSetting) return false;
 
-    const updatedSetting = getUpdatedFields(invoiceSettings, jobInvoiceSetting);
-    if (Object.keys(updatedSetting).length === 0) {
+    const { isUpdated, updatedFields } = getUpdatedFields(invoiceSettings, jobInvoiceSetting);
+    if (!isUpdated) {
       message.info('No changes to save');
       return;
     }
 
     try {
-      await dispatch(updateJobInvoiceSetting(updatedSetting)).unwrap();
+      await dispatch(updateJobInvoiceSetting(updatedFields)).unwrap();
     } catch (error) {
       message.error(error || 'Failed to update Invoice setting');
     }

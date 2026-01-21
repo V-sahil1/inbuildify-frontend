@@ -39,10 +39,16 @@ export const CustomerPortal = () => {
     if (customer && Object.keys(customer).length > 0) {
       form.resetFields();
       form.setFieldsValue(customer);
-      if (customer.portalActiveDaysAfterHandover !== undefined && customer.portalActiveDaysAfterHandover !== null) {
+      if (
+        customer.portalActiveDaysAfterHandover !== undefined &&
+        customer.portalActiveDaysAfterHandover !== null
+      ) {
         setPortalDaysValue(customer.portalActiveDaysAfterHandover);
         setTimeout(() => {
-          form.setFieldValue('portalActiveDaysAfterHandover', customer.portalActiveDaysAfterHandover);
+          form.setFieldValue(
+            'portalActiveDaysAfterHandover',
+            customer.portalActiveDaysAfterHandover
+          );
         }, 0);
       }
       if (customer.defaultFacadeImage) {
@@ -59,16 +65,20 @@ export const CustomerPortal = () => {
   }, [status.fetch, customer]);
 
   const handleValuesChange = (_, allValues: CustomerPortalInfo) => {
-    const updatedFields = getUpdatedFields(allValues, customer || {});
-    const hasChanges = Object.keys(updatedFields).length > 0;
-    setIsChanged(hasChanges);
+    const { isUpdated } = getUpdatedFields(allValues, customer || {});
+    setIsChanged(isUpdated);
   };
 
   const handleSave = async () => {
     try {
       const formValues = form.getFieldsValue();
 
-      const updatedFields = getUpdatedFields(formValues, customer || {});
+      const { isUpdated, updatedFields } = getUpdatedFields(formValues, customer || {});
+
+      if (!isUpdated) {
+        setIsChanged(false);
+        return;
+      }
 
       if (
         formValues.portalActiveDaysAfterHandover !== null &&
@@ -163,7 +173,10 @@ export const CustomerPortal = () => {
                   const value = e.target.value ? Number(e.target.value) : null;
                   setPortalDaysValue(value);
                   form.setFieldValue('portalActiveDaysAfterHandover', value);
-                  if (value !== null && value !== Number(customer?.portalActiveDaysAfterHandover || 0)) {
+                  if (
+                    value !== null &&
+                    value !== Number(customer?.portalActiveDaysAfterHandover || 0)
+                  ) {
                     setIsChanged(true);
                   }
                 }}
@@ -272,7 +285,7 @@ export const CustomerPortal = () => {
         )}
 
         <div className="text-right mt-6 flex justify-between items-center">
-          <div className="flex justify-start mt-2"/>
+          <div className="flex justify-start mt-2" />
 
           {isChanged && (
             <Button type="primary" onClick={() => setShowConfirm(true)}>

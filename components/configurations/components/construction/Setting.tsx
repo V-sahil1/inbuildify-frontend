@@ -44,22 +44,18 @@ export const SettingPage = () => {
   }, [status.fetch]);
 
   const handleValuesChange = (_, allValues) => {
-    const updatedFields = getUpdatedFields(allValues, constructionSetting);  
-   if(Object.keys(updatedFields).length > 0){
-    setIsChanged(true);
-    return;
-   }
-    setIsChanged(false);  
+    const {isUpdated} = getUpdatedFields(allValues, constructionSetting);  
+    setIsChanged(isUpdated)
   };
 
   const handleSave = async () => {
     const values: ConstructionSetting = await form.getFieldsValue();
     try {
-      const updatedFields = getUpdatedFields(
+      const {isUpdated,updatedFields} = getUpdatedFields(
         { ...values, applyChangesAllExistingJobs },
         constructionSetting
       );
-      if (Object.keys(updatedFields).length === 0) {
+      if (!isUpdated) {
         setIsChanged(false);
         return;
       }

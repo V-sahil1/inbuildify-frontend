@@ -173,14 +173,14 @@ export function Stages() {
           fontColor: local.fontColor,
           sortOrder: local.sortOrder,
         };
-        const updatedFields = getUpdatedFields(updatedValues, selectedStage);
-        if (Object.keys(updatedFields).length === 0) {
+        const {isUpdated,updatedFields} = getUpdatedFields(updatedValues, selectedStage);
+        if (!isUpdated) {
           setSelectedStage(null);
           setEditingId(null);
           setLocal(null);
           return;
         }
-        await dispatch(updateStage({ data: updatedValues, id })).unwrap();
+        await dispatch(updateStage({ data: updatedFields, id })).unwrap();
         message.success('Stage updated');
       }
       setEditingId(null);

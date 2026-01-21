@@ -35,14 +35,14 @@ export const PasswordPolicy: React.FC = () => {
   }
   const onFinish = async (values: passwordPolicy) => {
     try {
-      const updatedValues = getUpdatedFields<passwordPolicy>(values, passwordPolicy); 
-      if (Object.keys(updatedValues).length === 0) {
+      const { isUpdated, updatedFields } = getUpdatedFields<passwordPolicy>(values, passwordPolicy);
+      if (!isUpdated) {
         message.info('No changes detected');
         return;
       }
       await dispatch(
         updatePasswordPolicy({
-          data: updatedValues,
+          data: updatedFields,
           passwordPolicyId: passwordPolicy.passwordPolicyId,
         })
       ).unwrap();

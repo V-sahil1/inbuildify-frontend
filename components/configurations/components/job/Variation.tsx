@@ -83,8 +83,8 @@ export const Variation = () => {
     try {
       if (values) {
         if (editingVariation) {
-          const updatedFields = getUpdatedFields(values, editingVariation);
-          if (Object.keys(updatedFields).length === 0) {
+          const { isUpdated, updatedFields } = getUpdatedFields(values, editingVariation);
+          if (!isUpdated) {
             setIsModalOpen(false);
             setEditingVariation(null);
             return;
@@ -116,8 +116,8 @@ export const Variation = () => {
   const handleSave = async () => {
     const values: JobVariationSetting = form.getFieldsValue();
     try {
-      const updatedFields = getUpdatedFields(values, jobVariationSetting);
-      if (Object.keys(updatedFields).length === 0) {
+      const { isUpdated, updatedFields } = getUpdatedFields(values, jobVariationSetting);
+      if (!isUpdated) {
         setIsChanged(false);
         return;
       }

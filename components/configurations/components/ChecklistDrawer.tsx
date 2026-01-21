@@ -18,17 +18,17 @@ import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { RootState } from '@redux/feature/store';
 import { Status } from '@lib/constants/enum';
 import { fetchAllType } from '@redux/feature/admin/construction/constructionType/constructionTypeThunk';
-import { fetchAllStage } from '@redux/feature/admin/construction/constructionStage/constructionStageThunk';
+import { fetchAllConstructionStage } from '@redux/feature/admin/construction/constructionStage/constructionStageThunk';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import { checklist, checklistItem } from '@redux/feature/admin/general/checklist/IChecklistState';
-import { Type } from '@redux/feature/admin/construction/constructionType/IConstructionTypeState';
-import { Stage } from '@redux/feature/admin/construction/constructionStage/IConstructionStageState';
 import {
   createChecklistItem,
   deleteChecklistItem,
   fetchAllChecklistItem,
   updateChecklistItem,
 } from '@redux/feature/admin/general/checklist/checklistThunk';
+import { ConstructionType } from '@redux/feature/admin/construction/constructionType/IConstructionTypeState';
+import { ConstructionStage } from '@redux/feature/admin/construction/constructionStage/IConstructionStageState';
 
 interface ChecklistDrawerProps {
   open: boolean;
@@ -61,9 +61,17 @@ const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({ open, onClose, record
     sortOrder: string;
   } | null>(null);
   const typeOption =
-    type && type.map((item: Type) => ({ label: item.typesName, value: item.constructionTypeId }));
+    type &&
+    type.map((item: ConstructionType) => ({
+      label: item.typesName,
+      value: item.constructionTypeId,
+    }));
   const stageOption =
-    stage && stage.map((item: Stage) => ({ label: item.stageName, value: item.constructionStage }));
+    stage &&
+    stage.map((item: ConstructionStage) => ({
+      label: item.stageName,
+      value: item.constructionStage,
+    }));
 
   useEffect(() => {
     fetchData();
@@ -81,14 +89,14 @@ const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({ open, onClose, record
   async function fetchData() {
     if (typeStatus.fetch === Status.IDLE) {
       try {
-        await dispatch(fetchAllType()).unwrap();
+        await dispatch(fetchAllType({})).unwrap();
       } catch (error) {
         message.error(error || 'failed to fetch type');
       }
     }
     if (stageStatus.fetch === Status.IDLE) {
       try {
-        await dispatch(fetchAllStage()).unwrap();
+        await dispatch(fetchAllConstructionStage()).unwrap();
       } catch (error) {
         message.error(error || 'Failed to fetch stages');
       }
@@ -180,11 +188,11 @@ const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({ open, onClose, record
         ).unwrap();
         message.success('Created successfully');
       } else {
-        const updatedFields = getUpdatedFields(
+        const { isUpdated, updatedFields } = getUpdatedFields(
           payload,
           checklistItem.find(item => item.checklistItemId === editingKey)
         );
-        if (Object.keys(updatedFields).length === 0) {
+        if (!isUpdated) {
           message.info('No changes made');
           return;
         }

@@ -88,8 +88,8 @@ const CompanyDetails = () => {
   };
 
   const handleValueChange = (_, allValues) => {
-    const updatedFields = getUpdatedFields(allValues, company);
-    setIsChanged(Object.keys(updatedFields).length > 0);
+    const { isUpdated } = getUpdatedFields(allValues, company);
+    setIsChanged(isUpdated);
   };
 
   return (

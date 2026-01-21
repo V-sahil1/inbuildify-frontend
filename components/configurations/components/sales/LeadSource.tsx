@@ -109,11 +109,11 @@ export const LeadSource: React.FC = () => {
         await dispatch(createleadSource({ name, sortOrder, allowChange, isActive: true })).unwrap();
         message.success('leadsource created successfully');
       } else {
-        const updatedFields = getUpdatedFields(
+        const { isUpdated, updatedFields } = getUpdatedFields(
           { name, sortOrder, allowChange },
           leadSource.find(i => i.leadSourceId === id)
         );
-        if (Object.keys(updatedFields).length == 0) {
+        if (!isUpdated) {
           setEditingId(null);
           setIsAdding(false);
           return;

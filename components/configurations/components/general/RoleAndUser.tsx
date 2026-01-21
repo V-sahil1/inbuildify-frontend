@@ -129,9 +129,9 @@ const RoleAndUser: React.FC = () => {
           type: item.roleType?.id,
           user: item.user?.id,
         };
-        const updatedFields = getUpdatedFields(row, initialValues);
+        const { isUpdated, updatedFields } = getUpdatedFields(row, initialValues);
 
-        if (Object.keys(updatedFields).length === 0) {
+        if (!isUpdated) {
           message.info('Updated successfully');
           setEditingKey('');
           return;

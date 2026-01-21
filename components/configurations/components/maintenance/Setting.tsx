@@ -45,17 +45,17 @@ export const SettingPage = () => {
 
   const handleValuesChange = (_, allValues) => {
     if (!maintenanceSetting) return;
-    const updatedFields = getUpdatedFields(allValues, maintenanceSetting);
-    setIsChanged(Object.keys(updatedFields).length > 0);
+    const { isUpdated } = getUpdatedFields(allValues, maintenanceSetting);
+    setIsChanged(isUpdated);
   };
 
   const handleSave = async () => {
     try {
       if (!maintenanceSetting) return;
       const currentValues = form.getFieldsValue();
-      const updatedFields = getUpdatedFields(currentValues, maintenanceSetting);
+      const { isUpdated, updatedFields } = getUpdatedFields(currentValues, maintenanceSetting);
 
-      if (Object.keys(updatedFields).length === 0) {
+      if (!isUpdated) {
         setIsChanged(false);
         return;
       }

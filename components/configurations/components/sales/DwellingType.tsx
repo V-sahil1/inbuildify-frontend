@@ -24,7 +24,6 @@ import { dwellingType } from '@redux/feature/admin/sales/dwellingType/IDwelingTy
 export const DwellingType: React.FC = () => {
   const dispatch = useAppDispatch();
   const { dwellingType, status } = useAppSelector(state => state.sales.dwellingType);
-  // const [data, setData] = useState<any[]>(DwellingTypeData);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingRow, setEditingRow] = useState<Partial<dwellingType>>({});
   const [isAdding, setIsAdding] = useState(false);
@@ -54,11 +53,10 @@ export const DwellingType: React.FC = () => {
   // === ADD ===
   const handleAdd = () => {
     const newRow: dwellingType = {
-      dwellingTypeId: '', // temporary negative ID
+      dwellingTypeId: '', 
       name: '',
       isActive: true,
     };
-    // setData(prev => [newRow, ...prev]); // add at top
     setEditingId(newRow.dwellingTypeId);
     setEditingRow(newRow);
     setIsAdding(true);
@@ -104,7 +102,6 @@ export const DwellingType: React.FC = () => {
 
   const cancelEdit = () => {
     if (isAdding && editingId) {
-      // setData(prev => prev.filter(item => item.id !== editingId));
       setIsAdding(false);
     }
     setEditingId(null);
@@ -132,7 +129,6 @@ export const DwellingType: React.FC = () => {
     } catch (error) {
       message.error('Failed to deactivate dwelling type');
     }
-    // setData(prev => prev.map(p => (p.id === row.id ? { ...p, isActive: false } : p)));
   };
 
   const handleActivateConfirm = async () => {
@@ -147,7 +143,6 @@ export const DwellingType: React.FC = () => {
     } catch (error) {
       message.error('Failed to deactivate dwelling type');
     }
-    // setData(prev => prev.map(p => (p.id === row.id ? { ...p, isActive: true } : p)));
   };
 
   // === COLUMNS ===
@@ -163,7 +158,7 @@ export const DwellingType: React.FC = () => {
       ),
       dataIndex: 'name',
       key: 'name',
-      render: (_: any, record: dwellingType) => {
+      render: (_, record: dwellingType) => {
         const isEditing = editingId === record.dwellingTypeId;
         if (!record.isActive) {
           return <span className="text-gray-400 italic">{record.name}</span>;
@@ -185,7 +180,7 @@ export const DwellingType: React.FC = () => {
     {
       title: '',
       width: 160,
-      render: (_: any, row: dwellingType) => {
+      render: (_, row: dwellingType) => {
         const inactive = row.isActive === false;
         const editing = editingId === row.dwellingTypeId;
 

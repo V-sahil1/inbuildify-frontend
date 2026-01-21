@@ -80,11 +80,11 @@ export const FileNaming = () => {
   const handleSave = async values => {
     try {
       if (selectedRecord) {
-        const updatedFields = getUpdatedFields(values, {
+        const {isUpdated, updatedFields} = getUpdatedFields(values, {
           fileType: selectedRecord.fileType,
           folderIds: selectedRecord.folderNames.map(i => i.id),
         });
-        if (Object.keys(updatedFields).length === 0) {
+        if (!isUpdated) {
           setModelOpen(null);
           setSelectedRecord(null);
           return;

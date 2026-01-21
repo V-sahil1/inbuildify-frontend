@@ -21,7 +21,6 @@ import {
 import {
   JobPredecessorTask,
   JobProcessTask,
-  JobProcessSubTask,
 } from '@redux/feature/admin/job/jobProcess/IJobProcessState';
 
 interface PredecessorWithId extends JobPredecessorTask {
