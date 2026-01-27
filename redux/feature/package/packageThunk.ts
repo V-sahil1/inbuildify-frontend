@@ -3,38 +3,17 @@ import api from '@lib/constants/api';
 import { ApiResponse } from '../auth/IAuthState';
 import API_ENDPOINTS from '@lib/constants/apiEndpoints';
 import { Item } from '../masterPriceList/iMasterPriceListState';
-import { Package } from './IPackageState';
-
-type createPackagePayload = {
-  name: string;
-  category_item_ids: string[];
-  amount: number;
-  range?: string;
-  dwelling_type?: string;
-};
-
-type updatePackagePayload = {
-  id: string;
-  name?: string;
-  category_item_ids?: string[];
-  amount?: number;
-};
+import { GroupType, Package, PackageFetchParams } from './IPackageState';
+import { CommonPagination } from '../common/ICommonState';
 
 export const fetchPackages = createAsyncThunk(
   'packages/fetchAll',
-  async (filters: { range?: string; dwelling_type?: string } = {}, { rejectWithValue }) => {
+  async (params: PackageFetchParams = {}, { rejectWithValue }) => {
     try {
-      let url = API_ENDPOINTS.GET_PACKAGES;
-
-      // Add query parameters if filters are provided
-      if (filters && (filters.range || filters.dwelling_type)) {
-        const queryParams = new URLSearchParams();
-        if (filters.range) queryParams.append('range', filters.range);
-        if (filters.dwelling_type) queryParams.append('dwelling_type', filters.dwelling_type);
-        url = `${API_ENDPOINTS.GET_PACKAGES}?${queryParams.toString()}`;
-      }
-
-      const res = await api.get<ApiResponse<Package[]>>(url);
+      const res = await api.get<ApiResponse<{ package: Package[]; pagination: CommonPagination }>>(
+        API_ENDPOINTS.PACKAGE_BASE,
+        { params }
+      );
       return res.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -81,9 +60,9 @@ export const fetchPackageItems = createAsyncThunk(
 
 export const createPackage = createAsyncThunk(
   'packages/create',
-  async (payload: createPackagePayload, { rejectWithValue }) => {
+  async (payload: Package, { rejectWithValue }) => {
     try {
-      const res = await api.post<ApiResponse<Package>>(API_ENDPOINTS.CREATE_PACKAGE, {
+      const res = await api.post<ApiResponse<Package>>(API_ENDPOINTS.PACKAGE_BASE, {
         data: payload,
       });
       return res.data;
@@ -95,12 +74,14 @@ export const createPackage = createAsyncThunk(
 
 export const updatePackage = createAsyncThunk(
   'packages/update',
-  async (payload: updatePackagePayload, { rejectWithValue }) => {
+  async (payload: { id: string; data: Partial<Package> }, { rejectWithValue }) => {
     try {
-      const { id, ...rest } = payload;
-      const res = await api.post<ApiResponse<Package>>(API_ENDPOINTS.PACKAGE_BASE + '/' + id, {
-        data: rest,
-      });
+      const res = await api.post<ApiResponse<Package>>(
+        API_ENDPOINTS.PACKAGE_BASE + '/' + payload.id,
+        {
+          data: payload.data,
+        }
+      );
       return res.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -112,8 +93,65 @@ export const deletePackage = createAsyncThunk(
   'packages/delete',
   async (id: string, { rejectWithValue }) => {
     try {
-      const res = await api.delete<ApiResponse<Package>>(API_ENDPOINTS.PACKAGE_BASE + '/' + id);
+      const res = await api.delete<ApiResponse>(API_ENDPOINTS.PACKAGE_BASE + '/' + id);
       return { id };
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const fetchPackageGroup = createAsyncThunk(
+  'packages/fetchGroup',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await api.get<
+        ApiResponse<{ packageGroups: GroupType[]; pagination: CommonPagination }>
+      >(API_ENDPOINTS.PACKAGE_GROUP);
+      return res.data.packageGroups;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const createPackageGroup = createAsyncThunk(
+  'packages/createGroup',
+  async (payload: GroupType, { rejectWithValue }) => {
+    try {
+      const res = await api.post<ApiResponse<GroupType>>(API_ENDPOINTS.PACKAGE_GROUP, {
+        data: payload,
+      });
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const updatePackageGroup = createAsyncThunk(
+  'packages/updateGroup',
+  async (payload: { id: string; data: Partial<GroupType> }, { rejectWithValue }) => {
+    try {
+      const res = await api.put<ApiResponse<GroupType>>(
+        API_ENDPOINTS.PACKAGE_GROUP + '/' + payload.id,
+        {
+          data: payload.data,
+        }
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const deletePackageGroup = createAsyncThunk(
+  'packages/deleteGroup',
+  async (payload: { id: string; packageId: string }, { rejectWithValue }) => {
+    try {
+      const res = await api.delete<ApiResponse>(API_ENDPOINTS.PACKAGE_GROUP + '/' + payload.id);
+      return { id: payload.id, packageId: payload.packageId };
     } catch (error) {
       return rejectWithValue(error.message);
     }

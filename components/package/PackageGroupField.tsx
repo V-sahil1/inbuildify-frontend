@@ -1,13 +1,26 @@
 import { IconPlus, IconX } from '@tabler/icons-react';
-import { Button, Input, List, Popover} from 'antd';
+import { Button, Form, Input, List, Popover } from 'antd';
 import { useState } from 'react';
 
-export const PackageGroupField = ({ form, formName, label }) => {
+export const PackageGroupField = ({
+  form,
+  formName,
+  label,
+  data,
+  fields,
+  onSubmit,
+}: {
+  form: any;
+  formName: string;
+  label: string;
+  data?: any[];
+  fields?: any;
+  onSubmit?: (values: any, selectedValue: any) => void;
+}) => {
+  const [childForm] = Form.useForm();
   const selected: string[] = form.getFieldValue(formName) || [];
-  const [availableRegions, setAvailableRegions] = useState<string[]>([]);
   const [search, setSearch] = useState('');
   const [open, setOpen] = useState(false);
-  const [editName, setEditName] = useState('');
   const [editingRegion, setEditingRegion] = useState<string | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
 
@@ -23,6 +36,11 @@ export const PackageGroupField = ({ form, formName, label }) => {
     }
   };
 
+  const getLabelById = (id: string) => {
+    const item = data?.find(item => item.id === id);
+    return item?.name || id;
+  };
+
   const removeRegion = (name: string) => {
     const current: string[] = form.getFieldValue(formName) || [];
     form.setFieldValue(
@@ -31,49 +49,30 @@ export const PackageGroupField = ({ form, formName, label }) => {
     );
   };
 
-  const handleCreateRegion = () => {
-    const trimmed = editName.trim();
-    if (!trimmed) return;
-    setAvailableRegions(prev => {
-      if (editingRegion) {
-        const updated = prev.map(r => (r === editingRegion ? trimmed : r));
-        const current: string[] = form.getFieldValue(formName) || [];
-        if (current.includes(editingRegion)) {
-          form.setFieldValue(
-            formName,
-            current.map(r => (r === editingRegion ? trimmed : r))
-          );
-        }
-        return updated;
-      }
-      return prev.includes(trimmed) ? prev : [...prev, trimmed];
-    });
-    setEditName('');
+  const handleSubmit = (values: any) => {
+    onSubmit?.(values, editingRegion);
     setEditingRegion(null);
     setCreateOpen(false);
   };
 
-  const filteredRegions = availableRegions.filter(r =>
-    r.toLowerCase().includes(search.toLowerCase())
-  );
+  // const filteredRegions = data?.filter(r => r.toLowerCase().includes(search.toLowerCase()));
 
   const createPopoverContent = (
     <div className="w-56">
       <div className="mb-1 text-xs font-semibold">
         {editingRegion ? `Edit ${label}` : `Create ${label}`}
       </div>
-      <div className="flex gap-2">
-        <Input
-          value={editName}
-          onChange={e => setEditName(e.target.value)}
-          placeholder="Name"
-          size="small"
-          onPressEnter={handleCreateRegion}
-        />
-        <Button type="primary" size="small" onClick={handleCreateRegion}>
+      <Form form={childForm} onFinish={handleSubmit}>
+        {fields?.map((field, index) => (
+          <Form.Item key={index} name={field.name} label={field.label}>
+            {field.type === 'text' && <Input />}
+            {field.type === 'number' && <Input type="number" />}
+          </Form.Item>
+        ))}
+        <Button type="primary" size="small" htmlType="submit">
           Save
         </Button>
-      </div>
+      </Form>
     </div>
   );
 
@@ -89,7 +88,6 @@ export const PackageGroupField = ({ form, formName, label }) => {
           onOpenChange={visible => {
             setCreateOpen(visible);
             if (!visible) {
-              setEditName('');
               setEditingRegion(null);
             }
           }}
@@ -99,7 +97,7 @@ export const PackageGroupField = ({ form, formName, label }) => {
             type="default"
             onClick={() => {
               setEditingRegion(null);
-              setEditName('');
+              childForm.resetFields();
             }}
           >
             <IconPlus size={18} /> {label}
@@ -111,22 +109,22 @@ export const PackageGroupField = ({ form, formName, label }) => {
         value={search}
         onChange={e => setSearch(e.target.value)}
       />
-      {filteredRegions.length === 0 ? (
+      {data?.length === 0 ? (
         <div className="py-4 text-center text-xs text-gray-500">
           <div className="font-medium mb-1">No records found.</div>
         </div>
       ) : (
         <List
           size="small"
-          dataSource={filteredRegions}
+          dataSource={data}
           renderItem={item => (
             <List.Item
               className={`cursor-pointer px-2 flex items-center justify-between ${
-                selected.includes(item) ? 'bg-gray-100' : ''
+                selected.includes(item.id) ? 'bg-gray-100' : ''
               }`}
             >
-              <div onClick={() => toggleRegion(item)} className="flex-1 flex items-center">
-                <span>{item}</span>
+              <div onClick={() => toggleRegion(item.id)} className="flex-1 flex items-center">
+                <span>{item.name}</span>
               </div>
               <Button
                 type="link"
@@ -134,7 +132,7 @@ export const PackageGroupField = ({ form, formName, label }) => {
                 onClick={e => {
                   e.stopPropagation();
                   setEditingRegion(item);
-                  setEditName(item);
+                  childForm.setFieldsValue(item);
                   setCreateOpen(true);
                 }}
               >
@@ -151,11 +149,11 @@ export const PackageGroupField = ({ form, formName, label }) => {
     <div className="flex gap-2 items-center">
       <div className="flex flex-wrap gap-1">
         {selected &&
-          selected.length > 0 &&
+          selected?.length > 0 &&
           selected.map(region => (
             <Button key={region} size="small" type="primary">
               <span className="flex items-center gap-2">
-                {region} <IconX size={15} onClick={() => removeRegion(region)} />
+                {getLabelById(region)} <IconX size={15} onClick={() => removeRegion(region)} />
               </span>
             </Button>
           ))}

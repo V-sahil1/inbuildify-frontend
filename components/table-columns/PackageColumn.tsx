@@ -1,33 +1,20 @@
-import { Badge, Button, Input, Select, Tooltip } from 'antd';
+import { Badge, Button, Input, message, Select, Tag, Tooltip } from 'antd';
 import DwellingTypeSelect from '../common/custom-selects/DwellingTypeSelect';
 import StatusSelect from '../common/custom-selects/StatusSelect';
-import { IconDeviceIpadDollar, IconRotate, IconTrash } from '@tabler/icons-react';
+import { IconDeviceIpadDollar, IconPlus, IconRotate, IconTrash } from '@tabler/icons-react';
+import { useAppDispatch } from '@hooks/redux';
+import { createPackage, updatePackage } from '@redux/feature/package/packageThunk';
+import TooltipButton from '../common/TooltipButton';
 
-export const PackageColumn = ({ filters, setParams, setDrawerOpen }) => {
-  const packageData = [
-    {
-      id: '1',
-      name: 'Premium Package',
-      cost: 10000.0,
-      add: 'Yes',
-      remove: 'No',
-      sort: 1,
-      label: '',
-      dwellingType: 'Single Story',
-      status: 'Active',
-    },
-    {
-      id: '2',
-      name: 'Summer Pack',
-      cost: 10000.0,
-      add: 'Yes',
-      remove: 'No',
-      sort: 4,
-      label: '',
-      dwellingType: 'Single Story',
-      status: 'InActive',
-    },
-  ];
+export const PackageColumn = ({
+  filters,
+  setParams,
+  setDrawerOpen,
+  setSelectedPackage,
+  selectedPackage,
+}) => {
+  const dispatch = useAppDispatch();
+
   const column = [
     {
       title: (
@@ -38,12 +25,24 @@ export const PackageColumn = ({ filters, setParams, setDrawerOpen }) => {
       ),
       dataIndex: 'name',
       key: 'name',
+      render: (_, record) => (
+        <div>
+          <p>{record.name}</p>
+          {record?.packageGroup?.map(i => (
+            <Tag key={i}>{i.name}</Tag>
+          ))}
+        </div>
+      ),
     },
     {
       title: (
         <div className="flex flex-col">
           <span className="font-medium text-gray-700">Cost</span>
-          <Input type='number' value={filters.cost} onChange={e => setParams({ cost: e.target.value })} />
+          <Input
+            type="number"
+            value={filters.cost}
+            onChange={e => setParams({ cost: e.target.value })}
+          />
         </div>
       ),
       dataIndex: 'cost',
@@ -66,6 +65,7 @@ export const PackageColumn = ({ filters, setParams, setDrawerOpen }) => {
       dataIndex: 'add',
       key: 'add',
       width: 150,
+      render: (_, record) => (record.allowAddItemFromPricelist ? 'Yes' : 'No'),
     },
     {
       title: (
@@ -84,16 +84,21 @@ export const PackageColumn = ({ filters, setParams, setDrawerOpen }) => {
       dataIndex: 'remove',
       key: 'remove',
       width: 150,
+      render: (_, record) => (record.allowRemovePackageItems ? 'Yes' : 'No'),
     },
     {
       title: (
         <div className="flex flex-col">
           <span className="font-medium text-gray-700">Sort Order</span>
-          <Input type='number' value={filters.sort} onChange={e => setParams({ sort: e.target.value })} />
+          <Input
+            type="number"
+            value={filters.sort}
+            onChange={e => setParams({ sort: e.target.value })}
+          />
         </div>
       ),
-      dataIndex: 'sort',
-      key: 'sort',
+      dataIndex: 'sortOrder',
+      key: 'sortOrder',
     },
     {
       title: (
@@ -106,9 +111,10 @@ export const PackageColumn = ({ filters, setParams, setDrawerOpen }) => {
           />
         </div>
       ),
-      dataIndex: 'label',
-      key: 'label',
+      dataIndex: 'range',
+      key: 'range',
       width: 150,
+      render: range => range?.map(i => <Tag key={i}>{i.name}</Tag>),
     },
     {
       title: (
@@ -122,6 +128,7 @@ export const PackageColumn = ({ filters, setParams, setDrawerOpen }) => {
       ),
       dataIndex: 'dwellingType',
       key: 'dwellingType',
+      render: dwellingType => dwellingType?.map(i => <Tag key={i}>{i.name}</Tag>),
     },
     {
       title: (
@@ -138,20 +145,28 @@ export const PackageColumn = ({ filters, setParams, setDrawerOpen }) => {
       key: 'status',
       render: (_, record) => (
         <div className="grid grid-cols-2 gap-2 mr-2">
-          <p>{record.status}</p>
+          <p>{record.status ? 'Active' : 'Inactive'}</p>
           <div className="flex gap-2">
-            {record.status === 'Active' && (
-              <Tooltip title="InActive package">
-                <Button
-                  size="small"
-                  type="text"
-                  onClick={e => {
-                    e.stopPropagation();
-                    setDrawerOpen('delete');
-                  }}
-                  icon={<IconTrash size={15} color="red" />}
-                />
-              </Tooltip>
+            {record.status ? (
+              <TooltipButton
+                title="InActive"
+                icon={<IconTrash size={15} color="red" />}
+                onClick={e => {
+                  e.stopPropagation();
+                  setSelectedPackage(record);
+                  setDrawerOpen('delete');
+                }}
+              />
+            ) : (
+              <TooltipButton
+                title="Activate"
+                icon={<IconPlus size={15} />}
+                onClick={e => {
+                  e.stopPropagation();
+                  setSelectedPackage(record);
+                  setDrawerOpen('delete');
+                }}
+              />
             )}
             <Tooltip title="Map Priceist">
               <Badge size="small" count={4}>
@@ -185,8 +200,37 @@ export const PackageColumn = ({ filters, setParams, setDrawerOpen }) => {
       ),
     },
   ];
+  const handlePackageStatus = async () => {
+    try {
+      await dispatch(
+        updatePackage({ id: selectedPackage.packageId, data: { status: !selectedPackage.status } })
+      ).unwrap();
+      message.success('Package status updated successfully');
+      setSelectedPackage(null);
+      setDrawerOpen(null);
+    } catch (error) {
+      message.error(error || 'Failed to update package status');
+    }
+  };
+
+  const handlePackageSubmit = async (values: any) => {
+    try {
+      if (selectedPackage) {
+        await dispatch(updatePackage({ id: selectedPackage.packageId, data: values })).unwrap();
+        message.success('Package updated successfully');
+      } else {
+        await dispatch(createPackage(values)).unwrap();
+        message.success('Package created successfully');
+      }
+      setSelectedPackage(null);
+      setDrawerOpen(null);
+    } catch (error) {
+      message.error(error || 'Failed to save package');
+    }
+  };
   return {
     column,
-    packageData,
+    handlePackageSubmit,
+    handlePackageStatus,
   };
 };

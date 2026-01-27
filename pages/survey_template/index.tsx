@@ -41,7 +41,7 @@ const SurveyTemplate = () => {
       status: '',
     },
   });
-  const PAGE_SIZE = 2;
+  const PAGE_SIZE = 10;
 
   const fetchTemplateData = async (page: number = currentPage, limit: number = PAGE_SIZE) => {
     try {

@@ -7,6 +7,7 @@ const statusOptions = [
 ];
 
 const activeInactiveOptions = [
+  { value: '', label: 'All' },
   { value: 'true', label: 'Active' },
   { value: 'false', label: 'Inactive' },
 ];
@@ -26,12 +27,20 @@ interface StatusSelectProps {
   approveOption?: boolean;
 }
 
-const StatusSelect: React.FC<StatusSelectProps> = ({ value, onChange, width, activeInactive = false, approveOption = false }) => {
+const StatusSelect: React.FC<StatusSelectProps> = ({
+  value,
+  onChange,
+  width,
+  activeInactive = false,
+  approveOption = false,
+}) => {
   return (
     <CustomSelect
       value={value}
       onChange={onChange}
-      options={approveOption ? approveOptions : activeInactive ? activeInactiveOptions : statusOptions}
+      options={
+        approveOption ? approveOptions : activeInactive ? activeInactiveOptions : statusOptions
+      }
       placeholder="Status"
       width={width}
     />

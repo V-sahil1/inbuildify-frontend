@@ -4,29 +4,68 @@ import { PackageFormModal } from '@/components/package/PackageFormModal';
 import { PackageColumn } from '@/components/table-columns/PackageColumn';
 import { PackagePricelistColumn } from '@/components/table-columns/PackagePricelistColumn';
 import { QuotationHistoryColumn } from '@/components/table-columns/QuotationHistoryColumn';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { Status } from '@lib/constants/enum';
 import { debouncedURL } from '@lib/utils/debounceURL';
 import { QuotationHistory } from '@lib/utils/Reports/quotation/QuotationHistory';
+import type { Package, PackageFetchParams } from '@redux/feature/package/IPackageState';
+import { fetchPackages } from '@redux/feature/package/packageThunk';
 import { IconDownload, IconPlus } from '@tabler/icons-react';
-import { Button, Space, Table } from 'antd';
+import { Button, message, Space, Table } from 'antd';
 import { useEffect, useState } from 'react';
 
 const Package = () => {
-  const [editId, setEditId] = useState(null);
+  const dispatch = useAppDispatch();
+  const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const [drawerOpen, setDrawerOpen] = useState<
     'pricelist' | 'quotation' | 'delete' | 'edit' | 'create' | null
   >(null);
   const { debouncedUpdateURL, setParams, filters } = debouncedURL({
     filtersKey: ['name', 'cost', 'add', 'remove', 'sort', 'label', 'dwellingType', 'status'],
+    initialValue: { status: '' },
   });
+  const { packages, status, pagination } = useAppSelector(state => state.package);
+  const PAGE_SIZE = 10;
+  const fetchPackageData = async (page: number = currentPage, limit: number = PAGE_SIZE) => {
+    try {
+      const params: PackageFetchParams = {
+        page,
+        limit,
+      };
+      params.name = filters?.name || undefined;
+      params.cost = filters?.cost ? Number(filters?.cost) : undefined;
+      params.sort_order = filters?.sort || undefined;
+      params.status = filters?.status !== '' ? filters?.status === 'true' : undefined;
+      params.add = filters?.add && filters?.add === 'yes';
+      params.remove = filters?.remove && filters?.remove === 'yes';
+      params.dwelling_type_id = filters?.dwellingType;
+      params.range_id = filters?.label;
+
+      await dispatch(fetchPackages(params)).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch Packages');
+    }
+  };
+  useEffect(() => {
+    fetchPackageData();
+  }, [currentPage, filters]);
   useEffect(() => {
     return () => {
       debouncedUpdateURL.cancel();
     };
   }, [debouncedUpdateURL]);
-  const { column: packageColumn, packageData } = PackageColumn({
+
+  const {
+    column: packageColumn,
+    handlePackageSubmit,
+    handlePackageStatus,
+  } = PackageColumn({
     filters,
     setParams,
     setDrawerOpen,
+    setSelectedPackage,
+    selectedPackage,
   });
   const { column: pricelistColumn, pricelistData } = PackagePricelistColumn();
   const { columns: quotationColumns, data: quotationHistoryData } = QuotationHistoryColumn();
@@ -51,13 +90,25 @@ const Package = () => {
       </div>
       <Table
         columns={packageColumn}
-        dataSource={packageData}
+        dataSource={packages}
         onRow={record => ({
           onClick: () => {
-            setEditId(record.id);
+            setSelectedPackage(record);
             setDrawerOpen('create');
           },
         })}
+        pagination={{
+          current: pagination?.currentPage,
+          pageSize: pagination?.limit,
+          total: pagination?.totalRecords,
+          showSizeChanger: false,
+          showQuickJumper: false,
+          showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
+          onChange: page => {
+            setCurrentPage(page);
+          },
+        }}
+        loading={status.packages === Status.PENDING}
       />
       {drawerOpen === 'create' && (
         <PackageFormModal
@@ -65,15 +116,18 @@ const Package = () => {
           open={drawerOpen === 'create'}
           onClose={() => {
             setDrawerOpen(null);
-            setEditId(null);
+            setSelectedPackage(null);
           }}
           onSubmit={values => {
-            console.log('package submit', values);
-            setDrawerOpen(null);
-            !!editId && setDrawerOpen('edit');
+            handlePackageSubmit(values);
           }}
-          initialValues={packageData.filter(obj => obj.id === editId)[0]}
-          isEditing={!!editId}
+          initialValues={{
+            ...selectedPackage,
+            packageGroupId: selectedPackage?.packageGroup.map(i => i.id),
+            rangeId: selectedPackage?.range.map(i => i.id),
+            dwellingTypeId: selectedPackage?.dwellingType.map(i => i.id),
+          }}
+          isEditing={!!selectedPackage}
         />
       )}
 
@@ -114,6 +168,7 @@ const Package = () => {
           )}
         </TableDrawer>
       )}
+
       {['delete', 'edit'].includes(drawerOpen) && (
         <ConfirmationContentModal
           title="Confirmation"
@@ -138,8 +193,7 @@ const Package = () => {
             )
           }
           onSubmit={() => {
-            setDrawerOpen(null);
-            drawerOpen == 'edit' && setEditId(null);
+            handlePackageStatus();
           }}
         />
       )}
