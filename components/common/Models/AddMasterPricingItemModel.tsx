@@ -5,7 +5,7 @@ import { Form, Input, Radio, Checkbox, Select, Modal, message } from 'antd';
 import { IconMinus, IconPlus } from '@tabler/icons-react';
 import {
   createCategoryItem,
-  fetchCategories,
+  fetchPricelistMaster,
   updateCategoryItem,
 } from '@redux/feature/masterPriceList/masterPriceListThunk';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
@@ -13,20 +13,27 @@ import { getConditions } from '@redux/feature/floorPlan/floorPlanThunk';
 import { Status } from '@lib/constants/enum';
 import { addPackageItems } from '@redux/feature/package/packageSlice';
 import Loading from '../Loading';
-import MultiSelectDropdown from '../MultiSelectDropdown';
 import RangeSelect from '../custom-selects/RangeSelect';
 import DwellingTypeSelect from '../custom-selects/DwellingTypeSelect';
+import { IPriceList, IPriceListItem } from '@redux/feature/masterPriceList/iMasterPriceListState';
+import useDwellingAndRangeHook from '@hooks/useDwellingAndRangeHook';
+import { PackageGroupField } from '@/components/package/PackageGroupField';
+import { createRange, updateRange } from '@redux/feature/admin/sales/range/rangeThunk';
+import {
+  createDwellingType,
+  updateDwellingType,
+} from '@redux/feature/admin/sales/dwellingType/dwellingTypeThunk';
 
 const { TextArea } = Input;
 const { Option } = Select;
 
 interface AddMasterPricingItemModalProps {
   open: boolean;
-  onClose: any;
+  onClose: () => void;
   categoryId?: string;
-  categoryItem?: any;
-  preselectedRange?: string;
-  preselectedDwelling?: string;
+  categoryItem?: IPriceListItem;
+  // preselectedRange?: string;
+  // preselectedDwelling?: string;
   extraField?: boolean;
 }
 
@@ -35,86 +42,65 @@ const AddMasterPricingItemModal = ({
   onClose,
   categoryId,
   categoryItem,
-  preselectedRange,
-  preselectedDwelling,
+  // preselectedRange,
+  // preselectedDwelling,
   extraField,
 }: AddMasterPricingItemModalProps) => {
   const [form] = Form.useForm();
-  const [costType, setCostType] = useState('INCLUDED');
+  const [costType, setCostType] = useState('Included');
   const { filters, status } = useAppSelector(state => state.floorPlan);
-  const { categories, status: mplStatus } = useAppSelector(state => state.masterPriceList);
-  const [selectedRange, setSelectedRange] = useState([]);
-  const [rangeItems, setRangeItems] = useState([
-    { id: 'abc', name: 'abc' },
-    { id: 'pqr', name: 'pqr' },
-  ]);
-  const [selectedDwelling, setSelectedDwelling] = useState([]);
-  const [dwellingItems, setDwellingItems] = useState([
-    { id: 'abc', name: 'abc' },
-    { id: 'pqr', name: 'pqr' },
-  ]);
+  const { priceMaster, status: mplStatus } = useAppSelector(state => state.masterPriceList);
+  const { rangeOptions } = useDwellingAndRangeHook({ type: 'range' });
+  const { dwellingTypeOptions } = useDwellingAndRangeHook({ type: 'dwellingType' });
   const condition = Form.useWatch(['conditions', name, 'name'], form);
-  console.log('condition');
+  const masterPriceOptions = priceMaster?.map((item: IPriceList) => ({
+    label: item.name,
+    value: item.priceListId,
+  }));
   const conditionOption = [
-    { label: 'Site Fall(mm)', value: 'siteFall' },
-    { label: 'Land Size', value: 'land' },
-    { label: 'Corner Block', value: 'CornerBlock' },
+    { label: 'Site Fall(mm)', value: 'site_fall' },
+    { label: 'Land Size', value: 'land_size' },
+    { label: 'Corner Block', value: 'corner_block' },
+    { label: 'Land Fill', value: 'land_fill' },
   ];
   const dispatch = useAppDispatch();
+
   useEffect(() => {
-    if (mplStatus.Category === Status.IDLE) {
-      dispatch(fetchCategories());
+    if (mplStatus.priceMaster === Status.IDLE) {
+      dispatch(fetchPricelistMaster({}));
     }
   }, [dispatch]);
 
   // New state for button loading
   const [isAddingItem, setIsAddingItem] = useState(false);
-  const handleAddNewItem = useCallback(async (setItems, name: string) => {
-    // In a real app, you would save this to your backend first
-    const newItem = {
-      id: Date.now().toString(),
-      name,
-    };
-    setItems(prev => [...prev, newItem]);
-    return newItem;
-  }, []);
+
   useLayoutEffect(() => {
     if (categoryItem) {
       form.setFieldsValue({
-        category_id: categoryItem.categoryId,
-        description: categoryItem.description,
-        short_description: categoryItem.shortDescription,
-        cost_type: categoryItem.costType,
-        cost_type_text: categoryItem.costTypeText,
-        cost: categoryItem.cost,
-        cost_option: categoryItem.costOption,
-        show_in_hl_package: categoryItem.showInHlPackage,
-        package_only: categoryItem.packageOnly,
-        status: categoryItem.status,
-        range: categoryItem.rangeName,
-        dwelling: categoryItem.dwellingTypeName,
-        ...(categoryItem.conditions?.length > 0 && {
-          conditions: categoryItem.conditions.map((condition: any) => ({
-            name: condition.name,
-            range_start: condition.rangeStart,
-            range_end: condition.rangeEnd,
-          })),
-        }),
+        ...categoryItem,
+        dwellingTypeId: categoryItem?.dwelling?.map(i => i.id),
+        rangeId: categoryItem?.range?.map(i => i.id),
+        // ...(categoryItem.conditions?.length > 0 && {
+        //   conditions: categoryItem.conditions.map((condition: any) => ({
+        //     name: condition.name,
+        //     range_start: condition.rangeStart,
+        //     range_end: condition.rangeEnd,
+        //   })),
+        // }),
       });
       setCostType(categoryItem.costType);
     } else {
       form.resetFields();
-      setCostType('INCLUDED');
-
-      // if provided Pre-fill range and dwelling type only from package modal
-      if (preselectedRange && preselectedDwelling) {
-        form.setFieldsValue({
-          range: preselectedRange,
-          dwelling: preselectedDwelling,
-        });
-      }
+      setCostType('Included');
+      // // if provided Pre-fill range and dw elling type only from package modal
+      // if (preselectedRange && preselectedDwelling) {
+      //   form.setFieldsValue({
+      //     range: preselectedRange,
+      //     dwelling: preselectedDwelling,
+      //   });
+      // }
     }
-  }, [categoryItem, form, preselectedRange, preselectedDwelling]);
+  }, [categoryItem, form]);
 
   useEffect(() => {
     if (status.conditions === Status.IDLE) {
@@ -129,27 +115,28 @@ const AddMasterPricingItemModal = ({
     }
   }, [dispatch, filters, status.conditions]);
 
-  const onFinish = async (values: any) => {
-    console.log('priceitem submit', values);
+  const onFinish = async (values: IPriceListItem) => {
+    if (values.costType === 'Included') {
+      delete values.builderCost;
+      delete values.cost;
+      delete values.costOption;
+    } else {
+      delete values.costTypeText;
+    }
     await form.validateFields();
     try {
       setIsAddingItem(true);
-
-      const payload = {
-        ...(categoryId && { category_id: categoryId }),
-        ...values,
-      };
 
       if (categoryItem) {
         const res = await dispatch(
           updateCategoryItem({
             payload: values,
-            id: categoryItem.categoryItemId,
+            id: categoryItem.priceListItemId,
           })
         ).unwrap();
       } else {
-        const response = await dispatch(createCategoryItem(payload)).unwrap();
-        if (values.package_only) {
+        const response = await dispatch(createCategoryItem(values)).unwrap();
+        if (values.showOnlyInPackage) {
           dispatch(addPackageItems(response));
         }
       }
@@ -164,10 +151,10 @@ const AddMasterPricingItemModal = ({
     }
   };
 
-  const onCostTypeChange = (e: any) => {
+  const onCostTypeChange = e => {
     const newCostType = e.target.value;
     setCostType(newCostType);
-    if (newCostType === 'INCLUDED') {
+    if (newCostType === 'Included') {
       form.setFieldsValue({ cost: undefined });
       form.setFieldsValue({ cost_option: undefined });
     }
@@ -178,8 +165,36 @@ const AddMasterPricingItemModal = ({
     onClose();
   };
 
-  const conditionsList = Form.useWatch('conditions', form) || [];
+  const handleRangeSubmit = async (values, selectedRange) => {
+    try {
+      if (!!selectedRange) {
+        await dispatch(updateRange({ data: values, id: selectedRange.rangeId })).unwrap();
+        message.success('Range updated successfully');
+      } else {
+        await dispatch(createRange(values)).unwrap();
+        message.success('Range saved successfully');
+      }
+    } catch (error) {
+      message.error(error || 'Failed to save range');
+    }
+  };
+  const handleDwellingTypeSubmit = async (values, selectedDwellingType) => {
+    try {
+      if (!!selectedDwellingType) {
+        await dispatch(
+          updateDwellingType({ data: values, id: selectedDwellingType.dwellingTypeId })
+        ).unwrap();
+        message.success('DwellingType updated successfully');
+      } else {
+        await dispatch(createDwellingType(values)).unwrap();
+        message.success('DwellingType saved successfully');
+      }
+    } catch (error) {
+      message.error(error || 'Failed to save dwelling type');
+    }
+  };
 
+  const conditionsList = Form.useWatch('conditions', form) || [];
   return (
     <Modal
       title={categoryItem ? 'Update Master Pricing Item' : 'Add Master Pricing Item'}
@@ -207,24 +222,22 @@ const AddMasterPricingItemModal = ({
         {!categoryId && (
           <Form.Item
             label="Item Category"
-            name="category_id"
+            name="priceListId"
             className="form-item-responsive flex-1"
             rules={[{ required: true, message: 'Please Select Category' }]}
           >
-            <Select placeholder="Please select" style={{ width: '100%' }}>
-              {categories?.map(option => (
-                <Option key={option.categoryId} value={option.categoryId}>
-                  {option?.name}
-                </Option>
-              ))}
-            </Select>
+            <Select
+              placeholder="Please select"
+              style={{ width: '100%' }}
+              options={masterPriceOptions}
+            />
           </Form.Item>
         )}
 
         {/* Item Description */}
         <Form.Item
           label="Item Description"
-          name="description"
+          name="itemDescription"
           rules={[{ required: true, message: 'Please enter item description' }]}
           className="form-item-responsive"
         >
@@ -240,7 +253,7 @@ const AddMasterPricingItemModal = ({
         {/* Short Description */}
         <Form.Item
           label="Short Description (Optional)"
-          name="short_description"
+          name="shortDescription"
           className="form-item-responsive"
         >
           <Input
@@ -255,30 +268,32 @@ const AddMasterPricingItemModal = ({
           {/* Cost Type */}
           <Form.Item
             label="Cost Type"
-            name="cost_type"
+            name="costType"
             className="form-item-responsive flex-1"
-            initialValue="INCLUDED" // Set initial value here
+            initialValue="Included" // Set initial value here
             rules={[{ required: true, message: 'Please select cost type' }]}
           >
-            <Radio.Group onChange={onCostTypeChange} style={{ width: '100%' }}>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Radio value="INCLUDED">Included</Radio>
-                <Radio value="FIXED">Fixed</Radio>
-                <Radio value="VARIABLE">Variable</Radio>
-              </div>
-            </Radio.Group>
+            <Radio.Group
+              onChange={onCostTypeChange}
+              style={{ width: '100%' }}
+              options={[
+                { label: 'INCLUDED', value: 'Included' },
+                { label: 'FIXED', value: 'Fixed' },
+                { label: 'VARIABLE', value: 'Variable' },
+              ]}
+            />
           </Form.Item>
 
           {/* Cost Options */}
-          {costType === 'INCLUDED' ? (
+          {costType === 'Included' ? (
             <Form.Item
               label="Cost type text"
-              name="cost_type_text"
+              name="costTypeText"
               className="form-item-responsive w-full"
               rules={[
                 { required: true, message: 'Please enter cost type text' },
                 {
-                  validator: (_: any, value: string) => {
+                  validator: (_, value: string) => {
                     if (!value) return Promise.resolve();
                     if (value.trim().length < 3)
                       return Promise.reject('Cost type text must be at least 3 characters');
@@ -295,18 +310,19 @@ const AddMasterPricingItemModal = ({
           ) : (
             <Form.Item
               label="Cost Options"
-              name="cost_option"
+              name="costOption"
               className="form-item-responsive flex-1"
-              initialValue="NONE"
+              initialValue="none"
               rules={[{ required: true, message: 'Please select cost option' }]}
             >
-              <Radio.Group style={{ width: '100%' }}>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Radio value="NONE">None</Radio>
-                  <Radio value="TBA">TBA</Radio>
-                  <Radio value="TBC">TBC</Radio>
-                </div>
-              </Radio.Group>
+              <Radio.Group
+                style={{ width: '100%' }}
+                options={[
+                  { label: 'NONE', value: 'none' },
+                  { label: 'TBA', value: 'tba' },
+                  { label: 'TBC', value: 'tbc' },
+                ]}
+              />
             </Form.Item>
           )}
         </div>
@@ -316,7 +332,7 @@ const AddMasterPricingItemModal = ({
           <Form.Item
             label="Cost"
             name="cost"
-            rules={[{ required: costType !== 'INCLUDED', message: 'Please enter cost' }]}
+            rules={[{ required: costType !== 'Included', message: 'Please enter cost' }]}
             className="form-item-responsive"
           >
             <Input
@@ -324,15 +340,15 @@ const AddMasterPricingItemModal = ({
               prefix="$"
               type="number"
               style={{ width: '100%' }}
-              disabled={costType === 'INCLUDED'}
+              disabled={costType === 'Included'}
             />
           </Form.Item>
           {/* Builder Cost */}
           {extraField && (
             <Form.Item
               label="Builder Cost"
-              name="builder_cost"
-              rules={[{ required: costType !== 'INCLUDED', message: 'Please enter cost' }]}
+              name="builderCost"
+              rules={[{ required: costType !== 'Included', message: 'Please enter cost' }]}
               className="form-item-responsive"
             >
               <Input
@@ -340,14 +356,14 @@ const AddMasterPricingItemModal = ({
                 prefix="$"
                 type="number"
                 style={{ width: '100%' }}
-                disabled={costType === 'INCLUDED'}
+                disabled={costType === 'Included'}
               />
             </Form.Item>
           )}
         </div>
         {extraField && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <Form.Item label="Sort Order" name="sort" className="form-item-responsive">
+            <Form.Item label="Sort Order" name="sortOrder" className="form-item-responsive">
               <Input type="number" />
             </Form.Item>
             <Form.Item label="UOM" name="uom" className="form-item-responsive">
@@ -361,23 +377,25 @@ const AddMasterPricingItemModal = ({
           {
             <Form.Item
               label="Range"
-              name="range"
+              name="rangeId"
               className="form-item-responsive"
               // rules={[{ required: true, message: 'Please select range' }]}
             >
               {extraField ? (
-                <MultiSelectDropdown
-                  items={rangeItems}
-                  selectedItems={selectedRange}
-                  onSelectionChange={value => {
-                    setSelectedRange(value);
-                    form.setFieldValue('range', value);
-                  }}
-                  onAddNewItem={name => handleAddNewItem(setRangeItems, name)}
-                  placeholder="Range"
+                <PackageGroupField
+                  form={form}
+                  formName="rangeId"
+                  label="Range"
+                  fields={[{ label: 'Range Name', name: 'name', type: 'text' }]}
+                  onSubmit={handleRangeSubmit}
+                  data={rangeOptions?.map(item => ({
+                    ...item,
+                    name: item.label,
+                    id: item.value,
+                  }))}
                 />
               ) : (
-                <RangeSelect disabled={!!preselectedRange} />
+                <RangeSelect />
               )}
             </Form.Item>
           }
@@ -385,23 +403,21 @@ const AddMasterPricingItemModal = ({
           {/* Dwelling Type */}
           <Form.Item
             label="Dwelling Type"
-            name="dwelling"
+            name="dwellingTypeId"
             className="form-item-responsive"
             // rules={[{ required: true, message: 'Please select dwelling type' }]}
           >
             {extraField ? (
-              <MultiSelectDropdown
-                items={dwellingItems}
-                selectedItems={selectedDwelling}
-                onSelectionChange={value => {
-                  setSelectedDwelling(value);
-                  form.setFieldValue('dwellingType', value);
-                }}
-                onAddNewItem={name => handleAddNewItem(setDwellingItems, name)}
-                placeholder="Dwelling"
+              <PackageGroupField
+                form={form}
+                formName="dwellingTypeId"
+                label="Dwelling Type"
+                fields={[{ label: 'Dwelling Type Name', name: 'name', type: 'text' }]}
+                onSubmit={handleDwellingTypeSubmit}
+                data={dwellingTypeOptions?.map(i => ({ ...i, id: i.value, name: i.label }))}
               />
             ) : (
-              <DwellingTypeSelect disabled={!!preselectedDwelling} />
+              <DwellingTypeSelect />
             )}
           </Form.Item>
         </div>
@@ -547,10 +563,10 @@ const AddMasterPricingItemModal = ({
         >
           <Radio.Group
             style={{ width: '100%' }}
-            disabled={!categoryId}
+            // disabled={!categoryId}
             options={[
-              { label: 'Active', value: 'ACTIVE' },
-              { label: 'Inactive', value: 'INACTIVE' },
+              { label: 'Active', value: 'active' },
+              { label: 'Inactive', value: 'inactive' },
             ]}
           />
         </Form.Item>
@@ -558,7 +574,7 @@ const AddMasterPricingItemModal = ({
           {extraField && (
             <div>
               <Form.Item
-                name="include_by_default"
+                name="includeByDefault"
                 valuePropName="checked"
                 className="form-item-responsive"
                 initialValue={false}
@@ -566,7 +582,7 @@ const AddMasterPricingItemModal = ({
                 <Checkbox>Include By Default</Checkbox>
               </Form.Item>
               <Form.Item
-                name="notAllowRemoveQuotation"
+                name="allowRemoveFromQuotation"
                 valuePropName="checked"
                 className="form-item-responsive"
                 initialValue={false}
@@ -578,7 +594,7 @@ const AddMasterPricingItemModal = ({
           <div>
             {costType !== 'VARIABLE' && (
               <Form.Item
-                name="package_only"
+                name="showOnlyInPackage"
                 valuePropName="checked"
                 className="form-item-responsive"
                 initialValue={!categoryId}
@@ -588,7 +604,7 @@ const AddMasterPricingItemModal = ({
             )}
             {/* Show in HL Package */}
             <Form.Item
-              name="show_in_hl_package"
+              name="showInHlPackage"
               valuePropName="checked"
               className="form-item-responsive mb-6"
               initialValue={false}

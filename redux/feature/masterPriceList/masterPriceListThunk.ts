@@ -2,28 +2,20 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import api from '@lib/constants/api';
 import { ApiResponse } from '../auth/IAuthState';
 import API_ENDPOINTS from '@lib/constants/apiEndpoints';
-import { Category, Item, RequestItem } from './iMasterPriceListState';
+import { IPriceList, IPriceListItem } from './iMasterPriceListState';
+import { CommonPagination } from '../common/ICommonState';
 
-export const fetchCategories = createAsyncThunk(
-  'categorie/fetchAll',
-  async (_, { rejectWithValue }) => {
+export const fetchPricelistMaster = createAsyncThunk(
+  'masterPriceList/fetchAll',
+  async (
+    args: { is_active?: boolean; search?: string; is_suggested?: boolean },
+    { rejectWithValue }
+  ) => {
     try {
-      const res = await api.get<ApiResponse<{ categories: Category[] }>>(
-        API_ENDPOINTS.MASTER_PRICE_LIST_CATEGORY
-      );
-      return res.data;
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-export const createCategory = createAsyncThunk(
-  'categorie/create',
-  async (payload: { name: string; description: string }, { rejectWithValue }) => {
-    try {
-      const res = await api.post<ApiResponse<Category>>(API_ENDPOINTS.MASTER_PRICE_LIST_CATEGORY, {
-        data: payload,
+      const res = await api.get<
+        ApiResponse<{ priceList: IPriceList[]; pagination: CommonPagination }>
+      >(API_ENDPOINTS.PRICELIST_MASTER, {
+        params: args,
       });
       return res.data;
     } catch (error) {
@@ -32,15 +24,26 @@ export const createCategory = createAsyncThunk(
   }
 );
 
-export const updateCategory = createAsyncThunk(
-  'categorie/update',
-  async (
-    { payload, id }: { payload: { name: string; description: string }; id: string },
-    { rejectWithValue }
-  ) => {
+export const createPricelistMaster = createAsyncThunk(
+  'masterPriceList/create',
+  async (data: IPriceList, { rejectWithValue }) => {
     try {
-      const res = await api.put<ApiResponse<Category>>(
-        API_ENDPOINTS.MASTER_PRICE_LIST_CATEGORY + '/' + id,
+      const res = await api.post<ApiResponse<IPriceList>>(API_ENDPOINTS.PRICELIST_MASTER, {
+        data,
+      });
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const updatePricelistMaster = createAsyncThunk(
+  'masterPriceList/update',
+  async ({ payload, id }: { payload: Partial<IPriceList>; id: string }, { rejectWithValue }) => {
+    try {
+      const res = await api.put<ApiResponse<IPriceList>>(
+        API_ENDPOINTS.PRICELIST_MASTER + '/' + id,
         { data: payload }
       );
       return res.data;
@@ -50,12 +53,24 @@ export const updateCategory = createAsyncThunk(
   }
 );
 
-export const deleteCategory = createAsyncThunk(
-  'categorie/delete',
-  async (payload: string, { rejectWithValue }) => {
+export const deletePricelistMaster = createAsyncThunk(
+  'masterPriceList/delete',
+  async (id: string, { rejectWithValue }) => {
     try {
-      const res = await api.delete<ApiResponse<Category>>(
-        API_ENDPOINTS.MASTER_PRICE_LIST_CATEGORY + '/' + payload
+      const res = await api.delete<ApiResponse>(API_ENDPOINTS.PRICELIST_MASTER + '/' + id);
+      return id;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const updateSuggestedPricelistMaster = createAsyncThunk(
+  'masterPriceList/updateSuggestedPriceMaster',
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const res = await api.put<ApiResponse<IPriceList>>(
+        API_ENDPOINTS.SUGGESTED_PRICELIST_MASTER + '/' + id
       );
       return res.data;
     } catch (error) {
@@ -64,41 +79,37 @@ export const deleteCategory = createAsyncThunk(
   }
 );
 
-export const updateCategoryOrder = createAsyncThunk(
-  'categorie/updateOrder',
-  async (
-    payload: { categories: { categoryId: string; displayOrder: number }[] },
-    { rejectWithValue }
-  ) => {
-    try {
-      const res = await api.put<ApiResponse<Category>>(API_ENDPOINTS.MASTER_CATEGORY_ORDER, {
-        data: { orderedCategories: payload.categories },
-      });
-      return { data: res.data, categories: payload.categories };
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
-  }
-);
+// export const updateCategoryOrder = createAsyncThunk(
+//   'categorie/updateOrder',
+//   async (
+//     payload: { categories: { categoryId: string; displayOrder: number }[] },
+//     { rejectWithValue }
+//   ) => {
+//     try {
+//       const res = await api.put<ApiResponse<Category>>(API_ENDPOINTS.MASTER_CATEGORY_ORDER, {
+//         data: { orderedCategories: payload.categories },
+//       });
+//       return { data: res.data, categories: payload.categories };
+//     } catch (error) {
+//       return rejectWithValue(error.message);
+//     }
+//   }
+// );
 
 // Fetch items of a category
 export const fetchCategoryItems = createAsyncThunk(
-  'categories/fetchItems',
+  'masterPriceList/fetchItems',
   async (
-    args: { categoryId: string; filters?: { range?: string; dwelling_type?: string } },
+    args: { price_list_id?: string; range_id?: string; dwelling_type_id?: string },
     { rejectWithValue }
   ) => {
     try {
-      const { categoryId, filters } = args;
-      let url = API_ENDPOINTS.GET_MASTER_PRICE_LIST_ITEM(categoryId);
-      if (filters && (filters.range || filters.dwelling_type)) {
-        const query = new URLSearchParams();
-        if (filters.range) query.append('range', filters.range);
-        if (filters.dwelling_type) query.append('dwellingType', filters.dwelling_type);
-        url = `${url}?${query.toString()}`;
-      }
-      const res = await api.get<ApiResponse<Item[]>>(url);
-      return { categoryId, items: res.data };
+      const res = await api.get<
+        ApiResponse<{ priceListItem: IPriceListItem[]; pagination: CommonPagination }>
+      >(API_ENDPOINTS.PRICELIST_ITEM, {
+        params: args,
+      });
+      return { priceListId: args?.price_list_id || null, items: res.data };
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -106,10 +117,10 @@ export const fetchCategoryItems = createAsyncThunk(
 );
 
 export const createCategoryItem = createAsyncThunk(
-  'categories/createItem',
-  async (payload: RequestItem, { rejectWithValue }) => {
+  'masterPriceList/createItem',
+  async (payload: IPriceListItem, { rejectWithValue }) => {
     try {
-      const res = await api.post<ApiResponse<Item>>(API_ENDPOINTS.CREATE_MASTER_PRICE_LIST_ITEM, {
+      const res = await api.post<ApiResponse<IPriceListItem>>(API_ENDPOINTS.PRICELIST_ITEM, {
         data: payload,
       });
       return res.data;
@@ -120,11 +131,14 @@ export const createCategoryItem = createAsyncThunk(
 );
 
 export const updateCategoryItem = createAsyncThunk(
-  'categories/updateItem',
-  async ({ payload, id }: { payload: any; id: string }, { rejectWithValue }) => {
+  'masterPriceList/updateItem',
+  async (
+    { payload, id }: { payload: Partial<IPriceListItem>; id: string },
+    { rejectWithValue }
+  ) => {
     try {
-      const res = await api.put<ApiResponse<any>>(
-        API_ENDPOINTS.CREATE_MASTER_PRICE_LIST_ITEM + '/' + id,
+      const res = await api.put<ApiResponse<IPriceListItem>>(
+        API_ENDPOINTS.PRICELIST_ITEM + '/' + id,
         { data: payload }
       );
       return res.data;
@@ -135,13 +149,13 @@ export const updateCategoryItem = createAsyncThunk(
 );
 
 export const deleteCategoryItem = createAsyncThunk(
-  'categories/deleteItem',
+  'masterPriceList/deleteItem',
   async (payload: string, { rejectWithValue }) => {
     try {
-      const res = await api.delete<ApiResponse<Item>>(
-        API_ENDPOINTS.CREATE_MASTER_PRICE_LIST_ITEM + '/' + payload
+      const res = await api.delete<ApiResponse<IPriceListItem>>(
+        API_ENDPOINTS.PRICELIST_ITEM + '/' + payload
       );
-      return res.data;
+      return { id: payload, categoryId: payload };
     } catch (error) {
       return rejectWithValue(error.message);
     }

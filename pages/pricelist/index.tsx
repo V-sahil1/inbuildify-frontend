@@ -13,7 +13,17 @@ import { Status } from '@lib/constants/enum';
 import { debouncedURL } from '@lib/utils/debounceURL';
 import { BulkPricelist } from '@lib/utils/Reports/pricelist/BulkPricelist';
 import { QuotationHistory } from '@lib/utils/Reports/quotation/QuotationHistory';
-import { fetchCategories } from '@redux/feature/masterPriceList/masterPriceListThunk';
+import { LocationType } from '@redux/feature/common/ICommonState';
+import {
+  IPriceList,
+  IPriceListItem,
+  PricelistItemFtechParams,
+} from '@redux/feature/masterPriceList/iMasterPriceListState';
+import { toggleExpand } from '@redux/feature/masterPriceList/masterPriceListSlice';
+import {
+  fetchCategoryItems,
+  fetchPricelistMaster,
+} from '@redux/feature/masterPriceList/masterPriceListThunk';
 import { IconDownload } from '@tabler/icons-react';
 import { Button, message, Space, Table, Upload } from 'antd';
 import { useEffect, useState } from 'react';
@@ -22,10 +32,10 @@ const PriceList = () => {
   const [drawerOpen, setDrawerOpen] = useState<
     'create' | 'quotation' | 'copy' | 'location' | 'master' | 'edit' | null
   >(null);
-  const [selectedPricelist, setSelectedPricelist] = useState(null);
-  const [selectedPriceMaster, setSelectedPriceMaster] = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState();
-  const [selectedLocation, setSelectedLocation] = useState();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedPricelist, setSelectedPricelist] = useState<IPriceListItem | null>(null);
+  const [selectedPriceMaster, setSelectedPriceMaster] = useState<IPriceList | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<LocationType | null>(null);
   const [modalOpen, setModalOpen] = useState<
     | 'copy'
     | 'create'
@@ -36,20 +46,38 @@ const PriceList = () => {
     | 'import'
     | 'createLocation'
   >(null);
-  const { categories, status } = useAppSelector(state => state.masterPriceList);
+  const { priceMaster, status, pagination } = useAppSelector(state => state.masterPriceList);
+  const PAGE_SIZE = 10;
   const dispatch = useAppDispatch();
-  useEffect(() => {
-    const fetchCategoriesData = async () => {
-      try {
-        await dispatch(fetchCategories()).unwrap();
-      } catch (e) {
-        message.error(e || 'Failed to fetch categories');
-      }
-    };
-    if (status.Category === Status.IDLE) {
-      fetchCategoriesData();
-    }
-  }, [dispatch, status]);
+
+  const {
+    columns: pricelistColumn,
+    handlePricelistSubmit,
+    handleActivateItem,
+  } = PricelistColumn(
+    filters,
+    setParams,
+    setDrawerOpen,
+    setModalOpen,
+    setSelectedPricelist,
+    selectedPricelist
+  );
+  const { columns: quotationColumns, data: quotationData } = QuotationHistoryColumn();
+  const {
+    column: locationColumn,
+    data,
+    locationFormFields,
+    locationSubmit,
+  } = PricelistLocationColumn(setModalOpen, setSelectedLocation, selectedLocation);
+  const {
+    Mastercolumn,
+    suggestedMasterColumn,
+    suggestedData,
+    categoryData,
+    masterFields,
+    priceMasterSubmit,
+  } = PricelistMasterColumn(setModalOpen, modalOpen, setSelectedPriceMaster, selectedPriceMaster);
+
   const { debouncedUpdateURL, setParams, filters } = debouncedURL({
     filtersKey: [
       'location',
@@ -62,52 +90,55 @@ const PriceList = () => {
       'status',
       'category',
     ],
+    initialValue: { status: '' },
   });
 
-  const {
-    columns: pricelistColumn,
-    priceLists,
-    handlePricelistSubmit,
-    handleActivateItem,
-  } = PricelistColumn(
-    filters,
-    setParams,
-    setDrawerOpen,
-    setModalOpen,
-    setSelectedPricelist,
-    selectedPricelist,
-    categories
-  );
-  const { columns: quotationColumns, data: quotationData } = QuotationHistoryColumn();
-  const {
-    column: locationColumn,
-    data,
-    locationdata,
-    locationFormFields,
-    locationSubmit,
-  } = PricelistLocationColumn(setModalOpen, setSelectedLocation, selectedLocation);
-  const {
-    Mastercolumn,
-    suggestedMasterColumn,
-    suggestedData,
-    categoryData,
-    masterFields,
-    priceMasterSubmit,
-  } = PricelistMasterColumn(
-    setModalOpen,
-    modalOpen,
-    setSelectedPriceMaster,
-    locationdata,
-    selectedPriceMaster,
-    categories
-  );
+  useEffect(() => {
+    const fetchCategoriesData = async () => {
+      try {
+        await dispatch(fetchPricelistMaster({})).unwrap();
+      } catch (e) {
+        message.error(e || 'Failed to fetch categories');
+      }
+    };
+    if (status.priceMaster === Status.IDLE) {
+      fetchCategoriesData();
+    }
+  }, [dispatch, status]);
 
+  const fetchAllCategoryItems = async (page: number = currentPage, limit: number = PAGE_SIZE) => {
+    const params: PricelistItemFtechParams = {
+      page,
+      limit,
+      price_list_id: selectedPriceMaster?.priceListId,
+    };
+    params.range_id = filters?.range;
+    params.status =
+      filters?.status !== '' ? (filters?.status === 'true' ? 'active' : 'inactive') : undefined;
+    params.price = Number(filters?.price) || undefined;
+    params.cost_option = filters?.costOption;
+    params.sort_order = filters?.sort;
+    params.item_description = filters?.description;
+    params.location_id = filters?.location;
+    params.dwelling_type_id = filters?.dwellingType;
+    try {
+      if (!selectedPriceMaster?.isExpanded) {
+        dispatch(toggleExpand(selectedPriceMaster?.priceListId));
+        await dispatch(fetchCategoryItems(params)).unwrap();
+      }
+    } catch (error) {
+      message.error(error || 'Failed to fetch category items');
+    }
+  };
+
+  useEffect(() => {
+    fetchAllCategoryItems();
+  }, [selectedPriceMaster, filters]);
   useEffect(() => {
     return () => {
       debouncedUpdateURL.cancel();
     };
   }, [debouncedUpdateURL]);
-
   return (
     <div className="p-4">
       <div className="flex items-center justify-between mb-4">
@@ -116,7 +147,6 @@ const PriceList = () => {
           filters={filters}
           setParams={setParams}
           setDrawerOpen={setDrawerOpen}
-          locationdata={locationdata}
           setModalOpen={setModalOpen}
         />
       </div>
@@ -125,18 +155,18 @@ const PriceList = () => {
           <PricelistSidebar
             filters={filters}
             setParams={setParams}
-            selectedCategory={selectedCategory}
-            setSelectedCategory={setSelectedCategory}
-            categories={categories}
+            selectedCategory={selectedPriceMaster}
+            setSelectedCategory={setSelectedPriceMaster}
+            categories={priceMaster}
           />
         </div>
         <div className="col-span-4">
           <Table
             columns={pricelistColumn}
             dataSource={
-              selectedCategory
-                ? priceLists.filter(i => i.categoryId === selectedCategory)
-                : priceLists
+              selectedPriceMaster
+                ? priceMaster.find(i => i.priceListId === selectedPriceMaster?.priceListId)?.items
+                : priceMaster?.map(i => (i.items?.length > 0 ? i.items : [])).flat() || []
             }
             onRow={record => ({
               onClick: () => {
@@ -144,6 +174,17 @@ const PriceList = () => {
                 setSelectedPricelist(record);
               },
             })}
+            pagination={{
+              current: pagination?.currentPage,
+              pageSize: pagination?.limit,
+              total: pagination?.totalRecords,
+              showSizeChanger: false,
+              showQuickJumper: false,
+              showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
+              onChange: page => {
+                setCurrentPage(page);
+              },
+            }}
           />
         </div>
       </div>
@@ -155,7 +196,7 @@ const PriceList = () => {
             setModalOpen(null);
             setSelectedPricelist(null);
           }}
-          categoryId={selectedPricelist?.categoryId}
+          categoryId={selectedPricelist?.priceList.id}
           categoryItem={selectedPricelist}
         />
       )}
@@ -219,10 +260,13 @@ const PriceList = () => {
           isEditing={!!selectedPricelist || !!selectedPriceMaster || !!selectedLocation}
           initialValues={
             (!!selectedPricelist || !!selectedPriceMaster) && modalOpen === 'Itemcopy'
-              ? { name: selectedPricelist?.description }
+              ? { name: selectedPricelist?.itemDescription }
               : modalOpen === 'createLocation'
-                ? selectedLocation
-                : { category: selectedPriceMaster?.name, status: selectedPriceMaster?.status }
+                ? { ...selectedLocation, status: selectedLocation?.status ? 'active' : 'inactive' }
+                : {
+                    ...selectedPriceMaster,
+                    isActive: selectedPriceMaster?.isActive ? 'active' : 'inactive',
+                  }
           }
           onSubmit={values => {
             modalOpen === 'Itemcopy'
@@ -263,7 +307,7 @@ const PriceList = () => {
               </div>
             ) : (
               <div className="text-center">
-                <p className="text-lg">Pricelist Item: {selectedPricelist.description}</p>
+                <p className="text-lg">Pricelist Item: {selectedPricelist.itemDescription}</p>
                 <p>Do you want to activate pricelist item?</p>
               </div>
             )

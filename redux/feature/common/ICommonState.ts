@@ -18,14 +18,15 @@ export interface Timezone {
 
 export interface CommonPagination {
   currentPage: number;
-  pageSize: number;
+  limit: number;
   totalRecords: number;
   totalPages: number;
 }
 
-export interface Location {
+export interface LocationType {
   locationId: string;
   name: string;
+  status: boolean;
 }
 
 export interface ComplianceType {
@@ -37,13 +38,16 @@ export interface ICommonState {
   functionality: functionalityResponse[];
   builders: BuilderInfo[];
   timezone: Timezone[];
-  locations: Location[];
+  locations: LocationType[];
   complianceType: ComplianceType[];
   status: {
     builder: Status;
     functionality: Status;
     timezoneStatus: Status;
-    locationStatus: Status;
+    locationStatus: {
+      fetch: Status;
+      create: Status;
+    };
     complianceTypeStatus: Status;
   };
 }

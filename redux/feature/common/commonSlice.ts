@@ -7,6 +7,8 @@ import {
   fetchLocation,
   fetchComplianceType,
   fetchTimeZone,
+  createLocation,
+  updateLocation,
 } from './commonThunk';
 
 const initialState: ICommonState = {
@@ -19,7 +21,10 @@ const initialState: ICommonState = {
     builder: Status.IDLE,
     functionality: Status.IDLE,
     timezoneStatus: Status.IDLE,
-    locationStatus: Status.IDLE,
+    locationStatus: {
+      fetch: Status.IDLE,
+      create: Status.IDLE,
+    },
     complianceTypeStatus: Status.IDLE,
   },
 };
@@ -63,15 +68,38 @@ const commonSlice = createSlice({
     builder.addCase(fetchAllBuiders.rejected, state => {
       state.status.builder = Status.ERROR;
     });
+
     builder.addCase(fetchLocation.pending, state => {
-      state.status.locationStatus = Status.PENDING;
+      state.status.locationStatus.fetch = Status.PENDING;
     });
     builder.addCase(fetchLocation.fulfilled, (state, action) => {
       state.locations = action.payload;
-      state.status.locationStatus = Status.SUCCESS;
+      state.status.locationStatus.fetch = Status.SUCCESS;
     });
     builder.addCase(fetchLocation.rejected, state => {
-      state.status.locationStatus = Status.ERROR;
+      state.status.locationStatus.fetch = Status.ERROR;
+    });
+    builder.addCase(createLocation.pending, state => {
+      state.status.locationStatus.create = Status.PENDING;
+    });
+    builder.addCase(createLocation.fulfilled, (state, action) => {
+      state.locations.push(action.payload);
+      state.status.locationStatus.create = Status.SUCCESS;
+    });
+    builder.addCase(createLocation.rejected, (state, action) => {
+      state.status.locationStatus.create = Status.ERROR;
+    });
+    builder.addCase(updateLocation.pending, state => {
+      state.status.locationStatus.create = Status.PENDING;
+    });
+    builder.addCase(updateLocation.fulfilled, (state, action) => {
+      state.locations = state.locations.map(location =>
+        location.locationId === action.payload.locationId ? action.payload : location
+      );
+      state.status.locationStatus.create = Status.SUCCESS;
+    });
+    builder.addCase(updateLocation.rejected, (state, action) => {
+      state.status.locationStatus.create = Status.ERROR;
     });
 
     builder.addCase(fetchComplianceType.pending, state => {

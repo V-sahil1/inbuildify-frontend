@@ -1,29 +1,48 @@
 import { IconCopy, IconPencil, IconPlus, IconTrash } from '@tabler/icons-react';
-import { Button, Input, Popconfirm, Select, Tooltip } from 'antd';
-import { useEffect, useState } from 'react';
+import { Button, Input, message, Popconfirm, Select, Tooltip } from 'antd';
+import { useEffect } from 'react';
 import { FormField } from '../common/Models/ActionDialogModel';
 import { debouncedURL } from '@lib/utils/debounceURL';
-import { Category } from '@redux/feature/masterPriceList/iMasterPriceListState';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import {
+  createPricelistMaster,
+  fetchPricelistMaster,
+  updatePricelistMaster,
+  updateSuggestedPricelistMaster,
+} from '@redux/feature/masterPriceList/masterPriceListThunk';
+import { useLocationAndTimezoneHook } from '@hooks/useLocationAndTimezoneHook';
 
 export const PricelistMasterColumn = (
   setModalOpen,
   modalOpen,
   setSelectedPriceMaster,
-  locationData,
-  selectedPriceMaster,
-  categories
+  selectedPriceMaster
 ) => {
-  const [categoryData, setCategoryData] = useState<Category[]>(
-    categories.map(i => ({ ...i, status: 'ACTIVE' }))
+  const dispatch = useAppDispatch();
+  const { priceMaster, suggestedPriceMaster, status } = useAppSelector(
+    state => state.masterPriceList
   );
+
+  const { locationOptions } = useLocationAndTimezoneHook({ type: 'location' });
   const { debouncedUpdateURL, setParams, filters } = debouncedURL({
-    filtersKey: ['status', 'search'],
-    initialValue: { status: 'ACTIVE' },
+    filtersKey: ['isActive', 'search'],
+    initialValue: { isActive: 'active' },
     shouldSyncURL: false,
   });
+
+  const fetchPriceMaster = async () => {
+    try {
+      const res = await dispatch(
+        fetchPricelistMaster({ is_active: filters.isActive === 'active' })
+      ).unwrap();
+      await dispatch(fetchPricelistMaster({ is_suggested: true })).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch price master');
+    }
+  };
   useEffect(() => {
-    setCategoryData(categories.map(i => ({ ...i, status: 'ACTIVE' })));
-  }, [categories]);
+    fetchPriceMaster();
+  }, [filters]);
 
   useEffect(() => {
     return () => {
@@ -38,12 +57,12 @@ export const PricelistMasterColumn = (
           <Input
             addonBefore={
               <Select
-                value={filters?.status}
-                onChange={value => setParams({ status: value })}
-                defaultValue="Active"
+                value={filters?.isActive}
+                onChange={value => setParams({ isActive: value })}
+                defaultValue="active"
                 options={[
-                  { label: 'Active', value: 'ACTIVE' },
-                  { label: 'InActive', value: 'INACTIVE' },
+                  { label: 'Active', value: 'active' },
+                  { label: 'InActive', value: 'inactive' },
                 ]}
                 className="min-w-[100px]"
               />
@@ -76,7 +95,7 @@ export const PricelistMasterColumn = (
         <div className="flex">
           <Popconfirm
             styles={{ root: { width: 350 } }}
-            disabled={record.status === 'ACTIVE'}
+            disabled={record.isActive}
             title={
               <>
                 <p>
@@ -86,25 +105,21 @@ export const PricelistMasterColumn = (
                 <p>Are you sure you want to go ahead and activate the price list?</p>
               </>
             }
-            onConfirm={() =>
-              setCategoryData(prev =>
-                prev.map(i => (i.categoryId === record.categoryId ? { ...i, status: 'ACTIVE' } : i))
-              )
-            }
+            onConfirm={() => handlePriceMasterStatus()}
           >
-            <Tooltip title={`${record.status === 'ACTIVE' ? 'Create Pricelist Item' : ''}`}>
+            <Tooltip title={`${record.isActive ? 'Create Pricelist Item' : ''}`}>
               <Button
                 size="small"
                 type="text"
                 className="text-blue"
                 icon={<IconPlus size={15} />}
                 onClick={() => {
-                  record.status === 'ACTIVE' && setModalOpen('ItemCreate');
+                  record.isActive ? setModalOpen('ItemCreate') : setSelectedPriceMaster(record);
                 }}
               />
             </Tooltip>
           </Popconfirm>
-          {record.status === 'ACTIVE' && (
+          {record.isActive && (
             <div className="flex">
               <Tooltip title="Copy">
                 <Button
@@ -125,7 +140,6 @@ export const PricelistMasterColumn = (
                   className="text-blue"
                   icon={<IconPencil size={15} />}
                   onClick={() => {
-                    console.log('record', record);
                     setSelectedPriceMaster(record);
                     setModalOpen('edit');
                   }}
@@ -136,20 +150,16 @@ export const PricelistMasterColumn = (
                 <Popconfirm
                   title="Do you want to inactive price master?"
                   onConfirm={() => {
-                    setCategoryData(prev =>
-                      prev.map(i =>
-                        i.categoryId === record.categoryId ? { ...i, status: 'INACTIVE' } : i
-                      )
-                    );
+                    handlePriceMasterStatus();
                   }}
                   placement="topRight"
                 >
-                  {' '}
                   <Button
                     size="small"
                     type="text"
                     className="text-blue"
                     icon={<IconTrash size={15} color="red" />}
+                    onClick={() => setSelectedPriceMaster(record)}
                   />
                 </Popconfirm>
               </Tooltip>
@@ -165,10 +175,17 @@ export const PricelistMasterColumn = (
       dataIndex: 'name',
       key: 'name',
       width: 600,
-      render: category => (
+      render: (_, record) => (
         <div className="flex justify-between">
-          <p>{category}</p>
-          <Button size="small" className="text-xs" type="primary">
+          <p>{record.name}</p>
+          <Button
+            size="small"
+            className="text-xs"
+            type="primary"
+            onClick={() => {
+              handleAddSuggestedPriceMaster(record.priceListId);
+            }}
+          >
             Add
           </Button>
         </div>
@@ -181,80 +198,83 @@ export const PricelistMasterColumn = (
           label: 'Pricelist Master',
           name: 'category',
           type: 'select',
-          options: categories.map(i => ({ label: i.name, value: i.categoryId })),
+          options: priceMaster.map(i => ({ label: i.name, value: i.priceListId })),
         }
-      : { label: 'Pricelist Master', name: 'category', type: 'text' },
+      : { label: 'Pricelist Master', name: 'name', type: 'text' },
     modalOpen === 'Itemcopy' && { label: 'Pricelist Item Name', name: 'name', type: 'text' },
-    { label: 'Sort Order', name: 'sort', type: 'number' },
+    { label: 'Sort Order', name: 'sortOrder', type: 'number' },
     modalOpen === 'edit' && {
       label: 'Status',
-      name: 'status',
+      name: 'isActive',
       type: 'radio',
       options: [
-        { label: 'Active', value: 'ACTIVE' },
-        { label: 'InActive', value: 'INACTIVE' },
+        { label: 'Active', value: 'active' },
+        { label: 'InActive', value: 'inactive' },
       ],
     },
     ['create', 'edit'].includes(modalOpen) && {
       label: 'Show in view list',
-      name: 'viewList',
+      name: 'showInViewList',
       type: 'switch',
     },
     ['create', 'edit'].includes(modalOpen) &&
-      locationData.length > 0 && {
+      locationOptions.length > 0 && {
         label: 'Location',
         name: 'location',
         type: 'select',
-        options: locationData.map(i => ({ label: i.location, value: i.location })),
+        options: locationOptions,
       },
   ];
 
-  function handleSubmit(values) {
-    console.log('category submit--', values);
-    selectedPriceMaster
-      ? modalOpen === 'edit'
-        ? // edit price master
-          setCategoryData(prev =>
-            prev.map(i =>
-              i.categoryId === selectedPriceMaster.categoryId
-                ? {
-                    ...i,
-                    name: values.category,
-                    status: values.status,
-                    sort: values.sort,
-                  }
-                : i
-            )
-          )
-        : // copy price master
-          setCategoryData(prev => [
-            ...prev,
-            { ...selectedPriceMaster, categoryId: '2', name: values.category, sort: values.sort },
-          ])
-      : // new pricemaster -> todo:new price master should be added in sidebar category
-        setCategoryData(prev => [
-          ...prev,
-          {
-            categoryId: '1',
-            name: values.category,
-            description: values.category,
-            items: null,
-            createdAt: '',
-            updatedAt: '',
-            isExpanded: false,
-            loadingItems: false,
-            status: 'ACTIVE',
-            sort: values.sort,
-          },
-        ]);
+  async function handleAddSuggestedPriceMaster(id) {
+    try {
+      await dispatch(updateSuggestedPricelistMaster(id)).unwrap();
+      message.success('Suggested price master added successfully');
+    } catch (error) {
+      message.error(error || 'Failed to add suggested price master');
+    }
+  }
+
+  async function handlePriceMasterStatus() {
+    const payload = { isActive: !selectedPriceMaster?.isActive };
+    try {
+      await dispatch(
+        updatePricelistMaster({ payload, id: selectedPriceMaster.priceListId })
+      ).unwrap();
+      message.success('Price master status updated successfully');
+    } catch (error) {
+      message.error(error || 'Failed to update price master status');
+    }
+  }
+
+  async function handleSubmit(values) {
+    try {
+      selectedPriceMaster
+        ? modalOpen === 'edit'
+          ? // edit price master
+            await dispatch(
+              updatePricelistMaster({
+                payload: { isActive: values.isActive === 'active' },
+                id: selectedPriceMaster.priceListId,
+              })
+            ).unwrap()
+          : // copy price master
+            () => {}
+        : // new pricemaster
+          await dispatch(createPricelistMaster(values)).unwrap();
+
+      message.success('Price master saved successfully');
+      setModalOpen(false);
+    } catch (error) {
+      message.error(error || 'Failed to save price master');
+    }
   }
   return {
     Mastercolumn,
     suggestedMasterColumn,
-    suggestedData: categoryData,
-    categoryData: categoryData?.filter(i => i.status === filters.status),
+    suggestedData: suggestedPriceMaster,
+    categoryData: priceMaster,
     masterFields: masterFields?.filter(Boolean) as FormField[],
-    setCategoryData,
     priceMasterSubmit: handleSubmit,
   };
 };

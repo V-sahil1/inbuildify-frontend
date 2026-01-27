@@ -1,67 +1,55 @@
-// categoriesSlice.ts
-export interface Item {
-  name?: string;
-  cost?: number;
-  type?: 'Fixed' | 'Variable' | 'Included';
-  costType?: 'FIXED' | 'VARIABLE' | 'INCLUDED';
-  categoryItemId?: string;
-  categoryId?: string;
-  shortDescription?: string;
-  description?: string;
-  createdAt?: string;
-  updatedAt?: string;
-  rangeId?: string;
-  dwellingTypeId?: string;
-  dwellingTypeName?: string;
-  costOption?: string;
-  status?: string;
-  rangeName?: string;
-  // extraItemType?: 'Additional' | 'Complimentary' | 'Discount' | 'Note';
-  // builderCost?: number
-}
+import { Entity } from 'types/common.types';
 
-export interface Category {
-  categoryId: string;
+export interface IPriceList {
+  priceListId: string;
   name: string;
-  description: string;
-  displayOrder?: number;
-  createdAt: string;
-  updatedAt: string;
-  items: Item[] | null;
-  isExpanded: boolean;
-  loadingItems: boolean;
-  status?:string;
-  sort?:number
+  sortOrder: number;
+  showInViewList: boolean;
+  isActive: boolean;
+  location: string;
+  isExpanded?: boolean;
+  items?: IPriceListItem[];
 }
 
-export interface CategoriesState {
-  categories: Category[];
-  loading: boolean;
+export interface IPriceListItem {
+  priceListItemId: string;
+  priceListId: string;
+  itemDescription: string;
+  shortDescription: string;
+  costType: 'Fixed' | 'Variable' | 'Included';
+  costTypeText: string | null;
+  costOption: string;
+  cost: string;
+  builderCost: string;
+  sortOrder: number;
+  uom: string;
+  status: 'active' | 'inactive';
+  includeByDefault: boolean;
+  allowRemoveFromQuotation: boolean;
+  showInHlPackage: boolean;
+  showOnlyInPackage: boolean;
+  rangeId: string[];
+  dwellingTypeId: string[];
+  priceList: Entity;
+  range: Entity[];
+  dwelling: Entity[];
+  quantity?: number;
+  included?: boolean;
+  modify?: boolean;
+  // extraItemType?: 'Additional' | 'Complimentary' | 'Discount' | 'Note';
 }
 
-export interface RequestItem {
-  category_id: string;
-  description: string;
-  short_description?: string;
-  cost_type: string;
-  cost?: number;
-  cost_type_text?: string;
+export interface PricelistItemFtechParams {
+  page?: number;
+  limit?: number;
+  price_list_id?: string;
+  range_id?: string;
+  dwelling_type_id?: string;
+  location_id?: string;
   cost_option?: string;
-  include_by_default?: boolean;
-  show_in_hl_package?: boolean;
-  package_only?: boolean;
-  uom?: string;
-  sort_order?: number;
-  range?: string | string[];
-  dwelling?: string | string[];
-  conditions?: {
-    name: string;
-    range_start: string;
-    range_end: string;
-  }[];
-  status?: string;
-  builderCost?: number;
-  notAllowRemoveQuotation?:boolean
-  // extraItemType?: string;
-  // builderCost?: number
+  item_description?: string;
+  sort_order?: string;
+  price?: number;
+  status?: 'active' | 'inactive';
 }
+

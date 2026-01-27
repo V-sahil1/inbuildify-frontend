@@ -1,34 +1,42 @@
 import { createSlice } from '@reduxjs/toolkit';
 import {
-  createCategory,
   createCategoryItem,
-  deleteCategory,
+  createPricelistMaster,
   deleteCategoryItem,
-  fetchCategories,
+  deletePricelistMaster,
   fetchCategoryItems,
-  updateCategory,
+  fetchPricelistMaster,
   updateCategoryItem,
-  updateCategoryOrder,
+  updatePricelistMaster,
+  updateSuggestedPricelistMaster,
 } from './masterPriceListThunk';
 import { Status } from '@lib/constants/enum';
-import { Category } from './iMasterPriceListState';
+import { IPriceList, IPriceListItem } from './iMasterPriceListState';
+import { CommonPagination } from '../common/ICommonState';
+
 const masterPriceListSlice = createSlice({
   name: 'masterPriceList',
   initialState: {
-    status: { Category: Status.IDLE, CategoryItem: Status.IDLE },
-    categories: [] as Category[],
+    status: {
+      priceMaster: Status.IDLE,
+      priceListItem: { fetch: Status.IDLE, create: Status.IDLE },
+    },
+    priceMaster: [] as IPriceList[],
+    suggestedPriceMaster: [] as IPriceList[],
+    priceListItems: [] as IPriceListItem[],
     loading: false,
     selectedFilters: { range: '', dwelling_type: '' },
+    pagination: <CommonPagination>{},
   },
   reducers: {
     toggleExpand(state, action) {
-      const category = state.categories.find(c => c.categoryId === action.payload);
+      const category = state.priceMaster.find(c => c.priceListId === action.payload);
       if (category) {
         category.isExpanded = true;
       }
     },
     resetAllCategoriesIsExpanded(state) {
-      state.categories.forEach(category => {
+      state.priceMaster.forEach(category => {
         category.isExpanded = false;
       });
     },
@@ -42,97 +50,120 @@ const masterPriceListSlice = createSlice({
   extraReducers: builder => {
     builder
       // categories
-      .addCase(fetchCategories.pending, state => {
-        state.status.Category = Status.PENDING;
+      .addCase(fetchPricelistMaster.pending, state => {
+        state.status.priceMaster = Status.PENDING;
         state.loading = true;
       })
-      .addCase(fetchCategories.fulfilled, (state, action) => {
-        state.status.Category = Status.SUCCESS;
+      .addCase(fetchPricelistMaster.fulfilled, (state, action) => {
+        state.status.priceMaster = Status.SUCCESS;
         state.loading = false;
-        state.categories = action.payload?.categories.map(c => ({
-          ...c,
-          items: null,
-          isExpanded: false,
-          loadingItems: false,
-        }));
+        if (action.meta.arg?.is_suggested) {
+          state.suggestedPriceMaster = action.payload?.priceList.map(c => ({
+            ...c,
+            items: null,
+            isExpanded: false,
+          }));
+        } else {
+          state.priceMaster = action.payload?.priceList.map(c => ({
+            ...c,
+            items: null,
+            isExpanded: false,
+          }));
+        }
       })
-      .addCase(createCategory.fulfilled, (state, action) => {
-        state.categories.push({
+      .addCase(createPricelistMaster.fulfilled, (state, action) => {
+        state.priceMaster.push({
           ...action.payload,
           items: null,
           isExpanded: false,
-          loadingItems: false,
         });
       })
-      .addCase(updateCategory.fulfilled, (state, action) => {
-        const category = state.categories.find(c => c.categoryId === action.payload.categoryId);
-        if (category) {
-          category.name = action.payload.name;
-          category.description = action.payload.description;
-        }
-      })
-      .addCase(deleteCategory.fulfilled, (state, action) => {
-        state.categories = state.categories.filter(c => c.categoryId !== action.payload.categoryId);
+      .addCase(updatePricelistMaster.fulfilled, (state, action) => {
+        state.priceMaster = state.priceMaster.map(c =>
+          c.priceListId === action.payload.priceListId ? action.payload : c
+        );
       })
 
-      .addCase(updateCategoryOrder.fulfilled, (state, action) => {
-        const updatedOrders = action.payload?.categories;
-
-        state.categories = state.categories.map(cat => {
-          const found = updatedOrders?.find(u => u?.categoryId === cat?.categoryId);
-          return found ? { ...cat, displayOrder: found?.displayOrder } : cat;
+      .addCase(updateSuggestedPricelistMaster.fulfilled, (state, action) => {
+        state.suggestedPriceMaster = state.suggestedPriceMaster.filter(
+          c => c.priceListId !== action.payload.priceListId
+        );
+        state.priceMaster.push({
+          ...action.payload,
+          items: null,
+          isExpanded: false,
         });
-
-        state.categories.sort((a, b) => a?.displayOrder - b?.displayOrder);
       })
+
+      .addCase(deletePricelistMaster.fulfilled, (state, action) => {
+        state.priceMaster = state.priceMaster.filter(c => c.priceListId !== action.payload);
+      })
+
+      // .addCase(updateCategoryOrder.fulfilled, (state, action) => {
+      //   const updatedOrders = action.payload?.categories;
+
+      //   state.categories = state.categories.map(cat => {
+      //     const found = updatedOrders?.find(u => u?.categoryId === cat?.categoryId);
+      //     return found ? { ...cat, displayOrder: found?.displayOrder } : cat;
+      //   });
+
+      //   state.categories.sort((a, b) => a?.displayOrder - b?.displayOrder);
+      // })
 
       // fetch items
       .addCase(fetchCategoryItems.pending, (state, action) => {
-        const category = state.categories.find(c => c.categoryId === action.meta.arg.categoryId);
-        if (category) category.loadingItems = true;
+        state.status.priceListItem.fetch = Status.PENDING;
       })
       .addCase(fetchCategoryItems.fulfilled, (state, action) => {
-        const { categoryId, items } = action.payload;
-        const category = state.categories.find(c => c.categoryId === categoryId);
-        if (category) {
-          category.items = items; // store only once
-          category.loadingItems = false;
+        const { priceListId, items } = action.payload;
+        if (!!priceListId) {
+          const category = state.priceMaster.find(c => c.priceListId === priceListId);
+          if (category) {
+            category.items = items.priceListItem;
+          }
+        } else {
+          state.priceListItems = items.priceListItem;
         }
+        state.pagination = items.pagination;
+
+        state.status.priceListItem.fetch = Status.SUCCESS;
       })
 
       // create item
       .addCase(createCategoryItem.pending, state => {
-        state.status.CategoryItem = Status.PENDING;
+        state.status.priceListItem.create = Status.PENDING;
       })
       .addCase(createCategoryItem.fulfilled, (state, action) => {
-        const category = state.categories.find(c => c.categoryId === action.meta.arg.category_id);
+        const category = state.priceMaster.find(c => c.priceListId === action.payload.priceList.id);
         if (category) {
           if (!category.items) {
             category.items = [];
           }
           category.items = [action.payload, ...(category.items || [])];
         }
-        state.status.CategoryItem = Status.SUCCESS;
+        state.status.priceListItem.create = Status.SUCCESS;
       })
 
       //delete item
       .addCase(deleteCategoryItem.fulfilled, (state, action) => {
-        const category = state.categories.find(c => c.categoryId === action.payload.categoryId);
+        const category = state.priceMaster.find(c => c.priceListId === action.payload.categoryId);
         if (category) {
           category.items = category.items?.filter(
-            item => item.categoryItemId !== action.payload.categoryItemId
+            item => item.priceListItemId !== action.payload.id
           );
         }
+        state.status.priceListItem.create = Status.SUCCESS;
       })
 
       //update item
       .addCase(updateCategoryItem.fulfilled, (state, action) => {
-        const category = state.categories.find(c => c.categoryId === action.payload.categoryId);
+        const category = state.priceMaster.find(c => c.priceListId === action.payload.priceList.id);
         if (category) {
           category.items = category.items?.map(item =>
-            item.categoryItemId === action.payload.categoryItemId ? action.payload : item
+            item.priceListItemId === action.payload.priceListItemId ? action.payload : item
           );
         }
+        state.status.priceListItem.create = Status.SUCCESS;
       });
   },
 });

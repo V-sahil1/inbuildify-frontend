@@ -1,70 +1,19 @@
-import { Button, Input, message, Popconfirm, Select, Tag, Tooltip } from 'antd';
+import { Input, message, Popconfirm, Select, Tag } from 'antd';
 import StatusSelect from '../common/custom-selects/StatusSelect';
 import { IconCopy, IconPlus, IconRotate, IconTrash } from '@tabler/icons-react';
-import { useEffect, useState } from 'react';
 import { useAppDispatch } from '@hooks/redux';
-import { fetchCategoryItems } from '@redux/feature/masterPriceList/masterPriceListThunk';
-import { Item } from '@redux/feature/masterPriceList/iMasterPriceListState';
+import { updateCategoryItem } from '@redux/feature/masterPriceList/masterPriceListThunk';
+import TooltipButton from '../common/TooltipButton';
 
-export const pricelistData = [
-  {
-    id: '1',
-    category: 'Base Price',
-    description: 'Base Price for single storey [units] sq',
-    uom: 'Sq',
-    price: 10000.0,
-    costType: 'Fixed',
-    costOption: 'TBA',
-    sort: 12,
-    status: 'Active',
-    builderCost: 2453.0,
-  },
-  {
-    id: '2',
-    category: 'Bricks',
-    description: 'Base Price for single storey [units] sq',
-    uom: 'Sq',
-    price: 9400.0,
-    costType: 'Variable',
-    sort: 2,
-    status: 'InActive',
-    builderCost: 2453.0,
-  },
-];
 export const PricelistColumn = (
   filters,
   setParams,
   setDrawerOpen,
   setModalOpen,
   setSelectedPricelist,
-  selectedPricelist,
-  categories
+  selectedPricelist
 ) => {
-  const [priceLists, setPriceLists] = useState<Item[]>();
   const dispatch = useAppDispatch();
-  useEffect(() => {
-    const fetchAllCategoryItems = async () => {
-      try {
-        const responses = await Promise.all(
-          categories.map(async cat => {
-            return dispatch(
-              fetchCategoryItems({
-                categoryId: cat.categoryId,
-              })
-            ).unwrap();
-          })
-        );
-        setPriceLists(responses.map(i => i.items).flat());
-      } catch (error) {
-        message.error(error || 'Failed to fetch category items');
-      }
-    };
-
-    if (categories.length > 0) {
-      fetchAllCategoryItems();
-    }
-  }, [categories.length]);
-
   const columns = [
     {
       title: (
@@ -76,13 +25,13 @@ export const PricelistColumn = (
           />
         </>
       ),
-      dataIndex: 'description',
-      key: 'description',
+      dataIndex: 'itemDescription',
+      key: 'itemDescription',
       render: (_, record) => (
         <>
-          <span>{record.description}</span>
+          <span>{record.itemDescription}</span>
           <div className="flex gap-2 items-center">
-            {record.category && <Tag color="purple">{record.category}</Tag>}
+            {record.priceList && <Tag color="purple">{record.priceList.name}</Tag>}
             {record.builderCost && <Tag color="blue">Buider Cost ${record.builderCost}</Tag>}
             {record.uom && <Tag color="orange">{record.uom}</Tag>}
             {record.costType && <Tag color="orange">{record.costType}</Tag>}
@@ -101,9 +50,9 @@ export const PricelistColumn = (
           />
         </>
       ),
-      dataIndex: 'price',
-      key: 'price',
-      render: price => price && <span>${price}</span>,
+      dataIndex: 'cost',
+      key: 'cost',
+      render: cost => cost && <span>${cost}</span>,
     },
     {
       title: (
@@ -114,9 +63,9 @@ export const PricelistColumn = (
             onChange={value => setParams({ costOption: value })}
             className="w-full"
             options={[
-              { label: 'All', value: 'all' },
-              { label: 'TBA', value: 'TBA' },
-              { label: 'TBC', value: 'TBC' },
+              { label: 'All', value: 'none' },
+              { label: 'TBA', value: 'tba' },
+              { label: 'TBC', value: 'tbc' },
             ]}
           />
         </>
@@ -126,7 +75,9 @@ export const PricelistColumn = (
       render: (_, record) => (
         <div className="flex gap-2">
           {record.costType && <Tag color="gray">{record.costType}</Tag>}
-          {record.costOption && <Tag color="orange">{record.costOption}</Tag>}
+          {record.costType !== 'Included' && record.costOption && (
+            <Tag color="orange">{record.costOption}</Tag>
+          )}
         </div>
       ),
     },
@@ -141,8 +92,8 @@ export const PricelistColumn = (
           />
         </>
       ),
-      dataIndex: 'sort',
-      key: 'sort',
+      dataIndex: 'sortOrder',
+      key: 'sortOrder',
     },
     {
       title: (
@@ -161,116 +112,85 @@ export const PricelistColumn = (
         <div className="flex justify-between items-center">
           <span>{record.status}</span>
           <div className="flex">
-            <Tooltip title="Copy">
-              <Button
-                className="text-blue"
-                type="text"
-                icon={<IconCopy size={15} />}
-                onClick={e => {
-                  e.stopPropagation();
-                  setSelectedPricelist(record);
-                  setModalOpen('Itemcopy');
-                }}
-              />
-            </Tooltip>
+            <TooltipButton
+              title="Copy"
+              type="text"
+              icon={<IconCopy size={15} />}
+              onClick={e => {
+                e.stopPropagation();
+                setSelectedPricelist(record);
+                setModalOpen('Itemcopy');
+              }}
+            />
 
-            {record.status === 'ACTIVE' ? (
+            {record.status === 'active' ? (
               <Popconfirm
                 title="Do you want to InActivate pricelist item?"
                 okText="InActive"
                 onCancel={e => e.stopPropagation()}
                 onConfirm={e => {
                   e.stopPropagation();
-                  setPriceLists(prev =>
-                    prev.map(i =>
-                      i.categoryItemId === record.categoryItemId ? { ...i, status: 'INACTIVE' } : i
-                    )
-                  );
+                  handleActivateItem();
                 }}
                 placement="topRight"
               >
-                <Tooltip title="InActive">
-                  <Button
-                    type="text"
-                    icon={<IconTrash color="red" size={15} />}
-                    onClick={e => e.stopPropagation()}
-                  />
-                </Tooltip>
-              </Popconfirm>
-            ) : (
-              <Tooltip title="Active">
-                <Button
+                <TooltipButton
+                  title="InActive"
                   type="text"
-                  className="text-blue"
-                  icon={<IconPlus size={15} />}
+                  icon={<IconTrash color="red" size={15} />}
                   onClick={e => {
                     e.stopPropagation();
-                    setModalOpen('activePricelist');
                     setSelectedPricelist(record);
                   }}
                 />
-              </Tooltip>
-            )}
-            <Tooltip title="Quotation History">
-              {' '}
-              <Button
-                className="text-blue"
+              </Popconfirm>
+            ) : (
+              <TooltipButton
+                title="Active"
                 type="text"
-                icon={<IconRotate size={15} />}
+                icon={<IconPlus size={15} />}
                 onClick={e => {
                   e.stopPropagation();
-                  setDrawerOpen('quotation');
+                  setModalOpen('activePricelist');
+                  setSelectedPricelist(record);
                 }}
               />
-            </Tooltip>
+            )}
+            <TooltipButton
+              title="Quotation History"
+              type="text"
+              icon={<IconRotate size={15} />}
+              onClick={e => {
+                e.stopPropagation();
+                setDrawerOpen('quotation');
+              }}
+            />
           </div>
         </div>
       ),
     },
   ];
 
-  function handleSubmit(values) {
-    selectedPricelist
-      ? // copy pricelist
-        setPriceLists(prev => [
-          ...prev,
-          {
-            ...selectedPricelist,
-            categoryItemId: Math.floor(Math.random() * 1000000).toString(),
-            categoryId: values.category,
-            description: values.name,
-            sortOrder: values.sort,
-          },
-        ])
-      : //new pricelist
-        setPriceLists(prev => [
-          ...prev,
-          {
-            categoryItemId: Math.floor(Math.random() * 100000).toString(),
-            category: values.pricelistMaster,
-            description: values.shortDescription,
-            uom: values.uom,
-            price: values.cost,
-            costType: values.costType,
-            costOption: values.costOptions,
-            sort: values.sort,
-            status: values.status,
-            builderCost: values.builderCost,
-          },
-        ]);
-    setDrawerOpen(null);
+  async function handleActivateItem() {
+    try {
+      await dispatch(
+        updateCategoryItem({
+          payload: { status: selectedPricelist?.status === 'active' ? 'inactive' : 'active' },
+          id: selectedPricelist?.priceListItemId,
+        })
+      ).unwrap();
+      message.success('Pricelist status updated successfully');
+      setSelectedPricelist(null);
+    } catch (error) {
+      message.error(error || 'Failed to update pricelist status ');
+    }
   }
-
-  function handleActivateItem() {
-    setPriceLists(prev =>
-      prev.map(i =>
-        i.categoryItemId === selectedPricelist.categoryItemId ? { ...i, status: 'ACTIVE' } : i
-      )
-    );
+  //copy pricelist item
+  function handleSubmit(values) {
+    setDrawerOpen(null);
   }
   return {
     columns,
-    priceLists,
     handlePricelistSubmit: handleSubmit,
     handleActivateItem,
   };

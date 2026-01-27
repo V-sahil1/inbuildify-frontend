@@ -1,17 +1,12 @@
-import { Button, Dropdown, Select } from 'antd';
+import { Button, Dropdown } from 'antd';
 import DwellingTypeSelect from '../common/custom-selects/DwellingTypeSelect';
 import RangeSelect from '../common/custom-selects/RangeSelect';
 import { IconDownload, IconFileSpreadsheet, IconUpload } from '@tabler/icons-react';
 import { PricelistMaster } from '@lib/utils/Reports/pricelist/PricelistMaster';
 import { PriceMasterCorrection } from '@lib/utils/Reports/pricelist/PriceMasterCorrection';
+import LocationSelect from '../common/custom-selects/LocationSelect';
 
-export const PricelistHeader = ({
-  filters,
-  setParams,
-  setDrawerOpen,
-  locationdata,
-  setModalOpen,
-}) => {
+export const PricelistHeader = ({ filters, setParams, setDrawerOpen, setModalOpen }) => {
   const exportMenu = [
     {
       key: 'pricemaster',
@@ -30,18 +25,14 @@ export const PricelistHeader = ({
   return (
     <>
       <div className="flex gap-2 items-center">
-        {locationdata && locationdata.length > 0 && (
-          // only show location field when there is any active location is present
-          <span>
-            <p> Location: </p>
-            <Select
-              placeholder="Location"
-              value={filters?.loaction}
-              onChange={value => setParams({ location: value })}
-              options={locationdata.map(i => ({ label: i.location, value: i.location }))}
-            />
-          </span>
-        )}
+        {/* only show location field when there is any active location is present */}
+        <span>
+          <p> Location: </p>
+          <LocationSelect
+            value={filters?.loaction}
+            onChange={value => setParams({ location: value })}
+          />
+        </span>
         <span>
           <p> Range :</p>
           <RangeSelect value={filters?.range} onChange={value => setParams({ range: value })} />

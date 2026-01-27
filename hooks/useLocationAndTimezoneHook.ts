@@ -8,9 +8,7 @@ type CommonGeoType = 'timezone' | 'location';
 export const useLocationAndTimezoneHook = ({ type }: { type: CommonGeoType | CommonGeoType[] }) => {
   const dispatch = useAppDispatch();
 
-  const { timezone, locations, status } = useAppSelector(
-    state => state.common
-  );
+  const { timezone, locations, status } = useAppSelector(state => state.common);
 
   // normalize: single → array
   const types = useMemo(() => (Array.isArray(type) ? type : [type]), [type]);
@@ -23,8 +21,10 @@ export const useLocationAndTimezoneHook = ({ type }: { type: CommonGeoType | Com
         promises.push(dispatch(fetchTimeZone()).unwrap());
       }
 
-      if (types.includes('location') && status.locationStatus === Status.IDLE) {
-        promises.push(dispatch(fetchLocation()).unwrap());
+      if (types.includes('location') && status.locationStatus.fetch === Status.IDLE) {
+        if (status.locationStatus.fetch === Status.IDLE) {
+          promises.push(dispatch(fetchLocation({ status: true })).unwrap());
+        }
       }
 
       if (promises.length > 0) {
@@ -60,7 +60,7 @@ export const useLocationAndTimezoneHook = ({ type }: { type: CommonGeoType | Com
   const isLoading = useMemo(
     () => ({
       timezone: status.timezoneStatus === Status.PENDING,
-      location: status.locationStatus === Status.PENDING,
+      location: status.locationStatus.fetch === Status.PENDING,
     }),
     [status.timezoneStatus, status.locationStatus]
   );

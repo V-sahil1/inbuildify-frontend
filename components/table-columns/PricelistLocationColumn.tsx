@@ -1,20 +1,30 @@
 import { debouncedURL } from '@lib/utils/debounceURL';
 import { IconPencil, IconPlus, IconTrash } from '@tabler/icons-react';
-import { Button, Input, Popconfirm, Select } from 'antd';
+import { Button, Input, message, Popconfirm, Select } from 'antd';
 import { useEffect, useState } from 'react';
 import { FormField } from '../common/Models/ActionDialogModel';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { createLocation, fetchLocation, updateLocation } from '@redux/feature/common/commonThunk';
 
 export const PricelistLocationColumn = (setModalOpen, setSelectedLocation, selectedLocation) => {
-  const [data, setData] = useState([
-    { id: '1', location: 'Melbourne', status: 'InActive' },
-    { id: '2', location: 'Melbourne West', status: 'InActive' },
-    { id: '3', location: 'Melbourne North', status: 'Active' },
-  ]);
+  const dispatch = useAppDispatch();
+  const { locations, status } = useAppSelector(state => state.common);
+
   const { debouncedUpdateURL, setParams, filters } = debouncedURL({
     filtersKey: ['status', 'search'],
-    initialValue: { status: 'Active' },
+    initialValue: { status: 'active' },
     shouldSyncURL: false,
   });
+  const fetchLocations = async () => {
+    try {
+      const res = await dispatch(fetchLocation({ status: filters.status === 'active' })).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch price master');
+    }
+  };
+  useEffect(() => {
+    fetchLocations();
+  }, [filters]);
   useEffect(() => {
     return () => {
       debouncedUpdateURL.cancel();
@@ -31,8 +41,8 @@ export const PricelistLocationColumn = (setModalOpen, setSelectedLocation, selec
                 onChange={value => setParams({ status: value })}
                 defaultValue="Active"
                 options={[
-                  { label: 'Active', value: 'Active' },
-                  { label: 'InActive', value: 'InActive' },
+                  { label: 'Active', value: 'active' },
+                  { label: 'InActive', value: 'inactive' },
                 ]}
                 className="min-w-[100px]"
               />
@@ -43,14 +53,14 @@ export const PricelistLocationColumn = (setModalOpen, setSelectedLocation, selec
           />
         </>
       ),
-      dataIndex: 'location',
-      key: 'location',
+      dataIndex: 'name',
+      key: 'name',
       width: 600,
     },
     {
       title: (
         <Button
-          disabled={filters.status === 'InActive'}
+          disabled={filters.status === 'inactive'}
           type="primary"
           onClick={() => setModalOpen('createLocation')}
         >
@@ -58,7 +68,7 @@ export const PricelistLocationColumn = (setModalOpen, setSelectedLocation, selec
         </Button>
       ),
       render: (_, record) =>
-        filters.status === 'Active' ? (
+        filters.status === 'active' ? (
           <div className="flex items-center gap-2">
             <Button
               type="text"
@@ -74,62 +84,88 @@ export const PricelistLocationColumn = (setModalOpen, setSelectedLocation, selec
               title={
                 <div className="text-center">
                   <p className="text-red-500">
-                    The location Melbourne can't be deleted. If you no longer require this location,
-                    please consider inactivating it, as it has been used in existing quotations,
-                    pricelist items, facade and floorplan.
+                    The location ${record.name} can't be deleted. If you no longer require this
+                    location, please consider inactivating it, as it has been used in existing
+                    quotations, pricelist items, facade and floorplan.
                   </p>
                   <p>Are you sure you want to proceed with inactivation?</p>
                 </div>
               }
               okText="InActive"
               onConfirm={() => {
-                setData(prev =>
-                  prev.map(i => (i.id === record.id ? { ...i, status: 'InActive' } : i))
-                );
+                handleStatus(!record.status);
               }}
             >
-              {' '}
-              <Button type="text" color="red" icon={<IconTrash size={15} />} />
+              <Button
+                type="text"
+                color="red"
+                icon={<IconTrash size={15} />}
+                onClick={() => setSelectedLocation(record)}
+              />
             </Popconfirm>
           </div>
         ) : (
           <Popconfirm
             title="Do you want to active location?"
-            onConfirm={() =>
-              setData(prev => prev.map(i => (i.id === record.id ? { ...i, status: 'Active' } : i)))
-            }
+            onConfirm={() => {
+              handleStatus(!record.status);
+            }}
             placement="topRight"
           >
-            <Button type="text" className="text-blue" icon={<IconPlus size={15} />} />
+            <Button
+              type="text"
+              className="text-blue"
+              icon={<IconPlus size={15} />}
+              onClick={() => setSelectedLocation(record)}
+            />
           </Popconfirm>
         ),
     },
   ];
-  function handleSubmit(values) {
-    selectedLocation
-      ? setData(prev => prev.map(i => (i.id === selectedLocation.id ? { ...values, id: i.id } : i)))
-      : setData(prev => [
-          ...prev,
-          { ...values, id: Math.floor(Math.random() * 100000).toString() },
-        ]);
+  async function handleSubmit(values) {
+    try {
+      selectedLocation
+        ? await dispatch(
+            updateLocation({
+              data: { ...values, status: values.status === 'active' },
+              id: selectedLocation.locationId,
+            })
+          ).unwrap()
+        : await dispatch(
+            createLocation({ ...values, status: values.status === 'active' })
+          ).unwrap();
+      message.success('Location saved successfully');
+      setSelectedLocation(null);
+    } catch (error) {
+      message.error(error || 'Failed to save location');
+    }
   }
-
+  async function handleStatus(status: boolean) {
+    try {
+      await dispatch(
+        updateLocation({ data: { status: status }, id: selectedLocation.locationId })
+      ).unwrap();
+      message.success('Location updated successfully');
+      setSelectedLocation(null);
+    } catch (error) {
+      message.error(error || 'Failed to save location');
+    }
+  }
   const locationFormFields: FormField[] = [
-    { label: 'Name', name: 'location', type: 'text' },
+    { label: 'Name', name: 'name', type: 'text' },
     {
       label: 'Status',
       name: 'status',
       type: 'radio',
       options: [
-        { label: 'Active', value: 'Active' },
-        { label: 'InActive', value: 'InActive' },
+        { label: 'Active', value: 'active' },
+        { label: 'InActive', value: 'inactive' },
       ],
     },
   ];
   return {
     column,
-    data: data.filter(i => i.status === filters.status),
-    locationdata: data.filter(i => i.status === 'Active'),
+    data: locations,
     locationFormFields,
     locationSubmit: handleSubmit,
   };

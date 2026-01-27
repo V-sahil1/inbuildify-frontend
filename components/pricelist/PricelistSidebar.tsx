@@ -25,9 +25,9 @@ export const PricelistSidebar = ({
         {categories.map((item, index) => (
           <div
             key={index}
-            className={` ${selectedCategory === item.categoryId ? 'bg-primary text-white' : 'bg-card-color hover:bg-gray-100'} cursor-pointer border-b-2 p-4 `}
+            className={` ${selectedCategory?.priceListId === item.priceListId ? 'bg-primary text-white' : 'bg-card-color hover:bg-gray-100'} cursor-pointer border-b-2 p-4 `}
             onClick={() => {
-              setSelectedCategory(item.categoryId);
+              setSelectedCategory(item);
             }}
           >
             {item.name}
