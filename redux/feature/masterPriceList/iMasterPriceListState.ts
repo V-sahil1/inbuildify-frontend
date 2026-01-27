@@ -51,5 +51,7 @@ export interface PricelistItemFtechParams {
   sort_order?: string;
   price?: number;
   status?: 'active' | 'inactive';
+  cost_type?:string,
+  uom?:string
 }
 

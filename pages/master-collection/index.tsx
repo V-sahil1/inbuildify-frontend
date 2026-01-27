@@ -44,7 +44,7 @@ const MasterCollection = () => {
         <h1 className="text-2xl font-semibold">{activeTab} Collections </h1>
         <div className="flex gap-2 items-center">
           <span>
-            Range :{' '}
+            Range :
             <RangeSelect value={filters?.range} onChange={value => setParams({ range: value })} />
           </span>
           <span>
@@ -80,9 +80,9 @@ const MasterCollection = () => {
       {activeTab === 'Price List' ? (
         <MasterPricelistCollection filters={filters} setParams={setParams} />
       ) : activeTab === 'Facade' ? (
-        <MasterFacadeCollection />
+        <MasterFacadeCollection filters={filters} />
       ) : (
-        <MasterFloorPlanCollection />
+        <MasterFloorPlanCollection filters={filters} />
       )}
     </div>
   );
