@@ -1,40 +1,38 @@
-import { Badge, Button, Input, Popconfirm, Select, Tag, Tooltip } from 'antd';
+import { Badge, Button, Input, message, Popconfirm, Tag, Tooltip } from 'antd';
 import StatusSelect from '../common/custom-selects/StatusSelect';
 import { IconPlus, IconQuestionMark, IconTrash } from '@tabler/icons-react';
-import { useState } from 'react';
+import { useAppDispatch } from '@hooks/redux';
+import {
+  createSurveyTemplate,
+  updateSurveyTemplate,
+} from '@redux/feature/surveyTemplate/surveyTemplateThunk';
+import TooltipButton from '../common/TooltipButton';
 
 export const SurveyTemplateColumn = (
   selectedTemplate,
   setSelectedTemplate,
   setDrawerOpen,
   setParams,
+  setModalOpen,
   filters
 ) => {
-  const [templateData, setTemplateData] = useState([
-    {
-      id: '1',
-      template: 'Customer Sales Feedback',
-      sort: 0,
-      status: 'Active',
-      recommendTemplate: false,
-    },
-  ]);
+  const dispatch = useAppDispatch();
 
   const column = [
     {
       title: (
         <div className="flex flex-col gap-1">
-          <span></span>Template
+          <span>Template</span>
           <Input value={filters.template} onChange={e => setParams({ template: e.target.value })} />
         </div>
       ),
-      dataIndex: 'template',
-      key: 'template',
+      dataIndex: 'name',
+      key: 'name',
       width: 800,
       render: (_, record) => (
         <div className="flex gap-2">
-          <span>{record.template}</span>
-          {record.recommendTemplate && <Tag color="red">Recommeded</Tag>}
+          <span>{record.name}</span>
+          {record.isRecommended && <Tag color="red">Recommended</Tag>}
         </div>
       ),
     },
@@ -49,8 +47,8 @@ export const SurveyTemplateColumn = (
           />
         </div>
       ),
-      dataIndex: 'sort',
-      key: 'sort',
+      dataIndex: 'sortOrder',
+      key: 'sortOrder',
       width: 200,
     },
 
@@ -69,31 +67,32 @@ export const SurveyTemplateColumn = (
       key: 'status',
       render: (_, record) => (
         <div className="flex justify-between items-center">
-          <span>{record.status}</span>
+          <span>{record.status ? 'Active' : 'Inactive'}</span>
 
-          <Badge count={2} size="small">
-            <Tooltip title="Map Question">
-              <Button
-                type="text"
-                shape="circle"
-                className="text-blue"
-                icon={<IconQuestionMark size={15} />}
-                onClick={e => {
-                  e.stopPropagation();
-                  setDrawerOpen('question');
-                }}
-              />
-            </Tooltip>
-          </Badge>
-          {record.status === 'Active' ? (
+          {record.status && (
+            <Badge count={record.questions?.length || 0} size="small">
+              <Tooltip title="Map Question">
+                <Button
+                  type="text"
+                  shape="circle"
+                  size="small"
+                  className="text-blue border border-blue"
+                  icon={<IconQuestionMark size={15} />}
+                  onClick={e => {
+                    e.stopPropagation();
+                    setDrawerOpen(true);
+                    setSelectedTemplate(record);
+                  }}
+                />
+              </Tooltip>
+            </Badge>
+          )}
+          {record.status ? (
             <Popconfirm
               okText="Inactive"
               onConfirm={e => {
                 e.stopPropagation();
-                setTemplateData(prev =>
-                  prev.map(i => (i.id === selectedTemplate.id ? { ...i, status: 'InActive' } : i))
-                );
-                setSelectedTemplate(null);
+                handleSurveyTemplateStatus();
               }}
               onCancel={e => {
                 e.stopPropagation();
@@ -110,10 +109,10 @@ export const SurveyTemplateColumn = (
               }
               placement="topRight"
             >
-              <Button
+              <TooltipButton
                 type="text"
-                color="red"
-                icon={<IconTrash size={15} />}
+                title="Inactivate"
+                icon={<IconTrash size={15} color="red" />}
                 onClick={e => {
                   e.stopPropagation();
                   setSelectedTemplate(record);
@@ -125,10 +124,7 @@ export const SurveyTemplateColumn = (
               title="Are you sure you want to to activate template?"
               onConfirm={e => {
                 e.stopPropagation();
-                setTemplateData(prev =>
-                  prev.map(i => (i.id === selectedTemplate.id ? { ...i, status: 'Active' } : i))
-                );
-                setSelectedTemplate(null);
+                handleSurveyTemplateStatus();
               }}
               onCancel={e => {
                 e.stopPropagation();
@@ -136,10 +132,10 @@ export const SurveyTemplateColumn = (
               }}
               okText="Active"
             >
-              <Button
+              <TooltipButton
                 type="text"
-                className="text-blue"
-                icon={<IconPlus size={15} />}
+                title="Activate"
+                icon={<IconPlus size={15} className="text-blue" />}
                 onClick={e => {
                   e.stopPropagation();
                   setSelectedTemplate(record);
@@ -153,33 +149,43 @@ export const SurveyTemplateColumn = (
     },
   ];
 
-  function handelSubmit(values) {
-    selectedTemplate
-      ? setTemplateData(prev =>
-          prev.map(i =>
-            i.id === selectedTemplate.id
-              ? { ...values, id: i.id }
-              : values.recommendTemplate
-                ? { ...i, recommendTemplate: false }
-                : i
-          )
-        )
-      : setTemplateData(prev => {
-          const newTemplate = {
-            ...values,
-            id: Math.floor(Math.random() * 100000).toString(),
-            status: 'Active',
-          };
-          return values.recommendTemplate
-            ? [
-                ...prev.map(i =>
-                  i.recommendTemplate === true ? { ...i, recommendTemplate: false } : i
-                ),
-                newTemplate,
-              ]
-            : [...prev, newTemplate];
-        });
-    setSelectedTemplate(null);
+  async function handleSurveyTemplateStatus() {
+    try {
+      await dispatch(
+        updateSurveyTemplate({
+          data: { status: !selectedTemplate.status },
+          id: selectedTemplate.surveyTemplateId,
+        })
+      ).unwrap();
+      message.success('Survey Template updated Successfully');
+      setSelectedTemplate(null);
+      setModalOpen(null);
+    } catch (error) {
+      message.error(error || 'Failed to update survey template');
+    }
   }
-  return { column, templateData, templateSubmit: handelSubmit };
+
+  async function handelSubmit(values) {
+    try {
+      if (selectedTemplate) {
+        await dispatch(
+          updateSurveyTemplate({
+            data: { ...values, status: values.status === 'active' },
+            id: selectedTemplate.surveyTemplateId,
+          })
+        ).unwrap();
+        message.success('Survey Template updated Successfully');
+      } else {
+        await dispatch(
+          createSurveyTemplate({ ...values, status: values.status === 'active' })
+        ).unwrap();
+        message.success('Survey Template created Successfully');
+      }
+      setModalOpen(null);
+      setSelectedTemplate(null);
+    } catch (error) {
+      message.error(error || 'Failed to save survey template');
+    }
+  }
+  return { column, templateSubmit: handelSubmit };
 };

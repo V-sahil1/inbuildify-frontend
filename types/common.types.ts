@@ -15,7 +15,7 @@ export interface CustomSelectOption {
 export interface TooltipButtonProps {
   title: string;
   icon: ReactNode;
-  onClick?: () => void;
+  onClick?: (e?: React.MouseEvent) => void;
   type?: 'link' | 'text' | 'default' | 'primary' | 'dashed';
   className?: string;
 }

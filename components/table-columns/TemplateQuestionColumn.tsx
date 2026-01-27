@@ -1,11 +1,21 @@
+import { useAppDispatch } from '@hooks/redux';
+import {
+  createQuestion,
+  deleteQuestion,
+  updateQuestion,
+} from '@redux/feature/surveyTemplate/surveyTemplateThunk';
 import { IconPencil, IconTrash } from '@tabler/icons-react';
-import { Button, Tooltip } from 'antd';
+import { Button, message, Tooltip } from 'antd';
 import { useState } from 'react';
 
-export const TemplateQuestionColumn = (selectedQuestion, setSelectedQuestion, setModalOpen) => {
-  const [questions, setQuestions] = useState([
-    { id: '1', description: 'Rate quality', options: 'Radio Button', sort: 1 },
-  ]);
+export const TemplateQuestionColumn = (
+  selectedQuestion,
+  setSelectedQuestion,
+  setModalOpen,
+  selectedTemplate
+) => {
+  const dispatch = useAppDispatch();
+
   const column = [
     {
       title: 'Description',
@@ -14,13 +24,13 @@ export const TemplateQuestionColumn = (selectedQuestion, setSelectedQuestion, se
     },
     {
       title: 'Options',
-      dataIndex: 'options',
-      key: 'options',
+      dataIndex: 'optionType',
+      key: 'optionType',
     },
     {
       title: 'Sort Order',
-      dataIndex: 'sort',
-      key: 'sort',
+      dataIndex: 'sortOrder',
+      key: 'sortOrder',
     },
     {
       title: (
@@ -57,20 +67,40 @@ export const TemplateQuestionColumn = (selectedQuestion, setSelectedQuestion, se
       ),
     },
   ];
-  function handleDeleteQuestion(record) {
-    setQuestions(prev => prev.filter(i => i.id !== record.id));
+  async function handleDeleteQuestion() {
+    try {
+      await dispatch(
+        deleteQuestion({
+          id: selectedQuestion.surveyQuestionId,
+          templateId: selectedQuestion.surveyTemplate.id,
+        })
+      ).unwrap();
+      setSelectedQuestion(null);
+      setModalOpen(null);
+    } catch (error) {
+      message.error(error || 'Failed to save question');
+    }
   }
-  function handleSubmit(values) {
-    selectedQuestion
-      ? setQuestions(prev =>
-          prev.map(i => (i.id === selectedQuestion.id ? { ...values, id: i.id } : i))
-        )
-      : setQuestions(prev => [
-          ...prev,
-          { ...values, id: Math.floor(Math.random() * 100000).toString() },
-        ]);
-    setSelectedQuestion(null);
+  async function handleSubmit(values) {
+    console.log('seleccted', selectedQuestion);
+    try {
+      if (selectedQuestion) {
+        await dispatch(
+          updateQuestion({ data: values, id: selectedQuestion.surveyQuestionId })
+        ).unwrap();
+        message.success('Question updated successfully');
+      } else {
+        await dispatch(
+          createQuestion({ ...values, surveyTemplateId: selectedTemplate.surveyTemplateId })
+        ).unwrap();
+        message.success('Question created successfully');
+      }
+      setSelectedQuestion(null);
+      setModalOpen(null);
+    } catch (error) {
+      message.error(error || 'Failed to save question');
+    }
   }
 
-  return { column, questions, questionSubmit: handleSubmit, questionDelete: handleDeleteQuestion };
+  return { column, questionSubmit: handleSubmit, questionDelete: handleDeleteQuestion };
 };

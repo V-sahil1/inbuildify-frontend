@@ -55,6 +55,11 @@ class API_ENDPOINTS {
   public static MASTER_PRICE_LIST_CONDITION_BASE = '/condition';
   public static GET_MASTER_PRICE_LIST_CONDITIONS = `${this.MASTER_PRICE_LIST_CONDITION_BASE}/conditions`;
 
+  //PiceList
+  public static PRICELIST_MASTER = '/price-list';
+  public static SUGGESTED_PRICELIST_MASTER = `${this.PRICELIST_MASTER}/suggested`;
+  public static PRICELIST_ITEM = '/price-list-item';
+
   // floor plans
   public static FLOOR_PLAN_BASE = '/floor-plan';
   public static FLOOR_PLAN_FILTERS = `${this.FLOOR_PLAN_BASE}/filters`;
@@ -65,9 +70,8 @@ class API_ENDPOINTS {
 
   //packages
   public static PACKAGE_BASE = '/package';
-  public static GET_PACKAGES = `${this.PACKAGE_BASE}`;
+  public static PACKAGE_GROUP = `/package-group`;
   public static GET_PACKAGE_BY_ID = (id: string) => `${this.PACKAGE_BASE}/${id}`;
-  public static CREATE_PACKAGE = `${this.PACKAGE_BASE}`;
   public static GET_PACKAGE_ITEMS = `${this.PACKAGE_BASE}/category/items`;
   public static FACADE_BASE = '/facade';
 
@@ -159,6 +163,7 @@ class API_ENDPOINTS {
   public static JOB_COMMISSION_SETTING = '/job-commission-setting';
   public static JOB_COMMISSION = '/job-commission';
   public static JOB_COMMISSION_SUB_STAGE = '/job-commission-sub-stage';
+
   // job process
   public static JOB_PROCESS_BASE = '/job-process';
   public static JOB_PROCESS_FUNTIONALITY = '/job-process-stage-functionality';
@@ -224,9 +229,17 @@ class API_ENDPOINTS {
 
   public static ROLE_BASE = '/role';
   public static DRIVE_BASE = '/drive';
-  public static SUPPLIER_TYPE = '/supplier-type';
   public static COMPLIANCE_TYPE = '/compliance-type';
+
+  //supplier
+  public static SUPPLIER_TYPE = '/supplier-type';
+
+  //cost center
   public static COST_CENTER = '/cost-center';
+
+  //survey template
+  public static SURVEY_TEMPLATE = '/survey-template';
+  public static SURVEY_QUESTION = '/survey-template-question';
 
   // common
   public static FUNCTIONALITY_BASE = '/functionality';
