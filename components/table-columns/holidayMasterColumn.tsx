@@ -1,37 +1,22 @@
-import { IconTrash } from '@tabler/icons-react';
-import { Button, Input, Select, Tag } from 'antd';
-import { useState } from 'react';
-import ConfirmationModal from '../common/ConfirmationModal';
+import { IconPlus, IconTrash } from '@tabler/icons-react';
+import { Input, message, Select, Tag } from 'antd';
+import StatusSelect from '../common/custom-selects/StatusSelect';
+import { useStateHook } from '@hooks/useStateHook';
+import { IHoliday } from '@redux/feature/holiday/IHolidayState';
+import dayjs from 'dayjs';
+import { useAppDispatch } from '@hooks/redux';
+import { createHoliday, updateHoliday } from '@redux/feature/holiday/holidayThunk';
+import TooltipButton from '../common/TooltipButton';
 
-interface HolidayData {
-  id: number;
-  start: string;
-  end: string;
-  description: string;
-  state: string;
-  status: 'Active' | 'Inactive';
-}
-
-export const useHolidayMasterColumns = ({ filters, setParams }) => {
-  const [deleteModalOpen, setDeleteModalOpen] = useState(null);
-  const data: HolidayData[] = [
-    {
-      id: 1,
-      start: '01-01-2027',
-      end: '01-01-2027',
-      description: "New Year's Day",
-      state: 'All',
-      status: 'Active',
-    },
-    {
-      id: 2,
-      start: '26-12-2026',
-      end: '28-12-2026',
-      description: 'Boxing Day',
-      state: 'All',
-      status: 'Active',
-    },
-  ];
+export const useHolidayMasterColumns = ({
+  filters,
+  setParams,
+  selectedHoliday,
+  setSelectedHoliday,
+  setModalOpen,
+}) => {
+  const dispatch = useAppDispatch();
+  const { stateOptions } = useStateHook();
 
   const columns = [
     {
@@ -47,8 +32,9 @@ export const useHolidayMasterColumns = ({ filters, setParams }) => {
           />
         </div>
       ),
-      dataIndex: 'start',
-      key: 'start',
+      dataIndex: 'holidayStartDate',
+      key: 'holidayStartDate',
+      render: (holidayStartDate: string) => dayjs(holidayStartDate).format('YYYY-MM-DD'),
     },
     {
       title: (
@@ -63,8 +49,9 @@ export const useHolidayMasterColumns = ({ filters, setParams }) => {
           />
         </div>
       ),
-      dataIndex: 'end',
-      key: 'end',
+      dataIndex: 'holidayEndDate',
+      key: 'holidayEndDate',
+      render: holidayEndDate => dayjs(holidayEndDate).format('YYYY-MM-DD'),
     },
     {
       title: (
@@ -79,8 +66,8 @@ export const useHolidayMasterColumns = ({ filters, setParams }) => {
           />
         </div>
       ),
-      dataIndex: 'description',
-      key: 'description',
+      dataIndex: 'holidayDescription',
+      key: 'holidayDescription',
     },
     {
       title: (
@@ -91,39 +78,31 @@ export const useHolidayMasterColumns = ({ filters, setParams }) => {
             className="mt-1 w-full"
             value={filters.state}
             onChange={value => setParams({ state: value })}
-            options={[
-              { label: 'All', value: 'All' },
-              { label: 'VIC', value: 'VIC' },
-              { label: 'NSW', value: 'NSW' },
-            ]}
+            options={stateOptions}
           />
         </div>
       ),
-      dataIndex: 'state',
-      key: 'state',
+      dataIndex: 'states',
+      key: 'states',
+      render: states => states.map(i => <Tag>{i.name}</Tag>),
     },
     {
       title: (
         <div className="flex flex-col">
           <span className="font-medium text-gray-700">Status</span>
-          <Select
-            size="small"
-            className="mt-1 w-full"
+
+          <StatusSelect
             value={filters.status}
             onChange={value => setParams({ status: value })}
-            options={[
-              { label: 'All', value: 'All' },
-              { label: 'Active', value: 'Active' },
-              { label: 'Inactive', value: 'Inactive' },
-            ]}
+            activeInactive={true}
           />
         </div>
       ),
       dataIndex: 'status',
       key: 'status',
-      render: (status: string) => (
-        <Tag color={status === 'Active' ? 'green' : 'red'} className="px-3 py-1 text-sm">
-          {status}
+      render: (status: boolean) => (
+        <Tag color={status ? 'green' : 'red'} className="px-3 py-1 text-sm">
+          {status ? 'Active' : 'Inactive'}
         </Tag>
       ),
     },
@@ -131,38 +110,81 @@ export const useHolidayMasterColumns = ({ filters, setParams }) => {
       title: '',
       key: 'actions',
       width: 80,
-      render: (_: any, record: HolidayData) => (
-        <Button
-          type="text"
-          icon={<IconTrash size={18} />}
-          onClick={e => {
-            e.stopPropagation();
-            setDeleteModalOpen(record);
-          }}
-        />
-      ),
+      render: (_, record: IHoliday) =>
+        record.status ? (
+          <TooltipButton
+            title="Inactivate"
+            type="text"
+            icon={<IconTrash size={18} color="red" />}
+            onClick={e => {
+              e.stopPropagation();
+              setSelectedHoliday(record);
+              setModalOpen('delete');
+            }}
+          />
+        ) : (
+          <TooltipButton
+            title="Activate"
+            type="text"
+            icon={<IconPlus size={18} color="blue" />}
+            onClick={e => {
+              e.stopPropagation();
+              setSelectedHoliday(record);
+              setModalOpen('delete');
+            }}
+          />
+        ),
     },
   ];
 
-  const handleDelete = (id: number) => {
-    console.log('Deleting holiday with id:', id);
+  const handleHolidayStatus = async () => {
+    try {
+      await dispatch(
+        updateHoliday({
+          data: { status: !selectedHoliday?.status },
+          id: selectedHoliday?.holidayId,
+        })
+      ).unwrap();
+      message.success('Holiday status update successfully');
+      setSelectedHoliday(null);
+      setModalOpen(null);
+    } catch (error) {
+      message.error(error || 'Failed to delete holiday');
+    }
     // TODO
     // the video not mentioned about inactive active but the holiday could be inactive need to verify with BE
     // Add your delete logic here
   };
 
+  const handleSubmit = async values => {
+    const payload = {
+      ...values,
+      holidayStartDate: dayjs(values.holidayStartDate).format('YYYY-MM-DD'),
+      holidayEndDate: dayjs(values.holidayEndDate).format('YYYY-MM-DD'),
+    };
+    try {
+      if (selectedHoliday) {
+        await dispatch(
+          updateHoliday({
+            data: { ...payload, status: values.status === 'true' },
+            id: selectedHoliday?.holidayId,
+          })
+        ).unwrap();
+        message.success('Holiday updated successfully');
+      } else {
+        await dispatch(createHoliday(payload)).unwrap();
+        message.success('Holiday created successfully');
+      }
+      setSelectedHoliday(null);
+      setModalOpen(null);
+    } catch (error) {
+      message.error(error || 'Failed to save holiday');
+    }
+  };
+
   return {
     columns,
-    data,
-    deleteModal: !!deleteModalOpen && (
-      <ConfirmationModal
-        open={!!deleteModalOpen}
-        onClose={() => setDeleteModalOpen(null)}
-        type="danger"
-        onConfirm={() => handleDelete(deleteModalOpen?.id)}
-        title="Delete Holiday"
-        message={`Are you sure you want to delete this holiday?`}
-      />
-    ),
+    handleHolidayStatus,
+    handleSubmit,
   };
 };

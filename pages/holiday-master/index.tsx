@@ -1,25 +1,77 @@
 'use client';
+import ConfirmationModal from '@/components/common/ConfirmationModal';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import { HolidayRecalculateModal } from '@/components/common/Models/HolidayRecalculateModal';
 import { holidayFields } from '@/components/formFields/holidayFields';
 import { useHolidayMasterColumns } from '@/components/table-columns/holidayMasterColumn';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { useStateHook } from '@hooks/useStateHook';
+import { Status } from '@lib/constants/enum';
 import { debouncedURL } from '@lib/utils/debounceURL';
+import { fetchAllHoliday, updateHolidayRealculateDate } from '@redux/feature/holiday/holidayThunk';
+import { IHoliday, IHolidayFetchParams } from '@redux/feature/holiday/IHolidayState';
 import { IconPlus, IconRefresh } from '@tabler/icons-react';
-import { Table, Button, Select } from 'antd';
+import { Table, Button, Select, message } from 'antd';
+import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 
 export default function HolidayMaster() {
-  const [modalOpen, setModalOpen] = useState<'holiday' | 'recalculate' | null>(null);
-  const [isEditing, setIsEditing] = useState<any>(null);
+  const dispatch = useAppDispatch();
+  const { holiday, pagination, status } = useAppSelector(state => state.holiday);
+  const [modalOpen, setModalOpen] = useState<'holiday' | 'recalculate' | 'delete' | null>(null);
+  const [selectedHoliday, setSelectedHoliday] = useState<IHoliday | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const { debouncedUpdateURL, setParams, filters } = debouncedURL({
     filtersKey: ['startDate', 'endDate', 'desc', 'state', 'status'],
+    initialValue: { status: '' },
   });
-  const { columns, data, deleteModal } = useHolidayMasterColumns({ filters, setParams });
+  const { columns, handleSubmit, handleHolidayStatus } = useHolidayMasterColumns({
+    filters,
+    setParams,
+    selectedHoliday,
+    setSelectedHoliday,
+    setModalOpen,
+  });
+  const { stateOptions } = useStateHook();
+
+  const PAGE_SIZE = 10;
+
+  const fetchHoliday = async (page: number = currentPage, limit: number = PAGE_SIZE) => {
+    try {
+      const params: IHolidayFetchParams = {
+        page,
+        limit,
+      };
+      params.holiday_description = filters?.desc || undefined;
+      params.holiday_end_date = filters?.endDate || undefined;
+      params.holiday_start_date = filters?.startDate || undefined;
+      params.state = filters?.state || undefined;
+      params.status = filters?.status !== '' ? filters?.status === 'true' : undefined;
+      await dispatch(fetchAllHoliday(params));
+    } catch (error) {
+      message.error(error || 'Failed to fetch holidays');
+    }
+  };
+
+  useEffect(() => {
+    fetchHoliday();
+  }, [currentPage, filters]);
+
   useEffect(() => {
     return () => {
       debouncedUpdateURL.cancel();
     };
   }, [debouncedUpdateURL]);
+
+  const handleRecalulateDate = async values => {
+    try {
+      await dispatch(updateHolidayRealculateDate(values)).unwrap();
+      message.success('Dates recalculated successfully');
+      setModalOpen(null);
+    } catch (error) {
+      message.error(error || 'Failed to recalculate dates');
+    }
+  };
 
   return (
     <div className="p-4">
@@ -59,7 +111,6 @@ export default function HolidayMaster() {
             icon={<IconPlus size={18} />}
             className="bg-green-600"
             onClick={() => {
-              setIsEditing(false);
               setModalOpen('holiday');
             }}
           >
@@ -71,17 +122,26 @@ export default function HolidayMaster() {
       <div className="border rounded-lg shadow-sm bg-white">
         <Table
           columns={columns}
-          dataSource={data}
-          pagination={false}
-          rowKey="id"
-          className="holiday-table"
-          rootClassName="cursor-pointer hover:bg-primary"
+          dataSource={holiday}
+          rowKey="holidayId"
           onRow={record => ({
             onClick: () => {
-              setIsEditing(record);
+              setSelectedHoliday(record);
               setModalOpen('holiday');
             },
           })}
+          pagination={{
+            current: pagination?.currentPage,
+            pageSize: pagination?.limit,
+            total: pagination?.totalRecords,
+            showSizeChanger: false,
+            showQuickJumper: false,
+            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
+            onChange: page => {
+              setCurrentPage(page);
+            },
+          }}
+          loading={status.holiday.fetch === Status.PENDING}
         />
       </div>
 
@@ -90,24 +150,47 @@ export default function HolidayMaster() {
         <ActionDialogmodel
           open={modalOpen === 'holiday'}
           onCancel={() => setModalOpen(null)}
-          onSubmit={isEditing ? () => {} : () => {}}
-          isEditing={!!isEditing}
-          title={isEditing ? 'Edit Holiday' : 'New Holiday'}
-          fields={holidayFields(!!isEditing)}
-          initialValues={isEditing}
+          onSubmit={handleSubmit}
+          isEditing={!!selectedHoliday}
+          title={selectedHoliday ? 'Edit Holiday' : 'New Holiday'}
+          fields={holidayFields(!!selectedHoliday, stateOptions)}
+          initialValues={{
+            ...selectedHoliday,
+            status: selectedHoliday?.status ? 'true' : 'false',
+            state: selectedHoliday?.states.map(i => i.id),
+            holidayStartDate: selectedHoliday?.holidayStartDate
+              ? dayjs(selectedHoliday.holidayStartDate)
+              : null,
+            holidayEndDate: selectedHoliday?.holidayEndDate
+              ? dayjs(selectedHoliday.holidayEndDate)
+              : null,
+          }}
+          loading={status.holiday.create === Status.PENDING}
         />
       )}
 
       {/* TODO need to implement as the video currently only Ui is being added confitional fields will get changed */}
-      <HolidayRecalculateModal
-        open={modalOpen === 'recalculate'}
-        onCancel={() => setModalOpen(null)}
-        onSubmit={values => {
-          console.log('Submitted', values);
-          setModalOpen(null);
-        }}
-      />
-      {deleteModal}
+      {modalOpen === 'recalculate' && (
+        <HolidayRecalculateModal
+          open={modalOpen === 'recalculate'}
+          onCancel={() => setModalOpen(null)}
+          onSubmit={values => {
+            handleRecalulateDate(values);
+          }}
+        />
+      )}
+
+      {modalOpen === 'delete' && (
+        <ConfirmationModal
+          open={modalOpen === 'delete'}
+          onClose={() => setModalOpen(null)}
+          type="danger"
+          onConfirm={() => handleHolidayStatus()}
+          title="Delete Holiday"
+          message={`Are you sure you want to ${selectedHoliday?.status ? 'inactivate' : 'activate'} this holiday?`}
+          loading={status.holiday.create === Status.PENDING}
+        />
+      )}
     </div>
   );
 }

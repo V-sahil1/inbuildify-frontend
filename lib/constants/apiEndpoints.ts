@@ -241,6 +241,9 @@ class API_ENDPOINTS {
   public static SURVEY_TEMPLATE = '/survey-template';
   public static SURVEY_QUESTION = '/survey-template-question';
 
+  //holiday
+  public static HOLIDAY = '/holiday';
+  public static HOLIDAY_RECALCULATE_DATE = `/recalculate-date`;
   // common
   public static FUNCTIONALITY_BASE = '/functionality';
   public static TIMEZONE_BASE = '/timezone';

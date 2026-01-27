@@ -1,34 +1,66 @@
 import { FormField } from '../common/Models/ActionDialogModel';
 
-export const holidayFields = (isEditing: boolean | null): FormField[] => {
+export const holidayFields = (
+  isEditing: boolean | null,
+  stateOptions: { label: string; value: string }[]
+): FormField[] => {
   const fields: FormField[] = [
     {
       name: 'state',
       label: 'State/Region',
       type: 'select',
-      options: [
-        { label: 'VIC', value: 'VIC' },
-        { label: 'NSW', value: 'NSW' },
-        { label: 'QLD', value: 'QLD' },
-        { label: 'WA', value: 'WA' },
-        { label: 'SA', value: 'SA' },
-        { label: 'TAS', value: 'TAS' },
-        { label: 'ACT', value: 'ACT' },
-        { label: 'NT', value: 'NT' },
+      options: stateOptions,
+      mode: 'tags',
+    },
+    {
+      name: 'holidayStartDate',
+      label: 'Start Date',
+      type: 'date',
+      rules: [
+        {
+          required: true,
+          message: 'Please select a start date',
+        },
+        () => ({
+          validator(_, value) {
+            if (!value) return Promise.resolve();
+
+            const today = new Date();
+
+            if (value.isBefore(today, 'day')) {
+              return Promise.reject(new Error('Start date must be greater than today'));
+            }
+            return Promise.resolve();
+          },
+        }),
       ],
     },
     {
-      name: 'startDate',
-      label: 'Start Date',
-      type: 'date',
-    },
-    {
-      name: 'endDate',
+      name: 'holidayEndDate',
       label: 'End Date',
       type: 'date',
+      rules: [
+        {
+          required: true,
+          message: 'Please select an end date',
+        },
+        ({ getFieldValue }) => ({
+          validator(_, value) {
+            if (!value) return Promise.resolve();
+
+            const startDate = getFieldValue('holidayStartDate');
+            if (!startDate) return Promise.resolve();
+
+            if (value.isBefore(startDate, 'day')) {
+              return Promise.reject(new Error('End date must be greater than start date'));
+            }
+            return Promise.resolve();
+          },
+        }),
+      ],
     },
     {
-      name: 'description',
+      name: 'holidayDescription',
       label: 'Holiday Description',
       type: 'textarea',
     },
@@ -38,10 +70,10 @@ export const holidayFields = (isEditing: boolean | null): FormField[] => {
     fields.push({
       name: 'status',
       label: 'Status',
-      type: 'checkbox',
+      type: 'radio',
       options: [
-        { label: 'Active', value: 'Active' },
-        { label: 'Inactive', value: 'Inactive' },
+        { label: 'Active', value: 'true' },
+        { label: 'Inactive', value: 'false' },
       ],
     });
   }

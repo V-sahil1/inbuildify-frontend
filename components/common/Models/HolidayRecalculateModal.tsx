@@ -1,5 +1,8 @@
-import React from 'react';
-import { Modal, Form, Switch, Typography, Button, Input } from 'antd';
+import React, { useEffect } from 'react';
+import { Modal, Form, Switch, Typography, Button, Input, message } from 'antd';
+import { fetchHolidayRealculateDate } from '@redux/feature/holiday/holidayThunk';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { Status } from '@lib/constants/enum';
 
 const { Text } = Typography;
 const { TextArea } = Input;
@@ -9,9 +12,29 @@ export const HolidayRecalculateModal: React.FC<{
   onSubmit: (values) => void;
 }> = ({ open, onCancel, onSubmit }) => {
   const [form] = Form.useForm();
-  const captureReason = Form.useWatch('captureReason', form);
-  const workflowJobs = Form.useWatch('workflowJobs', form);
-  const constructionJobs = Form.useWatch('constructionJobs', form);
+  const dispatch = useAppDispatch();
+  const { status, recalculateDate } = useAppSelector(state => state.holiday);
+  const captureReason = Form.useWatch('captureReasonRebookingAndRebookingEmail', form);
+  const workflowJobs = Form.useWatch('recalculateWorkflowJobEstimatedDates', form);
+  const constructionJobs = Form.useWatch('recalculateConstructionJobEstimatedDates', form);
+
+  const fetchRecalculateDateSetting = async () => {
+    try {
+      await dispatch(fetchHolidayRealculateDate()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch recalculate date setting');
+    }
+  };
+
+  useEffect(() => {
+    if (status.recalculateDate.fetch === Status.IDLE) {
+      fetchRecalculateDateSetting();
+    }
+    if (recalculateDate) {
+      form.setFieldsValue(recalculateDate);
+    }
+  }, [status.recalculateDate.fetch]);
+
   const handleSubmit = () => {
     form.validateFields().then(values => onSubmit(values));
   };
@@ -40,16 +63,30 @@ export const HolidayRecalculateModal: React.FC<{
           scrollbarWidth: 'none',
         },
       }}
+      confirmLoading={status.recalculateDate.create === Status.PENDING}
     >
-      <Form layout="vertical" form={form}>
+      <Form
+        layout="vertical"
+        form={form}
+        initialValues={recalculateDate}
+        disabled={status.recalculateDate.create === Status.PENDING}
+      >
         <div className="flex items-center gap-8">
-          <Form.Item name="workflowJobs" valuePropName="checked" initialValue={true}>
+          <Form.Item
+            name="recalculateWorkflowJobEstimatedDates"
+            valuePropName="checked"
+            initialValue={true}
+          >
             <Switch />
           </Form.Item>
           <Text strong>Recalculate the estimated dates for existing workflow jobs</Text>
         </div>
         <div className="flex items-center gap-8">
-          <Form.Item name="constructionJobs" valuePropName="checked" initialValue={false}>
+          <Form.Item
+            name="recalculateConstructionJobEstimatedDates"
+            valuePropName="checked"
+            initialValue={false}
+          >
             <Switch />
           </Form.Item>
           <Text strong>Recalculate the estimated dates for existing construction jobs</Text>
@@ -59,7 +96,11 @@ export const HolidayRecalculateModal: React.FC<{
           <>
             <div>
               <div className="flex items-center gap-8">
-                <Form.Item name="captureReason" valuePropName="checked" initialValue={false}>
+                <Form.Item
+                  name="captureReasonRebookingAndRebookingEmail"
+                  valuePropName="checked"
+                  initialValue={false}
+                >
                   <Switch />
                 </Form.Item>
                 <Text strong>Capture reason for rebooking and include in rebooking email</Text>
@@ -72,14 +113,18 @@ export const HolidayRecalculateModal: React.FC<{
                   </Text>
                 )}
                 {captureReason && (
-                  <Form.Item name="message">
+                  <Form.Item name="captureText">
                     <TextArea rows={4} showCount maxLength={500} style={{ resize: 'none' }} />
                   </Form.Item>
                 )}
               </div>
             </div>
             <div className="flex items-center gap-8">
-              <Form.Item name="confirmedBooking" valuePropName="checked" initialValue={true}>
+              <Form.Item
+                name="recalculateConfirmedBookingDates"
+                valuePropName="checked"
+                initialValue={true}
+              >
                 <Switch className="mt-4" />
               </Form.Item>
               <Text strong>Recalculate the dates for confirmed booking</Text>
