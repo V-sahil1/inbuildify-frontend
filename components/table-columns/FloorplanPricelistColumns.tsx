@@ -1,11 +1,13 @@
-import { useAppDispatch } from '@hooks/redux';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { Status } from '@lib/constants/enum';
 import { debouncedURL } from '@lib/utils/debounceURL';
 import {
   removeFloorplanItem,
   setSelectedFloorplans,
 } from '@redux/feature/floorPlan/floorPlanSlice';
+import { fetchCategoryItems } from '@redux/feature/masterPriceList/masterPriceListThunk';
 import { IconPencil, IconPlus, IconX } from '@tabler/icons-react';
-import { Button, Input, Popconfirm, Select, Switch, Tag } from 'antd';
+import { Button, Input, message, Popconfirm, Select, Switch, Tag } from 'antd';
 import { useEffect, useState } from 'react';
 
 export interface FloorplanPricelistRecord {
@@ -94,10 +96,24 @@ export const FloorplanPricelistColumns = () => {
       modify: false,
     },
   ]);
+  const { priceListItems, status } = useAppSelector(state => state.masterPriceList);
+
+  const fetchPriceListItemData = async () => {
+    try {
+      await dispatch(fetchCategoryItems({})).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch Price List Items');
+    }
+  };
   const { debouncedUpdateURL, setParams, filters } = debouncedURL({
     filtersKey: ['search'],
     shouldSyncURL: false,
   });
+  useEffect(() => {
+    if (status.priceListItem.fetch === Status.IDLE) {
+      fetchPriceListItemData();
+    }
+  }, [status.priceListItem.fetch]);
   useEffect(() => {
     return () => {
       debouncedUpdateURL.cancel();
@@ -128,10 +144,10 @@ export const FloorplanPricelistColumns = () => {
       render: (_, record) => (
         <div>
           <div className="flex gap-2">
-            {record.category && <Tag color="blue">{record.category}</Tag>}
+            {record.priceList && <Tag color="blue">{record.priceList.name}</Tag>}
             {record.costType && <Tag color="orange">{record.costType}</Tag>}
           </div>
-          <p>{record.description}</p>
+          <p>{record.shortDescription}</p>
         </div>
       ),
     },
@@ -181,8 +197,8 @@ export const FloorplanPricelistColumns = () => {
     },
     {
       title: 'Price ($)',
-      dataIndex: 'price',
-      key: 'price',
+      dataIndex: 'cost',
+      key: 'cost',
     },
     {
       title: '',
@@ -202,5 +218,5 @@ export const FloorplanPricelistColumns = () => {
     },
   ];
 
-  return { columns, pricelistData };
+  return { columns, pricelistData: priceListItems };
 };

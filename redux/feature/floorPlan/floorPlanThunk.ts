@@ -2,47 +2,28 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import api, { apiWithFormDataMethods } from '@lib/constants/api';
 import { ApiResponse } from '../auth/IAuthState';
 import API_ENDPOINTS from '@lib/constants/apiEndpoints';
-import { IFloorPlanState } from './IFloorPlanState';
+import { FloorPlanGetParams, IFloorPlanState } from './IFloorPlanState';
+import { CommonPagination } from '../common/ICommonState';
 
 export const fetchFloorPlans = createAsyncThunk(
   'floorPlans/fetchAll',
-  async (filters?: { range?: string; dwelling_type?: string }) => {
+  async (params: FloorPlanGetParams, { rejectWithValue }) => {
     try {
-      let url = API_ENDPOINTS.FLOOR_PLAN_BASE;
-
-      // Add query parameters if filters are provided
-      if (filters && (filters.range || filters.dwelling_type)) {
-        const queryParams = new URLSearchParams();
-        if (filters.range) queryParams.append('range', filters.range);
-        if (filters.dwelling_type) queryParams.append('dwelling_type', filters.dwelling_type);
-        url = `${API_ENDPOINTS.FLOOR_PLAN_BASE}?${queryParams.toString()}`;
-      }
-
-      const res = await api.get<ApiResponse<any>>(url);
+      const res = await api.get<
+        ApiResponse<{ floorPlans: IFloorPlanState[]; pagination: CommonPagination }>
+      >(API_ENDPOINTS.FLOOR_PLAN_BASE, { params });
       return res.data;
     } catch (error) {
-      return error.message;
+      return rejectWithValue(error.message);
     }
   }
 );
-
-// export const createFloorPlan = createAsyncThunk(
-//     "floorPlans/create",
-//     async (payload: IFloorPlanState, { rejectWithValue }) => {
-//         try {
-//             const res = await api.post<ApiResponse<any>>(API_ENDPOINTS.FLOOR_PLAN_BASE, payload);
-//             return res.data;
-//         } catch (error) {
-//             return rejectWithValue(error.message);
-//         }
-//     }
-// );
 
 export const createFloorPlan = createAsyncThunk(
   'floorPlans/create',
   async (payload: FormData, { rejectWithValue }) => {
     try {
-      const res = await apiWithFormDataMethods.post<ApiResponse<any>>(
+      const res = await apiWithFormDataMethods.post<ApiResponse<IFloorPlanState>>(
         API_ENDPOINTS.FLOOR_PLAN_BASE,
         payload
       );
@@ -57,7 +38,7 @@ export const updateFloorPlan = createAsyncThunk(
   'floorPlans/update',
   async (payload: { data: FormData; floorPlanId: string }, { rejectWithValue }) => {
     try {
-      const res = await apiWithFormDataMethods.put<ApiResponse<any>>(
+      const res = await apiWithFormDataMethods.put<ApiResponse<IFloorPlanState>>(
         `${API_ENDPOINTS.FLOOR_PLAN_BASE}/${payload.floorPlanId}`,
         payload.data
       );
@@ -68,17 +49,17 @@ export const updateFloorPlan = createAsyncThunk(
   }
 );
 
-export const deleteFloorPlan = createAsyncThunk(
-  'floorPlans/delete',
-  async (payload: string, { rejectWithValue }) => {
-    try {
-      const res = await api.delete<ApiResponse<any>>(`${API_ENDPOINTS.FLOOR_PLAN_BASE}/${payload}`);
-      return payload;
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
-  }
-);
+// export const deleteFloorPlan = createAsyncThunk(
+//   'floorPlans/delete',
+//   async (payload: string, { rejectWithValue }) => {
+//     try {
+//       const res = await api.delete<ApiResponse>(`${API_ENDPOINTS.FLOOR_PLAN_BASE}/${payload}`);
+//       return payload;
+//     } catch (error) {
+//       return rejectWithValue(error.message);
+//     }
+//   }
+// );
 
 //filters
 

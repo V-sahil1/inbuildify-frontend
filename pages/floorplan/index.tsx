@@ -1,8 +1,9 @@
-import DwellingTypeSelect from '@/components/common/custom-selects/DwellingTypeSelect';
-import StatusSelect from '@/components/common/custom-selects/StatusSelect';
+import { useEffect, useState } from 'react';
+import { Button, message, Space, Table } from 'antd';
 import { TableDrawer } from '@/components/common/TableDrawer';
 import FloorPlanFormModal from '@/components/floorplan/FloorplanFormModal';
 import { FacadeColumns } from '@/components/table-columns/FacadeColumns';
+import { FloorPlanColumn } from '@/components/table-columns/floorPlanColumn';
 import { FloorplanPricelistColumns } from '@/components/table-columns/FloorplanPricelistColumns';
 import { QuotationHistoryColumn } from '@/components/table-columns/QuotationHistoryColumn';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
@@ -10,209 +11,68 @@ import { Status } from '@lib/constants/enum';
 import { debouncedURL } from '@lib/utils/debounceURL';
 import { QuotationHistory } from '@lib/utils/Reports/quotation/QuotationHistory';
 import { fetchFloorPlans } from '@redux/feature/floorPlan/floorPlanThunk';
-import { IFloorPlanState } from '@redux/feature/floorPlan/IFloorPlanState';
 import { RootState } from '@redux/feature/store';
-import { IconClockHour7, IconDeviceIpadDollar, IconDownload, IconPhoto } from '@tabler/icons-react';
-import { Badge, Button, Image, Input, message, Select, Space, Table, Tooltip } from 'antd';
-import { ColumnsType } from 'antd/es/table';
-import { useEffect, useState } from 'react';
+import { IconDownload } from '@tabler/icons-react';
+import { FloorPlanGetParams, IFloorPlanState } from '@redux/feature/floorPlan/IFloorPlanState';
 
 const FloorPlanMaster = () => {
   const dispatch = useAppDispatch();
-  const { floorPlans, status, filters, selectedFloorplans } = useAppSelector(
+  const { floorPlans, status, selectedFloorplans, pagination } = useAppSelector(
     (state: RootState) => state.floorPlan
   );
+
   const [createFloorPlanOpen, setcreateFloorPlanOpen] = useState(false);
-  const [isEdited, setIsEdited] = useState<string>(null);
+  const [selectedFloorplan, setSelectedFloorplan] = useState<IFloorPlanState | null>(null);
+  const [activeFilter, setActiveFilter] = useState('All');
   const [drawerOpen, setDrawerOpen] = useState<'floorplan' | 'facade' | 'quotation' | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const {
+    filters: debouncedFilters,
+    debouncedUpdateURL,
+    setParams,
+  } = debouncedURL({
+    filtersKey: ['name', 'dwellingType', 'location', 'label', 'status'],
+    initialValue: { status: '' },
+  });
+  const { columns: floorPlanColumns, handleFloorPlan } = FloorPlanColumn(
+    setDrawerOpen,
+    setParams,
+    selectedFloorplan,
+    setSelectedFloorplan
+  );
   const { columns: quotationColumns, data } = QuotationHistoryColumn();
   const { columns: floorplanPricelistColumn, pricelistData } = FloorplanPricelistColumns();
   const { columns: facadeColumns, facadeData } = FacadeColumns();
-  const [activeFilter, setActiveFilter] = useState('All');
   const filterButtons = ['All', 'Standard', 'Upgrade'];
-  useEffect(() => {
-    const fetchFloorPlansData = async () => {
-      try {
-        await dispatch(fetchFloorPlans(undefined)).unwrap();
-      } catch (error) {
-        message.error(error || 'Failed to fetch Floor Plans');
-      }
-    };
-    if (status?.floorPlan === Status.IDLE) {
-      fetchFloorPlansData();
+  const PAGE_SIZE = 10;
+  const fetchFloorPlansData = async (page: number = currentPage, limit: number = PAGE_SIZE) => {
+    try {
+      const params: FloorPlanGetParams = {
+        page,
+        limit,
+      };
+      params.name = debouncedFilters?.name;
+      params.dwelling_type_id = debouncedFilters?.dwellingType;
+      params.location_id =
+        debouncedFilters?.location !== '' ? debouncedFilters?.location : undefined;
+      params.range_id = debouncedFilters?.label;
+      params.status =
+        debouncedFilters?.status !== 'all' ? debouncedFilters?.status === 'true' : undefined;
+      await dispatch(fetchFloorPlans(params)).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch Floor Plans');
     }
-  }, [dispatch, status, filters]);
-  const { debouncedUpdateURL, setParams } = debouncedURL({
-    filtersKey: ['name', 'dwellingTypeName', 'location', 'label', 'status'],
-  });
+  };
+  useEffect(() => {
+    fetchFloorPlansData();
+  }, [currentPage, debouncedFilters]);
+
   useEffect(() => {
     return () => {
       debouncedUpdateURL.cancel();
     };
   }, [debouncedUpdateURL]);
 
-  const columns: ColumnsType<IFloorPlanState> = [
-    {
-      title: 'Image',
-      dataIndex: 'image',
-      key: 'image',
-      width: 150,
-      render: (_, record) => (
-        <div
-          onClick={e => {
-            e.stopPropagation();
-          }}
-        >
-          <Image src={record.image} />
-        </div>
-      ),
-    },
-    {
-      title: (
-        <div>
-          <p>Name</p>
-          <Input className="w-full" onChange={e => setParams({ name: e.target.value })} />
-        </div>
-      ),
-      dataIndex: 'name',
-      key: 'name',
-      width: 150,
-    },
-    {
-      title: (
-        <div>
-          <p>Dwelling Type</p>
-          <DwellingTypeSelect onChange={value => setParams({ dwellingTypeName: value })} />
-        </div>
-      ),
-      dataIndex: 'dwellingTypeName',
-      key: 'dwellingTypeName',
-      width: 150,
-    },
-    {
-      title: 'Specs',
-      dataIndex: 'specs',
-      key: 'specs',
-      width: 150,
-      render: (_, record) => (
-        <div>
-          <p>Beds : {record.beds}</p>
-          <p>Bath : {record.bath}</p>
-          <p>Car : {record.carPark}</p>
-          <p>Living : {record.beds}</p>
-        </div>
-      ),
-    },
-    {
-      title: 'Land(m)',
-      dataIndex: 'land',
-      key: 'land',
-      width: 150,
-      render: (_, record) => (
-        <div>
-          <p>W : {record.widthMeter}</p>
-          <p>D : {record.depthMeter}</p>
-        </div>
-      ),
-    },
-    {
-      title: 'Size(sq)',
-      dataIndex: 'size',
-      key: 'size',
-      width: 150,
-      render: (_, record) => (
-        <div>
-          <p>Total : {record.totalSqft}</p>
-        </div>
-      ),
-    },
-    {
-      title: (
-        <div>
-          <p>Location</p>
-          <Select
-            className="w-full"
-            options={[{ label: 'All', value: 'all' }]}
-            onChange={value => setParams({ location: value })}
-          />
-        </div>
-      ),
-      dataIndex: 'location',
-      key: 'location',
-      width: 150,
-    },
-    {
-      title: (
-        <div>
-          <p>Label</p>
-          <Select
-            className="w-full"
-            options={[{ label: 'All', value: 'all' }]}
-            onChange={value => setParams({ label: value })}
-          />
-        </div>
-      ),
-      dataIndex: 'label',
-      key: 'label',
-      width: 150,
-    },
-    {
-      title: (
-        <div>
-          <p>Status</p>
-          <StatusSelect onChange={value => setParams({ status: value })} />
-        </div>
-      ),
-      dataIndex: 'status',
-      key: 'status',
-      width: 150,
-      render: (_, record) => (
-        <div className="flex justify-between items-center">
-          <p>{record?.status || 'Active'} </p>
-          <Tooltip title="Map Pricelist">
-            <Badge count={3} size="small">
-              <Button
-                size="small"
-                className="text-blue"
-                type="text"
-                icon={<IconDeviceIpadDollar size={15} />}
-                onClick={e => {
-                  e.stopPropagation();
-                  setDrawerOpen('floorplan');
-                }}
-              />
-            </Badge>
-          </Tooltip>
-          <Tooltip title="Map Facade">
-            <Badge count={5} size="small">
-              <Button
-                size="small"
-                className="text-blue"
-                type="text"
-                icon={<IconPhoto size={15} />}
-                onClick={e => {
-                  e.stopPropagation();
-                  setDrawerOpen('facade');
-                }}
-              />
-            </Badge>
-          </Tooltip>
-          <Tooltip title="Quotation History">
-            <Button
-              size="small"
-              className="text-blue"
-              type="text"
-              icon={<IconClockHour7 size={15} />}
-              onClick={e => {
-                e.stopPropagation();
-                setDrawerOpen('quotation');
-              }}
-            />
-          </Tooltip>
-        </div>
-      ),
-    },
-  ];
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
@@ -230,14 +90,25 @@ const FloorPlanMaster = () => {
         </Space>
       </div>
       <Table
-        columns={columns}
+        columns={floorPlanColumns}
         dataSource={floorPlans}
         onRow={record => ({
           onClick: () => {
             setcreateFloorPlanOpen(true);
-            setIsEdited(record.floorPlanId);
+            setSelectedFloorplan(record);
           },
         })}
+        pagination={{
+          current: pagination?.currentPage,
+          pageSize: pagination?.limit,
+          total: pagination?.totalRecords,
+          showSizeChanger: false,
+          showQuickJumper: false,
+          showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
+          onChange: page => {
+            setCurrentPage(page);
+          },
+        }}
       />
       {createFloorPlanOpen && (
         <FloorPlanFormModal
@@ -245,15 +116,16 @@ const FloorPlanMaster = () => {
           open={createFloorPlanOpen}
           onCancel={() => {
             setcreateFloorPlanOpen(false);
-            setIsEdited(null);
+            setSelectedFloorplan(null);
           }}
           onSubmit={values => {
-            console.log('floorplan submit', values);
+            handleFloorPlan(values);
             setcreateFloorPlanOpen(false);
-            setIsEdited(null);
+            setSelectedFloorplan(null);
           }}
-          isEditing={isEdited !== null}
-          initialValues={floorPlans.filter(item => item.floorPlanId === isEdited)[0]}
+          isEditing={!!selectedFloorplan}
+          initialValues={selectedFloorplan}
+          loading={status?.floorPlan.create === Status.PENDING}
         />
       )}
       {drawerOpen === 'quotation' && (
@@ -287,7 +159,7 @@ const FloorPlanMaster = () => {
         >
           <Space className="my-2">
             <Button type="primary">Show All</Button>
-            <Button>Selected Items {selectedFloorplans.length | 0}</Button>
+            <Button>Selected Items {selectedFloorplans?.length | 0}</Button>
           </Space>
         </TableDrawer>
       )}
@@ -302,7 +174,7 @@ const FloorPlanMaster = () => {
           <div className="flex justify-between my-2">
             <Space>
               <Button type="primary">Show All</Button>
-              <Button>Selected Items {selectedFloorplans.length | 0}</Button>
+              <Button>Selected Items {selectedFloorplans?.length | 0}</Button>
             </Space>
             <div>
               {filterButtons.map(obj => (

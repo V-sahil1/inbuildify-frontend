@@ -50,6 +50,21 @@ const PriceList = () => {
   const PAGE_SIZE = 10;
   const dispatch = useAppDispatch();
 
+  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+    filtersKey: [
+      'location',
+      'range',
+      'dwellingType',
+      'description',
+      'price',
+      'costOption',
+      'sort',
+      'status',
+      'category',
+    ],
+    initialValue: { status: '' },
+  });
+
   const {
     columns: pricelistColumn,
     handlePricelistSubmit,
@@ -77,21 +92,6 @@ const PriceList = () => {
     masterFields,
     priceMasterSubmit,
   } = PricelistMasterColumn(setModalOpen, modalOpen, setSelectedPriceMaster, selectedPriceMaster);
-
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
-    filtersKey: [
-      'location',
-      'range',
-      'dwellingType',
-      'description',
-      'price',
-      'costOption',
-      'sort',
-      'status',
-      'category',
-    ],
-    initialValue: { status: '' },
-  });
 
   useEffect(() => {
     const fetchCategoriesData = async () => {
