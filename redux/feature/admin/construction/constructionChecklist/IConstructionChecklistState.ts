@@ -3,7 +3,7 @@ import { Entity } from 'types/common.types';
 
 export interface ConstructionChecklistType {
   constructionChecklistId: string;
-  builder: string;
+  builder: Entity | string;
   constructionTypeId: string;
   constructionStageId: string;
   name: string;
@@ -33,6 +33,7 @@ export interface ConstructionChecklistType {
   complianceType?: Entity;
   supplierType?: Entity;
   constructionStage?: Entity;
+  constructionType?: Entity;
 }
 
 export interface IConstructionSubChecklist {
@@ -52,7 +53,7 @@ export interface IConstructionChecklistPredecessor {
   predecessorChecklistId: string;
   predecessorChecklistName?: string;
 }
-  
+
 export interface IConstructionChecklistState {
   checklist: ConstructionChecklistType[];
   status: {

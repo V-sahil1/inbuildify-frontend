@@ -29,11 +29,11 @@ export const createConstructionChecklist = createAsyncThunk(
 
 export const fetchAllConstructionChecklist = createAsyncThunk(
   'ConstructionChecklist/fetchAll',
-  async (_, { rejectWithValue }) => {
+  async (params: { builder?: string }={}, { rejectWithValue }) => {
     try {
       const response = await api.get<
         ApiResponse<{ checklists: ConstructionChecklistType[]; pagination: CommonPagination }>
-      >(API_ENDPOINTS.CONSTRUCTION_CHECKLIST);
+      >(API_ENDPOINTS.CONSTRUCTION_CHECKLIST, { params });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);

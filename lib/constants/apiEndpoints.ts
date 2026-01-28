@@ -236,6 +236,7 @@ class API_ENDPOINTS {
 
   //cost center
   public static COST_CENTER = '/cost-center';
+  public static COST_CENTER_CHECKLIST = `${this.COST_CENTER}/checklist-map`;
 
   //survey template
   public static SURVEY_TEMPLATE = '/survey-template';

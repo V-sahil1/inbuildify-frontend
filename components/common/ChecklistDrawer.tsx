@@ -1,11 +1,27 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Drawer, Button, Input, Space, Tag, Select, Tooltip, Switch, Popover } from 'antd';
+import {
+  Drawer,
+  Button,
+  Input,
+  Space,
+  Tag,
+  Select,
+  Tooltip,
+  Switch,
+  Popover,
+  message,
+  Popconfirm,
+} from 'antd';
 import { IconPlus, IconX, IconUser, IconUserFilled } from '@tabler/icons-react';
-import { ChecklistItem } from 'data/costCenterData';
 import { useSearchParams } from 'next/navigation';
 import { debouncedURL } from '@lib/utils/debounceURL';
+import { ConstructionChecklistType } from '@redux/feature/admin/construction/constructionChecklist/IConstructionChecklistState';
+import { CostCenterChecklist } from '@redux/feature/costCenter/IcostCenterState';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { fetchAllConstructionChecklist } from '@redux/feature/admin/construction/constructionChecklist/constructionChecklistThunk';
+import { useBuildersHook } from '@hooks/useBuildersHook';
 
 const { Option } = Select;
 
@@ -13,66 +29,79 @@ interface Props {
   open: boolean;
   onClose: () => void;
   title: string;
-  items: ChecklistItem[];
-  initialSelected: ChecklistItem[];
+  initialSelected: CostCenterChecklist[];
   width?: number | string;
   recommendation?: boolean;
-  onUpdate: (selected: ChecklistItem[]) => void;
+  onUpdate: (selected: ConstructionChecklistType) => void;
+  onRemove: (selected: ConstructionChecklistType, id: string) => void;
 }
 
 export const ChecklistDrawer: React.FC<Props> = ({
   open,
   onClose,
   title,
-  items,
   initialSelected,
   width = 900,
   recommendation = false,
   onUpdate,
+  onRemove,
 }) => {
   const searchParams = useSearchParams();
   const { debouncedUpdateURL, setParams, filters } = debouncedURL({
-    filtersKey: ['level'],
+    filtersKey: ['builder'],
     initialValue: {
-      level: 'Company Level',
+      builder: 'All',
     },
     shouldSyncURL: false,
   });
-
+  const dispatch = useAppDispatch();
   const [search, setSearch] = useState(searchParams.get('search') || '');
-  const [selected, setSelected] = useState<ChecklistItem[]>([]);
-  const [showSelectedOnly, setShowSelectedOnly] = useState(searchParams.get('selected') === 'true');
+  const [selected, setSelected] = useState<any[]>([]);
+  const [showSelectedOnly, setShowSelectedOnly] = useState(false);
   const [assignToAll, setAssignToAll] = useState(false);
   const [recommendedTitle, setRecommendedTitle] = useState<string | null>(null);
   const [recommendationTarget, setRecommendationTarget] = useState<string | null>(null);
+  const { builderOptions } = useBuildersHook();
+  const { checklist } = useAppSelector(state => state.construction.constructionChecklist);
   const wasOpenRef = useRef(false);
-  useEffect(() => {
-    if (open && !wasOpenRef.current) {
-      setSelected(initialSelected);
+
+  const fetchAllChecklistData = async () => {
+    try {
+      const params = {
+        builder: filters.builder !== 'All' ? filters.builder : undefined,
+      };
+      await dispatch(fetchAllConstructionChecklist(params)).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch checklist data');
     }
-    wasOpenRef.current = open;
-  }, [open, initialSelected]);
+  };
+  useEffect(() => {
+    fetchAllChecklistData();
+  }, [filters]);
+
+  // useEffect(() => {
+  //   if (open && !wasOpenRef.current) {
+  //     setSelected(initialSelected);
+  //   }
+  //   wasOpenRef.current = open;
+  // }, [open, initialSelected]);
 
   useEffect(() => {
     return () => debouncedUpdateURL.cancel();
-  }, [search, filters, showSelectedOnly, debouncedUpdateURL]);
+  }, [showSelectedOnly, debouncedUpdateURL]);
 
-  const handleCloseDrawer = () => {
-    onUpdate(selected);
-    onClose();
+  const handleToggle = (item: ConstructionChecklistType) => {
+    onUpdate(item);
+    // const exists = selected.some(i => i.name === item.name);
+    // const next = exists ? selected.filter(i => i.name !== item.name) : [item, ...selected];
+    // if (exists && recommendedTitle === item.name) {
+    //   setRecommendedTitle(null);
+    // }
+    // setSelected(next);
+    // onUpdate(next);
   };
 
-  const handleToggle = (item: ChecklistItem) => {
-    const exists = selected.some(i => i.title === item.title);
-    const next = exists ? selected.filter(i => i.title !== item.title) : [item, ...selected];
-    if (exists && recommendedTitle === item.title) {
-      setRecommendedTitle(null);
-    }
-    setSelected(next);
-    onUpdate(next);
-  };
-
-  const isSelected = (title: string) => selected.some(i => i.title === title);
+  const isSelected = (title: string) => selected.some(i => i.name === title);
   const isRecommended = (title: string) => recommendedTitle === title;
 
   const openRecommendation = (title: string) => {
@@ -91,12 +120,10 @@ export const ChecklistDrawer: React.FC<Props> = ({
     closeRecommendation();
   };
 
-  const baseFiltered = items.filter(
-    item => item.level === filters.level && item.title.toLowerCase().includes(search.toLowerCase())
+  const baseFiltered = checklist.filter(
+    item =>
+      item.builder === filters.builder && item.name.toLowerCase().includes(search.toLowerCase())
   );
-
-  const listToShow = showSelectedOnly ? selected : baseFiltered;
-
   return (
     <Drawer
       title={`Checklists for ${title}`}
@@ -108,7 +135,7 @@ export const ChecklistDrawer: React.FC<Props> = ({
         <Button
           className="ml-2"
           type="text"
-          icon={<IconX style={{ cursor: 'pointer' }} onClick={handleCloseDrawer} />}
+          icon={<IconX style={{ cursor: 'pointer' }} onClick={onClose} />}
         />
       }
     >
@@ -124,20 +151,18 @@ export const ChecklistDrawer: React.FC<Props> = ({
           type={showSelectedOnly ? 'primary' : 'default'}
           onClick={() => setShowSelectedOnly(true)}
         >
-          Selected Checklists {selected.length}
+          Selected Checklists {initialSelected.length}
         </Button>
       </Space>
 
       <Input
         addonBefore={
           <Select
-            value={filters.level}
-            onChange={val => setParams({ level: val })}
+            value={filters.builder}
+            onChange={val => setParams({ builder: val })}
             className="mb-2.5 w-36"
-          >
-            <Option value="Company Level">Company Level</Option>
-            <Option value="My Home">My Home</Option>
-          </Select>
+            options={builderOptions}
+          />
         }
         placeholder="Search Checklist..."
         value={search}
@@ -147,38 +172,33 @@ export const ChecklistDrawer: React.FC<Props> = ({
 
       {!showSelectedOnly &&
         selected
-          .filter(item => item.level === filters.level)
+          .filter(item => item.builder === filters.builder)
           .map(item => (
             <div
-              key={item.title}
+              key={item.name}
               className="p-3 border mb-2 rounded-md flex justify-between items-center"
             >
               <div>
                 <div className="font-medium flex items-center gap-2">
-                  <span>{item.title}</span>
-                  {recommendation && isRecommended(item.title) && (
-                    <Tag color="red">Recommended</Tag>
-                  )}
+                  <span>{item.name}</span>
+                  {recommendation && isRecommended(item.name) && <Tag color="red">Recommended</Tag>}
                 </div>
                 <Space>
-                  {(item.tags || []).map((tag, t) => (
-                    <Tag key={t}>{tag}</Tag>
-                  ))}
+                  <Tag>{item.constructionStage.id}</Tag>
+                  <Tag>{item.constructionType.id}</Tag>
                 </Space>
               </div>
               <Space>
                 {recommendation && (
-                  <Tooltip
-                    title={isRecommended(item.title) ? 'Recommended' : 'Mark as recommended'}
-                  >
+                  <Tooltip title={isRecommended(item.name) ? 'Recommended' : 'Mark as recommended'}>
                     <Popover
                       trigger="click"
-                      open={recommendationTarget === item.title}
+                      open={recommendationTarget === item.name}
                       onOpenChange={open => {
                         if (!open) {
                           closeRecommendation();
                         } else {
-                          openRecommendation(item.title);
+                          openRecommendation(item.name);
                         }
                       }}
                       content={
@@ -216,7 +236,7 @@ export const ChecklistDrawer: React.FC<Props> = ({
                         size="small"
                         type="text"
                         icon={
-                          isRecommended(item.title) ? (
+                          isRecommended(item.name) ? (
                             <IconUserFilled size={16} />
                           ) : (
                             <IconUser size={16} />
@@ -239,38 +259,59 @@ export const ChecklistDrawer: React.FC<Props> = ({
             </div>
           ))}
 
-      {listToShow
-        .filter(item => !selected.some(i => i.title === item.title) || showSelectedOnly)
-        .map(item => (
-          <div
-            key={item.title}
-            className="p-3 border mb-2 rounded-md flex justify-between items-center"
-          >
-            <div>
-              <div className="font-medium">{item.title}</div>
-              <Space>
-                {(item.tags || []).map((tag, t) => (
-                  <Tag key={t}>{tag}</Tag>
-                ))}
-              </Space>
-            </div>
-            <Button
-              size="small"
-              type="primary"
-              danger={isSelected(item.title)}
-              icon={
-                isSelected(item.title) ? (
-                  <IconX size={16} />
-                ) : (
-                  <Tooltip title="Add">
-                    <IconPlus size={16} />
-                  </Tooltip>
-                )
-              }
-              onClick={() => handleToggle(item)}
-            />
+      {(showSelectedOnly
+        ? initialSelected.map(i =>
+            checklist.find(c => c.constructionChecklistId === i.constructionChecklist.id)
+          )
+        : checklist
+      ).map(item => (
+        <div
+          key={item.name}
+          className="p-3 border mb-2 rounded-md flex justify-between items-center"
+        >
+          <div>
+            <div className="font-medium">{item.name}</div>
+            <Space>
+              <Tag>{item.constructionStage.name}</Tag>
+              <Tag>{item.constructionType.name}</Tag>
+            </Space>
           </div>
-        ))}
+          <Button
+            size="small"
+            type="text"
+            icon={
+              initialSelected
+                .map(i => i.constructionChecklist.id)
+                .includes(item.constructionChecklistId) ? (
+                <Popconfirm
+                  title="Are you sure you want to remove this checklist?"
+                  onConfirm={() =>
+                    onRemove(
+                      item,
+                      initialSelected.find(
+                        i => i.constructionChecklist.id === item.constructionChecklistId
+                      )?.id
+                    )
+                  }
+                >
+                  <Tooltip title="Remove">
+                    <IconX size={16} color="red" />
+                  </Tooltip>
+                </Popconfirm>
+              ) : (
+                <Popconfirm
+                  title="Are you sure you want to add this checklist?"
+                  onConfirm={() => onUpdate(item)}
+                >
+                  <Tooltip title="Add">
+                    <IconPlus size={16} color="blue" />
+                  </Tooltip>
+                </Popconfirm>
+              )
+            }
+          />
+        </div>
+      ))}
     </Drawer>
   );
 };
