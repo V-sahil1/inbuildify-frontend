@@ -5,9 +5,9 @@ import { FormField } from '../common/Models/ActionDialogModel';
 import { useUsersHook } from '@hooks/useUserHook';
 
 export const jobTransferFields = (): FormField[] => {
-  const { users, isLoading, isError } = useUsersHook();
-  if (isError) {
-    message.error(isError || 'Failed to fetch users');
+  const { userOptions, error } = useUsersHook();
+  if (error) {
+    message.error(error || 'Failed to fetch users');
   }
   return [
     {
@@ -16,10 +16,7 @@ export const jobTransferFields = (): FormField[] => {
       type: 'select',
       placeholder: 'Enter template name',
       rules: [{ required: true, message: 'Please enter template name' }],
-      options: users?.map(user => ({
-        label: user.name,
-        value: user.usersId,
-      })),
+      options: userOptions,
     },
     {
       label: 'Transfer the pending tasks and appointments',

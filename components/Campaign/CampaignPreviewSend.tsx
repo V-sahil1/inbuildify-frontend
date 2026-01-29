@@ -7,8 +7,7 @@ import { useUsersHook } from '@hooks/useUserHook';
 
 const CampaignPreviewSend = () => {
   const [form] = Form.useForm();
-  const { users } = useUsersHook();
-  const userOptions = users.map(user => ({ label: user.name, value: user.usersId }));
+  const { userOptions } = useUsersHook();
   const columns: ColumnsType<DataType> = [
     {
       title: 'Name',

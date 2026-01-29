@@ -40,11 +40,14 @@ export const EmailTemplateForm = ({
   });
 
   // Memoize original template for comparison
-  const originalTemplate = useMemo(() => ({
-    additionalRecipientUsers: template?.additionalRecipientUsers || [],
-    subject: template?.subject || '',
-    emailContent: template?.emailContent || '',
-  }), [template]);
+  const originalTemplate = useMemo(
+    () => ({
+      additionalRecipientUsers: template?.additionalRecipientUsers || [],
+      subject: template?.subject || '',
+      emailContent: template?.emailContent || '',
+    }),
+    [template]
+  );
 
   useEffect(() => {
     if (template) {
@@ -74,9 +77,9 @@ export const EmailTemplateForm = ({
   const handleSave = async () => {
     try {
       // Only send fields that have changed
-      const updatedFields = getUpdatedFields(formData, originalTemplate);
+      const { isUpdated, updatedFields } = getUpdatedFields(formData, originalTemplate);
 
-      if (Object.keys(updatedFields).length === 0) {
+      if (!isUpdated) {
         message.info('No changes to save');
         return;
       }
@@ -158,10 +161,10 @@ export const EmailTemplateForm = ({
 
       <div className="flex justify-end gap-3 pt-3">
         <Button onClick={onCancel}>Cancel</Button>
-        <Button 
-          type="primary" 
-          onClick={handleSave} 
-          loading={status.update === Status.PENDING} 
+        <Button
+          type="primary"
+          onClick={handleSave}
+          loading={status.update === Status.PENDING}
           disabled={status.update === Status.PENDING}
         >
           Save Template

@@ -32,8 +32,7 @@ const ColorGroupPage = () => {
   const [selectedGroupItem, setSelectedGroupItem] = useState<any>();
   //replace this withe subcategoryId in the item object
   const colorSubCategoryId = '1';
-  const { users } = useUsersHook();
-  const userOptions = users.map(i => ({ label: i.name, value: i.usersId }));
+  const { userOptions } = useUsersHook();
   let filteredGroups = filters.groupSearch
     ? groupItemData.filter(g => g.name.toLowerCase().includes(filters?.groupSearch?.toLowerCase()))
     : groupItemData;
@@ -327,7 +326,7 @@ const ColorGroupPage = () => {
 
                     <div className="col-span-full flex flex-wrap gap-2 mt-2">
                       <span className="text-xs bg-orange-400 text-white px-2 py-1 rounded whitespace-nowrap">
-                        {users.filter(i => i.usersId === item.supplierId)[0]?.name}
+                        {userOptions.filter(i => i.value === item.supplierId)[0]?.label}
                       </span>
                       {item.group &&
                         item.group.length > 0 &&

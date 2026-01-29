@@ -21,8 +21,7 @@ import {
 const SalesDashboard = () => {
   const [user, setUser] = useState('all');
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const { users } = useUsersHook();
-  const userOptions = users.map(user => ({ label: user.name, value: user.usersId }));
+  const { userOptions } = useUsersHook();
 
   const [chartVisibility, setChartVisibility] = useState({
     'Sales Overview': true,

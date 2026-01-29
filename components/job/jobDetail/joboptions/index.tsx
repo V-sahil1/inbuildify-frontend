@@ -15,7 +15,7 @@ import { useUsersHook } from '@hooks/useUserHook';
 
 export const jobOptionRenderer = ({ activeAction, onCancel, open }) => {
   const { leadDetail } = useAppSelector(state => state.lead);
-  const { users } = useUsersHook();
+  const { userOptions } = useUsersHook();
   const jobTransferField = jobTransferFields();
 
   //   add all the submit logic here
@@ -178,10 +178,7 @@ export const jobOptionRenderer = ({ activeAction, onCancel, open }) => {
               label: 'Builder',
               name: 'builder',
               type: 'select',
-              options: users?.map(user => ({
-                label: user.name,
-                value: user.usersId,
-              })),
+              options: userOptions,
               rules: [{ required: true, message: 'Builder is required' }],
             },
           ]}

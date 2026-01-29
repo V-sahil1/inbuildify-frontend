@@ -90,9 +90,9 @@ export const JobCreationModal: React.FC<LeadCreationModalProps> = ({
   const { countries, status, states } = useAppSelector(state => state.location);
   const { leadSources, status: leadStatus } = useAppSelector(state => state.lead);
   const { dwellingType, status: dwellingTypeStatus } = useAppSelector(state => state.types);
-  const { users, isLoading, isError } = useUsersHook();
-  if (isError) {
-    // message.error(isError || "Failed to fetch users");
+  const { userOptions, isLoading, error } = useUsersHook();
+  if (error) {
+    // message.error(error || "Failed to fetch users");
   }
   const dispatch = useAppDispatch();
   useEffect(() => {
@@ -259,14 +259,7 @@ export const JobCreationModal: React.FC<LeadCreationModalProps> = ({
               name="salesPerson"
               rules={[{ required: true, message: 'Required' }]}
             >
-              <Select
-                placeholder="Please Select"
-                loading={isLoading}
-                options={users?.map(user => ({
-                  label: user.name,
-                  value: user.usersId,
-                }))}
-              />
+              <Select placeholder="Please Select" loading={isLoading} options={userOptions} />
             </Form.Item>
           </Col>
           <Col span={12}>

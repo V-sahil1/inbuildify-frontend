@@ -24,7 +24,7 @@ export const JobRoleAssignUserModal = ({ open, onCancel }) => {
       onCancel();
     });
   };
-  const { users } = useUsersHook();
+  const { userOptions } = useUsersHook();
 
   return (
     <Modal
@@ -48,10 +48,7 @@ export const JobRoleAssignUserModal = ({ open, onCancel }) => {
                 <Select
                   placeholder="Select user"
                   style={{ width: 220 }}
-                  options={users?.map(user => ({
-                    label: user.name,
-                    value: user.usersId,
-                  }))}
+                  options={userOptions}
                 />
               </Form.Item>
             </div>

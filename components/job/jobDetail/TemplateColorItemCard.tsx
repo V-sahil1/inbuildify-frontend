@@ -40,7 +40,7 @@ export const TemplateColorItemCard: React.FC<TemplateColorItemCardProps> = ({
   onCancel,
   items: propItems,
 }) => {
-  const { users } = useUsersHook();
+  const { userOptions } = useUsersHook();
   const [addItemTemplate, setAddItemTemplate] = useState<Record<string, any>>({} as Record<string, any>);
   const [removeItem, setRemoveItem] = React.useState<boolean | null>(null);
   const [removeItemId, setRemoveItemId] = React.useState<string | null>(null);
@@ -92,7 +92,7 @@ export const TemplateColorItemCard: React.FC<TemplateColorItemCardProps> = ({
 
   useEffect(() => {
     setAddItemTemplate(items);
-  }, [users]);
+  }, [userOptions]);
 
   const handleAddItem = (itemId: string) => {
     const itemToAdd = items.find(item => item.id === itemId);

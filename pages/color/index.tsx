@@ -27,7 +27,7 @@ const ColorView = ({ showSearchBar = true }: ColorViewProps) => {
   let isActive = true;
   const dispatch = useAppDispatch();
   const { ColorCategory, status } = useAppSelector(state => state.colour);
-  const { users } = useUsersHook();
+  const { userOptions } = useUsersHook();
 
   const fetchColourCategoryData = async () => {
     try {
@@ -560,7 +560,7 @@ const ColorView = ({ showSearchBar = true }: ColorViewProps) => {
             sortOrder: editing ? selectedItem?.id : selectedItem?.sortOrder || (selectedItem?.subCategories?.length || 0) + 1
           }}
           onSubmit={handleAddColourSubCategorySubmit}
-          fields={ColorSubCategoryFields({ users: users, totalCount: selectedItem?.subCategories?.length || 0 })}
+          fields={ColorSubCategoryFields({ users: userOptions, totalCount: selectedItem?.subCategories?.length || 0 })}
         />
       )}
 

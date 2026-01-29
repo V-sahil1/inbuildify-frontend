@@ -22,7 +22,7 @@ export const TemplateColorItemForm: React.FC<TemplateColorItemFormProps> = ({
   onSubmit,
   initialValues = {}
 }) => {
-  const { users } = useUsersHook();
+  const { userOptions } = useUsersHook();
   const [form] = Form.useForm();
   const [imageUrl, setImageUrl] = useState<UploadFile | undefined>(initialValues.image);
   const [specificationUrl, setSpecificationUrl] = useState<UploadFile | undefined>(initialValues.specificationImage);
@@ -188,10 +188,7 @@ export const TemplateColorItemForm: React.FC<TemplateColorItemFormProps> = ({
                   /> */}
                   <Select
                     placeholder="Select Supplier"
-                    options={users.map(user => ({
-                      value: user.usersId,
-                      label: user.name,
-                    }))}
+                    options={userOptions}
                   />
                 </Form.Item>
               </div>

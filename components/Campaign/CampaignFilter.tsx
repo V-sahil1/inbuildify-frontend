@@ -4,8 +4,7 @@ import DateFilterDropdown from '../common/custom-selects/DateFilterDropdown';
 import { useUsersHook } from '@hooks/useUserHook';
 import { debouncedURL } from '@lib/utils/debounceURL';
 export default function CampaignFilter() {
-  const { users } = useUsersHook();
-  const userOptions = users.map(user => ({ label: user.name, value: user.usersId }));
+  const { userOptions } = useUsersHook();
   const { debouncedUpdateURL, setParams, filters } = debouncedURL({ filtersKey: ['address'] });
 
   useEffect(() => {
