@@ -2,116 +2,47 @@ import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { Status } from '@lib/constants/enum';
 import { debouncedURL } from '@lib/utils/debounceURL';
 import {
-  removeFloorplanItem,
-  setSelectedFloorplans,
-} from '@redux/feature/floorPlan/floorPlanSlice';
+  createFloorPlanPricelist,
+  deleteFloorPlanPricelist,
+} from '@redux/feature/floorPlan/floorPlanThunk';
 import { fetchCategoryItems } from '@redux/feature/masterPriceList/masterPriceListThunk';
-import { IconPencil, IconPlus, IconX } from '@tabler/icons-react';
-import { Button, Input, message, Popconfirm, Select, Switch, Tag } from 'antd';
+import { IconPlus, IconX } from '@tabler/icons-react';
+import { Input, message, Popconfirm, Select, Switch, Tag } from 'antd';
 import { useEffect, useState } from 'react';
+import TooltipButton from '../common/TooltipButton';
 
-export interface FloorplanPricelistRecord {
-  id: string;
-  description: string;
-  category: string;
-  costType: string;
-  quantity: number;
-  price: number;
-  incuded: boolean;
-  modify: boolean;
-}
-
-export const FloorplanPricelistColumns = () => {
+export const FloorplanPricelistColumns = (
+  floorPlanPricelist,
+  selectedFloorplan,
+  setSelectedFloorplan
+) => {
   const dispatch = useAppDispatch();
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [pricelistData, setPriceListData] = useState<FloorplanPricelistRecord[]>([
-    {
-      id: '1',
-      description: 'Base Price Single Storey with Standard Inclusions',
-      quantity: 1,
-      price: 6939,
-      category: 'Base Price',
-      costType: 'Variable',
-      incuded: false,
-      modify: false,
-    },
-    {
-      id: '2',
-      description: 'CUSTOM PLAN UP TO [units] IN SIZE (180.1 to 180.9)',
-      quantity: 1,
-      price: 2600,
-      category: 'Base Price',
-      costType: 'Variable',
-      incuded: false,
-      modify: false,
-    },
-    {
-      id: '3',
-      description: 'Cabinets',
-      quantity: 1,
-      price: 45,
-      category: 'Joinery',
-      costType: 'Variable',
-      incuded: false,
-      modify: false,
-    },
-    {
-      id: '4',
-      description: 'Provide 3 x drawers to vanity',
-      quantity: 1,
-      price: 200,
-      category: 'Bathrooms',
-      costType: 'Fixed',
-      incuded: false,
-      modify: false,
-    },
-    {
-      id: '5',
-      description: 'Double vanities to Bathroom',
-      quantity: 1,
-      price: 500,
-      category: 'Bathrooms',
-      costType: 'Fixed',
-      incuded: false,
-      modify: false,
-    },
-    {
-      id: '6',
-      description: '1200 x 900 Tiled Shower base ILO Std',
-      quantity: 1,
-      price: 250,
-      category: 'Bathrooms',
-      costType: 'Fixed',
-      incuded: false,
-      modify: false,
-    },
-    {
-      id: '7',
-      description: 'Rain head shower',
-      quantity: 1,
-      price: 600,
-      category: 'Bathrooms',
-      costType: 'Fixed',
-      incuded: false,
-      modify: false,
-    },
-  ]);
+  const [itemStates, setItemStates] = useState<{
+    [key: string]: { quantity: number; included: boolean; modify: boolean };
+  }>({});
   const { priceListItems, status } = useAppSelector(state => state.masterPriceList);
 
-  const fetchPriceListItemData = async () => {
-    try {
-      await dispatch(fetchCategoryItems({})).unwrap();
-    } catch (error) {
-      message.error(error || 'Failed to fetch Price List Items');
-    }
-  };
   const { debouncedUpdateURL, setParams, filters } = debouncedURL({
     filtersKey: ['search'],
     shouldSyncURL: false,
   });
+
+  useEffect(() => {
+    floorPlanPricelist?.map(item => {
+      setItemStates(prev => ({
+        ...prev,
+        [item.priceListItemId]: {
+          quantity: item.quantity,
+          included: item.includeDefault,
+          modify: item.modify,
+        },
+      }));
+    });
+  }, [floorPlanPricelist]);
+
   useEffect(() => {
     if (status.priceListItem.fetch === Status.IDLE) {
-      fetchPriceListItemData();
+      fetchPricelistData();
     }
   }, [status.priceListItem.fetch]);
   useEffect(() => {
@@ -119,17 +50,66 @@ export const FloorplanPricelistColumns = () => {
       debouncedUpdateURL.cancel();
     };
   }, [debouncedUpdateURL]);
-  function handleToggle(data) {
-    const isSelected = selectedIds.includes(data.id);
 
-    if (isSelected) {
-      dispatch(removeFloorplanItem({ id: data.id }));
-      setSelectedIds(prev => prev.filter(id => id !== data.id));
-    } else {
-      dispatch(setSelectedFloorplans(data));
-      setSelectedIds(prev => [...prev, data.id]);
+  async function fetchPricelistData() {
+    try {
+      await dispatch(fetchCategoryItems({})).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch prieclist data');
     }
   }
+  async function addItem(data) {
+    try {
+      const itemState = itemStates[data.priceListItemId] || {
+        quantity: null,
+        included: false,
+        modify: false,
+      };
+      const payload = {
+        floorPlanId: selectedFloorplan.floorPlanId,
+        priceListItemId: data.priceListItemId,
+        quantity: itemState.quantity,
+        includeDefault: itemState?.included,
+        modify: itemState?.modify,
+      };
+      if (data.costType !== 'Variable') {
+        delete payload.quantity;
+      }
+      await dispatch(createFloorPlanPricelist(payload)).unwrap();
+      message.success('Item added successfully');
+      setSelectedFloorplan(null);
+    } catch (error) {
+      message.error(error || 'Failed to add item');
+    }
+  }
+
+  async function removeItem(floorPlanId: string, id: string) {
+    try {
+      await dispatch(deleteFloorPlanPricelist({ floorPlanId, id })).unwrap();
+      message.success('Item removed successfully');
+    } catch (error) {
+      message.error(error || 'Failed to remove item');
+    }
+  }
+
+  const updateItemState = (
+    priceListItemId: string,
+    field: 'quantity' | 'included' | 'modify',
+    value: string | boolean
+  ) => {
+    setItemStates(prev => ({
+      ...prev,
+      [priceListItemId]: {
+        ...prev[priceListItemId],
+        [field]: value,
+      },
+    }));
+  };
+
+  function isChecklistAdded(record) {
+    return floorPlanPricelist?.map(i => i.priceListItemId).includes(record.priceListItemId);
+  }
+
   const columns = [
     {
       title: (
@@ -155,18 +135,19 @@ export const FloorplanPricelistColumns = () => {
       title: 'Include Default',
       dataIndex: 'included',
       key: 'included',
-      render: (_, record) => (
-        <Switch
-          value={record.included}
-          onChange={checked => {
-            setPriceListData(prev => {
-              return prev.map(item =>
-                item.id === record.id ? { ...item, modify: checked } : item
-              );
-            });
-          }}
-        />
-      ),
+      render: (_, record) => {
+        return (
+          <Switch
+            checked={
+              itemStates[record.priceListItemId]?.included !== undefined
+                ? itemStates[record.priceListItemId].included
+                : false
+            }
+            onChange={checked => updateItemState(record.priceListItemId, 'included', checked)}
+            disabled={isChecklistAdded(record)}
+          />
+        );
+      },
     },
     {
       title: 'Modify',
@@ -174,15 +155,13 @@ export const FloorplanPricelistColumns = () => {
       key: 'modify',
       render: (_, record) => (
         <Switch
-          value={record.modify}
-          defaultChecked={record.modify}
-          onChange={checked => {
-            setPriceListData(prev => {
-              return prev.map(item =>
-                item.id === record.id ? { ...item, modify: checked } : item
-              );
-            });
-          }}
+          checked={
+            itemStates[record.priceListItemId]?.modify !== undefined
+              ? itemStates[record.priceListItemId].modify
+              : false
+          }
+          onChange={checked => updateItemState(record.priceListItemId, 'modify', checked)}
+          disabled={isChecklistAdded(record)}
         />
       ),
     },
@@ -191,32 +170,46 @@ export const FloorplanPricelistColumns = () => {
       dataIndex: 'quantity',
       key: 'quantity',
       render: (_, record) => {
-        const isSelected = selectedIds.includes(record.id);
-        return record.costType === 'Variable' && <Input disabled={isSelected} />;
+        return record.costType === 'Variable' ? (
+          <Input
+            value={itemStates[record.priceListItemId]?.quantity || ''}
+            onChange={e => updateItemState(record.priceListItemId, 'quantity', e.target.value)}
+            placeholder="Enter quantity"
+            type="number"
+            min="1"
+            disabled={isChecklistAdded(record)}
+          />
+        ) : null;
       },
     },
     {
       title: 'Price ($)',
       dataIndex: 'cost',
       key: 'cost',
+      render: (_, record) =>
+        (Number(itemStates[record.priceListItemId]?.quantity) || 1) * record.cost,
     },
     {
-      title: '',
-      dataIndex: '',
-      key: '',
       render: (_, record) => {
-        const isSelected = selectedIds.includes(record.id);
-        return (
-          <Button
-            type={isSelected ? 'default' : 'primary'}
-            size="small"
-            onClick={() => handleToggle(record)}
-            icon={isSelected ? <IconX size={15} /> : <IconPlus size={15} />}
-          />
+        const item = floorPlanPricelist?.find(i => i.priceListItemId === record.priceListItemId);
+        return isChecklistAdded(record) ? (
+          <Popconfirm
+            title="Are you sure you want to remove this item?"
+            onConfirm={() => removeItem(item.floorPlanId, item.id)}
+          >
+            <TooltipButton type="default" title="Remove" icon={<IconX size={15} />} />
+          </Popconfirm>
+        ) : (
+          <Popconfirm
+            title="Are you sure you want to add this item?"
+            onConfirm={() => addItem(record)}
+          >
+            <TooltipButton type="primary" title="Add" icon={<IconPlus size={15} />} />
+          </Popconfirm>
         );
       },
     },
   ];
 
-  return { columns, pricelistData: priceListItems };
+  return { columns, priceListItems };
 };

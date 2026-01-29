@@ -2,7 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import api, { apiWithFormDataMethods } from '@lib/constants/api';
 import { ApiResponse } from '../auth/IAuthState';
 import API_ENDPOINTS from '@lib/constants/apiEndpoints';
-import { FloorPlanGetParams, IFloorPlanState } from './IFloorPlanState';
+import { FloorPlanGetParams, FloorplanPricelist, IFloorPlanState } from './IFloorPlanState';
 import { CommonPagination } from '../common/ICommonState';
 
 export const fetchFloorPlans = createAsyncThunk(
@@ -60,6 +60,56 @@ export const updateFloorPlan = createAsyncThunk(
 //     }
 //   }
 // );
+
+//floorplan pricelist
+export const fetchFloorPlanPricelist = createAsyncThunk(
+  'floorPlans/fetchFloorPlanPricelist',
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const res = await api.get<
+        ApiResponse<{ mappings: FloorplanPricelist[]; pagination: CommonPagination }>
+      >(API_ENDPOINTS.FLOOR_PLAN_PRICELIST, {
+        params: {
+          floor_plan_id: id,
+        },
+      });
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const createFloorPlanPricelist = createAsyncThunk(
+  'floorPlans/createFloorPlanPricelist',
+  async (payload: FloorplanPricelist, { rejectWithValue }) => {
+    try {
+      const res = await api.post<ApiResponse<FloorplanPricelist>>(
+        API_ENDPOINTS.FLOOR_PLAN_PRICELIST,
+        {
+          data: payload,
+        }
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const deleteFloorPlanPricelist = createAsyncThunk(
+  'floorPlans/deleteFloorPlanPricelist',
+  async (payload: { id: string; floorPlanId: string }, { rejectWithValue }) => {
+    try {
+      const res = await api.delete<ApiResponse>(
+        API_ENDPOINTS.FLOOR_PLAN_PRICELIST + '/' + payload.id
+      );
+      return payload;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
 
 //filters
 

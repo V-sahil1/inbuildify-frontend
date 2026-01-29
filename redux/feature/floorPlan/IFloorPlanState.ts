@@ -22,6 +22,17 @@ export interface IFloorPlanState {
   rangeName?: string;
   locationId: string;
   locationName?: string;
+  facade?: any[];
+  pricelistItems?: FloorplanPricelist[];
+}
+
+export interface FloorplanPricelist {
+  id?: string;
+  includeDefault?: boolean;
+  modify?: boolean;
+  quantity: number;
+  floorPlanId: string;
+  priceListItemId: string;
 }
 
 export interface FloorPlanGetParams {

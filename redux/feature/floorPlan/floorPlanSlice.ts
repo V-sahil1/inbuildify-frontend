@@ -1,8 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { createFloorPlan, fetchFloorPlans, getConditions, updateFloorPlan } from './floorPlanThunk';
+import {
+  createFloorPlan,
+  createFloorPlanPricelist,
+  deleteFloorPlanPricelist,
+  fetchFloorPlanPricelist,
+  fetchFloorPlans,
+  getConditions,
+  updateFloorPlan,
+} from './floorPlanThunk';
 import { Status } from '@lib/constants/enum';
-import { IFloorPlanState } from './IFloorPlanState';
-import { FloorplanPricelistRecord } from '@/components/table-columns/FloorplanPricelistColumns';
+import { FloorplanPricelist, IFloorPlanState } from './IFloorPlanState';
 import { CommonPagination } from '../common/ICommonState';
 
 const floorPlanSlice = createSlice({
@@ -13,10 +20,11 @@ const floorPlanSlice = createSlice({
       floorPlan: { fetch: Status.IDLE, create: Status.IDLE },
       filters: Status.IDLE,
       conditions: Status.IDLE,
+      floorPlanPricelist: { fetch: Status.IDLE, create: Status.IDLE },
     },
     filters: null,
     selectedFilters: { range: '', dwelling_type: '' },
-    selectedFloorplans: [] as FloorplanPricelistRecord[],
+    selectedFloorplans: [] as FloorplanPricelist[],
     pagination: <CommonPagination>{},
   },
   reducers: {
@@ -65,12 +73,32 @@ const floorPlanSlice = createSlice({
           floorPlan.floorPlanId === action.payload.floorPlanId ? action.payload : floorPlan
         );
         state.status.floorPlan.create = Status.SUCCESS;
+      })
+
+      //floorplan pricelist
+      .addCase(fetchFloorPlanPricelist.fulfilled, (state, action) => {
+        const floorplan = state.floorPlans.find(i => i.floorPlanId === action.meta.arg);
+        if (floorplan) {
+          floorplan.pricelistItems = action.payload.mappings;
+        }
+        state.status.floorPlanPricelist.fetch = Status.SUCCESS;
+      })
+      .addCase(createFloorPlanPricelist.fulfilled, (state, action) => {
+        const floorplan = state.floorPlans.find(i => i.floorPlanId === action.payload.floorPlanId);
+        if (floorplan) {
+          floorplan.pricelistItems.push(action.payload);
+        }
+        state.status.floorPlanPricelist.create = Status.SUCCESS;
+      })
+      .addCase(deleteFloorPlanPricelist.fulfilled, (state, action) => {
+        const floorplan = state.floorPlans.find(i => i.floorPlanId === action.payload.floorPlanId);
+        if (floorplan) {
+          floorplan.pricelistItems = floorplan.pricelistItems.filter(
+            i => i.id !== action.payload.id
+          );
+        }
+        state.status.floorPlanPricelist.create = Status.SUCCESS;
       });
-    // .addCase(deleteFloorPlan.fulfilled, (state, action) => {
-    //   state.floorPlans = state.floorPlans.filter(
-    //     floorPlan => floorPlan.floorPlanId !== action.payload
-    //   );
-    // });
   },
 });
 

@@ -29,7 +29,7 @@ export const FloorPlanColumn = (
             e.stopPropagation();
           }}
         >
-          <Image src={record.simpleImage} />
+          <Image src={record?.simpleImage} />
         </div>
       ),
     },
@@ -62,10 +62,10 @@ export const FloorPlanColumn = (
       width: 150,
       render: (_, record) => (
         <div>
-          <p>Beds : {record.beds}</p>
-          <p>Bath : {record.baths}</p>
-          <p>Car : {record.carpark}</p>
-          <p>Living : {record.living}</p>
+          <p>Beds : {record?.beds}</p>
+          <p>Bath : {record?.baths}</p>
+          <p>Car : {record?.carpark}</p>
+          <p>Living : {record?.living}</p>
         </div>
       ),
     },
@@ -76,8 +76,8 @@ export const FloorPlanColumn = (
       width: 150,
       render: (_, record) => (
         <div>
-          <p>W : {record.minLandWidth}</p>
-          <p>D : {record.minLandDepth}</p>
+          <p>W : {record?.minLandWidth}</p>
+          <p>D : {record?.minLandDepth}</p>
         </div>
       ),
     },
@@ -88,7 +88,7 @@ export const FloorPlanColumn = (
       width: 150,
       render: (_, record) => (
         <div>
-          <p>Total : {record.totalArea}</p>
+          <p>Total : {record?.totalArea}</p>
         </div>
       ),
     },
@@ -143,7 +143,7 @@ export const FloorPlanColumn = (
           )}
 
           <Tooltip title="Map Pricelist">
-            <Badge count={3} size="small">
+            <Badge count={record?.pricelistItems?.length || 0} size="small">
               <Button
                 size="small"
                 className="text-blue"

@@ -63,6 +63,7 @@ class API_ENDPOINTS {
   // floor plans
   public static FLOOR_PLAN_BASE = '/floor-plan';
   public static FLOOR_PLAN_FILTERS = `${this.FLOOR_PLAN_BASE}/filters`;
+  public static FLOOR_PLAN_PRICELIST = '/floor-plan-pricelist-item-map';
 
   //range and dwelling type
   public static RANGE = `/range`;
