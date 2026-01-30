@@ -8,21 +8,20 @@ export const useCountryHook = () => {
   const dispatch = useAppDispatch();
 
   const countries = useAppSelector(state => state.location?.countries || []);
-  const status = useAppSelector(state => state.location?.status || Status.IDLE);
+  const status = useAppSelector(state => state.location?.countryStatus || Status.IDLE);
 
   const isLoading = status === Status.PENDING;
   const isError = status === Status.ERROR;
   const isSuccess = status === Status.SUCCESS;
-
+  const fetchCountries = async () => {
+    try {
+      await dispatch(getCountriesThunk()).unwrap();
+    } catch (err) {
+      setError(err as string);
+    }
+  };
   useEffect(() => {
     if (status === Status.IDLE) {
-      const fetchCountries = async () => {
-        try {
-          await dispatch(getCountriesThunk()).unwrap();
-        } catch (err) {
-          setError(err as string);
-        }
-      };
       fetchCountries();
     }
   }, [status, dispatch]);
@@ -30,7 +29,7 @@ export const useCountryHook = () => {
   const countryOptions = useMemo(() => {
     return countries.map(country => ({
       label: country.name,
-      value: country.countryId
+      value: country.countryId,
     }));
   }, [countries]);
 

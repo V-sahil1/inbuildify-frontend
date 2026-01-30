@@ -13,6 +13,17 @@ import { formDataGenerator } from '@lib/utils/formDataGenerator';
 import { Status } from '@lib/constants/enum';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import { useLocationAndTimezoneHook } from '@hooks/useLocationAndTimezoneHook';
+import {
+  abnRules,
+  zipCodeRules,
+  accountNumberRules,
+  accountBsbRules,
+  addressLine1Rules,
+  cityRules,
+  optionalNameRule,
+  builderNameRules,
+  addressLine2Rules,
+} from '@lib/constants/formInputValidations';
 
 const CompanyDetails = () => {
   const [form] = Form.useForm();
@@ -20,7 +31,7 @@ const CompanyDetails = () => {
   const { company, status } = useAppSelector(state => state.general.company);
   const { timezoneOptions } = useLocationAndTimezoneHook({ type: 'timezone' });
   const { countryOptions } = useCountryHook();
-  const selectedCountryId = Form.useWatch('countryId', form);
+  const selectedCountryId = Form.useWatch(['address', 'countryId'], form);
   const { stateOptions } = useStateHook(selectedCountryId);
   const [isChanged, setIsChanged] = useState(false);
 
@@ -66,8 +77,8 @@ const CompanyDetails = () => {
     if (!company) return;
     try {
       const { emailSignatureLogo, companyLogo, ...rest } = values;
-      let companyLogoFile = company.companyLogo;
-      let emailSignatureLogoFile = company.emailSignatureLogo;
+      let companyLogoFile = company?.companyLogo || null;
+      let emailSignatureLogoFile = company?.emailSignatureLogo || null;
       if (emailSignatureLogo && emailSignatureLogo.length > 0) {
         emailSignatureLogoFile = emailSignatureLogo[0].originFileObj || companyLogoFile;
       }
@@ -100,18 +111,27 @@ const CompanyDetails = () => {
         onFinish={onFinish}
         className="space-y-10"
         onValuesChange={handleValueChange}
+        initialValues={company}
         disabled={status.update === Status.PENDING}
       >
         {/* Basic Info */}
         <h2 className="text-xl font-semibold border-b pb-2">Basic Information</h2>
         <div className="grid grid-cols-2 gap-8">
-          <Form.Item label="Company Name" name="name">
+          <Form.Item
+            label="Company Name"
+            name="name"
+            rules={[{ required: true, message: 'Company name is required' }, ...builderNameRules]}
+          >
             <Input />
           </Form.Item>
-          <Form.Item label="ABN" name="abnNumber">
+          <Form.Item label="ABN" name="abnNumber" rules={abnRules}>
             <Input />
           </Form.Item>
-          <Form.Item label="Timezone Name" name="timezoneId">
+          <Form.Item
+            label="Timezone Name"
+            name="timezoneId"
+            rules={[{ required: true, message: 'TimeZone is required' }]}
+          >
             <Select options={timezoneOptions} />
           </Form.Item>
         </div>
@@ -119,39 +139,54 @@ const CompanyDetails = () => {
         {/* Address Details */}
         <h2 className="text-xl font-semibold border-b pb-2">Address Details</h2>
         <div className="grid grid-cols-2 gap-8">
-          <Form.Item label="Address 1" name="address1">
+          <Form.Item
+            label="Address 1"
+            name={['address', 'addressLine1']}
+            rules={[
+              { required: true, message: 'Address line 1 is required' },
+              ...addressLine1Rules,
+            ]}
+          >
             <Input />
           </Form.Item>
-          <Form.Item label="Address 2" name="address2">
+          <Form.Item label="Address 2" name={['address', 'addressLine2']} rules={addressLine2Rules}>
             <Input />
           </Form.Item>
-          <Form.Item label="City / Suburb" name="city">
+          <Form.Item label="City / Suburb" name={['address', 'city']} rules={cityRules}>
             <Input />
           </Form.Item>
-          <Form.Item label="Zip / Postal Code" name="zipPostalCode">
-            <Input />
+          <Form.Item label="Zip / Postal Code" name={['address', 'zipCode']} rules={zipCodeRules}>
+            <Input type="number" />
           </Form.Item>
-          <Form.Item label="State / Region" name="stateId">
-            <Select options={stateOptions} />
-          </Form.Item>
-          <Form.Item label="Country" name="countryId">
+          <Form.Item
+            label="Country"
+            name={['address', 'countryId']}
+            rules={[{ required: true, message: 'Country is required' }]}
+          >
             <Select options={countryOptions} className="bg-gray-100 text-gray-500" />
+          </Form.Item>
+          <Form.Item
+            label="State / Region"
+            name={['address', 'stateId']}
+            rules={[{ required: true, message: 'State is required' }]}
+          >
+            <Select options={stateOptions} />
           </Form.Item>
         </div>
 
         {/* Bank Details */}
         <h2 className="text-xl font-semibold border-b pb-2">Bank Details</h2>
         <div className="grid grid-cols-2 gap-8">
-          <Form.Item label="Bank Name" name="bankName">
+          <Form.Item label="Bank Name" name="bankName" rules={optionalNameRule}>
             <Input />
           </Form.Item>
-          <Form.Item label="Account Name" name="accountName">
+          <Form.Item label="Account Name" name="accountName" rules={builderNameRules}>
             <Input />
           </Form.Item>
-          <Form.Item label="Account Number" name="accountNumber">
+          <Form.Item label="Account Number" name="accountNumber" rules={accountNumberRules}>
             <Input />
           </Form.Item>
-          <Form.Item label="Account BSB" name="accountBsb">
+          <Form.Item label="Account BSB" name="accountBsb" rules={accountBsbRules}>
             <Input />
           </Form.Item>
         </div>

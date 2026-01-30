@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import type { Rule } from 'antd/es/form';
+
 export const passwordRules = [
   { required: true, message: 'Password is required' },
   {
@@ -186,26 +187,6 @@ export const OptionalNumberRules = [
   {
     pattern: /^\d+(\.\d+)?$/,
     message: 'Value cannot be negative or contain a minus sign',
-  },
-];
-
-export const optionalAddressRules = [
-  {
-    validateFirst: true,
-    validator: (_: any, value: string) => {
-      if (!value) {
-        return Promise.resolve();
-      }
-
-      if (value.length < 2) {
-        return Promise.reject('Address must be at least 2 letters');
-      }
-
-      if (value.length >= 255) {
-        return Promise.reject('Address must be at most 255 letters');
-      }
-      return Promise.resolve();
-    },
   },
 ];
 
@@ -470,10 +451,79 @@ export const firmNameRules = [
   },
 ];
 
+export const accountNumberRules = [
+  { min: 6, message: 'Account number must be at least 6 characters long' },
+  { max: 10, message: 'Account number must not exceed 10 characters' },
+];
+
+export const accountBsbRules = [
+  { min: 6, message: 'Account BSB must be at least 6 characters long' },
+  { max: 6, message: 'Account BSB must not exceed 6 characters' },
+];
+
+export const cityRules = [
+  { required: true, message: 'City is required' },
+  { min: 2, message: 'City must be at least 2 characters long' },
+  { max: 100, message: 'City must not exceed 100 characters' },
+  {
+    pattern: /^(?=.*[A-Za-z])[A-Za-z\s.-]+$/,
+    message: 'City must contain only letters and valid characters (space, dot, hyphen)',
+  },
+];
+
 export const zipCodeRules = [
   { required: true, message: 'Please enter your zip code' },
+  { min: 4, message: 'Zip code must be at least 4 characters long' },
+  { max: 4, message: 'Zip code must not exceed 4 characters' },
+];
+
+export const builderPhoneRules = [
+  { min: 10, message: 'Phone number must be at least 10 characters long' },
+  { max: 14, message: 'Phone number must not exceed 14 characters' },
+];
+
+export const acnNumberRules = [
+  { min: 9, message: 'ACN number must be at least 9 characters long' },
+  { max: 9, message: 'ACN number must not exceed 9 characters' },
+];
+
+export const hiaMembershipRules = [
+  { min: 2, message: 'Number must be at least 2 characters long' },
+  { max: 100, message: 'Number must not exceed 100 characters' },
+];
+
+export const registrationNumberRules = [
+  { min: 10, message: 'Registration number must be at least 10 characters long' },
+  { max: 100, message: 'Registration number must not exceed 100 characters' },
+];
+export const addressLine1Rules = [
+  { required: true, message: 'Address line 1 is required' },
+  { min: 10, message: 'Address must be at least 10 characters long' },
+  { max: 255, message: 'Address must not exceed 255 characters' },
   {
-    pattern: /^[0-9]{4}$/,
-    message: 'Zip code must be of 4 digits',
+    pattern: /^(?=.*[a-zA-Z])[a-zA-Z0-9\s,./#-]+$/,
+    message: 'Address must contain at least one letter',
   },
+];
+export const addressLine2Rules = [
+  { min: 2, message: 'Address must be at least 2 characters long' },
+  { max: 255, message: 'Address must not exceed 255 characters' },
+  {
+    pattern: /^(?=.*[a-zA-Z])[a-zA-Z0-9\s,./#-]+$/,
+    message: 'Address must contain at least one letter',
+  },
+];
+
+export const builderNameRules = [
+  { min: 2, message: 'Name must be at least 2 characters long' },
+  { max: 150, message: 'Name must not exceed 150 characters' },
+  {
+    pattern: /^(?=.*[a-zA-Z])[a-zA-Z0-9\s,./#-]+$/,
+    message: 'Please enter valid name',
+  },
+];
+
+export const optionalNameRule = [
+  { min: 3, message: 'Field must be at least 3 characters long' },
+  { max: 150, message: 'Field must not exceed 150 characters' },
 ];

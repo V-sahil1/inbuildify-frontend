@@ -13,7 +13,21 @@ import { formDataGenerator } from '@lib/utils/formDataGenerator';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import { useCountryHook } from '@hooks/useCountryHook';
 import { useStateHook } from '@hooks/useStateHook';
-import { abnRules, phoneRules } from '@lib/constants/formInputValidations';
+import {
+  abnRules,
+  emailRules,
+  builderPhoneRules,
+  acnNumberRules,
+  hiaMembershipRules,
+  registrationNumberRules,
+  accountNumberRules,
+  accountBsbRules,
+  builderNameRules,
+  optionalNameRule,
+  cityRules,
+  zipCodeRules,
+  addressLine2Rules,
+} from '@lib/constants/formInputValidations';
 
 const BuilderDetails = () => {
   const [form] = Form.useForm();
@@ -52,17 +66,16 @@ const BuilderDetails = () => {
   }, [status.fetch]);
 
   const onFinish = async (values: BuilderInfo) => {
+    if (!builder) {
+      return;
+    }
     await form.validateFields();
     if (values) {
       try {
         if (fileList.length > 0) {
           values.logo = fileList[0].originFileObj;
         }
-        const { isUpdated, updatedFields } = getUpdatedFields(values, builder);
-        if (!isUpdated) {
-          return;
-        }
-        const formData = formDataGenerator(updatedFields);
+        const formData = formDataGenerator(values);
         await dispatch(updateBuilderDetails(formData)).unwrap();
         message.success('Builder details updated successfully');
       } catch (error) {
@@ -90,34 +103,46 @@ const BuilderDetails = () => {
         {/* Builder Section */}
         <h2 className="text-xl font-semibold border-b pb-2">Builder Details</h2>
         <div className="grid grid-cols-2 gap-6">
-          <Form.Item label="Builder Name" name="name">
+          <Form.Item label="Builder Name" name="name" rules={builderNameRules}>
             <Input />
           </Form.Item>
-          <Form.Item label="Email" name="email">
-            <Input />
+          <Form.Item label="Email" name="email" rules={emailRules}>
+            <Input type="email" />
           </Form.Item>
-          <Form.Item label="Phone" name="phoneNumber" rules={phoneRules}>
+          <Form.Item label="Phone" name="phoneNumber" rules={builderPhoneRules}>
             <Input />
           </Form.Item>
           <Form.Item label="ABN" name="abnNumber" rules={abnRules}>
             <Input />
           </Form.Item>
-          <Form.Item label="ACN" name="acnNumber">
+          <Form.Item label="ACN" name="acnNumber" rules={acnNumberRules}>
             <Input />
           </Form.Item>
-          <Form.Item label="HIA Membership No" name="hiaMembershipNo">
+          <Form.Item label="HIA Membership No" name="hiaMembershipNo" rules={hiaMembershipRules}>
             <Input />
           </Form.Item>
-          <Form.Item label="Register Number" name="registrationNumber">
+          <Form.Item
+            label="Register Number"
+            name="registrationNumber"
+            rules={registrationNumberRules}
+          >
             <Input />
           </Form.Item>
           <Form.Item label="Registered Building Practitioner" name="registeredBuildingPractitioner">
             <Input />
           </Form.Item>
-          <Form.Item label="Practitioner Reg No" name="practitionerRegNo">
+          <Form.Item
+            label="Practitioner Reg No"
+            name="practitionerRegNo"
+            rules={hiaMembershipRules}
+          >
             <Input />
           </Form.Item>
-          <Form.Item label="Builders Name (Licensed)" name="licensedBuilderName">
+          <Form.Item
+            label="Builders Name (Licensed)"
+            name="licensedBuilderName"
+            rules={optionalNameRule}
+          >
             <Input />
           </Form.Item>
         </div>
@@ -125,22 +150,30 @@ const BuilderDetails = () => {
         {/* Address Section */}
         <h2 className="text-xl font-semibold border-b pb-2">Address Details</h2>
         <div className="grid grid-cols-2 gap-6">
-          <Form.Item label="Address 1" name={['address', 'addressLine1']}>
+          <Form.Item label="Address 1" name={['address', 'addressLine1']} rules={addressLine2Rules}>
             <Input />
           </Form.Item>
-          <Form.Item label="Address 2" name={['address', 'addressLine2']}>
+          <Form.Item label="Address 2" name={['address', 'addressLine2']} rules={addressLine2Rules}>
             <Input />
           </Form.Item>
-          <Form.Item label="City / Suburb" name={['address', 'city']}>
+          <Form.Item label="City / Suburb" name={['address', 'city']} rules={cityRules}>
             <Input />
           </Form.Item>
-          <Form.Item label="State / Region" name={['address', 'stateId']}>
+          <Form.Item
+            label="State / Region"
+            name={['address', 'stateId']}
+            rules={[{ required: true, message: 'Please Select State' }]}
+          >
             <Select options={stateOptions} />
           </Form.Item>
-          <Form.Item label="Country" name={['address', 'countryId']}>
+          <Form.Item
+            label="Country"
+            name={['address', 'countryId']}
+            rules={[{ required: true, message: 'Please Select Country' }]}
+          >
             <Select options={countryOptions} />
           </Form.Item>
-          <Form.Item label="Zip / Postal Code" name={['address', 'zipCode']}>
+          <Form.Item label="Zip / Postal Code" name={['address', 'zipCode']} rules={zipCodeRules}>
             <Input />
           </Form.Item>
         </div>
@@ -148,16 +181,16 @@ const BuilderDetails = () => {
         {/* Bank Details */}
         <h2 className="text-xl font-semibold border-b pb-2">Bank Details</h2>
         <div className="grid grid-cols-2 gap-6">
-          <Form.Item label="Bank Name" name="bankName">
+          <Form.Item label="Bank Name" name="bankName" rules={optionalNameRule}>
             <Input />
           </Form.Item>
-          <Form.Item label="Account Name" name="accountName">
+          <Form.Item label="Account Name" name="accountName" rules={builderNameRules}>
             <Input />
           </Form.Item>
-          <Form.Item label="Account Number" name="accountNumber">
+          <Form.Item label="Account Number" name="accountNumber" rules={accountNumberRules}>
             <Input />
           </Form.Item>
-          <Form.Item label="Account BSB" name="accountBsb">
+          <Form.Item label="Account BSB" name="accountBsb" rules={accountBsbRules}>
             <Input />
           </Form.Item>
         </div>
@@ -165,21 +198,21 @@ const BuilderDetails = () => {
         {/* Building Insurer */}
         <h2 className="text-xl font-semibold border-b pb-2">Building Insurer</h2>
         <div className="grid grid-cols-2 gap-6">
-          <Form.Item
-            label="Insurer"
-            name={['insurer', 'insurerName']}
-            rules={[{ required: true, message: 'Please Enter Insurer Name' }]}
-          >
+          <Form.Item label="Insurer" name={['insurer', 'insurerName']} rules={builderNameRules}>
             <Input />
           </Form.Item>
           <Form.Item
             label="Insurer Address 1"
             name={['insurer', 'addressLine1']}
-            rules={[{ required: true, message: 'Please Enter Insurer Address 1' }]}
+            rules={addressLine2Rules}
           >
             <Input />
           </Form.Item>
-          <Form.Item label="Insurer Address 2" name={['insurer', 'addressLine2']}>
+          <Form.Item
+            label="Insurer Address 2"
+            name={['insurer', 'addressLine2']}
+            rules={addressLine2Rules}
+          >
             <Input />
           </Form.Item>
           <Form.Item
@@ -196,13 +229,13 @@ const BuilderDetails = () => {
           >
             <Input />
           </Form.Item>
-          <Form.Item label="Phone" name={['insurer', 'phoneNumber']} rules={phoneRules}>
+          <Form.Item label="Phone" name={['insurer', 'phoneNumber']} rules={builderPhoneRules}>
             <Input />
           </Form.Item>
           <Form.Item
             label="Name of Insured"
             name={['insurer', 'insuredName']}
-            rules={[{ required: true, message: 'Please Enter Name of Insured' }]}
+            rules={[{ required: true, message: 'Please Enter Builder Name' }, ...builderNameRules]}
           >
             <Input />
           </Form.Item>

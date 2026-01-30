@@ -38,7 +38,7 @@ const commonSlice = createSlice({
       state.status.functionality = Status.PENDING;
     });
     builder.addCase(fetchAllFunctionality.fulfilled, (state, action) => {
-      state.functionality = action.payload.functionalities;
+      state.functionality = action.payload;
       state.status.functionality = Status.SUCCESS;
     });
     builder.addCase(fetchAllFunctionality.rejected, state => {

@@ -17,7 +17,7 @@ const screenSlice = createSlice({
       state.status = Status.PENDING;
     });
     builder.addCase(fetchAllScreen.fulfilled, (state, action) => {
-      state.screen = action.payload.screens;
+      state.screen = action.payload;
       state.status = Status.SUCCESS;
     });
     builder.addCase(fetchAllScreen.rejected, state => {

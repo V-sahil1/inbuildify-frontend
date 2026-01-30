@@ -3,16 +3,15 @@ import API_ENDPOINTS from '@lib/constants/apiEndpoints';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { ApiResponse } from '../auth/IAuthState';
 import { ComplianceType, functionalityResponse, LocationType, Timezone } from './ICommonState';
-import { Pagination } from '../admin/general/surveyor/ISurveyorState';
 import { BuilderInfo } from '../admin/general/builder/ibuilderState';
 
 export const fetchAllFunctionality = createAsyncThunk(
   'common/fetchAllFunctionality',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get<
-        ApiResponse<{ functionalities: functionalityResponse[]; pagination: Pagination }>
-      >(API_ENDPOINTS.FUNCTIONALITY_BASE);
+      const response = await api.get<ApiResponse<functionalityResponse[]>>(
+        API_ENDPOINTS.FUNCTIONALITY_BASE
+      );
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);
