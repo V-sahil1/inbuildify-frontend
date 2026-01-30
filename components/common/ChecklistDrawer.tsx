@@ -29,7 +29,7 @@ interface Props {
   open: boolean;
   onClose: () => void;
   title: string;
-  initialSelected: CostCenterChecklist[];
+  initialSelected?: CostCenterChecklist[];
   width?: number | string;
   recommendation?: boolean;
   onUpdate: (selected: ConstructionChecklistType) => void;

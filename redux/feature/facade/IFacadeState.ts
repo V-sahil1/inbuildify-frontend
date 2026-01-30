@@ -11,4 +11,6 @@ export interface IFacadeState {
   location: Entity,
   dwellingtype: Entity,
   range: Entity,
+  standard?:boolean,
+  upgrade?:boolean
 }

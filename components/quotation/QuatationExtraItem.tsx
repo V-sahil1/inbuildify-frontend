@@ -7,12 +7,12 @@ import { Button, Input, Select, message, Form } from 'antd';
 import React, { useState } from 'react';
 import { enumToReadable } from '@lib/utils/enumToRedable';
 import { QuatationItem } from './QuatationItem';
-import { Item } from '@redux/feature/masterPriceList/iMasterPriceListState';
 import { Status } from '@lib/constants/enum';
+import { IPriceListItem } from '@redux/feature/masterPriceList/iMasterPriceListState';
 const { TextArea } = Input;
 
 interface QuatationItemProps {
-  onToggleAdd?: (item: Item) => void;
+  onToggleAdd?: (item: IPriceListItem) => void;
   onItemQuantityChange?: (itemId: string, quantity: number) => void;
   form?: any;
   isReadOnly?: boolean;
@@ -22,7 +22,7 @@ interface QuatationItemProps {
 export const QuatationExtraItem: React.FC<QuatationItemProps> = React.memo(
   ({ onToggleAdd, onItemQuantityChange, form, isReadOnly, quantityRef }) => {
     const [added, setAdded] = useState(false);
-    const { categories, status } = useAppSelector((state: RootState) => state.masterPriceList);
+    const { priceMaster, status } = useAppSelector((state: RootState) => state.masterPriceList);
     const { selectedFilters } = useAppSelector((state: RootState) => state.quotation);
     const dispatch = useAppDispatch();
     const costType = Form.useWatch('cost_type', form);
@@ -39,15 +39,15 @@ export const QuatationExtraItem: React.FC<QuatationItemProps> = React.memo(
       setAdded(false);
       try {
         if (newAdded) {
-          const payload = {
-            category_id: values.category_id,
-            cost_type: values.cost_type,
-            description: values.description,
-            dwelling: selectedFilters.dwelling_type,
-            range: selectedFilters.range,
-            cost: costType === 'INCLUDED' ? null : values.cost,
-            cost_type_text: enumToReadable(values.cost_type),
-            status: 'ACTIVE',
+          const payload: IPriceListItem = {
+            priceListId: values.category_id,
+            costType: values.cost_type,
+            itemDescription: values.description,
+            dwellingTypeId: selectedFilters.dwelling_type,
+            rangeId: selectedFilters.range,
+            cost: costType === 'Included' ? null : values.cost,
+            costTypeText: enumToReadable(values.cost_type),
+            status: 'active',
           };
           const response = await dispatch(createCategoryItem(payload)).unwrap();
 
@@ -55,6 +55,7 @@ export const QuatationExtraItem: React.FC<QuatationItemProps> = React.memo(
             setQuotationExtraItems({
               ...response,
               quantity: values.quantity,
+              price: costType === 'Included' ? 0 : parseFloat(values.cost) || 0,
             })
           );
           form.resetFields();
@@ -76,9 +77,9 @@ export const QuatationExtraItem: React.FC<QuatationItemProps> = React.memo(
                   <Select
                     placeholder="Select Category"
                     style={{ minWidth: '180px' }}
-                    options={categories.map(category => ({
+                    options={priceMaster.map(category => ({
                       label: category.name,
-                      value: category.categoryId,
+                      value: category.priceListId,
                     }))}
                   />
                 </Form.Item>
@@ -147,7 +148,7 @@ export const QuatationExtraItem: React.FC<QuatationItemProps> = React.memo(
           {/* Action */}
           <div className="table-cell text-center p-3 align-middle">
             <Button
-              loading={status.CategoryItem === Status.PENDING}
+              loading={status.priceListItem.create === Status.PENDING}
               type={added ? 'primary' : 'dashed'}
               shape="circle"
               size="small"
@@ -160,17 +161,17 @@ export const QuatationExtraItem: React.FC<QuatationItemProps> = React.memo(
 
         {extraItems?.map(item => (
           <QuatationItem
-            key={item?.categoryItemId}
+            key={item?.priceListItemId}
             item={item}
             disabled={
               isReadOnly ||
               selectedPackageFromSlice?.categoryItems?.some(
-                catItem => catItem.id === item.categoryItemId
+                catItem => catItem.id === item.priceListItemId
               )
             }
-            quantityRef={el => (quantityRef.current[item.categoryItemId] = el)}
+            quantityRef={el => (quantityRef.current[item.priceListItemId] = el)}
             onQuantityChange={onItemQuantityChange}
-            isSelected={items?.some(itemData => itemData.categoryItemId === item.categoryItemId)}
+            isSelected={items?.some(itemData => itemData.priceListItemId === item.priceListItemId)}
             onToggleAdd={onToggleAdd}
           />
         ))}

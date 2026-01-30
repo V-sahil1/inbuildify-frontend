@@ -26,7 +26,7 @@ export const GeneralCustomFieldListModal = ({
   useEffect(() => {
     if (status.fetch === Status.IDLE) {
       try {
-        dispatch(fetchAllCustomField()).unwrap();
+        dispatch(fetchAllCustomField({})).unwrap();
       } catch (error) {
         message.error(error);
       }

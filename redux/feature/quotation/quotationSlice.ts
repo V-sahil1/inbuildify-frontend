@@ -1,10 +1,10 @@
 import { PropertyDetails } from 'data/types';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Item } from '../masterPriceList/iMasterPriceListState';
 import { Status } from '@lib/constants/enum';
 import { createQuotation, getQuotationVersionById } from './quotationThunk';
 import { ILeadContact } from '../lead/ILeadState';
 import { Package } from '../package/IPackageState';
+import { IPriceListItem } from '../masterPriceList/iMasterPriceListState';
 
 export interface QuotationState {
   status: { create: Status; getById: Status };
@@ -26,8 +26,8 @@ export interface QuotationState {
   plan: any;
   facade: any;
   package: Package;
-  items: (Item & { quantity: number })[];
-  extraItems: (Item & { quantity: number })[];
+  items: (IPriceListItem & { quantity: number; price: number })[];
+  extraItems: (IPriceListItem & { quantity: number; price: number })[];
 }
 
 const initialState: QuotationState = {
@@ -76,19 +76,23 @@ const quotationSlice = createSlice({
     setQuotationExtraItems(
       state,
       action: PayloadAction<
-        Item & {
+        IPriceListItem & {
           quantity: number;
+          price: number;
         }
       >
     ) {
       state.extraItems = [...state.extraItems, action.payload];
       state.items = [...state.items, action.payload];
     },
-    setQuotationItems(state, action: PayloadAction<Item & { quantity: number }>) {
+    setQuotationItems(
+      state,
+      action: PayloadAction<IPriceListItem & { quantity: number; price: number }>
+    ) {
       state.items = [...state.items, action.payload];
     },
     removeQuotationItem(state, action: PayloadAction<string>) {
-      state.items = state.items.filter(item => item.categoryItemId !== action.payload);
+      state.items = state.items.filter(item => item.priceListItemId !== action.payload);
     },
     setQuotationPlan(state, action: PayloadAction<any>) {
       state.plan = action.payload;
@@ -99,7 +103,7 @@ const quotationSlice = createSlice({
     setQuotationPackage(state, action: PayloadAction<any>) {
       state.package = action.payload;
       const uniqueItems = action.payload.categoryItems.filter(
-        item => !state.items.some(i => i.categoryItemId === item.id)
+        item => !state.items.some(i => i.priceListItemId === item.id)
       );
       state.items = [
         ...state.items,
@@ -114,7 +118,7 @@ const quotationSlice = createSlice({
     },
     updateQuotationItem: (state, action) => {
       const { itemId, quantity } = action.payload;
-      const item = state.items.find(i => i.categoryItemId === itemId);
+      const item = state.items.find(i => i.priceListItemId === itemId);
       if (item) {
         item.quantity = quantity;
       }
@@ -186,7 +190,7 @@ const quotationSlice = createSlice({
         };
 
         state.items = data.items?.map(item => ({
-          itemId: item.categoryItemId,
+          priceListItemId: item.categoryItemId,
           quantity: item.categoryItemQuantity, // Default quantity to 1 if not specified
           price: parseFloat(item.categoryItemCost) || 0,
         }));

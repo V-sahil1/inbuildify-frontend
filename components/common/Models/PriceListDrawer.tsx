@@ -1,27 +1,27 @@
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { Status } from '@lib/constants/enum';
-import { fetchCategories } from '@redux/feature/masterPriceList/masterPriceListThunk';
 import { RootState } from '@redux/feature/store';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Drawer, message } from 'antd';
 import { useEffect } from 'react';
 import PriceListItemPanel from '../PricelistItemPanel';
+import { fetchPricelistMaster } from '@redux/feature/masterPriceList/masterPriceListThunk';
 
 const PriceListDrawer = ({ title, open, onClose }) => {
-  const { categories, status } = useAppSelector((state: RootState) => state.masterPriceList);
+  const { priceMaster, status } = useAppSelector((state: RootState) => state.masterPriceList);
   const { items } = useAppSelector((state: RootState) => state.quotation);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     const fetchCategoriesData = async () => {
       try {
-        const res = await dispatch(fetchCategories()).unwrap();
+        const res = await dispatch(fetchPricelistMaster({})).unwrap();
         console.log('response', res);
       } catch (e) {
         message.error(e || 'Failed to fetch categories');
       }
     };
-    if (status.Category === Status.IDLE) {
+    if (status.priceMaster === Status.IDLE) {
       fetchCategoriesData();
     }
   }, [dispatch, status]);
@@ -49,7 +49,7 @@ const PriceListDrawer = ({ title, open, onClose }) => {
           <p>House Price: $35,000</p>
         </div>
         <div>
-          <PriceListItemPanel categories={categories} itemsLoading={false} />
+          <PriceListItemPanel categories={priceMaster} itemsLoading={false} />
         </div>
       </div>
     </Drawer>

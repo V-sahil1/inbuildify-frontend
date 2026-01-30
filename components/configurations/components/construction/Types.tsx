@@ -30,9 +30,9 @@ export const Types: React.FC = () => {
     status: constructionTypeStatus,
     pagination,
   } = useAppSelector(state => state.construction.constructionType);
-  const { currentPage = 1, pageSize = 10, totalRecords = 0 } = pagination || {};
+  const { currentPage = 1, limit = 10, totalRecords = 0 } = pagination || {};
 
-  const fetchData = async (page: number = currentPage, limit: number = pageSize) => {
+  const fetchData = async (page: number = currentPage, limit: number = 10) => {
     try {
       const result = await dispatch(fetchAllType({ page, limit })).unwrap();
     } catch (error) {
@@ -195,7 +195,7 @@ export const Types: React.FC = () => {
         rowKey="constructionTypeId"
         pagination={{
           current: currentPage,
-          pageSize: pageSize,
+          pageSize: limit,
           total: totalRecords,
           showSizeChanger: false,
           showQuickJumper: false,

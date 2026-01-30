@@ -73,10 +73,10 @@ const Package = () => {
       }),
     };
     // Set the selected values for range and dwelling when editing
-    if (pkg.range && pkg.dwelling) {
+    if (pkg.rangeId && pkg.dwellingTypeId) {
       setFormValues({
-        range: pkg.range,
-        dwelling: pkg.dwelling,
+        range: pkg.rangeId[0] || '',
+        dwelling: pkg.dwellingTypeId[0] || '' ,
       });
     }
 
@@ -183,8 +183,8 @@ const Package = () => {
         <AddMasterPricingItemModal
           open={addInstItemModal}
           onClose={() => dispatch(setAddInstItemModal(false))}
-          preselectedRange={formValues?.range}
-          preselectedDwelling={formValues?.dwelling}
+          // preselectedRange={formValues?.range}
+          // preselectedDwelling={formValues?.dwelling}
         />
       )}
     </div>

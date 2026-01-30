@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Input, message, Select } from 'antd';
-import { Category, Item } from '@redux/feature/masterPriceList/iMasterPriceListState';
+import { IPriceList, IPriceListItem } from '@redux/feature/masterPriceList/iMasterPriceListState';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { RootState } from '@redux/feature/store';
 import {
@@ -14,7 +14,7 @@ import { fetchCategoryItems } from '@redux/feature/masterPriceList/masterPriceLi
 import { QuatationItem } from '../quotation/QuatationItem';
 import { toggleExpand } from '@redux/feature/masterPriceList/masterPriceListSlice';
 interface PriceListItemsPanelProps {
-  categories?: Category[];
+  categories?: IPriceList[];
   itemsLoading: boolean;
 }
 
@@ -24,13 +24,13 @@ const PriceListItemPanel: React.FC<PriceListItemsPanelProps> = ({ categories, it
     (state: RootState) => state.quotation
   );
   const quantityRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-  const handleItemAdd = (item: Item) => {
-    const quantity = quantityRefs.current[item.categoryItemId]?.value || '1';
+  const handleItemAdd = (item: IPriceListItem) => {
+    const quantity = quantityRefs.current[item.priceListItemId]?.value || '1';
 
-    if (items.some(i => i.categoryItemId === item.categoryItemId)) {
-      dispatch(removeQuotationItem(item.categoryItemId));
+    if (items.some(i => i.priceListItemId === item.priceListItemId)) {
+      dispatch(removeQuotationItem(item.priceListItemId));
     } else {
-      dispatch(setQuotationItems({ ...item, quantity: Number(quantity) }));
+      dispatch(setQuotationItems({ ...item, quantity: Number(quantity),price: Number(item.cost) }));
     }
   };
   const handleItemQuantityChange = (itemId: string, quantity: number) => {
@@ -42,11 +42,11 @@ const PriceListItemPanel: React.FC<PriceListItemsPanelProps> = ({ categories, it
         const responses = await Promise.all(
           categories.map(async cat => {
             if (!cat.isExpanded) {
-              dispatch(toggleExpand(cat.categoryId));
+              dispatch(toggleExpand(cat.priceListId));
             }
             return dispatch(
               fetchCategoryItems({
-                categoryId: cat.categoryId,
+                price_list_id: cat.priceListId,
               })
             ).unwrap();
           })
@@ -56,10 +56,10 @@ const PriceListItemPanel: React.FC<PriceListItemsPanelProps> = ({ categories, it
         {
           responses &&
             responses.forEach(res => {
-              res.items?.forEach((item: any) => {
+              res.items?.priceListItem?.forEach((item: any) => {
                 if (item?.costType === 'INCLUDED') {
                   // only add if not already in quotation
-                  const alreadyAdded = items.some(i => i.categoryItemId === item.categoryItemId);
+                  const alreadyAdded = items.some(i => i.priceListItemId === item.categoryItemId);
                   if (!alreadyAdded) {
                     dispatch(setQuotationItems({ ...item, quantity: 1 }));
                   }
@@ -111,15 +111,15 @@ const PriceListItemPanel: React.FC<PriceListItemsPanelProps> = ({ categories, it
                 categories.map(category =>
                   category?.items?.map(item => (
                     <QuatationItem
-                      key={item?.categoryItemId}
+                      key={item?.priceListItemId}
                       item={item}
                       disabled={selectedPackageFromSlice?.categoryItems?.some(
-                        catItem => catItem.id === item.categoryItemId
+                        catItem => catItem.id === item.priceListItemId
                       )}
                       onQuantityChange={handleItemQuantityChange}
-                      quantityRef={el => (quantityRefs.current[item.categoryItemId] = el)}
+                      quantityRef={el => (quantityRefs.current[item.priceListItemId] = el)}
                       isSelected={items?.some(
-                        itemData => itemData.categoryItemId === item.categoryItemId
+                        itemData => itemData.priceListItemId === item.priceListItemId
                       )}
                       onToggleAdd={handleItemAdd}
                     />

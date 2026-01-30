@@ -1,7 +1,6 @@
 import { PricingItem } from '@/components/common/PricingItem';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { Status } from '@lib/constants/enum';
-import { Item } from '@redux/feature/masterPriceList/iMasterPriceListState';
 import {
   IconChevronDown,
   IconChevronUp,
@@ -28,7 +27,7 @@ import {
   updateWorkflowProcessOrder,
   updateWorkflowProcessTask,
 } from '@redux/feature/workflow/workflowThunk';
-import { WorkflowProcess } from '@redux/feature/workflow/iWorkflowState';
+import { Task, WorkflowProcess } from '@redux/feature/workflow/iWorkflowState';
 import { toggleExpandWorkflowProcess } from '@redux/feature/workflow/workflowSlice';
 import { formDataGenerator } from '@lib/utils/formDataGenerator';
 
@@ -425,9 +424,9 @@ export const WorkflowProcessPage = () => {
                                 </div>
                               ) : workflowProcess?.tasks?.length > 0 ? (
                                 <div className="mt-2 max-h-[300px] overflow-y-auto space-y-2 pr-2">
-                                  {workflowProcess?.tasks?.map((item: Item) => (
+                                  {workflowProcess?.tasks?.map((item: Task) => (
                                     <PricingItem
-                                      key={item?.categoryItemId}
+                                      key={item?.workflowProcessTaskId}
                                       item={item}
                                       handleClick={handleWorkflowProcessTaskAction}
                                     />

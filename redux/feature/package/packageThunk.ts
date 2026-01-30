@@ -2,9 +2,9 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import api from '@lib/constants/api';
 import { ApiResponse } from '../auth/IAuthState';
 import API_ENDPOINTS from '@lib/constants/apiEndpoints';
-import { Item } from '../masterPriceList/iMasterPriceListState';
 import { GroupType, Package, PackageFetchParams } from './IPackageState';
 import { CommonPagination } from '../common/ICommonState';
+import { IPriceListItem } from '../masterPriceList/iMasterPriceListState';
 
 export const fetchPackages = createAsyncThunk(
   'packages/fetchAll',
@@ -50,7 +50,7 @@ export const fetchPackageItems = createAsyncThunk(
         url += `?${params.toString()}`;
       }
 
-      const res = await api.get<ApiResponse<Item[]>>(url);
+      const res = await api.get<ApiResponse<IPriceListItem[]>>(url);
       return res.data;
     } catch (error) {
       return rejectWithValue(error.message);

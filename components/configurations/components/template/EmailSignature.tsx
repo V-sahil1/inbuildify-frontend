@@ -8,7 +8,10 @@ import RichTextEditor from '@/components/common/rich-text-editor/RichTextEditor'
 import { personalizationList } from 'data/configuration/TemplateData';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { Status } from '@lib/constants/enum';
-import { fetchEmailSignature, updateEmailSignature } from '@redux/feature/admin/template/emailSignature/emailSignatureThunk';
+import {
+  fetchEmailSignature,
+  updateEmailSignature,
+} from '@redux/feature/admin/template/emailSignature/emailSignatureThunk';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import { RichTextEditorRef } from '@/components/common/rich-text-editor/RichTextEditor';
 
@@ -59,13 +62,12 @@ const EmailSignatureSettings = () => {
 
   const handleSave = async () => {
     try {
-      const payload = getUpdatedFields(formState, emailSignature);
-      if (Object.keys(payload).length === 0) {
+      const { isUpdated, updatedFields } = getUpdatedFields(formState, emailSignature);
+      if (!isUpdated) {
         message.info('No changes to save');
         return;
       }
-
-      await dispatch(updateEmailSignature(payload)).unwrap();
+      await dispatch(updateEmailSignature(updatedFields)).unwrap();
       message.success('Email signature settings saved successfully');
     } catch (error) {
       message.error(error || 'Failed to update email signature');
@@ -78,7 +80,7 @@ const EmailSignatureSettings = () => {
         name="includeEmailSignature"
         label="Include Email Signature"
         value={formState.includeEmailSignature}
-        onChange={(checked) => updateField('includeEmailSignature', checked)}
+        onChange={checked => updateField('includeEmailSignature', checked)}
         description={
           <div>
             <p>
@@ -120,10 +122,10 @@ const EmailSignatureSettings = () => {
       )}
 
       <div className="flex justify-end gap-3 pt-3">
-        <Button 
-          type="primary" 
-          onClick={() => setShowConfirm(true)} 
-          loading={status.update === Status.PENDING} 
+        <Button
+          type="primary"
+          onClick={() => setShowConfirm(true)}
+          loading={status.update === Status.PENDING}
           disabled={status.update === Status.PENDING}
         >
           Save

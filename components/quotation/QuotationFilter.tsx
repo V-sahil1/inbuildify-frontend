@@ -135,11 +135,11 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({
 
   const handleFacadeDwellingTypeChange = useCallback(
     (value: string | undefined) => {
-      const newFilters = { dwelling_type: value || '' };
+      const newFilters = { dwelling_type_id: value || '' };
       dispatch(setFacadeFilters(newFilters));
 
       // Only make API call if dwelling_type filter is selected
-      if (newFilters.dwelling_type) {
+      if (newFilters.dwelling_type_id) {
         dispatch(getFacades(newFilters));
       } else {
         // If no filters are selected, fetch all facades
@@ -153,11 +153,11 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({
     (value: string | undefined) => {
       const newFilters = {
         ...selectedPackageFilters,
-        dwelling_type: value || '',
+        dwelling_type_id: value || '',
       };
       dispatch(setPackageFilters(newFilters));
 
-      if (newFilters.range || newFilters.dwelling_type) {
+      if (newFilters.range_id || newFilters.dwelling_type_id) {
         dispatch(fetchPackages(newFilters));
       } else {
         dispatch(fetchPackages(undefined));
@@ -170,11 +170,11 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({
     (value: string | undefined) => {
       const newFilters = {
         ...selectedPackageFilters,
-        range: value || '',
+        range_id: value || '',
       };
       dispatch(setPackageFilters(newFilters));
 
-      if (newFilters.range || newFilters.dwelling_type) {
+      if (newFilters.range_id || newFilters.dwelling_type_id) {
         dispatch(fetchPackages(newFilters));
       } else {
         dispatch(fetchPackages(undefined));

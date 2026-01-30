@@ -5,6 +5,7 @@ export interface IFloorPlanState {
   minLandDepth: string;
   dwellingArea: string;
   dwellingTypeId: string | null;
+  image: string;
   beds: number;
   baths: number;
   carpark: number;

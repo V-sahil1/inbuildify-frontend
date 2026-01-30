@@ -10,9 +10,10 @@ import {
   IconCheck,
   IconX,
 } from '@tabler/icons-react';
-import { ChecklistItem, checklistItems } from 'data/costCenterData';
 import { ConfirmationContentModal } from '@/components/common/ConfirmationContentModal';
 import { ChecklistDrawer } from '@/components/common/ChecklistDrawer';
+import { useAppSelector } from '@hooks/redux';
+import { ConstructionChecklistType } from '@redux/feature/admin/construction/constructionChecklist/IConstructionChecklistState';
 
 const { Option } = Select;
 
@@ -67,6 +68,9 @@ export const useSupplierTypeColumns = () => {
   const [selectedType, setSelectedType] = useState<SupplierTypeItem | null>(null);
   const [checklistDrawerType, setChecklistDrawerType] = useState<SupplierTypeItem | null>(null);
   const [supplierDrawerType, setSupplierDrawerType] = useState<SupplierTypeItem | null>(null);
+
+  const { checklist } = useAppSelector(state => state.construction.constructionChecklist);
+  const checklistItems = checklist;
 
   const filteredTypes = useMemo(
     () =>
@@ -135,24 +139,24 @@ export const useSupplierTypeColumns = () => {
     setNewTypeName('');
   };
 
-  const handleUpdateChecklists = (selectedItems: ChecklistItem[]) => {
+  const handleUpdateChecklists = (selectedItems: ConstructionChecklistType[]) => {
     setTypes(prev =>
       prev.map(t =>
         checklistDrawerType && t.id === checklistDrawerType.id
-          ? { ...t, checklists: selectedItems.map(i => i.title) }
+          ? { ...t, checklists: selectedItems.map(i => i.name) }
           : t
       )
     );
   };
 
-  const handleUpdateSuppliers = (selectedItems: ChecklistItem[]) => {
-    setTypes(prev =>
-      prev.map(t =>
-        supplierDrawerType && t.id === supplierDrawerType.id
-          ? { ...t, suppliers: selectedItems.map(i => i.title) }
-          : t
-      )
-    );
+  const handleUpdateSuppliers = (selectedItems: ConstructionChecklistType) => {
+    // setTypes(prev =>
+    //   prev.map(t =>
+    //     supplierDrawerType && t.id === supplierDrawerType.id
+    //       ? { ...t, suppliers: selectedItems.map(i => i.name) }
+    //       : t
+    //   )
+    // );
   };
 
   const handleConfirm = () => {
@@ -355,26 +359,53 @@ export const useSupplierTypeColumns = () => {
       onClose={() => setChecklistDrawerType(null)}
       title={checklistDrawerType.name}
       width="45%"
-      items={checklistItems}
-      initialSelected={checklistItems.filter(item =>
-        checklistDrawerType.checklists.includes(item.title)
-      )}
-      onUpdate={handleUpdateChecklists}
+      initialSelected={
+        checklistDrawerType.checklists
+          .map(checklistName => {
+            const checklistItem = checklistItems.find(item => item.name === checklistName);
+            return checklistItem
+              ? {
+                  constructionChecklistId: checklistItem.constructionChecklistId,
+                  costCenterId: '',
+                  constructionChecklist: {
+                    id: checklistItem.constructionChecklistId,
+                    name: checklistItem.name,
+                  },
+                }
+              : null;
+          })
+          .filter(Boolean) as any[]
+      }
+      onUpdate={() => {}}
+      onRemove={() => {}}
       recommendation={false}
     />
   );
-
   const supplierDrawer = supplierDrawerType && (
     <ChecklistDrawer
       open={!!supplierDrawerType}
       onClose={() => setSupplierDrawerType(null)}
       title={supplierDrawerType.name}
       width="45%"
-      items={checklistItems}
-      initialSelected={checklistItems.filter(item =>
-        supplierDrawerType.suppliers.includes(item.title)
-      )}
+      initialSelected={
+        supplierDrawerType.suppliers
+          .map(supplierName => {
+            const checklistItem = checklistItems.find(item => item.name === supplierName);
+            return checklistItem
+              ? {
+                  constructionChecklistId: checklistItem.constructionChecklistId,
+                  costCenterId: '',
+                  constructionChecklist: {
+                    id: checklistItem.constructionChecklistId,
+                    name: checklistItem.name,
+                  },
+                }
+              : null;
+          })
+          .filter(Boolean) as any[]
+      }
       onUpdate={handleUpdateSuppliers}
+      onRemove={() => {}}
       recommendation={true}
     />
   );

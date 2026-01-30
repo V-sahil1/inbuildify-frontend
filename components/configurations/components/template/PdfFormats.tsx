@@ -59,9 +59,9 @@ const PdfFormatForm = ({
   const onFinish = async (values: Partial<TemplateJson>) => {
     try {
       const processedValues = processFormValues(values);
-      const updatedFields = getUpdatedFields(processedValues, template);
+      const { isUpdated, updatedFields } = getUpdatedFields(processedValues, template);
 
-      if (Object.keys(updatedFields).length === 0) {
+      if (!isUpdated) {
         message.info('No changes detected');
         return;
       }

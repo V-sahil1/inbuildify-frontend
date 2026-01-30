@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { Status } from '@lib/constants/enum';
-import { GroupType, Package } from './IPackageState';
+import { GroupType, Package, PackageFetchParams } from './IPackageState';
 import {
   createPackage,
   createPackageGroup,
@@ -12,15 +12,15 @@ import {
   updatePackage,
   updatePackageGroup,
 } from './packageThunk';
-import { Item } from '../masterPriceList/iMasterPriceListState';
+import { IPriceListItem } from '../masterPriceList/iMasterPriceListState';
 import { CommonPagination } from '../common/ICommonState';
 
 interface PackageState {
   packages: Package[] | null;
-  items: Item[] | null;
+  items: IPriceListItem[] | null;
   group: GroupType[] | null;
   status: { packages: Status; items: Status; item: Status; group: Status };
-  selectedFilters: { range: string; dwelling_type: string };
+  selectedFilters: PackageFetchParams;
   addInstItemModal: boolean;
   pagination: CommonPagination;
 }
@@ -30,7 +30,7 @@ const initialState: PackageState = {
   items: null,
   group: [],
   status: { packages: Status.IDLE, items: Status.IDLE, item: Status.IDLE, group: Status.IDLE },
-  selectedFilters: { range: '', dwelling_type: '' },
+  selectedFilters: <PackageFetchParams>{},
   addInstItemModal: false,
   pagination: <CommonPagination>{},
 };
@@ -43,7 +43,7 @@ const packageSlice = createSlice({
       state.selectedFilters = { ...state.selectedFilters, ...action.payload };
     },
     clearFilters: state => {
-      state.selectedFilters = { range: '', dwelling_type: '' };
+      state.selectedFilters = <PackageFetchParams>{ range_id: '', dwelling_type_id: '' };
     },
     setAddInstItemModal: (state, action) => {
       state.addInstItemModal = action.payload;
@@ -56,7 +56,7 @@ const packageSlice = createSlice({
     },
     removePackageItems: (state, action) => {
       state.items = state.items?.filter(
-        item => item.categoryItemId !== action.payload.categoryItemId
+        item => item.priceListItemId !== action.payload.priceListItemId
       );
       if (state.packages) {
         state.packages = state.packages.map(pkg => ({

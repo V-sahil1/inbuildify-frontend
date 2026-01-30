@@ -38,7 +38,7 @@ export function Checklist() {
 
   const fetchChecklist = async () => {
     try {
-      await dispatch(fetchAllConstructionChecklist()).unwrap();
+      await dispatch(fetchAllConstructionChecklist({})).unwrap();
     } catch (error) {
       message.error(error || 'Failed to fetch checklist');
     }

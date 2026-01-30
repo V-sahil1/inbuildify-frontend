@@ -7,10 +7,11 @@ import { Plan } from '@/pages/leads/[id]';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { Status } from '@lib/constants/enum';
 import { toggleExpand } from '@redux/feature/masterPriceList/masterPriceListSlice';
+import { IPriceListItem } from '@redux/feature/masterPriceList/iMasterPriceListState';
 import { IFacadeState } from '@redux/feature/facade/IFacadeState';
 import {
-  fetchCategories,
   fetchCategoryItems,
+  fetchPricelistMaster,
 } from '@redux/feature/masterPriceList/masterPriceListThunk';
 import { Package } from '@redux/feature/package/IPackageState';
 import { RootState } from '@redux/feature/store';
@@ -97,7 +98,7 @@ const QuotationManager = () => {
   const [previewLoading, setPreviewLoading] = useState(false);
   const [extraItem, setExtraItem] = useState(false);
   const { status: typesStatus } = useAppSelector((state: RootState) => state.types);
-  const { categories: categoryData, status } = useAppSelector(
+  const { priceMaster: categoryData, status } = useAppSelector(
     (state: RootState) => state.masterPriceList
   );
   // const { categories: mplCategories } = useAppSelector(
@@ -115,12 +116,12 @@ const QuotationManager = () => {
   useEffect(() => {
     const fetchCategoriesData = async () => {
       try {
-        await dispatch(fetchCategories()).unwrap();
+        await dispatch(fetchPricelistMaster({})).unwrap();
       } catch (e) {
         message.error(e || 'Failed to fetch categories');
       }
     };
-    if (status.Category === Status.IDLE) {
+    if (status.priceMaster === Status.IDLE) {
       fetchCategoriesData();
     }
   }, [dispatch, status]);
@@ -169,15 +170,13 @@ const QuotationManager = () => {
         const responses = await Promise.all(
           categoryData.map(async cat => {
             if (!cat.isExpanded) {
-              dispatch(toggleExpand(cat.categoryId));
+              dispatch(toggleExpand(cat.priceListId));
             }
             return dispatch(
               fetchCategoryItems({
-                categoryId: cat.categoryId,
-                filters: {
-                  range: quotationFilters.range,
-                  dwelling_type: quotationFilters.dwelling_type,
-                },
+                price_list_id: cat.priceListId,
+                range_id: quotationFilters.range,
+                dwelling_type_id: quotationFilters.dwelling_type,
               })
             ).unwrap();
           })
@@ -185,10 +184,10 @@ const QuotationManager = () => {
 
         // ✅ Step 2: After fetching, auto-add INCLUDED items
         responses.forEach(res => {
-          res.items?.forEach((item: any) => {
+          res.items.priceListItem?.forEach((item: any) => {
             if (item?.costType === 'INCLUDED') {
               // only add if not already in quotation
-              const alreadyAdded = items.some(i => i.categoryItemId === item.categoryItemId);
+              const alreadyAdded = items.some(i => i.priceListItemId === item.priceListItemId);
               if (!alreadyAdded) {
                 dispatch(setQuotationItems({ ...item, quantity: 1 }));
               }
@@ -217,7 +216,7 @@ const QuotationManager = () => {
   ]);
   const { previewPdf } = usePdf(JobDocumentPdf);
   const getCategoryById = useCallback(
-    (categoryId: string) => categoryData.find(cat => cat.categoryId === categoryId),
+    (categoryId: string) => categoryData.find(cat => cat.priceListId === categoryId),
     [categoryData]
   );
 
@@ -233,11 +232,9 @@ const QuotationManager = () => {
       try {
         const response = await dispatch(
           fetchCategoryItems({
-            categoryId,
-            filters: {
-              range: quotationFilters?.range || undefined,
-              dwelling_type: quotationFilters?.dwelling_type || undefined,
-            },
+            price_list_id: categoryId,
+            range_id: quotationFilters.range,
+            dwelling_type_id: quotationFilters.dwelling_type,
           })
         ).unwrap();
         // console.log("🚀 ~ handleFetchCategoryItems ~ response:", response);
@@ -317,19 +314,17 @@ const QuotationManager = () => {
       const responses = await Promise.all(
         categoryData.map(cat => {
           if (!cat.isExpanded) {
-            dispatch(toggleExpand(cat.categoryId));
+            dispatch(toggleExpand(cat.priceListId));
             return dispatch(
               fetchCategoryItems({
-                categoryId: cat.categoryId,
-                filters: {
-                  range: quotationFilters?.range || undefined,
-                  dwelling_type: quotationFilters?.dwelling_type || undefined,
-                },
+                price_list_id: cat.priceListId,
+                range_id: quotationFilters?.range || undefined,
+                dwelling_type_id: quotationFilters?.dwelling_type || undefined,
               })
             ).unwrap();
           }
           return Promise.resolve({
-            categoryId: cat.categoryId,
+            priceListId: cat.priceListId,
             items: cat.items || [],
           });
         })
@@ -337,22 +332,30 @@ const QuotationManager = () => {
 
       // Use the updated categories (from Redux or responses)
       const allCategories = categoryData.map(cat => {
-        const fetched = responses.find(res => res.categoryId === cat.categoryId);
+        const fetched = responses.find(res => res.priceListId === cat.priceListId);
         return {
           ...cat,
           items: fetched?.items || cat.items || [],
         };
       });
 
+      lastFetchedFiltersRef.current = {
+        range: quotationFilters.range,
+        dwelling_type: quotationFilters.dwelling_type,
+      };
+
       // Now build grouped items
       const groupedItems = allCategories.map(category => {
-        const matchedItems = (category.items || [])
+        const categoryItems = Array.isArray(category.items)
+          ? category.items
+          : category.items.priceListItem || [];
+        const matchedItems = categoryItems
           .filter(catItem =>
-            itemsFromSlice.some(sel => sel.categoryItemId === catItem.categoryItemId)
+            itemsFromSlice.some(sel => sel.priceListItemId === catItem.priceListItemId)
           )
           .map(catItem => {
             const selected = itemsFromSlice.find(
-              sel => sel.categoryItemId === catItem.categoryItemId
+              sel => sel.priceListItemId === catItem.priceListItemId
             );
 
             return {
@@ -363,11 +366,11 @@ const QuotationManager = () => {
           });
 
         return {
-          categoryId: category.categoryId,
+          categoryId: category.priceListId,
           categoryName: category.name,
-          description: category.description,
+          // description: category.description,
           items: matchedItems,
-          categoryTotal: matchedItems.reduce((sum, i) => sum + i.total, 0),
+          categoryTotal: matchedItems.reduce((sum, i) => sum + Number(i.total), 0),
         };
       });
       const filteredGroupedItems = groupedItems.filter(cat => cat.items.length > 0);
@@ -453,7 +456,7 @@ const QuotationManager = () => {
         {quotationFilters?.range && quotationFilters?.dwelling_type ? (
           <>
             <div className="w-64">
-              {status.Category === Status.IDLE ? (
+              {status.priceMaster === Status.IDLE ? (
                 <div className="flex items-center justify-center flex-1">
                   <Loading type="primary" />
                 </div>
@@ -473,11 +476,12 @@ const QuotationManager = () => {
               extraItem={extraItem}
               onExtraClick={handleExtraClick}
               isReadOnly={isReadOnly}
-              itemsLoading={
-                selectedCategory
-                  ? (getCategoryById(selectedCategory)?.loadingItems ?? false)
-                  : false
-              }
+              // itemsLoading={
+              //   selectedCategory
+              //     ? (getCategoryById(selectedCategory)?.loadingItems ?? false)
+              //     : false
+              // }
+              itemsLoading={false}
               setSelect={setSelect}
               select={onSelect}
             />

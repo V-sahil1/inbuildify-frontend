@@ -37,7 +37,7 @@ const FloorPlanModal: React.FC<FloorPlanModalProps> = ({
   }, [selectedPlan]);
 
   useEffect(() => {
-    if (status.floorPlan === Status.IDLE) {
+    if (status.floorPlan.fetch === Status.IDLE) {
       dispatch(fetchFloorPlans(undefined)).unwrap();
     }
   }, [dispatch, status, filters]);
@@ -55,7 +55,7 @@ const FloorPlanModal: React.FC<FloorPlanModalProps> = ({
     onCancel();
   };
 
-  const isLoading = status.floorPlan === Status.PENDING;
+  const isLoading = status.floorPlan.fetch === Status.PENDING;
 
   return (
     <Modal

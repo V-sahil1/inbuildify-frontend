@@ -12,27 +12,27 @@ export interface IPriceList {
 }
 
 export interface IPriceListItem {
-  priceListItemId: string;
-  priceListId: string;
-  itemDescription: string;
-  shortDescription: string;
-  costType: 'Fixed' | 'Variable' | 'Included';
-  costTypeText: string | null;
-  costOption: string;
-  cost: string;
-  builderCost: string;
-  sortOrder: number;
-  uom: string;
-  status: 'active' | 'inactive';
-  includeByDefault: boolean;
-  allowRemoveFromQuotation: boolean;
-  showInHlPackage: boolean;
-  showOnlyInPackage: boolean;
-  rangeId: string[];
-  dwellingTypeId: string[];
-  priceList: Entity;
-  range: Entity[];
-  dwelling: Entity[];
+  priceListItemId?: string;
+  priceListId?: string;
+  itemDescription?: string;
+  shortDescription?: string;
+  costType?: 'Fixed' | 'Variable' | 'Included';
+  costTypeText?: string | null;
+  costOption?: string;
+  cost?: string;
+  builderCost?: string;
+  sortOrder?: number;
+  uom?: string;
+  status?: 'active' | 'inactive';
+  includeByDefault?: boolean;
+  allowRemoveFromQuotation?: boolean;
+  showInHlPackage?: boolean;
+  showOnlyInPackage?: boolean;
+  rangeId?: string[];
+  dwellingTypeId?: string[];
+  priceList?: Entity;
+  range?: Entity[];
+  dwelling?: Entity[];
   quantity?: number;
   included?: boolean;
   modify?: boolean;

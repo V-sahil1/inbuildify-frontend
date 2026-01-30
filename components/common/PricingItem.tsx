@@ -1,4 +1,5 @@
 import { enumToReadable } from '@lib/utils/enumToRedable';
+import { Task } from '@redux/feature/workflow/iWorkflowState';
 import { IconEdit, IconLink, IconTrash } from '@tabler/icons-react';
 import { Tag, Tooltip } from 'antd';
 

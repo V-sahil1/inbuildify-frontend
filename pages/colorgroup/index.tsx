@@ -326,7 +326,7 @@ const ColorGroupPage = () => {
 
                     <div className="col-span-full flex flex-wrap gap-2 mt-2">
                       <span className="text-xs bg-orange-400 text-white px-2 py-1 rounded whitespace-nowrap">
-                        {userOptions.filter(i => i.value === item.supplierId)[0]?.label}
+                        {userOptions && userOptions?.filter(i => i.value === item.supplierId)[0]?.label}
                       </span>
                       {item.group &&
                         item.group.length > 0 &&

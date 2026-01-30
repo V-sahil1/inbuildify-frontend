@@ -22,7 +22,7 @@ const LandCreatePackageDrawerModel = ({ title, open, onClose, onSubmit }) => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (status.floorPlan === Status.IDLE) {
+    if (status.floorPlan.fetch === Status.IDLE) {
       try {
         dispatch(fetchFloorPlans(undefined)).unwrap();
       } catch (error) {

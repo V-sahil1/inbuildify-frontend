@@ -20,11 +20,7 @@ export const userGroupColumn = (setModalOpen, setSelectedGroup, selectedGroup) =
       title: 'Users',
       dataIndex: 'users',
       key: 'users',
-      render: (_, record) =>
-        record.users &&
-        record?.users.map(user => (
-          <Tag>{user.name}</Tag>
-        )),
+      render: (_, record) => record.users && record?.users.map(user => <Tag>{user.name}</Tag>),
     },
     {
       render: (_, record) => {
@@ -46,8 +42,8 @@ export const userGroupColumn = (setModalOpen, setSelectedGroup, selectedGroup) =
   function handleSubmit(values: userGroup) {
     try {
       if (selectedGroup) {
-        const updatedFields = getUpdatedFields(values, selectedGroup);
-        if (Object.keys(updatedFields).length == 0) {
+        const { isUpdated, updatedFields } = getUpdatedFields(values, selectedGroup);
+        if (!isUpdated) {
           message.error('No changes made');
           setModalOpen(false);
           setSelectedGroup(null);

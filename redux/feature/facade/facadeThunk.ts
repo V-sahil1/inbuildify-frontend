@@ -12,6 +12,8 @@ interface GetFacadesParams {
   range_id?: string;
   page?: number;
   limit?: number;
+  standard?: boolean;
+  upgrade?: boolean;  
 }
 
 interface FacadeResponse {

@@ -11,7 +11,7 @@ export const useCostCenterHook = () => {
 
   const fetchCostCenterData = async () => {
     try {
-      await dispatch(fetchAllCostCenter()).unwrap();
+      await dispatch(fetchAllCostCenter({})).unwrap();
     } catch (error) {
       message.error(error || 'Failed to fetch cost centers');
     }

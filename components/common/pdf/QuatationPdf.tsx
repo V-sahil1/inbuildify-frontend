@@ -267,11 +267,11 @@ export const QuatationPdf = ({
 
               <Text style={Page2styles.paragraph}>
                 {floorPlan?.dwellingTypeName?.replace('_', ' ')} home with {floorPlan?.beds}{' '}
-                bedrooms, {floorPlan?.bath} bathrooms, {floorPlan?.carPark} car parking and{' '}
-                {floorPlan?.garage} garage.
+                bedrooms, {floorPlan?.baths} bathrooms, {floorPlan?.carpark} car parking and{' '}
+                {floorPlan?.garageArea} garage.
               </Text>
               <Text style={Page2styles.paragraph}>
-                Total covered area approx. {Number(floorPlan?.totalSqft).toFixed(0)} Sq ft.
+                Total covered area approx. {Number(floorPlan?.totalArea).toFixed(0)} Sq ft.
               </Text>
 
               <Text>
@@ -343,17 +343,17 @@ export const QuatationPdf = ({
             `Range: ${floorPlan?.rangeName}`,
             `Dwelling Type: ${floorPlan?.dwellingTypeName?.replace('_', ' ')}`,
             `Bedrooms: ${floorPlan?.beds}`,
-            `Bathrooms: ${floorPlan?.bath}`,
-            `Car Parks: ${floorPlan?.carPark}`,
-            `Garage: ${floorPlan?.garage}`,
-            `Porch: ${floorPlan?.porch} m²`,
-            `Alfresco: ${floorPlan?.alfresco} m²`,
-            `Width: ${floorPlan?.widthMeter} m`,
-            `Depth: ${floorPlan?.depthMeter} m`,
-            `Dwelling: ${floorPlan?.dwelling}`,
-            `Total Area: ${floorPlan?.totalSqft} Sqft`,
+            `Bathrooms: ${floorPlan?.baths}`,
+            `Car Parks: ${floorPlan?.carpark}`,
+            `Garage: ${floorPlan?.garageArea}`,
+            `Porch: ${floorPlan?.porchArea} m²`,
+            `Alfresco: ${floorPlan?.alfrescoArea} m²`,
+            `Width: ${floorPlan?.minLandWidth} m`,
+            `Depth: ${floorPlan?.minLandDepth} m`,
+            `Dwelling: ${floorPlan?.dwellingArea}`,
+            `Total Area: ${floorPlan?.totalArea} Sqft`,
           ]}
-          imageSrc={floorPlan?.image}
+          imageSrc={floorPlan?.simpleImage}
         />
 
         {/* Facade Detail Section */}
@@ -362,7 +362,7 @@ export const QuatationPdf = ({
             title="Facade Details"
             list={[
               `Name: ${facade?.name}`,
-              `Dwelling Type: ${facade?.dwellingTypeName?.replace('_', ' ')}`,
+              `Dwelling Type: ${facade?.dwellingtype?.name?.replace('_', ' ')}`,
               `Standard: ${facade?.standard ? 'Yes' : 'No'}`,
               `Upgrade: ${facade?.upgrade ? 'Yes' : 'No'}`,
               `Cost: ${facade?.cost}`,

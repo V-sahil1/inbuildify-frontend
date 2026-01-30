@@ -15,7 +15,7 @@ const AssigneeSelect: React.FC<CustomSelectProps> = ({ value, onChange, width })
     const fetchUsers = async () => {
       try {
         const response = await dispatch(getUsersThunk()).unwrap();
-        setUsers(response.data || []);
+        setUsers(response.rows || []);
       } catch (error) {
         message.error(error instanceof Error ? error.message : 'Failed to fetch users');
       }
@@ -29,7 +29,7 @@ const AssigneeSelect: React.FC<CustomSelectProps> = ({ value, onChange, width })
       acc.push({
         label: u?.name || 'Unnamed User',
         value: u?.usersId || '',
-        role: u?.role,
+        role: u?.roleId,
       });
     }
     return acc;

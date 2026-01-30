@@ -1,9 +1,12 @@
 import React from 'react';
 import { Menu } from 'antd';
-import { Category } from '@redux/feature/masterPriceList/iMasterPriceListState';
+import { IPriceList } from '@redux/feature/masterPriceList/iMasterPriceListState';
 
 interface CategorySidebarProps {
-  categories: Category[];
+  // TODO
+  // categories: Category[];
+  categories: IPriceList[];
+
   selectedCategory: string;
   onCategorySelect: (categoryId: string) => void;
   setSelect?: React.Dispatch<React.SetStateAction<boolean>>;
@@ -22,7 +25,7 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
   // }, [categories, selectedCategory, onCategorySelect]);
 
   const menuItems = categories.map(category => ({
-    key: category.categoryId,
+    key: category.priceListId,
     label: category.name,
   }));
 

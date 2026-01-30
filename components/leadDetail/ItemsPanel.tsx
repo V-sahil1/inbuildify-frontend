@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Button, Dropdown, Form } from 'antd';
-import { Category, Item } from '@redux/feature/masterPriceList/iMasterPriceListState';
+import { IPriceList, IPriceListItem } from '@redux/feature/masterPriceList/iMasterPriceListState';
 import { QuatationItem } from '../quotation/QuatationItem';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { RootState } from '@redux/feature/store';
@@ -13,7 +13,7 @@ import Loading from '../common/Loading';
 import { QuatationExtraItem } from '../quotation/QuatationExtraItem';
 
 interface ItemsPanelProps {
-  category?: Category;
+  category?: IPriceList;
   onItemQuantityChange: (itemId: string, quantity: number) => void;
   onExtraClick: () => void;
   extraItem: boolean;
@@ -46,13 +46,19 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
     { key: 'discount', label: 'Discount' },
     { key: 'note', label: 'Note' },
   ];
-  const handleItemAdd = (item: Item) => {
-    const quantity = quantityRefs.current[item.categoryItemId]?.value || '1';
+  const handleItemAdd = (item: IPriceListItem) => {
+    const quantity = quantityRefs.current[item.priceListItemId]?.value || '1';
 
-    if (items.some(i => i.categoryItemId === item.categoryItemId)) {
-      dispatch(removeQuotationItem(item.categoryItemId));
+    if (items.some(i => i.priceListItemId === item.priceListItemId)) {
+      dispatch(removeQuotationItem(item.priceListItemId));
     } else {
-      dispatch(setQuotationItems({ ...item, quantity: Number(quantity) }));
+      dispatch(
+        setQuotationItems({
+          ...item,
+          quantity: Number(quantity),
+          price: parseFloat(item.cost || '0') || 0,
+        })
+      );
     }
   };
   const handleItemQuantityChange = (itemId: string, quantity: number) => {
@@ -146,18 +152,18 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
                 {(select ? items : category?.items)?.length > 0 ? (
                   (select ? items : category.items).map(item => (
                     <QuatationItem
-                      key={item?.categoryItemId}
+                      key={item?.priceListItemId}
                       item={item}
                       disabled={
                         isReadOnly ||
                         selectedPackageFromSlice?.categoryItems?.some(
-                          catItem => catItem.id === item.categoryItemId
+                          catItem => catItem.id === item.priceListItemId
                         )
                       }
                       onQuantityChange={handleItemQuantityChange}
-                      quantityRef={el => (quantityRefs.current[item.categoryItemId] = el)}
+                      quantityRef={el => (quantityRefs.current[item.priceListItemId] = el)}
                       isSelected={items?.some(
-                        itemData => itemData.categoryItemId === item.categoryItemId
+                        itemData => itemData.priceListItemId === item.priceListItemId
                       )}
                       onToggleAdd={handleItemAdd}
                     />

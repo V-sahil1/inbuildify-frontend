@@ -1,16 +1,16 @@
 import { useAppSelector } from '@hooks/redux';
 import { enumToReadable } from '@lib/utils/enumToRedable';
-import { Item } from '@redux/feature/masterPriceList/iMasterPriceListState';
 import { RootState } from '@redux/feature/store';
 import { IconPencil, IconPlus, IconX } from '@tabler/icons-react';
 import { Tag, InputNumber, Button, Tooltip } from 'antd';
 import React, { useState, useEffect } from 'react';
 import AddMasterPricingItemModal from '../common/Models/AddMasterPricingItemModel';
+import { IPriceListItem } from '@redux/feature/masterPriceList/iMasterPriceListState';
 
 interface QuatationItemProps {
   item: any;
   onQuantityChange: (itemId: string, qty: number) => void;
-  onToggleAdd: (item: Item) => void;
+  onToggleAdd: (item: IPriceListItem) => void;
   isSelected: boolean;
   quantityRef?: any;
   disabled?: boolean;
@@ -20,7 +20,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
   ({ item, onToggleAdd, isSelected, onQuantityChange, quantityRef, disabled }) => {
     const { items } = useAppSelector((state: RootState) => state.quotation);
 
-    const reduxQuantity = items.find(i => i.categoryItemId === item.categoryItemId)?.quantity ?? 1;
+    const reduxQuantity = items.find(i => i.priceListItemId  === item.categoryItemId)?.quantity ?? 1;
 
     const [quantity, setQuantity] = useState<number>(reduxQuantity);
     const [isEdited, setIsEdited] = useState({ item: false, extraitem: false });
@@ -32,7 +32,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
       onQuantityChange(item.categoryItemId, quantity);
     }, [quantity, item.cost, item.categoryItemId, onQuantityChange]);
 
-    const handleToggle = (item: Item) => {
+    const handleToggle = (item: IPriceListItem) => {
       onToggleAdd(item);
     };
 

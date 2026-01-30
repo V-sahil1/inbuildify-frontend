@@ -2,16 +2,14 @@ import AddMasterPricingItemModal from '@/components/common/Models/AddMasterPrici
 import { PricingItem } from '@/components/common/PricingItem';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { Status } from '@lib/constants/enum';
-import { Category, Item } from '@redux/feature/masterPriceList/iMasterPriceListState';
 import { toggleExpand } from '@redux/feature/masterPriceList/masterPriceListSlice';
 import {
-  createCategory,
-  deleteCategory,
+  createPricelistMaster,
   deleteCategoryItem,
-  fetchCategories,
+  deletePricelistMaster,
   fetchCategoryItems,
-  updateCategory,
-  updateCategoryOrder,
+  fetchPricelistMaster,
+  updatePricelistMaster,
 } from '@redux/feature/masterPriceList/masterPriceListThunk';
 import {
   IconChevronDown,
@@ -31,6 +29,7 @@ import { MasterPricingCategoryFields } from '@/components/formFields/MasterPrici
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import RangeSelect from '@/components/common/custom-selects/RangeSelect';
 import DwellingTypeSelect from '@/components/common/custom-selects/DwellingTypeSelect';
+import { IPriceList, IPriceListItem } from '@redux/feature/masterPriceList/iMasterPriceListState';
 
 export const MasterPriceList = () => {
   const dispatch = useAppDispatch();
@@ -38,12 +37,12 @@ export const MasterPriceList = () => {
   const { selectedFilters: mplFilters } = useAppSelector((state: any) => state.masterPriceList);
 
   useEffect(() => {
-    if (status.Category === Status.IDLE) {
-      dispatch(fetchCategories());
+    if (status.priceMaster === Status.IDLE) {
+      dispatch(fetchPricelistMaster({}));
     }
-  }, [dispatch, status.Category]);
+  }, [dispatch, status.priceMaster]);
 
-  const [localCategories, setLocalCategories] = useState<Category[]>([]);
+  const [localCategories, setLocalCategories] = useState<IPriceList[]>([]);
   useEffect(() => {
     setLocalCategories(categories);
   }, [categories]);
@@ -82,11 +81,9 @@ export const MasterPriceList = () => {
 
         await dispatch(
           fetchCategoryItems({
-            categoryId,
-            filters: {
-              range: mplFilters?.range || undefined,
-              dwelling_type: mplFilters?.dwelling_type || undefined,
-            },
+            price_list_id: categoryId,
+            range_id: mplFilters?.range || undefined,
+            dwelling_type_id: mplFilters?.dwelling_type || undefined,
           })
         ).unwrap();
       } catch (error: any) {
@@ -106,7 +103,7 @@ export const MasterPriceList = () => {
     }
   };
 
-  const handleCategoryAction = (action: 'edit' | 'delete', category: Category) => {
+  const handleCategoryAction = (action: 'edit' | 'delete', category: IPriceList) => {
     setSelectedItem(category);
     if (action === 'edit') {
       setEditing(true);
@@ -121,16 +118,16 @@ export const MasterPriceList = () => {
       setLoading(true);
       if (editing) {
         await dispatch(
-          updateCategory({
-            id: selectedItem.categoryId,
-            payload: { name: values.name, description: values.description },
+          updatePricelistMaster({
+            id: selectedItem.priceListId,
+            payload: { name: values.name },
           })
         ).unwrap();
         message.success('Category updated successfully');
       } else {
-        await dispatch(
-          createCategory({ name: values.name, description: values.description })
-        ).unwrap();
+        // await dispatch(
+        //   createPricelistMaster({ name: values.name })
+        // ).unwrap();
         message.success('Category created successfully');
       }
       setAddCategoryModal(false);
@@ -149,7 +146,7 @@ export const MasterPriceList = () => {
         await dispatch(deleteCategoryItem(id)).unwrap();
         message.success('Category item deleted successfully');
       } else {
-        await dispatch(deleteCategory(id)).unwrap();
+        await dispatch(deletePricelistMaster(id)).unwrap();
         message.success('Category deleted successfully');
       }
     } catch (error: any) {
@@ -178,17 +175,17 @@ export const MasterPriceList = () => {
     newLocalCategories.splice(toIndex, 0, movedCategory);
 
     // Collect affected categories
-    const changedCategories: Category[] = [];
+    const changedCategories: IPriceList[] = [];
 
-    const oldDisplayOrder = movedCategory.displayOrder;
+    const oldDisplayOrder = movedCategory.sortOrder;
 
     if (fromIndex < toIndex) {
       // Moving down
       let previous = oldDisplayOrder;
       for (let i = fromIndex; i <= toIndex; i++) {
         const c = { ...newLocalCategories[i] };
-        const currentOrder = c?.displayOrder;
-        c.displayOrder = previous;
+        const currentOrder = c?.sortOrder;
+        c.sortOrder = previous;
         previous = currentOrder;
         changedCategories.push(c);
         newLocalCategories[i] = c;
@@ -198,8 +195,8 @@ export const MasterPriceList = () => {
       let previous = oldDisplayOrder;
       for (let i = fromIndex; i >= toIndex; i--) {
         const c = { ...newLocalCategories[i] };
-        const currentOrder = c?.displayOrder;
-        c.displayOrder = previous;
+        const currentOrder = c?.sortOrder;
+        c.sortOrder = previous;
         previous = currentOrder;
         changedCategories.push(c);
         newLocalCategories[i] = c;
@@ -210,7 +207,7 @@ export const MasterPriceList = () => {
 
   const isOrderChanged = () => {
     if (localCategories?.length !== categories?.length) return true;
-    return localCategories?.some((c, idx) => c?.categoryId !== categories[idx]?.categoryId);
+    return localCategories?.some((c, idx) => c?.priceListId !== categories[idx]?.priceListId);
   };
 
   const handleSaveOrder = async () => {
@@ -219,13 +216,13 @@ export const MasterPriceList = () => {
       const payload =
         localCategories.length > 0
           ? localCategories?.map(c => ({
-            categoryId: c?.categoryId,
-            displayOrder: c?.displayOrder,
-          }))
+              categoryId: c?.priceListId,
+              displayOrder: c?.sortOrder,
+            }))
           : [];
 
       if (payload?.length > 0) {
-        await dispatch(updateCategoryOrder({ categories: payload })).unwrap();
+        // await dispatch(updateCategoryOrder({ categories: payload })).unwrap();
         message.success('Category order updated successfully');
       }
     } catch (error) {
@@ -317,14 +314,14 @@ export const MasterPriceList = () => {
           <Droppable droppableId="categories">
             {provided => (
               <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
-                {localCategories.map((category: Category, index: number) => {
-                  const isDropdownOpen = dropDowns[category?.categoryId] || false;
-                  const isLoading = loadingItems[category?.categoryId] || false;
+                {localCategories.map((category: IPriceList, index: number) => {
+                  const isDropdownOpen = dropDowns[category?.priceListId] || false;
+                  const isLoading = loadingItems[category?.priceListId] || false;
 
                   return (
                     <Draggable
-                      key={category?.categoryId}
-                      draggableId={String(category?.categoryId)}
+                      key={category?.priceListId}
+                      draggableId={String(category?.priceListId)}
                       index={index}
                     >
                       {provided => (
@@ -339,7 +336,7 @@ export const MasterPriceList = () => {
                             className="flex items-center justify-between px-4 py-3 cursor-pointer rounded-t-xl"
                             onClick={() =>
                               !isOrderChanged() &&
-                              handleExpand(category?.categoryId, category?.isExpanded)
+                              handleExpand(category?.priceListId, category?.isExpanded)
                             }
                           >
                             <div className="flex items-center gap-2 w-full min-w-0">
@@ -350,10 +347,10 @@ export const MasterPriceList = () => {
                                 <h3 className="text-lg font-semibold text-gray-800 break-words">
                                   {category?.name}
                                 </h3>
-                                {category?.description && (
-                                  <Tooltip title={category?.description} placement="top">
+                                {category?.name && (
+                                  <Tooltip title={category?.name} placement="top">
                                     <span className="text-sm text-gray-500 truncate max-w-[200px]">
-                                      {category?.description}
+                                      {category?.name}
                                     </span>
                                   </Tooltip>
                                 )}
@@ -366,7 +363,7 @@ export const MasterPriceList = () => {
                                   onClick={e => {
                                     e.preventDefault();
                                     e.stopPropagation();
-                                    openAddItemModal(category?.categoryId);
+                                    openAddItemModal(category?.priceListId);
                                   }}
                                 >
                                   <IconPlus
@@ -415,9 +412,9 @@ export const MasterPriceList = () => {
                                 </div>
                               ) : category?.items?.length > 0 ? (
                                 <div className="mt-2 max-h-[300px] overflow-y-auto space-y-2 pr-2">
-                                  {category?.items?.map((item: Item) => (
+                                  {category?.items?.map((item: IPriceListItem) => (
                                     <PricingItem
-                                      key={item?.categoryItemId}
+                                      key={item?.priceListItemId}
                                       item={item}
                                       handleClick={handleAction}
                                     />

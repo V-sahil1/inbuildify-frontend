@@ -9,7 +9,7 @@ export interface CustomSelectProps {
 export interface CustomSelectOption {
   label: string;
   value: string;
-  role?: string[];
+  role?: string[] | string;
 }
 
 export interface TooltipButtonProps {

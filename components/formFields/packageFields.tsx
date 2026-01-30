@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 import { RootState } from '@redux/feature/store';
 import { Status } from '@lib/constants/enum';
 import { fetchPackageItems } from '@redux/feature/package/packageThunk';
-import { Item } from '@redux/feature/masterPriceList/iMasterPriceListState';
 import { setAddInstItemModal } from '@redux/feature/package/packageSlice';
 import NoDataMessage from '../common/NoDataMessage';
 import SystemRoutes from '@lib/constants/Routes';
@@ -19,7 +18,9 @@ export const packageFields = (selectedValues?: {
   const items = useAppSelector((state: RootState) => state.package.items);
   const dispatch = useAppDispatch();
 
-  function mapToAntdOptions(items: Item[]) {
+  // function mapToAntdOptions(items: Item[]) {
+  function mapToAntdOptions(items: any[]) {
+
     return items?.map(item => ({
       label: item.description, // what to display
       value: item.categoryItemId, // what to capture
@@ -31,7 +32,7 @@ export const packageFields = (selectedValues?: {
     if (selectedValues?.range && selectedValues?.dwelling) {
       try {
         dispatch(
-          fetchPackageItems({ range: selectedValues.range, dwellingType: selectedValues.dwelling })
+          fetchPackageItems({ range: selectedValues.range[0] || '', dwellingType: selectedValues.dwelling[0] || '' })
         );
       } catch (error) {
         console.error('🚀 ~ packageFields ~ error:', error);
