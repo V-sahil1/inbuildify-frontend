@@ -115,7 +115,7 @@ export const Options: React.FC = () => {
     <div className="p-4 bg-white rounded-xl shadow-sm">
       <div className="flex items-center justify-between  p-2 rounded-t-md mb-2">
         <h3 className="font-semibold text-gray-700 text-sm sm:text-base">Options</h3>
-        <Button type="primary" onClick={() => handleOpenModal()} icon={<IconPlus />}>
+        <Button type="primary" onClick={() => handleOpenModal()} icon={<IconPlus size={16} />}>
           New
         </Button>
       </div>

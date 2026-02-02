@@ -27,6 +27,7 @@ import {
   cityRules,
   zipCodeRules,
   addressLine2Rules,
+  phoneRules,
 } from '@lib/constants/formInputValidations';
 
 const BuilderDetails = () => {
@@ -101,7 +102,7 @@ const BuilderDetails = () => {
         disabled={status.update === Status.PENDING}
       >
         {/* Builder Section */}
-        <h2 className="text-xl font-semibold border-b pb-2">Builder Details</h2>
+        <h2 className="text-xl font-semibold border-b pb-2 text-font-color">Builder Details</h2>
         <div className="grid grid-cols-2 gap-6">
           <Form.Item label="Builder Name" name="name" rules={builderNameRules}>
             <Input />
@@ -148,7 +149,7 @@ const BuilderDetails = () => {
         </div>
 
         {/* Address Section */}
-        <h2 className="text-xl font-semibold border-b pb-2">Address Details</h2>
+        <h2 className="text-xl font-semibold border-b pb-2 text-font-color">Address Details</h2>
         <div className="grid grid-cols-2 gap-6">
           <Form.Item label="Address 1" name={['address', 'addressLine1']} rules={addressLine2Rules}>
             <Input />
@@ -179,7 +180,7 @@ const BuilderDetails = () => {
         </div>
 
         {/* Bank Details */}
-        <h2 className="text-xl font-semibold border-b pb-2">Bank Details</h2>
+        <h2 className="text-xl font-semibold border-b pb-2 text-font-color">Bank Details</h2>
         <div className="grid grid-cols-2 gap-6">
           <Form.Item label="Bank Name" name="bankName" rules={optionalNameRule}>
             <Input />
@@ -196,7 +197,7 @@ const BuilderDetails = () => {
         </div>
 
         {/* Building Insurer */}
-        <h2 className="text-xl font-semibold border-b pb-2">Building Insurer</h2>
+        <h2 className="text-xl font-semibold border-b pb-2 text-font-color">Building Insurer</h2>
         <div className="grid grid-cols-2 gap-6">
           <Form.Item label="Insurer" name={['insurer', 'insurerName']} rules={builderNameRules}>
             <Input />
@@ -222,15 +223,11 @@ const BuilderDetails = () => {
           >
             <Select options={stateOptions} />
           </Form.Item>
-          <Form.Item
-            label="Zip / Postal Code"
-            name={['insurer', 'zipCode']}
-            rules={[{ required: true, message: 'Please Enter Zip Code' }]}
-          >
-            <Input />
+          <Form.Item label="Zip / Postal Code" name={['insurer', 'zipCode']} rules={zipCodeRules}>
+            <Input type="number" />
           </Form.Item>
-          <Form.Item label="Phone" name={['insurer', 'phoneNumber']} rules={builderPhoneRules}>
-            <Input />
+          <Form.Item label="Phone" name={['insurer', 'phoneNumber']} rules={phoneRules}>
+            <Input type="number" />
           </Form.Item>
           <Form.Item
             label="Name of Insured"
@@ -242,10 +239,10 @@ const BuilderDetails = () => {
         </div>
 
         {/* Logo Section */}
-        <h2 className="text-xl font-semibold border-b pb-2">Logos</h2>
+        <h2 className="text-xl font-semibold border-b pb-2 text-font-color">Logos</h2>
         <div className="grid grid-cols-2 gap-6">
           <div className="flex flex-col gap-3">
-            <span className="font-medium">Builder Logo</span>
+            <span className="font-medium text-font-color-400">Builder Logo</span>
             <Form.Item
               name="logo"
               getValueFromEvent={({ fileList }) => {

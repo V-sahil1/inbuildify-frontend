@@ -86,8 +86,10 @@ export const LeadsOrOpportunities: React.FC = () => {
           <Form.Item
             label={
               <div>
-                <Text strong>Allow create Duplicate Lead</Text>
-                <div className="text-gray-500 text-xs">
+                <Text strong className="text-font-color">
+                  Allow create Duplicate Lead
+                </Text>
+                <div className=" text-xs text-font-color-100">
                   System will allow to create duplicate leads from REA
                 </div>
               </div>
@@ -101,7 +103,9 @@ export const LeadsOrOpportunities: React.FC = () => {
           <Form.Item
             label={
               <div>
-                <Text strong>Send Email when new Lead is created</Text>
+                <Text strong className="text-font-color">
+                  Send Email when new Lead is created
+                </Text>
               </div>
             }
             name="sendEmailOnNewLead"
@@ -113,8 +117,10 @@ export const LeadsOrOpportunities: React.FC = () => {
           <Form.Item
             label={
               <div>
-                <Text strong>Show Common Folders</Text>
-                <div className="text-gray-500 text-xs">
+                <Text strong className="text-font-color">
+                  Show Common Folders
+                </Text>
+                <div className="text-font-color-100 text-xs">
                   When turned On, shows the common folders under the documents section of the Lead /
                   Opportunity page
                 </div>
@@ -129,7 +135,9 @@ export const LeadsOrOpportunities: React.FC = () => {
 
         <hr className="my-6" />
 
-        <Title level={5}>Optional Settings</Title>
+        <Title level={5} className="text-font-color">
+          Optional Settings
+        </Title>
 
         <Row gutter={24}>
           <Col xs={24} md={12}>

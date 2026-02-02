@@ -224,23 +224,24 @@ const RoleAndUser: React.FC = () => {
           <Space size="small">
             <Button
               loading={isActionLoading}
-              icon={<IconCheck />}
-              type="primary"
+              icon={<IconCheck size={16} />}
+              type="text"
               size="small"
               onClick={() => handleSave(record.userRoleMappingId)}
             />
             <Button
               disabled={isActionLoading}
-              icon={<IconX />}
+              icon={<IconX size={16} />}
               danger
               size="small"
+              type="text"
               onClick={handleCancel}
             />
           </Space>
         ) : (
           <Button
             type="text"
-            icon={<IconEdit />}
+            icon={<IconEdit size={16} />}
             onClick={() => handleEdit(record)}
             disabled={!!editingKey}
           />
@@ -251,7 +252,7 @@ const RoleAndUser: React.FC = () => {
 
   return (
     <>
-      <div className="mb-8 p-4 border rounded-lg bg-white shadow-sm">
+      <div className="mb-8 p-4 border rounded-lg bg-card-color shadow-sm">
         <Title level={4} style={{ marginBottom: 4 }}>
           Assign Task Manager
         </Title>
@@ -260,7 +261,7 @@ const RoleAndUser: React.FC = () => {
             <Title level={5} style={{ marginBottom: 4 }}>
               Task Manager
             </Title>
-            <Text type="secondary">
+            <Text className="text-font-color-100">
               Task Manager will be mapped as assigned user in case any user not mapped or mapped
               user is inactive.
             </Text>
@@ -277,12 +278,18 @@ const RoleAndUser: React.FC = () => {
         </div>
       </div>
 
-      <div className="p-4 border rounded-lg bg-white shadow-sm">
+      <div className="p-4 border rounded-lg bg-card-color shadow-sm">
         <div className="flex justify-between items-center mb-4">
           <Title level={4} style={{ margin: 0 }}>
             Assign User for Role Mapping
           </Title>
-          <Button type="primary" icon={<IconPlus />} onClick={handleAdd} disabled={!!editingKey}>
+
+          <Button
+            type="primary"
+            icon={<IconPlus size={16} />}
+            onClick={handleAdd}
+            disabled={!!editingKey}
+          >
             Create
           </Button>
         </div>

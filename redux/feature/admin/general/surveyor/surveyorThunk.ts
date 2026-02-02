@@ -2,7 +2,8 @@ import api from '@lib/constants/api';
 import API_ENDPOINTS from '@lib/constants/apiEndpoints';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { ApiResponse } from '../../../auth/IAuthState';
-import { FetchSurveyorResponse, Surveyor, SurveyorResponse } from './ISurveyorState';
+import { Surveyor, SurveyorResponse } from './ISurveyorState';
+import { CommonPagination } from '@redux/feature/common/ICommonState';
 
 export const createSurveyor = createAsyncThunk(
   'surveyor/create',
@@ -20,11 +21,11 @@ export const createSurveyor = createAsyncThunk(
 
 export const fetchAllServeyor = createAsyncThunk(
   'surveyor/fetchAll',
-  async (_, { rejectWithValue }) => {
+  async (params: { page?: number; limit?: number } = {}, { rejectWithValue }) => {
     try {
-      const response = await api.get<ApiResponse<FetchSurveyorResponse>>(
-        API_ENDPOINTS.SURVEYOR_BASE
-      );
+      const response = await api.get<
+        ApiResponse<{ surveyors: Surveyor[]; pagination: CommonPagination }>
+      >(API_ENDPOINTS.SURVEYOR_BASE, { params });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);

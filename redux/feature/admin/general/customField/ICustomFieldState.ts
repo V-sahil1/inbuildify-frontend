@@ -1,4 +1,5 @@
 import { Status } from '@lib/constants/enum';
+import { CommonPagination } from '@redux/feature/common/ICommonState';
 export interface CustomField {
   customFieldId?: string;
   moduleId: string;
@@ -8,22 +9,6 @@ export interface CustomField {
   sortOrder: number;
   isActive: boolean;
 }
-
-export type CustomFieldResponse = {
-  customFieldId: string;
-  companyId: string;
-  builderId: string;
-  moduleId: string;
-  fieldName: string;
-  fieldType: 'text' | 'number' | 'date' | 'checkbox' | 'list' | 'multiline';
-  options: string[];
-  sortOrder: number;
-  isActive: boolean;
-  createdBy: string;
-  updatedBy: string;
-  createdAt: string;
-  updatedAt: string;
-};
 
 export interface CustomFieldModule {
   moduleId: string;
@@ -41,4 +26,5 @@ export interface ICustomFieldState {
     fetch: Status;
     create: Status;
   };
+  pagination:CommonPagination
 }

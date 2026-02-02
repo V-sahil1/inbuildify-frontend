@@ -17,9 +17,9 @@ import { Status } from '@lib/constants/enum';
 import { DefaultOptionType } from 'antd/es/select';
 import { disablePastDates } from '@lib/utils/getDisabledTimeDate';
 import {
+  addressLine2Rules,
   CityNameRules,
   leadAddressRules,
-  optionalAddressRules,
   optionalNameRules,
   OptionalNumberRules,
 } from '@lib/constants/formInputValidations';
@@ -227,7 +227,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item label="Address 2" name="address2" rules={optionalAddressRules}>
+            <Form.Item label="Address 2" name="address2" rules={addressLine2Rules}>
               <Input placeholder="Optional" />
             </Form.Item>
           </Col>

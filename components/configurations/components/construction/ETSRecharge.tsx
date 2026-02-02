@@ -145,12 +145,12 @@ export const ETSRecharge: React.FC = () => {
       title: 'Actions',
       render: (_, record: ETSRechargeItem) => (
         <Space>
-          <Button icon={<IconEdit />} type="link" onClick={() => handleEdit(record)} />
+          <Button icon={<IconEdit size={16} />} type="text" onClick={() => handleEdit(record)} />
           <Popconfirm
             title="Are you sure you want to delete this?"
             onConfirm={() => handleDelete(record.constructionEtsRechargeApprovalId)}
           >
-            <Button danger type="link" icon={<IconTrash />} />
+            <Button danger type="text" icon={<IconTrash size={16} />} />
           </Popconfirm>
         </Space>
       ),
@@ -272,7 +272,7 @@ export const ETSRecharge: React.FC = () => {
       </div>
       <div className="flex justify-between items-center my-4">
         <h3 className="text-base font-semibold text-gray-700">ETS & Recharge Approval Limits</h3>
-        <Button type="primary" icon={<IconPlus />} onClick={handleAddNew}>
+        <Button type="primary" icon={<IconPlus size={16} />} onClick={handleAddNew}>
           New
         </Button>
       </div>

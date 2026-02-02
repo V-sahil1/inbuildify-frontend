@@ -65,9 +65,9 @@ const SettingsPage = () => {
 
   const renderDescription = (mainText: string, noteText?: string) => (
     <>
-      <Paragraph className="text-gray-600 text-[13px] mt-1">{mainText}</Paragraph>
+      <Paragraph className="text-font-color-100 text-[13px] mt-1">{mainText}</Paragraph>
       {noteText && (
-        <Paragraph type="secondary" className="text-xs mt-[-6px] text-gray-500">
+        <Paragraph className="text-xs mt-[-6px] text-font-color-400">
           Note: {noteText}
         </Paragraph>
       )}
@@ -93,7 +93,7 @@ const SettingsPage = () => {
           <Form.Item name="notificationReferralPartner" valuePropName="checked" className="mb-1">
             <Switch />
           </Form.Item>
-          <Text strong className="ml-2">
+          <Text strong className="ml-2 text-font-color">
             Send All Email/SMS Notifications to Referral Partner Instead of Customer
           </Text>
         </div>
@@ -108,7 +108,7 @@ const SettingsPage = () => {
           <Form.Item name="pdfPasswordProtected" valuePropName="checked" className="mb-1">
             <Switch />
           </Form.Item>
-          <Text strong className="ml-2">
+          <Text strong className="ml-2 text-font-color">
             Restrict PDFs with Password Protection
           </Text>
         </div>
@@ -134,7 +134,7 @@ const SettingsPage = () => {
           <Form.Item name="roundOfCost" valuePropName="checked" className="mb-1">
             <Switch />
           </Form.Item>
-          <Text strong className="ml-2">
+          <Text strong className="ml-2 text-font-color">
             Round off Costs
           </Text>
         </div>
@@ -148,7 +148,7 @@ const SettingsPage = () => {
           <Form.Item name="negativeValueShow" valuePropName="checked" className="mb-1">
             <Switch />
           </Form.Item>
-          <Text strong className="ml-2">
+          <Text strong className="ml-2 text-font-color">
             Show Negative Values as Minus or in Brackets
           </Text>
         </div>
@@ -159,7 +159,7 @@ const SettingsPage = () => {
         )}
 
         <div className="mt-4 mb-6">
-          <Text strong className="block mb-2">
+          <Text strong className="block mb-2 text-font-color">
             Negative Values Font Color
           </Text>
           <Row gutter={16} align="middle">
@@ -194,10 +194,10 @@ const SettingsPage = () => {
 
         <div className="border-t border-gray-200 my-6" />
 
-        <Text strong className="block mb-1">
+        <Text strong className="block mb-1 text-font-color">
           Show Reference ID in PDF
         </Text>
-        <Paragraph type="secondary" className="text-[13px] mb-4">
+        <Paragraph className="text-[13px] mb-4 text-font-color-400">
           This setting will be applied for all PDF formats except custom questions. Custom questions
           will have option to add Job ID in quotation format settings.
         </Paragraph>

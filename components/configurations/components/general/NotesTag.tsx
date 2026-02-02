@@ -199,16 +199,16 @@ const NotesTag: React.FC = () => {
           <Space>
             <Button
               icon={<IconCheck size={16} />}
-              type="primary"
+              type="text"
               size="small"
               onClick={handleSave}
               loading={status.create === Status.PENDING}
             />
-            <Button icon={<IconX size={16} />} danger size="small" onClick={handleCancel} />
+            <Button icon={<IconX size={16} />} type="text" danger size="small" onClick={handleCancel} />
           </Space>
         ) : (
           <Space>
-            <Button icon={<IconEdit size={16} />} size="small" onClick={() => handleEdit(record)} />
+            <Button icon={<IconEdit size={16} />} type="text" size="small" onClick={() => handleEdit(record)} />
             <Popconfirm
               title="Delete this tag?"
               onConfirm={() => handleDelete(record.notesTagId)}
@@ -216,7 +216,7 @@ const NotesTag: React.FC = () => {
               cancelText="No"
               okButtonProps={{ danger: true }}
             >
-              <Button icon={<IconTrash size={16} />} danger size="small" />
+              <Button icon={<IconTrash size={16} />} type="text" danger size="small" />
             </Popconfirm>
           </Space>
         ),

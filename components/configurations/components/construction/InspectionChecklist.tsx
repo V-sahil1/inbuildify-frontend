@@ -309,7 +309,7 @@ export const InspectionChecklist: React.FC = () => {
             ],
           }}
         >
-          <Button type="primary" icon={<IconPlus />}>
+          <Button type="primary" icon={<IconPlus size={16} />}>
             New
           </Button>
         </Dropdown>

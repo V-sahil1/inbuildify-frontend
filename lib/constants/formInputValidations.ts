@@ -163,7 +163,6 @@ export const priorityRules = [{ required: true, message: 'Priority is required' 
 export const roleRules = [{ required: true, message: 'Please select a role' }];
 
 export const abnRules = [
-  { required: true, message: 'Please enter your ABN number' },
   {
     pattern: /^[0-9]{11}$/,
     message: 'ABN number must be exactly 11 digits',
@@ -526,4 +525,9 @@ export const builderNameRules = [
 export const optionalNameRule = [
   { min: 3, message: 'Field must be at least 3 characters long' },
   { max: 150, message: 'Field must not exceed 150 characters' },
+];
+
+export const surveyorRegistrationRules = [
+  { min: 5, message: 'Registration number must be at least 5 characters long' },
+  { max: 100, message: 'Registration number cannot exceed 100 characters.' },
 ];

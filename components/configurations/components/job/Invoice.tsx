@@ -127,14 +127,14 @@ export const Invoice: React.FC = () => {
         <div className="flex gap-2">
           <Button
             type="text"
-            icon={<IconEdit size={18} className="text-blue-500" />}
+            icon={<IconEdit size={16} className="text-blue-500" />}
             onClick={() => handleEdit(record)}
           />
           <Popconfirm
             title="Are you sure you want to delete this stage?"
             onConfirm={() => handleDelete(record.jobInvoiceStagePaymentId)}
           >
-            <Button type="text" icon={<IconTrash size={18} className="text-red-500" />} />
+            <Button type="text" icon={<IconTrash size={16} className="text-red-500" />} />
           </Popconfirm>
         </div>
       ),

@@ -16,46 +16,41 @@ import { Status } from '@lib/constants/enum';
 import { CustomField } from '@redux/feature/admin/general/customField/ICustomFieldState';
 import { GeneralCustomFieldListModal } from '@/components/common/Models/GeneralCustomFieldListModal';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
+import TooltipButton from '@/components/common/TooltipButton';
 
 const CustomFields: React.FC = () => {
-  const { customFieldModule, customField, status } = useAppSelector(
+  const { customFieldModule, customField, status, pagination } = useAppSelector(
     (state: RootState) => state.general.customField
   );
+  const [currentPage, setCurrentPage] = useState(1);
   const [selectedSection, setSelectedSection] = useState<string | null>();
   const [editingRow, setEditingRow] = useState<CustomField | null>(null);
   const [listOptionsrecord, setListOptionsrecord] = useState<CustomField | null>(null);
   const [form] = Form.useForm();
   const dispatch = useAppDispatch();
+
   const customFieldModuleOptions =
     customFieldModule &&
     customFieldModule.map(item => ({
       label: item.name,
       value: item.moduleId,
     }));
+  const PAGE_SIZE = 10;
 
   useEffect(() => {
     if (status.customFieldModule === Status.IDLE) {
       fetchCustomFieldModule();
     }
-  }, [status.customFieldModule]);
-
-  useEffect(() => {
     if (customFieldModule) {
       setSelectedSection(customFieldModule[0]?.moduleId || null);
     }
-  }, [customFieldModule]);
-
-  useEffect(() => {
-    if (selectedSection && status.fetch === Status.IDLE) {
-      fetchCustomField();
-    }
-  }, [selectedSection, status.fetch]);
+  }, [status.customFieldModule]);
 
   useEffect(() => {
     if (selectedSection) {
       fetchCustomField();
     }
-  }, [selectedSection]);
+  }, [selectedSection, currentPage]);
 
   async function fetchCustomFieldModule() {
     try {
@@ -64,9 +59,14 @@ const CustomFields: React.FC = () => {
       message.error(error || 'Failed to fetch customfield module');
     }
   }
-  async function fetchCustomField() {
+  async function fetchCustomField(page: number = currentPage, limit: number = PAGE_SIZE) {
     try {
-      await dispatch(fetchAllCustomField({ moduleId: selectedSection || undefined })).unwrap();
+      const params = {
+        module_id: selectedSection,
+        page,
+        limit,
+      };
+      await dispatch(fetchAllCustomField(params)).unwrap();
     } catch (error) {
       message.error('Failed to fetch customfield');
     }
@@ -88,6 +88,7 @@ const CustomFields: React.FC = () => {
   const handleOpenListOptions = (record: CustomField) => {
     setListOptionsrecord(record);
   };
+
   const handleSave = async () => {
     const values = await form.validateFields();
     try {
@@ -210,34 +211,41 @@ const CustomFields: React.FC = () => {
           <Space>
             <Button
               icon={<IconCheck size={16} />}
-              type="primary"
               size="small"
               onClick={handleSave}
+              type="text"
               loading={status.create === Status.PENDING}
             />
             <Button
-              icon={<IconX size={16} />}
-              danger
+              icon={<IconX size={16} color="red" />}
               size="small"
               onClick={handleCancel}
+              type="text"
               disabled={status.create === Status.PENDING}
             />
           </Space>
         ) : (
           <Space>
-            <Button icon={<IconEdit size={16} />} size="small" onClick={() => handleEdit(record)} />
+            <TooltipButton
+              title="Edit"
+              icon={<IconEdit size={16} />}
+              onClick={() => handleEdit(record)}
+              type="text"
+              size="small"
+            />
             <Popconfirm
-              title="Delete this field?"
+              title="Are you sure you want to delete this field?"
               onConfirm={() => handleDelete(record.customFieldId)}
               okText="Yes"
               cancelText="No"
               okButtonProps={{ danger: true, loading: status.create === Status.PENDING }}
             >
-              <Button
-                icon={<IconTrash size={16} />}
-                danger
-                size="small"
+              <TooltipButton
+                title="Delete"
+                icon={<IconTrash color="red" size={16} />}
+                type="text"
                 disabled={status.create === Status.PENDING}
+                size="small"
               />
             </Popconfirm>
           </Space>
@@ -263,17 +271,31 @@ const CustomFields: React.FC = () => {
         </div>
       </div>
 
-      <Card>
+      <div>
         <Form form={form} component={false}>
           <Table
             rowKey="customFieldId"
-            pagination={false}
             dataSource={dataSource}
             columns={columns}
             loading={status.fetch === Status.PENDING}
+            pagination={{
+              current: pagination?.currentPage,
+              pageSize: pagination?.limit,
+              total: pagination?.totalRecords,
+              showSizeChanger: false,
+              showQuickJumper: false,
+              showTotal: (total, range) => (
+                <p className="text-font-color">
+                  {range[0]}-{range[1]} of ${total} items
+                </p>
+              ),
+              onChange: page => {
+                setCurrentPage(page);
+              },
+            }}
           />
         </Form>
-      </Card>
+      </div>
       {listOptionsrecord && (
         <GeneralCustomFieldListModal
           open={!!listOptionsrecord}

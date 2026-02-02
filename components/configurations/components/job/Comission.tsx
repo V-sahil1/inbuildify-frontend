@@ -295,6 +295,7 @@ export const Comission: React.FC = () => {
         <Space>
           <Button
             size="small"
+            type="text"
             icon={<IconEdit size={16} />}
             onClick={() => handleEditParent(record)}
           />
@@ -302,11 +303,12 @@ export const Comission: React.FC = () => {
             title="Are you sure to delete this commission?"
             onConfirm={() => handleDeleteParent(record.jobCommissionId)}
           >
-            <Button size="small" danger icon={<IconTrash size={16} />} />
+            <Button size="small" type="text" danger icon={<IconTrash size={16} />} />
           </Popconfirm>
 
           <Button
             size="small"
+            type="text"
             icon={<IconPlus size={16} />}
             onClick={() => handleAddChild(record.jobCommissionId)}
           />
@@ -374,11 +376,13 @@ export const Comission: React.FC = () => {
         <Space>
           <Button
             size="small"
+            type="text"
             icon={<IconEdit size={16} />}
             onClick={() => handleEditIncoming(record)}
           />
           <Button
             size="small"
+            type="text"
             danger
             icon={<IconTrash size={16} />}
             onClick={() => handleDeleteIncoming(record.jobCommissionId)}
@@ -436,7 +440,7 @@ export const Comission: React.FC = () => {
         <>
           <div className="flex items-center justify-between my-2">
             <p>Outgoing Commission</p>
-            <Button type="primary" icon={<IconPlus size={18} />} onClick={handleAddParent}>
+            <Button type="primary" icon={<IconPlus size={16} />} onClick={handleAddParent}>
               New
             </Button>
           </div>
@@ -455,7 +459,7 @@ export const Comission: React.FC = () => {
         <>
           <div className="flex items-center justify-between my-2">
             <p>Incoming Commission</p>
-            <Button type="primary" icon={<IconPlus size={18} />} onClick={handleAddIncoming}>
+            <Button type="primary" icon={<IconPlus size={16} />} onClick={handleAddIncoming}>
               New
             </Button>
           </div>

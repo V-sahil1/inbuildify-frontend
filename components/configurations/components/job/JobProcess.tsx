@@ -108,7 +108,7 @@ export const JobProcess: React.FC = () => {
                   okText="Yes"
                   cancelText="No"
                 >
-                  <Button type="text" icon={<IconTrash size={18} color="red" />} />
+                  <Button type="text" icon={<IconTrash size={16} color="red" />} />
                 </Popconfirm>
               </Tooltip>
             </Space>

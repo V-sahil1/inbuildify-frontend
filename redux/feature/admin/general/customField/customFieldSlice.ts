@@ -19,6 +19,7 @@ const initialState: ICustomFieldState = {
     fetch: Status.IDLE,
     create: Status.IDLE,
   },
+  pagination: null,
 };
 
 const customFieldSlice = createSlice({
@@ -31,6 +32,7 @@ const customFieldSlice = createSlice({
     });
     builder.addCase(createCustomField.fulfilled, (state, action) => {
       state.customField.unshift(action.payload);
+      state.pagination.totalRecords++;
       state.status.create = Status.SUCCESS;
     });
     builder.addCase(createCustomField.rejected, state => {
@@ -42,6 +44,7 @@ const customFieldSlice = createSlice({
     });
     builder.addCase(fetchAllCustomField.fulfilled, (state, action) => {
       state.customField = action.payload.customFields;
+      state.pagination = action.payload.pagination;
       state.status.fetch = Status.SUCCESS;
     });
     builder.addCase(fetchAllCustomField.rejected, state => {
@@ -66,6 +69,7 @@ const customFieldSlice = createSlice({
     });
     builder.addCase(deleteCustomField.fulfilled, (state, action) => {
       state.customField = state.customField.filter(i => i.customFieldId !== action.payload);
+      state.pagination.totalRecords--;
       state.status.create = Status.SUCCESS;
     });
     builder.addCase(deleteCustomField.rejected, state => {

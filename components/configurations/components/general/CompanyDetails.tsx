@@ -115,7 +115,7 @@ const CompanyDetails = () => {
         disabled={status.update === Status.PENDING}
       >
         {/* Basic Info */}
-        <h2 className="text-xl font-semibold border-b pb-2">Basic Information</h2>
+        <h2 className="text-xl font-semibold border-b pb-2 text-font-color">Basic Information</h2>
         <div className="grid grid-cols-2 gap-8">
           <Form.Item
             label="Company Name"
@@ -137,7 +137,7 @@ const CompanyDetails = () => {
         </div>
 
         {/* Address Details */}
-        <h2 className="text-xl font-semibold border-b pb-2">Address Details</h2>
+        <h2 className="text-xl font-semibold border-b pb-2 text-font-color">Address Details</h2>
         <div className="grid grid-cols-2 gap-8">
           <Form.Item
             label="Address 1"
@@ -175,7 +175,7 @@ const CompanyDetails = () => {
         </div>
 
         {/* Bank Details */}
-        <h2 className="text-xl font-semibold border-b pb-2">Bank Details</h2>
+        <h2 className="text-xl font-semibold border-b pb-2 text-font-color">Bank Details</h2>
         <div className="grid grid-cols-2 gap-8">
           <Form.Item label="Bank Name" name="bankName" rules={optionalNameRule}>
             <Input />
@@ -192,10 +192,10 @@ const CompanyDetails = () => {
         </div>
 
         {/* Logo Section */}
-        <h2 className="text-xl font-semibold border-b pb-2">Logos</h2>
+        <h2 className="text-xl font-semibold border-b pb-2 text-font-color">Logos</h2>
         <div className="grid grid-cols-2 gap-8">
           <div className="flex flex-col gap-3">
-            <span className="font-medium">Email Signature</span>
+            <span className="font-medium text-font-color-100">Email Signature</span>
             <Form.Item
               name="emailSignatureLogo"
               valuePropName="fileList"
@@ -219,7 +219,7 @@ const CompanyDetails = () => {
           </div>
 
           <div className="flex flex-col gap-3">
-            <span className="font-medium">Company Logo</span>
+            <span className="font-medium text-font-color-400">Company Logo</span>
             <Form.Item
               name="companyLogo"
               valuePropName="fileList"

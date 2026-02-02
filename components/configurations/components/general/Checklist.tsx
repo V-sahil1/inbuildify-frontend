@@ -252,25 +252,27 @@ const Checklist = () => {
     {
       key: 'actions',
       render: (_, record, index: number) => {
-        const iconStyle = { cursor: 'pointer' };
         if (isAdding && index === 0 && !record.checklistId) {
           return (
             <Space>
               <Button
-                icon={<IconCheck style={{ color: 'green', ...iconStyle }} />}
+                icon={<IconCheck size={16} />}
                 onClick={e => {
                   e.stopPropagation();
                   handleSaveNew();
                 }}
+                type="text"
+                size="small"
                 loading={status.create === Status.PENDING}
               />
 
               <Button
-                icon={<IconX style={{ color: 'red', ...iconStyle }} />}
+                icon={<IconX size={16} />}
                 onClick={e => {
                   e.stopPropagation();
                   handleCancelNew();
                 }}
+                type="text"
                 disabled={status.create === Status.PENDING}
               />
             </Space>
@@ -281,20 +283,25 @@ const Checklist = () => {
           return (
             <Space>
               <Button
-                icon={<IconCheck style={{ color: 'green', ...iconStyle }} />}
+                icon={<IconCheck size={16} />}
                 onClick={e => {
                   e.stopPropagation();
                   handleSaveEdit(record.checklistId);
                 }}
+                type="text"
+                size="small"
                 loading={status.create === Status.PENDING}
               />
 
               <Button
-                icon={<IconX style={{ color: 'red', ...iconStyle }} />}
+                icon={<IconX size={16} />}
                 onClick={e => {
                   e.stopPropagation();
                   handleCancelEdit();
                 }}
+                type="text"
+                size="small"
+                danger
                 disabled={status.create === Status.PENDING}
               />
             </Space>
@@ -303,19 +310,24 @@ const Checklist = () => {
 
         return (
           <Space>
-            <IconPlus
-              style={{ color: 'green', ...iconStyle }}
+            <Button
+              icon={<IconPlus size={16} />}
               onClick={e => {
                 e.stopPropagation();
                 handleRowClick(record);
               }}
+              type="text"
+              size="small"
             />
-            <IconEdit
+
+            <Button
+              icon={<IconEdit size={16} />}
               onClick={e => {
                 e.stopPropagation();
                 handleEdit(record);
               }}
-              style={iconStyle}
+              type="text"
+              size="small"
             />
             <div onClick={e => e.stopPropagation()}>
               <Popconfirm
@@ -325,8 +337,11 @@ const Checklist = () => {
                 cancelText="No"
                 okButtonProps={{ danger: true }}
               >
-                <IconTrash
-                  style={{ color: 'red', ...iconStyle }}
+                <Button
+                  icon={<IconTrash size={16} />}
+                  type="text"
+                  size="small"
+                  danger
                   onClick={e => {
                     e.stopPropagation();
                   }}

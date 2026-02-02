@@ -16,32 +16,41 @@ import { Status } from '@lib/constants/enum';
 import { Surveyor } from '@redux/feature/admin/general/surveyor/ISurveyorState';
 import {
   abnRules,
-  addressRules,
+  addressLine1Rules,
+  addressLine2Rules,
+  builderNameRules,
+  cityRules,
   emailRules,
-  nameRules,
   phoneRules,
+  surveyorRegistrationRules,
   zipCodeRules,
 } from '@lib/constants/formInputValidations';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
+import TooltipButton from '@/components/common/TooltipButton';
 
 const SurveyorsDetails = () => {
   const [form] = Form.useForm();
   const { states, status: stateStatus } = useAppSelector((state: RootState) => state.location);
-  const { surveyor, status } = useAppSelector((state: RootState) => state.general.surveyor);
-  const [isFormVisible, setIsFormVisible] = useState(surveyor.length === 0);
+  const { surveyor, status, pagination } = useAppSelector(
+    (state: RootState) => state.general.surveyor
+  );
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isFormVisible, setIsFormVisible] = useState(false);
   const [editingIndex, setEditingIndex] = useState<string | null>(null);
   const dispatch = useAppDispatch();
   const stateOption = states && states.map(state => ({ label: state.name, value: state.stateId }));
+  const PAGE_SIZE = 10;
+
+  useEffect(() => {
+    fetchSurveyor();
+  }, [currentPage]);
 
   useEffect(() => {
     if (stateStatus === Status.IDLE) {
       fetchState();
     }
+  }, [stateStatus]);
 
-    if (status.fetch === Status.IDLE) {
-      fetchSurveyor();
-    }
-  }, [status.fetch, stateStatus]);
   const fetchState = async () => {
     try {
       await dispatch(getStatesByCountryIdThunk('1950a40a-03df-42be-9ab4-c2bdf324cef0')).unwrap();
@@ -49,9 +58,10 @@ const SurveyorsDetails = () => {
       message.error(error || 'Failed to fetch states');
     }
   };
-  const fetchSurveyor = async () => {
+
+  const fetchSurveyor = async (page: number = currentPage, limit: number = PAGE_SIZE) => {
     try {
-      await dispatch(fetchAllServeyor()).unwrap();
+      await dispatch(fetchAllServeyor({ page, limit })).unwrap();
     } catch (error) {
       message.error(error || 'Failed to fetch Servayor Details');
     }
@@ -114,12 +124,17 @@ const SurveyorsDetails = () => {
       key: 'actions',
       render: (_, record: Surveyor) => (
         <Space>
-          <Button type="text" icon={<IconEdit />} onClick={() => handleEdit(record)} />
+          <TooltipButton
+            title="Edit"
+            type="text"
+            icon={<IconEdit size={16} />}
+            onClick={() => handleEdit(record)}
+          />
           <Popconfirm
             title="Are you sure to delete?"
             onConfirm={() => handleDelete(record.surveyorId)}
           >
-            <Button type="text" danger icon={<IconTrash />} />
+            <TooltipButton title="Delete" type="text" icon={<IconTrash size={16} color="red" />} />
           </Popconfirm>
         </Space>
       ),
@@ -128,7 +143,7 @@ const SurveyorsDetails = () => {
 
   return (
     <div className="p-6">
-      {isFormVisible ? (
+      {isFormVisible || surveyor.length === 0 ? (
         <>
           <h2 className="text-xl font-semibold border-b pb-2">Surveyor Details</h2>
           <Form
@@ -138,77 +153,48 @@ const SurveyorsDetails = () => {
             className="grid grid-cols-3 gap-6 mt-4"
             disabled={status.create === Status.PENDING}
           >
-            <Form.Item label="Surveyor Name" name="name" rules={nameRules}>
-              <Input
-                placeholder="Constance Hernandez"
-                disabled={status.create === Status.PENDING}
-              />
+            <Form.Item
+              label="Surveyor Name"
+              name="name"
+              rules={[{ required: true, message: 'Name is required' }, ...builderNameRules]}
+            >
+              <Input placeholder="Constance Hernandez" />
             </Form.Item>
             <Form.Item label="Email" name="email" rules={emailRules}>
-              <Input
-                placeholder="constance@mailinator.com"
-                disabled={status.create === Status.PENDING}
-              />
+              <Input placeholder="constance@mailinator.com" />
             </Form.Item>
             <Form.Item label="Phone" name="phone" rules={phoneRules}>
-              <Input
-                placeholder="7654832318"
-                disabled={status.create === Status.PENDING}
-                maxLength={15}
-                minLength={10}
-              />
+              <Input placeholder="7654832318" maxLength={15} minLength={10} />
             </Form.Item>
             <Form.Item label="ABN" name="abnNumber" rules={abnRules}>
-              <Input
-                placeholder="47021213123"
-                disabled={status.create === Status.PENDING}
-                maxLength={11}
-              />
+              <Input placeholder="47021213123" maxLength={11} />
             </Form.Item>
             <Form.Item
               label="Register Number"
               name="registrationNumber"
-              rules={[{ len: 4, message: 'Regestration number must be of 4 digits' }]}
+              rules={surveyorRegistrationRules}
             >
-              <Input placeholder="9793" disabled={status.create === Status.PENDING} maxLength={4} />
+              <Input placeholder="9793" maxLength={100} type="number" />
             </Form.Item>
             <div></div> {/* spacer */}
-            <Form.Item label="Address1" name="address1" rules={addressRules}>
-              <Input placeholder="927 Fabien Drive" disabled={status.create === Status.PENDING} />
+            <Form.Item label="Address1" name="address1" rules={addressLine1Rules}>
+              <Input placeholder="927 Fabien Drive" />
             </Form.Item>
-            <Form.Item
-              label="Address2"
-              name="address2"
-              rules={[{ min: 10, message: 'Address must be at least 10 characters' }]}
-            >
-              <Input
-                placeholder="Et consectetur vel m"
-                disabled={status.create === Status.PENDING}
-              />
+            <Form.Item label="Address2" name="address2" rules={addressLine2Rules}>
+              <Input placeholder="Et consectetur vel m" />
             </Form.Item>
-            <Form.Item
-              label="City / Suburb"
-              name="city"
-              rules={[
-                { required: true, message: 'Enter City / Suburb' },
-                { min: 3, message: 'City must be at least 3 characters' },
-              ]}
-            >
-              <Input placeholder="Brisbane" disabled={status.create === Status.PENDING} />
+            <Form.Item label="City / Suburb" name="city" rules={cityRules}>
+              <Input placeholder="Brisbane" />
             </Form.Item>
             <Form.Item
               label="State / Region"
               name="stateId"
               rules={[{ required: true, message: 'Select State / Region' }]}
             >
-              <Select
-                options={stateOption}
-                placeholder="Please Select"
-                disabled={status.create === Status.PENDING}
-              />
+              <Select options={stateOption} placeholder="Please Select" />
             </Form.Item>
             <Form.Item label="Zip / Postal Code" name="zipPostalCode" rules={zipCodeRules}>
-              <Input placeholder="4067" disabled={status.create === Status.PENDING} maxLength={4} />
+              <Input placeholder="4067" maxLength={4} />
             </Form.Item>
             <div></div> {/* spacer */}
             <div className="col-span-3 flex justify-end gap-4 pt-4">
@@ -247,8 +233,22 @@ const SurveyorsDetails = () => {
           <Table
             dataSource={surveyor}
             columns={columns}
-            pagination={false}
             rowKey={record => record.email || record.phone}
+            pagination={{
+              current: pagination?.currentPage,
+              pageSize: pagination?.limit,
+              total: pagination?.totalRecords,
+              showSizeChanger: false,
+              showQuickJumper: false,
+              showTotal: (total, range) => (
+                <p className="text-font-color">
+                  {range[0]}-{range[1]} of ${total} items
+                </p>
+              ),
+              onChange: page => {
+                setCurrentPage(page);
+              },
+            }}
             loading={status.fetch === Status.PENDING}
           />
         </>

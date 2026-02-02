@@ -1,11 +1,11 @@
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { Status } from '@lib/constants/enum';
 import {
+  addressLine2Rules,
   CityNameRules,
   emailRules,
   leadAddressRules,
   nameRules,
-  optionalAddressRules,
   optionalPhoneRule,
   phoneRules,
 } from '@lib/constants/formInputValidations';
@@ -301,7 +301,7 @@ const LeadDetailsForm: React.FC<any> = ({
                 <Input placeholder="Enter address line 1" />
               </Form.Item>
 
-              <Form.Item label="Address 2" name="address2" rules={optionalAddressRules}>
+              <Form.Item label="Address 2" name="address2" rules={addressLine2Rules}>
                 <Input placeholder="Enter address line 2" />
               </Form.Item>
 

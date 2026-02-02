@@ -8,6 +8,7 @@ const theme = {
       colorTextHover: 'var(--primary-hover)',
       colorBorder: 'var(--primary)',
       colorBorderHover: 'var(--primary-hover)',
+      colorTextDisabled: 'var(--font-color-100)',
     },
     Input: {
       colorBgContainer: 'var(--card-color)',

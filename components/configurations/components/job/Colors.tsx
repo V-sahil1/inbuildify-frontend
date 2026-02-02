@@ -257,7 +257,7 @@ export const Colors: React.FC = () => {
         title: 'Edit',
         key: 'edit',
         render: (_, record: JobColorColumnType) => (
-          <Button icon={<IconEdit />} type="link" onClick={() => handleEdit(record)} />
+          <Button icon={<IconEdit size={16} />} type="text" onClick={() => handleEdit(record)} />
         ),
       },
     ],
@@ -298,7 +298,7 @@ export const Colors: React.FC = () => {
             title="Are you sure you want to delete custom section?"
             onConfirm={() => handleDeleteCustomSection(record.jobColorColumnSectionId)}
           >
-            <Button type="text" danger icon={<IconTrash size={18} />} />
+            <Button type="text" danger icon={<IconTrash size={16} />} />
           </Popconfirm>
         </Space>
       ),

@@ -1,4 +1,5 @@
 import { Status } from '@lib/constants/enum';
+import { CommonPagination } from '@redux/feature/common/ICommonState';
 export interface Surveyor {
   surveyorId?: string;
   name: string;
@@ -29,11 +30,6 @@ export interface SurveyorResponse {
   zipPostalCode: string;
 }
 
-export interface FetchSurveyorResponse {
-  surveyors: Surveyor[];
-  pagination: Pagination;
-}
-
 export interface Pagination {
   totalRecords: number;
   totalPages: number;
@@ -47,4 +43,5 @@ export interface ISurveyorState {
     fetch: Status;
     create: Status;
   };
+  pagination: CommonPagination;
 }

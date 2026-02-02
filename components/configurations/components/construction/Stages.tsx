@@ -357,24 +357,25 @@ export function Stages() {
           (editingId === 'new' && rec.constructionStage === (local?.constructionStage ?? 0)) ? (
             <div className="flex items-center gap-2">
               <Button
-                type="primary"
+                type="text"
                 size="small"
                 onClick={saveRow}
-                icon={<IconCheck size={14} />}
+                icon={<IconCheck size={16} />}
                 loading={status.create === Status.PENDING}
                 disabled={status.create === Status.PENDING}
               />
-              <Button size="small" onClick={cancel} icon={<IconX size={14} />} />
+              <Button size="small" type="text" onClick={cancel} icon={<IconX size={16} />} />
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <Button size="small" icon={<IconEdit size={16} />} onClick={() => startEdit(rec)} />
+              <Button size="small" type="text" icon={<IconEdit size={16} />} onClick={() => startEdit(rec)} />
               <Popconfirm
                 title="Delete this stage?"
                 onConfirm={() => deleteRow(rec.constructionStage)}
               >
                 <Button
                   size="small"
+                  type="text"
                   danger
                   icon={<IconTrash size={16} />}
                   disabled={status.create === Status.PENDING}

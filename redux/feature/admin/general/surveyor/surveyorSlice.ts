@@ -9,6 +9,7 @@ const initialState: ISurveyorState = {
     fetch: Status.IDLE,
     create: Status.IDLE,
   },
+  pagination: null,
 };
 
 const surveyorSlice = createSlice({
@@ -21,6 +22,7 @@ const surveyorSlice = createSlice({
     });
     builder.addCase(createSurveyor.fulfilled, (state, action) => {
       state.surveyor.unshift(action.payload);
+      state.pagination.totalRecords++;
       state.status.create = Status.SUCCESS;
     });
     builder.addCase(createSurveyor.rejected, state => {
@@ -31,6 +33,7 @@ const surveyorSlice = createSlice({
     });
     builder.addCase(fetchAllServeyor.fulfilled, (state, action) => {
       state.surveyor = action.payload.surveyors;
+      state.pagination = action.payload.pagination;
       state.status.fetch = Status.SUCCESS;
     });
     builder.addCase(fetchAllServeyor.rejected, state => {
@@ -48,8 +51,16 @@ const surveyorSlice = createSlice({
     builder.addCase(updateServeyor.rejected, state => {
       state.status.create = Status.ERROR;
     });
+    builder.addCase(deleteServeyor.pending, state => {
+      state.status.create = Status.PENDING;
+    });
     builder.addCase(deleteServeyor.fulfilled, (state, action) => {
       state.surveyor = state.surveyor.filter(i => i.surveyorId !== action.payload);
+      state.pagination.totalRecords--;
+      state.status.create = Status.SUCCESS;
+    });
+    builder.addCase(deleteServeyor.rejected, state => {
+      state.status.create = Status.ERROR;
     });
   },
 });

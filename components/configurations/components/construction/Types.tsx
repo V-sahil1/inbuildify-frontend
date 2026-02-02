@@ -149,24 +149,27 @@ export const Types: React.FC = () => {
         <Space>
           <Tooltip title="Edit">
             <Button
-              icon={<IconEdit className="text-blue-500" />}
+              type="text"
+              icon={<IconEdit size={16} className="text-blue-500" />}
               onClick={() => handleOpenModal(record)}
             />
           </Tooltip>
           <Tooltip title="Delete">
             <Button
-              icon={<IconTrash className="!text-red-500" />}
+              type="text"
+              icon={<IconTrash size={16} className="!text-red-500" />}
               onClick={() => confirmDelete(record)}
             />
           </Tooltip>
           <Tooltip title="Copy">
             <Button
-              icon={<IconCopy className="!text-blue-400" />}
+              type="text"
+              icon={<IconCopy size={16} className="!text-blue-400" />}
               onClick={() => handleCopy(record)}
             />
           </Tooltip>
           <Tooltip title="Export">
-            <Button icon={<IconFileText className="!text-blue-400" />} />
+            <Button type="text" icon={<IconFileText size={16} className="!text-blue-400" />} />
           </Tooltip>
         </Space>
       ),

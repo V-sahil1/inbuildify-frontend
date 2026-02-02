@@ -18,32 +18,33 @@ export interface TooltipButtonProps {
   onClick?: (e?: React.MouseEvent) => void;
   type?: 'link' | 'text' | 'default' | 'primary' | 'dashed';
   className?: string;
+  disabled?: boolean;
+  size?: 'small' | 'middle' | 'large';
 }
 
 export type CopyType = 'category' | 'subcategory' | 'subcategoryitem';
-
 
 // EXPORT TYPE OF THE EXCEL AND CSV
 
 export type ExcelColumn =
   | string
   | {
-    label: string;
-    color?: string;
-    dataColor?: string;
-    dataColorFn?: (value: any, row: any) => string | undefined;
-    children?: {
-      key: string;
       label: string;
       color?: string;
       dataColor?: string;
       dataColorFn?: (value: any, row: any) => string | undefined;
-    }[];
-  };
+      children?: {
+        key: string;
+        label: string;
+        color?: string;
+        dataColor?: string;
+        dataColorFn?: (value: any, row: any) => string | undefined;
+      }[];
+    };
 
 export interface HeaderBlock {
-  position: "top" | "bottom";
-  layout?: "horizontal" | "vertical";
+  position: 'top' | 'bottom';
+  layout?: 'horizontal' | 'vertical';
   columnHeaders: Record<string, ExcelColumn>;
   data: any[];
 }
