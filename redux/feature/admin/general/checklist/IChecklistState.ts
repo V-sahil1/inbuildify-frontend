@@ -1,20 +1,15 @@
 import { Status } from '@lib/constants/enum';
+import { CommonPagination } from '@redux/feature/common/ICommonState';
 import { Entity } from 'types/common.types';
-export interface checklist {
+export interface ChecklistType {
   checklistId?: string;
   name: string;
   screenId: string;
   functionalityId: string;
+  functionality?: Entity;
+  screen?:Entity
 }
-export type ChecklistResponse = {
-  checklistId: string;
-  name: string;
-  isActive: boolean;
-  screen: Entity;
-  functionality: Entity;
-};
-
-export interface checklistItem {
+export interface ChecklistItemType {
   checklistItemId?: string;
   checklistId: string;
   constructionTypeId: string;
@@ -25,23 +20,9 @@ export interface checklistItem {
   type: 'dropdown' | 'checkbox';
   sort: number;
 }
-
-export type ChecklistItemResponse = {
-  checklistItemId: string;
-  checklistId: string;
-  constructionTypeId: string;
-  constructionStageId: string;
-  description: string;
-  notes: boolean;
-  isRequired: boolean;
-  type: 'dropdown' | 'checkbox';
-  sort: number;
-  createdAt: string;
-  updatedAt: string;
-};
 export interface IChecklistState {
-  checklist: ChecklistResponse[];
-  checklistItem: checklistItem[];
+  checklist: ChecklistType[];
+  checklistItem: ChecklistItemType[];
   checklistItemStatus: {
     fetch: Status;
     create: Status;
@@ -50,4 +31,5 @@ export interface IChecklistState {
     fetch: Status;
     create: Status;
   };
+  pagination: CommonPagination;
 }

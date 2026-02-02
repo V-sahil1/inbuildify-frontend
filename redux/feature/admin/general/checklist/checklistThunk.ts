@@ -2,24 +2,17 @@ import api from '@lib/constants/api';
 import API_ENDPOINTS from '@lib/constants/apiEndpoints';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { ApiResponse } from '../../../auth/IAuthState';
-import {
-  checklist,
-  checklistItem,
-  ChecklistItemResponse,
-  ChecklistResponse,
-} from './IChecklistState';
 import { Pagination } from '../surveyor/ISurveyorState';
+import { ChecklistItemType, ChecklistType } from './IChecklistState';
+import { CommonPagination } from '@redux/feature/common/ICommonState';
 
 export const createChecklist = createAsyncThunk(
   'checklist/create',
-  async (payload: checklist, { rejectWithValue }) => {
+  async (payload: ChecklistType, { rejectWithValue }) => {
     try {
-      const response = await api.post<ApiResponse<ChecklistResponse>>(
-        API_ENDPOINTS.CHECKLIST_BASE,
-        {
-          data: payload,
-        }
-      );
+      const response = await api.post<ApiResponse<ChecklistType>>(API_ENDPOINTS.CHECKLIST_BASE, {
+        data: payload,
+      });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -29,11 +22,11 @@ export const createChecklist = createAsyncThunk(
 
 export const fetchAllChecklist = createAsyncThunk(
   'checklist/fetchAll',
-  async (_, { rejectWithValue }) => {
+  async (params: { page?: number; limit?: number } = {}, { rejectWithValue }) => {
     try {
       const response = await api.get<
-        ApiResponse<{ checklist: ChecklistResponse[]; pagination: Pagination }>
-      >(API_ENDPOINTS.CHECKLIST_BASE);
+        ApiResponse<{ checklist: ChecklistType[]; pagination: CommonPagination }>
+      >(API_ENDPOINTS.CHECKLIST_BASE, { params });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -43,9 +36,9 @@ export const fetchAllChecklist = createAsyncThunk(
 
 export const updateChecklist = createAsyncThunk(
   'checklist/update',
-  async (payload: { data: Partial<checklist>; checklistId: string }, { rejectWithValue }) => {
+  async (payload: { data: Partial<ChecklistType>; checklistId: string }, { rejectWithValue }) => {
     try {
-      const response = await api.put<ApiResponse<ChecklistResponse>>(
+      const response = await api.put<ApiResponse<ChecklistType>>(
         `${API_ENDPOINTS.CHECKLIST_BASE}/${payload.checklistId}`,
         { data: payload.data }
       );
@@ -70,9 +63,9 @@ export const deleteChecklist = createAsyncThunk(
 
 export const createChecklistItem = createAsyncThunk(
   'checklistItem/create',
-  async (payload: checklistItem, { rejectWithValue }) => {
+  async (payload: ChecklistItemType, { rejectWithValue }) => {
     try {
-      const response = await api.post<ApiResponse<ChecklistItemResponse>>(
+      const response = await api.post<ApiResponse<ChecklistItemType>>(
         API_ENDPOINTS.CHECKLIST_ITEM,
         {
           data: payload,
@@ -89,7 +82,7 @@ export const fetchAllChecklistItem = createAsyncThunk(
   'checklistItem/fetchAll',
   async (payload: string, { rejectWithValue }) => {
     try {
-      const response = await api.get<ApiResponse<ChecklistItemResponse[]>>(
+      const response = await api.get<ApiResponse<ChecklistItemType[]>>(
         `${API_ENDPOINTS.CHECKLIST_ITEM}/${payload}`
       );
       return response.data;
@@ -101,9 +94,9 @@ export const fetchAllChecklistItem = createAsyncThunk(
 
 export const updateChecklistItem = createAsyncThunk(
   'checklistItem/update',
-  async (payload: { data: Partial<checklistItem>; id: string }, { rejectWithValue }) => {
+  async (payload: { data: Partial<ChecklistItemType>; id: string }, { rejectWithValue }) => {
     try {
-      const response = await api.put<ApiResponse<ChecklistItemResponse>>(
+      const response = await api.put<ApiResponse<ChecklistItemType>>(
         `${API_ENDPOINTS.CHECKLIST_ITEM}/${payload.id}`,
         { data: payload.data }
       );

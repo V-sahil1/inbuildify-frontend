@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Form, InputNumber, Button, message } from 'antd';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { RootState } from '@redux/feature/store';
@@ -12,6 +12,7 @@ import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 
 export const PasswordPolicy: React.FC = () => {
   const [form] = Form.useForm();
+  const [isChanged, setIsChanged] = useState(false);
   const { passwordPolicy, status } = useAppSelector(
     (state: RootState) => state.general.passwordPolicy
   );
@@ -47,9 +48,15 @@ export const PasswordPolicy: React.FC = () => {
         })
       ).unwrap();
       message.success('Password Policy updated successfully');
+      setIsChanged(false);
     } catch (error) {
       message.error(error || 'Failed to update password policy');
     }
+  };
+
+  const handleChange = (_, allValue) => {
+    const { isUpdated } = getUpdatedFields(allValue, passwordPolicy);
+    setIsChanged(isUpdated);
   };
 
   return (
@@ -64,6 +71,7 @@ export const PasswordPolicy: React.FC = () => {
           wrapperCol={{ xs: 24, md: 14 }}
           labelAlign="left"
           className="space-y-4"
+          onValuesChange={handleChange}
         >
           <Form.Item
             label="Expires (in days)"
@@ -147,19 +155,21 @@ export const PasswordPolicy: React.FC = () => {
             />
           </Form.Item>
 
-          <Form.Item
-            wrapperCol={{ xs: 24, md: { offset: 10, span: 14 } }}
-            className="pt-4 w-full flex justify-end  items-center pr-40 "
-          >
-            <Button
-              type="primary"
-              htmlType="submit"
-              className="rounded-lg font-semibold"
-              loading={status.update === Status.PENDING}
+          {isChanged && (
+            <Form.Item
+              wrapperCol={{ xs: 24, md: { offset: 10, span: 14 } }}
+              className="pt-4 w-full flex justify-end  items-center pr-40 "
             >
-              Save Policy
-            </Button>
-          </Form.Item>
+              <Button
+                type="primary"
+                htmlType="submit"
+                className="rounded-lg font-semibold"
+                loading={status.update === Status.PENDING}
+              >
+                Save Policy
+              </Button>
+            </Form.Item>
+          )}
         </Form>
       </div>
     </div>

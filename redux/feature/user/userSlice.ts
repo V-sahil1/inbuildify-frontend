@@ -21,7 +21,7 @@ export const userSlice = createSlice({
     });
     builder.addCase(getUsersThunk.fulfilled, (state, action) => {
       state.status.users = Status.SUCCESS;
-      state.users = action.payload.rows;
+      state.users = action.payload;
     });
     builder.addCase(getUsersThunk.rejected, state => {
       state.status.users = Status.ERROR;

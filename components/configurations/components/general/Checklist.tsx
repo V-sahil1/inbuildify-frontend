@@ -13,13 +13,16 @@ import {
   updateChecklist,
 } from '@redux/feature/admin/general/checklist/checklistThunk';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
-import { checklist } from '@redux/feature/admin/general/checklist/IChecklistState';
 import { screenTypeResponse } from '@redux/feature/admin/general/screen/IScreenState';
 import { fetchAllFunctionality } from '@redux/feature/common/commonThunk';
+import TooltipButton from '@/components/common/TooltipButton';
+import { ChecklistType } from '@redux/feature/admin/general/checklist/IChecklistState';
 
 const Checklist = () => {
   const dispatch = useAppDispatch();
-  const { checklist, status } = useAppSelector((state: RootState) => state.general.checklist);
+  const { checklist, status, pagination } = useAppSelector(
+    (state: RootState) => state.general.checklist
+  );
   const { screen, status: screenStatus } = useAppSelector(
     (state: RootState) => state.general.screen
   );
@@ -27,7 +30,8 @@ const Checklist = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isDrawerVisible, setIsDrawerVisible] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState<checklist | null>(null);
+  const [selectedRecord, setSelectedRecord] = useState<ChecklistType | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const [formRow, setFormRow] = useState<{
     name: string;
     screenId: string;
@@ -37,6 +41,7 @@ const Checklist = () => {
   const screenOption =
     screen &&
     screen.map((item: screenTypeResponse) => ({ label: item.name, value: item.screenId }));
+  const PAGE_SIZE = 10;
 
   useEffect(() => {
     if (screenStatus === Status.IDLE) {
@@ -66,9 +71,9 @@ const Checklist = () => {
       message.error(error || 'Failed to fetch functionality');
     }
   }
-  async function fetchChecklist() {
+  async function fetchChecklist(page: number = currentPage, limit: number = PAGE_SIZE) {
     try {
-      await dispatch(fetchAllChecklist()).unwrap();
+      await dispatch(fetchAllChecklist({ page, limit })).unwrap();
     } catch (error) {
       message.error(error || 'Failed to fetch checklist');
     }
@@ -135,19 +140,19 @@ const Checklist = () => {
     if (!validateForm()) {
       return;
     }
-
-    let prevCheklist = checklist.find(i => i.checklistId === id);
-    const { isUpdated, updatedFields } = getUpdatedFields(formRow, {
-      name: prevCheklist.name,
-      functionalityId: prevCheklist.functionality.id,
-      screenId: prevCheklist.screen.id,
-    });
-    if (!isUpdated) {
-      setEditingId(null);
-      return;
-    }
     try {
+      let prevCheklist = checklist.find(i => i.checklistId === id);
+      const { isUpdated, updatedFields } = getUpdatedFields(formRow, {
+        name: prevCheklist.name,
+        functionalityId: prevCheklist.functionality.id,
+        screenId: prevCheklist.screen.id,
+      });
+      if (!isUpdated) {
+        setEditingId(null);
+        return;
+      }
       dispatch(updateChecklist({ checklistId: id, data: updatedFields }));
+      message.success('Checklist updated successfully');
       setEditingId(null);
     } catch (error) {
       message.error(error || 'Failed to update checklist');
@@ -167,7 +172,7 @@ const Checklist = () => {
     }
   };
 
-  const handleRowClick = (record: checklist) => {
+  const handleRowClick = (record: ChecklistType) => {
     setSelectedRecord(record);
     setIsDrawerVisible(true);
   };
@@ -177,7 +182,7 @@ const Checklist = () => {
       title: 'Checklist Name',
       dataIndex: 'name',
       key: 'name',
-      render: (_, record: checklist, index: number) => {
+      render: (_, record: ChecklistType, index: number) => {
         if ((isAdding && index === 0 && !record.checklistId) || editingId === record.checklistId) {
           console.log(error);
           return (
@@ -250,6 +255,17 @@ const Checklist = () => {
       },
     },
     {
+      title: (
+        <Button
+          type="primary"
+          icon={<IconPlus size={16} />}
+          onClick={handleAddNew}
+          disabled={isAdding}
+        >
+          New
+        </Button>
+      ),
+      width: 120,
       key: 'actions',
       render: (_, record, index: number) => {
         if (isAdding && index === 0 && !record.checklistId) {
@@ -267,12 +283,13 @@ const Checklist = () => {
               />
 
               <Button
-                icon={<IconX size={16} />}
+                icon={<IconX size={16} color="red" />}
                 onClick={e => {
                   e.stopPropagation();
                   handleCancelNew();
                 }}
                 type="text"
+                size="small"
                 disabled={status.create === Status.PENDING}
               />
             </Space>
@@ -294,14 +311,13 @@ const Checklist = () => {
               />
 
               <Button
-                icon={<IconX size={16} />}
+                icon={<IconX size={16} color="red" />}
                 onClick={e => {
                   e.stopPropagation();
                   handleCancelEdit();
                 }}
                 type="text"
                 size="small"
-                danger
                 disabled={status.create === Status.PENDING}
               />
             </Space>
@@ -310,7 +326,8 @@ const Checklist = () => {
 
         return (
           <Space>
-            <Button
+            <TooltipButton
+              title="Checklist Items"
               icon={<IconPlus size={16} />}
               onClick={e => {
                 e.stopPropagation();
@@ -320,7 +337,8 @@ const Checklist = () => {
               size="small"
             />
 
-            <Button
+            <TooltipButton
+              title="Edit"
               icon={<IconEdit size={16} />}
               onClick={e => {
                 e.stopPropagation();
@@ -331,17 +349,17 @@ const Checklist = () => {
             />
             <div onClick={e => e.stopPropagation()}>
               <Popconfirm
-                title="Delete this checklist?"
+                title="Are you sure you want to delete this checklist?"
                 onConfirm={() => handleDelete(record.checklistId)}
                 okText="Yes"
                 cancelText="No"
                 okButtonProps={{ danger: true }}
               >
-                <Button
-                  icon={<IconTrash size={16} />}
+                <TooltipButton
+                  title="Delete"
+                  icon={<IconTrash color="red" size={16} />}
                   type="text"
                   size="small"
-                  danger
                   onClick={e => {
                     e.stopPropagation();
                   }}
@@ -358,11 +376,6 @@ const Checklist = () => {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
-        <Button type="primary" icon={<IconPlus />} onClick={handleAddNew} disabled={isAdding}>
-          New
-        </Button>
-      </div>
       <ChecklistDrawer
         open={isDrawerVisible}
         onClose={() => setIsDrawerVisible(false)}
@@ -371,8 +384,22 @@ const Checklist = () => {
       <Table
         columns={columns}
         dataSource={tableData}
-        pagination={false}
         rowKey="id"
+        pagination={{
+          current: pagination?.currentPage,
+          pageSize: pagination?.limit,
+          total: pagination?.totalRecords,
+          showSizeChanger: false,
+          showQuickJumper: false,
+          showTotal: (total, range) => (
+            <p className="text-font-color">
+              {range[0]}-{range[1]} of ${total} items
+            </p>
+          ),
+          onChange: page => {
+            setCurrentPage(page);
+          },
+        }}
         loading={status.fetch === Status.PENDING}
       />
     </div>

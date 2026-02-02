@@ -2,13 +2,14 @@ import api from '@lib/constants/api';
 import API_ENDPOINTS from '@lib/constants/apiEndpoints';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { ApiResponse } from '../../../auth/IAuthState';
-import { FetchNotesTagResponse, notesTag, notesTagResponse } from './INotesTagState';
+import { CommonPagination } from '@redux/feature/common/ICommonState';
+import { NotesTagType } from './INotesTagState';
 
 export const createNotesTag = createAsyncThunk(
   'noteTags/create',
-  async (payload: notesTag, { rejectWithValue }) => {
+  async (payload: NotesTagType, { rejectWithValue }) => {
     try {
-      const response = await api.post<ApiResponse<notesTagResponse>>(API_ENDPOINTS.NOTE_TAG_BASE, {
+      const response = await api.post<ApiResponse<NotesTagType>>(API_ENDPOINTS.NOTE_TAG_BASE, {
         data: payload,
       });
       return response.data;
@@ -20,11 +21,11 @@ export const createNotesTag = createAsyncThunk(
 
 export const fetchAllNotesTag = createAsyncThunk(
   'noteTags/fetchAll',
-  async (_, { rejectWithValue }) => {
+  async (params: { page?: number; limit?: number } = {}, { rejectWithValue }) => {
     try {
-      const response = await api.get<ApiResponse<FetchNotesTagResponse>>(
-        API_ENDPOINTS.NOTE_TAG_BASE
-      );
+      const response = await api.get<
+        ApiResponse<{ noteTag: NotesTagType[]; pagination: CommonPagination }>
+      >(API_ENDPOINTS.NOTE_TAG_BASE, { params });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -34,9 +35,9 @@ export const fetchAllNotesTag = createAsyncThunk(
 
 export const updateNotesTag = createAsyncThunk(
   'noteTags/update',
-  async (payload: { data: Partial<notesTag>; notesTagId: string }, { rejectWithValue }) => {
+  async (payload: { data: Partial<NotesTagType>; notesTagId: string }, { rejectWithValue }) => {
     try {
-      const response = await api.put<ApiResponse<notesTagResponse>>(
+      const response = await api.put<ApiResponse<NotesTagType>>(
         `${API_ENDPOINTS.NOTE_TAG_BASE}/${payload.notesTagId}`,
         { data: payload.data }
       );
@@ -51,9 +52,7 @@ export const deleteNotesTag = createAsyncThunk(
   'noteTags/delete',
   async (payload: string, { rejectWithValue }) => {
     try {
-      const response = await api.delete<ApiResponse<null>>(
-        `${API_ENDPOINTS.NOTE_TAG_BASE}/${payload}`
-      );
+      const response = await api.delete<ApiResponse>(`${API_ENDPOINTS.NOTE_TAG_BASE}/${payload}`);
       return payload;
     } catch (error) {
       return rejectWithValue(error.message);

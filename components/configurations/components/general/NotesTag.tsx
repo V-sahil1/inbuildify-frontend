@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Input, Table, Space, Form, Popconfirm, Card, ColorPicker, message } from 'antd';
 import { IconEdit, IconTrash, IconCheck, IconX, IconPlus } from '@tabler/icons-react';
-import { notesTag } from '@redux/feature/admin/general/notesTag/INotesTagState';
 import {
   createNotesTag,
   deleteNotesTag,
@@ -13,28 +12,31 @@ import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { RootState } from '@redux/feature/store';
 import { Status } from '@lib/constants/enum';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
+import { NotesTagType } from '@redux/feature/admin/general/notesTag/INotesTagState';
+import TooltipButton from '@/components/common/TooltipButton';
 
 const NotesTag: React.FC = () => {
   const [form] = Form.useForm();
-  const [editingRow, setEditingRow] = useState<notesTag | null>(null);
+  const [editingRow, setEditingRow] = useState<NotesTagType | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const dispatch = useAppDispatch();
-  const { notesTag, status } = useAppSelector((state: RootState) => state.general.noteTags);
-
+  const { notesTag, status, pagination } = useAppSelector(
+    (state: RootState) => state.general.noteTags
+  );
+  const PAGE_SIZE = 10;
   useEffect(() => {
-    async function fetchAllNotes() {
-      try {
-        await dispatch(fetchAllNotesTag()).unwrap();
-      } catch (error) {
-        message.error(error || 'Failed to fetch notes tag');
-      }
+    fetchAllNotes();
+  }, [currentPage]);
+  async function fetchAllNotes(page: number = currentPage, limit: number = PAGE_SIZE) {
+    try {
+      await dispatch(fetchAllNotesTag({ page, limit })).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch notes tag');
     }
-    if (status.fetch === Status.IDLE) {
-      fetchAllNotes();
-    }
-  }, [status.fetch]);
+  }
 
   const handleAdd = () => {
-    const newRow: notesTag = {
+    const newRow: NotesTagType = {
       notesTagId: '',
       name: '',
       backgroundColor: '#1677ff',
@@ -47,11 +49,11 @@ const NotesTag: React.FC = () => {
 
   const handleSave = async () => {
     try {
-      const values: notesTag = await form.validateFields();
+      const values: NotesTagType = await form.validateFields();
       if (values) {
         if (editingRow && !!editingRow.notesTagId) {
           const prevValues = notesTag.filter(i => i.notesTagId === editingRow.notesTagId)[0];
-          const { isUpdated, updatedFields } = getUpdatedFields<notesTag>(values, prevValues);
+          const { isUpdated, updatedFields } = getUpdatedFields<NotesTagType>(values, prevValues);
           if (!isUpdated) {
             message.info('No changes detected');
             return;
@@ -83,7 +85,7 @@ const NotesTag: React.FC = () => {
     form.resetFields();
   };
 
-  const handleEdit = (record: notesTag) => {
+  const handleEdit = (record: NotesTagType) => {
     setEditingRow(record);
     form.setFieldsValue(record);
   };
@@ -102,7 +104,7 @@ const NotesTag: React.FC = () => {
     record,
   }: {
     name: 'backgroundColor' | 'fontColor';
-    record: notesTag;
+    record: NotesTagType;
   }) => {
     const isEditing = editingRow?.notesTagId === record.notesTagId;
 
@@ -156,7 +158,7 @@ const NotesTag: React.FC = () => {
     {
       title: 'Name',
       dataIndex: 'name',
-      render: (_, record: notesTag) =>
+      render: (_, record: NotesTagType) =>
         editingRow?.notesTagId === record.notesTagId ? (
           <Form.Item
             name="name"
@@ -175,12 +177,12 @@ const NotesTag: React.FC = () => {
     {
       title: 'Background Color',
       dataIndex: 'backgroundColor',
-      render: (_, record: notesTag) => <ColorCell name="backgroundColor" record={record} />,
+      render: (_, record: NotesTagType) => <ColorCell name="backgroundColor" record={record} />,
     },
     {
       title: 'Font Color',
       dataIndex: 'fontColor',
-      render: (_, record: notesTag) => <ColorCell name="fontColor" record={record} />,
+      render: (_, record: NotesTagType) => <ColorCell name="fontColor" record={record} />,
     },
     {
       title: (
@@ -194,7 +196,7 @@ const NotesTag: React.FC = () => {
         </Button>
       ),
       width: 120,
-      render: (_, record: notesTag) =>
+      render: (_, record: NotesTagType) =>
         editingRow?.notesTagId === record.notesTagId ? (
           <Space>
             <Button
@@ -204,19 +206,35 @@ const NotesTag: React.FC = () => {
               onClick={handleSave}
               loading={status.create === Status.PENDING}
             />
-            <Button icon={<IconX size={16} />} type="text" danger size="small" onClick={handleCancel} />
+            <Button
+              icon={<IconX size={16} color="red" />}
+              type="text"
+              size="small"
+              onClick={handleCancel}
+            />
           </Space>
         ) : (
           <Space>
-            <Button icon={<IconEdit size={16} />} type="text" size="small" onClick={() => handleEdit(record)} />
+            <TooltipButton
+              title="Edit"
+              icon={<IconEdit size={16} />}
+              type="text"
+              size="small"
+              onClick={() => handleEdit(record)}
+            />
             <Popconfirm
-              title="Delete this tag?"
+              title="Are you sure you wantt to delete this tag?"
               onConfirm={() => handleDelete(record.notesTagId)}
               okText="Yes"
               cancelText="No"
               okButtonProps={{ danger: true }}
             >
-              <Button icon={<IconTrash size={16} />} type="text" danger size="small" />
+              <TooltipButton
+                title="Delete"
+                icon={<IconTrash size={16} color="red" />}
+                type="text"
+                size="small"
+              />
             </Popconfirm>
           </Space>
         ),
@@ -227,17 +245,29 @@ const NotesTag: React.FC = () => {
 
   return (
     <div className="p-6 space-y-4">
-      <Card>
-        <Form form={form} component={false}>
-          <Table
-            rowKey="id"
-            pagination={false}
-            dataSource={dataSource}
-            columns={columns}
-            loading={status.fetch === Status.PENDING}
-          />
-        </Form>
-      </Card>
+      <Form form={form} component={false}>
+        <Table
+          rowKey="id"
+          pagination={{
+            current: pagination?.currentPage,
+            pageSize: pagination?.limit,
+            total: pagination?.totalRecords,
+            showSizeChanger: false,
+            showQuickJumper: false,
+            showTotal: (total, range) => (
+              <p className="text-font-color">
+                {range[0]}-{range[1]} of ${total} items
+              </p>
+            ),
+            onChange: page => {
+              setCurrentPage(page);
+            },
+          }}
+          dataSource={dataSource}
+          columns={columns}
+          loading={status.fetch === Status.PENDING}
+        />
+      </Form>
     </div>
   );
 };

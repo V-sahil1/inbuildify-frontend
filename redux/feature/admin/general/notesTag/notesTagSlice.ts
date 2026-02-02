@@ -10,6 +10,7 @@ const initialState: INotesTagState = {
     fetch: Status.IDLE,
     create: Status.IDLE,
   },
+  pagination: null,
 };
 
 const noteTagsSlice = createSlice({
@@ -22,6 +23,7 @@ const noteTagsSlice = createSlice({
     });
     builder.addCase(createNotesTag.fulfilled, (state, action) => {
       state.notesTag.unshift(action.payload);
+      state.pagination.totalRecords++;
       state.status.create = Status.SUCCESS;
     });
     builder.addCase(createNotesTag.rejected, state => {
@@ -32,6 +34,7 @@ const noteTagsSlice = createSlice({
     });
     builder.addCase(fetchAllNotesTag.fulfilled, (state, action) => {
       state.notesTag = action.payload.noteTag;
+      state.pagination = action.payload.pagination;
       state.status.fetch = Status.SUCCESS;
     });
     builder.addCase(fetchAllNotesTag.rejected, state => {
@@ -49,8 +52,16 @@ const noteTagsSlice = createSlice({
     builder.addCase(updateNotesTag.rejected, state => {
       state.status.create = Status.ERROR;
     });
+    builder.addCase(deleteNotesTag.pending, state => {
+      state.status.create = Status.PENDING;
+    });
     builder.addCase(deleteNotesTag.fulfilled, (state, action) => {
       state.notesTag = state.notesTag.filter(i => i.notesTagId !== action.payload);
+      state.pagination.totalRecords--;
+      state.status.create = Status.SUCCESS;
+    });
+    builder.addCase(deleteNotesTag.rejected, state => {
+      state.status.create = Status.ERROR;
     });
   },
 });

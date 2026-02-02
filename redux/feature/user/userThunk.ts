@@ -39,7 +39,7 @@ export const createUserThunk = createAsyncThunk(
 
 export const getUsersThunk = createAsyncThunk('user/getAll', async (_, { rejectWithValue }) => {
   try {
-    const response: ApiResponse<{ rows: user[]; pagination: Pagination }> = await api.get(
+    const response: ApiResponse<user[]> = await api.get(
       API_ENDPOINTS.GET_USERS
     );
     return response.data;

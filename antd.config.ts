@@ -43,6 +43,11 @@ const theme = {
       handleDisabledBg: 'var(--bg-disabled)',
       colorTextAddon: 'var(--primary)',
     },
+    Drawer: {
+      colorBgElevated: 'var(--body-color)',
+      colorBgMask: 'rgba(0, 0, 0, 0.45)',
+      colorText: 'var(--font-color)',
+    },
     Select: {
       colorBgContainer: 'var(--card-color)',
       colorBorder: 'var(--border-color)',

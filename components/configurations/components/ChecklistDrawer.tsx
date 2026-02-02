@@ -20,7 +20,6 @@ import { Status } from '@lib/constants/enum';
 import { fetchAllType } from '@redux/feature/admin/construction/constructionType/constructionTypeThunk';
 import { fetchAllConstructionStage } from '@redux/feature/admin/construction/constructionStage/constructionStageThunk';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
-import { checklist, checklistItem } from '@redux/feature/admin/general/checklist/IChecklistState';
 import {
   createChecklistItem,
   deleteChecklistItem,
@@ -29,11 +28,16 @@ import {
 } from '@redux/feature/admin/general/checklist/checklistThunk';
 import { ConstructionType } from '@redux/feature/admin/construction/constructionType/IConstructionTypeState';
 import { ConstructionStage } from '@redux/feature/admin/construction/constructionStage/IConstructionStageState';
+import {
+  ChecklistItemType,
+  ChecklistType,
+} from '@redux/feature/admin/general/checklist/IChecklistState';
+import TooltipButton from '@/components/common/TooltipButton';
 
 interface ChecklistDrawerProps {
   open: boolean;
   onClose: () => void;
-  record: checklist | null;
+  record: ChecklistType | null;
 }
 
 const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({ open, onClose, record }) => {
@@ -52,7 +56,7 @@ const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({ open, onClose, record
     constructionType: '',
     stage: '',
   });
-  const [data, setData] = useState<checklistItem[]>([]);
+  const [data, setData] = useState<ChecklistItemType[]>([]);
   const [editingKey, setEditingKey] = useState<string>('');
   const [newItem, setNewItem] = useState(false);
   const [error, setError] = useState<{
@@ -167,7 +171,7 @@ const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({ open, onClose, record
     setEditingKey(id);
   };
 
-  const handleSave = async (values: checklistItem) => {
+  const handleSave = async (values: ChecklistItemType) => {
     if (!validateForm(values)) return;
     const payload = {
       description: values.description,
@@ -229,12 +233,12 @@ const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({ open, onClose, record
     message.success('Deleted successfully');
   };
 
-  const columns: TableColumnType<checklistItem>[] = [
+  const columns: TableColumnType<ChecklistItemType>[] = [
     {
       title: 'Description',
       dataIndex: 'description',
       align: 'left' as const,
-      render: (_, record: checklistItem) => {
+      render: (_, record: ChecklistItemType) => {
         return editingKey === record.checklistItemId ? (
           <>
             <Input
@@ -254,7 +258,7 @@ const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({ open, onClose, record
       title: 'Notes',
       dataIndex: 'notes',
       align: 'center' as const,
-      render: (_, record: checklistItem) => (
+      render: (_, record: ChecklistItemType) => (
         <Switch
           checked={record.notes}
           onChange={val => handleChange(record.checklistItemId, 'notes', val)}
@@ -266,7 +270,7 @@ const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({ open, onClose, record
       title: 'Required',
       dataIndex: 'isRequired',
       align: 'center' as const,
-      render: (_, record: checklistItem) => (
+      render: (_, record: ChecklistItemType) => (
         <Switch
           checked={record.isRequired}
           onChange={val => handleChange(record.checklistItemId, 'isRequired', val)}
@@ -277,7 +281,7 @@ const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({ open, onClose, record
     {
       title: 'Type',
       dataIndex: 'type',
-      render: (_, record: checklistItem) =>
+      render: (_, record: ChecklistItemType) =>
         editingKey === record.checklistItemId ? (
           <>
             <Select
@@ -300,7 +304,7 @@ const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({ open, onClose, record
       title: 'Sort',
       dataIndex: 'sort',
       width: '10%',
-      render: (_, record: checklistItem) =>
+      render: (_, record: ChecklistItemType) =>
         editingKey === record.checklistItemId ? (
           <>
             <Input
@@ -319,19 +323,19 @@ const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({ open, onClose, record
       title: 'Actions',
       width: '12%',
       align: 'center',
-      render: (_, record: checklistItem) => {
+      render: (_, record: ChecklistItemType) => {
         if (editingKey === record.checklistItemId) {
           return (
             <Space>
               <Button
                 type="text"
-                icon={<IconCheck style={{ color: 'green' }} />}
+                icon={<IconCheck size={16} />}
                 onClick={() => handleSave(record)}
                 loading={checklistItemStatus.create === Status.PENDING}
               />
               <Button
                 type="text"
-                icon={<IconX style={{ color: 'red' }} />}
+                icon={<IconX size={16} color="red" />}
                 onClick={() => handleCancel(record.checklistItemId)}
                 disabled={checklistItemStatus.create === Status.PENDING}
               />
@@ -341,9 +345,10 @@ const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({ open, onClose, record
 
         return (
           <Space>
-            <Button
+            <TooltipButton
+              title="Edit"
               type="text"
-              icon={<IconEdit style={{ color: 'blue' }} />}
+              icon={<IconEdit size={16} />}
               onClick={() => handleEdit(record.checklistItemId)}
             />
             <Popconfirm
@@ -353,7 +358,7 @@ const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({ open, onClose, record
               onConfirm={() => handleDelete(record.checklistItemId)}
               okButtonProps={{ danger: true }}
             >
-              <Button type="text" icon={<IconTrash style={{ color: 'red' }} />} />
+              <TooltipButton title="Delete" type="text" icon={<IconTrash size={16} />} />
             </Popconfirm>
           </Space>
         );

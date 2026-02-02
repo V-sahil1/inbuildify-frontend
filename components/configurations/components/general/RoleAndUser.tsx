@@ -15,8 +15,12 @@ import {
   RoleAndUserMappingCreatePayload,
 } from '@redux/feature/admin/general/roleAndUserMapping/IRoleAndUserMappingState';
 import { Status } from '@lib/constants/enum';
-import { addRoleMapping } from '@redux/feature/admin/general/roleAndUserMapping/roleAndMappingSlice';
+import {
+  addRoleMapping,
+  removeRoleMapping,
+} from '@redux/feature/admin/general/roleAndUserMapping/roleAndMappingSlice';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
+import TooltipButton from '@/components/common/TooltipButton';
 
 const { Title, Text } = Typography;
 
@@ -104,13 +108,12 @@ const RoleAndUser: React.FC = () => {
   };
 
   const handleSave = async (key: string) => {
+    const row = (await form.validateFields()) as {
+      role: string;
+      type: string;
+      user: string;
+    };
     try {
-      const row = (await form.validateFields()) as {
-        role: string;
-        type: string;
-        user: string;
-      };
-
       const item = userRoleMapping.find(i => i.userRoleMappingId === key);
 
       if (item && item.isNew) {
@@ -158,10 +161,11 @@ const RoleAndUser: React.FC = () => {
   const handleCancel = () => {
     const item = userRoleMapping.find(i => i.userRoleMappingId === editingKey);
     if (item && item.isNew) {
-      setEditingKey('');
+      dispatch(removeRoleMapping(editingKey));
+      setEditingKey(null);
       form.resetFields();
     } else {
-      setEditingKey('');
+      setEditingKey(null);
       form.resetFields();
     }
   };
@@ -231,15 +235,15 @@ const RoleAndUser: React.FC = () => {
             />
             <Button
               disabled={isActionLoading}
-              icon={<IconX size={16} />}
-              danger
+              icon={<IconX size={16} color="red" />}
               size="small"
               type="text"
               onClick={handleCancel}
             />
           </Space>
         ) : (
-          <Button
+          <TooltipButton
+            title="Edit"
             type="text"
             icon={<IconEdit size={16} />}
             onClick={() => handleEdit(record)}
@@ -252,7 +256,7 @@ const RoleAndUser: React.FC = () => {
 
   return (
     <>
-      <div className="mb-8 p-4 border rounded-lg bg-card-color shadow-sm">
+      <div className="mb-8 p-4 border border-border-color rounded-lg bg-card-color shadow-sm">
         <Title level={4} style={{ marginBottom: 4 }}>
           Assign Task Manager
         </Title>
@@ -278,7 +282,7 @@ const RoleAndUser: React.FC = () => {
         </div>
       </div>
 
-      <div className="p-4 border rounded-lg bg-card-color shadow-sm">
+      <div className="p-4 border border-border-color rounded-lg bg-card-color shadow-sm">
         <div className="flex justify-between items-center mb-4">
           <Title level={4} style={{ margin: 0 }}>
             Assign User for Role Mapping

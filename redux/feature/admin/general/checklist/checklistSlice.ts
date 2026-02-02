@@ -23,6 +23,7 @@ const initialState: IChecklistState = {
     fetch: Status.IDLE,
     create: Status.IDLE,
   },
+  pagination: null,
 };
 
 const checklistSlice = createSlice({
@@ -35,6 +36,8 @@ const checklistSlice = createSlice({
     });
     builder.addCase(createChecklist.fulfilled, (state, action) => {
       state.checklist.unshift(action.payload);
+      state.pagination.totalRecords++;
+
       state.status.create = Status.SUCCESS;
     });
 
@@ -43,6 +46,7 @@ const checklistSlice = createSlice({
     });
     builder.addCase(fetchAllChecklist.fulfilled, (state, action) => {
       state.checklist = action.payload.checklist;
+      state.pagination = action.payload.pagination;
       state.status.fetch = Status.SUCCESS;
     });
 
@@ -62,6 +66,7 @@ const checklistSlice = createSlice({
     builder.addCase(deleteChecklist.fulfilled, (state, action) => {
       state.checklist = state.checklist.filter(i => i.checklistId !== action.payload);
       state.status.create = Status.SUCCESS;
+      state.pagination.totalRecords--;
     });
 
     // checkllist item
