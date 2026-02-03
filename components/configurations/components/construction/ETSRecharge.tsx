@@ -19,6 +19,7 @@ import {
   ETSRechargeItem,
   IETSRechargeSetting,
 } from '@redux/feature/admin/construction/constructionETSRecharge/ETSRechargeState';
+import TooltipButton from '@/components/common/TooltipButton';
 
 export const ETSRecharge: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -145,12 +146,17 @@ export const ETSRecharge: React.FC = () => {
       title: 'Actions',
       render: (_, record: ETSRechargeItem) => (
         <Space>
-          <Button icon={<IconEdit size={16} />} type="text" onClick={() => handleEdit(record)} />
+          <TooltipButton
+            title="Edit"
+            icon={<IconEdit size={16} />}
+            type="text"
+            onClick={() => handleEdit(record)}
+          />
           <Popconfirm
             title="Are you sure you want to delete this?"
             onConfirm={() => handleDelete(record.constructionEtsRechargeApprovalId)}
           >
-            <Button danger type="text" icon={<IconTrash size={16} />} />
+            <TooltipButton title="Delete" icon={<IconTrash size={16} color='red' />} type="text" />
           </Popconfirm>
         </Space>
       ),
@@ -159,7 +165,7 @@ export const ETSRecharge: React.FC = () => {
   ];
 
   return (
-    <div className="p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
+    <div className="p-4 bg-card-color rounded-xl border border-border-color shadow-sm">
       <Form
         form={form}
         initialValues={setting}
@@ -175,10 +181,10 @@ export const ETSRecharge: React.FC = () => {
               </Form.Item>
             </div>
             <div>
-              <div className="text-gray-800 font-medium text-base">
+              <div className="text-font-color font-medium text-base">
                 Enable ETS Supplier Acknowledgement
               </div>
-              <div className="text-gray-600 text-sm mt-1 leading-relaxed">
+              <div className="text-font-color-100 text-sm mt-1 leading-relaxed">
                 When the toggle is <span className="font-semibold">ON</span> - This setting allows
                 you to send ETS requests to suppliers or trades for approval. Their response will be
                 captured and recorded in the system.
@@ -196,10 +202,10 @@ export const ETSRecharge: React.FC = () => {
               </Form.Item>
             </div>
             <div>
-              <div className="text-gray-800 font-medium text-base">
+              <div className="text-font-color font-medium text-base">
                 Enable Recharge Supplier Acknowledgement
               </div>
-              <div className="text-gray-600 text-sm mt-1 leading-relaxed">
+              <div className="text-font-color-100 text-sm mt-1 leading-relaxed">
                 When the toggle is <span className="font-semibold">ON</span> - This setting allows
                 you to send Recharge Notifications to suppliers or trades. Their acknowledgements
                 will be captured and recorded in the system.
@@ -217,8 +223,8 @@ export const ETSRecharge: React.FC = () => {
               </Form.Item>
             </div>
             <div>
-              <div className="text-gray-800 font-medium text-base">Signature and Section</div>
-              <div className="text-gray-600 text-sm mt-1 leading-relaxed">
+              <div className="text-font-color font-medium text-base">Signature and Section</div>
+              <div className="text-font-color-100 text-sm mt-1 leading-relaxed">
                 When the toggle is <span className="font-semibold">ON</span> - The exported ETS PDF
                 will include signature sections for both Supervisor and Manager (if their signatures
                 are uploaded in their user profiles, they will be prepopulated). The Recharge PDF
@@ -246,15 +252,15 @@ export const ETSRecharge: React.FC = () => {
       </Form>
 
       {/* Section heading & description */}
-      <div>
-        <h3 className="text-lg font-semibold text-gray-700 mb-2">
+      <div className="mt-4">
+        <h3 className="text-lg font-semibold text-font-color mb-2">
           ETS &amp; Recharge Approval Limits
         </h3>
-        <p className="text-gray-600 text-sm leading-relaxed mb-3">
+        <p className="text-font-color-100 text-sm leading-relaxed mb-3">
           Set approval limits for ETS and Recharge requests based on each role. If a request exceeds
           the limit, it will be sent for approval through the reporting hierarchy.
         </p>
-        <ul className="list-disc ml-5 text-gray-600 text-sm space-y-1">
+        <ul className="list-disc ml-5 text-font-color-100 text-sm space-y-1">
           <li>Within the limit: The approver can approve the request directly.</li>
           <li>
             Above the limit: The request will be sent to the person's reporting to for approval.
@@ -265,13 +271,13 @@ export const ETSRecharge: React.FC = () => {
           </li>
           <li>No limit set: The approver can approve any amount without restriction.</li>
         </ul>
-        <p className="text-gray-600 text-sm mt-3">
+        <p className="text-font-color-100 text-sm mt-3">
           The system automatically manages the approval process to reduce manual work and speed up
           approvals.
         </p>
       </div>
       <div className="flex justify-between items-center my-4">
-        <h3 className="text-base font-semibold text-gray-700">ETS & Recharge Approval Limits</h3>
+        <h3 className="text-base font-semibold text-font-color">ETS & Recharge Approval Limits</h3>
         <Button type="primary" icon={<IconPlus size={16} />} onClick={handleAddNew}>
           New
         </Button>

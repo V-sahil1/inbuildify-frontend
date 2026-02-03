@@ -15,7 +15,7 @@ import {
 import { Status } from '@lib/constants/enum';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import { LeadSourceType } from '@redux/feature/admin/sales/leadSource/ILeadSourceState';
-import { getPaginationConfig } from '@lib/utils/paginationUtil';
+import { getPaginationConfig } from '@lib/utils/getPaginationConfig';
 
 export const LeadSource: React.FC = () => {
   const dispatch = useAppDispatch();

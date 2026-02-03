@@ -37,7 +37,7 @@ export const ChecklistHeader = ({ onChange, data }) => {
     <Form layout="vertical" className="mb-6">
       <Row gutter={16}>
         <Col span={8}>
-          <div className="flex gap-2 items-center">
+          <div className="flex flex-col gap-2 justify-start text-font-color">
             <p>Builder</p>
             <Select
               value={data.builder}
@@ -48,7 +48,7 @@ export const ChecklistHeader = ({ onChange, data }) => {
           </div>
         </Col>
         <Col span={8}>
-          <div className="flex gap-2 items-center">
+          <div className="flex flex-col gap-2 justify-start text-font-color ">
             <p>Construction Type </p>
             <Select
               value={data.constructionType}
@@ -59,7 +59,7 @@ export const ChecklistHeader = ({ onChange, data }) => {
           </div>
         </Col>
         <Col span={8}>
-          <div className="flex gap-2 items-center">
+          <div className="flex flex-col gap-2 justify-start text-font-color">
             <p>Construction Stage </p>
             <Select
               value={data.constructionStage}

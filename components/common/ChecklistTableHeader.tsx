@@ -10,7 +10,7 @@ export const ChecklistTableHeader = ({
     <Row
       gutter={8}
       align="middle"
-      className="border-b border-gray-300 pb-2 mb-4 text-sm font-semibold text-gray-700 w-full"
+      className="border-b border-border-color pb-2 mb-4 text-sm font-semibold text-font-color w-full"
     >
       <Col flex="1" className="text-center" />
       <Col flex="7">

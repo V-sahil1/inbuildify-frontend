@@ -177,19 +177,20 @@ export const Types: React.FC = () => {
   ];
 
   return (
-    <div className="p-4 bg-white rounded-xl shadow-sm">
-      <div className="flex items-center gap-4 justify-between  p-2 rounded-t-md mb-2">
-        <div className="w-full flex flex-col gap-2">
-          <p className="text-medium font-semibold">Builder</p>
+    <div className="p-4 bg-card-color rounded-xl shadow-sm">
+      <div className="space-y-2 mb-4">
+        <p className="text-medium font-semibold">Builder</p>
+        <div className="w-full flex justify-between gap-2">
           <Select
             value={builderId}
             options={builderOptions}
             onChange={value => setBuilderId(value)}
+            className="w-full"
           />
+          <Button type="primary" onClick={() => handleOpenModal()}>
+            + New
+          </Button>
         </div>
-        <Button type="primary" onClick={() => handleOpenModal()}>
-          + New
-        </Button>
       </div>
 
       <Table

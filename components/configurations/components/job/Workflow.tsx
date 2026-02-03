@@ -88,17 +88,15 @@ export const Workflow = () => {
         name="includeWeekendDate"
         label="Include Weekend Date"
         description={
-          <>
-            <Text type="secondary">
-              If weekend is turned on – Estimated date calculation will consider weekends.
-              <br />
-              If weekend is turned off – Estimated date calculation will not consider weekends.
-              <br />
-              <b>Ex:</b> If days given for task is 31 days – Estimated date is 1st January and there
-              are 4 weekends (8 days). Estimated date will be 31st January if weekend is on, 10th
-              February if off.
-            </Text>
-          </>
+          <Text className="text-font-color-100">
+            If weekend is turned on – Estimated date calculation will consider weekends.
+            <br />
+            If weekend is turned off – Estimated date calculation will not consider weekends.
+            <br />
+            <b>Ex:</b> If days given for task is 31 days – Estimated date is 1st January and there
+            are 4 weekends (8 days). Estimated date will be 31st January if weekend is on, 10th
+            February if off.
+          </Text>
         }
         value={settings?.includeWeekendDate || false}
         onChange={val => handleChange('includeWeekendDate', val)}
@@ -108,19 +106,17 @@ export const Workflow = () => {
         name="includeHolidayDate"
         label="Include Holiday Date"
         description={
-          <>
-            <Text type="secondary">
-              If holidays is turned on – Estimated date calculation will consider company holidays.
-              <br />
-              If holidays is turned off – it won't consider company holidays.
-              <br />
-              <b>Note:</b> If a holiday falls under weekend and weekend is turned on, it's counted
-              as a holiday.
-              <br />
-              <b>Ex:</b> If task days are 31 – Estimated date is 1st January and 14–15 January are
-              holidays. Date will be 31st Jan if on, 2nd Feb if off.
-            </Text>
-          </>
+          <Text className="text-font-color-100">
+            If holidays is turned on – Estimated date calculation will consider company holidays.
+            <br />
+            If holidays is turned off – it won't consider company holidays.
+            <br />
+            <b>Note:</b> If a holiday falls under weekend and weekend is turned on, it's counted as
+            a holiday.
+            <br />
+            <b>Ex:</b> If task days are 31 – Estimated date is 1st January and 14–15 January are
+            holidays. Date will be 31st Jan if on, 2nd Feb if off.
+          </Text>
         }
         value={settings?.includeHolidayDate || false}
         onChange={val => handleChange('includeHolidayDate', val)}
@@ -130,7 +126,7 @@ export const Workflow = () => {
         name="recalculateEstimatedEndDatesFutureTasks"
         label="Re-calculate the Estimated End dates of Future Tasks"
         description={
-          <Text type="secondary">
+          <Text className="text-font-color-100">
             Changing the estimated end date of any task will change the estimated end date of
             further tasks.
           </Text>
@@ -143,7 +139,7 @@ export const Workflow = () => {
         name="recalculateEstimatedDatesBasedOnActualChanges"
         label="Re-calculate the Estimated dates automatically based on Actual date changes"
         description={
-          <Text type="secondary">
+          <Text className="text-font-color-100">
             When turned ON: Future estimated dates will be automatically recalculated based on
             actual date changes.
             <br />

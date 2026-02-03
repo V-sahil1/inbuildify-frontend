@@ -271,9 +271,9 @@ export const OHList: React.FC = () => {
   };
 
   return (
-    <div className="p-6 bg-white rounded shadow-md">
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 w-full">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">General Settings</h2>
+    <div className="p-6 bg-card-color rounded shadow-md">
+      <div className="bg-card-color p-6 rounded-lg shadow-sm border border-border-color w-full mb-3">
+        <h2 className="text-lg font-semibold text-font-color mb-4">General Settings</h2>
 
         {/* Signature Required Section */}
         <div className="flex items-start gap-3 mb-6">
@@ -287,8 +287,8 @@ export const OHList: React.FC = () => {
             className="mt-1"
           />
           <div>
-            <div className="text-gray-800 font-medium">Signature Required</div>
-            <p className="text-gray-600 text-sm leading-snug mt-1">
+            <div className="text-font-color font-medium">Signature Required</div>
+            <p className="text-font-color-100 text-sm leading-snug mt-1">
               When the toggle is <span className="font-semibold">ON</span> — During list submission,
               if the logged-in user has an email signature, it will be added to the PDF.
               <br />
@@ -302,7 +302,7 @@ export const OHList: React.FC = () => {
         {/* Minimum Audits Section */}
         <div>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between">
-            <div className="text-gray-800 font-medium mb-2 sm:mb-0">Minimum Audits</div>
+            <div className="text-font-color font-medium mb-2 sm:mb-0">Minimum Audits</div>
             <Input
               placeholder="No count given"
               value={settingData.minimumAudits}
@@ -313,7 +313,8 @@ export const OHList: React.FC = () => {
               className="w-48"
             />
           </div>
-          <p className="text-gray-600 text-sm leading-snug mt-2">
+          <p className="text-font-color-100
+           text-sm leading-snug mt-2">
             Based on the values provided, score will be calculated on the OH&amp;S count graph. If
             the value is provided as <span className="font-semibold">2</span>, then the scoring can
             be calculated as follows:
@@ -329,7 +330,7 @@ export const OHList: React.FC = () => {
         )}
       </div>
       <div className="flex justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-700">OH&S List Table</h2>
+        <h2 className="text-lg font-semibold text-font-color">OH&S List Table</h2>
       </div>
 
       <Table

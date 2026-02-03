@@ -86,7 +86,7 @@ export const SettingPage = () => {
   }, [allowMoveNextStageEvenChecklistNotCompleted]);
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-sm">
+    <div className="p-6 bg-card-color rounded-lg shadow-sm">
       <Form
         form={form}
         layout="vertical"

@@ -187,9 +187,9 @@ export const Invoice: React.FC = () => {
   };
 
   return (
-    <div className="p-6 bg-white rounded-xl shadow-sm space-y-6">
+    <div className="p-6 bg-card-color rounded-xl shadow-sm space-y-6">
       <div className="space-y-4">
-        <div className="flex items-center justify-between border p-3 rounded-md">
+        <div className="flex items-center justify-between border border-border-color p-3 rounded-md">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <span className="font-medium">Show Invoice Summary in PDF</span>
@@ -203,13 +203,13 @@ export const Invoice: React.FC = () => {
                 }
               />
             </div>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-font-color-100 ">
               Enable this option to include a summary of the invoice details in the Invoice PDF.
             </p>
           </div>
         </div>
 
-        <div className="border p-3 rounded-md">
+        <div className="border border-border-color p-3 rounded-md">
           <div className="space-y-1">
             <label className="font-medium block">Invoice Terms</label>
             <Input
@@ -224,7 +224,7 @@ export const Invoice: React.FC = () => {
               suffix="days"
               style={{ width: '200px' }}
             />
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-font-color-100">
               Enter the number of days from the invoice date to the payment due date.
             </p>
           </div>
@@ -255,12 +255,11 @@ export const Invoice: React.FC = () => {
           New
         </Button>
       </div>
-      <p className="text-gray-600 mb-4">
+      <p className="text-font-color-100 mb-4">
         Set up Stage Payments and their respective percentages to auto-allocate invoice amounts from
         the Contract Amount for each job.
       </p>
       <Table
-        bordered
         size="middle"
         columns={columns}
         dataSource={jobInvoiceStage}

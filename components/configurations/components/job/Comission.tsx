@@ -395,7 +395,7 @@ export const Comission: React.FC = () => {
   return (
     <div>
       <Typography.Title level={4}>Commission Settings</Typography.Title>
-      <Text type="secondary">
+      <Text className='text-font-color-100'>
         If you select '$' for the recipient, the Commission Value will be fixed.
         <br />
         If you select '%' for the recipient, the Commission Value will be calculated based on the

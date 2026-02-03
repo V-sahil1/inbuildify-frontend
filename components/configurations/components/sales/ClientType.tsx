@@ -22,7 +22,7 @@ import {
 import { Status } from '@lib/constants/enum';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import { IClientType } from '@redux/feature/admin/sales/clientType/IClientTypeState';
-import { getPaginationConfig } from '@lib/utils/paginationUtil';
+import { getPaginationConfig } from '@lib/utils/getPaginationConfig';
 
 export const ClientType: React.FC = () => {
   const dispatch = useAppDispatch();

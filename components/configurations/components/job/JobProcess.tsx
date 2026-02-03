@@ -140,7 +140,6 @@ export const JobProcess: React.FC = () => {
         loading={status.stage.fetch === Status.IDLE}
         pagination={false}
         size="middle"
-        bordered
       />
       {modal && (
         <ActionDialogmodel

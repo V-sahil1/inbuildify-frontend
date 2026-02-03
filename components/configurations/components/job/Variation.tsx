@@ -333,11 +333,11 @@ export const Variation = () => {
         )}
       </Form>
 
-      <div className="p-3 mt-3 bg-white rounded-xl shadow-sm">
+      <div className="p-3 mt-3 bg-card-color rounded-xl shadow-sm">
         <div className="flex justify-between items-center mb-4">
           <div className="flex flex-col gap-2">
             <h3 className="text-lg font-semibold">Variation approval limits</h3>
-            <p>
+            <p className='text-sm'>
               Set the variation approval limits for different roles. If the variation exceeds the
               specified amount, manager approval will be required.
             </p>

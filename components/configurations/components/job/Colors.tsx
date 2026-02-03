@@ -306,33 +306,33 @@ export const Colors: React.FC = () => {
   ];
 
   return (
-    <div className="p-6 bg-white rounded-xl shadow-sm">
+    <div className="p-6 bg-card-color rounded-xl shadow-sm">
       <h3 className="text-lg font-semibold mb-4">Color PDF Settings</h3>
 
       {/* Switches */}
       <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="flex items-center justify-between border p-3 rounded-md">
+        <div className="flex items-center justify-between border border-border-color p-3 rounded-md">
           <span>Hide color item images</span>
           <Switch
             checked={settings?.hideColorItemImages || false}
             onChange={val => handleSwitchChange('hideColorItemImages', val)}
           />
         </div>
-        <div className="flex items-center justify-between border p-3 rounded-md">
+        <div className="flex items-center justify-between border border-border-color p-3 rounded-md">
           <span>Hide color item Price</span>
           <Switch
             checked={settings?.hideColorItemPrice || false}
             onChange={val => handleSwitchChange('hideColorItemPrice', val)}
           />
         </div>
-        <div className="flex items-center justify-between border p-3 rounded-md">
+        <div className="flex items-center justify-between border border-border-color  p-3 rounded-md">
           <span>Edit Color Code</span>
           <Switch
             checked={settings?.exitColorCode || false}
             onChange={val => handleSwitchChange('exitColorCode', val)}
           />
         </div>
-        <div className="flex items-center justify-between border p-3 rounded-md">
+        <div className="flex items-center justify-between border border-border-color p-3 rounded-md">
           <span>
             Page Orientation (PDF)
             <span className="ml-1 text-gray-500 text-sm">Landscape (Default) / Portrait</span>
@@ -398,7 +398,7 @@ export const Colors: React.FC = () => {
           <h3 className="text-lg font-semibold mb-4">Color UI Settings</h3>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-font-color-100 mb-1">
                 Header Text (Screen)
               </label>
               <Input.TextArea

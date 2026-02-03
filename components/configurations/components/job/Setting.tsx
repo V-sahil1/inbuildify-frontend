@@ -72,7 +72,8 @@ export const Setting: React.FC = () => {
   };
 
   return (
-    <div className="p-6 space-y-8 text-gray-800">
+    <div className="p-6 space-y-8 text-font-color
+    ">
       {/* Move to Maintenance */}
       <div className="flex items-start gap-4">
         <Switch
@@ -93,7 +94,7 @@ export const Setting: React.FC = () => {
         />
         <div>
           <div className="font-medium text-base">Automatically Mark Job as Completed</div>
-          <div className="text-sm text-gray-500 mt-1">
+          <div className="text-sm text-font-color-100 mt-1">
             Once all activities in the Final Stage of the Job Process are completed, the job status
             will automatically change to Completed.
           </div>
@@ -107,7 +108,7 @@ export const Setting: React.FC = () => {
         />
         <div className="flex flex-col gap-1">
           <div className="font-medium text-base">Automatically Archive Job After Completion</div>
-          <div className="flex items-center gap-2 text-sm text-gray-600">
+          <div className="flex items-center gap-2 text-sm text-font-color-100">
             <span>After</span>
             {settings?.autoArchiveAfterCompletion && (
               <InputNumber
@@ -118,7 +119,7 @@ export const Setting: React.FC = () => {
             )}
             <span>days, job will automatically move to Archived status.</span>
           </div>
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-font-color-400">
             Ex: If the auto-archive period is set to 15 days and a job is completed on June 1st, it
             will be archived on June 16th.
           </div>
@@ -127,7 +128,7 @@ export const Setting: React.FC = () => {
 
       <div className="flex flex-col gap-1 ml-10">
         <div className="font-medium text-base">Status of Milestone Task/Checklist</div>
-        <div className="flex items-center gap-2 text-sm text-gray-600">
+        <div className="flex items-center gap-2 text-sm text-font-color-100">
           <span>Report will be generated after</span>
           <InputNumber
             min={1}
@@ -140,7 +141,7 @@ export const Setting: React.FC = () => {
 
       <div className="flex flex-col gap-1 ml-10">
         <div className="font-medium text-base">Customize The Job Status Report And Email</div>
-        <div className="grid grid-cols-3 gap-6 mt-2 text-sm text-gray-600">
+        <div className="grid grid-cols-3 gap-6 mt-2 text-sm text-font-color-100">
           <div>
             <div className="font-medium">Number Of Days</div>
             <InputNumber
@@ -177,7 +178,7 @@ export const Setting: React.FC = () => {
             />
           </div>
         </div>
-        <div className="text-sm text-gray-500 mt-2 leading-snug">
+        <div className="text-sm text-font-color-400 mt-2 leading-snug">
           The report will be produced for the days immediately preceding and following those
           mentioned, in addition to satisfying any other filter criteria.
           <br />

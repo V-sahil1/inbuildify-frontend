@@ -409,8 +409,8 @@ export function Stages() {
   }, [stage, editingId, local]);
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow-sm">
-      <div className="flex justify-between items-center mb-6 gap-4">
+    <div className="p-4 bg-card-color rounded-lg shadow-sm">
+      <div className="flex justify-between items-end mb-6 gap-4">
         <div className="w-full">
           <p className="text-base font-bold">Builder</p>
           <Select

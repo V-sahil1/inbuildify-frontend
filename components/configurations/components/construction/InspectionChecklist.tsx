@@ -289,10 +289,10 @@ export const InspectionChecklist: React.FC = () => {
     );
   };
   return (
-    <div className="p-6 bg-white rounded shadow-md">
+    <div className="p-6 bg-card-color rounded shadow-md">
       <ChecklistHeader onChange={setHeaderData} data={headerData} />
       <div className="flex justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-700">Checklist Table</h2>
+        <h2 className="text-lg font-semibold text-font-color">Checklist Table</h2>
         <Dropdown
           menu={{
             items: [

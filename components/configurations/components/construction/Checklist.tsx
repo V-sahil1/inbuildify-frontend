@@ -96,7 +96,7 @@ export function Checklist() {
   };
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow border border-gray-200">
+    <div className="p-6 bg-card-color rounded-lg shadow">
       <ChecklistHeader onChange={setHeaderData} data={headerData} />
 
       {/* Table Header */}

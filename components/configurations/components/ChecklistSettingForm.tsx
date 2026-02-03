@@ -141,9 +141,9 @@ export function ChecklistSettingForm({
     }
   };
   return (
-    <div className="p-6 bg-white rounded-lg shadow border border-gray-200 w-full">
+    <div className="p-6 bg-card-color rounded-lg shadow border border-border-color w-full">
       <Form form={form} onFinish={onFinish} initialValues={initialValue || {}}>
-        <Row gutter={8} align="middle" className="  border-gray-200 py-1">
+        <Row gutter={8} align="middle" className="  border-border-color py-1">
           <Col flex="auto">
             <Row gutter={8}>
               <Col flex="3" className="p-2 rounded">
@@ -162,12 +162,19 @@ export function ChecklistSettingForm({
                 </Form.Item>
               </Col>
               <Col flex="1" className="flex items-center justify-end gap-2">
-                <Tooltip title="Submit">
-                  <Button type="default" htmlType="submit" icon={<IconCheck size={14} />} />
-                </Tooltip>
+                <TooltipButton
+                  title="submit"
+                  type="text"
+                  size="small"
+                  htmlType="submit"
+                  icon={<IconCheck size={16} />}
+                />
+
                 <TooltipButton
                   title="Cancel"
-                  icon={<IconX size={14} />}
+                  type="text"
+                  size="small"
+                  icon={<IconX size={16} color="red" />}
                   onClick={() => {
                     setModalOpen(null);
                     setEditing(null);
@@ -213,12 +220,12 @@ export function ChecklistSettingForm({
             <Row gutter={8}>
               {/* Text spanning two columns */}
               <Col flex="1" className="p-2 rounded">
-                <Form.Item name="noOfDays">
-                  <div className="flex">
-                    <p>No of Days:</p>
+                <div className="flex text-font-color  ">
+                  <p>No of Days:</p>
+                  <Form.Item name="noOfDays">
                     <InputNumber min={0} className="ml-2 w-[90px]" placeholder="Duration" />
-                  </div>
-                </Form.Item>
+                  </Form.Item>
+                </div>
               </Col>
               <Col flex="1" className="p-2 rounded">
                 <Form.Item name="notify" valuePropName="checked">
@@ -245,15 +252,15 @@ export function ChecklistSettingForm({
           <Col flex="auto">
             <Row gutter={8}>
               <Col flex="2" className="p-2 rounded">
-                <Form.Item name="complianceTypeId">
-                  <div className="flex gap-2">
-                    <p>compliance type:</p>
+                <div className="flex gap-2 text-font-color ">
+                  <p>compliance type:</p>
+                  <Form.Item name="complianceTypeId">
                     <Select placeholder="Select Compliance Type" options={complianceTypeOptions} />
-                  </div>
-                </Form.Item>
+                  </Form.Item>
+                </div>
               </Col>
               <Col flex="2" className="p-2 rounded">
-                <div className="flex gap-2">
+                <div className="flex gap-2 text-font-color ">
                   <p>cost center:</p>
                   <Form.Item name="costCenterId">
                     <CustomBulkSelect
@@ -265,7 +272,7 @@ export function ChecklistSettingForm({
                 </div>
               </Col>
               <Col flex="2" className="p-2 rounded">
-                <div className="flex gap-2">
+                <div className="flex gap-2  text-font-color ">
                   <p>construction options:</p>
                   <Form.Item name="constructionOptionId">
                     <CustomBulkSelect
