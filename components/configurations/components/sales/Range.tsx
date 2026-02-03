@@ -1,7 +1,18 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Table, Input, Button, Tooltip, message, Space, Popconfirm, Select, Upload } from 'antd';
+import {
+  Table,
+  Input,
+  Button,
+  Tooltip,
+  message,
+  Space,
+  Popconfirm,
+  Select,
+  Upload,
+  Image,
+} from 'antd';
 import {
   IconTrash,
   IconPlus,
@@ -20,23 +31,22 @@ import {
   updateRangeStatus,
 } from '@redux/feature/admin/sales/range/rangeThunk';
 import { Status } from '@lib/constants/enum';
-import { range } from '@redux/feature/admin/sales/range/IRangeState';
 import { createRange } from '@redux/feature/admin/sales/range/rangeThunk';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import { formDataGenerator } from '@lib/utils/formDataGenerator';
+import TooltipButton from '@/components/common/TooltipButton';
+import { RangeType } from '@redux/feature/admin/sales/range/IRangeState';
 
 export const Range: React.FC = () => {
   const dispatch = useAppDispatch();
   const { range, status } = useAppSelector(state => state.sales.range);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editingRow, setEditingRow] = useState<range | null>(null);
-  const [isAdding, setIsAdding] = useState(false);
+  const [editingRow, setEditingRow] = useState<RangeType | null>(null);
   const [error, setError] = useState<{ name?: string; sortOrder?: string } | null>(null);
   const { userOptions } = useUsersHook();
   const [isModalOpen, setIsModalOpen] = useState<{
     open: boolean;
     type: 'activate' | 'deactivate' | null;
-    row: range | null;
+    row: RangeType | null;
   }>({
     open: false,
     type: null,
@@ -72,45 +82,8 @@ export const Range: React.FC = () => {
     setError(errors);
     return isValid;
   };
-  const sorted = (list: range[]) => [...list].sort((a, b) => a.sortOrder - b.sortOrder);
-
-  const insertAtSort = (prev: range[], newItem: range, desiredSort?: number) => {
-    const list = sorted(prev);
-    const maxPos = list.length + 1;
-    const pos = Math.min(
-      Math.max(1, Number.isFinite(desiredSort as number) ? (desiredSort as number) : 1),
-      maxPos
-    );
-    const newList = [...list.slice(0, pos - 1), newItem, ...list.slice(pos - 1)];
-    return newList.map((item, idx) => ({ ...item, sort: idx + 1 }));
-  };
-
-  const moveExistingItem = (
-    prev: range[],
-    id: string,
-    updates: Partial<range>,
-    desiredSort?: number
-  ) => {
-    const list = sorted(prev);
-    const idx = list.findIndex(i => i.rangeId === id);
-    if (idx === -1) return prev;
-    const item = { ...list[idx], ...updates };
-    const others = list.filter((_, i) => i !== idx);
-    const maxPos = others.length + 1;
-    const pos = Math.min(
-      Math.max(
-        1,
-        Number.isFinite(desiredSort as number) ? (desiredSort as number) : item.sortOrder
-      ),
-      maxPos
-    );
-    const newList = [...others.slice(0, pos - 1), item, ...others.slice(pos - 1)];
-    return newList.map((it, i) => ({ ...it, sortOrder: i + 1 }));
-  };
-
-  const startEdit = (record: range) => {
+  const startEdit = (record: RangeType) => {
     setError(null);
-    setEditingId(record.rangeId);
     setEditingRow({ ...record });
   };
 
@@ -119,42 +92,25 @@ export const Range: React.FC = () => {
       return;
     }
     try {
-      if (!editingRow.name || editingRow.name.trim() === '') {
-        message.error('Name cannot be empty');
-        return;
-      }
-
-      const isNew = id === '';
-      const desiredSort = Number(editingRow.sortOrder);
-
-      if (isNew) {
-        let newItem = {
-          ...editingRow,
-          sortOrder: Number.isFinite(desiredSort) ? desiredSort : 1,
-          isActive: editingRow.isActive ?? true,
-        };
-        delete newItem.rangeId;
-
-        const formData = formDataGenerator(newItem);
+      if (editingRow?.isNew) {
+        delete editingRow.rangeId;
+        delete editingRow.isNew;
+        const formData = formDataGenerator(editingRow);
         await dispatch(createRange(formData)).unwrap();
         message.success('Range created successfully');
-        setIsAdding(false);
       } else {
-        const { isUpdated, updatedFields } = getUpdatedFields<range>(
+        const { isUpdated, updatedFields } = getUpdatedFields<RangeType>(
           editingRow,
           range.find(p => p.rangeId === id)
         );
         if (!isUpdated) {
-          setEditingId(null);
           setEditingRow(null);
           return;
         }
-        delete updatedFields.rangeId;
+        (delete updatedFields.rangeId, updatedFields.isNew);
         await dispatch(updateRange({ data: formDataGenerator(updatedFields), id })).unwrap();
         message.success('Range updated successfully');
       }
-
-      setEditingId(null);
       setEditingRow(null);
     } catch (error) {
       message.error(error || 'Failed to save range');
@@ -162,16 +118,12 @@ export const Range: React.FC = () => {
   };
 
   const cancelEdit = () => {
-    if (isAdding && editingId) {
-      setIsAdding(false);
-    }
-    setEditingId(null);
     setEditingRow(null);
   };
 
   const handleAdd = () => {
     setError(null);
-    const newRow: range = {
+    const newRow: RangeType = {
       rangeId: '',
       name: '',
       sortOrder: 1,
@@ -181,17 +133,16 @@ export const Range: React.FC = () => {
       headerUrl: '',
       userId: [],
       isActive: true,
+      isNew: true,
     };
-
-    setEditingId(newRow.rangeId);
     setEditingRow(newRow);
-    setIsAdding(true);
   };
 
-  const openDeactivateModal = (row: range) =>
+  const openDeactivateModal = (row: RangeType) =>
     setIsModalOpen({ open: true, type: 'deactivate', row });
 
-  const openActivateModal = (row: range) => setIsModalOpen({ open: true, type: 'activate', row });
+  const openActivateModal = (row: RangeType) =>
+    setIsModalOpen({ open: true, type: 'activate', row });
 
   const handleDeactivateConfirm = async () => {
     const row = isModalOpen.row;
@@ -233,8 +184,8 @@ export const Range: React.FC = () => {
       ),
       dataIndex: 'name',
       key: 'name',
-      render: (_, record: range) => {
-        const isEditing = editingId === record.rangeId;
+      render: (_, record: RangeType) => {
+        const isEditing = editingRow?.rangeId === record.rangeId;
         if (!record.isActive) {
           return <span className="text-gray-400 italic">{record.name}</span>;
         }
@@ -291,8 +242,8 @@ export const Range: React.FC = () => {
       dataIndex: 'logo',
       key: 'logo',
       width: 120,
-      render: (_, record: range) => {
-        const isEditing = editingId === record.rangeId;
+      render: (_, record: RangeType) => {
+        const isEditing = editingRow?.rangeId === record.rangeId;
         if (!record.isActive) return <div className="text-gray-400">-</div>;
         return isEditing ? (
           <Upload
@@ -303,6 +254,18 @@ export const Range: React.FC = () => {
             }
             className="custom-upload"
             maxCount={1}
+            fileList={
+              record.logoUrl && typeof record.logoUrl === 'string'
+                ? [
+                    {
+                      uid: '-1',
+                      name: 'Logo',
+                      status: 'done',
+                      url: record.logoUrl,
+                    },
+                  ]
+                : []
+            }
           >
             <Button icon={<IconUpload />} disabled={isDisabled}>
               Upload
@@ -310,8 +273,11 @@ export const Range: React.FC = () => {
           </Upload>
         ) : (
           <div className="w-12 h-12 bg-gray-100 rounded border flex items-center justify-center">
-            {/* placeholder logo */}
-            <span className="text-xs text-gray-400">NO IMAGE</span>
+            {record.logoUrl && typeof record.logoUrl === 'string' ? (
+              <Image src={record.logoUrl} alt="Header" preview={false} />
+            ) : (
+              <span className="text-xs text-gray-400">NO IMAGE</span>
+            )}
           </div>
         );
       },
@@ -321,8 +287,8 @@ export const Range: React.FC = () => {
       dataIndex: 'header',
       key: 'header',
       width: 120,
-      render: (_, record: range) => {
-        const isEditing = editingId === record.rangeId;
+      render: (_, record: RangeType) => {
+        const isEditing = editingRow?.rangeId === record.rangeId;
         if (!record.isActive) return <div className="text-gray-400">-</div>;
         return isEditing ? (
           <Upload
@@ -333,6 +299,18 @@ export const Range: React.FC = () => {
             }
             className="custom-upload"
             maxCount={1}
+            fileList={
+              record.headerUrl && typeof record.headerUrl === 'string'
+                ? [
+                    {
+                      uid: '-1',
+                      name: 'Header',
+                      status: 'done',
+                      url: record.headerUrl,
+                    },
+                  ]
+                : []
+            }
           >
             <Button icon={<IconUpload />} disabled={isDisabled}>
               Upload
@@ -340,7 +318,11 @@ export const Range: React.FC = () => {
           </Upload>
         ) : (
           <div className="w-12 h-12 bg-gray-100 rounded border flex items-center justify-center">
-            <span className="text-xs text-gray-400">NO IMAGE</span>
+            {record.headerUrl && typeof record.headerUrl === 'string' ? (
+              <Image src={record.headerUrl} alt="Header" preview={false} />
+            ) : (
+              <span className="text-xs text-gray-400">NO IMAGE</span>
+            )}
           </div>
         );
       },
@@ -349,8 +331,8 @@ export const Range: React.FC = () => {
       title: 'User',
       dataIndex: 'users',
       key: 'users',
-      render: (_, record: range) => {
-        const isEditing = editingId === record.rangeId;
+      render: (_, record: RangeType) => {
+        const isEditing = editingRow?.rangeId === record.rangeId;
         if (!record.isActive) return <div className="text-gray-400">-</div>;
         return isEditing ? (
           <Select
@@ -374,8 +356,8 @@ export const Range: React.FC = () => {
       dataIndex: 'sortOrder',
       key: 'sortOrder',
       width: 100,
-      render: (sortOrder: number, record: range) => {
-        const isEditing = editingId === record.rangeId;
+      render: (sortOrder: number, record: RangeType) => {
+        const isEditing = editingRow?.rangeId === record.rangeId;
         if (!record.isActive) return <div className="text-gray-400">{record.sortOrder}</div>;
         return isEditing ? (
           <>
@@ -397,20 +379,19 @@ export const Range: React.FC = () => {
       title: '',
       key: 'actions',
       width: 140,
-      render: (_, row: range) => {
+      render: (_, row: RangeType) => {
         const inactive = row.isActive === false;
-        const editing = editingId === row.rangeId;
+        const editing = editingRow?.rangeId === row.rangeId;
 
         if (inactive) {
           return (
             <div className="text-right">
-              <Tooltip title="Reactivate this item">
-                <Button
-                  type="text"
-                  icon={<IconPlus size={18} />}
-                  onClick={() => openActivateModal(row)}
-                />
-              </Tooltip>
+              <TooltipButton
+                title="Reactivate this item"
+                type="text"
+                icon={<IconPlus size={16} />}
+                onClick={() => openActivateModal(row)}
+              />
             </div>
           );
         }
@@ -419,22 +400,21 @@ export const Range: React.FC = () => {
           return (
             <div className="text-right">
               <Space>
-                <Tooltip title="Save">
-                  <Button
-                    type="text"
-                    icon={<IconCheck size={18} className="text-green-500" />}
-                    onClick={() => saveEdit(row.rangeId)}
-                    loading={isDisabled}
-                  />
-                </Tooltip>
-                <Tooltip title="Cancel">
-                  <Button
-                    type="text"
-                    icon={<IconX size={18} className="text-red-500" />}
-                    onClick={cancelEdit}
-                    disabled={isDisabled}
-                  />
-                </Tooltip>
+                <TooltipButton
+                  title="Save"
+                  type="text"
+                  icon={<IconCheck size={16} />}
+                  onClick={() => saveEdit(row.rangeId)}
+                  loading={isDisabled}
+                />
+
+                <TooltipButton
+                  title="Cancel"
+                  type="text"
+                  icon={<IconX size={16} color="red" />}
+                  onClick={cancelEdit}
+                  disabled={isDisabled}
+                />
               </Space>
             </div>
           );
@@ -443,20 +423,24 @@ export const Range: React.FC = () => {
         return (
           <div className="text-right">
             <Space>
-              <Tooltip title="Edit">
-                <Button
-                  type="text"
-                  icon={<IconPencil size={18} />}
-                  onClick={() => startEdit(row)}
-                />
-              </Tooltip>
+              <TooltipButton
+                title="Edit"
+                type="text"
+                icon={<IconPencil size={16} />}
+                onClick={() => startEdit(row)}
+              />
+
               <Popconfirm
                 title="Are you sure you want to deactivate?"
                 onConfirm={() => openDeactivateModal(row)}
                 okText="Inactivate"
                 cancelText="Cancel"
               >
-                <Button type="text" icon={<IconTrash size={18} className="text-red-500" />} />
+                <TooltipButton
+                  title="Delete"
+                  type="text"
+                  icon={<IconTrash size={16} color="red" />}
+                />
               </Popconfirm>
             </Space>
           </div>
@@ -464,7 +448,7 @@ export const Range: React.FC = () => {
       },
     },
   ];
-  const dataSource = (isAdding ? [editingRow, ...range] : range).filter(Boolean);
+  const dataSource = !!editingRow && editingRow.isNew ? [editingRow, ...range] : range;
   return (
     <div className="p-4 rounded-lg shadow-sm">
       <div className="flex justify-between items-center mb-4">
@@ -474,7 +458,7 @@ export const Range: React.FC = () => {
             type="primary"
             icon={<IconPlus size={16} />}
             onClick={handleAdd}
-            disabled={!!editingId}
+            disabled={!!editingRow}
           >
             New
           </Button>
@@ -484,7 +468,7 @@ export const Range: React.FC = () => {
       <Table
         pagination={false}
         columns={columns}
-        dataSource={[...dataSource].sort((a, b) => a.sortOrder - b.sortOrder)}
+        dataSource={dataSource}
         rowKey="rangeId"
         size="middle"
         className="ant-table-striped"

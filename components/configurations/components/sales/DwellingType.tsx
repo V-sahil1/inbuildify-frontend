@@ -19,53 +19,45 @@ import {
   updateDwellingType,
 } from '@redux/feature/admin/sales/dwellingType/dwellingTypeThunk';
 import { Status } from '@lib/constants/enum';
-import { dwellingType } from '@redux/feature/admin/sales/dwellingType/IDwelingTypeState';
+import TooltipButton from '@/components/common/TooltipButton';
+import { IDwellingType } from '@redux/feature/admin/sales/dwellingType/IDwelingTypeState';
 
 export const DwellingType: React.FC = () => {
   const dispatch = useAppDispatch();
   const { dwellingType, status } = useAppSelector(state => state.sales.dwellingType);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editingRow, setEditingRow] = useState<Partial<dwellingType>>({});
-  const [isAdding, setIsAdding] = useState(false);
+  const [editingRow, setEditingRow] = useState<IDwellingType | null>(null);
   const [error, setError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState<{
     open: boolean;
     type: 'activate' | 'deactivate' | null;
-    row: dwellingType | null;
+    row: IDwellingType | null;
   }>({
     open: false,
     type: null,
     row: null,
   });
   useEffect(() => {
-    async function fetchData() {
-      try {
-        await dispatch(fetchDwellingType()).unwrap();
-      } catch (error) {
-        message.error('Failed to fetch dwelling type');
-      }
-    }
     if (status.fetch === Status.IDLE) {
       fetchData();
     }
   }, [status.fetch]);
+  async function fetchData() {
+    try {
+      await dispatch(fetchDwellingType()).unwrap();
+    } catch (error) {
+      message.error('Failed to fetch dwelling type');
+    }
+  }
 
   // === ADD ===
   const handleAdd = () => {
-    const newRow: dwellingType = {
-      dwellingTypeId: '', 
+    const newRow: IDwellingType = {
+      dwellingTypeId: '',
       name: '',
       isActive: true,
+      isNew: true,
     };
-    setEditingId(newRow.dwellingTypeId);
     setEditingRow(newRow);
-    setIsAdding(true);
-  };
-
-  // === EDITING ===
-  const startEdit = (record: dwellingType) => {
-    setEditingId(record.dwellingTypeId);
-    setEditingRow({ ...record });
   };
 
   const saveEdit = async (id: string) => {
@@ -74,46 +66,32 @@ export const DwellingType: React.FC = () => {
         setError('Dwelling Type cannot be empty');
         return;
       }
-      const isNew = id === '';
-      const newItem: dwellingType = {
-        ...(editingRow as dwellingType),
-        isActive: editingRow.isActive ?? true,
-      };
-      delete newItem.dwellingTypeId;
-      if (isNew) {
-        await dispatch(createDwellingType(newItem)).unwrap();
+      delete editingRow?.dwellingTypeId;
+      if (editingRow?.isNew) {
+        delete editingRow?.isNew;
+        await dispatch(createDwellingType(editingRow)).unwrap();
         message.success('Dwelling Type created successfully');
       } else {
-        if (newItem.name !== dwellingType.find(item => item.dwellingTypeId === id)?.name) {
-          await dispatch(updateDwellingType({ data: { name: newItem.name }, id: id })).unwrap();
+        if (editingRow.name !== dwellingType.find(item => item.dwellingTypeId === id)?.name) {
+          await dispatch(updateDwellingType({ data: { name: editingRow.name }, id: id })).unwrap();
           message.success('Dwelling Type updated successfully');
         } else {
           message.info('No changes detected');
           return;
         }
       }
-      setEditingId(null);
-      setEditingRow({});
-      setIsAdding(false);
+      setEditingRow(null);
     } catch (error) {
       message.error('Failed to save dwelling type');
     }
   };
 
-  const cancelEdit = () => {
-    if (isAdding && editingId) {
-      setIsAdding(false);
-    }
-    setEditingId(null);
-    setEditingRow(null);
-  };
-
   // === ACTIVATE / DEACTIVATE ===
-  const openDeactivateModal = (row: dwellingType) => {
+  const openDeactivateModal = (row: IDwellingType) => {
     setIsModalOpen({ open: true, type: 'deactivate', row });
   };
 
-  const openActivateModal = (row: dwellingType) => {
+  const openActivateModal = (row: IDwellingType) => {
     setIsModalOpen({ open: true, type: 'activate', row });
   };
 
@@ -158,8 +136,8 @@ export const DwellingType: React.FC = () => {
       ),
       dataIndex: 'name',
       key: 'name',
-      render: (_, record: dwellingType) => {
-        const isEditing = editingId === record.dwellingTypeId;
+      render: (_, record: IDwellingType) => {
+        const isEditing = editingRow?.dwellingTypeId === record.dwellingTypeId;
         if (!record.isActive) {
           return <span className="text-gray-400 italic">{record.name}</span>;
         }
@@ -180,20 +158,19 @@ export const DwellingType: React.FC = () => {
     {
       title: '',
       width: 160,
-      render: (_, row: dwellingType) => {
+      render: (_, row: IDwellingType) => {
         const inactive = row.isActive === false;
-        const editing = editingId === row.dwellingTypeId;
+        const editing = editingRow?.dwellingTypeId === row.dwellingTypeId;
 
         if (inactive) {
           return (
             <div className="text-right">
-              <Tooltip title="Reactivate this item">
-                <Button
-                  type="text"
-                  icon={<IconPlus size={18} />}
-                  onClick={() => openActivateModal(row)}
-                />
-              </Tooltip>
+              <TooltipButton
+                title="Reactivate this item"
+                type="text"
+                icon={<IconPlus size={16} />}
+                onClick={() => openActivateModal(row)}
+              />
             </div>
           );
         }
@@ -202,22 +179,21 @@ export const DwellingType: React.FC = () => {
           return (
             <div className="text-right">
               <Space>
-                <Tooltip title="Save">
-                  <Button
-                    type="text"
-                    icon={<IconCheck size={18} className="text-green-500" />}
-                    onClick={() => saveEdit(row.dwellingTypeId)}
-                    loading={status.create === Status.PENDING}
-                  />
-                </Tooltip>
-                <Tooltip title="Cancel">
-                  <Button
-                    type="text"
-                    icon={<IconX size={18} className="text-red-500" />}
-                    onClick={cancelEdit}
-                    disabled={status.create === Status.PENDING}
-                  />
-                </Tooltip>
+                <TooltipButton
+                  title="Save"
+                  type="text"
+                  icon={<IconCheck size={16} />}
+                  onClick={() => saveEdit(row.dwellingTypeId)}
+                  loading={status.create === Status.PENDING}
+                />
+
+                <TooltipButton
+                  title="Cancel"
+                  type="text"
+                  icon={<IconX size={16} color="red" />}
+                  onClick={() => setEditingRow(null)}
+                  disabled={status.create === Status.PENDING}
+                />
               </Space>
             </div>
           );
@@ -229,8 +205,8 @@ export const DwellingType: React.FC = () => {
               <Tooltip title="Edit">
                 <Button
                   type="text"
-                  icon={<IconPencil size={18} />}
-                  onClick={() => startEdit(row)}
+                  icon={<IconPencil size={16} />}
+                  onClick={() => setEditingRow({ ...row })}
                 />
               </Tooltip>
               <Popconfirm
@@ -248,7 +224,7 @@ export const DwellingType: React.FC = () => {
                 cancelText="Cancel"
                 placement="top"
               >
-                <Button type="text" icon={<IconTrash size={18} className="text-red-500" />} />
+                <Button type="text" icon={<IconTrash size={16} color="red" />} />
               </Popconfirm>
             </Space>
           </div>
@@ -256,7 +232,8 @@ export const DwellingType: React.FC = () => {
       },
     },
   ];
-  const dataSource = (isAdding ? [editingRow, ...dwellingType] : dwellingType).filter(Boolean);
+  const dataSource =
+    !!editingRow && editingRow?.isNew ? [editingRow, ...dwellingType] : dwellingType;
   return (
     <div className="p-4 rounded-lg">
       <div className="flex justify-between mb-4">
@@ -265,7 +242,7 @@ export const DwellingType: React.FC = () => {
           type="primary"
           icon={<IconPlus size={16} />}
           onClick={handleAdd}
-          disabled={!!editingId}
+          disabled={!!editingRow}
         >
           New
         </Button>

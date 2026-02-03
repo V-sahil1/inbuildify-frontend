@@ -1,37 +1,18 @@
 import { Status } from '@lib/constants/enum';
-export interface clientType {
+import { CommonPagination } from '@redux/feature/common/ICommonState';
+export interface IClientType {
   clientTypeId?: string;
   clientType: string;
   sortOrder: number;
   isActive?: boolean;
-  isDraft?: boolean;
-}
-
-export interface fetchClientTypeResponse {
-  clientType: clientTypeResponse[];
-  totalRecords: number;
-  totalPages: number;
-  currentPage: number;
-  limit: number;
-}
-
-export interface clientTypeResponse {
-  clientTypeId: string;
-  companyId: string;
-  buildedrId: string;
-  clientType: string;
-  sortOrder: number;
-  isActive: boolean;
-  createdBy: string;
-  updatedBy: string;
-  createdAt: string;
-  updatedAt: string;
+  isNew?: boolean;
 }
 
 export interface IClientTypeState {
-  clientType: clientType[];
+  clientType: IClientType[];
   status: {
     fetch: Status;
     create: Status;
   };
+  pagination: CommonPagination;
 }

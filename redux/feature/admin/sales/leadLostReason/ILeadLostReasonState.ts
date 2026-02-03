@@ -1,39 +1,19 @@
 import { Status } from '@lib/constants/enum';
-import { Pagination } from '../../general/surveyor/ISurveyorState';
-export interface leadLostReason {
+import { CommonPagination } from '@redux/feature/common/ICommonState';
+export interface LeadLostReasonType {
   leadLostReasonId?: string;
   lostReason: string;
   sortOrder: number;
   isActive?: boolean;
   isDraft?: boolean;
-}
-
-export interface fetchLeadLostReasonResponse {
-  leadLostReason: leadLostReasonResponse[];
-  total: number;
-  totalPages: number;
-  currentPage: number;
-  limit: number;
-}
-
-export interface leadLostReasonResponse {
-  leadLostReasonId: string;
-  companyId: string;
-  builderId: string;
-  lostReason: string;
-  sortOrder: number;
-  isActive: boolean;
-  isDraft?: boolean;
-  createdBy: string;
-  updatedBy: string;
-  createdAt: string;
-  updatedAt: string;
+  isNew?:boolean;
 }
 
 export interface IleadLostReasonState {
-  leadLostReason: leadLostReason[];
+  leadLostReason: LeadLostReasonType[];
   status: {
     fetch: Status;
     create: Status;
   };
+  pagination:CommonPagination
 }

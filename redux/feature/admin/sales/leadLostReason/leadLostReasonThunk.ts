@@ -2,17 +2,14 @@ import api from '@lib/constants/api';
 import API_ENDPOINTS from '@lib/constants/apiEndpoints';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { ApiResponse } from '../../../auth/IAuthState';
-import {
-  fetchLeadLostReasonResponse,
-  leadLostReason,
-  leadLostReasonResponse,
-} from './ILeadLostReasonState';
+import { LeadLostReasonType } from './ILeadLostReasonState';
+import { CommonPagination } from '@redux/feature/common/ICommonState';
 
 export const createLeadLostReason = createAsyncThunk(
   'leadLostReason/create',
-  async (payload: leadLostReason, { rejectWithValue }) => {
+  async (payload: LeadLostReasonType, { rejectWithValue }) => {
     try {
-      const response = await api.post<ApiResponse<leadLostReasonResponse>>(
+      const response = await api.post<ApiResponse<LeadLostReasonType>>(
         API_ENDPOINTS.LEAD_LOST_REASON,
         {
           data: payload,
@@ -27,11 +24,11 @@ export const createLeadLostReason = createAsyncThunk(
 
 export const fetchAllLeadLostReason = createAsyncThunk(
   'leadLostReason/fetchAll',
-  async (_, { rejectWithValue }) => {
+  async (params:{page?:number,limit?:number}={}, { rejectWithValue }) => {
     try {
-      const response = await api.get<ApiResponse<fetchLeadLostReasonResponse>>(
-        API_ENDPOINTS.LEAD_LOST_REASON
-      );
+      const response = await api.get<
+        ApiResponse<{ leadLostReason: LeadLostReasonType[]; pagination: CommonPagination }>
+      >(API_ENDPOINTS.LEAD_LOST_REASON,{params});
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -41,9 +38,9 @@ export const fetchAllLeadLostReason = createAsyncThunk(
 
 export const updateLeadLostReason = createAsyncThunk(
   'leadLostReason/update',
-  async (payload: { data: Partial<leadLostReason>; id: string }, { rejectWithValue }) => {
+  async (payload: { data: Partial<LeadLostReasonType>; id: string }, { rejectWithValue }) => {
     try {
-      const response = await api.put<ApiResponse<leadLostReasonResponse>>(
+      const response = await api.put<ApiResponse<LeadLostReasonType>>(
         `${API_ENDPOINTS.LEAD_LOST_REASON}/${payload.id}`,
         { data: payload.data }
       );
@@ -58,7 +55,7 @@ export const updateLeadLostReasonStatus = createAsyncThunk(
   'leadLostReason/updateStatus',
   async (payload: { data: { isActive: boolean }; id: string }, { rejectWithValue }) => {
     try {
-      const response = await api.put<ApiResponse<leadLostReasonResponse>>(
+      const response = await api.put<ApiResponse<LeadLostReasonType>>(
         `${API_ENDPOINTS.UPDATE_LEAD_LOST_REASON}/${payload.id}`,
         { data: payload.data }
       );

@@ -14,6 +14,7 @@ const initialState: ILeadSourceState = {
     fetch: Status.IDLE,
     create: Status.IDLE,
   },
+  pagination: null,
 };
 
 const leadSoucerSlice = createSlice({
@@ -26,6 +27,7 @@ const leadSoucerSlice = createSlice({
     });
     builder.addCase(createleadSource.fulfilled, (state, action) => {
       state.leadSource.unshift(action.payload);
+      state.pagination.totalRecords++;
       state.status.create = Status.SUCCESS;
     });
     builder.addCase(createleadSource.rejected, state => {
@@ -37,6 +39,7 @@ const leadSoucerSlice = createSlice({
     });
     builder.addCase(fetchAllleadSource.fulfilled, (state, action) => {
       state.leadSource = action.payload.leadSource;
+      state.pagination = action.payload.pagination;
       state.status.fetch = Status.SUCCESS;
     });
     builder.addCase(fetchAllleadSource.rejected, state => {

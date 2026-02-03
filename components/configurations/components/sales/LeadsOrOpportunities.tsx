@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Form,
   Switch,
@@ -20,44 +20,30 @@ import { Status } from '@lib/constants/enum';
 import { RootState } from '@redux/feature/store';
 import { fetchSetting, updateSetting } from '@redux/feature/admin/sales/setting/settingThunk';
 import { setting } from '@redux/feature/admin/sales/setting/ISettingState';
-import { fetchRole } from '@redux/feature/admin/role/roleThunk';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
+import { useRoleHook } from '@hooks/useRoleHook';
 
 const { Title, Text } = Typography;
 
 export const LeadsOrOpportunities: React.FC = () => {
   const [form] = Form.useForm();
+  const [isChanged, setIsChanged] = useState(false);
   const dispatch = useAppDispatch();
   const { setting, status } = useAppSelector((state: RootState) => state.sales.setting);
-  const { role, status: roleStatus } = useAppSelector((state: RootState) => state.role);
-  const roleOptions =
-    role &&
-    role.map(role => ({
-      label: role.name,
-      value: role.roleId,
-    }));
+  const { roleOptions } = useRoleHook();
+
   useEffect(() => {
-    if (setting) {
-      form.setFieldsValue(setting);
-    }
     if (status.fetch === Status.IDLE) {
       fetchData();
     }
-    if (roleStatus === Status.IDLE) {
-      fetchRoles();
+    if (setting) {
+      form.setFieldsValue(setting);
     }
-  }, [status.fetch, roleStatus]);
+  }, [status.fetch]);
 
   async function fetchData() {
     try {
       await dispatch(fetchSetting()).unwrap();
-    } catch (error) {
-      message.error(error || 'Failed to fetch roles');
-    }
-  }
-  async function fetchRoles() {
-    try {
-      await dispatch(fetchRole()).unwrap();
     } catch (error) {
       message.error(error || 'Failed to fetch roles');
     }
@@ -70,18 +56,29 @@ export const LeadsOrOpportunities: React.FC = () => {
         message.info('No changes detected');
         return;
       }
-      await dispatch(
-        updateSetting({ data: updatedFields, id: setting.salesModuleSettingsId })
-      ).unwrap();
+      await dispatch(updateSetting(updatedFields)).unwrap();
       message.success('Setting updated successfully');
+      setIsChanged(false);
     } catch (error) {
       message.error(error || 'Failed to update Setting');
     }
   };
 
+  const handleChange = (_, allValue) => {
+    const { isUpdated } = getUpdatedFields(allValue, setting);
+    setIsChanged(isUpdated);
+  };
+
   return (
     <div className="p-6 rounded-lg">
-      <Form form={form} layout="vertical" onFinish={onFinish} initialValues={setting}>
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={onFinish}
+        initialValues={setting}
+        onValuesChange={handleChange}
+        disabled={status.update === Status.PENDING}
+      >
         <div className="mb-6 space-y-4">
           <Form.Item
             label={
@@ -97,7 +94,7 @@ export const LeadsOrOpportunities: React.FC = () => {
             name="allowDuplicateLeads"
             valuePropName="checked"
           >
-            <Switch disabled={status.update === Status.PENDING} />
+            <Switch />
           </Form.Item>
 
           <Form.Item
@@ -111,7 +108,7 @@ export const LeadsOrOpportunities: React.FC = () => {
             name="sendEmailOnNewLead"
             valuePropName="checked"
           >
-            <Switch disabled={status.update === Status.PENDING} />
+            <Switch />
           </Form.Item>
 
           <Form.Item
@@ -129,7 +126,7 @@ export const LeadsOrOpportunities: React.FC = () => {
             name="showCommonFolders"
             valuePropName="checked"
           >
-            <Switch disabled={status.update === Status.PENDING} />
+            <Switch />
           </Form.Item>
         </div>
 
@@ -153,11 +150,7 @@ export const LeadsOrOpportunities: React.FC = () => {
               name="leadMandatoryOption"
               rules={[{ required: true, message: 'Please select mandatory option' }]}
             >
-              <Select
-                placeholder="Choose Mandatory Option"
-                options={leadMandatoryOption}
-                disabled={status.update === Status.PENDING}
-              />
+              <Select placeholder="Choose Mandatory Option" options={leadMandatoryOption} />
             </Form.Item>
 
             <Form.Item
@@ -165,7 +158,7 @@ export const LeadsOrOpportunities: React.FC = () => {
               name="salesWonButtonText"
               rules={[{ required: true, message: 'Please enter sales won button text' }]}
             >
-              <Input placeholder="Won" disabled={status.update === Status.PENDING} />
+              <Input placeholder="Won" />
             </Form.Item>
           </Col>
 
@@ -182,18 +175,7 @@ export const LeadsOrOpportunities: React.FC = () => {
               name="roleId"
               rules={[{ required: true, message: 'Please select roles' }]}
             >
-              <Select
-                placeholder="Choose Roles"
-                mode="multiple"
-                showSearch
-                disabled={status.update === Status.PENDING}
-              >
-                {roleOptions.map(role => (
-                  <Select.Option key={role.value} value={role.value}>
-                    {role.label}
-                  </Select.Option>
-                ))}
-              </Select>
+              <Select placeholder="Choose Roles" mode="multiple" showSearch options={roleOptions} />
             </Form.Item>
 
             <Form.Item
@@ -208,19 +190,23 @@ export const LeadsOrOpportunities: React.FC = () => {
               name="houseSizeUnit"
               rules={[{ required: true, message: 'Please select measurement unit' }]}
             >
-              <Radio.Group disabled={status.update === Status.PENDING}>
-                <Radio value="sq_ft">sq ft</Radio>
-                <Radio value="sq_m2">sq m2</Radio>
-              </Radio.Group>
+              <Radio.Group
+                options={[
+                  { label: 'sq ft', value: 'sq_ft' },
+                  { label: 'sq m2', value: 'sq_m2' },
+                ]}
+              />
             </Form.Item>
           </Col>
         </Row>
 
-        <Form.Item className="text-right mt-4">
-          <Button type="primary" htmlType="submit" loading={status.update === Status.PENDING}>
-            Save
-          </Button>
-        </Form.Item>
+        {isChanged && (
+          <Form.Item className="text-right mt-4">
+            <Button type="primary" htmlType="submit" loading={status.update === Status.PENDING}>
+              Save
+            </Button>
+          </Form.Item>
+        )}
       </Form>
     </div>
   );

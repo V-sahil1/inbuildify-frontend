@@ -13,7 +13,6 @@ import {
 import ConfirmationModal from '@/components/common/ConfirmationModal';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { RootState } from '@redux/feature/store';
-import { clientType } from '@redux/feature/admin/sales/clientType/IClientTypeState';
 import {
   createClientType,
   fetchAllClientType,
@@ -22,34 +21,38 @@ import {
 } from '@redux/feature/admin/sales/clientType/clientTypeThunk';
 import { Status } from '@lib/constants/enum';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
+import { IClientType } from '@redux/feature/admin/sales/clientType/IClientTypeState';
+import { getPaginationConfig } from '@lib/utils/paginationUtil';
 
 export const ClientType: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { clientType, status } = useAppSelector((state: RootState) => state.sales.clientType);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editingRow, setEditingRow] = useState<Partial<clientType> | null>(null);
-  const [isAdding, setIsAdding] = useState(false);
+  const { clientType, status, pagination } = useAppSelector(
+    (state: RootState) => state.sales.clientType
+  );
+  const [editingRow, setEditingRow] = useState<IClientType | null>(null);
   const [error, setError] = useState<{ clientType?: string; sortOrder?: string } | null>(null);
-
+  const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState<{
     open: boolean;
     type: 'activate' | 'deactivate' | null;
-    row: clientType | null;
+    row: IClientType | null;
   }>({
     open: false,
     type: null,
     row: null,
   });
+  const PAGE_SIZE = 10;
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        if (status.fetch === Status.IDLE) await dispatch(fetchAllClientType()).unwrap();
-      } catch (error) {
-        message.error(error || 'Failed to fetch cliet Type');
-      }
-    };
     fetchData();
-  }, [status.fetch]);
+  }, [currentPage]);
+
+  const fetchData = async (page: number = currentPage, limit: number = PAGE_SIZE) => {
+    try {
+      await dispatch(fetchAllClientType({ page, limit })).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch cliet Type');
+    }
+  };
 
   const validateForm = () => {
     const errors = {
@@ -58,7 +61,7 @@ export const ClientType: React.FC = () => {
     };
     let isValid = true;
     if (!editingRow.clientType?.trim()) {
-      errors.clientType = 'Lost Reason is required';
+      errors.clientType = 'Client Type is required';
       isValid = false;
     }
     if (!editingRow.sortOrder || editingRow.sortOrder < 1) {
@@ -69,15 +72,9 @@ export const ClientType: React.FC = () => {
     return isValid;
   };
 
-  // Utility: ensure list is sorted by sortOrder asc
-  const sorted = (list: clientType[]) => [...list].sort((a, b) => a.sortOrder - b.sortOrder);
-
-  
   // Start edit
-  const startEdit = (record: clientType) => {
-    setIsAdding(false);
+  const startEdit = (record: IClientType) => {
     setError(null);
-    setEditingId(record.clientTypeId);
     setEditingRow({ ...record });
   };
 
@@ -86,33 +83,19 @@ export const ClientType: React.FC = () => {
     if (!validateForm()) {
       return;
     }
-
-    const isNew = clientTypeId === '';
-    const desiredSortRaw = editingRow.sortOrder;
-    const desiredSort = Number(desiredSortRaw);
     try {
-      if (isNew) {
-        const finalId = '';
-        const newItem: clientType = {
-          ...(editingRow as clientType),
-          clientTypeId: finalId,
-          sortOrder: Number.isFinite(desiredSort) ? desiredSort : 1,
-          isDraft: false,
-        } as clientType;
+      if (editingRow?.isNew) {
         await dispatch(
-          createClientType({ clientType: newItem.clientType, sortOrder: newItem.sortOrder })
+          createClientType({ clientType: editingRow.clientType, sortOrder: editingRow.sortOrder })
         ).unwrap();
         message.success('Client Type created successfully');
-        setIsAdding(false);
       } else {
-        
-        const { isUpdated, updatedFields } = getUpdatedFields<clientType>(
+        const { isUpdated, updatedFields } = getUpdatedFields<IClientType>(
           editingRow,
           clientType.find(i => i.clientTypeId === clientTypeId)
         );
         if (!isUpdated) {
-          setEditingId(null);
-          setEditingRow({});
+          setEditingRow(null);
           return;
         }
         await dispatch(
@@ -121,10 +104,9 @@ export const ClientType: React.FC = () => {
             id: clientTypeId,
           })
         ).unwrap();
-       
-        setEditingId(null);
-        setEditingRow({});
+        message.success('Client Type updated successfully');
       }
+      setEditingRow(null);
     } catch (error) {
       message.error(error || 'Failed to save client type');
     }
@@ -132,33 +114,26 @@ export const ClientType: React.FC = () => {
 
   // Cancel edit (remove temporary row if adding)
   const cancelEdit = () => {
-    if (isAdding && editingId) {
-      setIsAdding(false);
-    }
-    setEditingId(null);
     setEditingRow(null);
   };
 
   // Add new (temporary) row
   const handleAdd = () => {
-    const newRow: clientType = {
-      clientTypeId: '', 
+    const newRow: IClientType = {
+      clientTypeId: '',
       clientType: '',
       sortOrder: null,
       isActive: true,
-      isDraft: true,
+      isNew: true,
     };
-   
-    setEditingId(newRow.clientTypeId);
     setEditingRow(newRow);
-    setIsAdding(true);
   };
 
   // Modal openers
-  const openDeactivateModal = (row: clientType) =>
+  const openDeactivateModal = (row: IClientType) =>
     setIsModalOpen({ open: true, type: 'deactivate', row });
 
-  const openActivateModal = (row: clientType) =>
+  const openActivateModal = (row: IClientType) =>
     setIsModalOpen({ open: true, type: 'activate', row });
 
   // Confirm modal actions
@@ -212,8 +187,8 @@ export const ClientType: React.FC = () => {
       ),
       dataIndex: 'clientType',
       key: 'clientType',
-      render: (_, record: clientType) => {
-        const isEditing = editingId === record.clientTypeId;
+      render: (_, record: IClientType) => {
+        const isEditing = editingRow?.clientTypeId === record.clientTypeId;
         if (!record.isActive) {
           return <span className="text-gray-400 italic">{record.clientType}</span>;
         }
@@ -242,8 +217,8 @@ export const ClientType: React.FC = () => {
       ),
       dataIndex: 'sortOrder',
       width: 120,
-      render: (sortOrder: number, record: clientType) => {
-        const isEditing = editingId === record.clientTypeId;
+      render: (sortOrder: number, record: IClientType) => {
+        const isEditing = editingRow?.clientTypeId === record.clientTypeId;
         if (!record.isActive) {
           return <span className="text-gray-400">{record.sortOrder}</span>;
         }
@@ -265,9 +240,9 @@ export const ClientType: React.FC = () => {
     {
       title: '',
       width: 160,
-      render: (_, row: clientType) => {
+      render: (_, row: IClientType) => {
         const inactive = row.isActive === false;
-        const editing = editingId === row.clientTypeId;
+        const editing = editingRow?.clientTypeId === row.clientTypeId;
 
         if (inactive) {
           return (
@@ -341,7 +316,7 @@ export const ClientType: React.FC = () => {
       },
     },
   ];
-  const dataSource = (isAdding ? [editingRow, ...clientType] : clientType).filter(Boolean);
+  const dataSource = !!editingRow && editingRow.isNew ? [editingRow, ...clientType] : clientType;
   return (
     <div className="p-4 rounded-lg">
       <div className="flex justify-between mb-4">
@@ -350,18 +325,23 @@ export const ClientType: React.FC = () => {
           type="primary"
           icon={<IconPlus size={16} />}
           onClick={handleAdd}
-          disabled={!!editingId} // disable while editing
+          disabled={!!editingRow} // disable while editing
         >
           New
         </Button>
       </div>
 
       <Table
-        pagination={false}
         columns={columns}
-        dataSource={[...dataSource].sort((a, b) => a.sortOrder - b.sortOrder)}
+        dataSource={dataSource}
         rowKey="clientTypeId"
         size="middle"
+        pagination={getPaginationConfig({
+          currentPage: currentPage,
+          limit: pagination?.limit,
+          totalRecords: pagination?.totalRecords,
+          setCurrentPage,
+        })}
         loading={status.fetch === Status.PENDING}
       />
 

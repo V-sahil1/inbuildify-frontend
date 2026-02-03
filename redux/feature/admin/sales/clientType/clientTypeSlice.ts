@@ -14,6 +14,7 @@ const initialState: IClientTypeState = {
     fetch: Status.IDLE,
     create: Status.IDLE,
   },
+  pagination: null,
 };
 
 const clientTypeSlice = createSlice({
@@ -26,6 +27,7 @@ const clientTypeSlice = createSlice({
     });
     builder.addCase(createClientType.fulfilled, (state, action) => {
       state.clientType.unshift(action.payload);
+      state.pagination.totalRecords++;
       state.status.create = Status.SUCCESS;
     });
     builder.addCase(createClientType.rejected, state => {
@@ -36,6 +38,7 @@ const clientTypeSlice = createSlice({
     });
     builder.addCase(fetchAllClientType.fulfilled, (state, action) => {
       state.clientType = action.payload.clientType;
+      state.pagination = action.payload.pagination;
       state.status.fetch = Status.SUCCESS;
     });
     builder.addCase(fetchAllClientType.rejected, state => {

@@ -6,12 +6,23 @@ const TooltipButton: React.FC<TooltipButtonProps> = ({
   icon,
   type = 'default',
   className,
-  disabled=false,
-  size='middle',
+  disabled = false,
+  size = 'middle',
+  htmlType = 'button',
+  loading = false,
   onClick,
 }) => (
   <Tooltip title={title}>
-    <Button size={size} icon={icon} onClick={onClick} type={type} className={className} disabled={disabled} />
+    <Button
+      size={size}
+      icon={icon}
+      onClick={onClick}
+      htmlType={htmlType}
+      type={type}
+      className={className}
+      disabled={disabled}
+      loading={loading}
+    />
   </Tooltip>
 );
 

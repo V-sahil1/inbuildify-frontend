@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
-import { Table, Input, Button, Space, Tooltip, message, Switch } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Table, Input, Button, Space, Tooltip, message, Switch, Form } from 'antd';
 import { IconPencil, IconTrash, IconPlus, IconCheck, IconX } from '@tabler/icons-react';
 import ConfirmationModal from '@/components/common/ConfirmationModal';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
@@ -13,21 +13,23 @@ import {
   updateleadSourceStatus,
 } from '@redux/feature/admin/sales/leadSource/leadSourceThunk';
 import { Status } from '@lib/constants/enum';
-import { leadSource } from '@redux/feature/admin/sales/leadSource/ILeadSourceState';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
+import { LeadSourceType } from '@redux/feature/admin/sales/leadSource/ILeadSourceState';
+import { getPaginationConfig } from '@lib/utils/paginationUtil';
 
 export const LeadSource: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { leadSource, status } = useAppSelector((state: RootState) => state.sales.leadSource);
-  const [items, setItems] = useState<leadSource[]>([]);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [drafts, setDrafts] = useState<Record<string, Partial<leadSource>>>({});
-  const [isAdding, setIsAdding] = useState(false);
-  const [error, setError] = useState<{ name: string; sortOrder: string } | null>(null);
+  const [form] = Form.useForm();
+  const { leadSource, status, pagination } = useAppSelector(
+    (state: RootState) => state.sales.leadSource
+  );
+  const [currentPage, setCurrentPage] = useState(1);
+  const [editingRow, setEditingRow] = useState<LeadSourceType | null>(null);
+  const PAGE_SIZE = 10;
   const [isModalOpen, setIsModalOpen] = useState<{
     open: boolean;
     type: 'activate' | 'deactivate' | null;
-    row: leadSource | null;
+    row: LeadSourceType | null;
   }>({
     open: false,
     type: null,
@@ -35,110 +37,42 @@ export const LeadSource: React.FC = () => {
   });
 
   useEffect(() => {
-    const fetchLeadSource = async () => {
-      try {
-        await dispatch(fetchAllleadSource());
-      } catch (error) {
-        message.error(error || 'Failed to fetch lead sources');
-      }
-    };
-    if (status.fetch === Status.IDLE) {
-      fetchLeadSource();
-    }
-    if (leadSource && leadSource.length > 0) {
-      setItems([...leadSource]);
-    }
-  }, [status.fetch, leadSource]);
+    fetchLeadSource();
+  }, [currentPage]);
 
-  const validateForm = values => {
-    const errors = {
-      name: '',
-      sortOrder: '',
-    };
-    let isValid = true;
-    if (!values.name?.trim()) {
-      errors.name = 'Lead source is required';
-      isValid = false;
-    }
-    if (!values.sortOrder || values.sortOrder < 1) {
-      errors.sortOrder = 'Sort Order must be a positive number';
-    }
-    setError(errors);
-    return isValid;
-  };
-
-  const startEdit = (row: leadSource) => {
-    setError(null);
-    setEditingId(row.leadSourceId);
-    setDrafts(d => ({ ...d, [row.leadSourceId]: { ...row } }));
-  };
-  const cancelEdit = (id: string) => {
-    if (isAdding) {
-      setItems(prev => prev.filter(it => it.leadSourceId !== id));
-      setIsAdding(false);
-    }
-    setEditingId(null);
-    setDrafts(d => {
-      const copy = { ...d };
-      delete copy[id];
-      return copy;
-    });
-  };
-
-  const saveEdit = async (id: string) => {
-    const draft = drafts[id];
-    if (!draft) return;
-    const name = (draft.name || '').trim();
-    const sortOrder = Number(draft.sortOrder ?? 0);
-    const allowChange = !!draft.allowChange;
-    if (!validateForm({ name, sortOrder })) {
-      return;
-    }
-
-    const conflict = items.some(
-      it => it.leadSourceId !== id && it.isActive !== false && it.sortOrder === sortOrder
-    );
-    if (conflict) {
-      message.error('Sort order must be unique among active rows');
-      return;
-    }
+  const fetchLeadSource = async (page: number = currentPage, limit: number = PAGE_SIZE) => {
     try {
-      const exists = leadSource.some(p => p.leadSourceId === id);
+      await dispatch(fetchAllleadSource({ page, limit }));
+    } catch (error) {
+      message.error(error || 'Failed to fetch lead sources');
+    }
+  };
 
-      if (!exists) {
-        await dispatch(createleadSource({ name, sortOrder, allowChange, isActive: true })).unwrap();
+  const saveEdit = async () => {
+    const values = await form.validateFields();
+    try {
+      if (editingRow?.isNew) {
+        await dispatch(createleadSource({ ...values, isActive: true })).unwrap();
         message.success('leadsource created successfully');
       } else {
         const { isUpdated, updatedFields } = getUpdatedFields(
-          { name, sortOrder, allowChange },
-          leadSource.find(i => i.leadSourceId === id)
+          values,
+          leadSource.find(i => i.leadSourceId === editingRow.leadSourceId)
         );
         if (!isUpdated) {
-          setEditingId(null);
-          setIsAdding(false);
+          setEditingRow(null);
           return;
         }
-        await dispatch(updateleadSource({ data: updatedFields, id: id })).unwrap();
+        await dispatch(
+          updateleadSource({ data: updatedFields, id: editingRow.leadSourceId })
+        ).unwrap();
         message.success('leadsource updated successfully');
       }
-      setEditingId(null);
-      setIsAdding(false);
-      setDrafts(d => {
-        const copy = { ...d };
-        delete copy[id];
-        return copy;
-      });
+      setEditingRow(null);
+      form.resetFields();
     } catch (error) {
       message.error(error || 'Failed to save leadsource');
     }
-  };
-
-  const openDeactivateModal = (row: leadSource) => {
-    if (row.isDefault) {
-      message.warning('Default item cannot be deactivated');
-      return;
-    }
-    setIsModalOpen({ open: true, type: 'deactivate', row });
   };
 
   const handleDeactivateConfirm = async () => {
@@ -153,10 +87,6 @@ export const LeadSource: React.FC = () => {
     } catch (error) {
       message.error(error || 'Failed to deactivated item');
     }
-  };
-
-  const openActivateModal = (row: leadSource) => {
-    setIsModalOpen({ open: true, type: 'activate', row });
   };
 
   const handleActivateConfirm = async () => {
@@ -174,61 +104,40 @@ export const LeadSource: React.FC = () => {
   };
 
   const handleAddNew = () => {
-    setError(null);
-    if (isAdding) return;
     const tempId = Date.now().toString();
-    const nextSort = (items.reduce((max, it) => Math.max(max, it.sortOrder || 0), 0) || 0) + 1;
-    const newRow: leadSource = {
+    const nextSort = (leadSource.reduce((max, it) => Math.max(max, it.sortOrder || 0), 0) || 0) + 1;
+    const newRow: LeadSourceType = {
       leadSourceId: tempId,
       name: '',
       sortOrder: nextSort,
       allowChange: true,
-      isDefault: false,
       isActive: true,
+      isNew: true,
     };
-    setItems(prev => [...prev, newRow].slice().sort((a, b) => a.sortOrder - b.sortOrder));
-    setDrafts(d => ({ ...d, [tempId]: { ...newRow } }));
-    setEditingId(tempId);
-    setIsAdding(true);
+    setEditingRow(newRow);
+    form.setFieldsValue(newRow);
   };
 
   const columns = [
     {
       title: 'Lead Source',
       dataIndex: 'name',
-      render: (_, row: leadSource) => {
+      render: (_, row: LeadSourceType) => {
         const inactive = row.isActive === false;
-        const editable = editingId === row.leadSourceId;
-        const draft = drafts[row.leadSourceId] ?? {};
+        const editable = editingRow?.leadSourceId === row.leadSourceId;
         return (
           <div className={inactive ? 'opacity-45' : ''}>
             {editable ? (
-              <>
+              <Form.Item name="name" rules={[{ required: true, message: 'Enter Lead Source' }]}>
                 <Input
-                  value={draft.name ?? row.name}
-                  onChange={e =>
-                    setDrafts(d => ({
-                      ...d,
-                      [row.leadSourceId]: { ...(d[row.leadSourceId] ?? row), name: e.target.value },
-                    }))
-                  }
+                  value={row.name}
                   placeholder="Enter source"
                   autoFocus
                   disabled={status.create === Status.PENDING}
                 />
-                {error?.name && <span className="text-red-500">{error?.name}</span>}
-              </>
+              </Form.Item>
             ) : (
-              <span>
-                {row.name}
-                {row.isDefault && (
-                  <Tooltip title="This is the default lead source">
-                    <span className="ml-2 px-2 py-0.5 text-xs font-semibold bg-blue-100 text-blue-800 rounded-full">
-                      Default
-                    </span>
-                  </Tooltip>
-                )}
-              </span>
+              <span>{row.name}</span>
             )}
           </div>
         );
@@ -236,32 +145,21 @@ export const LeadSource: React.FC = () => {
     },
     {
       title: 'Sort',
-      dataIndex: 'sort',
+      dataIndex: 'sortOrder',
       width: 100,
-      render: (_: number, record: leadSource) => {
+      render: (_: number, record: LeadSourceType) => {
         const inactive = record.isActive === false;
-        const editable = editingId === record.leadSourceId;
-        const draft = drafts[record.leadSourceId] ?? {};
+        const editable = editingRow?.leadSourceId === record.leadSourceId;
         return editable ? (
           <div className={`w-full ${inactive ? 'opacity-50' : ''}`}>
-            <Input
-              type="number"
-              value={draft.sortOrder ?? record.sortOrder}
-              min={1}
-              onChange={e => {
-                const val = Number(e.target.value);
-                setDrafts(prev =>
-                  prev?.[record.leadSourceId]
-                    ? {
-                        ...prev,
-                        [record.leadSourceId]: { ...prev[record.leadSourceId], sortOrder: val },
-                      }
-                    : prev
-                );
-              }}
-              disabled={status.create === Status.PENDING}
-            />
-            {error?.sortOrder && <span className="text-red-500">{error?.sortOrder}</span>}
+            <Form.Item name="sortOrder" rules={[{ required: true, message: 'Enter Sort Order' }]}>
+              <Input
+                type="number"
+                value={record.sortOrder}
+                min={1}
+                disabled={status.create === Status.PENDING}
+              />
+            </Form.Item>
           </div>
         ) : (
           <span className={inactive ? 'opacity-45' : ''}>{record.sortOrder}</span>
@@ -272,27 +170,19 @@ export const LeadSource: React.FC = () => {
       title: 'Allow to change',
       dataIndex: 'allowChange',
       width: 140,
-      render: (_, row: leadSource) => {
+      render: (_, row: LeadSourceType) => {
         const inactive = row.isActive === false;
-        const editable = editingId === row.leadSourceId;
-        const draft = drafts[row.leadSourceId] ?? {};
+        const editable = editingRow?.leadSourceId === row.leadSourceId;
         return (
           <div className={`text-center ${inactive ? 'opacity-45' : ''}`}>
             {editable ? (
-              <Switch
-                size="small"
-                checked={!!draft.allowChange}
-                onChange={e =>
-                  setDrafts(d => ({
-                    ...d,
-                    [row.leadSourceId]: {
-                      ...(d[row.leadSourceId] ?? row),
-                      allowChange: e,
-                    },
-                  }))
-                }
-                disabled={status.create === Status.PENDING}
-              />
+              <Form.Item name="allowChange" valuePropName="checked">
+                <Switch
+                  size="small"
+                  checked={!!row?.allowChange}
+                  disabled={status.create === Status.PENDING}
+                />
+              </Form.Item>
             ) : (
               <Switch checked={!!row.allowChange} disabled size="small" />
             )}
@@ -303,9 +193,8 @@ export const LeadSource: React.FC = () => {
     {
       title: '',
       width: 160,
-      render: (_, row: leadSource) => {
+      render: (_, row: LeadSourceType) => {
         const inactive = row.isActive === false;
-        const isDefault = !!row.isDefault;
 
         if (inactive) {
           return (
@@ -314,14 +203,14 @@ export const LeadSource: React.FC = () => {
                 <Button
                   type="text"
                   icon={<IconPlus size={18} />}
-                  onClick={() => openActivateModal(row)}
+                  onClick={() => setIsModalOpen({ open: true, type: 'activate', row })}
                 />
               </Tooltip>
             </div>
           );
         }
 
-        const editing = editingId === row.leadSourceId;
+        const editing = editingRow?.leadSourceId === row.leadSourceId;
 
         if (editing) {
           return (
@@ -331,7 +220,7 @@ export const LeadSource: React.FC = () => {
                   <Button
                     type="text"
                     icon={<IconCheck size={18} className="text-green-500" />}
-                    onClick={() => saveEdit(row.leadSourceId)}
+                    onClick={saveEdit}
                     loading={status.create === Status.PENDING}
                   />
                 </Tooltip>
@@ -339,7 +228,10 @@ export const LeadSource: React.FC = () => {
                   <Button
                     type="text"
                     icon={<IconX size={18} className="text-red-500" />}
-                    onClick={() => cancelEdit(row.leadSourceId)}
+                    onClick={() => {
+                      setEditingRow(null);
+                      form.resetFields();
+                    }}
                     disabled={status.create === Status.PENDING}
                   />
                 </Tooltip>
@@ -351,12 +243,14 @@ export const LeadSource: React.FC = () => {
         return (
           <div className="text-right">
             <Space>
-              <Tooltip title={isDefault ? 'Default (cannot edit)' : 'Edit'}>
+              <Tooltip title="Edit">
                 <Button
                   type="text"
                   icon={<IconPencil size={18} />}
-                  disabled={isDefault}
-                  onClick={() => startEdit(row)}
+                  onClick={() => {
+                    setEditingRow(row);
+                    form.setFieldsValue(row);
+                  }}
                 />
               </Tooltip>
 
@@ -364,7 +258,7 @@ export const LeadSource: React.FC = () => {
                 <Button
                   type="text"
                   icon={<IconTrash size={18} className="text-red-500" />}
-                  onClick={() => openDeactivateModal(row)}
+                  onClick={() => setIsModalOpen({ open: true, type: 'deactivate', row })}
                 />
               </Tooltip>
             </Space>
@@ -373,7 +267,7 @@ export const LeadSource: React.FC = () => {
       },
     },
   ];
-  const displayed = useMemo(() => items.slice().sort((a, b) => a.sortOrder - b.sortOrder), [items]);
+  const dataSource = !!editingRow && editingRow.isNew ? [editingRow, ...leadSource] : leadSource;
 
   return (
     <div className="p-4">
@@ -383,21 +277,27 @@ export const LeadSource: React.FC = () => {
           type="primary"
           icon={<IconPlus size={16} />}
           onClick={handleAddNew}
-          disabled={isAdding}
+          disabled={!!editingRow}
         >
           New
         </Button>
       </div>
-
-      <Table
-        rowKey="id"
-        columns={columns}
-        dataSource={displayed}
-        pagination={false}
-        size="middle"
-        rowClassName={record => (record.isActive === false ? 'bg-gray-50' : '')}
-        loading={status.fetch === Status.PENDING}
-      />
+      <Form form={form}>
+        <Table
+          rowKey="id"
+          columns={columns}
+          dataSource={dataSource}
+          pagination={getPaginationConfig({
+            currentPage,
+            limit: pagination?.limit,
+            totalRecords: pagination?.totalRecords,
+            setCurrentPage,
+          })}
+          size="middle"
+          rowClassName={record => (record.isActive === false ? 'bg-gray-50' : '')}
+          loading={status.fetch === Status.PENDING}
+        />
+      </Form>
 
       <ConfirmationModal
         open={isModalOpen.open}

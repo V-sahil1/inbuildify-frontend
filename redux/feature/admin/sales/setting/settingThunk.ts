@@ -20,12 +20,11 @@ export const fetchSetting = createAsyncThunk(
 
 export const updateSetting = createAsyncThunk(
   'setting/update',
-  async (payload: { data: Partial<setting>; id: string }, { rejectWithValue }) => {
+  async (data: Partial<setting>, { rejectWithValue }) => {
     try {
-      const response = await api.put<ApiResponse<settingResponse>>(
-        `${API_ENDPOINTS.SALES_SETTING}/${payload.id}`,
-        { data: payload.data }
-      );
+      const response = await api.put<ApiResponse<settingResponse>>(API_ENDPOINTS.SALES_SETTING, {
+        data,
+      });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);

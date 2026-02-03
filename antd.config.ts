@@ -27,6 +27,7 @@ const theme = {
       labelFontSize: 14,
       labelHeight: 20,
       itemMarginBottom: 16,
+      colorTextDescription: 'var(--font-color-400)',
     },
     InputNumber: {
       colorBgContainer: 'var(--card-bg-primary)',
@@ -89,6 +90,7 @@ const theme = {
       colorPrimary: 'var(--primary)',
       colorFillAlter: 'var(--primary-10)',
       headerSplitColor: 'var(--border-color)',
+      cellVerticalAlign: 'top',
     },
     Pagination: {
       colorPrimary: 'var(--primary)',

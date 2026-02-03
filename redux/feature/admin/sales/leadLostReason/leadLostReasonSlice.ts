@@ -14,6 +14,7 @@ const initialState: IleadLostReasonState = {
     fetch: Status.IDLE,
     create: Status.IDLE,
   },
+  pagination:null
 };
 
 const leadLostReasonSlice = createSlice({
@@ -26,6 +27,7 @@ const leadLostReasonSlice = createSlice({
     });
     builder.addCase(createLeadLostReason.fulfilled, (state, action) => {
       state.leadLostReason.unshift(action.payload);
+      state.pagination.totalRecords++;
       state.status.create = Status.SUCCESS;
     });
     builder.addCase(createLeadLostReason.rejected, state => {
@@ -37,6 +39,7 @@ const leadLostReasonSlice = createSlice({
     });
     builder.addCase(fetchAllLeadLostReason.fulfilled, (state, action) => {
       state.leadLostReason = action.payload.leadLostReason;
+      state.pagination=action.payload.pagination
       state.status.fetch = Status.SUCCESS;
     });
     builder.addCase(fetchAllLeadLostReason.rejected, state => {

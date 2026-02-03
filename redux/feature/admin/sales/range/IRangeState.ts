@@ -1,36 +1,20 @@
 import { Status } from '@lib/constants/enum';
-export type RangeResponse = {
-  rangeId: string;
-  companyId: string;
-  builderId: string;
-  name: string;
-  logoUrl: string | null;
-  headerUrl: string | null;
-  userId: string[];
-  sortOrder: number;
-  bgColor: string;
-  fontColor: string;
-  isActive: boolean;
-  createdBy: string;
-  updatedBy: string;
-  createdAt: string;
-  updatedAt: string;
-};
 
-export type range = {
+export type RangeType = {
   rangeId?: string;
   name: string;
-  logoUrl: File | Object | null;
-  headerUrl: File | Object | null;
+  logoUrl: File | string | null;
+  headerUrl: File | string | null;
   userId: string[];
   sortOrder: number;
   bgColor: string;
   fontColor: string;
   isActive: boolean;
+  isNew?: boolean;
 };
 
 export interface IRangeState {
-  range: range[];
+  range: RangeType[];
   status: {
     fetch: Status;
     create: Status;

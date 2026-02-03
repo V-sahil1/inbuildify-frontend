@@ -59,7 +59,9 @@ export const HouseAndLandPackage: React.FC = () => {
   return (
     <>
       <div className="flex items-center justify-between w-full">
-        <Text strong>Include the Facade Cost in the Total Package Cost</Text>
+        <Text strong className="text-font-color-100">
+          Include the Facade Cost in the Total Package Cost
+        </Text>
         <Switch
           checked={includeFacadeCost}
           onChange={handleToggle}

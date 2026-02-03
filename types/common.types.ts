@@ -20,6 +20,8 @@ export interface TooltipButtonProps {
   className?: string;
   disabled?: boolean;
   size?: 'small' | 'middle' | 'large';
+  htmlType?: 'button' | 'submit' | 'reset';
+  loading?: boolean;
 }
 
 export type CopyType = 'category' | 'subcategory' | 'subcategoryitem';

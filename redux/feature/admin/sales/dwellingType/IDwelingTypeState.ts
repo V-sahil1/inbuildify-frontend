@@ -1,24 +1,14 @@
 import { Status } from '@lib/constants/enum';
-export interface dwellingTypeResponse {
-  dwellingTypeId: string;
-  companyId: string;
-  builderId: string;
-  name: string;
-  isActive: boolean;
-  createdBy: string;
-  updatedBy: string;
-  createdAt: string;
-  updatedAt: string;
-}
 
-export type dwellingType = {
+export type IDwellingType = {
   dwellingTypeId: string;
   name: string;
   isActive: boolean;
+  isNew?: boolean;
 };
 
 export interface IdwellingTypeState {
-  dwellingType: dwellingType[];
+  dwellingType: IDwellingType[];
   status: {
     fetch: Status;
     create: Status;
