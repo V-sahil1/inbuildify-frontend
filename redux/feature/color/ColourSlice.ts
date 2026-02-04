@@ -1,25 +1,30 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, current } from '@reduxjs/toolkit';
 
 import { Status } from '@lib/constants/enum';
 import {
   createColourCategory,
+  createColourGroup,
   createColourSubCategory,
   createColourSubCategoryItem,
   deleteColourCategory,
+  deleteColourGroup,
   deleteColourSubCategory,
   deleteColourSubCategoryItem,
   fetchColourCategory,
+  fetchColourGroups,
   fetchColourSubCategory,
   fetchColourSubCategoryItems,
   updateColourCategory,
+  updateColourGroup,
   updateColourSubCategory,
   updateColourSubCategoryItem,
 } from './colorThunk';
-import { ColorInitialState, SubCategory } from './iColourState';
+import { ColorInitialState, Category } from './iColourState';
 
 const initialState: ColorInitialState = {
   status: Status.IDLE,
-  ColorCategory: [],
+  Color: [],
+  ColorGroup: [],
   loading: false,
 };
 const ColourSlice = createSlice({
@@ -27,7 +32,7 @@ const ColourSlice = createSlice({
   initialState,
   reducers: {
     toggleExpandColourCategory(state, action) {
-      const colorCategory = state.ColorCategory.find(c => c.colorCategoryId === action.payload);
+      const colorCategory = state.Color.find(c => c.colorId === action.payload);
       if (colorCategory) {
         colorCategory.isExpanded = true;
       }
@@ -35,11 +40,11 @@ const ColourSlice = createSlice({
     toggleExpandColourCategoryItem(state, action) {
       const { colorCategoryId, colorSubCategoryId } = action.payload;
 
-      const colorCategory = state.ColorCategory.find(c => c.colorCategoryId === colorCategoryId);
+      const colorCategory = state.Color.find(c => c.colorId === colorCategoryId);
 
       if (colorCategory) {
-        const subCategory = colorCategory.subCategories.find(
-          sc => sc.colorSubCategoryId === colorSubCategoryId
+        const subCategory = colorCategory.colorCategories.find(
+          sc => sc.colorCategoryId === colorSubCategoryId
         );
 
         if (subCategory && !subCategory.isExpanded) {
@@ -49,7 +54,7 @@ const ColourSlice = createSlice({
     },
 
     resetAllCategoriesIsExpanded(state) {
-      state.ColorCategory.forEach(category => {
+      state.Color.forEach(category => {
         category.isExpanded = false;
       });
     },
@@ -64,31 +69,34 @@ const ColourSlice = createSlice({
       .addCase(fetchColourCategory.fulfilled, (state, action) => {
         state.status = Status.SUCCESS;
         state.loading = false;
-        state.ColorCategory = action.payload?.colorCategories?.map(c => ({
+        state.Color = action.payload?.colors?.map(c => ({
           ...c,
           subCategories: [],
           isExpanded: false,
         }));
       })
+      .addCase(fetchColourCategory.rejected, (state) => {
+        state.status = Status.ERROR;
+        state.loading = false;
+      })
       .addCase(createColourCategory.fulfilled, (state, action) => {
-        state.ColorCategory.unshift({
+        state.Color.unshift({
           ...action.payload,
-          subCategories: [],
+          // categories: [],
           isExpanded: false,
         });
       })
       .addCase(updateColourCategory.fulfilled, (state, action) => {
-        const category = state.ColorCategory.find(
-          c => c.colorCategoryId === action.payload.colorCategoryId
+        const category = state.Color.find(
+          c => c.colorId === action.payload.colorId
         );
         if (category) {
-          category.name = action.payload.name;
-          category.description = action.payload.description;
+          category.colorName = action.payload.colorName;
         }
       })
       .addCase(deleteColourCategory.fulfilled, (state, action) => {
-        state.ColorCategory = state.ColorCategory.filter(
-          c => c.colorCategoryId !== action.payload.colorCategoryId
+        state.Color = state.Color.filter(
+          c => c.colorId !== action.payload.colorId
         );
       });
 
@@ -100,82 +108,81 @@ const ColourSlice = createSlice({
       .addCase(fetchColourSubCategory.fulfilled, (state, action) => {
         state.loading = false;
 
-        const category = state.ColorCategory.find(
-          c => c.colorCategoryId === action.payload.colorCategoryId
+        const category = state.Color.find(
+          c => c.colorId === action.payload.colorId
         );
-
         if (category) {
-          const existingSubCategories = category.subCategories || [];
-          const fetchedSubCategories = action.payload.data.colorSubCategories.map(c => ({
+          const existingSubCategories = category.colorCategories || [];
+          const fetchedSubCategories = action.payload.data.map(c => ({
             ...c,
             items: [],
             isExpanded: false,
           }));
+
           const merged = [
             ...existingSubCategories,
             ...fetchedSubCategories.filter(
               fetched =>
                 !existingSubCategories.some(
-                  existing => existing.colorSubCategoryId === fetched.colorSubCategoryId
+                  existing => existing.colorCategoryId === fetched.colorCategoryId
                 )
             ),
           ];
 
-          category.subCategories = merged;
+          category.colorCategories = merged;
         }
       })
       .addCase(createColourSubCategory.fulfilled, (state, action) => {
-        const category = state.ColorCategory.find(
-          c => c.colorCategoryId === action.payload.colorCategoryId
+        const category = state.Color.find(
+          c => c.colorId === action.payload.colorId
         );
-        category?.subCategories.unshift({
+        category?.colorCategories.unshift({
           ...action.payload,
           items: [],
           isExpanded: false,
         });
       })
       .addCase(updateColourSubCategory.fulfilled, (state, action) => {
-        const categoryIndex = state.ColorCategory.findIndex(
-          c => c.colorCategoryId === action.payload.colorCategoryId
+        const categoryIndex = state.Color.findIndex(
+          c => c.colorId === action.payload.colorId
         );
 
         if (categoryIndex !== -1) {
-          state.ColorCategory[categoryIndex].subCategories = state.ColorCategory[
+          state.Color[categoryIndex].colorCategories = state.Color[
             categoryIndex
-          ].subCategories.map((c: SubCategory) =>
-            c.colorSubCategoryId === action.payload.colorSubCategoryId
+          ].colorCategories.map((c: Category) =>
+            c.colorCategoryId === action.payload.colorCategoryId
               ? {
                   ...c,
-                  name: action.payload.name,
-                  description: action.payload.description,
+                  categoryName: action.payload.categoryName,
                 }
               : c
           );
         }
       })
       .addCase(deleteColourSubCategory.fulfilled, (state, action) => {
-        const categoryIndex = state.ColorCategory.findIndex(
-          c => c.colorCategoryId === action.payload.colorCategoryId
+        const categoryIndex = state.Color.findIndex(
+          c => c.colorId === action.payload.colorId
         );
         if (categoryIndex !== -1) {
-          state.ColorCategory[categoryIndex].subCategories = state.ColorCategory[
+          state.Color[categoryIndex].colorCategories = state.Color[
             categoryIndex
-          ].subCategories.filter(
-            (c: SubCategory) => c.colorSubCategoryId !== action.payload.colorSubCategoryId
+          ].colorCategories.filter(
+            (c: Category) => c.colorCategoryId !== action.payload.colorCategoryId
           );
         }
       })
 
       // color subcategory items
       .addCase(fetchColourSubCategoryItems.fulfilled, (state, action) => {
-        const categoryIndex = state.ColorCategory.findIndex(
-          c => c.colorCategoryId === action.payload.colorCategoryId
+        const categoryIndex = state.Color.findIndex(
+          c => c.colorId === action.payload.colorCategoryId
         );
 
         if (categoryIndex !== -1) {
-          state.ColorCategory[categoryIndex].subCategories =
-            state.ColorCategory[categoryIndex].subCategories?.map((sub: SubCategory) => {
-              if (sub.colorSubCategoryId === action.payload.colorSubCategoryId) {
+          state.Color[categoryIndex].colorCategories =
+            state.Color[categoryIndex].colorCategories?.map((sub: Category) => {
+              if (sub.colorCategoryId === action.payload.colorCategoryId) {
                 const existingItemIds = new Set(sub.items.map(i => i.colorItemId));
                 const newItems = action.payload.data.colorItems.filter(
                   i => !existingItemIds.has(i.colorItemId)
@@ -192,17 +199,17 @@ const ColourSlice = createSlice({
       })
 
       .addCase(createColourSubCategoryItem.fulfilled, (state, action) => {
-        const categoryIndex = state.ColorCategory.findIndex(c =>
-          c.subCategories?.some(
-            (sub: SubCategory) => sub.colorSubCategoryId === action.payload.colorSubCategoryId
+        const categoryIndex = state.Color.findIndex(c =>
+          c.colorCategories?.some(
+            (sub: Category) => sub.colorCategoryId === action.payload.colorSubCategoryId
           )
         );
 
         if (categoryIndex !== -1) {
-          state.ColorCategory[categoryIndex].subCategories = state.ColorCategory[
+          state.Color[categoryIndex].colorCategories = state.Color[
             categoryIndex
-          ].subCategories.map((subCategory: SubCategory) =>
-            subCategory.colorSubCategoryId === action.payload.colorSubCategoryId
+          ].colorCategories.map((subCategory: Category) =>
+            subCategory.colorCategoryId === action.payload.colorSubCategoryId
               ? {
                   ...subCategory,
                   items: [...(subCategory.items || []), action.payload],
@@ -212,17 +219,17 @@ const ColourSlice = createSlice({
         }
       })
       .addCase(updateColourSubCategoryItem.fulfilled, (state, action) => {
-        const categoryIndex = state.ColorCategory.findIndex(c =>
-          c.subCategories?.some(
-            (sub: SubCategory) => sub.colorSubCategoryId === action.payload.colorSubCategoryId
+        const categoryIndex = state.Color.findIndex(c =>
+          c.colorCategories?.some(
+            (sub: Category) => sub.colorCategoryId === action.payload.colorSubCategoryId
           )
         );
 
         if (categoryIndex !== -1) {
-          state.ColorCategory[categoryIndex].subCategories = state.ColorCategory[
+          state.Color[categoryIndex].colorCategories = state.Color[
             categoryIndex
-          ].subCategories.map((subCategory: SubCategory) =>
-            subCategory.colorSubCategoryId === action.payload.colorSubCategoryId
+          ].colorCategories.map((subCategory: Category) =>
+            subCategory.colorCategoryId === action.payload.colorSubCategoryId
               ? {
                   ...subCategory,
                   items:
@@ -235,17 +242,17 @@ const ColourSlice = createSlice({
         }
       })
       .addCase(deleteColourSubCategoryItem.fulfilled, (state, action) => {
-        const categoryIndex = state.ColorCategory.findIndex(c =>
-          c.subCategories?.some(
-            (sub: SubCategory) => sub.colorSubCategoryId === action.payload.colorSubCategoryId
+        const categoryIndex = state.Color.findIndex(c =>
+          c.colorCategories?.some(
+            (sub: Category) => sub.colorCategoryId === action.payload.colorSubCategoryId
           )
         );
 
         if (categoryIndex !== -1) {
-          state.ColorCategory[categoryIndex].subCategories = state.ColorCategory[
+          state.Color[categoryIndex].colorCategories = state.Color[
             categoryIndex
-          ].subCategories.map((subCategory: SubCategory) =>
-            subCategory.colorSubCategoryId === action.payload.colorSubCategoryId
+          ].colorCategories.map((subCategory: Category) =>
+            subCategory.colorCategoryId === action.payload.colorSubCategoryId
               ? {
                   ...subCategory,
                   items:
@@ -256,7 +263,30 @@ const ColourSlice = createSlice({
               : subCategory
           );
         }
-      });
+      })
+
+
+      //color group
+
+      .addCase(fetchColourGroups.fulfilled, (state, action) => {
+        state.ColorGroup = action.payload.colorGroups;
+      })
+      .addCase(updateColourGroup.fulfilled,(state,action)=>{
+        const groupIndex = state.ColorGroup.findIndex(g => g.colorGroupId === action.payload.colorGroupId);
+        if(groupIndex !== -1){
+          state.ColorGroup[groupIndex] = action.payload;
+        }
+      })
+      .addCase(deleteColourGroup.fulfilled,(state,action)=>{
+        const deletedId = action.payload.deletedId;
+        const groupIndex = state.ColorGroup.findIndex(g => g.colorGroupId === deletedId);
+        if(groupIndex !== -1){
+          state.ColorGroup.splice(groupIndex,1);
+        }
+      })
+      .addCase(createColourGroup.fulfilled,(state,action)=>{
+        state.ColorGroup.unshift(action.payload);
+      })
   },
 });
 

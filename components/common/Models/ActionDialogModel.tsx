@@ -28,25 +28,30 @@ export type FormField = {
   invite?: boolean;
   initialValue?: any;
   type?:
-    | 'email'
-    | 'phone'
-    | 'text'
-    | 'textarea'
-    | 'select'
-    | 'dynamic-select'
-    | 'url'
-    | 'number'
-    | 'checkbox'
-    | 'image'
-    | 'switch'
-    | 'date'
-    | 'texteditor'
-    | 'textEditor'
-    | 'color'
-    | 'radio'
-    | 'custom';
+  | 'email'
+  | 'phone'
+  | 'text'
+  | 'textarea'
+  | 'select'
+  | 'dynamic-select'
+  | 'url'
+  | 'number'
+  | 'checkbox'
+  | 'image'
+  | 'switch'
+  | 'date'
+  | 'texteditor'
+  | 'textEditor'
+  | 'color'
+  | 'radio'
+  | 'custom';
   mode?: 'tags' | 'multiple';
   options?: { value: string; label: string }[];
+  selectAll?: {
+    enabled: boolean;
+    allValue?: any; // default: 'all'
+    getAllValues: () => any[];
+  };
   button?: string;
   disableButton?: boolean;
   onClick?: () => void;
@@ -55,7 +60,8 @@ export type FormField = {
   notFoundContent?: React.ReactNode;
   acceptFileType?: string;
   extra?: string;
-  render?: React.ReactNode | (() => React.ReactNode);
+  normalize?: (value: any) => any;
+  render?: React.ReactNode | ((form: any) => React.ReactNode);
 };
 
 interface ActionDialogProps {
@@ -91,6 +97,7 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
   variant = 'default',
 }) => {
   const [form] = Form.useForm();
+  const prevValuesRef = React.useRef<Record<string, any[]>>({});
   const [switchValues, setSwitchValues] = useState({});
 
   const handleSwitchChange = (fieldName: string, checked: boolean) => {
@@ -121,7 +128,7 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
     setSwitchValues(initialSwitchValues);
 
     if (isEditing && initialValues) {
-      const values = { ...initialValues };
+      const values = { ...initialValues };      
       if (initialValues.logo) {
         values[fields.find(f => f.type === 'image')?.name || 'logo'] = makeFileFromUrl(
           initialValues.logo
@@ -204,6 +211,38 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
         form={form}
         layout="vertical"
         style={{ maxHeight: '70vh', overflowY: 'auto', scrollbarWidth: 'none' }}
+        // onValuesChange={(changedValues, allValues) => {
+          
+        //   Object.keys(changedValues).forEach(name => {
+        //     const field = fields.find(f => f.name === name);
+        //     if (field && field.type !== 'custom') {
+        //       const normalizedValue = field.normalize ? field.normalize(allValues[name]) : allValues[name];
+        //       form.setFieldValue(name, normalizedValue);
+        //     }
+        //   });
+
+        //   // 🔑 store previous values (only for non-custom fields) - avoid circular reference
+        //   const nonCustomValues = Object.fromEntries(
+        //     Object.entries(allValues).filter(([name]) => {
+        //       const field = fields.find(f => f.name === name);
+        //       return field && field.type !== 'custom';
+        //     })
+        //   );
+          
+        //   // Only update prevValuesRef if there are actual changes to avoid circular references
+        //   const arrayValues = Object.fromEntries(
+        //     Object.entries(nonCustomValues).filter(([, v]) => Array.isArray(v))
+        //   );
+          
+        //   if (Object.keys(arrayValues).length > 0) {
+        //     prevValuesRef.current = {
+        //       ...prevValuesRef.current,
+        //       ...arrayValues as Record<string, any[]>,
+        //     };
+        //   }
+
+        //   onValuesChange?.(allValues, form);
+        // }}
         onValuesChange={(_, allValues) => onValuesChange?.(allValues, form)}
         disabled={loading}
       >
@@ -229,7 +268,7 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
               </div>
             }
             name={field.name}
-            rules={field.rules}
+            rules={field.type === 'custom' ? undefined : field.rules}
             initialValue={field.initialValue}
             extra={field.extra}
           >
@@ -252,7 +291,7 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
                 notFoundContent={field?.notFoundContent}
                 {...(field?.mode && { mode: field?.mode })}
                 onChange={val => field.onChange?.(val)}
-                // onChange={(val) => field.onChange?.(val, form)}
+              // onChange={(val) => field.onChange?.(val, form)}
               />
             ) : field.type === 'radio' ? (
               <Radio.Group onChange={field.onChange}>
@@ -361,13 +400,13 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
               />
             ) : field.type === 'custom' ? (
               typeof field.render === 'function' ? (
-                (field.render as () => React.ReactNode)()
+                (field.render as (form: any) => React.ReactNode)(form)
               ) : (
                 field.render
               )
             ) : field.type === 'checkbox' ? (
               field.options ? (
-                <Checkbox.Group onChange={field.onChange}>
+                <Checkbox.Group>
                   {field.options.map(option => (
                     <Checkbox key={option.value} value={option.value}>
                       {option.label}

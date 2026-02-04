@@ -83,9 +83,11 @@ class API_ENDPOINTS {
   public static WORKFLOW_PROCESS_TASK_FOR_JOB = `/workflow-process-task`;
 
   //  Colour
+  public static COLOUR = '/color';
   public static COLOUR_CATEGORY_BASE = '/color-category';
   public static COLOUR_SUB_CATEGORY_BASE = '/color-sub-category';
   public static COLOUR_SUB_CATEGORY_ITEM = `/color-item`;
+  public static COLOUR_GROUP = `/color-group`;
 
   // Property
   public static PROPERTY_BASE = '/property';
@@ -233,6 +235,7 @@ class API_ENDPOINTS {
   public static COMPLIANCE_TYPE = '/compliance-type';
 
   //supplier
+  public static SUPPLIER = '/supplier';
   public static SUPPLIER_TYPE = '/supplier-type';
 
   //cost center

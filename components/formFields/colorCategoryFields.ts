@@ -9,7 +9,7 @@ export const ColorMasterCategoryFields = (totalCount: number = 0): FormField[] =
   return [
     {
       label: 'Color Name',
-      name: 'name',
+      name: 'colorName',
       type: 'text',
       placeholder: 'Enter color name',
       rules: settingNameRules,

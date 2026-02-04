@@ -1,4 +1,4 @@
-import { SubCategory } from '@redux/feature/color/iColourState';
+import { Category } from '@redux/feature/color/iColourState';
 import {
   IconChevronDown,
   IconChevronUp,
@@ -14,16 +14,17 @@ import Loading from '@/components/common/Loading';
 import { MoveColorItemModel } from './Models/MoveColorItemModel';
 import { CopyType } from 'types/common.types';
 import ImagePreview from './ImagePreview';
+import { useAppSelector } from '@hooks/redux';
 
 interface NestedItemProps {
-  item: SubCategory;
+  item: Category;
   handleClick: (action: string, categoryItem: any, actionType?: string) => void;
   subItems?: any[];
   onAdd?: () => void;
   isLoading?: boolean;
-  onToggleDropdown?: (item: SubCategory) => void;
+  onToggleDropdown?: (item: Category) => void;
   actionType?: string;
-  handleCopy?: (item: SubCategory, type: CopyType) => void;
+  handleCopy?: (item: Category, type: CopyType) => void;
 }
 
 export const NestedItem = ({
@@ -37,6 +38,7 @@ export const NestedItem = ({
   actionType,
 }: NestedItemProps) => {
 
+   const { ColorGroup, Color, status } = useAppSelector(state => state.colour);
   let isActive = true;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [moveModel, setMoveModel] = useState(false);
@@ -69,15 +71,18 @@ export const NestedItem = ({
         <div className="flex-1">
           <div className='flex items-center gap-3'>
             {/* <p className="font-bold text-lg line-clamp-2">{item?.name}</p> */}
-            <p className={`font-bold text-lg line-clamp-2 ${isActive ? '' : 'text-gray-400'}`}>{item?.name}</p>
+            <p className={`font-bold text-lg line-clamp-2 ${isActive ? '' : 'text-gray-400'}`}>{item?.categoryName}</p>
 
             {/* {item?.group && item.group.map((group: string) => (
             <span key={group} className='bg-orange-400 text-white px-2 py-1 rounded-md text-xs'>{group}</span>
             ))} */}
             <div className='flex gap-2 '>
-              {["Group 1", "Group 2", "Group 3"].map((group: string) => (
-                <span key={group} className='bg-amber-900 text-white px-2 py-1 rounded-md text-xs'>{group}</span>
-              ))}
+              {item?.colorGroups && item?.colorGroups.map((group: string) => {
+                const groupvalue = ColorGroup.find(c => c.colorGroupId === group) ;
+                return(                  
+                  <span key={group} className='bg-amber-900 text-white px-2 py-1 rounded-md text-xs'>{groupvalue.name}</span>
+                )
+              })}
             </div>
           </div>
         </div>

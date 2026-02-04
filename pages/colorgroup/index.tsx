@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import {
   IconPencil,
   IconPlus,
@@ -15,8 +15,13 @@ import ConfirmationModal from '@/components/common/ConfirmationModal';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import ColorCategoryItemModel from '@/components/common/Models/ColorCategoryItemModel';
 import { debouncedURL } from '@lib/utils/debounceURL';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { createColourGroup, deleteColourGroup, fetchColourGroups, updateColourGroup } from '@redux/feature/color/colorThunk';
+import { useSupplierHook } from '@hooks/useSupplierHook';
+import TooltipButton from '@/components/common/TooltipButton';
 
 const ColorGroupPage = () => {
+  const dispatch = useAppDispatch();
   const { setParams, filters } = debouncedURL({
     filtersKey: ['search', 'supplier', 'groupSearch', 'selectedGroup'],
   });
@@ -26,19 +31,41 @@ const ColorGroupPage = () => {
   const [modalOpen, setModalOpen] = useState<
     'addColorGroup' | 'addColorSubCategory' | 'group' | 'item' | null
   >(null);
-  const [groupItemData, setGroupItemData] = useState<any[]>(colorGroup);
   const [selectedEditGroup, setSelectedEditGroup] = useState<any>();
+  const [isEditingGroup, setIsEditingGroup] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
   const [selectedGroupItem, setSelectedGroupItem] = useState<any>();
   //replace this withe subcategoryId in the item object
   const colorSubCategoryId = '1';
-  const { userOptions } = useUsersHook();
-  let filteredGroups = filters.groupSearch
-    ? groupItemData.filter(g => g.name.toLowerCase().includes(filters?.groupSearch?.toLowerCase()))
-    : groupItemData;
+  const { ColorGroup } = useAppSelector(state => state.colour);
+  const [groupItemData, setGroupItemData] = useState<any[]>([]);
+  const { supplierOptions } = useSupplierHook();
+
   useEffect(() => {
-    setParams({ selectedGroup: groupItemData[0]?.value });
-  }, []);
+    if (JSON.stringify(ColorGroup) !== JSON.stringify(groupItemData)) {
+      setGroupItemData(ColorGroup);
+    }
+  }, [ColorGroup]);
+
+  // let filteredGroups = filters.groupSearch
+  //   ? groupItemData.filter(g => g.name.toLowerCase().includes(filters?.groupSearch?.toLowerCase()))
+  //   : groupItemData;
+  useEffect(() => {
+    setParams({ selectedGroup: groupItemData?.[0]?.name || '' });
+  }, [groupItemData]);
+
+  // const fetchColorGroup = async () => {
+  //   try {
+  //     await dispatch(fetchColourGroups()).unwrap();
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
+
+  // useEffect(() => {
+  //   fetchColorGroup();
+  // }, []);
+
 
   useEffect(() => {
     let data = [...colorItemData];
@@ -96,7 +123,7 @@ const ColorGroupPage = () => {
   };
 
   const handleAddItemToGroup = (item: any) => {
-    const groupToAdd = groupItemData.find(g => g.value === filters?.selectedGroup);
+    const groupToAdd = groupItemData?.find(g => g.name === filters?.selectedGroup);
     if (!groupToAdd) return;
 
     const newGroup = filters?.selectedGroup;
@@ -124,33 +151,46 @@ const ColorGroupPage = () => {
     }
   };
 
-  const handleAddColourGroupSubmit = (values: any) => {
+  const handleAddColourGroupSubmit = async (values: any) => {
     setLoading(true);
-    selectedEditGroup
-      ? setGroupItemData(prev => {
-        const updated = prev.map(i =>
-          i.id === selectedEditGroup.id ? { ...i, ...values, value: values.name } : i
-        );
-        filteredGroups = updated;
-        return updated;
-      })
-      : setGroupItemData(prev => {
-        const updated = [
-          ...prev,
-          { ...values, value: values.name, id: Math.floor(Math.random() * 100000).toString() },
-        ];
-        filteredGroups = updated;
-        return updated;
-      });
-    setSelectedEditGroup(null);
-    setModalOpen(null);
-    setLoading(false);
+
+    try {
+      
+      if (selectedEditGroup && selectedEditGroup.colorGroupId) {
+        // Convert status from radio value back to boolean for API
+        const payload = {
+          ...values,
+          status: values.status === 'active'
+        };
+        const response = await dispatch(updateColourGroup({
+          payload: payload,
+          id: selectedEditGroup.colorGroupId
+        })).unwrap();
+      } else {
+        const response = await dispatch(createColourGroup(values)).unwrap();
+      }
+
+    } catch (error) {
+      console.log(error);
+    }
+    finally {
+      setSelectedEditGroup(null);
+      setModalOpen(null);
+      setIsEditingGroup(false);
+      setLoading(false);
+    }
   };
 
-  const handleDeleteGroup = (id: string) => {
-    modalOpen === 'item'
-      ? setColorItemData(prev => prev.filter(i => i.id !== id))
-      : setGroupItemData(prev => prev.filter(i => i.id !== id));
+  const handleDeleteGroup = async (id: string) => {
+    try {
+      if (modalOpen === 'group') {
+        const response = await dispatch(deleteColourGroup(id)).unwrap();
+      } else {
+        setColorItemData(prev => prev.filter(i => i.id !== id))
+      }
+    } catch (error) {
+      console.error('Error deleting group:', error);
+    }
     setModalOpen(null);
   };
 
@@ -184,37 +224,40 @@ const ColorGroupPage = () => {
             />
           </div>
           <div className="flex flex-col ">
-            {filteredGroups.map(item => (
+            {groupItemData?.map(item => (
               <div
-                key={item.value}
-                onClick={() => setParams({ selectedGroup: item.value })}
-                className={` ${filters?.selectedGroup === item?.value ? 'bg-primary text-white' : ''} group flex justify-between items-center px-2 py-4 border-b cursor-pointer`}
+                key={item.colorGroupId}
+                onClick={() => setParams({ selectedGroup: item.name })}
+                className={` ${filters?.selectedGroup === item?.name ? 'bg-primary text-white' : ''} group flex justify-between items-center px-2 py-4 border-b cursor-pointer`}
               >
                 <p>{item.name}</p>
                 <div>
-                  <Button
+                  <TooltipButton
                     type="text"
                     onClick={() => {
                       setSelectedEditGroup(item);
+                      setIsEditingGroup(true);
                       setModalOpen('addColorGroup');
                     }}
+                    title='Edit'
                     icon={
                       <IconPencil
                         size={16}
-                        className={` ${filters.selectedGroup === item?.value ? '!text-white' : '!text-primary'}  group-hover:text-black transition-all`}
+                        className={` ${filters.selectedGroup === item?.name ? '!text-white' : '!text-primary'}  group-hover:text-black transition-all`}
                       />
                     }
                   />
-                  <Button
+                  <TooltipButton
                     type="text"
                     onClick={() => {
                       setSelectedGroupItem(item);
                       setModalOpen('group');
                     }}
+                    title='Delete'
                     icon={
                       <IconTrash
                         size={16}
-                        className={` ${filters.selectedGroup === item?.value ? '!text-white' : '!text-primary'}  group-hover:text-black transition-all`}
+                        className={` ${filters.selectedGroup === item?.name ? '!text-white' : '!text-primary'}  group-hover:text-black transition-all`}
                       />
                     }
                   />
@@ -228,7 +271,7 @@ const ColorGroupPage = () => {
           <div className="flex  items-center justify-between mb-4">
             <div className="flex w-[60%] gap-2">
               <Select
-                options={userOptions}
+                options={supplierOptions}
                 value={filters?.supplier}
                 onChange={e => {
                   setParams({ supplier: e });
@@ -287,34 +330,34 @@ const ColorGroupPage = () => {
                     <p className="text-sm line-clamp-1">{item.description}</p>
                     <div className="flex justify-end gap-2">
                       {/* this button is there in the UI but no functionality of it shown in the video */}
-                      <Button type="text" icon={<IconRotate2 size={18} />} />
+                      <TooltipButton title="History" icon={<IconRotate2 size={18} />} />
                       {item.group?.some((g: any) => g === filters.selectedGroup) ? (
-                        <Button
-                          type="text"
+                        <TooltipButton
+                          title="Remove from group"
                           onClick={() => {
                             handleRemoveItemFromGroup(item);
                           }}
                           icon={<IconX size={18} />}
                         />
                       ) : (
-                        <Button
-                          type="text"
+                        <TooltipButton
+                          title="Add to group"
                           onClick={() => {
                             handleAddItemToGroup(item);
                           }}
                           icon={<IconPlus size={18} />}
                         />
                       )}
-                      <Button
-                        type="text"
+                      <TooltipButton  
+                        title="Delete"
                         onClick={() => {
                           setSelectedGroupItem(item);
                           setModalOpen('item');
                         }}
                         icon={<IconTrash size={16} />}
                       />
-                      <Button
-                        type="text"
+                      <TooltipButton
+                        title="Edit Item"
                         onClick={() => {
                           setSelectedGroupItem(item);
                           setModalOpen('addColorSubCategory');
@@ -325,9 +368,11 @@ const ColorGroupPage = () => {
                     </div>
 
                     <div className="col-span-full flex flex-wrap gap-2 mt-2">
-                      <span className="text-xs bg-orange-400 text-white px-2 py-1 rounded whitespace-nowrap">
-                        {userOptions && userOptions?.filter(i => i.value === item.supplierId)[0]?.label}
-                      </span>
+                      {/* {item.supplierId && supplierOptions?.length > 0 &&
+                        <span className="text-xs bg-orange-400 text-white px-2 py-1 rounded whitespace-nowrap">
+                          {supplierOptions?.filter(i => i.value === item.supplierId)[0]?.label}
+                        </span>
+                      } */}
                       {item.group &&
                         item.group.length > 0 &&
                         item.group.map((grp, idx) => (
@@ -361,13 +406,15 @@ const ColorGroupPage = () => {
           loading={loading}
           onCancel={() => {
             setSelectedEditGroup(null);
+            setIsEditingGroup(false);
             setModalOpen(null);
           }}
           initialValues={{
             ...selectedEditGroup,
+            status: selectedEditGroup?.status ? 'active' : 'inactive',
           }}
           onSubmit={handleAddColourGroupSubmit}
-          fields={ColorGroupFields()}
+          fields={ColorGroupFields(isEditingGroup)}
         />
       )}
 
@@ -391,7 +438,14 @@ const ColorGroupPage = () => {
           onClose={() => {
             setModalOpen(null);
           }}
-          onConfirm={() => handleDeleteGroup(selectedGroupItem?.id)}
+          onConfirm={() => {
+            if (modalOpen === 'group') {
+              handleDeleteGroup(selectedGroupItem?.colorGroupId)
+            }
+            else {
+              handleDeleteGroup(selectedGroupItem?.colorGroupId)
+            }
+          }}
           type="danger"
           title="Conformation"
           confirmText="Inactivate"

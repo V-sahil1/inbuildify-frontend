@@ -1,30 +1,65 @@
 import { Status } from '@lib/constants/enum';
 
-export interface SubCategory {
-  colorSubCategoryId: string;
+export interface Category {
   colorCategoryId: string;
-  name: string;
-  description: string;
+  colorId: string;
+  categoryName: string;
   image?: string;
   items: SubCategoryItem[] | null;
   isExpanded: boolean;
   createdAt: string;
   updatedAt: string;
-  status?: string;
+  status: string;
   sortOrder?: number;
+  suppliers: string[];
+  colorGroups:string[]; 
+  createdBy?: string;
+  updatedBy?: string;
+  colorName?: string;
 }
 
-export interface ColorCategory {
-  colorCategoryId: string;
-  name: string;
-  status?: string;
-  sortOrder?: number;
-  description: string;
+export interface ColorMaster {
+  colorId?: string;
+  colorName: string;
+  status: string;
+  sortOrder: number;
+  companyId: string;
+  builderId: string;
+  createdBy: string;
+  updatedBy: string;
   createdAt: string;
   updatedAt: string;
-  subCategories: SubCategory[] | null;
+  subCategories: Category[] | null;
   isExpanded: boolean;
   loadingItems: boolean;
+}
+
+export interface Color {
+  // colorCategoryId?: string;
+  colorId: string;
+  colorName: string;
+  status: boolean;
+  sortOrder: number;
+  createdAt?: string;
+  updatedAt?: string;
+  colorCategories?: Category[] | null;
+  isExpanded?: boolean;
+  loadingItems?: boolean;
+  companyId?: string;
+  builderId?: string;
+  createdBy?: string;
+  updatedBy?: string;
+}
+
+export interface ColorMaster{
+  colors: Color[];
+  pagination ?:{
+    currentPage: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  }
+
 }
 
 export interface SubCategoryItem {
@@ -46,9 +81,20 @@ export interface SubCategoryItem {
   expirationDate?: string;
   isActive?: boolean;
 }
-
+export interface ColorGroup {
+  colorGroupId?: string,
+  companyId?: string,
+  builderId?: string,
+  name: string,
+  status?: boolean,
+  createdBy?: string,
+  updatedBy?: string,
+  createdAt?: string,
+  updatedAt?: string
+}
 export interface ColorInitialState {
   status: Status;
-  ColorCategory: ColorCategory[];
+  Color: Color[];
+  ColorGroup: ColorGroup[];
   loading: boolean;
 }

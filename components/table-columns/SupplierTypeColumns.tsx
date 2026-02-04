@@ -414,7 +414,7 @@ export const useSupplierTypeColumns = () => {
     columns,
     data: filteredTypes,
     confirmModal,
-    checklistDrawer,
-    supplierDrawer,
+    // checklistDrawer,
+    // supplierDrawer,
   };
 };
