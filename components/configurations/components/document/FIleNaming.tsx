@@ -19,6 +19,7 @@ import { CustomBulkSelect } from '@/components/common/CustomBulkSelect';
 import { FileNamingRule } from '@redux/feature/admin/document/fileNaming/IFileNamingState';
 import { TextAreaRef } from 'antd/es/input/TextArea';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
+import TooltipButton from '@/components/common/TooltipButton';
 
 const options = ['Address', 'Created Date', 'FileType', 'Full Name', 'Reference Number'];
 
@@ -80,7 +81,7 @@ export const FileNaming = () => {
   const handleSave = async values => {
     try {
       if (selectedRecord) {
-        const {isUpdated, updatedFields} = getUpdatedFields(values, {
+        const { isUpdated, updatedFields } = getUpdatedFields(values, {
           fileType: selectedRecord.fileType,
           folderIds: selectedRecord.folderNames.map(i => i.id),
         });
@@ -135,8 +136,10 @@ export const FileNaming = () => {
       key: 'action',
       render: (_, record) => (
         <div className="flex gap-2">
-          <Button
-            icon={<IconEdit />}
+          <TooltipButton
+            type="text"
+            title="Edit"
+            icon={<IconEdit size={16} />}
             size="small"
             onClick={e => {
               e.stopPropagation();
@@ -144,8 +147,10 @@ export const FileNaming = () => {
               setModelOpen('create');
             }}
           />
-          <Button
-            icon={<IconTrash />}
+          <TooltipButton
+            title="Delete"
+            type="text"
+            icon={<IconTrash size={16} />}
             className="text-red-500"
             size="small"
             onClick={e => {

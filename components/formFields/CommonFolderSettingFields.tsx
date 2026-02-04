@@ -11,6 +11,7 @@ export const commonFolderSettingFields = (
       label: 'Name',
       name: 'name',
       type: 'text' as const,
+      rules:[{required:true,message:'Please Enter Name'}]
     },
     {
       label: 'Sort order',

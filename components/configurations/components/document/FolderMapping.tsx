@@ -143,7 +143,7 @@ export const FolderMapping = () => {
   };
 
   return (
-    <div className="w-full p-6 bg-white rounded-md">
+    <div className="w-full p-6 bg-card-color rounded-md">
       <Form
         form={form}
         initialValues={folderMapping}
@@ -151,15 +151,15 @@ export const FolderMapping = () => {
       >
         {initialGroups.map(group => (
           <div key={group.title} className="mb-8">
-            <h3 className="text-base font-semibold text-gray-800 mb-3">{group.title}</h3>
+            <h3 className="text-base font-semibold text-font-color mb-3">{group.title}</h3>
             <div className="grid grid-cols-2 gap-y-4">
               {group.items.map((item, iIdx) => (
                 <div key={item.label} className="contents">
-                  <div className="flex items-center text-gray-700">
+                  <div className="flex items-center text-font-color-100">
                     {item.label}
                     {item.info && (
                       <Tooltip title="Information about this mapping">
-                        <IconInfoCircle className="ml-1 text-gray-400" />
+                        <IconInfoCircle size={16} className="ml-1 text-font-color-400" />
                       </Tooltip>
                     )}
                   </div>
@@ -178,14 +178,14 @@ export const FolderMapping = () => {
           </div>
         ))}
 
-        <div className="flex items-start gap-3 mt-6 border-t pt-4">
+        <div className="flex items-start gap-3 mt-6 border-t border-border-color pt-4">
           <Form.Item name="selectAllFilesFromFolder" valuePropName="checked">
             <Switch onChange={checked => handleChange('selectAllFilesFromFolder', checked)} />
           </Form.Item>
 
-          <div className="text-sm text-gray-700">
+          <div className="text-sm text-font-color">
             <p className="font-medium">Select all the files from the Folder</p>
-            <p className="text-gray-500">
+            <p className="text-font-color-100">
               When the toggle is <strong>ON</strong> – Files will be auto-selected by default.
               <br />
               When the toggle is <strong>OFF</strong> – Files won’t be selected by default but will

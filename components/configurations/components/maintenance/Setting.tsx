@@ -35,7 +35,7 @@ export const SettingPage = () => {
     if (status.fetch === Status.IDLE) {
       fetchMaintenanceSettingData();
     }
-  }, [dispatch, status.fetch]);
+  }, [status.fetch]);
 
   useEffect(() => {
     if (status.fetch === Status.SUCCESS && maintenanceSetting) {
@@ -78,10 +78,10 @@ export const SettingPage = () => {
         onValuesChange={handleValuesChange}
       >
         <div className="mb-6">
-          <Text strong className="block text-lg mb-1">
+          <Text strong className="block text-lg mb-1 text-font-color">
             Required Options
           </Text>
-          <Text type="secondary" className="text-sm">
+          <Text className="text-sm text-font-color-100">
             Based on the selection of the below toggles, the options will be available on the
             maintenance screen.
           </Text>

@@ -25,6 +25,7 @@ import {
   CustomFieldName,
 } from '@redux/feature/admin/integration/optionalSetting/IintegrationOptionalState';
 import { Entity } from 'types/common.types';
+import TooltipButton from '@/components/common/TooltipButton';
 
 export const OptionalSettings = () => {
   const { userOptions } = useUsersHook();
@@ -126,6 +127,7 @@ export const OptionalSettings = () => {
       await dispatch(deleteCustomFieldItem(selectedRecord.integrationCustomFieldItemId)).unwrap();
       message.success('Custom field item deleted successfully');
       setModelOpen(null);
+      setSelectedRecord(null);
     } catch (error) {
       message.error(error || 'Failed to delete custom field item');
     }
@@ -152,11 +154,15 @@ export const OptionalSettings = () => {
     }
   };
 
-  const handleDeleteCustomField = async (id: string) => {
+  const handleDeleteCustomField = async () => {
     try {
-      await dispatch(deleteCustomFieldHeader(id)).unwrap();
+      await dispatch(
+        deleteCustomFieldHeader(selectedCustomField.integrationCustomFieldHeaderId)
+      ).unwrap();
       await dispatch(fetchAllCustomFieldItem()).unwrap();
       message.success('custom field header deleted successfully');
+      setModelOpen(null);
+      setCustomField(null);
     } catch (error) {
       message.error(error || 'Failed to delete custom field header');
     }
@@ -194,8 +200,6 @@ export const OptionalSettings = () => {
       header1Id: null,
       value1: null,
       assigneeUserId: null,
-      header2Id: null,
-      value2: null,
     };
 
     // Map custom fields to headerId and value format
@@ -242,15 +246,17 @@ export const OptionalSettings = () => {
               ],
               onClick: e => {
                 if (e.key === 'delete') {
-                  handleDeleteCustomField(field.integrationCustomFieldHeaderId);
+                  setCustomField(field);
+                  setModelOpen('deleteCustomField');
                 } else if (e.key === 'edit') {
                   setCustomField(field);
                   setModelOpen('customField');
                 }
               },
             }}
+            trigger={['click']}
           >
-            <IconDotsVertical />
+            <IconDotsVertical size={16} className="cursor-pointer" />
           </Dropdown>
         </div>
       ),
@@ -271,8 +277,10 @@ export const OptionalSettings = () => {
       key: 'action',
       render: (_, record: CustomerFieldItem) => (
         <div className="flex gap-2">
-          <Button
-            icon={<IconEdit />}
+          <TooltipButton
+            title="Edit"
+            type="text"
+            icon={<IconEdit size={16} />}
             size="small"
             onClick={e => {
               e.stopPropagation();
@@ -280,8 +288,10 @@ export const OptionalSettings = () => {
               setModelOpen('lead');
             }}
           />
-          <Button
-            icon={<IconTrash />}
+          <TooltipButton
+            title="Delete"
+            type="text"
+            icon={<IconTrash size={16} />}
             className="text-red-500"
             size="small"
             onClick={e => {
@@ -299,10 +309,10 @@ export const OptionalSettings = () => {
     <div className="space-y-5">
       <p className="text-lg font-semibold">Lead Settings or User Mapping</p>
 
-      <div className="flex justify-between items-center border-b pb-3">
+      <div className="flex justify-between items-center  pb-3">
         <div>
           <p className="font-medium">Assign Leads (assignee not found/received)</p>
-          <p className="text-gray-600 text-sm">
+          <p className="text-font-color-100 text-sm">
             System will use the default user if REA assigned user not exist/found
           </p>
         </div>
@@ -318,10 +328,10 @@ export const OptionalSettings = () => {
         </div>
       </div>
 
-      <div className="flex justify-between items-center border-b pb-3">
+      <div className="flex justify-between items-center pb-3">
         <div>
           <p className="font-medium">Always Assign Leads (force and assign leads)</p>
-          <p className="text-gray-600 text-sm">
+          <p className="text-font-color-100 text-sm">
             System will FORCE and assign the leads to the selected user
           </p>
         </div>
@@ -345,8 +355,10 @@ export const OptionalSettings = () => {
       )}
 
       <div>
-        <div className="mb-4 flex items-center justify-between">
-          <p className="text-sm font-semibold text-gray-500">Customize and assign lead enquires</p>
+        <div className="my-4 flex items-center justify-between">
+          <p className="text-sm font-semibold text-font-color">
+            Customize and assign lead enquires
+          </p>
           {customFields && customFields.length < 2 && (
             <Button type="primary" onClick={() => setModelOpen('customField')}>
               New Custom Field
@@ -360,6 +372,7 @@ export const OptionalSettings = () => {
             dataSource={customFieldItems}
             pagination={false}
             rowClassName="hover:bg-gray-50"
+            loading={customFieldItemStatus.fetch === Status.PENDING}
           />
         )}
 
@@ -376,6 +389,7 @@ export const OptionalSettings = () => {
             }}
             onSubmit={handleSaveCustomFieldItem}
             fields={customFieldItemsFormFields}
+            loading={customFieldItemStatus.update === Status.PENDING}
           />
         )}
 
@@ -398,17 +412,24 @@ export const OptionalSettings = () => {
                 rules: [{ required: true, message: 'Please enter field name' }],
               },
             ]}
+            loading={customFieldStatus.update === Status.PENDING}
           />
         )}
 
         {/* Delete confirmation */}
-        {modelOpen === 'deleteLead' && (
+        {['deleteCustomField', 'deleteLead'].includes(modelOpen) && (
           <ConfirmationModal
-            open={modelOpen === 'deleteLead'}
+            open={['deleteCustomField', 'deleteLead'].includes(modelOpen)}
             type="danger"
-            onClose={() => setModelOpen(null)}
-            onConfirm={() => handleDeleteCustomFieldItem()}
-            message="Are you sure you want to delete this folder?"
+            onClose={() => {
+              setCustomField(null);
+              setSelectedRecord(null);
+              setModelOpen(null);
+            }}
+            onConfirm={() =>
+              modelOpen === 'deleteLead' ? handleDeleteCustomFieldItem() : handleDeleteCustomField()
+            }
+            message="Are you sure you want to delete this item?"
           />
         )}
       </div>

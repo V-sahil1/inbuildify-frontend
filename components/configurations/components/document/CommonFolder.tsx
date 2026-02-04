@@ -25,6 +25,7 @@ import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
 import { Button, message, Popconfirm, Space, Switch, Table, Tag } from 'antd';
 
 import { useEffect, useState } from 'react';
+import TooltipButton from '@/components/common/TooltipButton';
 
 export const CommonFolder = () => {
   const dispatch = useAppDispatch();
@@ -52,7 +53,7 @@ export const CommonFolder = () => {
   const handleSaveParent = async values => {
     try {
       if (selectedRecord) {
-        const {isUpdated, updatedFields} = getUpdatedFields(values, selectedRecord);
+        const { isUpdated, updatedFields } = getUpdatedFields(values, selectedRecord);
         if (!isUpdated) {
           setModelOpen(null);
           setSelectedRecord(null);
@@ -84,7 +85,7 @@ export const CommonFolder = () => {
   const handleSaveChild = async values => {
     try {
       if (selectedRecord) {
-        const {isUpdated, updatedFields} = getUpdatedFields(values, selectedRecord);
+        const { isUpdated, updatedFields } = getUpdatedFields(values, selectedRecord);
         if (!isUpdated) {
           setModelOpen(null);
           setSelectedRecord(null);
@@ -201,8 +202,10 @@ export const CommonFolder = () => {
       key: 'action',
       render: (_, record: IDocumentCommonFolder) => (
         <div className="flex gap-2">
-          <Button
-            icon={<IconEdit />}
+          <TooltipButton
+            title="Edit"
+            type="text"
+            icon={<IconEdit size={16} />}
             size="small"
             onClick={e => {
               e.stopPropagation();
@@ -214,7 +217,12 @@ export const CommonFolder = () => {
             title="Are you sure you want to delete this?"
             onConfirm={() => handleDeleteParennt(record.documentCommonFolderId)}
           >
-            <Button icon={<IconTrash />} className="text-red-500" size="small" />
+            <TooltipButton
+              title="Delete"
+              type="text"
+              icon={<IconTrash size={16} color="red" />}
+              size="small"
+            />
           </Popconfirm>
         </div>
       ),
@@ -241,9 +249,11 @@ export const CommonFolder = () => {
         width: 120,
         render: (_, record) => (
           <Space>
-            <Button
+            <TooltipButton
+              title="Edit"
+              type="text"
               size="small"
-              icon={<IconEdit size={14} />}
+              icon={<IconEdit size={16} />}
               onClick={() => {
                 setSelectedRecord(record);
                 setModelOpen('child');
@@ -253,7 +263,13 @@ export const CommonFolder = () => {
               title="Are you sure you want to delete this?"
               onConfirm={() => handleDeleteChild(record)}
             >
-              <Button icon={<IconTrash size={14} />} className="text-red-500" size="small" />
+              <TooltipButton
+                type="text"
+                title="Delete"
+                icon={<IconTrash size={16} color="red" />}
+                className="text-red-500"
+                size="small"
+              />
             </Popconfirm>
           </Space>
         ),
@@ -275,7 +291,7 @@ export const CommonFolder = () => {
         className="mb-4 flex items-center justify-between"
         onClick={() => setModelOpen('parent')}
       >
-        <p className="text-sm font-semibold text-gray-500">
+        <p className="text-sm font-semibold text-font-color-100">
           Note: These folders will be shown in the job details under Documents section
         </p>
         <Button type="primary" icon={<IconPlus />}>
