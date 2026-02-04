@@ -154,7 +154,7 @@ export const Workflow = () => {
       />
 
       {isChanged && (
-        <div className="flex justify-end gap-3 pt-6 border-t mt-10">
+        <div className="flex justify-end gap-3 pt-6 mt-10">
           <Button
             size="large"
             onClick={handleCancel}

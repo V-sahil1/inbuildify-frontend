@@ -112,6 +112,7 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
     fields.forEach(field => {
       if (
         (field.type === 'switch' || (field.type === 'checkbox' && !field?.options)) &&
+        !!initialValues &&
         initialValues[field.name] !== undefined
       ) {
         initialSwitchValues[field.name] = initialValues[field.name];

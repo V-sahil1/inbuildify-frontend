@@ -109,8 +109,8 @@ export const Variation = () => {
   };
 
   const handleValuesChange = (_, allValues) => {
-    const changed = Object.keys(allValues).some(key => allValues[key] !== jobVariationSetting[key]);
-    setIsChanged(changed);
+    const { isUpdated } = getUpdatedFields(allValues, jobVariationSetting);
+    setIsChanged(isUpdated);
   };
 
   const handleSave = async () => {
@@ -337,7 +337,7 @@ export const Variation = () => {
         <div className="flex justify-between items-center mb-4">
           <div className="flex flex-col gap-2">
             <h3 className="text-lg font-semibold">Variation approval limits</h3>
-            <p className='text-sm'>
+            <p className="text-sm">
               Set the variation approval limits for different roles. If the variation exceeds the
               specified amount, manager approval will be required.
             </p>

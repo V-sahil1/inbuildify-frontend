@@ -22,6 +22,7 @@ const initialState: IJobInvoiceState = {
     fetch: Status.IDLE,
     update: Status.IDLE,
   },
+  pagination: null,
 };
 
 const JobInvoiceSlice = createSlice({
@@ -55,7 +56,8 @@ const JobInvoiceSlice = createSlice({
       state.InvoiceStageStatus.fetch = Status.PENDING;
     });
     builder.addCase(fetchJobInvoiceStage.fulfilled, (state, action) => {
-      state.jobInvoiceStage = action.payload;
+      state.jobInvoiceStage = action.payload.jobInvoiceStagePayments;
+      state.pagination = action.payload.pagination;
       state.InvoiceStageStatus.fetch = Status.SUCCESS;
     });
     builder.addCase(fetchJobInvoiceStage.rejected, state => {
@@ -67,6 +69,7 @@ const JobInvoiceSlice = createSlice({
     });
     builder.addCase(createJobInvoiceStage.fulfilled, (state, action) => {
       state.jobInvoiceStage.push(action.payload);
+      state.pagination.totalRecords++;
       state.InvoiceStageStatus.update = Status.SUCCESS;
     });
     builder.addCase(createJobInvoiceStage.rejected, state => {
@@ -99,6 +102,7 @@ const JobInvoiceSlice = createSlice({
       if (index !== -1) {
         state.jobInvoiceStage.splice(index, 1);
       }
+      state.pagination.totalRecords--;
       state.InvoiceStageStatus.update = Status.SUCCESS;
     });
     builder.addCase(deleteJobInvoiceStage.rejected, state => {

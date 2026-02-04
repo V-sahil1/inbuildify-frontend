@@ -24,6 +24,8 @@ import {
   JobColorSettings,
 } from '@redux/feature/admin/job/jobColor/IJobColorState';
 import { formDataGenerator } from '@lib/utils/formDataGenerator';
+import TooltipButton from '@/components/common/TooltipButton';
+import { getPaginationConfig } from '@lib/utils/getPaginationConfig';
 
 export const Colors: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -34,10 +36,10 @@ export const Colors: React.FC = () => {
     jobColorColumnStatus,
     jobColorSectionStatus,
     status,
+    pagination,
   } = useAppSelector(state => state.job.jobColor);
   const [settings, setSettings] = useState<JobColorSettings | null>(jobColor || null);
   const [headerText, setHeaderText] = useState(jobColor?.headerText || '');
-  const [initialHeaderText, setInitialHeaderText] = useState(jobColor?.headerText || '');
   const [showSave, setShowSave] = useState<{ setting: boolean; header: boolean }>({
     setting: false,
     header: false,
@@ -45,10 +47,11 @@ export const Colors: React.FC = () => {
   const [editingRow, setEditingRow] = useState<JobColorColumnType>(null);
   const [isModalOpen, setIsModalOpen] = useState<'colorColumn' | 'colorSection' | null>(null);
   const [editingCustomSection, setEditingCustomSection] = useState<JobColorSection | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const [customForm] = Form.useForm();
   const [form] = Form.useForm();
   const [currentDisplayOption, setCurrentDisplayOption] = useState<string>('');
-
+  const PAGE_SIZE = 1;
   const fetchJobColorData = async () => {
     try {
       await dispatch(fetchJobColor()).unwrap();
@@ -57,9 +60,12 @@ export const Colors: React.FC = () => {
     }
   };
 
-  const fetchJobColorSectionData = async () => {
+  const fetchJobColorSectionData = async (
+    page: number = currentPage,
+    limit: number = PAGE_SIZE
+  ) => {
     try {
-      await dispatch(fetchJobColorSection()).unwrap();
+      await dispatch(fetchJobColorSection({ page, limit })).unwrap();
     } catch (error) {
       message.error(error || 'Failed to fetch job color data');
     }
@@ -77,19 +83,19 @@ export const Colors: React.FC = () => {
     if (status.fetch === Status.IDLE) {
       fetchJobColorData();
     }
-    if (jobColorSectionStatus.fetch === Status.IDLE) {
-      fetchJobColorSectionData();
-    }
     if (jobColorColumnStatus.fetch === Status.IDLE) {
       fetchJobColorColumnData();
     }
   }, [status.fetch, jobColorSectionStatus.fetch, jobColorColumnStatus.fetch]);
 
   useEffect(() => {
+    fetchJobColorSectionData();
+  }, [currentPage]);
+
+  useEffect(() => {
     if (jobColor) {
       setSettings(jobColor);
       setHeaderText(jobColor.headerText || '');
-      setInitialHeaderText(jobColor.headerText || '');
     }
   }, [jobColor]);
 
@@ -98,16 +104,14 @@ export const Colors: React.FC = () => {
       setShowSave(prev => ({ ...prev, setting: false }));
       return;
     }
-
     const { isUpdated } = getUpdatedFields(settings, jobColor);
-
     setShowSave(prev => ({ ...prev, setting: isUpdated }));
   }, [settings, jobColor]);
 
-  useEffect(() => {
-    const hasHeaderChanged = headerText !== initialHeaderText;
-    setShowSave(prev => ({ ...prev, header: hasHeaderChanged }));
-  }, [headerText, initialHeaderText]);
+  const handleHeaderChange = value => {
+    setHeaderText(value);
+    setShowSave(prev => ({ ...prev, header: value !== jobColor?.headerText }));
+  };
 
   const handleSwitchChange = (key: string, value: boolean) => {
     if (!settings) return;
@@ -221,7 +225,7 @@ export const Colors: React.FC = () => {
   };
 
   const handleColorUISettings = async () => {
-    if (headerText === initialHeaderText) {
+    if (headerText === jobColor?.headerText) {
       message.info('No changes to save');
       return;
     }
@@ -236,7 +240,7 @@ export const Colors: React.FC = () => {
   };
 
   const handleCancelHeaderText = () => {
-    setHeaderText(initialHeaderText);
+    setHeaderText(jobColor?.headerText);
   };
   const columns = useMemo(
     () => [
@@ -257,7 +261,13 @@ export const Colors: React.FC = () => {
         title: 'Edit',
         key: 'edit',
         render: (_, record: JobColorColumnType) => (
-          <Button icon={<IconEdit size={16} />} type="text" onClick={() => handleEdit(record)} />
+          <TooltipButton
+            title="Edit"
+            size="small"
+            icon={<IconEdit size={16} />}
+            type="text"
+            onClick={() => handleEdit(record)}
+          />
         ),
       },
     ],
@@ -285,8 +295,10 @@ export const Colors: React.FC = () => {
       key: 'actions',
       render: (_, record: JobColorSection) => (
         <Space>
-          <Button
+          <TooltipButton
+            title="Edit"
             type="text"
+            size="small"
             icon={<IconEdit size={18} />}
             onClick={() => {
               setEditingCustomSection(record);
@@ -298,7 +310,12 @@ export const Colors: React.FC = () => {
             title="Are you sure you want to delete custom section?"
             onConfirm={() => handleDeleteCustomSection(record.jobColorColumnSectionId)}
           >
-            <Button type="text" danger icon={<IconTrash size={16} />} />
+            <TooltipButton
+              title="Delete"
+              size="small"
+              type="text"
+              icon={<IconTrash size={16} color="red" />}
+            />
           </Popconfirm>
         </Space>
       ),
@@ -389,7 +406,12 @@ export const Colors: React.FC = () => {
           size="middle"
           columns={customSectionColumns}
           dataSource={jobColorSection}
-          pagination={false}
+          pagination={getPaginationConfig({
+            currentPage,
+            limit: pagination?.limit,
+            totalRecords: pagination?.totalRecords,
+            setCurrentPage,
+          })}
           className="rounded-lg mb-8"
           loading={jobColorSectionStatus.fetch === Status.PENDING}
         />
@@ -403,7 +425,7 @@ export const Colors: React.FC = () => {
               </label>
               <Input.TextArea
                 value={headerText}
-                onChange={e => setHeaderText(e.target.value)}
+                onChange={e => handleHeaderChange(e.target.value)}
                 rows={4}
                 maxLength={500}
                 showCount

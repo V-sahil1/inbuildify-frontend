@@ -19,27 +19,36 @@ import {
   updateJobInvoiceSetting,
   updateJobInvoiceStage,
 } from '@redux/feature/admin/job/jobInvoice/jobInvoiceThunk';
+import { getPaginationConfig } from '@lib/utils/getPaginationConfig';
+import TooltipButton from '@/components/common/TooltipButton';
 
 export const Invoice: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingStage, setEditingStage] = useState<JobInvoiceStage | null>(null);
   const dispatch = useAppDispatch();
-  const { jobInvoiceSetting, status, jobInvoiceStage, InvoiceStageStatus } = useAppSelector(
-    state => state.job.jobInvoice
-  );
+  const { jobInvoiceSetting, status, jobInvoiceStage, InvoiceStageStatus, pagination } =
+    useAppSelector(state => state.job.jobInvoice);
+  const [currentPage, setCurrentPage] = useState(1);
   const [invoiceSettings, setInvoiceSettings] = useState<JobInvoiceSetting>({
     showInvoiceSummaryInPdf: false,
     invoiceTermsDays: 0,
   });
-
+  const PAGE_SIZE = 1;
   useEffect(() => {
+    if (status?.fetch === Status.IDLE) {
+      fetchJobInvoiceSettingData();
+    }
     if (jobInvoiceSetting) {
       setInvoiceSettings({
         showInvoiceSummaryInPdf: jobInvoiceSetting.showInvoiceSummaryInPdf ?? false,
         invoiceTermsDays: jobInvoiceSetting.invoiceTermsDays ?? 0,
       });
     }
-  }, [jobInvoiceSetting]);
+  }, [status?.fetch]);
+
+  useEffect(() => {
+    fetchJobInvoiceStageData();
+  }, [currentPage]);
 
   const hasUnsavedChanges = useMemo(() => {
     if (!jobInvoiceSetting) return false;
@@ -55,28 +64,16 @@ export const Invoice: React.FC = () => {
     }
   }, [dispatch]);
 
-  const fetchJobInvoiceStageData = useCallback(async () => {
-    try {
-      await dispatch(fetchJobInvoiceStage()).unwrap();
-    } catch (error) {
-      message.error(error || 'failed to load invoice setting');
-    }
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (status?.fetch === Status.IDLE) {
-      fetchJobInvoiceSettingData();
-    }
-    if (InvoiceStageStatus?.fetch === Status.IDLE) {
-      fetchJobInvoiceStageData();
-    }
-  }, [
-    status?.fetch,
-    InvoiceStageStatus?.fetch,
-    dispatch,
-    fetchJobInvoiceSettingData,
-    fetchJobInvoiceStageData,
-  ]);
+  const fetchJobInvoiceStageData = useCallback(
+    async (page: number = currentPage, limit: number = PAGE_SIZE) => {
+      try {
+        await dispatch(fetchJobInvoiceStage({ page, limit })).unwrap();
+      } catch (error) {
+        message.error(error || 'failed to load invoice setting');
+      }
+    },
+    [currentPage]
+  );
 
   const [form] = Form.useForm();
 
@@ -125,16 +122,17 @@ export const Invoice: React.FC = () => {
       key: 'actions',
       render: (_, record: JobInvoiceStage) => (
         <div className="flex gap-2">
-          <Button
+          <TooltipButton
+            title="Edit"
             type="text"
-            icon={<IconEdit size={16} className="text-blue-500" />}
+            icon={<IconEdit size={16} />}
             onClick={() => handleEdit(record)}
           />
           <Popconfirm
             title="Are you sure you want to delete this stage?"
             onConfirm={() => handleDelete(record.jobInvoiceStagePaymentId)}
           >
-            <Button type="text" icon={<IconTrash size={16} className="text-red-500" />} />
+            <TooltipButton title="Delete" type="text" icon={<IconTrash size={16} color="red" />} />
           </Popconfirm>
         </div>
       ),
@@ -263,24 +261,31 @@ export const Invoice: React.FC = () => {
         size="middle"
         columns={columns}
         dataSource={jobInvoiceStage}
-        pagination={false}
+        pagination={getPaginationConfig({
+          currentPage,
+          limit: pagination?.limit,
+          totalRecords: pagination?.totalRecords,
+          setCurrentPage,
+        })}
         className="rounded-lg"
         rowKey="jobInvoiceStagePaymentId"
       />
-      <ActionDialogmodel
-        title={editingStage ? 'Edit Stage Payment' : 'Add Stage Payment'}
-        open={isModalOpen}
-        onCancel={() => {
-          setIsModalOpen(false);
-          setEditingStage(null);
-        }}
-        onSubmit={handleJobInvoiceStageSubmit}
-        submitButtonText="Save"
-        isEditing={editingStage !== null}
-        initialValues={editingStage || {}}
-        fields={InvoiceSettingFields}
-        loading={InvoiceStageStatus?.update === Status.PENDING}
-      />
+      {isModalOpen && (
+        <ActionDialogmodel
+          title={editingStage ? 'Edit Stage Payment' : 'Add Stage Payment'}
+          open={isModalOpen}
+          onCancel={() => {
+            setIsModalOpen(false);
+            setEditingStage(null);
+          }}
+          onSubmit={handleJobInvoiceStageSubmit}
+          submitButtonText="Save"
+          isEditing={editingStage !== null}
+          initialValues={editingStage || {}}
+          fields={InvoiceSettingFields}
+          loading={InvoiceStageStatus?.update === Status.PENDING}
+        />
+      )}
     </div>
   );
 };

@@ -61,7 +61,7 @@ export const PredecessorTable = ({
   return (
     <div className="mt-4 ">
       <div className="flex justify-between items-center mb-2">
-        <h4 className="mb-2 font-semibold">Predecessor Tasks</h4>
+        <h4 className="mb-2 font-semibold text-font-color">Predecessor Tasks</h4>
         <Button type="primary" onClick={() => setIsModalOpen(true)}>
           Add Predecessor
         </Button>

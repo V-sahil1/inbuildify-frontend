@@ -162,7 +162,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             </motion.div>
 
             <motion.h3
-              className="text-xl  text-gray-600 mb-3 mt-2"
+              className="text-xl  text-font-color mb-3 mt-2"
               initial={{ y: 10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.15 }}

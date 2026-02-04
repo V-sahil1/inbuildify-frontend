@@ -28,6 +28,7 @@ const initialState: IJobColorState = {
     fetch: Status.IDLE,
     update: Status.IDLE,
   },
+  pagination: null,
 };
 
 const JobColorSlice = createSlice({
@@ -89,6 +90,7 @@ const JobColorSlice = createSlice({
     });
     builder.addCase(createJobColorSection.fulfilled, (state, action) => {
       state.jobColorSection.unshift(action.payload);
+      state.pagination.totalRecords++;
       state.jobColorSectionStatus.update = Status.SUCCESS;
     });
     builder.addCase(createJobColorSection.rejected, state => {
@@ -99,6 +101,7 @@ const JobColorSlice = createSlice({
     });
     builder.addCase(fetchJobColorSection.fulfilled, (state, action) => {
       state.jobColorSection = action.payload.JobColorColumnSections;
+      state.pagination = action.payload.pagination;
       state.jobColorSectionStatus.fetch = Status.SUCCESS;
     });
     builder.addCase(fetchJobColorSection.rejected, state => {
@@ -120,6 +123,7 @@ const JobColorSlice = createSlice({
       state.jobColorSection = state.jobColorSection.filter(
         i => i.jobColorColumnSectionId !== action.payload.id
       );
+      state.pagination.totalRecords--;
     });
   },
 });

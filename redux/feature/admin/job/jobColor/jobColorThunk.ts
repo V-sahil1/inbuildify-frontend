@@ -4,6 +4,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { ApiResponse } from '../../../auth/IAuthState';
 import { JobColorColumnType, JobColorSection, JobColorSettings } from './IJobColorState';
 import { Pagination } from '../../general/surveyor/ISurveyorState';
+import { CommonPagination } from '@redux/feature/common/ICommonState';
 
 export const fetchJobColor = createAsyncThunk('jobColor/fetch', async (_, { rejectWithValue }) => {
   try {
@@ -64,11 +65,11 @@ export const updateJobColorColumn = createAsyncThunk(
 
 export const fetchJobColorSection = createAsyncThunk(
   'jobColor/fetchColorSetion',
-  async (_, { rejectWithValue }) => {
+  async (params:{page?:number,limit?:number}={}, { rejectWithValue }) => {
     try {
-      const response = await api.get<ApiResponse<{ JobColorColumnSections: JobColorSection[] }>>(
-        API_ENDPOINTS.JOB_COLOR_SECTION
-      );
+      const response = await api.get<
+        ApiResponse<{ JobColorColumnSections: JobColorSection[]; pagination: CommonPagination }>
+      >(API_ENDPOINTS.JOB_COLOR_SECTION,{params});
       return response.data;
     } catch (error) {
       return rejectWithValue(error?.message);

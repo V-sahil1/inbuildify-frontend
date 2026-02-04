@@ -1,9 +1,8 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Drawer, Button, message } from 'antd';
+import { Drawer, Button, message, Tag } from 'antd';
 import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
-import ConfirmationModal from '@/components/common/ConfirmationModal';
 import { TaskTable } from './TaskTable';
 import { ConfirmationContentModal } from '@/components/common/ConfirmationContentModal';
 import { CustomSteps } from '@/components/common/CustomSteps';
@@ -19,6 +18,7 @@ import {
   deleteJobProcessSubStages,
 } from '@redux/feature/admin/job/jobProcess/jobProcessThunk';
 import { Status } from '@lib/constants/enum';
+import { JobStageDeleteDrawer } from './JobStageDeleteDrawer';
 
 interface JobWorkflowDrawerProps {
   open: boolean;
@@ -78,7 +78,7 @@ export const JobWorkflowDrawer: React.FC<JobWorkflowDrawerProps> = ({ open, onCl
   const handleDeleteSubStage = async (subStageId: string) => {
     try {
       await dispatch(deleteJobProcessSubStages(subStageId)).unwrap();
-      setModal(null)
+      setModal(null);
     } catch (error) {
       message.error(error || 'Failed to delete sub stage');
     }
@@ -129,7 +129,7 @@ export const JobWorkflowDrawer: React.FC<JobWorkflowDrawerProps> = ({ open, onCl
         steps={jobProcessSubStage.map(step => ({
           title: (
             <div className="group relative flex flex-col items-center justify-center">
-              <span className="text-sm text-gray-800 relative z-20">{step.name}</span>
+              <span className="text-sm text-font-color-100 relative z-20">{step.name}</span>
 
               <div
                 className="flex items-center gap-2 mt-4
@@ -168,22 +168,11 @@ export const JobWorkflowDrawer: React.FC<JobWorkflowDrawerProps> = ({ open, onCl
         }}
       />
       <div className="w-full mt-2 overflow-x-hidden overflow-x-scroll custom-scrollbar ">
-        <TaskTable 
-          currentStep={jobProcessSubStage[currentStep]?.name || ''} 
-          subStageId={jobProcessSubStage[currentStep]?.subStageId || ''} 
+        <TaskTable
+          currentStep={jobProcessSubStage[currentStep]?.name || ''}
+          subStageId={jobProcessSubStage[currentStep]?.subStageId || ''}
         />
       </div>
-      {modal && (
-        <ConfirmationModal
-          open={modal.type === 'delete'}
-          type="danger"
-          onClose={() => {
-            setModal(null);
-          }}
-          onConfirm={() => handleDeleteSubStage(modal?.subStage?.subStageId)}
-          message={`Are you sure you want to delete this ${modal?.subStage?.name}?`}
-        />
-      )}
       {modal && (
         <ActionDialogmodel
           open={modal.type === 'edit' || modal.type === 'create'}
@@ -213,8 +202,18 @@ export const JobWorkflowDrawer: React.FC<JobWorkflowDrawerProps> = ({ open, onCl
         <ConfirmationContentModal
           content={
             <div>
-              This is a dummy message here what will are the changes are made and what things will
-              effect on saving list of all things come here as a worning
+              <p>The following tasks have been modified and will be updated:</p>
+              <div className="ml-3 my-3 space-y-2">
+                <p>
+                  Request Working Drawing <Tag>Contract Drawing</Tag>
+                </p>
+                <p>
+                  Verify with Customer <Tag>Confirmation</Tag>
+                </p>
+                <p>
+                  Update Changes Based on Customer Requests <Tag>Confirmation</Tag>
+                </p>
+              </div>
             </div>
           }
           open={existingJobModal}
@@ -226,6 +225,13 @@ export const JobWorkflowDrawer: React.FC<JobWorkflowDrawerProps> = ({ open, onCl
           }}
           okText="Apply"
           title="Confirmation"
+        />
+      )}
+      {modal?.type === 'delete' && (
+        <JobStageDeleteDrawer
+          open={modal.type === 'delete'}
+          onClose={() => setModal(null)}
+          onSubmit={() => handleDeleteSubStage(modal?.subStage?.subStageId)}
         />
       )}
     </Drawer>

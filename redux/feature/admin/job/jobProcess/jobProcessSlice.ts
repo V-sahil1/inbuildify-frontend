@@ -160,7 +160,7 @@ const JobProcessSlice = createSlice({
         state.status.subStage.create = Status.PENDING;
       })
       .addCase(createJobProcessSubStages.fulfilled, (state, action) => {
-        state.jobProcessSubStage.unshift(action.payload);
+        state.jobProcessSubStage.push(action.payload);
         state.status.subStage.create = Status.SUCCESS;
       })
       .addCase(createJobProcessSubStages.rejected, state => {
@@ -229,8 +229,8 @@ const JobProcessSlice = createSlice({
       })
       .addCase(updateJobProcessTasks.fulfilled, (state, action) => {
         state.jobProcessTask = state.jobProcessTask.map(task => {
-          if (task.taskId === action.payload.taskId) {
-            return action.payload;
+          if (task.jobProcessTaskId === action.payload.jobProcessTaskId) {
+            return { ...task, ...action.payload };
           }
           return task;
         });
@@ -245,7 +245,9 @@ const JobProcessSlice = createSlice({
         state.status.task.delete = Status.PENDING;
       })
       .addCase(deleteJobProcessTasks.fulfilled, (state, action) => {
-        state.jobProcessTask = state.jobProcessTask.filter(task => task.taskId !== action.payload);
+        state.jobProcessTask = state.jobProcessTask.filter(
+          task => task.jobProcessTaskId !== action.payload
+        );
         state.status.task.delete = Status.SUCCESS;
       })
       .addCase(deleteJobProcessTasks.rejected, state => {
@@ -260,7 +262,7 @@ const JobProcessSlice = createSlice({
       .addCase(createJobProcessSubTasks.fulfilled, (state, action) => {
         // Find the parent task and add the sub-task to it
         const parentTask = state.jobProcessTask.find(
-          task => task.taskId === action.meta.arg.taskId
+          task => task.jobProcessTaskId === action.meta.arg.taskId
         );
         if (parentTask) {
           if (!parentTask.subTasks) {
@@ -284,14 +286,17 @@ const JobProcessSlice = createSlice({
       .addCase(updateJobProcessSubTasks.fulfilled, (state, action) => {
         // Find the parent task and update the sub-task within it
         const parentTask = state.jobProcessTask.find(
-          task => task.taskId === action.meta.arg.subTaskId
+          task => task.jobProcessTaskId === action.payload.jobProcessTask.id
         );
         if (parentTask && parentTask.subTasks) {
           const subTaskIndex = parentTask.subTasks.findIndex(
-            subTask => subTask.subTaskId === action.payload.subTaskId
+            subTask => subTask.subTaskId === action.payload.jobProcessSubtaskId
           );
           if (subTaskIndex !== -1) {
-            parentTask.subTasks[subTaskIndex] = action.payload;
+            parentTask.subTasks[subTaskIndex] = {
+              ...parentTask.subTasks[subTaskIndex],
+              ...action.payload,
+            };
           }
         }
         state.status.subTask.update = Status.SUCCESS;
@@ -306,10 +311,12 @@ const JobProcessSlice = createSlice({
       })
       .addCase(deleteJobProcessSubTasks.fulfilled, (state, action) => {
         // Find the parent task and remove the sub-task from it
-        const parentTask = state.jobProcessTask.find(task => task.taskId === action.meta.arg);
+        const parentTask = state.jobProcessTask.find(
+          task => task.jobProcessTaskId === action.payload.taskId
+        );
         if (parentTask && parentTask.subTasks) {
           parentTask.subTasks = parentTask.subTasks.filter(
-            subTask => subTask.subTaskId !== action.payload
+            subTask => subTask.subTaskId !== action.payload.subTaskId
           );
         }
         state.status.subTask.delete = Status.SUCCESS;

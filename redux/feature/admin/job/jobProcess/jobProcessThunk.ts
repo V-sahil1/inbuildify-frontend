@@ -259,12 +259,12 @@ export const updateJobProcessSubTasks = createAsyncThunk(
 
 export const deleteJobProcessSubTasks = createAsyncThunk(
   'jobProcessSubTask/delete',
-  async (subTaskId: string, { rejectWithValue }) => {
+  async (payload:{subTaskId: string,taskId:string}, { rejectWithValue }) => {
     try {
       const response = await api.delete<ApiResponse<JobProcessSubTask>>(
-        `${API_ENDPOINTS.JOB_SUB_TASK_BASE}/${subTaskId}`
+        `${API_ENDPOINTS.JOB_SUB_TASK_BASE}/${payload.subTaskId}`
       );
-      return subTaskId;
+      return {subTaskId: payload.subTaskId,taskId:payload.taskId};
     } catch (error) {
       return rejectWithValue(error.message);
     }

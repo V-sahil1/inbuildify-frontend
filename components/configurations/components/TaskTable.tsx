@@ -1,7 +1,19 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Input, Select, Space, Tooltip, Modal, InputNumber, Checkbox, message, Popconfirm } from 'antd';
+import {
+  Button,
+  Form,
+  Input,
+  Select,
+  Space,
+  Tooltip,
+  Modal,
+  InputNumber,
+  Checkbox,
+  message,
+  Popconfirm,
+} from 'antd';
 import { IconPlus, IconEdit, IconTrash, IconArrowRight } from '@tabler/icons-react';
 import { PredecessorTable } from './PredecessorTable';
 import { useUsersHook } from '@hooks/useUserHook';
@@ -52,13 +64,14 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep, subStageId })
   const { userOptions } = useUsersHook();
 
   useEffect(() => {
-    if (status.task.fetch === Status.IDLE && subStageId) {
-      dispatch(fetchJobProcessSubStageTasks(subStageId)).unwrap();
-    }
+    dispatch(fetchJobProcessSubStageTasks(subStageId)).unwrap();
+  }, [subStageId]);
+
+  useEffect(() => {
     if (status.fetchbPredecessorTask === Status.IDLE) {
       dispatch(fetchJobPredecessorTask()).unwrap();
     }
-  }, [status.task.fetch, status.fetchbPredecessorTask, subStageId, dispatch]);
+  }, [status.fetchbPredecessorTask, dispatch]);
 
   useEffect(() => {
     setTasks(jobProcessTask || []);
@@ -66,7 +79,7 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep, subStageId })
 
   const openTaskModal = (task?: JobProcessTask) => {
     if (task) {
-      setEditingTaskId(task.taskId);
+      setEditingTaskId(task.jobProcessTaskId);
       const predecessorsWithId = (task.dependencies || []).map(dep => ({
         id: dep.taskId,
         taskId: dep.taskId,
@@ -104,7 +117,7 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep, subStageId })
   };
 
   const handleEditSubTask = (taskId: string, subTaskId: string) => {
-    const task = tasks.find(t => t.taskId === taskId);
+    const task = tasks.find(t => t.jobProcessTaskId === taskId);
     const subTask = task?.subTasks?.find(c => c.subTaskId === subTaskId);
 
     if (subTask) {
@@ -119,7 +132,7 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep, subStageId })
   };
 
   const handleDeleteSubTask = (taskId: string, subTaskId: string) => {
-    dispatch(deleteJobProcessSubTasks(subTaskId))
+    dispatch(deleteJobProcessSubTasks({ subTaskId, taskId }))
       .unwrap()
       .then(() => {
         message.success('Sub-task deleted successfully');
@@ -132,29 +145,33 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep, subStageId })
   const handleSaveSubTask = async () => {
     try {
       const values = await form.validateFields();
-      
+
       if (editingSubId) {
         // Update existing sub-task
-        await dispatch(updateJobProcessSubTasks({
-          subTaskId: editingSubId,
-          data: {
-            name: values.name,
-            sortOrder: values.sortOrder || 1,
-          }
-        })).unwrap();
+        await dispatch(
+          updateJobProcessSubTasks({
+            subTaskId: editingSubId,
+            data: {
+              name: values.name,
+              sortOrder: values.sortOrder || 1,
+            },
+          })
+        ).unwrap();
         message.success('Sub-task updated successfully');
       } else {
         // Create new sub-task
-        await dispatch(createJobProcessSubTasks({
-          taskId: selectedTaskId!,
-          data: {
-            name: values.name,
-            sortOrder: values.sortOrder || 1,
-          }
-        })).unwrap();
+        await dispatch(
+          createJobProcessSubTasks({
+            taskId: selectedTaskId,
+            data: {
+              name: values.name,
+              sortOrder: values.sortOrder || 1,
+            },
+          })
+        ).unwrap();
         message.success('Sub-task created successfully');
       }
-      
+
       setIsModalOpen(false);
       setEditingSubId(null);
       setSelectedTaskId(null);
@@ -241,7 +258,7 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep, subStageId })
       </div>
 
       {/* Table Wrapper */}
-      <div className="border rounded-md overflow-hidden w-full ant-table-wrapper overflow-x-auto custom-scrollbar">
+      <div className="rounded-md overflow-hidden w-full ant-table-wrapper overflow-x-auto custom-scrollbar">
         <div className="ant-table ant-table-small">
           <div className="ant-table-container">
             <div className="ant-table-content">
@@ -261,9 +278,9 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep, subStageId })
 
                 <tbody className="ant-table-tbody">
                   {tasks.map(task => (
-                    <React.Fragment key={task.taskId}>
+                    <React.Fragment key={task.jobProcessTaskId}>
                       {/* Parent Row */}
-                      <tr className="hover:bg-gray-50">
+                      <tr className="hover:bg-font-color-400">
                         <td className="font-medium pl-2">{task.name}</td>
                         <td className="text-center">{task.noOfDays}</td>
                         <td>{task.dependencies?.map(p => p.name).join(', ') || '-'}</td>
@@ -274,29 +291,42 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep, subStageId })
                             <Tooltip title="Add Sub Task">
                               <Button
                                 type="text"
-                                icon={<IconPlus size={18} />}
-                                onClick={() => handleAddSubTask(task.taskId)}
+                                icon={<IconPlus size={16} />}
+                                onClick={() => {
+                                  handleAddSubTask(task.jobProcessTaskId);
+                                }}
                               />
                             </Tooltip>
                             <Tooltip title="Edit">
                               <Button
                                 type="text"
-                                icon={<IconEdit size={18} />}
+                                icon={<IconEdit size={16} />}
                                 onClick={() => openTaskModal(task)}
                               />
                             </Tooltip>
                             <Tooltip title="Delete">
                               <Popconfirm
-                                title="Are you sure you want to delete this task?"
-                                description="This action cannot be undone."
-                                onConfirm={() => handleDeleteTask(task.taskId)}
+                                overlayStyle={{ width: 400 }}
+                                title={
+                                  <>
+                                    <p>
+                                      This task will be deleted only if confirmation and
+                                      verification with the customer are incomplete.
+                                    </p>
+                                    <div className="ml-3 my-3">
+                                      <p>All sub-tasks under this task will be deleted.</p>
+                                      <p>
+                                        All trigger actions mapped to this task will be deleted.
+                                      </p>
+                                    </div>
+                                    <p>Are you sure you want to delete this task?</p>
+                                  </>
+                                }
+                                onConfirm={() => handleDeleteTask(task.jobProcessTaskId)}
                                 okText="Yes"
                                 cancelText="No"
                               >
-                                <Button
-                                  type="text"
-                                  icon={<IconTrash size={18} />}
-                                />
+                                <Button type="text" icon={<IconTrash size={16} color="red" />} />
                               </Popconfirm>
                             </Tooltip>
                           </Space>
@@ -306,11 +336,11 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep, subStageId })
                       {task.subTasks?.map(subTask => (
                         <tr
                           key={subTask.subTaskId}
-                          className="bg-gray-100 border-t border-gray-200"
+                          className="bg-body-color border-t border-border-color"
                         >
                           <td className="pl-8 flex items-center gap-2">
                             <IconArrowRight size={16} />
-                            <span className="font-medium text-gray-700">{subTask.name}</span>
+                            <span className="font-medium text-font-color-100">{subTask.name}</span>
                           </td>
                           <td className="text-center">{subTask.sortOrder}</td>
                           <td colSpan={2}></td>
@@ -320,22 +350,23 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep, subStageId })
                               <Tooltip title="Edit">
                                 <Button
                                   type="text"
-                                  icon={<IconEdit size={18} />}
-                                  onClick={() => handleEditSubTask(task.taskId, subTask.subTaskId)}
+                                  icon={<IconEdit size={16} />}
+                                  onClick={() =>
+                                    handleEditSubTask(task.jobProcessTaskId, subTask.subTaskId)
+                                  }
                                 />
                               </Tooltip>
                               <Tooltip title="Delete">
                                 <Popconfirm
                                   title="Are you sure you want to delete this sub-task?"
                                   description="This action cannot be undone."
-                                  onConfirm={() => handleDeleteSubTask(task.taskId, subTask.subTaskId)}
+                                  onConfirm={() =>
+                                    handleDeleteSubTask(task.jobProcessTaskId, subTask.subTaskId)
+                                  }
                                   okText="Yes"
                                   cancelText="No"
                                 >
-                                  <Button
-                                    type="text"
-                                    icon={<IconTrash size={18} />}
-                                  />
+                                  <Button type="text" icon={<IconTrash size={16} color="red" />} />
                                 </Popconfirm>
                               </Tooltip>
                             </Space>
@@ -431,17 +462,17 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep, subStageId })
                 <Form.Item name="notify" valuePropName="checked" noStyle>
                   <Checkbox />
                 </Form.Item>
-                <span>Notify</span>
+                <span className="text-font-color-100">Notify</span>
 
                 <Form.Item name="milestone" valuePropName="checked" noStyle>
                   <Checkbox />
                 </Form.Item>
-                <span>Milestone</span>
+                <span className="text-font-color-100">Milestone</span>
 
                 <Form.Item name="attachmentMandatory" valuePropName="checked" noStyle>
                   <Checkbox />
                 </Form.Item>
-                <span>Attachment Mandatory</span>
+                <span className="text-font-color-100">Attachment Mandatory</span>
               </Space>
             </Form.Item>
             <PredecessorTable

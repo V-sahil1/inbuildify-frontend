@@ -3,6 +3,7 @@ import API_ENDPOINTS from '@lib/constants/apiEndpoints';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { ApiResponse } from '../../../auth/IAuthState';
 import { JobInvoiceSetting, JobInvoiceStage } from './IJobInvoiceState';
+import { CommonPagination } from '@redux/feature/common/ICommonState';
 
 export const fetchJobInvoiceSetting = createAsyncThunk(
   'jobInvoice/fetch',
@@ -32,12 +33,12 @@ export const updateJobInvoiceSetting = createAsyncThunk(
 
 export const fetchJobInvoiceStage = createAsyncThunk(
   'JobInvoiceStage/fetch',
-  async (_, { rejectWithValue }) => {
+  async (params:{page?:number,limit?:number}={}, { rejectWithValue }) => {
     try {
-      const response = await api.get<ApiResponse<{ jobInvoiceStagePayments: JobInvoiceStage[] }>>(
-        API_ENDPOINTS.JOB_INVOICE_STAGE
+      const response = await api.get<ApiResponse<{ jobInvoiceStagePayments: JobInvoiceStage[],pagination:CommonPagination }>>(
+        API_ENDPOINTS.JOB_INVOICE_STAGE,{params}
       );
-      return response.data.jobInvoiceStagePayments;
+      return response.data;
     } catch (error) {
       return rejectWithValue(error?.message);
     }

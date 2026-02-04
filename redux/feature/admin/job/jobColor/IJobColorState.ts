@@ -1,4 +1,5 @@
 import { Status } from '@lib/constants/enum';
+import { CommonPagination } from '@redux/feature/common/ICommonState';
 
 export interface JobColorSettings {
   jobColorSettingsId: string;
@@ -42,4 +43,5 @@ export interface IJobColorState {
     fetch: Status;
     update: Status;
   };
+  pagination:CommonPagination
 }

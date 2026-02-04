@@ -58,7 +58,6 @@ export const Setting: React.FC = () => {
       message.info('No changes to save');
       return;
     }
-
     try {
       await dispatch(updateJobSetting(updatedFields)).unwrap();
       message.success('Settings saved successfully!');
@@ -190,7 +189,7 @@ export const Setting: React.FC = () => {
       </div>
 
       {isChanged && (
-        <div className="flex justify-end gap-3 pt-6 border-t mt-10">
+        <div className="flex justify-end gap-3 pt-6 border-t border-border-color mt-10">
           <Button
             size="large"
             onClick={handleCancel}

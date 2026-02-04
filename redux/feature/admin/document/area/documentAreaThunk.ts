@@ -27,7 +27,7 @@ export const fetchAllDocumentArea = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await api.get<
-        ApiResponse<{ commonFolders: IDocumentCommonFolder[]; pagination: Pagination }>
+        ApiResponse<IDocumentCommonFolder[]>
       >(API_ENDPOINTS.DOCUMENT_AREA);
       return response.data;
     } catch (error) {
@@ -87,7 +87,7 @@ export const fetchAllDocumentSubFolder = createAsyncThunk(
   async (id: string, { rejectWithValue }) => {
     try {
       const response = await api.get<
-        ApiResponse<{ records: DocumentSubFolder[]; pagination: Pagination }>
+        ApiResponse<DocumentSubFolder[]>
       >(API_ENDPOINTS.DOCUMENT_SUB_FOLDER + `/${id}`);
       return { data: response.data, commonFolderId: id };
     } catch (error) {

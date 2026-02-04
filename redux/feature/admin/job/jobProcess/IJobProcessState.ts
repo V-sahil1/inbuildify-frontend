@@ -31,10 +31,11 @@ export interface JobProcessSubTask {
   subTaskId: string;
   name: string;
   sortOrder: number;
+  jobProcessTask?:Entity
 }
 
 export interface JobProcessTask {
-  taskId: string;
+  jobProcessTaskId: string;
   name: string;
   description: string;
   sortOrder: number;

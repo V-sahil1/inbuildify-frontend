@@ -44,6 +44,13 @@ export function getUpdatedFields<T extends Record<string, any>>(
       }
     }
     // Handle primitive values and other cases
+    else if (
+      // Treat empty string and null as the same - don't count as update
+      (currentValue === '' && originalValue === null) ||
+      (currentValue === null && originalValue === '')
+    ) {
+      // Do nothing - these are considered the same
+    }
     else if (currentValue !== originalValue) {
       acc[key] = currentValue;
     }

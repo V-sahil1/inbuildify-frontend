@@ -1,4 +1,5 @@
 import { Status } from "@lib/constants/enum";
+import { CommonPagination } from "@redux/feature/common/ICommonState";
 
 export interface JobInvoiceSetting {
   showInvoiceSummaryInPdf: boolean;
@@ -24,4 +25,5 @@ export interface IJobInvoiceState {
     fetch: Status;
     update: Status;
   }
+  pagination: CommonPagination
 }

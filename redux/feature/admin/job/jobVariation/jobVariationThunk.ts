@@ -7,7 +7,6 @@ import {
   jobVariationApprovalResponse,
   JobVariationSetting,
 } from './IJobVariationState';
-import { Pagination } from '../../general/surveyor/ISurveyorState';
 
 export const fetchJobVariationSetting = createAsyncThunk(
   'jobVariationSetting/fetch',
@@ -42,13 +41,10 @@ export const fetchJobVariationLimit = createAsyncThunk(
   'jobVariationLimit/fetch',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get<
-        ApiResponse<{
-          jobVariationApproval: jobVariationApprovalResponse[];
-          pagination: Pagination;
-        }>
-      >(API_ENDPOINTS.JOB_VARIATION_APPROVAL);
-      return response.data.jobVariationApproval;
+      const response = await api.get<ApiResponse<jobVariationApprovalResponse[]>>(
+        API_ENDPOINTS.JOB_VARIATION_APPROVAL
+      );
+      return response.data;
     } catch (error) {
       return rejectWithValue(error?.message);
     }
