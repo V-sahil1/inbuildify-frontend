@@ -13,6 +13,7 @@ import {
   updateContructionOption,
 } from '@redux/feature/admin/construction/constructionOption/constructionOptionThunk';
 import { Status } from '@lib/constants/enum';
+import TooltipButton from '@/components/common/TooltipButton';
 
 export const Options: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -96,14 +97,16 @@ export const Options: React.FC = () => {
       align: 'right' as const,
       render: (_, record: IConstructionOption) => (
         <Space>
-          <Button
-            type="default"
-            icon={<IconEdit className="!text-blue-500" />}
+          <TooltipButton
+            title="Edit"
+            type="text"
+            icon={<IconEdit size={16} />}
             onClick={() => handleOpenModal(record)}
           />
-          <Button
-            type="default"
-            icon={<IconTrash className="!text-red-500" />}
+          <TooltipButton
+            title="Delete"
+            type="text"
+            icon={<IconTrash size={16} color="red" />}
             onClick={() => confirmDelete(record)}
           />
         </Space>

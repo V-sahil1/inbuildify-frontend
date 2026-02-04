@@ -139,7 +139,8 @@ export const ChecklistField = ({
           <Col flex="1" className="flex items-center justify-end gap-2">
             <TooltipButton
               title="Add Sub checklist"
-              icon={<IconPlus size={14} />}
+              type="text"
+              icon={<IconPlus size={16} />}
               onClick={() => {
                 setModalOpen('create');
               }}
@@ -147,14 +148,16 @@ export const ChecklistField = ({
 
             <TooltipButton
               title="Edit"
-              icon={<IconEdit size={14} />}
+              type="text"
+              icon={<IconEdit size={16} />}
               onClick={() => {
                 setEditing(data);
               }}
             />
             <TooltipButton
               title="Delete"
-              icon={<IconTrash size={14} />}
+              type="text"
+              icon={<IconTrash size={16} color="red" />}
               onClick={() => {
                 setEditing(data);
                 setChecklistModalOpen('delete');
@@ -227,6 +230,7 @@ export const ChecklistField = ({
                           <div className="flex justify-between gap-2">
                             <TooltipButton
                               title="Edit"
+                              type="text"
                               icon={<IconEdit size={14} />}
                               onClick={() => {
                                 setEditedSubChecklist(record);
@@ -236,7 +240,8 @@ export const ChecklistField = ({
                             />
                             <TooltipButton
                               title="Delete"
-                              icon={<IconTrash size={14} />}
+                              type="text"
+                              icon={<IconTrash size={14} color="red" />}
                               onClick={() => {
                                 setEditedSubChecklist(record);
                                 setModalOpen('deleteSubChecklist');

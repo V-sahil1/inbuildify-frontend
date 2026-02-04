@@ -147,7 +147,10 @@ export function ChecklistSettingForm({
           <Col flex="auto">
             <Row gutter={8}>
               <Col flex="3" className="p-2 rounded">
-                <Form.Item name="name">
+                <Form.Item
+                  name="name"
+                  rules={[{ required: true, message: 'Please Enter Checklist Name' }]}
+                >
                   <Input placeholder="Checklist Name" />
                 </Form.Item>
               </Col>
@@ -293,7 +296,7 @@ export function ChecklistSettingForm({
             <Col flex="80px" className="text-center" />
             <Col flex="auto">
               <Col flex="6" className="p-2 rounded">
-                <div className="flex gap-2">
+                <div className="flex gap-2 text-font-color">
                   <p>PO Folder:</p>
                   <Form.Item name="poFolderId">
                     <Select placeholder="Select PO Folder" options={folderOptions} />
@@ -303,7 +306,7 @@ export function ChecklistSettingForm({
             </Col>
             <Col flex="auto">
               <Col flex="6" className="p-2 rounded">
-                <div className="flex gap-2">
+                <div className="flex gap-2 text-font-color">
                   <p>Job Document Folder:</p>
                   <Form.Item name="jobDocumentsFolderId">
                     <Select placeholder="Select Job Folder" options={folderOptions} />
@@ -353,7 +356,8 @@ export function ChecklistSettingForm({
                         <div className="flex gap-2">
                           <TooltipButton
                             title="Edit"
-                            icon={<IconEdit />}
+                            type="text"
+                            icon={<IconEdit size={16} />}
                             onClick={() => {
                               setOffset(record.offset);
                               setEditedPredecessor(record);
@@ -362,7 +366,8 @@ export function ChecklistSettingForm({
                           />
                           <TooltipButton
                             title="Delete"
-                            icon={<IconTrash />}
+                            type="text"
+                            icon={<IconTrash size={16} color="red" />}
                             onClick={() => {
                               setEditedPredecessor(record);
                               setOpenModel('delete');
@@ -403,6 +408,7 @@ export function ChecklistSettingForm({
               name: 'predecessorChecklistId',
               type: 'select',
               options: checklistOptions,
+              rules:[{required:true,message:'Please Select Predecessor Checklist'}]
             },
             {
               label: 'Offset',

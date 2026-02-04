@@ -6,6 +6,7 @@ export const checklistFormFields = (dataRequired, setDataRequired) => {
       label: 'Name',
       name: 'name',
       type: 'text',
+      rules: [{required: true, message: 'Please Enter Name'}]
     },
     {
       label: 'No of days',

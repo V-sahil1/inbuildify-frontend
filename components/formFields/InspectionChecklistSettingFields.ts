@@ -40,7 +40,7 @@ export const inspectionChecklistSettingFields = (
         label: 'Add the insoection into all the existing jobs',
         name: 'addAllExistingJobs',
         type: 'switch',
-        initialValue: onExistingJob.checklist,
+        initialValue: onExistingJob?.checklist || null,
         onChange: value => {
           setExistingJob(prev => ({ ...prev, checklist: value }));
         },

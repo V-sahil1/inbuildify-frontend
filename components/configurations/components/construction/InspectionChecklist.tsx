@@ -20,6 +20,7 @@ import { Status } from '@lib/constants/enum';
 import { fetchAllConstructionOption } from '@redux/feature/admin/construction/constructionOption/constructionOptionThunk';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import { InspectionChecklistType } from '@redux/feature/admin/construction/InspectionChecklist/InspectionChecklistState';
+import TooltipButton from '@/components/common/TooltipButton';
 
 export const InspectionChecklist: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -202,17 +203,20 @@ export const InspectionChecklist: React.FC = () => {
       align: 'center' as const,
       render: (_, record: InspectionChecklistType) => (
         <div className="flex justify-center gap-4">
-          <IconPencil
-            className="text-blue-600 cursor-pointer hover:scale-110 transition"
+          <TooltipButton
+            title="Edit"
+            type="text"
+            icon={<IconPencil size={16} />}
             onClick={() => {
               setEditing(record);
               setExistingJob(prev => ({ ...prev, section: record.addAllExistingJobs }));
               setModalopen('section');
             }}
           />
-
-          <IconTrash
-            className="text-red-600 cursor-pointer hover:scale-110 transition"
+          <TooltipButton
+            title="Delete"
+            type="text"
+            icon={<IconTrash size={16} color="red" />}
             onClick={() => {
               setEditing(record);
               setExistingJob(prev => ({ ...prev, section: record.addAllExistingJobs }));
@@ -258,16 +262,20 @@ export const InspectionChecklist: React.FC = () => {
         align: 'center' as const,
         render: (_, record) => (
           <div className="flex justify-center gap-4">
-            <IconPencil
-              className="text-blue-600 cursor-pointer hover:scale-110 transition"
+            <TooltipButton
+              title="Edit"
+              type="text"
+              icon={<IconPencil size={16} />}
               onClick={() => {
                 setEditedChecklist(record);
                 setExistingJob(prev => ({ ...prev, checklist: record.addAllExistingJobs }));
                 setModalopen('checklist');
               }}
             />
-            <IconTrash
-              className="text-red-600 cursor-pointer hover:scale-110 transition"
+            <TooltipButton
+              title="Delete"
+              type="text"
+              icon={<IconTrash size={16} color="red" />}
               onClick={() => {
                 setEditedChecklist(record);
                 setExistingJob(prev => ({ ...prev, checklist: record.addAllExistingJobs }));
@@ -341,7 +349,13 @@ export const InspectionChecklist: React.FC = () => {
             setEditing(null);
             setEditedChecklist(null);
           }}
-          fields={inspectionChecklistSettingFields(modalopen, sectionOptions, options,onExistingJob,setExistingJob)}
+          fields={inspectionChecklistSettingFields(
+            modalopen,
+            sectionOptions,
+            options,
+            onExistingJob,
+            setExistingJob
+          )}
         />
       )}
 

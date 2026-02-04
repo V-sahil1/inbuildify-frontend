@@ -35,7 +35,7 @@ const stageSlice = createSlice({
       state.status.fetch = Status.PENDING;
     });
     builder.addCase(fetchAllConstructionStage.fulfilled, (state, action) => {
-      state.stage = action.payload.constructionStages;
+      state.stage = action.payload;
       state.status.fetch = Status.SUCCESS;
     });
     builder.addCase(fetchAllConstructionStage.rejected, state => {

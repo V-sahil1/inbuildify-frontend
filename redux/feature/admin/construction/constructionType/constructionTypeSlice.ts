@@ -9,7 +9,6 @@ const initialState: ITypeState = {
     fetch: Status.IDLE,
     create: Status.IDLE,
   },
-  pagination: null,
 };
 
 const typeSlice = createSlice({
@@ -22,7 +21,6 @@ const typeSlice = createSlice({
     });
     builder.addCase(createType.fulfilled, (state, action) => {
       state.type.unshift(action.payload);
-      state.pagination.totalRecords = state.pagination.totalRecords + 1;
       state.status.create = Status.SUCCESS;
     });
     builder.addCase(createType.rejected, state => {
@@ -32,8 +30,7 @@ const typeSlice = createSlice({
       state.status.fetch = Status.PENDING;
     });
     builder.addCase(fetchAllType.fulfilled, (state, action) => {
-      state.type = action.payload.constructionTypes;
-      state.pagination = action.payload.pagination;
+      state.type = action.payload;
       state.status.fetch = Status.SUCCESS;
     });
     builder.addCase(fetchAllType.rejected, state => {
@@ -56,7 +53,6 @@ const typeSlice = createSlice({
     });
     builder.addCase(deleteType.fulfilled, (state, action) => {
       state.type = state.type.filter(i => i.constructionTypeId !== action.payload);
-      state.pagination.totalRecords = state.pagination.totalRecords - 1;
       state.status.create = Status.SUCCESS;
     });
     builder.addCase(deleteType.rejected, state => {

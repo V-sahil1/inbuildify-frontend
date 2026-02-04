@@ -22,20 +22,16 @@ export const createType = createAsyncThunk(
   }
 );
 
-export const fetchAllType = createAsyncThunk(
-  'type/fetchAll',
-  async (params: { page?: number; limit?: number } = {}, { rejectWithValue }) => {
-    const { page = 1, limit = 10 } = params;
-    try {
-      const response = await api.get<
-        ApiResponse<{ constructionTypes: ConstructionType[]; pagination: CommonPagination }>
-      >(API_ENDPOINTS.CONSTRUCTION_TYPE, { params: { page, limit } });
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
+export const fetchAllType = createAsyncThunk('type/fetchAll', async (_, { rejectWithValue }) => {
+  try {
+    const response = await api.get<ApiResponse<ConstructionType[]>>(
+      API_ENDPOINTS.CONSTRUCTION_TYPE
+    );
+    return response.data;
+  } catch (error) {
+    return rejectWithValue(error.message);
   }
-);
+});
 
 export const updateType = createAsyncThunk(
   'type/update',

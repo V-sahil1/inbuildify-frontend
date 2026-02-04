@@ -57,9 +57,9 @@ export const fetchAllETSRehargeItem = createAsyncThunk(
   'etsRehargeItem/fetchAll',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get<
-        ApiResponse<{ approvals: ETSRechargeItem[]; pagination: Pagination }>
-      >(API_ENDPOINTS.ETS_RECHARGE_APPROVAL);
+      const response = await api.get<ApiResponse<ETSRechargeItem[]>>(
+        API_ENDPOINTS.ETS_RECHARGE_APPROVAL
+      );
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);

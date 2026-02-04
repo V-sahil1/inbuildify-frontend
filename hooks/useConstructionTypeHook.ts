@@ -13,7 +13,7 @@ export const useConstructionTypeHook = () => {
 
   const fetchConstructionTypeData = async () => {
     try {
-      await dispatch(fetchAllType({})).unwrap();
+      await dispatch(fetchAllType()).unwrap();
     } catch (error) {
       message.error(error || 'Failed to fetch buiders');
     }

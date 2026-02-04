@@ -66,7 +66,7 @@ const ETSRehargeSlice = createSlice({
       state.etsItemStatus.fetch = Status.PENDING;
     });
     builder.addCase(fetchAllETSRehargeItem.fulfilled, (state, action) => {
-      state.etsItems = action.payload.approvals;
+      state.etsItems = action.payload;
       state.etsItemStatus.fetch = Status.SUCCESS;
     });
     builder.addCase(fetchAllETSRehargeItem.rejected, state => {

@@ -16,6 +16,7 @@ import { Status } from '@lib/constants/enum';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import { OHSListCategory } from '@redux/feature/admin/construction/constructionOHS/IOHSListState';
 import { toggleExpand } from '@redux/feature/admin/construction/constructionOHS/OHSListSlice';
+import TooltipButton from '@/components/common/TooltipButton';
 
 export const OHList: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -241,8 +242,10 @@ export const OHList: React.FC = () => {
         align: 'center' as const,
         render: (_, record) => (
           <div className="flex justify-center gap-4">
-            <IconPencil
-              className="text-blue-600 cursor-pointer hover:scale-110 transition"
+            <TooltipButton
+              title="Edit"
+              type="text"
+              icon={<IconPencil size={16} />}
               onClick={() => {
                 setEditing(record);
                 setModalopen('item');
@@ -252,7 +255,11 @@ export const OHList: React.FC = () => {
               title="Are you sure you want to delete this?"
               onConfirm={() => handleDelete(record)}
             >
-              <IconTrash className="text-red-600 cursor-pointer hover:scale-110 transition" />
+              <TooltipButton
+                title="Delete"
+                type="text"
+                icon={<IconTrash size={16} color="red" />}
+              />
             </Popconfirm>
           </div>
         ),
@@ -313,8 +320,10 @@ export const OHList: React.FC = () => {
               className="w-48"
             />
           </div>
-          <p className="text-font-color-100
-           text-sm leading-snug mt-2">
+          <p
+            className="text-font-color-100
+           text-sm leading-snug mt-2"
+          >
             Based on the values provided, score will be calculated on the OH&amp;S count graph. If
             the value is provided as <span className="font-semibold">2</span>, then the scoring can
             be calculated as follows:

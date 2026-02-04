@@ -25,29 +25,21 @@ export const Types: React.FC = () => {
   const { builderOptions } = useBuildersHook();
   const { dwellingTypeOptions } = useDwellingAndRangeHook({ type: 'dwellingType' });
   const [builderId, setBuilderId] = useState<string>('');
-  const {
-    type,
-    status: constructionTypeStatus,
-    pagination,
-  } = useAppSelector(state => state.construction.constructionType);
-  const { currentPage = 1, limit = 10, totalRecords = 0 } = pagination || {};
+  const { type, status: constructionTypeStatus } = useAppSelector(
+    state => state.construction.constructionType
+  );
 
-  const fetchData = async (page: number = currentPage, limit: number = 10) => {
+  const fetchData = async () => {
     try {
-      const result = await dispatch(fetchAllType({ page, limit })).unwrap();
+      const result = await dispatch(fetchAllType()).unwrap();
     } catch (error) {
       message.error(error || 'Failed to fetch construction type');
     }
   };
 
-  const handleTableChange = async paginationConfig => {
-    const { current, pageSize: newPageSize } = paginationConfig;
-    await fetchData(current, newPageSize);
-  };
-
   useEffect(() => {
     if (constructionTypeStatus.fetch === Status.IDLE) {
-      fetchData(1, 10);
+      fetchData();
     }
   }, [constructionTypeStatus.fetch]);
 
@@ -197,15 +189,7 @@ export const Types: React.FC = () => {
         columns={columns}
         dataSource={type || []}
         rowKey="constructionTypeId"
-        pagination={{
-          current: currentPage,
-          pageSize: limit,
-          total: totalRecords,
-          showSizeChanger: false,
-          showQuickJumper: false,
-          showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
-        }}
-        onChange={handleTableChange}
+        pagination={false}
         bordered
         className="text-sm"
         loading={constructionTypeStatus.fetch === Status.PENDING}

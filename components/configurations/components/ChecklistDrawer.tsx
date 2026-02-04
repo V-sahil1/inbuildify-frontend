@@ -93,7 +93,7 @@ const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({ open, onClose, record
   async function fetchData() {
     if (typeStatus.fetch === Status.IDLE) {
       try {
-        await dispatch(fetchAllType({})).unwrap();
+        await dispatch(fetchAllType()).unwrap();
       } catch (error) {
         message.error(error || 'failed to fetch type');
       }

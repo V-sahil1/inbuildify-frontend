@@ -26,9 +26,9 @@ export const fetchAllConstructionOption = createAsyncThunk(
   'constructionOption/fetchAll',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get<
-        ApiResponse<{ constructionOptions: IConstructionOption[]; pagination: Pagination }>
-      >(API_ENDPOINTS.CONSTRUCTION_OPTION);
+      const response = await api.get<ApiResponse<IConstructionOption[]>>(
+        API_ENDPOINTS.CONSTRUCTION_OPTION
+      );
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);

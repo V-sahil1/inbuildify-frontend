@@ -35,7 +35,7 @@ const constructionOptionSlice = createSlice({
       state.status.fetch = Status.PENDING;
     });
     builder.addCase(fetchAllConstructionOption.fulfilled, (state, action) => {
-      state.constructionOption = action.payload.constructionOptions;
+      state.constructionOption = action.payload;
       state.status.fetch = Status.SUCCESS;
     });
     builder.addCase(fetchAllConstructionOption.rejected, state => {
@@ -53,7 +53,7 @@ const constructionOptionSlice = createSlice({
     builder.addCase(updateContructionOption.rejected, state => {
       state.status.create = Status.ERROR;
     });
-    builder.addCase(deleteConstructionOption.pending, (state) => {
+    builder.addCase(deleteConstructionOption.pending, state => {
       state.status.create = Status.PENDING;
     });
     builder.addCase(deleteConstructionOption.fulfilled, (state, action) => {

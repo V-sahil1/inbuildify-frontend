@@ -15,7 +15,6 @@ import { IconPlus, IconEdit, IconTrash, IconCheck, IconX } from '@tabler/icons-r
 import { useBuildersHook } from '@hooks/useBuildersHook';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { Status } from '@lib/constants/enum';
-import { fetchAllType } from '@redux/feature/admin/construction/constructionType/constructionTypeThunk';
 import {
   createStage,
   deleteStage,
@@ -24,71 +23,22 @@ import {
 } from '@redux/feature/admin/construction/constructionStage/constructionStageThunk';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import { ConstructionStage } from '@redux/feature/admin/construction/constructionStage/IConstructionStageState';
-
-function normalizeAndSort(arr: ConstructionStage[]) {
-  return arr
-    .slice()
-    .sort((a, b) => a.sortOrder - b.sortOrder)
-    .map((r, i) => ({ ...r, sortOrder: i + 1 }));
-}
-
-function insertAtSort(rows: ConstructionStage[], newRow: ConstructionStage, desiredSort: number) {
-  const max = rows.length + 1;
-  const pos = Math.min(Math.max(1, Math.floor(desiredSort)), max);
-  // bump all with sort >= pos
-  const updated = rows.map(r => (r.sortOrder >= pos ? { ...r, sortOrder: r.sortOrder + 1 } : r));
-  updated.push({ ...newRow, sortOrder: pos });
-  return normalizeAndSort(updated);
-}
-
-function moveAndReindex(
-  rows: ConstructionStage[],
-  id: string,
-  newSort: number,
-  updatedValues?: Partial<ConstructionStage>
-) {
-  const old = rows.find(r => r.constructionStage === id);
-  if (!old) return normalizeAndSort(rows);
-  const oldSort = old.sortOrder;
-  const max = rows.length;
-  const pos = Math.min(Math.max(1, Math.floor(newSort)), max);
-
-  const others = rows.filter(r => r.constructionStage !== id).map(r => ({ ...r }));
-  const shifted = others.map(r => {
-    if (pos < oldSort) {
-      if (r.sortOrder >= pos && r.sortOrder < oldSort) return { ...r, sortOrder: r.sortOrder + 1 };
-    } else if (pos > oldSort) {
-      if (r.sortOrder <= pos && r.sortOrder > oldSort) return { ...r, sortOrder: r.sortOrder - 1 };
-    }
-    return r;
-  });
-
-  const moved = { ...old, ...(updatedValues || {}), sortOrder: pos };
-  return normalizeAndSort([...shifted, moved]);
-}
+import { useConstructionTypeHook } from '@hooks/useConstructionTypeHook';
+import TooltipButton from '@/components/common/TooltipButton';
 
 export function Stages() {
   const dispatch = useAppDispatch();
   const [editingId, setEditingId] = useState<string | 'new' | null>(null);
   const [selectedStage, setSelectedStage] = useState<ConstructionStage | null>(null);
   const [local, setLocal] = useState<Partial<ConstructionStage> | null>(null);
-  const [builderId, setBuilderId] = useState<string>('');
-  const [typeId, setTypeId] = useState<string>('');
+  const [header, setHeader] = useState<{ builder: string; type: string }>({
+    builder: null,
+    type: null,
+  });
   const { builderOptions } = useBuildersHook();
-  const { type, status: typeStatus } = useAppSelector(state => state.construction.constructionType);
   const { stage, status } = useAppSelector(state => state.construction.constructionStage);
-  const typeOptions =
-    type && type.length > 0
-      ? type.map(i => ({ value: i.constructionTypeId, label: i.typesName }))
-      : [];
+  const { typeOptions } = useConstructionTypeHook();
 
-  const fetchTypeData = async () => {
-    try {
-      await dispatch(fetchAllType({})).unwrap();
-    } catch (error) {
-      message.error(error || 'Failed to fetch construction type');
-    }
-  };
   const fetchStageData = async () => {
     try {
       await dispatch(fetchAllConstructionStage()).unwrap();
@@ -97,22 +47,22 @@ export function Stages() {
     }
   };
   useEffect(() => {
-    if (typeStatus.fetch === Status.IDLE) {
-      fetchTypeData();
+    if (typeOptions && typeOptions.length > 0) {
+      setHeader(prev => ({ ...prev, type: typeOptions[0].value }));
     }
-    if (type && type.length > 0) {
-      setTypeId(type[0].constructionTypeId);
-    }
+  }, [typeOptions]);
+
+  useEffect(() => {
     if (status.fetch === Status.IDLE) {
       fetchStageData();
     }
-  }, [typeStatus.fetch, status.fetch]);
+  }, [status.fetch]);
 
   useEffect(() => {
-    if (builderOptions && builderOptions.length > 0 && !builderId) {
-      setBuilderId(builderOptions[0].value);
+    if (builderOptions && builderOptions.length > 0) {
+      setHeader(prev => ({ ...prev, builder: builderOptions[0].value }));
     }
-  }, [builderOptions, builderId]);
+  }, [builderOptions]);
 
   const startEdit = (row?: ConstructionStage) => {
     if (!row) {
@@ -150,8 +100,8 @@ export function Stages() {
       if (editingId === 'new') {
         // insert
         const newRow: ConstructionStage = {
-          constructionTypeId: typeId,
-          builder: builderId,
+          constructionTypeId: header.type,
+          builder: header.builder,
           stageName: local.stageName!,
           days: Number(local.days || 0),
           sortOrder: 1,
@@ -173,7 +123,7 @@ export function Stages() {
           fontColor: local.fontColor,
           sortOrder: local.sortOrder,
         };
-        const {isUpdated,updatedFields} = getUpdatedFields(updatedValues, selectedStage);
+        const { isUpdated, updatedFields } = getUpdatedFields(updatedValues, selectedStage);
         if (!isUpdated) {
           setSelectedStage(null);
           setEditingId(null);
@@ -210,6 +160,7 @@ export function Stages() {
       {
         title: 'Stage Name',
         key: 'stageName',
+        width: 120,
         render: (_, rec: ConstructionStage) =>
           editingId === rec.constructionStage ||
           (editingId === 'new' && rec.constructionStage === (local?.constructionStage ?? 0)) ? (
@@ -217,7 +168,7 @@ export function Stages() {
               value={local?.stageName}
               onChange={e => setLocal(s => ({ ...(s || {}), stageName: e.target.value }))}
               placeholder="Stage name"
-              className="w-full"
+              className="w-25"
             />
           ) : (
             <div>{rec.stageName}</div>
@@ -226,7 +177,6 @@ export function Stages() {
       {
         title: 'Days',
         key: 'days',
-        width: 120,
         render: (_, rec: ConstructionStage) =>
           editingId === rec.constructionStage ||
           (editingId === 'new' && rec.constructionStage === (local?.constructionStage ?? 0)) ? (
@@ -234,7 +184,6 @@ export function Stages() {
               min={0}
               value={local?.days}
               onChange={v => setLocal(s => ({ ...(s || {}), days: Number(v || 0) }))}
-              className="w-24"
             />
           ) : (
             <div>{rec.days} Days</div>
@@ -368,16 +317,22 @@ export function Stages() {
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <Button size="small" type="text" icon={<IconEdit size={16} />} onClick={() => startEdit(rec)} />
+              <TooltipButton
+                title="Edit"
+                size="small"
+                type="text"
+                icon={<IconEdit size={16} />}
+                onClick={() => startEdit(rec)}
+              />
               <Popconfirm
-                title="Delete this stage?"
+                title="Are you sure you want to delete this stage?"
                 onConfirm={() => deleteRow(rec.constructionStage)}
               >
-                <Button
+                <TooltipButton
+                  title="Delete"
                   size="small"
                   type="text"
-                  danger
-                  icon={<IconTrash size={16} />}
+                  icon={<IconTrash size={16} color="red" />}
                   disabled={status.create === Status.PENDING}
                 />
               </Popconfirm>
@@ -393,8 +348,8 @@ export function Stages() {
         ...stage,
         {
           constructionStage: local.constructionStage as string,
-          constructionTypeId: typeId,
-          builder: builderId,
+          constructionTypeId: header?.type,
+          builder: header?.builder,
           stageName: local.stageName || '',
           days: Number(local.days || 0),
           sortOrder: Number(local.sortOrder || stage.length + 1),
@@ -416,8 +371,8 @@ export function Stages() {
           <Select
             className="w-full"
             options={builderOptions}
-            value={builderId}
-            onChange={value => setBuilderId(value)}
+            value={header?.builder}
+            onChange={value => setHeader(prev => ({ ...prev, builder: value }))}
           />
         </div>
         <div className="w-full">
@@ -425,8 +380,8 @@ export function Stages() {
           <Select
             className="w-full"
             options={typeOptions}
-            value={typeId}
-            onChange={value => setTypeId(value)}
+            value={header?.type}
+            onChange={value => setHeader(prev => ({ ...prev, type: value }))}
           />
         </div>
         <div>
