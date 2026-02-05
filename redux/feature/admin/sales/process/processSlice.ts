@@ -14,7 +14,6 @@ import {
   updateStage,
 } from './processThunk';
 import { IProcessState } from './IProcessState';
-import EstateDetailsPage from '@/pages/estate/[id]';
 
 const initialState: IProcessState = {
   process: [],
@@ -60,7 +59,7 @@ const processSlice = createSlice({
       state.status.fetch = Status.PENDING;
     });
     builder.addCase(fetchAllProcess.fulfilled, (state, action) => {
-      state.process = action.payload.sales_process.map(process => ({
+      state.process = action.payload.map(process => ({
         ...process,
         isExpanded: false,
         Stages: [],
@@ -113,7 +112,7 @@ const processSlice = createSlice({
 
     builder.addCase(fetchAllStage.fulfilled, (state, action) => {
       const process = state.process.find(i => i.salesProcessId === action.payload.salesProcessId);
-      if (process) process.Stages = action.payload.data.records;
+      if (process) process.Stages = action.payload.data;
       state.stageStatus.fetch = Status.SUCCESS;
     });
     builder.addCase(fetchAllStage.rejected, state => {

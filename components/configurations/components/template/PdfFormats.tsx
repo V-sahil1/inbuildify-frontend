@@ -65,8 +65,7 @@ const PdfFormatForm = ({
         message.info('No changes detected');
         return;
       }
-
-      // Clone updatedFields to avoid mutating if it's used elsewhere (though here it's result of getUpdatedFields)
+            // Clone updatedFields to avoid mutating if it's used elsewhere (though here it's result of getUpdatedFields)
       const finalUpdatedFields = { ...updatedFields };
       let logoImage = undefined;
       let watermarkImage = undefined;
@@ -142,7 +141,7 @@ const PdfFormatForm = ({
   const fontSize = [8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30];
 
   return (
-    <div className="bg-white p-6 rounded-md shadow-sm w-full">
+    <div className="bg-card-color p-6 rounded-md shadow-sm w-full">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold">Template Name - {templateName}</h3>
       </div>

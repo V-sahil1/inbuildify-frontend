@@ -1,4 +1,5 @@
 import { Status } from '@lib/constants/enum';
+import { CommonPagination } from '@redux/feature/common/ICommonState';
 import { Entity } from 'types/common.types';
 
 export interface IntegrationSettings {
@@ -49,4 +50,5 @@ export interface IIntegrationSettingState {
     fetch: Status;
     update: Status;
   };
+  pagination:CommonPagination
 }

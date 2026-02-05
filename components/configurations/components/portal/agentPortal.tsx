@@ -62,7 +62,7 @@ const AgentPortal = () => {
   };
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-sm">
+    <div className="p-6 bg-card-color rounded-lg shadow-sm">
       <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
         <InputSwitch
           name="publishPackagesToAgentPortal"
@@ -85,18 +85,20 @@ const AgentPortal = () => {
         )}
       </Form>
 
-      <ConfirmationContentModal
-        title="Confirm Update"
-        open={showConfirm}
-        onClose={() => setShowConfirm(false)}
-        onSubmit={() => {
-          handleSave();
-          setShowConfirm(false);
-        }}
-        okText="Yes"
-        cancelText="No"
-        content={<p>Are you sure you want to update this setting?</p>}
-      />
+      {showConfirm && (
+        <ConfirmationContentModal
+          title="Confirm Update"
+          open={showConfirm}
+          onClose={() => setShowConfirm(false)}
+          onSubmit={() => {
+            handleSave();
+            setShowConfirm(false);
+          }}
+          okText="Yes"
+          cancelText="No"
+          content={<p>Are you sure you want to update this setting?</p>}
+        />
+      )}
     </div>
   );
 };

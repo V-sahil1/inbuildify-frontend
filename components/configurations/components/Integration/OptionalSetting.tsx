@@ -26,6 +26,7 @@ import {
 } from '@redux/feature/admin/integration/optionalSetting/IintegrationOptionalState';
 import { Entity } from 'types/common.types';
 import TooltipButton from '@/components/common/TooltipButton';
+import { getPaginationConfig } from '@lib/utils/getPaginationConfig';
 
 export const OptionalSettings = () => {
   const { userOptions } = useUsersHook();
@@ -42,9 +43,12 @@ export const OptionalSettings = () => {
     customFieldItemStatus,
     customFieldStatus,
     status,
+    pagination,
   } = useAppSelector(state => state.integration.optionalSetting);
   const [formValues, setFormValues] = useState(integrationSetting);
   const [showSave, setShowSave] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 10;
 
   const fetchIntegrationSettingData = async () => {
     try {
@@ -60,24 +64,25 @@ export const OptionalSettings = () => {
       message.error(error || 'Failed to fetch custom Field header');
     }
   };
-  const fetchCustomFieldItems = async () => {
+  const fetchCustomFieldItems = async (page: number = currentPage, limit: number = PAGE_SIZE) => {
     try {
-      await dispatch(fetchAllCustomFieldItem()).unwrap();
+      await dispatch(fetchAllCustomFieldItem({ page, limit })).unwrap();
     } catch (error) {
       message.error(error || 'Failed to fetch items data');
     }
   };
+
+  useEffect(() => {
+    fetchCustomFieldItems();
+  }, [currentPage]);
+
   useEffect(() => {
     if (status.fetch === Status.IDLE) fetchIntegrationSettingData();
     if (customFieldStatus.fetch === Status.IDLE) {
       fetchCustomFieldHeaderData();
     }
-    if (customFieldItemStatus.fetch === Status.IDLE) {
-      fetchCustomFieldItems();
-    }
-
     if (integrationSetting) setFormValues(integrationSetting);
-  }, [status.fetch, customFieldStatus.fetch, customFieldItemStatus.fetch]);
+  }, [status.fetch, customFieldStatus.fetch]);
 
   useEffect(() => {
     const isChanged =
@@ -159,7 +164,7 @@ export const OptionalSettings = () => {
       await dispatch(
         deleteCustomFieldHeader(selectedCustomField.integrationCustomFieldHeaderId)
       ).unwrap();
-      await dispatch(fetchAllCustomFieldItem()).unwrap();
+      await dispatch(fetchAllCustomFieldItem({ page: currentPage, limit: PAGE_SIZE })).unwrap();
       message.success('custom field header deleted successfully');
       setModelOpen(null);
       setCustomField(null);
@@ -370,7 +375,12 @@ export const OptionalSettings = () => {
           <Table
             columns={dynamicColumns}
             dataSource={customFieldItems}
-            pagination={false}
+            pagination={getPaginationConfig({
+              currentPage,
+              limit: pagination?.limit,
+              totalRecords: pagination?.totalRecords,
+              setCurrentPage,
+            })}
             rowClassName="hover:bg-gray-50"
             loading={customFieldItemStatus.fetch === Status.PENDING}
           />

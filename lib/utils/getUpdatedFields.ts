@@ -39,8 +39,8 @@ export function getUpdatedFields<T extends Record<string, any>>(
       !Array.isArray(originalValue)
     ) {
       const nestedChanges = getUpdatedFields(currentValue as any, originalValue as any);
-      if (Object.keys(nestedChanges).length > 0) {
-        (acc as any)[key] = nestedChanges;
+      if (nestedChanges.isUpdated && Object.keys(nestedChanges.updatedFields).length > 0) {
+        (acc as any)[key] = nestedChanges.updatedFields;
       }
     }
     // Handle primitive values and other cases

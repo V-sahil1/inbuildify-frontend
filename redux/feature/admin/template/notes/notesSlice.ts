@@ -16,6 +16,7 @@ const initialState: INotesState = {
     update: Status.IDLE,
     activate: Status.IDLE,
   },
+  pagination:null
 };
 
 const NotesTemplateSlice = createSlice({
@@ -27,7 +28,8 @@ const NotesTemplateSlice = createSlice({
       state.status.fetch = Status.PENDING;
     });
     builder.addCase(fetchNotesTemplate.fulfilled, (state, action) => {
-      state.notes = action.payload;
+      state.notes = action.payload.templateNotes;
+      state.pagination=action.payload.pagination;
       state.status.fetch = Status.SUCCESS;
     });
     builder.addCase(fetchNotesTemplate.rejected, state => {
@@ -40,6 +42,7 @@ const NotesTemplateSlice = createSlice({
     });
     builder.addCase(createNotesTemplate.fulfilled, (state, action) => {
       state.notes.push(action.payload);
+      state.pagination.totalRecords++;
       state.status.create = Status.SUCCESS;
     });
     builder.addCase(createNotesTemplate.rejected, state => {

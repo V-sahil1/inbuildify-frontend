@@ -1326,6 +1326,16 @@ body .apexcharts-legend-marker {
 }
 
 /* Optionally, remove the card-like styling */
+
+/* Divider text color override */
+.ant-divider-inner-text {
+  color: var(--font-color-100) !important;
+}
+
+/* Alternative Divider text override */
+.ant-divider .ant-divider-inner-text {
+  color: var(--font-color-100) !important;
+}
 .custom-upload .ant-upload-list-picture .ant-upload-list-item-card-actions {
   right: 0;
   top: 0;

@@ -72,14 +72,11 @@ export const CustomerPortal = () => {
   const handleSave = async () => {
     try {
       const formValues = form.getFieldsValue();
-
       const { isUpdated, updatedFields } = getUpdatedFields(formValues, customer || {});
-
-      if (!isUpdated) {
+      if (!isUpdated && fileList.length === 0) {
         setIsChanged(false);
         return;
       }
-
       if (
         formValues.portalActiveDaysAfterHandover !== null &&
         formValues.portalActiveDaysAfterHandover !== undefined &&
@@ -148,8 +145,13 @@ export const CustomerPortal = () => {
   };
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-sm">
-      <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
+    <div className="p-6 bg-card-color rounded-lg shadow-sm">
+      <Form
+        form={form}
+        layout="vertical"
+        onValuesChange={handleValuesChange}
+        disabled={status.update === Status.PENDING}
+      >
         <InputSwitch
           name="sendLoginCredentialsToCustomer"
           label="Options To Send Login Credentials to Customer"
@@ -181,10 +183,10 @@ export const CustomerPortal = () => {
                   }
                 }}
               />
-              <Text type="secondary"> days</Text>
+              <Text className="text-font-color-100"> days</Text>
             </Form.Item>
 
-            <Text type="secondary" className="text-xs block mb-2">
+            <Text className="text-xs text-font-color-100 block mb-2">
               Portal stays active for specified days after handover — then access is auto-disabled.
             </Text>
 
@@ -252,7 +254,7 @@ export const CustomerPortal = () => {
               description="Customers can view invoices & receipts."
             />
 
-            <h1 className="font-semibold text-lg">Default Facade</h1>
+            <h1 className="font-semibold text-lg text-font-color">Default Facade</h1>
 
             <div className="mt-4">
               <Upload
@@ -306,6 +308,7 @@ export const CustomerPortal = () => {
         okText="Yes"
         cancelText="No"
         content={<p>Are you sure you want to save these portal settings?</p>}
+        loading={status.update === Status.PENDING}
       />
     </div>
   );

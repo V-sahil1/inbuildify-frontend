@@ -6,10 +6,10 @@ import { ScheduleEmail } from './ischeduleEmailState';
 
 export const fetchAllScheduleEmail = createAsyncThunk(
   'scheduleEmail/fetchAll',
-  async (_, { rejectWithValue }) => {
+  async (params:{is_active?:boolean}={}, { rejectWithValue }) => {
     try {
-      const response = await api.get<ApiResponse<ScheduleEmail[]>>(
-        API_ENDPOINTS.SCHEDULER_EMAIL
+      const response = await api.get<ApiResponse<{scheduler_emails:ScheduleEmail[],counts:{total:number,active:number,inactive:number}}>>(
+        API_ENDPOINTS.SCHEDULER_EMAIL,{params}
       );
       return response.data;
     } catch (error) {

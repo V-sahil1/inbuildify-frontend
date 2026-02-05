@@ -71,121 +71,118 @@ export interface RichTextEditorRef {
   insertAtCursor: (text: string) => void;
 }
 
-const RichTextEditor = React.forwardRef<RichTextEditorRef, RichTextEditorProps>(({
-  value,
-  onChange,
-  placeholder = 'Enter your message...',
-  maxHeight = '300px',
-}, ref) => {
-  const renderElement = useCallback((props: RenderElementProps) => <Element {...props} />, []);
-  const renderLeaf = useCallback((props: RenderLeafProps) => <Leaf {...props} />, []);
-  const editor = useMemo(() => withHistory(withReact(createEditor())), []);
+const RichTextEditor = React.forwardRef<RichTextEditorRef, RichTextEditorProps>(
+  ({ value, onChange, placeholder = 'Enter your message...', maxHeight = '300px' }, ref) => {
+    const renderElement = useCallback((props: RenderElementProps) => <Element {...props} />, []);
+    const renderLeaf = useCallback((props: RenderLeafProps) => <Leaf {...props} />, []);
+    const editor = useMemo(() => withHistory(withReact(createEditor())), []);
 
-  React.useImperativeHandle(ref, () => ({
-    insertAtCursor: (text: string) => {
-      if (!editor.selection) {
-        // If no selection, focus at the end of the document
-        Transforms.select(editor, Editor.end(editor, []));
+    React.useImperativeHandle(ref, () => ({
+      insertAtCursor: (text: string) => {
+        if (!editor.selection) {
+          // If no selection, focus at the end of the document
+          Transforms.select(editor, Editor.end(editor, []));
+        }
+        Transforms.insertText(editor, text);
+      },
+    }));
+
+    const slateValue = useMemo(() => {
+      if (!value) return [{ type: 'paragraph', children: [{ text: '' }] }];
+
+      try {
+        const parsed = JSON.parse(value);
+        if (Array.isArray(parsed)) return parsed;
+      } catch {
+        if (/<[a-z][\s\S]*>/i.test(value)) return deserialize(value);
       }
-      Transforms.insertText(editor, text);
-    },
-  }));
 
-  const slateValue = useMemo(() => {
-    if (!value) return [{ type: 'paragraph', children: [{ text: '' }] }];
+      return [{ type: 'paragraph', children: [{ text: value }] }];
+    }, [value]);
 
-    try {
-      const parsed = JSON.parse(value);
-      if (Array.isArray(parsed)) return parsed;
-    } catch {
-      if (/<[a-z][\s\S]*>/i.test(value)) return deserialize(value);
-    }
+    const initialValueRef = useRef(slateValue);
 
-    return [{ type: 'paragraph', children: [{ text: value }] }];
-  }, [value]);
+    const handleChange = useCallback(
+      (newValue: Descendant[]) => {
+        const html = serialize(newValue);
+        const clean = DOMPurify.sanitize(html, {
+          USE_PROFILES: { html: true },
+          FORBID_TAGS: ['script', 'iframe', 'object', 'embed'],
+          FORBID_CONTENTS: ['script', 'style'],
+        });
+        onChange(clean);
+      },
+      [onChange]
+    );
 
-  const initialValueRef = useRef(slateValue);
+    return (
+      <div className="border border-border-color rounded-md overflow-hidden">
+        <Slate editor={editor} initialValue={initialValueRef.current} onChange={handleChange}>
+          <Toolbar>
+            <MarkButton format="bold" icon={<IconBold className="w-4 h-4" />} />
+            <MarkButton format="italic" icon={<IconItalic className="w-4 h-4" />} />
+            <MarkButton format="underline" icon={<IconUnderline className="w-4 h-4" />} />
+            <MarkButton format="code" icon={<IconStrikethrough className="w-4 h-4" />} />
 
-  const handleChange = useCallback(
-    (newValue: Descendant[]) => {
-      const html = serialize(newValue);
-      const clean = DOMPurify.sanitize(html, {
-        USE_PROFILES: { html: true },
-        FORBID_TAGS: ['script', 'iframe', 'object', 'embed'],
-        FORBID_CONTENTS: ['script', 'style'],
-      });
-      onChange(clean);
-    },
-    [onChange]
-  );
+            <MarkSelect<CustomFontFamily>
+              format="fontFamily"
+              options={['Arial', 'Verdana', 'Georgia', 'Times New Roman', 'Courier New']}
+              placeholder="Font"
+            />
 
-  return (
-    <div className="border border-gray-300 rounded-md overflow-hidden">
-      <Slate editor={editor} initialValue={initialValueRef.current} onChange={handleChange}>
-        <Toolbar>
-          <MarkButton format="bold" icon={<IconBold className="w-4 h-4" />} />
-          <MarkButton format="italic" icon={<IconItalic className="w-4 h-4" />} />
-          <MarkButton format="underline" icon={<IconUnderline className="w-4 h-4" />} />
-          <MarkButton format="code" icon={<IconStrikethrough className="w-4 h-4" />} />
+            <MarkSelect<CustomFontSize>
+              format="fontSize"
+              options={Array.from({ length: 19 }, (_, i) => `${12 + i}px` as CustomFontSize)}
+              placeholder="Size"
+            />
 
-          <MarkSelect<CustomFontFamily>
-            format="fontFamily"
-            options={['Arial', 'Verdana', 'Georgia', 'Times New Roman', 'Courier New']}
-            placeholder="Font"
-          />
+            <input
+              type="color"
+              value={safeMarks(editor)?.color || '#000000'}
+              onChange={e => {
+                if (!editor.selection) return;
+                try {
+                  Editor.addMark(editor, 'color', e.target.value);
+                  Editor.normalize(editor, { force: true });
+                } catch {}
+              }}
+              className="w-7 h-8 cursor-pointer rounded-xl"
+            />
 
-          <MarkSelect<CustomFontSize>
-            format="fontSize"
-            options={Array.from({ length: 19 }, (_, i) => `${12 + i}px` as CustomFontSize)}
-            placeholder="Size"
-          />
+            <div className="w-px h-6 bg-gray-300 mx-2" />
 
-          <input
-            type="color"
-            value={safeMarks(editor)?.color || '#000000'}
-            onChange={e => {
-              if (!editor.selection) return;
-              try {
-                Editor.addMark(editor, 'color', e.target.value);
-                Editor.normalize(editor, { force: true });
-              } catch {}
-            }}
-            className="w-7 h-8 cursor-pointer rounded-xl"
-          />
+            <BlockButton format="left" icon={<IconAlignLeft className="w-4 h-4" />} />
+            <BlockButton format="center" icon={<IconAlignCenter className="w-4 h-4" />} />
+            <BlockButton format="right" icon={<IconAlignRight className="w-4 h-4" />} />
 
-          <div className="w-px h-6 bg-gray-300 mx-2" />
+            <div className="w-px h-6 bg-gray-300 mx-2" />
 
-          <BlockButton format="left" icon={<IconAlignLeft className="w-4 h-4" />} />
-          <BlockButton format="center" icon={<IconAlignCenter className="w-4 h-4" />} />
-          <BlockButton format="right" icon={<IconAlignRight className="w-4 h-4" />} />
+            <BlockButton format="bulleted-list" icon={<IconList className="w-4 h-4" />} />
+            <BlockButton format="numbered-list" icon={<IconListNumbers className="w-4 h-4" />} />
+          </Toolbar>
 
-          <div className="w-px h-6 bg-gray-300 mx-2" />
-
-          <BlockButton format="bulleted-list" icon={<IconList className="w-4 h-4" />} />
-          <BlockButton format="numbered-list" icon={<IconListNumbers className="w-4 h-4" />} />
-        </Toolbar>
-
-        <div className="p-4" style={{ maxHeight, overflowY: 'auto' }}>
-          <Editable
-            renderElement={renderElement}
-            renderLeaf={renderLeaf}
-            placeholder={placeholder}
-            spellCheck
-            className="focus:outline-none"
-            onKeyDown={(event: KeyboardEvent<HTMLDivElement>) => {
-              for (const hotkey in HOTKEYS) {
-                if (event.metaKey && event.key === hotkey.replace('mod+', '')) {
-                  event.preventDefault();
-                  toggleMark(editor, HOTKEYS[hotkey]);
+          <div className="p-4" style={{ maxHeight, overflowY: 'auto' }}>
+            <Editable
+              renderElement={renderElement}
+              renderLeaf={renderLeaf}
+              placeholder={placeholder}
+              spellCheck
+              className="focus:outline-none"
+              onKeyDown={(event: KeyboardEvent<HTMLDivElement>) => {
+                for (const hotkey in HOTKEYS) {
+                  if (event.metaKey && event.key === hotkey.replace('mod+', '')) {
+                    event.preventDefault();
+                    toggleMark(editor, HOTKEYS[hotkey]);
+                  }
                 }
-              }
-            }}
-          />
-        </div>
-      </Slate>
-    </div>
-  );
-});
+              }}
+            />
+          </div>
+        </Slate>
+      </div>
+    );
+  }
+);
 
 /** ---------------- Helper Functions ---------------- */
 
@@ -367,7 +364,7 @@ const Element = ({ attributes, children, element }: RenderElementProps) => {
         <blockquote
           style={style}
           {...attributes}
-          className="border-l-4 border-gray-300 pl-4 italic"
+          className="border-l-4 border-border-color pl-4 italic"
         >
           {children}
         </blockquote>
@@ -503,7 +500,7 @@ const MarkSelect = <T extends string>({ format, options, placeholder }: MarkSele
           Editor.normalize(editor, { force: true });
         } catch {}
       }}
-      className="p-1 rounded border border-gray-300 max-w-[50px] focus:outline-none"
+      className="p-1 rounded border border-border-color max-w-[50px] focus:outline-none"
     >
       <option value="">{placeholder}</option>
       {options.map(option => (

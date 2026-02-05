@@ -19,6 +19,7 @@ export interface ScheduleEmail {
 
 export interface IScheduleEmailState {
   scheduleEmail: ScheduleEmail[];
+  counts: { total: number; active: number; inactive: number };
   status: {
     fetch: Status;
     update: Status;

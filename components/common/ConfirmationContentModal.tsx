@@ -7,6 +7,7 @@ interface ConfirmationContentModalProps {
   okText: string;
   onSubmit: () => void;
   cancelText?: string;
+  loading?: boolean;
 }
 
 export function ConfirmationContentModal({
@@ -17,6 +18,7 @@ export function ConfirmationContentModal({
   okText,
   onSubmit,
   cancelText,
+  loading,
 }: ConfirmationContentModalProps) {
   return (
     <Modal
@@ -26,6 +28,7 @@ export function ConfirmationContentModal({
       onCancel={onClose}
       onOk={onSubmit}
       cancelText={cancelText || 'Cancel'}
+      confirmLoading={loading}
       centered
     >
       {content}

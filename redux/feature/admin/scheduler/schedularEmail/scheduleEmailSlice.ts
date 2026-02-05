@@ -9,6 +9,7 @@ import {
 
 const initialState: IScheduleEmailState = {
   scheduleEmail: [],
+  counts: { total: 0, active: 0, inactive: 0 },
   status: {
     fetch: Status.IDLE,
     update: Status.IDLE,
@@ -24,7 +25,8 @@ const scheduleEmailSlice = createSlice({
       state.status.fetch = Status.PENDING;
     });
     builder.addCase(fetchAllScheduleEmail.fulfilled, (state, action) => {
-      state.scheduleEmail = action.payload;
+      state.scheduleEmail = action.payload.scheduler_emails;
+      state.counts = action.payload.counts;
       state.status.fetch = Status.SUCCESS;
     });
     builder.addCase(fetchAllScheduleEmail.rejected, state => {
@@ -54,6 +56,13 @@ const scheduleEmailSlice = createSlice({
       );
       if (index !== -1) {
         state.scheduleEmail[index] = action.payload;
+        if (action.payload.isActive) {
+          state.counts.active++;
+          state.counts.inactive--;
+        } else {
+          state.counts.active--;
+          state.counts.inactive++;
+        }
       }
       state.status.update = Status.SUCCESS;
     });

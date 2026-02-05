@@ -30,6 +30,7 @@ const initialState: IIntegrationSettingState = {
     fetch: Status.IDLE,
     update: Status.IDLE,
   },
+  pagination: null,
 };
 
 const IntegrationSettingSlice = createSlice({
@@ -116,7 +117,8 @@ const IntegrationSettingSlice = createSlice({
       state.customFieldItemStatus.update = Status.PENDING;
     });
     builder.addCase(createCustomFieldItem.fulfilled, (state, action) => {
-      state.customFieldItems.push(action.payload);
+      state.customFieldItems.unshift(action.payload);
+      state.pagination.totalRecords++;
       state.customFieldItemStatus.update = Status.SUCCESS;
     });
     builder.addCase(createCustomFieldItem.rejected, state => {
@@ -128,6 +130,7 @@ const IntegrationSettingSlice = createSlice({
     });
     builder.addCase(fetchAllCustomFieldItem.fulfilled, (state, action) => {
       state.customFieldItems = action.payload.items;
+      state.pagination = action.payload.pagination;
       state.customFieldItemStatus.fetch = Status.SUCCESS;
     });
     builder.addCase(fetchAllCustomFieldItem.rejected, state => {
@@ -156,6 +159,7 @@ const IntegrationSettingSlice = createSlice({
       state.customFieldItems = state.customFieldItems.filter(
         i => i.integrationCustomFieldItemId !== action.payload
       );
+      state.pagination.totalRecords--;
       state.customFieldItemStatus.update = Status.SUCCESS;
     });
     builder.addCase(deleteCustomFieldItem.rejected, state => {

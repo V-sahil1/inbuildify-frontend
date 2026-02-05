@@ -1,20 +1,19 @@
-import { Status } from "@lib/constants/enum";
+import { Status } from '@lib/constants/enum';
+import { Entity } from 'types/common.types';
 
-export interface EmailTemplate {
+export interface IEmailTemplate {
   templateEmailId: string;
   name: string;
   type: string;
   subject: string | null;
   emailContent: string;
-  additionalRecipientUsers: string[];
+  additionalRecipientUsers: string[] | Entity[];
   additionalRecipientGroups: string[];
   isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface IEmailTemplateState {
-  emailTemplate: EmailTemplate[];
+  emailTemplate: IEmailTemplate[];
   count: {
     total: number;
     standard: number;
@@ -23,5 +22,5 @@ export interface IEmailTemplateState {
   status: {
     fetch: Status;
     update: Status;
-  }
+  };
 }

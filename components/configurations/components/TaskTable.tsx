@@ -64,7 +64,9 @@ export const TaskTable: React.FC<TaskTableProps> = ({ currentStep, subStageId })
   const { userOptions } = useUsersHook();
 
   useEffect(() => {
-    dispatch(fetchJobProcessSubStageTasks(subStageId)).unwrap();
+    if (subStageId) {
+      dispatch(fetchJobProcessSubStageTasks(subStageId)).unwrap();
+    }
   }, [subStageId]);
 
   useEffect(() => {

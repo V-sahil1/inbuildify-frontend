@@ -2,18 +2,18 @@ import api from '@lib/constants/api';
 import API_ENDPOINTS from '@lib/constants/apiEndpoints';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { ApiResponse } from '../../../auth/IAuthState';
-import { EmailTemplate } from './IemailState';
+import { IEmailTemplate } from './IemailState';
 
 export const fetchEmailTemplate = createAsyncThunk(
   'emailTemplate/fetch',
-  async (_, { rejectWithValue }) => {
+  async (params:{type?:string}={}, { rejectWithValue }) => {
     try {
       const response = await api.get<
         ApiResponse<{
-          templates: EmailTemplate[];
+          templates: IEmailTemplate[];
           counts: { total: number; standard: number; customized: number };
         }>
-      >(API_ENDPOINTS.EMAIL_TEMPLATE);
+      >(API_ENDPOINTS.EMAIL_TEMPLATE,{params});
       const responseData = response.data;
       return {
         templates: responseData.templates,
@@ -27,9 +27,9 @@ export const fetchEmailTemplate = createAsyncThunk(
 
 export const updateEmailTemplate = createAsyncThunk(
   'emailTemplate/update',
-  async (payload: { data: Partial<EmailTemplate>; templateId: string }, { rejectWithValue }) => {
+  async (payload: { data: Partial<IEmailTemplate>; templateId: string }, { rejectWithValue }) => {
     try {
-      const response = await api.put<ApiResponse<EmailTemplate>>(
+      const response = await api.put<ApiResponse<IEmailTemplate>>(
         `${API_ENDPOINTS.EMAIL_TEMPLATE}/${payload.templateId}`,
         {
           data: payload.data,

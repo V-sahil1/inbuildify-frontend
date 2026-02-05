@@ -75,7 +75,7 @@ const EmailSignatureSettings = () => {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-sm space-y-4">
+    <div className="bg-card-color p-6 rounded-lg shadow-sm space-y-4">
       <InputSwitch
         name="includeEmailSignature"
         label="Include Email Signature"

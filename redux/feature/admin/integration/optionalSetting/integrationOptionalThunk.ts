@@ -121,11 +121,11 @@ export const createCustomFieldItem = createAsyncThunk(
 
 export const fetchAllCustomFieldItem = createAsyncThunk(
   'customField/fetchAllFieldItem',
-  async (_, { rejectWithValue }) => {
+  async (params:{page?:number,limit?:number}={}, { rejectWithValue }) => {
     try {
       const response = await api.get<
         ApiResponse<{ items: CustomerFieldItem[]; pagination: Pagination }>
-      >(API_ENDPOINTS.INTEGRATION_CUSTOM_FIELD_ITEM);
+      >(API_ENDPOINTS.INTEGRATION_CUSTOM_FIELD_ITEM,{params});
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);

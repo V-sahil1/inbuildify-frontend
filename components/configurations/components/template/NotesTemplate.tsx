@@ -12,25 +12,27 @@ import {
   updateNotesTemplate,
 } from '@redux/feature/admin/template/notes/notesThunk';
 import { Status } from '@lib/constants/enum';
+import { INotesTemplate } from '@redux/feature/admin/template/notes/InotesState';
+import TooltipButton from '@/components/common/TooltipButton';
+import { getPaginationConfig } from '@lib/utils/getPaginationConfig';
 
 export const TemplateNotes = () => {
   const dispatch = useAppDispatch();
-  const { notes, status } = useAppSelector(state => state.template.notesTemplate);
+  const { notes, status, pagination } = useAppSelector(state => state.template.notesTemplate);
 
   const [modalMode, setModalMode] = useState<false | 'activate' | 'deactivate'>(false);
   const [selectedRow, setSelectedRow] = useState<any>(null);
-
+  const [currentPage, setCurrentPage] = useState(1);
   const [isCreating, setIsCreating] = useState(false);
   const [isEditing, setIsEditing] = useState<string | null>(null);
-
   const [templateForm, setTemplateForm] = useState({
     notestemplate: '',
     content: '',
   });
-
-  const fetchNotesData = async () => {
+  const PAGE_SIZE = 10;
+  const fetchNotesData = async (page: number = currentPage, limit: number = PAGE_SIZE) => {
     try {
-      await dispatch(fetchNotesTemplate()).unwrap();
+      await dispatch(fetchNotesTemplate({ page, limit })).unwrap();
     } catch (error) {
       message.error(error || 'Failed to fetch the notes');
     }
@@ -139,14 +141,9 @@ export const TemplateNotes = () => {
 
   const columns = [
     {
-      title: 'S.No',
-      width: '5%',
-      render: (_: any, __: any, index: number) => index + 1,
-    },
-    {
       title: 'Notes Template',
       width: '75%',
-      render: (_: any, record: any) => {
+      render: (_, record: INotesTemplate) => {
         const editing = isEditing === record.templateNoteId;
         const creating = record.newRow;
 
@@ -199,7 +196,7 @@ export const TemplateNotes = () => {
         </div>
       ),
       width: '10%',
-      render: (_: any, record: any) => {
+      render: (_, record: INotesTemplate) => {
         const editing = isEditing === record.templateNoteId;
         const creating = record.newRow;
 
@@ -248,19 +245,23 @@ export const TemplateNotes = () => {
         return (
           <div className="flex justify-end gap-2">
             {!record.isActive ? (
-              <Button
+              <TooltipButton
+                size="small"
+                title="Activate"
                 type="text"
+                icon={<IconPlus size={16} />}
                 onClick={() => {
                   setSelectedRow(record);
                   setModalMode('activate');
                 }}
-              >
-                <IconPlus size={18} className="text-gray-400" />
-              </Button>
+              />
             ) : (
               <>
-                <Button
+                <TooltipButton
+                  title="Edit"
                   type="text"
+                  size="small"
+                  icon={<IconEdit size={16} />}
                   onClick={() => {
                     setIsEditing(record.templateNoteId);
                     setTemplateForm({
@@ -268,20 +269,18 @@ export const TemplateNotes = () => {
                       content: record.content,
                     });
                   }}
-                >
-                  <IconEdit size={18} />
-                </Button>
+                />
 
-                <Button
+                <TooltipButton
+                  title="Deactivate"
                   type="text"
-                  danger
+                  size="small"
+                  icon={<IconTrash size={16} color="red" />}
                   onClick={() => {
                     setSelectedRow(record);
                     setModalMode('deactivate');
                   }}
-                >
-                  <IconTrash size={18} />
-                </Button>
+                />
               </>
             )}
           </div>
@@ -297,7 +296,12 @@ export const TemplateNotes = () => {
       <Table
         columns={columns}
         dataSource={tableData}
-        pagination={false}
+        pagination={getPaginationConfig({
+          currentPage,
+          limit: pagination?.limit,
+          totalRecords: pagination?.totalRecords,
+          setCurrentPage,
+        })}
         loading={status.fetch === Status.PENDING}
         rowKey="templateNoteId"
       />

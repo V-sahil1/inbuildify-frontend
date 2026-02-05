@@ -11,6 +11,7 @@ import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { updateEmailTemplate } from '@redux/feature/admin/template/email/emailThunk';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import { Status } from '@lib/constants/enum';
+import { IEmailTemplate } from '@redux/feature/admin/template/email/IemailState';
 
 export const EmailTemplateForm = ({
   templateId,
@@ -20,21 +21,16 @@ export const EmailTemplateForm = ({
 }: {
   templateId: string;
   templateName: string;
-  template: {
-    additionalRecipientUsers: string[];
-    subject: string;
-    emailContent: string;
-  };
+  template: Partial<IEmailTemplate>;
   onCancel: () => void;
 }) => {
   const { userOptions } = useUsersHook();
   const dispatch = useAppDispatch();
   const { status } = useAppSelector(state => state.template.emailTemplate);
   const inputRef = useRef<TextAreaRef>(null);
-  console.log('template', template);
 
   const [formData, setFormData] = useState({
-    additionalRecipientUsers: template?.additionalRecipientUsers || [],
+    additionalRecipientUsers: template?.additionalRecipientUsers.map(i => i.id) || [],
     subject: template?.subject || '',
     emailContent: template?.emailContent || '',
   });
@@ -84,7 +80,7 @@ export const EmailTemplateForm = ({
         return;
       }
 
-      await dispatch(updateEmailTemplate({ data: updatedFields, templateId: templateId }));
+      await dispatch(updateEmailTemplate({ data: updatedFields, templateId: templateId })).unwrap();
       message.success('Template saved successfully');
       onCancel();
     } catch (error) {
@@ -93,10 +89,10 @@ export const EmailTemplateForm = ({
   };
 
   return (
-    <div className="space-y-4 bg-white p-4 rounded">
+    <div className="space-y-4 bg-card-color p-4 rounded">
       <p className="text-base font-medium">Template Settings – {templateName}</p>
 
-      <div className="flex gap-2 items-center text-gray-600">
+      <div className="flex gap-2 items-center text-font-color">
         <IconInfoCircle size={18} />
         <p className="text-sm">
           Email is sent when the maintenance task is completed and an acknowledgment is sent to the

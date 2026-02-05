@@ -3,7 +3,6 @@ import API_ENDPOINTS from '@lib/constants/apiEndpoints';
 import { ApiResponse } from '@redux/feature/auth/IAuthState';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { ProcessType, StageType, StageTypePayload } from './IProcessState';
-import { Pagination } from '../../general/surveyor/ISurveyorState';
 
 export const createProcess = createAsyncThunk(
   'process/createProcess',
@@ -24,7 +23,7 @@ export const fetchAllProcess = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await api.get<
-        ApiResponse<{ sales_process: ProcessType[]; pagination: Pagination }>
+        ApiResponse<ProcessType[]>
       >(API_ENDPOINTS.SALES_PROCESS);
       return response.data;
     } catch (error) {
@@ -79,7 +78,7 @@ export const fetchAllStage = createAsyncThunk(
   'salesStage/fetchAll',
   async (id: string, { rejectWithValue }) => {
     try {
-      const response = await api.get<ApiResponse<{ records: StageType[]; pagination: Pagination }>>(
+      const response = await api.get<ApiResponse<StageType[]>>(
         API_ENDPOINTS.GET_SALES_STAGE_BY_PROCCESSID,
         { params: { sales_process_id: id } }
       );
