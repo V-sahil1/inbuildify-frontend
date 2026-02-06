@@ -4,11 +4,14 @@ import { GroupType, Package, PackageFetchParams } from './IPackageState';
 import {
   createPackage,
   createPackageGroup,
+  createPackagePricelist,
   deletePackage,
   deletePackageGroup,
+  deletePackagePricelist,
   fetchPackageGroup,
   fetchPackageItems,
   fetchPackages,
+  fetchPackagePricelist,
   updatePackage,
   updatePackageGroup,
 } from './packageThunk';
@@ -19,7 +22,7 @@ interface PackageState {
   packages: Package[] | null;
   items: IPriceListItem[] | null;
   group: GroupType[] | null;
-  status: { packages: Status; items: Status; item: Status; group: Status };
+  status: { packages: Status; items: Status; item: Status; group: Status; pricelist: Status };
   selectedFilters: PackageFetchParams;
   addInstItemModal: boolean;
   pagination: CommonPagination;
@@ -29,7 +32,13 @@ const initialState: PackageState = {
   packages: null,
   items: null,
   group: [],
-  status: { packages: Status.IDLE, items: Status.IDLE, item: Status.IDLE, group: Status.IDLE },
+  status: {
+    packages: Status.IDLE,
+    items: Status.IDLE,
+    item: Status.IDLE,
+    group: Status.IDLE,
+    pricelist: Status.IDLE,
+  },
   selectedFilters: <PackageFetchParams>{},
   addInstItemModal: false,
   pagination: <CommonPagination>{},
@@ -164,6 +173,49 @@ const packageSlice = createSlice({
     builder.addCase(fetchPackageGroup.fulfilled, (state, action) => {
       state.group = action.payload;
       state.status.group = Status.SUCCESS;
+    });
+
+    // Package Pricelist
+    builder.addCase(fetchPackagePricelist.pending, state => {
+      state.status.pricelist = Status.PENDING;
+    });
+    builder.addCase(fetchPackagePricelist.fulfilled, (state, action) => {
+      state.status.pricelist = Status.SUCCESS;
+      const parent = state.packages?.find(pkg => pkg.packageId === action.meta.arg);
+      if (parent) {
+        parent.priceListItem = action.payload;
+      }
+    });
+    builder.addCase(fetchPackagePricelist.rejected, state => {
+      state.status.pricelist = Status.ERROR;
+    });
+
+    builder.addCase(createPackagePricelist.pending, state => {
+      state.status.pricelist = Status.PENDING;
+    });
+    builder.addCase(createPackagePricelist.fulfilled, (state, action) => {
+      state.status.pricelist = Status.SUCCESS;
+      const parent = state.packages?.find(pkg => pkg.packageId === action.payload.packageId);
+      if (parent) {
+        parent.priceListItem.push(action.payload);
+      }
+    });
+    builder.addCase(createPackagePricelist.rejected, state => {
+      state.status.pricelist = Status.ERROR;
+    });
+
+    builder.addCase(deletePackagePricelist.pending, state => {
+      state.status.pricelist = Status.PENDING;
+    });
+    builder.addCase(deletePackagePricelist.fulfilled, (state, action) => {
+      state.status.pricelist = Status.SUCCESS;
+      const parent = state.packages?.find(pkg => pkg.packageId === action.payload.packageId);
+      if (parent) {
+        parent.priceListItem = parent.priceListItem.filter(item => item.id !== action.payload.id);
+      }
+    });
+    builder.addCase(deletePackagePricelist.rejected, state => {
+      state.status.pricelist = Status.ERROR;
     });
   },
 });

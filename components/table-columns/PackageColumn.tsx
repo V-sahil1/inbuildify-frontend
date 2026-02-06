@@ -5,6 +5,7 @@ import { IconDeviceIpadDollar, IconPlus, IconRotate, IconTrash } from '@tabler/i
 import { useAppDispatch } from '@hooks/redux';
 import { createPackage, updatePackage } from '@redux/feature/package/packageThunk';
 import TooltipButton from '../common/TooltipButton';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 
 export const PackageColumn = ({
   filters,
@@ -19,7 +20,7 @@ export const PackageColumn = ({
     {
       title: (
         <div className="flex flex-col">
-          <span className="font-medium text-gray-700">Package Name</span>
+          <span className="font-medium">Package Name</span>
           <Input value={filters.name} onChange={e => setParams({ name: e.target.value })} />
         </div>
       ),
@@ -37,7 +38,7 @@ export const PackageColumn = ({
     {
       title: (
         <div className="flex flex-col">
-          <span className="font-medium text-gray-700">Cost</span>
+          <span className="font-medium">Cost</span>
           <Input
             type="number"
             value={filters.cost}
@@ -51,7 +52,7 @@ export const PackageColumn = ({
     {
       title: (
         <div className="flex flex-col">
-          <span className="font-medium text-gray-700">Add</span>
+          <span className="font-medium">Add</span>
           <Select
             options={[
               { label: 'Yes', value: 'yes' },
@@ -70,7 +71,7 @@ export const PackageColumn = ({
     {
       title: (
         <div className="flex flex-col">
-          <span className="font-medium text-gray-700">Remove</span>
+          <span className="font-medium">Remove</span>
           <Select
             options={[
               { label: 'Yes', value: 'yes' },
@@ -89,7 +90,7 @@ export const PackageColumn = ({
     {
       title: (
         <div className="flex flex-col">
-          <span className="font-medium text-gray-700">Sort Order</span>
+          <span className="font-medium">Sort Order</span>
           <Input
             type="number"
             value={filters.sort}
@@ -103,7 +104,7 @@ export const PackageColumn = ({
     {
       title: (
         <div className="flex flex-col">
-          <span className="font-medium text-gray-700">Label</span>
+          <span className="font-medium">Label</span>
           <Select
             options={[{ label: 'All', value: 'all' }]}
             value={filters.label}
@@ -119,7 +120,7 @@ export const PackageColumn = ({
     {
       title: (
         <div className="flex flex-col">
-          <span className="font-medium text-gray-700">Dwelling Type</span>
+          <span className="font-medium">Dwelling Type</span>
           <DwellingTypeSelect
             value={filters.dwellingType}
             onChange={value => setParams({ dwellingType: value })}
@@ -133,7 +134,7 @@ export const PackageColumn = ({
     {
       title: (
         <div className="flex flex-col">
-          <span className="font-medium text-gray-700">Status</span>
+          <span className="font-medium">Status</span>
           <StatusSelect
             value={filters.status}
             onChange={value => setParams({ status: value })}
@@ -150,6 +151,8 @@ export const PackageColumn = ({
             {record.status ? (
               <TooltipButton
                 title="InActive"
+                type="text"
+                size="small"
                 icon={<IconTrash size={15} color="red" />}
                 onClick={e => {
                   e.stopPropagation();
@@ -160,6 +163,8 @@ export const PackageColumn = ({
             ) : (
               <TooltipButton
                 title="Activate"
+                type="text"
+                size="small"
                 icon={<IconPlus size={15} />}
                 onClick={e => {
                   e.stopPropagation();
@@ -168,33 +173,34 @@ export const PackageColumn = ({
                 }}
               />
             )}
-            <Tooltip title="Map Priceist">
-              <Badge size="small" count={4}>
-                <Button
-                  size="small"
-                  type="text"
-                  className="text-blue"
-                  onClick={e => {
-                    e.stopPropagation();
-                    setDrawerOpen('pricelist');
-                  }}
-                  icon={<IconDeviceIpadDollar size={15} />}
-                />
-              </Badge>
-            </Tooltip>
 
-            <Tooltip title="Quotation History">
-              <Button
+            <Badge size="small" count={record.priceListItem?.length || 0}>
+              <TooltipButton
+                title="Map Priceist"
                 size="small"
                 type="text"
                 className="text-blue"
                 onClick={e => {
                   e.stopPropagation();
-                  setDrawerOpen('quotation');
+                  setSelectedPackage(record);
+                  setDrawerOpen('pricelist');
                 }}
-                icon={<IconRotate size={15} />}
+                icon={<IconDeviceIpadDollar size={15} />}
               />
-            </Tooltip>
+            </Badge>
+
+            <TooltipButton
+              title="Quotation History"
+              size="small"
+              type="text"
+              className="text-blue"
+              onClick={e => {
+                e.stopPropagation();
+                setSelectedPackage(record);
+                setDrawerOpen('quotation');
+              }}
+              icon={<IconRotate size={15} />}
+            />
           </div>
         </div>
       ),
@@ -213,10 +219,18 @@ export const PackageColumn = ({
     }
   };
 
-  const handlePackageSubmit = async (values: any) => {
+  const handlePackageSubmit = async values => {
     try {
       if (selectedPackage) {
-        await dispatch(updatePackage({ id: selectedPackage.packageId, data: values })).unwrap();
+        const { isUpdated, updatedFields } = getUpdatedFields(values, selectedPackage);
+        if (!isUpdated) {
+          setSelectedPackage(null);
+          setDrawerOpen(null);
+          return;
+        }
+        await dispatch(
+          updatePackage({ id: selectedPackage.packageId, data: updatedFields })
+        ).unwrap();
         message.success('Package updated successfully');
       } else {
         await dispatch(createPackage(values)).unwrap();

@@ -2,7 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import api from '@lib/constants/api';
 import { ApiResponse } from '../auth/IAuthState';
 import API_ENDPOINTS from '@lib/constants/apiEndpoints';
-import { GroupType, Package, PackageFetchParams } from './IPackageState';
+import { GroupType, Package, PackageFetchParams, PackagePricelist } from './IPackageState';
 import { CommonPagination } from '../common/ICommonState';
 import { IPriceListItem } from '../masterPriceList/iMasterPriceListState';
 
@@ -151,6 +151,45 @@ export const deletePackageGroup = createAsyncThunk(
   async (payload: { id: string; packageId: string }, { rejectWithValue }) => {
     try {
       const res = await api.delete<ApiResponse>(API_ENDPOINTS.PACKAGE_GROUP + '/' + payload.id);
+      return { id: payload.id, packageId: payload.packageId };
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const fetchPackagePricelist = createAsyncThunk(
+  'packages/fetchPricelist',
+  async (packageId: string, { rejectWithValue }) => {
+    try {
+      const res = await api.get<ApiResponse<{ packagePricelistItemMaps: PackagePricelist[] }>>(
+        API_ENDPOINTS.PACKAGE_PRICELIST + '/' + packageId
+      );
+      return res.data.packagePricelistItemMaps;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const createPackagePricelist = createAsyncThunk(
+  'packages/createPricelist',
+  async (payload: PackagePricelist, { rejectWithValue }) => {
+    try {
+      const res = await api.post<ApiResponse<PackagePricelist>>(API_ENDPOINTS.PACKAGE_PRICELIST, {
+        data: payload,
+      });
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+export const deletePackagePricelist = createAsyncThunk(
+  'packages/deletePricelist',
+  async (payload: { id: string; packageId: string }, { rejectWithValue }) => {
+    try {
+      const res = await api.delete<ApiResponse>(API_ENDPOINTS.PACKAGE_PRICELIST + '/' + payload.id);
       return { id: payload.id, packageId: payload.packageId };
     } catch (error) {
       return rejectWithValue(error.message);

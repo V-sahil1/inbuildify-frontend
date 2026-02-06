@@ -77,6 +77,7 @@ class API_ENDPOINTS {
   //packages
   public static PACKAGE_BASE = '/package';
   public static PACKAGE_GROUP = `/package-group`;
+  public static PACKAGE_PRICELIST = `/package-price-list-item-map`;
   public static GET_PACKAGE_BY_ID = (id: string) => `${this.PACKAGE_BASE}/${id}`;
   public static GET_PACKAGE_ITEMS = `${this.PACKAGE_BASE}/category/items`;
   public static FACADE_BASE = '/facade';
