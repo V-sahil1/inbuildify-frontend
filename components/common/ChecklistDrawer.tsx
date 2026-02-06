@@ -261,7 +261,7 @@ export const ChecklistDrawer: React.FC<Props> = ({
 
       {(showSelectedOnly
         ? initialSelected.map(i =>
-            checklist.find(c => c.constructionChecklistId === i.constructionChecklist.id)
+            checklist.find(c => c.constructionChecklistId === i.constructionChecklistId)
           )
         : checklist
       ).map(item => (
@@ -281,7 +281,7 @@ export const ChecklistDrawer: React.FC<Props> = ({
             type="text"
             icon={
               initialSelected
-                .map(i => i.constructionChecklist.id)
+                .map(i => i.constructionChecklistId)
                 .includes(item.constructionChecklistId) ? (
                 <Popconfirm
                   title="Are you sure you want to remove this checklist?"
@@ -289,7 +289,7 @@ export const ChecklistDrawer: React.FC<Props> = ({
                     onRemove(
                       item,
                       initialSelected.find(
-                        i => i.constructionChecklist.id === item.constructionChecklistId
+                        i => i.constructionChecklistId === item.constructionChecklistId
                       )?.id
                     )
                   }

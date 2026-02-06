@@ -2,8 +2,8 @@ import { Status } from '@lib/constants/enum';
 import { getUsersThunk } from '@redux/feature/user/userThunk';
 import { useEffect, useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import { user } from '@redux/feature/user/UserState';
 import { message } from 'antd';
+import { IUser } from '@redux/feature/user/UserState';
 
 export const useUsersHook = (verified: boolean = true) => {
   const dispatch = useAppDispatch();
@@ -11,13 +11,13 @@ export const useUsersHook = (verified: boolean = true) => {
 
   const getUsers = async () => {
     try {
-      await dispatch(getUsersThunk()).unwrap();
+      await dispatch(getUsersThunk({})).unwrap();
     } catch (error) {
       message.error(error || 'Failed to fetch users');
     }
   };
   useEffect(() => {
-    if (status.users === Status.IDLE) {
+    if (status.users.fetch === Status.IDLE) {
       getUsers();
     }
   }, [status.users]);
@@ -28,15 +28,15 @@ export const useUsersHook = (verified: boolean = true) => {
     }
     return users
       .filter(i => i.isActive === verified)
-      .map((role: user) => ({
-        label: role.name,
-        value: role.usersId,
+      .map((user: IUser) => ({
+        label: user.name,
+        value: user.usersId,
       }));
   }, [users, verified]);
 
   return {
     userOptions,
-    isLoading: status.users === Status.PENDING,
-    error: status.users === Status.ERROR,
+    isLoading: status.users.fetch === Status.PENDING,
+    error: status.users.fetch === Status.ERROR,
   };
 };

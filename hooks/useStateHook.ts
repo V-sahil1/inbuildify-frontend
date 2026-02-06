@@ -15,15 +15,18 @@ export const useStateHook = (countryId?: string) => {
   const isSuccess = status === Status.SUCCESS;
 
   useEffect(() => {
-    const fetchStates = async () => {
-      try {
-        await dispatch(getStatesByCountryIdThunk(countryId || null)).unwrap();
-      } catch (err) {
-        setError(err as string);
-      }
-    };
-    fetchStates();
-  }, [countryId, dispatch]);
+    if (status === Status.IDLE || countryId) {
+      fetchStates();
+    }
+  }, [countryId, dispatch, status]);
+
+  const fetchStates = async () => {
+    try {
+      await dispatch(getStatesByCountryIdThunk(countryId || null)).unwrap();
+    } catch (err) {
+      setError(err as string);
+    }
+  };
 
   const stateOptions = useMemo(() => {
     return states.map(state => ({

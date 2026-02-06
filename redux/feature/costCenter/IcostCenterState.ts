@@ -15,8 +15,6 @@ export interface CostCenterChecklist {
   id?: string;
   costCenterId: string;
   constructionChecklistId: string;
-  costCenter?: Entity;
-  constructionChecklist?: Entity;
 }
 
 export interface CostCennterGetParams {

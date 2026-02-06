@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { useStateHook } from '@hooks/useStateHook';
 import { Status } from '@lib/constants/enum';
 import { debouncedURL } from '@lib/utils/debounceURL';
+import { getPaginationConfig } from '@lib/utils/getPaginationConfig';
 import { fetchAllHoliday, updateHolidayRealculateDate } from '@redux/feature/holiday/holidayThunk';
 import { IHoliday, IHolidayFetchParams } from '@redux/feature/holiday/IHolidayState';
 import { IconPlus, IconRefresh } from '@tabler/icons-react';
@@ -22,8 +23,8 @@ export default function HolidayMaster() {
   const [selectedHoliday, setSelectedHoliday] = useState<IHoliday | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const { debouncedUpdateURL, setParams, filters } = debouncedURL({
-    filtersKey: ['startDate', 'endDate', 'desc', 'state', 'status'],
-    initialValue: { status: '' },
+    filtersKey: ['startDate', 'endDate', 'desc', 'state', 'status', 'year'],
+    initialValue: { status: '', year: '' },
   });
   const { columns, handleSubmit, handleHolidayStatus } = useHolidayMasterColumns({
     filters,
@@ -47,6 +48,7 @@ export default function HolidayMaster() {
       params.holiday_start_date = filters?.startDate || undefined;
       params.state = filters?.state || undefined;
       params.status = filters?.status !== '' ? filters?.status === 'true' : undefined;
+      params.year = filters?.year !== '' ? filters?.year : undefined;
       await dispatch(fetchAllHoliday(params));
     } catch (error) {
       message.error(error || 'Failed to fetch holidays');
@@ -83,13 +85,13 @@ export default function HolidayMaster() {
             className="w-[200px]"
             placeholder="All year"
             options={[
-              { label: '2025', value: '2025' },
-              { label: '2024', value: '2024' },
-              { label: '2023', value: '2023' },
-              { label: '2022', value: '2022' },
-              { label: '2021', value: '2021' },
-              { label: '2020', value: '2020' },
+              { label: 'All', value: '' },
+              ...Array.from({ length: 11 }, (_, i) => {
+                const year = new Date().getFullYear() - 5 + i;
+                return { label: year.toString(), value: year.toString() };
+              }),
             ]}
+            onChange={value => setParams({ year: value })}
           />
         </div>
 
@@ -130,17 +132,12 @@ export default function HolidayMaster() {
               setModalOpen('holiday');
             },
           })}
-          pagination={{
-            current: pagination?.currentPage,
-            pageSize: pagination?.limit,
-            total: pagination?.totalRecords,
-            showSizeChanger: false,
-            showQuickJumper: false,
-            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
-            onChange: page => {
-              setCurrentPage(page);
-            },
-          }}
+          pagination={getPaginationConfig({
+            currentPage,
+            limit: pagination?.limit,
+            totalRecords: pagination?.totalRecords,
+            setCurrentPage,
+          })}
           loading={status.holiday.fetch === Status.PENDING}
         />
       </div>
@@ -157,7 +154,7 @@ export default function HolidayMaster() {
           initialValues={{
             ...selectedHoliday,
             status: selectedHoliday?.status ? 'true' : 'false',
-            state: selectedHoliday?.states.map(i => i.id),
+            state: selectedHoliday?.state.map(i => i.id),
             holidayStartDate: selectedHoliday?.holidayStartDate
               ? dayjs(selectedHoliday.holidayStartDate)
               : null,

@@ -68,7 +68,7 @@ const constructionChecklistSlice = createSlice({
       state.status.checklistStatus.fetch = Status.PENDING;
     });
     builder.addCase(fetchAllConstructionChecklist.fulfilled, (state, action) => {
-      state.checklist = action.payload.checklists.map(item => ({
+      state.checklist = action.payload.map(item => ({
         ...item,
         isExpanded: false,
         subChecklist: [],
@@ -133,7 +133,7 @@ const constructionChecklistSlice = createSlice({
         i => i.constructionChecklistId === action.payload.checklistId
       );
       if (checklist) {
-        checklist.subChecklist = action.payload.data.subChecklists;
+        checklist.subChecklist = action.payload.data;
       }
       state.status.subChecklistStatus.fetch = Status.SUCCESS;
     });
@@ -207,7 +207,7 @@ const constructionChecklistSlice = createSlice({
         i => i.constructionChecklistId === action.payload.checklistId
       );
       if (checklist) {
-        checklist.predecessor = action.payload.data.predecessors;
+        checklist.predecessor = action.payload.data;
       }
       state.status.predecessorStatus.fetch = Status.SUCCESS;
     });

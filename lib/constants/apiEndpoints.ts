@@ -21,6 +21,11 @@ class API_ENDPOINTS {
   public static INVITE_USER = `${this.USER_BASE}/invite-user`;
   public static INVITED_USERS = `${this.USER_BASE}/invited-user`;
   public static ACCEPT_INVITE = `${this.USER_BASE}/accept-invite`;
+  public static USER_LOCK = id => `${this.USER_BASE}/${id}/toggle-lock`;
+  public static USER_STATUS = id => `${this.USER_BASE}/${id}/is-active`;
+  public static USER_LOGIN_ID = (id: string) => `${this.USER_BASE}/${id}/change-login-id`;
+  public static RESET_USER_PASSWORD = (id: string) => `${this.USER_BASE}/${id}/reset-password`;
+
   // users
   public static USER_GROUP = '/user-group';
 

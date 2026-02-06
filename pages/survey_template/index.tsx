@@ -10,6 +10,7 @@ import { TemplateQuestionColumn } from '@/components/table-columns/TemplateQuest
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { Status } from '@lib/constants/enum';
 import { debouncedURL } from '@lib/utils/debounceURL';
+import { getPaginationConfig } from '@lib/utils/getPaginationConfig';
 import { toggleSurveyTemplateExpand } from '@redux/feature/surveyTemplate/surveyTemplateSlice';
 import {
   ISurveyTemplate,
@@ -128,17 +129,12 @@ const SurveyTemplate = () => {
             setModalOpen('create');
           },
         })}
-        pagination={{
-          current: pagination?.currentPage,
-          pageSize: pagination?.limit,
-          total: pagination?.totalRecords,
-          showSizeChanger: false,
-          showQuickJumper: false,
-          showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
-          onChange: page => {
-            setCurrentPage(page);
-          },
-        }}
+        pagination={getPaginationConfig({
+          currentPage,
+          limit: pagination?.limit,
+          totalRecords: pagination?.totalRecords,
+          setCurrentPage,
+        })}
         loading={status.fetch === Status.PENDING}
       />
       {['create', 'questionCreate'].includes(modalOpen) && (

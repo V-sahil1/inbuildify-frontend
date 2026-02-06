@@ -7,7 +7,6 @@ import {
   IConstructionChecklistPredecessor,
   IConstructionSubChecklist,
 } from './IConstructionChecklistState';
-import { CommonPagination } from '@redux/feature/common/ICommonState';
 
 // checklist
 export const createConstructionChecklist = createAsyncThunk(
@@ -29,11 +28,12 @@ export const createConstructionChecklist = createAsyncThunk(
 
 export const fetchAllConstructionChecklist = createAsyncThunk(
   'ConstructionChecklist/fetchAll',
-  async (params: { builder?: string }={}, { rejectWithValue }) => {
+  async (params: { builder?: string } = {}, { rejectWithValue }) => {
     try {
-      const response = await api.get<
-        ApiResponse<{ checklists: ConstructionChecklistType[]; pagination: CommonPagination }>
-      >(API_ENDPOINTS.CONSTRUCTION_CHECKLIST, { params });
+      const response = await api.get<ApiResponse<ConstructionChecklistType[]>>(
+        API_ENDPOINTS.CONSTRUCTION_CHECKLIST,
+        { params }
+      );
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -98,13 +98,14 @@ export const fetchAllSubChecklist = createAsyncThunk(
   'SubChecklist/fetchAll',
   async (id: string, { rejectWithValue }) => {
     try {
-      const response = await api.get<
-        ApiResponse<{ subChecklists: IConstructionSubChecklist[]; pagination: CommonPagination }>
-      >(API_ENDPOINTS.CONSTRUCTION_SUB_CHECKLIST, {
-        params: {
-          construction_checklist_id: id,
-        },
-      });
+      const response = await api.get<ApiResponse<IConstructionSubChecklist[]>>(
+        API_ENDPOINTS.CONSTRUCTION_SUB_CHECKLIST,
+        {
+          params: {
+            construction_checklist_id: id,
+          },
+        }
+      );
       return { data: response.data, checklistId: id };
     } catch (error) {
       return rejectWithValue(error.message);
@@ -172,16 +173,14 @@ export const fetchAllChecklistPredecessor = createAsyncThunk(
   'ChecklistPredecessor/fetchAll',
   async (id: string, { rejectWithValue }) => {
     try {
-      const response = await api.get<
-        ApiResponse<{
-          predecessors: IConstructionChecklistPredecessor[];
-          pagination: CommonPagination;
-        }>
-      >(API_ENDPOINTS.CONSTRUCTION_CHECKLIST_PREDECESSOR, {
-        params: {
-          construction_checklist_id: id,
-        },
-      });
+      const response = await api.get<ApiResponse<IConstructionChecklistPredecessor[]>>(
+        API_ENDPOINTS.CONSTRUCTION_CHECKLIST_PREDECESSOR,
+        {
+          params: {
+            construction_checklist_id: id,
+          },
+        }
+      );
       return { data: response.data, checklistId: id };
     } catch (error) {
       return rejectWithValue(error.message);

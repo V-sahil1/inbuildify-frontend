@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Table, Button, message, Dropdown, Switch, Popconfirm } from 'antd';
+import { Table, Button, message, Dropdown, Switch } from 'antd';
 import { IconPencil, IconPlus, IconTrash } from '@tabler/icons-react';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import { inspectionChecklistSettingFields } from '@/components/formFields/InspectionChecklistSettingFields';

@@ -6,12 +6,22 @@ import {
   IconUserCheck,
   IconUserPlus,
 } from '@tabler/icons-react';
-import { userData } from 'data/userData';
-import { useState } from 'react';
 import TooltipButton from '../common/TooltipButton';
+import { message } from 'antd';
+import { useAppDispatch } from '@hooks/redux';
+import {
+  createUserThunk,
+  resetUserPasswordThunk,
+  updateUserLockThunk,
+  updateUserLoginIdThunk,
+  updateUserStatusThunk,
+  updateUserThunk,
+} from '@redux/feature/user/userThunk';
+import { formDataGenerator } from '@lib/utils/formDataGenerator';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 
 export const UserColumn = (setModalOpen, setSelectedUser, setDrawerOpen, selectedUser) => {
-  const [users, setUserData] = useState(userData);
+  const dispatch = useAppDispatch();
 
   const column = [
     {
@@ -21,8 +31,11 @@ export const UserColumn = (setModalOpen, setSelectedUser, setDrawerOpen, selecte
     },
     {
       title: 'Address',
-      dataIndex: 'address1',
-      key: 'address1',
+      dataIndex: 'address',
+      key: 'address',
+      render: (_, record) => {
+        return record.address.addressLine1;
+      },
     },
     {
       title: 'Email',
@@ -48,7 +61,7 @@ export const UserColumn = (setModalOpen, setSelectedUser, setDrawerOpen, selecte
               title="Edit"
               icon={<IconPencil size={15} />}
               onClick={() => {
-                setDrawerOpen(true);
+                setDrawerOpen('create');
                 setSelectedUser(record);
               }}
             />
@@ -58,15 +71,15 @@ export const UserColumn = (setModalOpen, setSelectedUser, setDrawerOpen, selecte
               type="text"
               icon={<IconKey size={15} />}
               onClick={() => {
-                setModalOpen('resetPassword');
+                setDrawerOpen('resetPassword');
                 setSelectedUser(record);
               }}
             />
 
             <TooltipButton
-              title={record.lock ? 'UnLock User' : 'Lock User'}
+              title={record.isLocked ? 'UnLock User' : 'Lock User'}
               type="text"
-              icon={record.lock ? <IconLock size={15} /> : <IconLockOpen2 size={15} />}
+              icon={record.isLocked ? <IconLock size={15} /> : <IconLockOpen2 size={15} />}
               onClick={() => {
                 setModalOpen('lockUser');
                 setSelectedUser(record);
@@ -74,15 +87,9 @@ export const UserColumn = (setModalOpen, setSelectedUser, setDrawerOpen, selecte
             />
 
             <TooltipButton
-              title={record.status === 'Active' ? 'Inactivate User' : 'Activate User'}
+              title={record.isActive ? 'Inactivate User' : 'Activate User'}
               type="text"
-              icon={
-                record.status === 'Active' ? (
-                  <IconUserCheck size={15} />
-                ) : (
-                  <IconUserPlus size={15} />
-                )
-              }
+              icon={record.isActive ? <IconUserCheck size={15} /> : <IconUserPlus size={15} />}
               onClick={() => {
                 setModalOpen('changeStatusUser');
                 setSelectedUser(record);
@@ -93,21 +100,95 @@ export const UserColumn = (setModalOpen, setSelectedUser, setDrawerOpen, selecte
       },
     },
   ];
-  function handleSubmit(values) {
-    selectedUser
-      ? setUserData(prev =>
-          prev.map(i => (i.loginId === selectedUser.loginId ? { ...i, ...values } : i))
-        )
-      : setUserData(prev => [...prev, { ...values, status: 'Active' }]);
-    setDrawerOpen(false);
-    setModalOpen(null);
-    setSelectedUser(null);
+  async function handleSubmit(values) {
+    try {
+      const { photo, signature } = values;
+      let photoFile = photo || null;
+      let signatureFile = signature || null;
+      if (photo && photo.length > 0) {
+        photoFile = photo[0].originFileObj || photoFile;
+      }
+      if (signature && signature.length > 0) {
+        signatureFile = signature[0].originFileObj || signatureFile;
+      }
+
+      if (selectedUser) {
+        const { isUpdated, updatedFields } = getUpdatedFields(values, selectedUser);
+        if (!isUpdated) {
+          setDrawerOpen(null);
+          setModalOpen(null);
+          setSelectedUser(null);
+          return;
+        }
+        const formData = formDataGenerator({
+          ...updatedFields,
+          photo: photoFile,
+          signature: signatureFile,
+        });
+        await dispatch(updateUserThunk({ data: formData, id: selectedUser.usersId })).unwrap();
+        message.success('User updated sucessfully');
+      } else {
+        const formData = formDataGenerator({
+          ...values,
+          photo: photoFile,
+          signature: signatureFile,
+        });
+        await dispatch(createUserThunk(formData)).unwrap();
+        message.success('User created sucessfully');
+      }
+      setDrawerOpen(null);
+      setModalOpen(null);
+      setSelectedUser(null);
+    } catch (error) {
+      message.error(error || 'Failed to save user');
+    }
   }
 
-  function handleClose() {
-    setDrawerOpen(false);
-    setModalOpen(null);
-    setSelectedUser(null);
+  async function handleLock() {
+    try {
+      await dispatch(updateUserLockThunk(selectedUser.usersId)).unwrap();
+      message.success('User locked/unlocked sucessfully');
+      setModalOpen(null);
+    } catch (error) {
+      message.error(error || 'Failed to lock/unlock user');
+    }
   }
-  return { column, users, userSubmit: handleSubmit, handleClose };
+
+  async function handleStatus() {
+    try {
+      await dispatch(updateUserStatusThunk(selectedUser.usersId)).unwrap();
+      message.success('User updated sucessfully');
+      setModalOpen(null);
+    } catch (error) {
+      message.error(error || 'Failed to update user');
+    }
+  }
+
+  async function handleLoginId(values) {
+    try {
+      await dispatch(updateUserLoginIdThunk({ data: values, id: selectedUser.usersId })).unwrap();
+      message.success('User login id updated sucessfully');
+      setModalOpen(null);
+    } catch (error) {
+      message.error(error || 'Failed to update user login id');
+    }
+  }
+
+  async function handleResetPassword(values) {
+    try {
+      await dispatch(resetUserPasswordThunk({ data: values, id: selectedUser.usersId })).unwrap();
+      message.success('User password updated sucessfully');
+      setDrawerOpen(null);
+    } catch (error) {
+      message.error(error || 'Failed to update user password');
+    }
+  }
+  return {
+    column,
+    userSubmit: handleSubmit,
+    handleLock,
+    handleStatus,
+    handleLoginId,
+    handleResetPassword,
+  };
 };

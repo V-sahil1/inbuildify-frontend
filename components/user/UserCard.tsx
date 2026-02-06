@@ -18,9 +18,7 @@ export const UserCard = ({ user, setModalOpen, setSelectedUser, setDrawerOpen })
         <div className="flex flex-col gap-2 flex-1">
           <div className="font-semibold text-base">{user.name || 'N/A'}</div>
 
-          <div className=" font-medium text-sm">
-            {user.role || 'No address provided'}
-          </div>
+          <div className=" font-medium text-sm">{user.roleName || 'No Role provided'}</div>
 
           <div className="flex items-center gap-2   font-medium text-sm">
             <IconPhone size={18} />
@@ -39,7 +37,7 @@ export const UserCard = ({ user, setModalOpen, setSelectedUser, setDrawerOpen })
             title="Edit"
             icon={<IconPencil size={18} />}
             onClick={() => {
-              setDrawerOpen(true);
+              setDrawerOpen('create');
               setSelectedUser(user);
             }}
             type="text"
@@ -51,13 +49,13 @@ export const UserCard = ({ user, setModalOpen, setSelectedUser, setDrawerOpen })
             type="text"
             onClick={() => {
               setSelectedUser(user);
-              setModalOpen('resetPassword');
+              setDrawerOpen('resetPassword');
             }}
           />
 
           <TooltipButton
-            title={user.lock ? 'UnLock User' : 'Lock User'}
-            icon={user.lock ? <IconLock size={18} /> : <IconLockOpen2 size={18} />}
+            title={user.isLocked ? 'UnLock User' : 'Lock User'}
+            icon={user.isLocked ? <IconLock size={18} /> : <IconLockOpen2 size={18} />}
             onClick={() => {
               setSelectedUser(user);
               setModalOpen('lockUser');
@@ -66,10 +64,8 @@ export const UserCard = ({ user, setModalOpen, setSelectedUser, setDrawerOpen })
           />
 
           <TooltipButton
-            title={user.status === 'Active' ? 'Inactivate User' : 'Activate User'}
-            icon={
-              user.status === 'Active' ? <IconUserCheck size={15} /> : <IconUserPlus size={15} />
-            }
+            title={user.isActive ? 'Inactivate User' : 'Activate User'}
+            icon={user.isActive ? <IconUserCheck size={15} /> : <IconUserPlus size={15} />}
             onClick={() => {
               setSelectedUser(user);
               setModalOpen('changeStatusUser');

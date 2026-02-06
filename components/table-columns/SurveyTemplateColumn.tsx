@@ -176,9 +176,7 @@ export const SurveyTemplateColumn = (
         ).unwrap();
         message.success('Survey Template updated Successfully');
       } else {
-        await dispatch(
-          createSurveyTemplate({ ...values, status: values.status === 'active' })
-        ).unwrap();
+        await dispatch(createSurveyTemplate(values)).unwrap();
         message.success('Survey Template created Successfully');
       }
       setModalOpen(null);

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button, Input, Table, Dropdown } from 'antd';
+import { Button, Input, Table, Dropdown, message } from 'antd';
 import {
   IconDownload,
   IconFileSpreadsheet,
@@ -15,38 +15,57 @@ import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel'
 import TooltipButton from '@/components/common/TooltipButton';
 import { UserColumn } from '@/components/table-columns/UserColumn';
 import { UserCard } from '@/components/user/UserCard';
-import { UserFormModal } from '@/components/user/UserFormModal';
-import { User } from 'data/userData';
 import { UserList } from '@lib/utils/Reports/user/UserList';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { getUsersThunk } from '@redux/feature/user/userThunk';
+import { IUser } from '@redux/feature/user/UserState';
+import { Status } from '@lib/constants/enum';
+import { UserFormDrawer } from '@/components/user/UserFormDrawer';
+import dayjs from 'dayjs';
 
 const Users = () => {
+  const dispatch = useAppDispatch();
+  const { users, status } = useAppSelector(state => state.user);
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState<'create' | 'resetPassword' | null>(null);
   const [modalOpen, setModalOpen] = useState<'resetLoginId' | 'lockUser' | 'changeStatusUser'>(
     null
   );
-  const [selectedUser, setSelectedUser] = useState<User>();
-  const { column, users, userSubmit, handleClose } = UserColumn(
-    setModalOpen,
-    setSelectedUser,
-    setDrawerOpen,
-    selectedUser
-  );
+  const [selectedUser, setSelectedUser] = useState<IUser>();
+  const [emailLoginId, setEmailLoginId] = useState(false);
+  const { column, userSubmit, handleLock, handleStatus, handleLoginId, handleResetPassword } =
+    UserColumn(setModalOpen, setSelectedUser, setDrawerOpen, selectedUser);
+
   const user = selectedUser && users.filter(i => i.loginId === selectedUser.loginId)[0];
   const { debouncedUpdateURL, setParams, filters } = debouncedURL({
     filtersKey: ['search', 'status'],
-    initialValue: { status: 'Active' },
+    initialValue: { status: '' },
   });
   const items = [
     { label: 'Export to XLSX', key: 'excel', icon: <IconFileSpreadsheet size={16} /> },
     { label: 'Export to CSV', key: 'csv', icon: <IconFileTypeCsv /> },
   ];
   useEffect(() => {
+    fetchUsersData();
+  }, [filters]);
+
+  useEffect(() => {
     return () => {
       debouncedUpdateURL.cancel();
     };
   }, [debouncedUpdateURL]);
 
+  const fetchUsersData = async () => {
+    try {
+      const params = {
+        is_active: filters?.status !== '' ? filters?.status === 'Active' : undefined,
+        search: filters?.search,
+      };
+      await dispatch(getUsersThunk(params)).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch users');
+    }
+  };
   return (
     <div className="p-4">
       <h1 className="text-2xl font-semibold mb-4">Users Listing</h1>
@@ -66,7 +85,7 @@ const Users = () => {
         />
 
         <div className="flex items-center gap-2">
-          <p className="text-gray-500 text-sm">12 Users</p>
+          <p className="text-gray-500 text-sm">{users?.length || 0} Users</p>
         </div>
 
         <div className="ml-auto flex items-center gap-2">
@@ -74,7 +93,7 @@ const Users = () => {
             type="primary"
             icon={<IconPlus size={16} />}
             onClick={() => {
-              setDrawerOpen(true);
+              setDrawerOpen('create');
             }}
           >
             New User
@@ -101,9 +120,9 @@ const Users = () => {
       </div>
       {viewMode === 'grid' ? (
         <div className="grid grid-cols-3 gap-2 ">
-          {users
-            .filter(i => i.status === filters.status)
-            .map((user, index) => (
+          {users &&
+            users.length > 0 &&
+            users.map((user, index) => (
               <UserCard
                 key={index}
                 user={user}
@@ -114,36 +133,47 @@ const Users = () => {
             ))}
         </div>
       ) : (
-        <Table columns={column} dataSource={users.filter(i => i.status === filters.status)} />
+        <Table columns={column} dataSource={users} />
       )}
-      {drawerOpen && (
-        <UserFormModal
-          open={drawerOpen}
-          onCancel={handleClose}
-          onSubmit={values => {
-            console.log('user submit', values);
-            userSubmit(values);
+      {!!drawerOpen && (
+        <UserFormDrawer
+          open={!!drawerOpen}
+          onCancel={() => {
+            setSelectedUser(null);
+            setDrawerOpen(null);
           }}
+          onSubmit={userSubmit}
+          resetPassword={handleResetPassword}
           setModalOpen={setModalOpen}
+          setDrawerOpen={setDrawerOpen}
           isEditing={!!selectedUser}
-          initialValue={selectedUser}
+          initialValue={{
+            ...selectedUser,
+            dateOfJoining: selectedUser?.dateOfJoining ? dayjs(selectedUser.dateOfJoining) : null,
+            dateOfBirth: selectedUser?.dateOfBirth ? dayjs(selectedUser.dateOfBirth) : null,
+          }}
+          type={drawerOpen}
         />
       )}
       {modalOpen === 'resetLoginId' && (
         <ActionDialogmodel
           title="Change Login Id"
           open={modalOpen === 'resetLoginId'}
-          onCancel={handleClose}
+          onCancel={() => {
+            setSelectedUser(null);
+            setModalOpen(null);
+          }}
           onSubmit={values => {
-            userSubmit({ loginId: values.loginId });
+            handleLoginId({ ...values, emailLoginId });
           }}
           fields={[
-            { label: 'New Login id', name: 'loginId', type: 'text' },
+            { label: 'New Login id', name: 'newLoginId', type: 'text' },
             {
               label: 'Email new login Id',
               name: 'emailLoginId',
               type: 'switch',
-              initialValue: true,
+              initialValue: emailLoginId,
+              onChange: setEmailLoginId,
             },
           ]}
           isEditing={!!selectedUser}
@@ -154,26 +184,24 @@ const Users = () => {
         <ConfirmationContentModal
           title="Confirmation"
           open={['changeStatusUser', 'lockUser'].includes(modalOpen)}
-          onClose={handleClose}
+          onClose={() => {
+            setSelectedUser(null);
+            setModalOpen(null);
+          }}
           okText={
             modalOpen === 'lockUser'
-              ? user?.lock
+              ? user?.isLocked
                 ? 'UnLock'
                 : 'Lock'
-              : user?.status === 'Active'
+              : user?.isActive
                 ? 'InActivate'
                 : 'Activate'
           }
-          content={`Are you sure you want to ${modalOpen === 'changeStatusUser' ? (user?.status === 'Active' ? 'InActivate' : 'Activate') : user?.lock ? 'UnLock' : 'Lock'} the user?`}
+          content={`Are you sure you want to ${modalOpen === 'changeStatusUser' ? (user?.isActive ? 'InActivate' : 'Activate') : user?.isLocked ? 'UnLock' : 'Lock'} the user?`}
           onSubmit={() => {
-            const value =
-              modalOpen === 'lockUser'
-                ? !user?.lock
-                : user?.status === 'Active'
-                  ? 'InActive'
-                  : 'Active';
-            userSubmit(modalOpen === 'lockUser' ? { lock: value } : { status: value });
+            modalOpen === 'lockUser' ? handleLock() : handleStatus();
           }}
+          loading={status.users.create === Status.PENDING}
         />
       )}
     </div>

@@ -309,7 +309,7 @@ export const MasterPriceList = () => {
         <div className="flex justify-center items-center pt-[20vh]">
           <Spin size="large" />
         </div>
-      ) : localCategories.length > 0 ? (
+      ) : localCategories?.length > 0 ? (
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="categories">
             {provided => (

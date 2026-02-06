@@ -7,6 +7,7 @@ import dayjs from 'dayjs';
 import { useAppDispatch } from '@hooks/redux';
 import { createHoliday, updateHoliday } from '@redux/feature/holiday/holidayThunk';
 import TooltipButton from '../common/TooltipButton';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 
 export const useHolidayMasterColumns = ({
   filters,
@@ -82,9 +83,9 @@ export const useHolidayMasterColumns = ({
           />
         </div>
       ),
-      dataIndex: 'states',
-      key: 'states',
-      render: states => states.map(i => <Tag>{i.name}</Tag>),
+      dataIndex: 'state',
+      key: 'state',
+      render: state => state?.map(i => <Tag>{i.name}</Tag>),
     },
     {
       title: (
@@ -164,9 +165,18 @@ export const useHolidayMasterColumns = ({
     };
     try {
       if (selectedHoliday) {
+        const { isUpdated, updatedFields } = getUpdatedFields(
+          { ...payload, status: values.status === 'true' },
+          selectedHoliday
+        );
+        if (!isUpdated) {
+          setSelectedHoliday(null);
+          setModalOpen(null);
+          return;
+        }
         await dispatch(
           updateHoliday({
-            data: { ...payload, status: values.status === 'true' },
+            data: updatedFields,
             id: selectedHoliday?.holidayId,
           })
         ).unwrap();

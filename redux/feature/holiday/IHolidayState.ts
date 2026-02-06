@@ -16,7 +16,7 @@ export interface IHoliday {
   holidayEndDate: string;
   holidayDescription: string;
   status: boolean;
-  states: Entity[];
+  state: Entity[] | string[];
 }
 
 export interface IHolidayState {
@@ -43,4 +43,5 @@ export interface IHolidayFetchParams {
   holiday_end_date?: string;
   status?: boolean;
   state?: string;
+  year?: string;
 }

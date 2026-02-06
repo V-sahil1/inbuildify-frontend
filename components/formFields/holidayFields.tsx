@@ -1,4 +1,5 @@
 import { FormField } from '../common/Models/ActionDialogModel';
+import { CustomBulkSelect } from '../common/CustomBulkSelect';
 
 export const holidayFields = (
   isEditing: boolean | null,
@@ -8,9 +9,14 @@ export const holidayFields = (
     {
       name: 'state',
       label: 'State/Region',
-      type: 'select',
-      options: stateOptions,
-      mode: 'tags',
+      type: 'custom',
+      render: (
+        <CustomBulkSelect
+          options={stateOptions}
+          onChange={() => {}}
+          placeholder="Select the State"
+        />
+      ),
     },
     {
       name: 'holidayStartDate',

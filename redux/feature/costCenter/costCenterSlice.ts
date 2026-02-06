@@ -93,7 +93,7 @@ const costCenterSlice = createSlice({
       state.checklistStatus.fetch = Status.SUCCESS;
     });
     builder.addCase(createCostCenterChecklist.fulfilled, (state, action) => {
-      const center = state.costCenter.find(i => i.costCenterId === action.payload.costCenter.id);
+      const center = state.costCenter.find(i => i.costCenterId === action.payload.costCenterId);
       if (center) {
         center.checklist.push(action.payload);
       }
