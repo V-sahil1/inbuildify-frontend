@@ -158,7 +158,7 @@ export const FloorPlanColumn = (
             </Badge>
           </Tooltip>
           <Tooltip title="Map Facade">
-            <Badge count={5} size="small">
+            <Badge count={record?.facade?.length || 0} size="small">
               <Button
                 size="small"
                 className="text-blue"

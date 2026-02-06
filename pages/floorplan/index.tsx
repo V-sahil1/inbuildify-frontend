@@ -10,10 +10,15 @@ import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { Status } from '@lib/constants/enum';
 import { debouncedURL } from '@lib/utils/debounceURL';
 import { QuotationHistory } from '@lib/utils/Reports/quotation/QuotationHistory';
-import { fetchFloorPlanPricelist, fetchFloorPlans } from '@redux/feature/floorPlan/floorPlanThunk';
+import {
+  fetchFloorPlanFacade,
+  fetchFloorPlanPricelist,
+  fetchFloorPlans,
+} from '@redux/feature/floorPlan/floorPlanThunk';
 import { RootState } from '@redux/feature/store';
 import { IconDownload } from '@tabler/icons-react';
 import { FloorPlanGetParams, IFloorPlanState } from '@redux/feature/floorPlan/IFloorPlanState';
+import { getPaginationConfig } from '@lib/utils/getPaginationConfig';
 
 const FloorPlanMaster = () => {
   const dispatch = useAppDispatch();
@@ -23,7 +28,7 @@ const FloorPlanMaster = () => {
   const [activeFilter, setActiveFilter] = useState('All');
   const [drawerOpen, setDrawerOpen] = useState<'floorplan' | 'facade' | 'quotation' | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [showSelectedData, setShowSelectedData] = useState(false);
+  const [showSelectedData, setShowSelectedData] = useState<'facade' | 'pricelist' | null>(null);
   const {
     filters: debouncedFilters,
     debouncedUpdateURL,
@@ -44,9 +49,28 @@ const FloorPlanMaster = () => {
     selectedFloorplan,
     setSelectedFloorplan
   );
-  const { columns: facadeColumns, facadeData } = FacadeColumns();
+  const { columns: facadeColumns, facades } = FacadeColumns(
+    floorPlans?.find(i => i?.floorPlanId === selectedFloorplan?.floorPlanId)?.facade,
+    selectedFloorplan,
+    setSelectedFloorplan
+  );
   const filterButtons = ['All', 'Standard', 'Upgrade'];
   const PAGE_SIZE = 10;
+
+  useEffect(() => {
+    fetchFloorPlansData();
+  }, [currentPage, debouncedFilters]);
+
+  useEffect(() => {
+    fetchPricelistItems();
+    fetchFcadeItems();
+  }, [status.floorPlan.fetch]);
+
+  useEffect(() => {
+    return () => {
+      debouncedUpdateURL.cancel();
+    };
+  }, [debouncedUpdateURL]);
 
   const fetchFloorPlansData = async (page: number = currentPage, limit: number = PAGE_SIZE) => {
     try {
@@ -67,16 +91,6 @@ const FloorPlanMaster = () => {
     }
   };
 
-  useEffect(() => {
-    fetchFloorPlansData();
-  }, [currentPage, debouncedFilters]);
-
-  useEffect(() => {
-    return () => {
-      debouncedUpdateURL.cancel();
-    };
-  }, [debouncedUpdateURL]);
-
   const fetchPricelistItems = () => {
     try {
       floorPlans?.map(async i => await dispatch(fetchFloorPlanPricelist(i?.floorPlanId)).unwrap());
@@ -85,9 +99,13 @@ const FloorPlanMaster = () => {
     }
   };
 
-  useEffect(() => {
-    fetchPricelistItems();
-  }, [status.floorPlan.fetch]);
+  const fetchFcadeItems = () => {
+    try {
+      floorPlans?.map(async i => await dispatch(fetchFloorPlanFacade(i?.floorPlanId)).unwrap());
+    } catch (error) {
+      message.error(error || 'Failed to fetch pricelist items');
+    }
+  };
 
   return (
     <div className="p-4">
@@ -114,17 +132,12 @@ const FloorPlanMaster = () => {
             setSelectedFloorplan(record);
           },
         })}
-        pagination={{
-          current: pagination?.currentPage,
-          pageSize: pagination?.limit,
-          total: pagination?.totalRecords,
-          showSizeChanger: false,
-          showQuickJumper: false,
-          showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
-          onChange: page => {
-            setCurrentPage(page);
-          },
-        }}
+        pagination={getPaginationConfig({
+          currentPage,
+          limit: pagination?.limit,
+          totalRecords: pagination?.totalRecords,
+          setCurrentPage,
+        })}
       />
       {createFloorPlanOpen && (
         <FloorPlanFormModal
@@ -172,12 +185,13 @@ const FloorPlanMaster = () => {
           onClose={() => {
             setDrawerOpen(null);
             setSelectedFloorplan(null);
+            setShowSelectedData(null);
           }}
           title="Pricelist Items"
           table={[
             {
               columns: floorplanPricelistColumn,
-              data: showSelectedData
+              data: !!showSelectedData
                 ? floorPlans
                     ?.find(i => i?.floorPlanId === selectedFloorplan?.floorPlanId)
                     ?.pricelistItems?.map(i =>
@@ -189,14 +203,14 @@ const FloorPlanMaster = () => {
         >
           <Space className="my-2">
             <Button
-              type={showSelectedData ? 'default' : 'primary'}
-              onClick={() => setShowSelectedData(false)}
+              type={!!showSelectedData ? 'default' : 'primary'}
+              onClick={() => setShowSelectedData(null)}
             >
               Show All
             </Button>
             <Button
-              type={showSelectedData ? 'primary' : 'default'}
-              onClick={() => setShowSelectedData(true)}
+              type={showSelectedData === 'pricelist' ? 'primary' : 'default'}
+              onClick={() => setShowSelectedData('pricelist')}
             >
               Selected Items{' '}
               {floorPlans?.find(i => i?.floorPlanId === selectedFloorplan?.floorPlanId)
@@ -209,14 +223,39 @@ const FloorPlanMaster = () => {
         <TableDrawer
           open={drawerOpen === 'facade'}
           width={800}
-          onClose={() => setDrawerOpen(null)}
+          onClose={() => {
+            setDrawerOpen(null);
+            setSelectedFloorplan(null);
+            setShowSelectedData(null);
+          }}
           title="Facade"
-          table={[{ columns: facadeColumns, data: facadeData }]}
+          table={[
+            {
+              columns: facadeColumns,
+              data: !!showSelectedData
+                ? floorPlans
+                    ?.find(i => i?.floorPlanId === selectedFloorplan?.floorPlanId)
+                    ?.facade?.map(i => facades.find(c => c?.facadeId === i?.facadeId))
+                : facades,
+            },
+          ]}
         >
           <div className="flex justify-between my-2">
             <Space>
-              <Button type="primary">Show All</Button>
-              <Button>Selected Items {selectedFloorplan.facade?.length | 0}</Button>
+              <Button
+                type={!!showSelectedData ? 'default' : 'primary'}
+                onClick={() => setShowSelectedData(null)}
+              >
+                Show All
+              </Button>
+              <Button
+                type={showSelectedData === 'facade' ? 'primary' : 'default'}
+                onClick={() => setShowSelectedData('facade')}
+              >
+                Selected Items{' '}
+                {floorPlans?.find(i => i?.floorPlanId === selectedFloorplan?.floorPlanId)?.facade
+                  ?.length | 0}
+              </Button>
             </Space>
             <div>
               {filterButtons.map(obj => (

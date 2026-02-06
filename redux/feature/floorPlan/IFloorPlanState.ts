@@ -23,7 +23,7 @@ export interface IFloorPlanState {
   rangeName?: string;
   locationId: string;
   locationName?: string;
-  facade?: any[];
+  facade?: FloorplanFacade[];
   pricelistItems?: FloorplanPricelist[];
 }
 
@@ -34,6 +34,12 @@ export interface FloorplanPricelist {
   quantity: number;
   floorPlanId: string;
   priceListItemId: string;
+}
+
+export interface FloorplanFacade {
+  id?: string;
+  floorPlanId: string;
+  facadeId: string;
 }
 
 export interface FloorPlanGetParams {

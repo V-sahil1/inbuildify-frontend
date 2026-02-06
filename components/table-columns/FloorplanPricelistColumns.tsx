@@ -197,14 +197,14 @@ export const FloorplanPricelistColumns = (
             title="Are you sure you want to remove this item?"
             onConfirm={() => removeItem(item.floorPlanId, item.id)}
           >
-            <TooltipButton type="default" title="Remove" icon={<IconX size={15} />} />
+            <TooltipButton type="text" size="small" title="Remove" icon={<IconX size={15} />} />
           </Popconfirm>
         ) : (
           <Popconfirm
             title="Are you sure you want to add this item?"
             onConfirm={() => addItem(record)}
           >
-            <TooltipButton type="primary" title="Add" icon={<IconPlus size={15} />} />
+            <TooltipButton type="text" size="small" title="Add" icon={<IconPlus size={15} />} />
           </Popconfirm>
         );
       },

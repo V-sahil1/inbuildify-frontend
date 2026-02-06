@@ -2,7 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import api, { apiWithFormDataMethods } from '@lib/constants/api';
 import { ApiResponse } from '../auth/IAuthState';
 import API_ENDPOINTS from '@lib/constants/apiEndpoints';
-import { FloorPlanGetParams, FloorplanPricelist, IFloorPlanState } from './IFloorPlanState';
+import { FloorplanFacade, FloorPlanGetParams, FloorplanPricelist, IFloorPlanState } from './IFloorPlanState';
 import { CommonPagination } from '../common/ICommonState';
 
 export const fetchFloorPlans = createAsyncThunk(
@@ -104,6 +104,51 @@ export const deleteFloorPlanPricelist = createAsyncThunk(
       const res = await api.delete<ApiResponse>(
         API_ENDPOINTS.FLOOR_PLAN_PRICELIST + '/' + payload.id
       );
+      return payload;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+//floorplan facade
+export const fetchFloorPlanFacade = createAsyncThunk(
+  'floorPlans/fetchFloorPlanFacade',
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const res = await api.get<
+        ApiResponse<{ mappings: FloorplanFacade[]; pagination: CommonPagination }>
+      >(API_ENDPOINTS.FLOOR_PLAN_FACADE, {
+        params: {
+          floor_plan_id: id,
+        },
+      });
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const createFloorPlanFacade = createAsyncThunk(
+  'floorPlans/createFloorPlanFacade',
+  async (payload: FloorplanFacade, { rejectWithValue }) => {
+    try {
+      const res = await api.post<ApiResponse<FloorplanFacade>>(API_ENDPOINTS.FLOOR_PLAN_FACADE, {
+        data: payload,
+      });
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const deleteFloorPlanFacade = createAsyncThunk(
+  'floorPlans/deleteFloorPlanFacade',
+  async (payload: { id: string; floorPlanId: string }, { rejectWithValue }) => {
+    try {
+      const res = await api.delete<ApiResponse>(API_ENDPOINTS.FLOOR_PLAN_FACADE + '/' + payload.id);
       return payload;
     } catch (error) {
       return rejectWithValue(error.message);

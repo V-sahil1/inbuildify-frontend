@@ -1,8 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
 import {
   createFloorPlan,
+  createFloorPlanFacade,
   createFloorPlanPricelist,
+  deleteFloorPlanFacade,
   deleteFloorPlanPricelist,
+  fetchFloorPlanFacade,
   fetchFloorPlanPricelist,
   fetchFloorPlans,
   getConditions,
@@ -98,6 +101,26 @@ const floorPlanSlice = createSlice({
           );
         }
         state.status.floorPlanPricelist.create = Status.SUCCESS;
+      })
+
+      //floorplan facade
+      .addCase(fetchFloorPlanFacade.fulfilled, (state, action) => {
+        const floorplan = state.floorPlans.find(i => i.floorPlanId === action.meta.arg);
+        if (floorplan) {
+          floorplan.facade = action.payload.mappings;
+        }
+      })
+      .addCase(createFloorPlanFacade.fulfilled, (state, action) => {
+        const floorplan = state.floorPlans.find(i => i.floorPlanId === action.payload.floorPlanId);
+        if (floorplan) {
+          floorplan.facade.push(action.payload);
+        }
+      })
+      .addCase(deleteFloorPlanFacade.fulfilled, (state, action) => {
+        const floorplan = state.floorPlans.find(i => i.floorPlanId === action.payload.floorPlanId);
+        if (floorplan) {
+          floorplan.facade = floorplan.facade.filter(i => i.id !== action.payload.id);
+        }
       });
   },
 });
