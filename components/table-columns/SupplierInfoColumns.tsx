@@ -1,53 +1,103 @@
-import React, { useState } from 'react';
-import { Button } from 'antd';
-import { IconPlus } from '@tabler/icons-react';
+import React, { useState, useEffect } from 'react';
+import { Button, message, Popconfirm } from 'antd';
+import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import { supplierInfoFields } from '@/components/formFields/supplierInfo';
+import { SupplierContact } from '@redux/feature/supplier/ISupplierState';
+import TooltipButton from '../common/TooltipButton';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import {
+  createSupplierContact,
+  updateSupplierContact,
+  deleteSupplierContact,
+} from '@redux/feature/supplier/supplierThunk';
 
-export interface SupplierContact {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  type: string;
-}
-
-export const useSupplierContactColumns = () => {
+export const useSupplierContactColumns = (isEditing?: boolean, supplierId?: string) => {
+  const dispatch = useAppDispatch();
+  const { suppliers } = useAppSelector(state => state.supplier);
   const [contacts, setContacts] = useState<SupplierContact[]>([]);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [editingContact, setEditingContact] = useState<SupplierContact | null>(null);
+
+  useEffect(() => {
+    if (isEditing && supplierId) {
+      const supplier = suppliers.find(s => s.supplierId === supplierId);
+      if (supplier?.contacts) {
+        setContacts(supplier.contacts);
+      }
+    }
+  }, [isEditing, supplierId, suppliers]);
 
   const handleOpenContactModal = () => {
     setIsContactModalOpen(true);
+    setEditingContact(null);
   };
 
   const handleCancelContactModal = () => {
     setIsContactModalOpen(false);
+    setEditingContact(null);
   };
 
-  const handleSaveContact = (values: {
-    name?: string;
-    email?: string;
-    phone?: string;
-    type?: string;
-  }) => {
-    setContacts(prev => [
-      ...prev,
-      {
-        id: Date.now(),
-        name: values.name || '',
-        email: values.email || '',
-        phone: values.phone || '',
-        type: values.type || '',
-      },
-    ]);
-    setIsContactModalOpen(false);
+  const handleEdit = (record: SupplierContact) => {
+    setEditingContact(record);
+    setIsContactModalOpen(true);
+  };
+
+  const handleDelete = async (record: SupplierContact) => {
+    try {
+      if (isEditing && record.supplierContactId) {
+        await dispatch(
+          deleteSupplierContact({ id: record.supplierContactId, supplierId })
+        ).unwrap();
+        message.success('Contact deleted successfully');
+      } else {
+        setContacts(prev =>
+          prev.filter(item => item.supplierContactId !== record.supplierContactId)
+        );
+      }
+    } catch (error) {
+      message.error(error || 'Failed to delete contact');
+    }
+  };
+
+  const handleSaveContact = async (values: SupplierContact) => {
+    try {
+      if (isEditing) {
+        if (editingContact?.supplierContactId) {
+          await dispatch(
+            updateSupplierContact({
+              supplierContactId: editingContact.supplierContactId,
+              data: values,
+            })
+          ).unwrap();
+          message.success('Contact updated successfully');
+        } else {
+          await dispatch(createSupplierContact({ ...values, supplierId })).unwrap();
+          message.success('Contact created successfully');
+        }
+      } else {
+        const newContact: SupplierContact = {
+          supplierContactId: new Date().toString(),
+          supplierId: '',
+          contactName: values?.contactName || '',
+          email: values?.email || '',
+          phone: values?.phone || '',
+          contactType: values?.contactType || '',
+        };
+        setContacts(prev => [...prev, newContact]);
+      }
+      setIsContactModalOpen(false);
+      setEditingContact(null);
+    } catch (error) {
+      message.error(error || 'Failed to save contact');
+    }
   };
 
   const columns = [
     {
       title: 'Contact Name',
-      dataIndex: 'name',
-      key: 'name',
+      dataIndex: 'contactName',
+      key: 'contactName',
       width: '25%',
     },
     {
@@ -71,20 +121,48 @@ export const useSupplierContactColumns = () => {
           </Button>
         </div>
       ),
-      dataIndex: 'type',
-      key: 'type',
+      dataIndex: 'contactType',
+      key: 'contactType',
       width: '20%',
+    },
+    {
+      render: (_, record) => {
+        return (
+          <div className="flex gap-2">
+            <TooltipButton
+              title="Edit"
+              type="text"
+              size="small"
+              icon={<IconEdit size={16} />}
+              onClick={() => handleEdit(record)}
+            />
+            <Popconfirm
+              title="Are you sure you want to delete this contact?"
+              onConfirm={() => handleDelete(record)}
+            >
+              <TooltipButton
+                title="Delete"
+                type="text"
+                size="small"
+                icon={<IconTrash size={16} />}
+              />
+            </Popconfirm>
+          </div>
+        );
+      },
     },
   ];
 
-  const ContactModal = (
+  const ContactModal = isContactModalOpen && (
     <ActionDialogmodel
-      title="Add Contact"
+      title={editingContact ? 'Edit Contact' : 'Add Contact'}
       open={isContactModalOpen}
       onCancel={handleCancelContactModal}
       onSubmit={handleSaveContact}
       submitButtonText="Save"
       fields={supplierInfoFields()}
+      isEditing={!!editingContact}
+      initialValues={editingContact || undefined}
     />
   );
 

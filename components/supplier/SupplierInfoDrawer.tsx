@@ -13,69 +13,120 @@ import {
   Typography,
   Upload,
   Table,
+  Tag,
+  message,
 } from 'antd';
-import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
-import { initialTypes } from '@/components/table-columns/SupplierTypeColumns';
 import InputSwitch from '../common/InputSwitch';
 import { IconPlus } from '@tabler/icons-react';
 import { useSupplierContactColumns } from '@/components/table-columns/SupplierInfoColumns';
-
-const { Option } = Select;
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { PackageGroupField } from '../package/PackageGroupField';
+import { Supplier } from '@redux/feature/supplier/ISupplierState';
+import {
+  createSupplierType,
+  fetchAllSupplierType,
+  updateSupplierType,
+} from '@redux/feature/supplier/supplierThunk';
+import { Status } from '@lib/constants/enum';
+import { useStateHook } from '@hooks/useStateHook';
 
 interface SupplierInfoDrawerProps {
   open: boolean;
   onClose: () => void;
-  onSubmit?: (values: any) => void;
+  onSubmit?: (values: Supplier) => void;
+  initialValues?: Supplier;
+  isEditing?: boolean;
 }
 
-const SupplierInfoDrawer: React.FC<SupplierInfoDrawerProps> = ({ open, onClose, onSubmit }) => {
+const SupplierInfoDrawer: React.FC<SupplierInfoDrawerProps> = ({
+  open,
+  onClose,
+  onSubmit,
+  initialValues,
+  isEditing,
+}) => {
+  const dispatch = useAppDispatch();
   const [form] = Form.useForm();
-  const [supplierTypes, setSupplierTypes] = useState<string[]>(() =>
-    Array.from(new Set(initialTypes.map(t => t.name))).filter(Boolean)
+  const { suppliers, supplierType, status } = useAppSelector(state => state.supplier);
+  const { columns, contacts, ContactModal } = useSupplierContactColumns(
+    isEditing,
+    initialValues?.supplierId
   );
-  const [addTypeOpen, setAddTypeOpen] = useState(false);
-  const { columns, contacts, ContactModal } = useSupplierContactColumns();
-
+  const [emailInput, setEmailInput] = useState('');
+  const [emailTags, setEmailTags] = useState<string[]>([]);
+  const inductionPackReceived = Form.useWatch('inductionPackReceived', form);
+  const { stateOptions } = useStateHook();
   const documentFields = [
-    'Work Cover',
-    'White Card',
-    'PL Insurance',
-    'Fork-Lift License',
-    'Trade License',
+    { label: 'Work Cover', name: 'workCoverUrl' },
+    { label: 'White Card', name: 'whiteCardUrl' },
+    { label: 'PL Insurance', name: 'plInsuranceUrl' },
+    { label: 'Fork-Lift License', name: 'forkLiftLicenseUrl' },
+    { label: 'Trade License', name: 'tradeLicenseUrl' },
   ];
+  useEffect(() => {
+    if (status.supplierType.fetch === Status.IDLE) {
+      fetchSupplierType();
+    }
+  }, [status.supplierType.fetch]);
+
+  useEffect(() => {
+    if (isEditing) {
+      form.setFieldsValue(initialValues || {});
+    }
+    if (initialValues?.emails) {
+      setEmailTags(initialValues.emails);
+    }
+  }, [isEditing, initialValues]);
+
+  const fetchSupplierType = async () => {
+    try {
+      await dispatch(fetchAllSupplierType({})).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch supplier type');
+    }
+  };
+
+  const createSupplierTypeData = async (values, selectedType) => {
+    try {
+      if (!!selectedType) {
+        await dispatch(
+          updateSupplierType({ data: values, supplierTypeId: selectedType.supplierTypeId })
+        ).unwrap();
+        message.success('Supplier type updated successfully');
+      } else {
+        await dispatch(createSupplierType(values)).unwrap();
+        message.success('Supplier type created successfully');
+      }
+    } catch (error) {
+      message.error(error || 'Failed to save Supplier type');
+    }
+  };
+
+  const handleAddEmail = () => {
+    const email = emailInput.trim();
+    if (email && !emailTags.includes(email) && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      const newEmails = [...emailTags, email];
+      setEmailTags(newEmails);
+      setEmailInput('');
+    }
+  };
+
+  const handleRemoveEmail = (emailToRemove: string) => {
+    const newEmails = emailTags.filter(email => email !== emailToRemove);
+    setEmailTags(newEmails);
+  };
 
   const handleClose = () => {
     onClose();
   };
 
-  useEffect(() => {
-    if (!open) return;
-    form.resetFields();
-  }, [open, form]);
-
   const handleSave = () => {
-    form
-      .validateFields()
-      .then(values => {
-        onSubmit?.(values);
-        onClose();
-      })
-      .catch(() => {});
-  };
-
-  const handleAddType = () => {
-    setAddTypeOpen(true);
-  };
-
-  const handleConfirmAddType = (values: { name?: string }) => {
-    const trimmed = (values?.name || '').trim();
-    if (!trimmed) return;
-    setSupplierTypes(prev => (prev.includes(trimmed) ? prev : [...prev, trimmed]));
-    setAddTypeOpen(false);
-  };
-
-  const handleCancelAddType = () => {
-    setAddTypeOpen(false);
+    const values = form.getFieldsValue();
+    if (isEditing) {
+      onSubmit?.({ ...values, emails: emailTags });
+    } else {
+      onSubmit?.({ ...values, emails: emailTags, contacts });
+    }
   };
 
   return (
@@ -94,29 +145,27 @@ const SupplierInfoDrawer: React.FC<SupplierInfoDrawerProps> = ({ open, onClose, 
         </div>
       }
     >
-      <Form form={form} layout="vertical" className="custom-scrollbar max-h-full overflow-y-auto">
+      <Form
+        form={form}
+        layout="vertical"
+        className="custom-scrollbar max-h-full overflow-y-auto"
+        initialValues={initialValues || null}
+      >
         <Row gutter={16} className="mb-2">
           <Col span={24}>
-            <div className="flex items-center gap-3 mb-2">
-              <Typography.Text strong>Supplier Type</Typography.Text>
-              <Button size="small" type="primary" onClick={handleAddType}>
-                Add Supplier Type
-              </Button>
-            </div>
-            <Form.Item name="supplierTypes">
-              <Select
-                mode="multiple"
-                allowClear
-                showSearch
-                placeholder="Select supplier type(s)"
-                optionFilterProp="children"
-              >
-                {supplierTypes.map(type => (
-                  <Option key={type} value={type}>
-                    {type}
-                  </Option>
-                ))}
-              </Select>
+            <Form.Item name="supplierTypeId" label="Supplier Type">
+              <PackageGroupField
+                form={form}
+                formName="supplierTypeId"
+                label="Supplier Type"
+                fields={[{ label: 'Supplier Type', name: 'name', type: 'text' }]}
+                onSubmit={createSupplierTypeData}
+                data={supplierType?.map(item => ({
+                  ...item,
+                  name: item.name,
+                  id: item.supplierTypeId,
+                }))}
+              />
             </Form.Item>
           </Col>
         </Row>
@@ -168,7 +217,7 @@ const SupplierInfoDrawer: React.FC<SupplierInfoDrawerProps> = ({ open, onClose, 
 
         <Row gutter={16}>
           <Col span={8}>
-            <Form.Item label="Address 1" name="address1">
+            <Form.Item label="Address 1" name="addressLine1">
               <Input />
             </Form.Item>
           </Col>
@@ -178,19 +227,15 @@ const SupplierInfoDrawer: React.FC<SupplierInfoDrawerProps> = ({ open, onClose, 
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item label="State / Region" name="state">
-              <Select allowClear placeholder="Select State">
-                <Option value="VIC">Victoria</Option>
-                <Option value="NSW">New South Wales</Option>
-                <Option value="QLD">Queensland</Option>
-              </Select>
+            <Form.Item label="State / Region" name="stateId">
+              <Select allowClear placeholder="Select State" options={stateOptions} />
             </Form.Item>
           </Col>
         </Row>
 
         <Row gutter={16}>
           <Col span={8}>
-            <Form.Item label="Zip / Postal Code" name="postCode">
+            <Form.Item label="Zip / Postal Code" name="zipCode">
               <Input />
             </Form.Item>
           </Col>
@@ -200,23 +245,39 @@ const SupplierInfoDrawer: React.FC<SupplierInfoDrawerProps> = ({ open, onClose, 
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item label="Status" name="status" initialValue="active">
-              <Radio.Group>
-                <Radio value="active">Active</Radio>
-                <Radio value="inactive">Inactive</Radio>
-              </Radio.Group>
+            <Form.Item label="Status" name="status" initialValue={true}>
+              <Radio.Group
+                options={[
+                  { label: 'Active', value: true },
+                  { label: 'Inactive', value: false },
+                ]}
+              />
             </Form.Item>
           </Col>
         </Row>
-        <div className="flex gap-2">
-          <Form.Item label="Email" name="email" className="w-[40%]">
-            <Input />
-          </Form.Item>
-          <Form.Item label=" " name="email">
-            <Button>
-              <IconPlus />
-            </Button>
-          </Form.Item>
+        <div className="flex flex-col gap-2">
+          <Typography.Text strong>Email Addresses</Typography.Text>
+
+          <div className="flex gap-2">
+            <Input
+              placeholder="Enter email address"
+              value={emailInput}
+              onChange={e => setEmailInput(e.target.value)}
+              onPressEnter={handleAddEmail}
+              className="w-[40%]"
+            />
+
+            <Button type="primary" onClick={handleAddEmail} icon={<IconPlus />} />
+          </div>
+          {emailTags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-2">
+              {emailTags.map(email => (
+                <Tag key={email} closable onClose={() => handleRemoveEmail(email)} className="mb-1">
+                  {email}
+                </Tag>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="mt-4 mb-2 font-medium">Manage Contacts</div>
@@ -224,75 +285,64 @@ const SupplierInfoDrawer: React.FC<SupplierInfoDrawerProps> = ({ open, onClose, 
           size="small"
           pagination={false}
           rowKey="id"
-          dataSource={contacts}
+          dataSource={
+            isEditing
+              ? suppliers.find(s => s.supplierId === initialValues?.supplierId)?.contacts
+              : contacts
+          }
           columns={columns}
         />
 
         <div className="mt-4 mb-4 font-medium">Manage Documents</div>
-        {documentFields
-          .reduce<string[][]>((rows, label, index) => {
-            if (index % 2 === 0) {
-              rows.push([label]);
-            } else {
-              rows[rows.length - 1].push(label);
-            }
-            return rows;
-          }, [])
-          .map((row, rowIndex) => (
-            <Row gutter={16} className={rowIndex === 0 ? '' : 'mt-2'} key={row.join('-')}>
-              {row.map(label => (
-                <Col span={12} key={label}>
-                  <div className="flex flex-col gap-1">
-                    <Typography.Text>{label}</Typography.Text>
-                    <Upload beforeUpload={() => false} maxCount={1}>
-                      <Button type="primary" size="small">
-                        Upload
-                      </Button>
-                    </Upload>
-                  </div>
-                </Col>
-              ))}
-              {row.length === 1 && (
-                <Col span={12}>
-                  <div className="flex gap-1 mt-3 flex-col">
-                    <InputSwitch name="induction pack recieve" label="induction Pack Recieved" />
-                    <Form.Item shouldUpdate noStyle>
-                      {() =>
-                        form.getFieldValue('induction pack recieve') ? (
-                          <div className="flex flex-col gap-1">
-                            <Typography.Text>induction Pack</Typography.Text>
-                            <Upload beforeUpload={() => false} maxCount={1}>
-                              <Button type="primary" size="small">
-                                Upload
-                              </Button>
-                            </Upload>
-                          </div>
-                        ) : null
-                      }
-                    </Form.Item>
-                  </div>
-                </Col>
-              )}
-            </Row>
+        <Row gutter={16}>
+          {documentFields.map((row, rowIndex) => (
+            <Col span={12} key={row.label}>
+              <div className="flex gap-1">
+                <Form.Item
+                  name={row.name}
+                  label={row.label}
+                  getValueFromEvent={e => {
+                    if (e && e.fileList) {
+                      return e.fileList;
+                    }
+                    return [];
+                  }}
+                >
+                  <Upload beforeUpload={() => false} maxCount={1}>
+                    <Button type="primary" size="small">
+                      Upload
+                    </Button>
+                  </Upload>
+                </Form.Item>
+              </div>
+            </Col>
           ))}
-      </Form>
 
-      <ActionDialogmodel
-        title="Create Supplier Type"
-        open={addTypeOpen}
-        onCancel={handleCancelAddType}
-        onSubmit={handleConfirmAddType}
-        submitButtonText="Create"
-        fields={[
-          {
-            label: 'Name',
-            name: 'name',
-            type: 'text' as const,
-            placeholder: 'Enter name',
-            rules: [{ required: true, message: 'Please enter name' }],
-          },
-        ]}
-      />
+          <Col span={12}>
+            <div className="flex flex-col gap-1 mt-3">
+              <InputSwitch name="inductionPackReceived" label="induction Pack Recieved" />
+              {inductionPackReceived && (
+                <Form.Item
+                  name="inductionPackUrl"
+                  label="induction Pack"
+                  getValueFromEvent={e => {
+                    if (e && e.fileList) {
+                      return e.fileList;
+                    }
+                    return [];
+                  }}
+                >
+                  <Upload beforeUpload={() => false} maxCount={1}>
+                    <Button type="primary" size="small">
+                      Upload
+                    </Button>
+                  </Upload>
+                </Form.Item>
+              )}
+            </div>
+          </Col>
+        </Row>
+      </Form>
       {ContactModal}
     </Drawer>
   );

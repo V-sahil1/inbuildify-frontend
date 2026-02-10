@@ -4,7 +4,7 @@ export const supplierInfoFields = (): FormField[] => {
   const fields: FormField[] = [
     {
       label: 'Contact Name',
-      name: 'name',
+      name: 'contactName',
       type: 'text',
       placeholder: 'Enter contact name',
       rules: [{ required: true, message: 'Please enter contact name' }],
@@ -24,7 +24,7 @@ export const supplierInfoFields = (): FormField[] => {
     },
     {
       label: 'Type',
-      name: 'type',
+      name: 'contactType',
       type: 'text',
       placeholder: 'Enter contact type',
     },

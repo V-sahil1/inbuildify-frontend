@@ -244,6 +244,9 @@ class API_ENDPOINTS {
   //supplier
   public static SUPPLIER = '/supplier';
   public static SUPPLIER_TYPE = '/supplier-type';
+  public static SUPPLIER_CONTACT = '/supplier-contact';
+  public static SUPPLIER_MAPPING = '/supplier-type-map';
+  public static SUPPLIER_CHECKLIST = `${this.SUPPLIER_MAPPING}/checklist-map`;
 
   //cost center
   public static COST_CENTER = '/cost-center';

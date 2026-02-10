@@ -28,7 +28,7 @@ export const createConstructionChecklist = createAsyncThunk(
 
 export const fetchAllConstructionChecklist = createAsyncThunk(
   'ConstructionChecklist/fetchAll',
-  async (params: { builder?: string } = {}, { rejectWithValue }) => {
+  async (params: { builder?: string; name?: string } = {}, { rejectWithValue }) => {
     try {
       const response = await api.get<ApiResponse<ConstructionChecklistType[]>>(
         API_ENDPOINTS.CONSTRUCTION_CHECKLIST,

@@ -1,114 +1,132 @@
-import { Input, Select, Button, Tag } from 'antd';
+import { Input, Select, Button, Tag, message, Popconfirm } from 'antd';
 import { IconTrash } from '@tabler/icons-react';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect } from 'react';
 import { debouncedURL } from '@lib/utils/debounceURL';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import {
+  createSupplier,
+  deleteSupplier,
+  fetchAllSupplierContacts,
+  fetchAllSuppliers,
+  updateSupplier,
+} from '@redux/feature/supplier/supplierThunk';
+import { Supplier } from '@redux/feature/supplier/ISupplierState';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
+import TooltipButton from '../common/TooltipButton';
+import { Entity } from 'types/common.types';
+import { formDataGenerator } from '@lib/utils/formDataGenerator';
+import StatusSelect from '../common/custom-selects/StatusSelect';
+import { useSupplierTypeOptions } from '@hooks/useSupplierTypeHook';
+import { Status } from '@lib/constants/enum';
 
-const { Option } = Select;
-
-export interface Supplier {
-  key: string;
-  name: string;
-  email: string;
-  phone?: string;
-  website?: string;
-  type: string[];
-  induction: boolean;
-  isActive: boolean;
-  description?: string;
-  contactName?: string;
-  workCoverExpiryDate?: string;
-  plInsuranceExpiryDate?: string;
-  tradeLicenseExpiryDate?: string;
-  whiteCardExpiryDate?: string;
-  forkLiftLicenseExpiryDate?: string;
-}
-
-export const useSupplierColumns = () => {
-  const initialSuppliers: Supplier[] = [
-    {
-      key: '1',
-      name: '5AB Painting Services',
-      email: 'yash@insimplify.com.au',
-      phone: '',
-      website: '',
-      type: ['Painter'],
-      induction: false,
-      isActive: true,
-    },
-    {
-      key: '2',
-      name: 'ABC Bricks',
-      email: 'yash@insimplify.com.au',
-      phone: '',
-      website: '',
-      type: ['Brick Layer'],
-      induction: false,
-      isActive: true,
-    },
-    {
-      key: '3',
-      name: 'CDE Bricks',
-      email: 'yash@insimplify.com.au',
-      phone: '',
-      website: '',
-      type: ['Brick cleaner'],
-      induction: false,
-      isActive: false,
-    },
-  ];
-
-  const [data, setData] = useState<Supplier[]>(initialSuppliers);
-
+export const useSupplierColumns = (selectedSupplier, setSelectedSupplier, setDrawerOpen) => {
+  const dispatch = useAppDispatch();
+  const { suppliers, status } = useAppSelector(state => state.supplier);
+  const { activeOptions } = useSupplierTypeOptions();
   const { debouncedUpdateURL, setParams, filters } = debouncedURL({
     delay: 500,
     filtersKey: ['name', 'email', 'phone', 'website', 'type', 'induction', 'isActive'],
+    initialValue: { induction: '', isActive: '' },
   });
+  useEffect(() => {
+    fetchSuppliers();
+  }, [filters]);
+  useEffect(() => {
+    fetchSupplierContact();
+  }, [suppliers]);
 
-  React.useEffect(() => () => debouncedUpdateURL.cancel(), [debouncedUpdateURL]);
+  const fetchSuppliers = async () => {
+    try {
+      const params = {
+        company_name: filters?.name || undefined,
+        emails: filters?.email || undefined,
+        phone: filters?.phone || undefined,
+        website: filters?.website || undefined,
+        supplier_type_id: filters?.type || undefined,
+        induction: filters?.induction !== '' ? filters?.induction === 'yes' : undefined,
+        status: filters?.isActive !== '' ? filters?.isActive === 'true' : undefined,
+      };
+      await dispatch(fetchAllSuppliers(params)).unwrap();
+    } catch (error) {
+      message.error('Failed to fetch suppliers');
+    }
+  };
 
-  const filteredData = useMemo(() => {
-    return data.filter(row => {
-      const nameFilter =
-        !filters.name || row.name.toLowerCase().includes(String(filters.name).toLowerCase());
-      const emailFilter =
-        !filters.email || row.email.toLowerCase().includes(String(filters.email).toLowerCase());
-      const phoneFilter = !filters.phone || (row.phone || '').includes(String(filters.phone));
-      const websiteFilter =
-        !filters.website ||
-        (row.website || '').toLowerCase().includes(String(filters.website).toLowerCase());
-      const typeFilter = !filters.type || row.type?.includes(filters.type as string);
+  const fetchSupplierContact = async () => {
+    try {
+      suppliers?.map(async supplier => {
+        if (status.supplierContact.fetch === Status.IDLE) {
+          await dispatch(fetchAllSupplierContacts(supplier.supplierId)).unwrap();
+        }
+      });
+    } catch (error) {
+      message.error('Failed to fetch supplier contact');
+    }
+  };
 
-      const inductionValue = String(filters.induction ?? '');
-      const inductionFilter =
-        !inductionValue ||
-        (inductionValue === 'yes' && row.induction) ||
-        (inductionValue === 'no' && !row.induction);
+  useEffect(() => () => debouncedUpdateURL.cancel(), [debouncedUpdateURL]);
 
-      const isActiveValue = String(filters.isActive ?? '');
-      const isActiveFilter =
-        !isActiveValue ||
-        (isActiveValue === 'active' && row.isActive) ||
-        (isActiveValue === 'inactive' && !row.isActive);
+  const handleDelete = async (id: string) => {
+    try {
+      await dispatch(deleteSupplier(id)).unwrap();
+      message.success('Supplier deleted successfully');
+      setSelectedSupplier(null);
+    } catch (error) {
+      message.error('Failed to delete supplier');
+    }
+  };
 
-      return (
-        nameFilter &&
-        emailFilter &&
-        phoneFilter &&
-        websiteFilter &&
-        typeFilter &&
-        inductionFilter &&
-        isActiveFilter
-      );
-    });
-  }, [data, filters]);
+  const handleCreate = async values => {
+    const imageFields = [
+      'workCoverUrl',
+      'plInsuranceUrl',
+      'whiteCardUrl',
+      'forkLiftLicenseUrl',
+      'tradeLicenseUrl',
+      'inductionPackUrl',
+    ];
 
-  const uniqueTypes = useMemo(
-    () => Array.from(new Set(data.flatMap(d => d.type || []))).filter(Boolean),
-    [data]
-  );
-
-  const handleDelete = (key: string) => {
-    setData(prev => prev.filter(row => row.key !== key));
+    const imagePayload = imageFields.reduce((acc, field) => {
+      const imageData = values[field];
+      acc[field] = imageData?.length > 0 ? imageData[0].originFileObj : null;
+      return acc;
+    }, {});
+    try {
+      if (selectedSupplier) {
+        const { isUpdated, updatedFields } = getUpdatedFields(
+          { ...values, ...imagePayload },
+          selectedSupplier
+        );
+        if (!isUpdated) {
+          setSelectedSupplier(null);
+          setDrawerOpen(null);
+          return;
+        }
+        await dispatch(
+          updateSupplier({ supplierId: selectedSupplier.supplierId, data: updatedFields })
+        ).unwrap();
+        message.success('Supplier updated successfully');
+      } else {
+        const supplierData = {
+          ...values,
+          contacts:
+            values.contacts?.map(contact => ({
+              contactName: contact.contactName,
+              email: contact.email,
+              phone: contact.phone,
+              contactType: contact.contactType,
+            })) || [],
+          ...imagePayload,
+        };
+        const formData = formDataGenerator(supplierData);
+        await dispatch(createSupplier(formData)).unwrap();
+        message.success('Supplier created successfully');
+      }
+      setSelectedSupplier(null);
+      setDrawerOpen(null);
+    } catch (error) {
+      message.error('Failed to create supplier');
+    }
   };
 
   const columns = [
@@ -119,7 +137,7 @@ export const useSupplierColumns = () => {
           <Input value={filters.name} onChange={e => setParams({ name: e.target.value ?? '' })} />
         </div>
       ),
-      dataIndex: 'name',
+      dataIndex: 'companyName',
       width: '20%',
     },
     {
@@ -129,8 +147,9 @@ export const useSupplierColumns = () => {
           <Input value={filters.email} onChange={e => setParams({ email: e.target.value ?? '' })} />
         </div>
       ),
-      dataIndex: 'email',
+      dataIndex: 'emails',
       width: '20%',
+      render: (value: string[]) => value.join(', '),
     },
     {
       title: (
@@ -139,7 +158,7 @@ export const useSupplierColumns = () => {
           <Input value={filters.phone} onChange={e => setParams({ phone: e.target.value ?? '' })} />
         </div>
       ),
-      dataIndex: 'phone',
+      dataIndex: 'primaryPhone',
       width: '10%',
     },
     {
@@ -167,18 +186,20 @@ export const useSupplierColumns = () => {
       title: (
         <div className="flex flex-col">
           <span>Type</span>
-          <Select allowClear value={filters.type} onChange={val => setParams({ type: val ?? '' })}>
-            {uniqueTypes.map(type => (
-              <Option key={type} value={type}>
-                {type}
-              </Option>
-            ))}
-          </Select>
+          <Select
+            allowClear
+            value={filters.type}
+            onChange={val => setParams({ type: val ?? '' })}
+            options={activeOptions}
+          />
         </div>
       ),
-      dataIndex: 'type',
+      dataIndex: 'supplierTypes',
       width: '10%',
-      render: (value: string[] | undefined) => (value && value.length ? value.join(', ') : ''),
+      render: (supplierTypes: Entity[]) =>
+        supplierTypes && supplierTypes.length
+          ? supplierTypes.map(supplierType => supplierType.name).join(', ')
+          : '',
     },
     {
       title: (
@@ -188,13 +209,15 @@ export const useSupplierColumns = () => {
             allowClear
             value={filters.induction}
             onChange={val => setParams({ induction: val ?? '' })}
-          >
-            <Option value="yes">Yes</Option>
-            <Option value="no">No</Option>
-          </Select>
+            options={[
+              { value: '', label: 'All' },
+              { value: 'yes', label: 'Yes' },
+              { value: 'no', label: 'No' },
+            ]}
+          />
         </div>
       ),
-      dataIndex: 'induction',
+      dataIndex: 'inductionPackReceived',
       width: '10%',
       render: (value: boolean) => (value ? 'Yes' : 'No'),
     },
@@ -202,17 +225,14 @@ export const useSupplierColumns = () => {
       title: (
         <div className="flex flex-col">
           <span>Status</span>
-          <Select
-            allowClear
+          <StatusSelect
+            activeInactive={true}
             value={filters.isActive}
             onChange={val => setParams({ isActive: val ?? '' })}
-          >
-            <Option value="active">Active</Option>
-            <Option value="inactive">Inactive</Option>
-          </Select>
+          />
         </div>
       ),
-      dataIndex: 'isActive',
+      dataIndex: 'status',
       width: '10%',
       render: (value: boolean) => (
         <Tag color={value ? 'green' : 'red'}>{value ? 'Active' : 'Inactive'}</Tag>
@@ -222,18 +242,29 @@ export const useSupplierColumns = () => {
       title: '',
       dataIndex: 'actions',
       width: '5%',
-      render: (_: any, record: Supplier) => (
-        <Button danger type="text" onClick={() => handleDelete(record.key)}>
-          <IconTrash size={20} />
-        </Button>
+      render: (_, record: Supplier) => (
+        <Popconfirm
+          title="Are you sure you want to delete this supplier?"
+          onConfirm={e => {
+            e.stopPropagation();
+            handleDelete(record.supplierId);
+          }}
+        >
+          <TooltipButton
+            title="Delete"
+            type="text"
+            size="small"
+            icon={<IconTrash size={16} color="red" />}
+            onClick={e => e.stopPropagation()}
+          />
+        </Popconfirm>
       ),
     },
   ];
 
   return {
     columns,
-    data,
-    filteredData,
-    setData,
+    suppliers,
+    handleCreate,
   };
 };

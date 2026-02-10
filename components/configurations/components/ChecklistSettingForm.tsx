@@ -13,7 +13,7 @@ import {
   Switch,
   Tooltip,
 } from 'antd';
-import { IconCheck, IconEdit, IconPlus, IconTrash, IconX } from '@tabler/icons-react';
+import { IconCheck, IconEdit, IconTrash, IconX } from '@tabler/icons-react';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import { useEffect, useState } from 'react';
 import ConfirmationModal from '@/components/common/ConfirmationModal';
@@ -32,10 +32,9 @@ import { useCostCenterHook } from '@hooks/useCostCenterHook';
 import { useConstructionOptionHook } from '@hooks/useConstructionOptionHook';
 import { useCommonFolderHook } from '@hooks/useCommonFolderHook';
 import { useComplianceTypeHook } from '@hooks/useComplianceTypeHook';
-import { fetchAllSupplierType } from '@redux/feature/supplier/supplierThunk';
-import { Status } from '@lib/constants/enum';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import TooltipButton from '@/components/common/TooltipButton';
+import { useSupplierTypeOptions } from '@hooks/useSupplierTypeHook';
 
 export function ChecklistSettingForm({
   setModalOpen,
@@ -57,28 +56,13 @@ export function ChecklistSettingForm({
   const [openModel, setOpenModel] = useState<'create' | 'delete' | null>(null);
   const [offset, setOffset] = useState(false);
   const { checklist } = useAppSelector(state => state.construction.constructionChecklist);
-  const { supplierType, status: supplierTypeStatus } = useAppSelector(state => state.supplier);
   const [editedPredecessor, setEditedPredecessor] =
     useState<IConstructionChecklistPredecessor | null>(null);
   const { costCenterOptions } = useCostCenterHook();
   const { constructionOptions } = useConstructionOptionHook();
   const { folderOptions } = useCommonFolderHook();
   const { complianceTypeOptions } = useComplianceTypeHook();
-
-  const supplierOptions =
-    supplierType && supplierType.map(i => ({ label: i.name, value: i.supplierTypeId }));
-  const fetchSupplierType = async () => {
-    try {
-      await dispatch(fetchAllSupplierType()).unwrap();
-    } catch (error) {
-      message.error(error || 'Failed to fetch supplier type');
-    }
-  };
-  useEffect(() => {
-    if (supplierTypeStatus.fetch === Status.IDLE) {
-      fetchSupplierType();
-    }
-  }, [supplierTypeStatus.fetch]);
+  const { activeOptions } = useSupplierTypeOptions();
 
   const onFinish = (values: ConstructionChecklistType) => {
     handleSubmit(values);
@@ -156,7 +140,7 @@ export function ChecklistSettingForm({
               </Col>
               <Col flex="1" className="p-2 rounded">
                 <Form.Item name="supplierTypeId">
-                  <Select placeholder="Select Type" className="w-full" options={supplierOptions} />
+                  <Select placeholder="Select Type" className="w-full" options={activeOptions} />
                 </Form.Item>
               </Col>
               <Col flex="1" className="p-2 rounded">
@@ -408,7 +392,7 @@ export function ChecklistSettingForm({
               name: 'predecessorChecklistId',
               type: 'select',
               options: checklistOptions,
-              rules:[{required:true,message:'Please Select Predecessor Checklist'}]
+              rules: [{ required: true, message: 'Please Select Predecessor Checklist' }],
             },
             {
               label: 'Offset',

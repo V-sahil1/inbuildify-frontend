@@ -14,7 +14,7 @@ export const PackageGroupField = ({
   formName: string;
   label: string;
   data?: any[];
-  fields?: any;
+  fields?: { label: string; name: string; type: string }[];
   onSubmit?: (values: any, selectedValue: any) => void;
 }) => {
   const [childForm] = Form.useForm();
@@ -116,7 +116,7 @@ export const PackageGroupField = ({
       ) : (
         <List
           size="small"
-          dataSource={data}
+          dataSource={data?.filter(item => item.name.toLowerCase().includes(search.toLowerCase()))}
           renderItem={item => (
             <List.Item
               className={`cursor-pointer px-2 flex items-center justify-between ${

@@ -14,8 +14,12 @@ export const formDataGenerator = (
         form.append(formKey, value);
       } else if (Array.isArray(value)) {
         if (value.length > 0 && (value[0] instanceof File || value[0] instanceof Blob)) {
-          value.forEach((file) => {
+          value.forEach(file => {
             form.append(`${formKey}`, file);
+          });
+        } else if (value.length > 0 && typeof value[0] === 'object' && value[0] !== null) {
+          value.forEach((item, index) => {
+            formDataGenerator(item, form, `${formKey}[${index}]`);
           });
         } else {
           value.forEach(val => {

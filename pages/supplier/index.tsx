@@ -5,36 +5,18 @@ import { Button, Space, Table, Typography } from 'antd';
 import { IconDownload } from '@tabler/icons-react';
 import SupplierType from '@/components/supplier/SupplierType';
 import SupplierInfoDrawer from '@/components/supplier/SupplierInfoDrawer';
-import { useSupplierColumns, Supplier } from '@/components/table-columns/SupplierColumns';
+import { useSupplierColumns } from '@/components/table-columns/SupplierColumns';
 import { SupplierList } from '@lib/utils/Reports/supplier/SupplierList';
+import { Supplier } from '@redux/feature/supplier/ISupplierState';
 
 export default function SupplierPage() {
-  const [supplierTypeOpen, setSupplierTypeOpen] = useState(false);
-  const [supplierInfoOpen, setSupplierInfoOpen] = useState(false);
-
-  const { columns, filteredData, setData } = useSupplierColumns();
-
-  const handleCreateSupplier = (values: any) => {
-    const newSupplier: Supplier = {
-      key: Date.now().toString(),
-      name: values.companyName || '',
-      email: values.email || '',
-      phone: values.primaryPhone || '',
-      website: values.website || '',
-      type: Array.isArray(values.supplierTypes) ? values.supplierTypes : [],
-      induction: !!values['induction pack recieve'],
-      isActive: values.status ? values.status === 'active' : true,
-      description: values.description || '',
-      contactName: values.contactName || '',
-      workCoverExpiryDate: values.workCoverExpiryDate || '',
-      plInsuranceExpiryDate: values.plInsuranceExpiryDate || '',
-      tradeLicenseExpiryDate: values.tradeLicenseExpiryDate || '',
-      whiteCardExpiryDate: values.whiteCardExpiryDate || '',
-      forkLiftLicenseExpiryDate: values.forkLiftLicenseExpiryDate || '',
-    };
-
-    setData(prev => [...prev, newSupplier]);
-  };
+  const [drawerOpen, setDrawerOpen] = useState<'supplier' | 'supplierType' | null>(null);
+  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
+  const { columns, suppliers, handleCreate } = useSupplierColumns(
+    selectedSupplier,
+    setSelectedSupplier,
+    setDrawerOpen
+  );
 
   return (
     <div style={{ padding: 20 }}>
@@ -46,28 +28,48 @@ export default function SupplierPage() {
         </div>
 
         <Space>
-          <Button>Total Records {filteredData.length}</Button>
-          <Button type="primary" onClick={() => setSupplierInfoOpen(true)}>
+          <Button>Total Records {suppliers?.length}</Button>
+          <Button type="primary" onClick={() => setDrawerOpen('supplier')}>
             New Supplier
           </Button>
-          <Button onClick={() => setSupplierTypeOpen(true)}>Supplier Type</Button>
+          <Button onClick={() => setDrawerOpen('supplierType')}>Supplier Type</Button>
           <Button
             icon={<IconDownload size={16} />}
-            onClick={() => SupplierList(filteredData, 'Supplier and Trades List')}
+            onClick={() => SupplierList(suppliers, 'Supplier and Trades List')}
           >
             Export
           </Button>
         </Space>
       </div>
 
-      <Table columns={columns} dataSource={filteredData} pagination={false} rowKey="key" />
-
-      <SupplierType open={supplierTypeOpen} onClose={() => setSupplierTypeOpen(false)} />
-      <SupplierInfoDrawer
-        open={supplierInfoOpen}
-        onClose={() => setSupplierInfoOpen(false)}
-        onSubmit={handleCreateSupplier}
+      <Table
+        columns={columns}
+        dataSource={suppliers}
+        pagination={false}
+        rowKey="supplierId"
+        onRow={record => ({
+          onClick: () => {
+            setSelectedSupplier(record);
+            setDrawerOpen('supplier');
+          },
+        })}
       />
+
+      {drawerOpen === 'supplierType' && (
+        <SupplierType open={drawerOpen === 'supplierType'} onClose={() => setDrawerOpen(null)} />
+      )}
+      {drawerOpen === 'supplier' && (
+        <SupplierInfoDrawer
+          open={drawerOpen === 'supplier'}
+          onClose={() => setDrawerOpen(null)}
+          onSubmit={handleCreate}
+          initialValues={{
+            ...selectedSupplier,
+            supplierTypeId: selectedSupplier?.supplierTypes?.map(st => st.id) || [],
+          }}
+          isEditing={!!selectedSupplier}
+        />
+      )}
     </div>
   );
 }

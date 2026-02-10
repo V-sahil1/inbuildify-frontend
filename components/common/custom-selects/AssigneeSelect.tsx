@@ -3,19 +3,19 @@ import CustomSelect from './CustomSelect';
 import { useEffect, useState } from 'react';
 import { message } from 'antd';
 import { getUsersThunk } from '@redux/feature/user/userThunk';
-import { user } from '@redux/feature/user/UserState';
 import { CustomSelectOption, CustomSelectProps } from 'types/common.types';
+import { IUser } from '@redux/feature/user/UserState';
 
 const AssigneeSelect: React.FC<CustomSelectProps> = ({ value, onChange, width }) => {
   const { user } = useAppSelector(state => state?.auth);
-  const [users, setUsers] = useState<user[]>([]);
+  const [users, setUsers] = useState<IUser[]>([]);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await dispatch(getUsersThunk()).unwrap();
-        setUsers(response.rows || []);
+        const response = await dispatch(getUsersThunk({})).unwrap();
+        setUsers(response || []);
       } catch (error) {
         message.error(error instanceof Error ? error.message : 'Failed to fetch users');
       }
