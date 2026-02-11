@@ -259,6 +259,11 @@ class API_ENDPOINTS {
   //holiday
   public static HOLIDAY = '/holiday';
   public static HOLIDAY_RECALCULATE_DATE = `/recalculate-date`;
+
+  //contract format
+  public static CONTRACT_FORMAT = '/contract-format';
+  public static CONTRACT_FORMAT_SECTION = '/contract-section';
+
   // common
   public static FUNCTIONALITY_BASE = '/functionality';
   public static TIMEZONE_BASE = '/timezone';

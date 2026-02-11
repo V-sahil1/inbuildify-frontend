@@ -1,40 +1,62 @@
 import { ColumnsType } from 'antd/es/table';
-import { DataType } from 'data/contractData';
-import { Button } from 'antd';
+import { Button, message } from 'antd';
 import { IconPencil, IconTrash } from '@tabler/icons-react';
-import { useState } from 'react';
-import { reorderBySort } from '@lib/utils/reorderBySort';
-import { title } from 'process';
-export const ContractSectionColumn = ({ sectionOpen, setSectionOpen }) => {
-  const [sectionsData, setSectionData] = useState<DataType[]>([]);
-  function handleSectionSubmit(values) {
-    console.log('section submit', values);
-    setSectionData(prev => {
+import { ContractFormatSectionType } from '@redux/feature/contractFormat/IContractFormatState';
+import { useAppDispatch } from '@hooks/redux';
+import {
+  createContractFormatSection,
+  deleteContractFormatSection,
+  updateContractFormatSection,
+} from '@redux/feature/contractFormat/contractFormatThunk';
+import { formDataGenerator } from '@lib/utils/formDataGenerator';
+
+export const ContractSectionColumn = ({ sectionOpen, setSectionOpen, contractDetail }) => {
+  const dispatch = useAppDispatch();
+
+  async function handleSectionSubmit(values) {
+    try {
       if (sectionOpen.data) {
-        const updatedItem = { ...sectionOpen.data, ...values };
-        return reorderBySort(prev, updatedItem);
-      } else {
-        const newItem = {
+        const formData = formDataGenerator({
           ...values,
-          id: Math.floor(Math.random() * 1000000),
-          sort: Number(values.sort) || prev.length + 1,
-        };
-        return reorderBySort(prev, newItem);
+          sectionUrl: values?.sectionUrl,
+        });
+        dispatch(
+          updateContractFormatSection({ id: sectionOpen?.data?.contractSectionId, data: formData })
+        ).unwrap();
+      } else {
+        const formData = formDataGenerator({
+          ...values,
+          sectionUrl: values?.sectionUrl,
+          contractFormatId: contractDetail?.contractFormatId,
+        });
+        dispatch(createContractFormatSection(formData)).unwrap();
       }
-    });
-    setSectionOpen({ title: null, data: null });
+      setSectionOpen({ title: null, data: null });
+    } catch (error) {
+      message.error(error || 'Failed to save contract document');
+    }
   }
 
-  function handleSectionDelete() {
-    setSectionData(prev => prev.filter(obj => obj.id !== sectionOpen.data.id));
-    setSectionOpen({ title: null, data: null });
+  async function handleSectionDelete() {
+    try {
+      await dispatch(
+        deleteContractFormatSection({
+          id: sectionOpen?.data?.contractSectionId,
+          contractFormatId: sectionOpen?.data?.contractFormatId,
+        })
+      ).unwrap();
+
+      setSectionOpen({ title: null, data: null });
+    } catch (error) {
+      message.error(error || 'Failed to delete contract document');
+    }
   }
 
   function handleSectionCloseModal() {
     setSectionOpen({ title: null, data: null });
   }
 
-  const columns: ColumnsType<DataType> = [
+  const columns: ColumnsType<ContractFormatSectionType> = [
     {
       title: 'Section Name',
       dataIndex: 'sectionName',
@@ -74,18 +96,17 @@ export const ContractSectionColumn = ({ sectionOpen, setSectionOpen }) => {
       dataIndex: 'merge',
       key: 'merge',
       width: 150,
-      render: (_, record) => <p>{record.merge ? 'True' : 'False'}</p>,
+      // render: (_, record) => <p>{record.merge ? 'True' : 'False'}</p>,
     },
     {
       title: 'Sort Order',
-      dataIndex: 'sort',
-      key: 'sort',
+      dataIndex: 'sortOrder',
+      key: 'sortOrder',
       width: 150,
     },
   ];
   return {
     columns,
-    data: sectionsData,
     handleDelete: handleSectionDelete,
     handleSectionSubmit,
     handleDeleteClose: handleSectionCloseModal,

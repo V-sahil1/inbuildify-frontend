@@ -11,11 +11,10 @@ interface DateFilterDropdownProps {
 }
 
 const filterOptions = [
-  { value: 'today', label: 'Today' },
-  { value: 'tomorrow', label: 'Tomorrow' },
-  { value: 'thisWeek', label: 'This Week' },
-  { value: 'nextWeek', label: 'Next Week' },
-  { value: 'overdue', label: 'Overdue' },
+  { value: '', label: 'All' },
+  { value: 'last_7_days', label: 'Last 7 Days' },
+  { value: 'last_15_days', label: 'Last 15 Days' },
+  { value: 'last_30_days', label: 'Last 30 Days' },
   { value: 'custom', label: 'Custom Range...' },
 ];
 

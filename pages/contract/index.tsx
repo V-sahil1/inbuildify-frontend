@@ -8,14 +8,29 @@ import { useEffect } from 'react';
 const Contract = () => {
   const router = useRouter();
   const { debouncedUpdateURL, setParams, filters } = debouncedURL({
-    filtersKey: ['builderName', 'formatName', 'createdDate', ' updatedDate', 'status', 'contract'],
+    filtersKey: [
+      'builderName',
+      'formatName',
+      'createdDate',
+      ' updatedDate',
+      'status',
+      'contract',
+      'startDate',
+      'endDate',
+      'startUpdatedDate',
+      'endUpdatedDate',
+    ],
+    initialValue: { status: '', contract: '' },
   });
   useEffect(() => {
     return () => {
       debouncedUpdateURL.cancel();
     };
   }, [debouncedUpdateURL]);
-  const { columns, contractData } = ContractColumn({ filters, setParams });
+  const { columns, contractData } = ContractColumn({
+    filters,
+    setParams,
+  });
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
