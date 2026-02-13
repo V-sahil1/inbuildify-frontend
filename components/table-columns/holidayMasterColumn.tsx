@@ -82,9 +82,9 @@ export const useHolidayMasterColumns = ({
           />
         </div>
       ),
-      dataIndex: 'states',
-      key: 'states',
-      render: states => states.map(i => <Tag>{i.name}</Tag>),
+      dataIndex: 'state',
+      key: 'state',
+      render: state => state.map(i => <Tag>{i.name}</Tag>),
     },
     {
       title: (

@@ -10,13 +10,18 @@ import {
 import { Button, Empty, Input, Select } from 'antd';
 import { useUsersHook } from '@hooks/useUserHook';
 import { ColorGroupFields } from '@/components/formFields/colorGroupFields';
-import { colorGroup, ColorItems } from 'data/color/ColorData';
+import { ColorItems } from 'data/color/ColorData';
 import ConfirmationModal from '@/components/common/ConfirmationModal';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import ColorCategoryItemModel from '@/components/common/Models/ColorCategoryItemModel';
 import { debouncedURL } from '@lib/utils/debounceURL';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import { createColourGroup, deleteColourGroup, fetchColourGroups, updateColourGroup } from '@redux/feature/color/colorThunk';
+import {
+  createColourGroup,
+  deleteColourGroup,
+  fetchColourGroups,
+  updateColourGroup,
+} from '@redux/feature/color/colorThunk';
 import { useSupplierHook } from '@hooks/useSupplierHook';
 import TooltipButton from '@/components/common/TooltipButton';
 
@@ -37,15 +42,15 @@ const ColorGroupPage = () => {
   const [selectedGroupItem, setSelectedGroupItem] = useState<any>();
   //replace this withe subcategoryId in the item object
   const colorSubCategoryId = '1';
-  const { ColorGroup } = useAppSelector(state => state.colour);
+  const { colorGroup } = useAppSelector(state => state.colour);
   const [groupItemData, setGroupItemData] = useState<any[]>([]);
   const { supplierOptions } = useSupplierHook();
 
   useEffect(() => {
-    if (JSON.stringify(ColorGroup) !== JSON.stringify(groupItemData)) {
-      setGroupItemData(ColorGroup);
+    if (JSON.stringify(colorGroup) !== JSON.stringify(groupItemData)) {
+      setGroupItemData(colorGroup);
     }
-  }, [ColorGroup]);
+  }, [colorGroup]);
 
   // let filteredGroups = filters.groupSearch
   //   ? groupItemData.filter(g => g.name.toLowerCase().includes(filters?.groupSearch?.toLowerCase()))
@@ -65,7 +70,6 @@ const ColorGroupPage = () => {
   // useEffect(() => {
   //   fetchColorGroup();
   // }, []);
-
 
   useEffect(() => {
     let data = [...colorItemData];
@@ -94,12 +98,12 @@ const ColorGroupPage = () => {
   const handleAddColorItem = values => {
     selectedGroupItem
       ? setColorItemData(prev =>
-        prev.map(i => (i.id === selectedGroupItem.id ? { ...i, ...values } : i))
-      )
+          prev.map(i => (i.id === selectedGroupItem.id ? { ...i, ...values } : i))
+        )
       : setColorItemData(prev => [
-        ...prev,
-        { ...values, id: Math.floor(Math.random() * 100000).toString() },
-      ]);
+          ...prev,
+          { ...values, id: Math.floor(Math.random() * 100000).toString() },
+        ]);
   };
 
   const handleRemoveItemFromGroup = (item: any) => {
@@ -133,9 +137,9 @@ const ColorGroupPage = () => {
       prevItems.map(i =>
         i.id === item.id
           ? {
-            ...i,
-            group: i.group ? [...i.group, newGroup] : [newGroup],
-          }
+              ...i,
+              group: i.group ? [...i.group, newGroup] : [newGroup],
+            }
           : i
       )
     );
@@ -155,25 +159,24 @@ const ColorGroupPage = () => {
     setLoading(true);
 
     try {
-      
       if (selectedEditGroup && selectedEditGroup.colorGroupId) {
         // Convert status from radio value back to boolean for API
         const payload = {
           ...values,
-          status: values.status === 'active'
+          status: values.status === 'active',
         };
-        const response = await dispatch(updateColourGroup({
-          payload: payload,
-          id: selectedEditGroup.colorGroupId
-        })).unwrap();
+        const response = await dispatch(
+          updateColourGroup({
+            payload: payload,
+            id: selectedEditGroup.colorGroupId,
+          })
+        ).unwrap();
       } else {
         const response = await dispatch(createColourGroup(values)).unwrap();
       }
-
     } catch (error) {
       console.log(error);
-    }
-    finally {
+    } finally {
       setSelectedEditGroup(null);
       setModalOpen(null);
       setIsEditingGroup(false);
@@ -186,7 +189,7 @@ const ColorGroupPage = () => {
       if (modalOpen === 'group') {
         const response = await dispatch(deleteColourGroup(id)).unwrap();
       } else {
-        setColorItemData(prev => prev.filter(i => i.id !== id))
+        setColorItemData(prev => prev.filter(i => i.id !== id));
       }
     } catch (error) {
       console.error('Error deleting group:', error);
@@ -239,7 +242,7 @@ const ColorGroupPage = () => {
                       setIsEditingGroup(true);
                       setModalOpen('addColorGroup');
                     }}
-                    title='Edit'
+                    title="Edit"
                     icon={
                       <IconPencil
                         size={16}
@@ -253,7 +256,7 @@ const ColorGroupPage = () => {
                       setSelectedGroupItem(item);
                       setModalOpen('group');
                     }}
-                    title='Delete'
+                    title="Delete"
                     icon={
                       <IconTrash
                         size={16}
@@ -348,7 +351,7 @@ const ColorGroupPage = () => {
                           icon={<IconPlus size={18} />}
                         />
                       )}
-                      <TooltipButton  
+                      <TooltipButton
                         title="Delete"
                         onClick={() => {
                           setSelectedGroupItem(item);
@@ -425,7 +428,7 @@ const ColorGroupPage = () => {
             setSelectedGroupItem(null);
             setModalOpen(null);
           }}
-          selectedColorSubCategoryId={colorSubCategoryId}
+          // selectedColorSubCategoryId={colorSubCategoryId}
           categoryItem={selectedGroupItem}
           handleAddColorItem={handleAddColorItem}
         />
@@ -440,10 +443,9 @@ const ColorGroupPage = () => {
           }}
           onConfirm={() => {
             if (modalOpen === 'group') {
-              handleDeleteGroup(selectedGroupItem?.colorGroupId)
-            }
-            else {
-              handleDeleteGroup(selectedGroupItem?.colorGroupId)
+              handleDeleteGroup(selectedGroupItem?.colorGroupId);
+            } else {
+              handleDeleteGroup(selectedGroupItem?.colorGroupId);
             }
           }}
           type="danger"
@@ -452,15 +454,15 @@ const ColorGroupPage = () => {
           message={
             modalOpen === 'group'
               ? 'Color Group : ' +
-              selectedGroupItem?.name +
-              ' is been used in existing color selections.\n ' +
-              selectedGroupItem.name +
-              " can't be deleted . You can inactivate the color group if not required.\n Are you sure you want to inactivate"
+                selectedGroupItem?.name +
+                ' is been used in existing color selections.\n ' +
+                selectedGroupItem.name +
+                " can't be deleted . You can inactivate the color group if not required.\n Are you sure you want to inactivate"
               : 'Color Item : ' +
-              selectedGroupItem.name +
-              ' is been used in existing color item selections.\n ' +
-              selectedGroupItem.name +
-              " can't be deleted . You can inactivate the color item if not required.\n Are you sure you want to inactivate"
+                selectedGroupItem.name +
+                ' is been used in existing color item selections.\n ' +
+                selectedGroupItem.name +
+                " can't be deleted . You can inactivate the color item if not required.\n Are you sure you want to inactivate"
           }
         />
       )}

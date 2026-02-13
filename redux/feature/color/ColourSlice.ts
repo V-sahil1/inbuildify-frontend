@@ -1,60 +1,96 @@
-import { createSlice, current } from '@reduxjs/toolkit';
-
+import { createSlice } from '@reduxjs/toolkit';
 import { Status } from '@lib/constants/enum';
 import {
-  createColourCategory,
+  createColour,
   createColourGroup,
-  createColourSubCategory,
-  createColourSubCategoryItem,
-  deleteColourCategory,
+  createColourItem,
+  deleteColour,
   deleteColourGroup,
-  deleteColourSubCategory,
-  deleteColourSubCategoryItem,
-  fetchColourCategory,
+  deleteColourCategory,
+  deleteColourItem,
+  fetchAllColour,
   fetchColourGroups,
-  fetchColourSubCategory,
-  fetchColourSubCategoryItems,
-  updateColourCategory,
+  fetchColourCategory,
+  fetchColourItems,
+  updateColour,
   updateColourGroup,
-  updateColourSubCategory,
-  updateColourSubCategoryItem,
+  updateColourCategory,
+  updateColourItem,
+  createColourCategory,
+  copyColour,
+  copyColorCategory,
+  fetchColourType,
+  deleteColourType,
+  updateColourType,
+  createColourType,
+  copyColourItem,
+  moveColourItem,
+  fetchColourItemCustomField,
+  createColourItemCustomField,
+  updateColourItemCustomField,
+  deleteColourItemCustomField,
 } from './colorThunk';
 import { ColorInitialState, Category } from './iColourState';
 
 const initialState: ColorInitialState = {
-  status: Status.IDLE,
-  Color: [],
-  ColorGroup: [],
-  loading: false,
+  status: {
+    color: {
+      fetch: Status.IDLE,
+      create: Status.IDLE,
+    },
+    category: {
+      fetch: Status.IDLE,
+      create: Status.IDLE,
+    },
+    group: {
+      fetch: Status.IDLE,
+      create: Status.IDLE,
+    },
+    colorItem: {
+      fetch: Status.IDLE,
+      create: Status.IDLE,
+    },
+    colorType: {
+      fetch: Status.IDLE,
+      create: Status.IDLE,
+    },
+    colorItemCustomField: {
+      fetch: Status.IDLE,
+      create: Status.IDLE,
+    },
+  },
+  color: [],
+  colorGroup: [],
+  colorType: [],
 };
 const ColourSlice = createSlice({
-  name: 'Colour',
+  name: 'color',
   initialState,
   reducers: {
     toggleExpandColourCategory(state, action) {
-      const colorCategory = state.Color.find(c => c.colorId === action.payload);
-      if (colorCategory) {
-        colorCategory.isExpanded = true;
+      const color = state.color.find(c => c.colorId === action.payload);
+      if (color) {
+        color.isExpanded = true;
       }
     },
     toggleExpandColourCategoryItem(state, action) {
-      const { colorCategoryId, colorSubCategoryId } = action.payload;
+      const { colorCategoryId, colorId } = action.payload;
 
-      const colorCategory = state.Color.find(c => c.colorId === colorCategoryId);
+      const colorCategory = state.color.find(c => c.colorId === colorId);
 
       if (colorCategory) {
         const subCategory = colorCategory.colorCategories.find(
-          sc => sc.colorCategoryId === colorSubCategoryId
+          sc => sc.colorCategoryId === colorCategoryId
         );
 
-        if (subCategory && !subCategory.isExpanded) {
+        if (subCategory) {
           subCategory.isExpanded = true;
         }
       }
     },
 
     resetAllCategoriesIsExpanded(state) {
-      state.Color.forEach(category => {
+      state.color.forEach(category => {
         category.isExpanded = false;
       });
     },
@@ -62,55 +98,82 @@ const ColourSlice = createSlice({
   extraReducers: builder => {
     builder
       // color category
-      .addCase(fetchColourCategory.pending, state => {
-        state.status = Status.PENDING;
-        state.loading = true;
+      .addCase(fetchAllColour.pending, state => {
+        state.status.color.fetch = Status.PENDING;
       })
-      .addCase(fetchColourCategory.fulfilled, (state, action) => {
-        state.status = Status.SUCCESS;
-        state.loading = false;
-        state.Color = action.payload?.colors?.map(c => ({
+      .addCase(fetchAllColour.fulfilled, (state, action) => {
+        state.status.color.fetch = Status.SUCCESS;
+        state.color = action.payload?.colors?.map(c => ({
           ...c,
-          subCategories: [],
+          colorCategories: [],
           isExpanded: false,
         }));
       })
-      .addCase(fetchColourCategory.rejected, (state) => {
-        state.status = Status.ERROR;
-        state.loading = false;
+      .addCase(fetchAllColour.rejected, state => {
+        state.status.color.fetch = Status.ERROR;
       })
-      .addCase(createColourCategory.fulfilled, (state, action) => {
-        state.Color.unshift({
+      .addCase(createColour.pending, state => {
+        state.status.color.create = Status.PENDING;
+      })
+      .addCase(createColour.fulfilled, (state, action) => {
+        state.status.color.create = Status.SUCCESS;
+        state.color.unshift({
           ...action.payload,
-          // categories: [],
+          colorCategories: [],
           isExpanded: false,
         });
       })
-      .addCase(updateColourCategory.fulfilled, (state, action) => {
-        const category = state.Color.find(
-          c => c.colorId === action.payload.colorId
-        );
-        if (category) {
-          category.colorName = action.payload.colorName;
-        }
+      .addCase(createColour.rejected, state => {
+        state.status.color.create = Status.ERROR;
       })
-      .addCase(deleteColourCategory.fulfilled, (state, action) => {
-        state.Color = state.Color.filter(
-          c => c.colorId !== action.payload.colorId
+      .addCase(updateColour.pending, state => {
+        state.status.color.create = Status.PENDING;
+      })
+      .addCase(updateColour.fulfilled, (state, action) => {
+        state.status.color.create = Status.SUCCESS;
+        state.color = state.color.map(i =>
+          i.colorId === action.payload.colorId ? { ...i, ...action.payload } : i
         );
+      })
+      .addCase(updateColour.rejected, state => {
+        state.status.color.create = Status.ERROR;
+      })
+      .addCase(deleteColour.pending, state => {
+        state.status.color.create = Status.PENDING;
+      })
+      .addCase(deleteColour.fulfilled, (state, action) => {
+        state.status.color.create = Status.SUCCESS;
+        state.color = state.color.filter(c => c.colorId !== action.payload.colorId);
+      })
+      .addCase(deleteColour.rejected, state => {
+        state.status.color.create = Status.ERROR;
+      })
+
+      .addCase(copyColour.pending, state => {
+        state.status.color.create = Status.PENDING;
+      })
+      .addCase(copyColour.fulfilled, (state, action) => {
+        state.status.color.create = Status.SUCCESS;
+        const color = state.color.find(i => i.colorId === action.meta.arg.id);
+        state.color.unshift({
+          ...color,
+          ...action.payload,
+          isExpanded: false,
+        });
+      })
+      .addCase(copyColour.rejected, state => {
+        state.status.color.create = Status.ERROR;
       });
 
     // color subcategory
     builder
-      .addCase(fetchColourSubCategory.pending, state => {
-        state.loading = true;
+      .addCase(fetchColourCategory.pending, state => {
+        state.status.category.fetch = Status.PENDING;
       })
-      .addCase(fetchColourSubCategory.fulfilled, (state, action) => {
-        state.loading = false;
+      .addCase(fetchColourCategory.fulfilled, (state, action) => {
+        state.status.category.fetch = Status.SUCCESS;
 
-        const category = state.Color.find(
-          c => c.colorId === action.payload.colorId
-        );
+        const category = state.color.find(c => c.colorId === action.payload.colorId);
         if (category) {
           const existingSubCategories = category.colorCategories || [];
           const fetchedSubCategories = action.payload.data.map(c => ({
@@ -132,23 +195,33 @@ const ColourSlice = createSlice({
           category.colorCategories = merged;
         }
       })
-      .addCase(createColourSubCategory.fulfilled, (state, action) => {
-        const category = state.Color.find(
-          c => c.colorId === action.payload.colorId
-        );
+      .addCase(fetchColourCategory.rejected, state => {
+        state.status.category.fetch = Status.ERROR;
+      })
+      .addCase(createColourCategory.pending, state => {
+        state.status.category.create = Status.PENDING;
+      })
+      .addCase(createColourCategory.fulfilled, (state, action) => {
+        state.status.category.create = Status.SUCCESS;
+        const category = state.color.find(c => c.colorId === action.payload.colorId);
         category?.colorCategories.unshift({
           ...action.payload,
           items: [],
           isExpanded: false,
         });
       })
-      .addCase(updateColourSubCategory.fulfilled, (state, action) => {
-        const categoryIndex = state.Color.findIndex(
-          c => c.colorId === action.payload.colorId
-        );
+      .addCase(createColourCategory.rejected, state => {
+        state.status.category.create = Status.ERROR;
+      })
+      .addCase(updateColourCategory.pending, state => {
+        state.status.category.create = Status.PENDING;
+      })
+      .addCase(updateColourCategory.fulfilled, (state, action) => {
+        state.status.category.create = Status.SUCCESS;
+        const categoryIndex = state.color.findIndex(c => c.colorId === action.payload.colorId);
 
         if (categoryIndex !== -1) {
-          state.Color[categoryIndex].colorCategories = state.Color[
+          state.color[categoryIndex].colorCategories = state.color[
             categoryIndex
           ].colorCategories.map((c: Category) =>
             c.colorCategoryId === action.payload.colorCategoryId
@@ -160,76 +233,100 @@ const ColourSlice = createSlice({
           );
         }
       })
-      .addCase(deleteColourSubCategory.fulfilled, (state, action) => {
-        const categoryIndex = state.Color.findIndex(
-          c => c.colorId === action.payload.colorId
-        );
+      .addCase(updateColourCategory.rejected, state => {
+        state.status.category.create = Status.ERROR;
+      })
+      .addCase(deleteColourCategory.pending, state => {
+        state.status.category.create = Status.PENDING;
+      })
+      .addCase(deleteColourCategory.fulfilled, (state, action) => {
+        state.status.category.create = Status.SUCCESS;
+        const categoryIndex = state.color.findIndex(c => c.colorId === action.meta.arg.colorId);
         if (categoryIndex !== -1) {
-          state.Color[categoryIndex].colorCategories = state.Color[
+          state.color[categoryIndex].colorCategories = state.color[
             categoryIndex
           ].colorCategories.filter(
-            (c: Category) => c.colorCategoryId !== action.payload.colorCategoryId
+            (c: Category) => c.colorCategoryId !== action.meta.arg.colorCategoryId
           );
         }
+      })
+      .addCase(deleteColourCategory.rejected, state => {
+        state.status.category.create = Status.ERROR;
+      })
+      .addCase(copyColorCategory.pending, state => {
+        state.status.color.create = Status.PENDING;
+      })
+      .addCase(copyColorCategory.fulfilled, (state, action) => {
+        state.status.color.create = Status.SUCCESS;
+        const prevColor = state.color.find(i => i.colorId === action.meta.arg.colorId);
+        const category = prevColor?.colorCategories.find(
+          i => i.colorCategoryId === action.meta.arg.id
+        );
+        const color = state.color.find(i => i.colorId === action.payload.colorId);
+        if (color) {
+          color.colorCategories.push({ ...category, ...action.payload });
+        }
+      })
+      .addCase(copyColorCategory.rejected, state => {
+        state.status.color.create = Status.ERROR;
       })
 
       // color subcategory items
-      .addCase(fetchColourSubCategoryItems.fulfilled, (state, action) => {
-        const categoryIndex = state.Color.findIndex(
-          c => c.colorId === action.payload.colorCategoryId
-        );
-
-        if (categoryIndex !== -1) {
-          state.Color[categoryIndex].colorCategories =
-            state.Color[categoryIndex].colorCategories?.map((sub: Category) => {
-              if (sub.colorCategoryId === action.payload.colorCategoryId) {
-                const existingItemIds = new Set(sub.items.map(i => i.colorItemId));
-                const newItems = action.payload.data.colorItems.filter(
-                  i => !existingItemIds.has(i.colorItemId)
-                );
-
-                return {
-                  ...sub,
-                  items: sub.items.length > 0 ? [...sub.items, ...newItems] : [...newItems],
-                };
-              }
-              return sub;
-            }) || null;
-        }
+      .addCase(fetchColourItems.pending, state => {
+        state.status.colorItem.fetch = Status.PENDING;
       })
-
-      .addCase(createColourSubCategoryItem.fulfilled, (state, action) => {
-        const categoryIndex = state.Color.findIndex(c =>
-          c.colorCategories?.some(
-            (sub: Category) => sub.colorCategoryId === action.payload.colorSubCategoryId
-          )
-        );
-
-        if (categoryIndex !== -1) {
-          state.Color[categoryIndex].colorCategories = state.Color[
-            categoryIndex
-          ].colorCategories.map((subCategory: Category) =>
-            subCategory.colorCategoryId === action.payload.colorSubCategoryId
-              ? {
-                  ...subCategory,
-                  items: [...(subCategory.items || []), action.payload],
-                }
-              : subCategory
+      .addCase(fetchColourItems.fulfilled, (state, action) => {
+        state.status.colorItem.fetch = Status.SUCCESS;
+        const color = state.color.find(c => c.colorId === action.meta.arg.colorId);
+        if (color) {
+          const category = color.colorCategories.find(
+            i => i.colorCategoryId === action.meta.arg.colorCategoryId
           );
+          if (category) {
+            category.items = action.payload.colorItems;
+          }
         }
       })
-      .addCase(updateColourSubCategoryItem.fulfilled, (state, action) => {
-        const categoryIndex = state.Color.findIndex(c =>
+      .addCase(fetchColourItems.rejected, state => {
+        state.status.colorItem.fetch = Status.ERROR;
+      })
+      .addCase(createColourItem.pending, state => {
+        state.status.colorItem.create = Status.PENDING;
+      })
+
+      .addCase(createColourItem.fulfilled, (state, action) => {
+        state.status.colorItem.create = Status.SUCCESS;
+        const color = state.color.find(c =>
+          c.colorCategories.find(i => i.colorCategoryId === action.payload.colorCategoryId)
+        );
+        if (color) {
+          const category = color.colorCategories.find(
+            i => i.colorCategoryId === action.payload.colorCategoryId
+          );
+          if (category) {
+            category.items.unshift(action.payload);
+          }
+        }
+      })
+      .addCase(createColourItem.rejected, state => {
+        state.status.colorItem.create = Status.ERROR;
+      })
+      .addCase(updateColourItem.pending, state => {
+        state.status.colorItem.create = Status.PENDING;
+      })
+      .addCase(updateColourItem.fulfilled, (state, action) => {
+        state.status.colorItem.create = Status.SUCCESS;
+        const categoryIndex = state.color.findIndex(c =>
           c.colorCategories?.some(
-            (sub: Category) => sub.colorCategoryId === action.payload.colorSubCategoryId
+            (sub: Category) => sub.colorCategoryId === action.payload.colorCategoryId
           )
         );
 
         if (categoryIndex !== -1) {
-          state.Color[categoryIndex].colorCategories = state.Color[
+          state.color[categoryIndex].colorCategories = state.color[
             categoryIndex
           ].colorCategories.map((subCategory: Category) =>
-            subCategory.colorCategoryId === action.payload.colorSubCategoryId
+            subCategory.colorCategoryId === action.payload.colorCategoryId
               ? {
                   ...subCategory,
                   items:
@@ -241,54 +338,281 @@ const ColourSlice = createSlice({
           );
         }
       })
-      .addCase(deleteColourSubCategoryItem.fulfilled, (state, action) => {
-        const categoryIndex = state.Color.findIndex(c =>
-          c.colorCategories?.some(
-            (sub: Category) => sub.colorCategoryId === action.payload.colorSubCategoryId
-          )
+      .addCase(updateColourItem.rejected, state => {
+        state.status.colorItem.create = Status.ERROR;
+      })
+      .addCase(deleteColourItem.pending, state => {
+        state.status.colorItem.create = Status.PENDING;
+      })
+      .addCase(deleteColourItem.fulfilled, (state, action) => {
+        state.status.colorItem.create = Status.SUCCESS;
+        const color = state.color.find(c =>
+          c.colorCategories.find(i => i.colorCategoryId === action.meta.arg.colorCategoryId)
         );
-
-        if (categoryIndex !== -1) {
-          state.Color[categoryIndex].colorCategories = state.Color[
-            categoryIndex
-          ].colorCategories.map((subCategory: Category) =>
-            subCategory.colorCategoryId === action.payload.colorSubCategoryId
-              ? {
-                  ...subCategory,
-                  items:
-                    subCategory.items?.filter(
-                      item => item.colorItemId !== action.payload.colorItemId
-                    ) || [],
-                }
-              : subCategory
+        if (color) {
+          const category = color.colorCategories.find(
+            i => i.colorCategoryId === action.meta.arg.colorCategoryId
           );
+          if (category) {
+            category.items = category.items.filter(i => i.colorItemId !== action.meta.arg.id);
+          }
         }
       })
+      .addCase(deleteColourItem.rejected, state => {
+        state.status.colorItem.create = Status.ERROR;
+      })
 
+      .addCase(copyColourItem.pending, state => {
+        state.status.colorItem.create = Status.PENDING;
+      })
+      .addCase(copyColourItem.fulfilled, (state, action) => {
+        state.status.colorItem.create = Status.SUCCESS;
+        const color = state.color.find(c => c.colorId === action.meta.arg.data.colorId);
+        if (color) {
+          const category = color.colorCategories.find(
+            i => i.colorCategoryId === action.meta.arg.data.colorCategoryId
+          );
+          if (category) {
+            category.items.unshift(action.payload);
+          }
+        }
+      })
+      .addCase(copyColourItem.rejected, state => {
+        state.status.colorItem.create = Status.ERROR;
+      })
+
+      .addCase(moveColourItem.pending, state => {
+        state.status.colorItem.create = Status.PENDING;
+      })
+      .addCase(moveColourItem.fulfilled, (state, action) => {
+        state.status.colorItem.create = Status.SUCCESS;
+        const oldColor = state.color.find(i =>
+          i.colorCategories.find(i => i.colorCategoryId === action.meta.arg.colorCategoryId)
+        );
+        if (oldColor) {
+          const category = oldColor.colorCategories.find(
+            i => i.colorCategoryId === action.meta.arg.colorCategoryId
+          );
+          if (category) {
+            category.items = category.items.filter(i => i.colorItemId !== action.meta.arg.id);
+          }
+        }
+        const color = state.color.find(c => c.colorId === action.meta.arg.data.colorId);
+        if (color) {
+          const category = color.colorCategories.find(
+            i => i.colorCategoryId === action.meta.arg.data.colorCategoryId
+          );
+          if (category) {
+            category.items.unshift(action.payload);
+          }
+        }
+      })
+      .addCase(moveColourItem.rejected, state => {
+        state.status.colorItem.create = Status.ERROR;
+      })
 
       //color group
-
+      .addCase(fetchColourGroups.pending, state => {
+        state.status.group.fetch = Status.PENDING;
+      })
       .addCase(fetchColourGroups.fulfilled, (state, action) => {
-        state.ColorGroup = action.payload.colorGroups;
+        state.status.group.fetch = Status.SUCCESS;
+        state.colorGroup = action.payload.colorGroups;
       })
-      .addCase(updateColourGroup.fulfilled,(state,action)=>{
-        const groupIndex = state.ColorGroup.findIndex(g => g.colorGroupId === action.payload.colorGroupId);
-        if(groupIndex !== -1){
-          state.ColorGroup[groupIndex] = action.payload;
+      .addCase(fetchColourGroups.rejected, state => {
+        state.status.group.fetch = Status.ERROR;
+      })
+      .addCase(createColourGroup.pending, state => {
+        state.status.group.create = Status.PENDING;
+      })
+      .addCase(createColourGroup.fulfilled, (state, action) => {
+        state.status.group.create = Status.SUCCESS;
+        state.colorGroup.unshift(action.payload);
+      })
+      .addCase(createColourGroup.rejected, state => {
+        state.status.group.create = Status.ERROR;
+      })
+      .addCase(updateColourGroup.pending, state => {
+        state.status.group.create = Status.PENDING;
+      })
+      .addCase(updateColourGroup.fulfilled, (state, action) => {
+        state.status.group.create = Status.SUCCESS;
+        const groupIndex = state.colorGroup.findIndex(
+          g => g.colorGroupId === action.payload.colorGroupId
+        );
+        if (groupIndex !== -1) {
+          state.colorGroup[groupIndex] = action.payload;
         }
       })
-      .addCase(deleteColourGroup.fulfilled,(state,action)=>{
+      .addCase(updateColourGroup.rejected, state => {
+        state.status.group.create = Status.ERROR;
+      })
+      .addCase(deleteColourGroup.pending, state => {
+        state.status.group.create = Status.PENDING;
+      })
+      .addCase(deleteColourGroup.fulfilled, (state, action) => {
+        state.status.group.create = Status.SUCCESS;
         const deletedId = action.payload.deletedId;
-        const groupIndex = state.ColorGroup.findIndex(g => g.colorGroupId === deletedId);
-        if(groupIndex !== -1){
-          state.ColorGroup.splice(groupIndex,1);
+        const groupIndex = state.colorGroup.findIndex(g => g.colorGroupId === deletedId);
+        if (groupIndex !== -1) {
+          state.colorGroup.splice(groupIndex, 1);
         }
       })
-      .addCase(createColourGroup.fulfilled,(state,action)=>{
-        state.ColorGroup.unshift(action.payload);
+      .addCase(deleteColourGroup.rejected, state => {
+        state.status.group.create = Status.ERROR;
       })
+
+      //color type
+      .addCase(fetchColourType.pending, state => {
+        state.status.colorType.fetch = Status.PENDING;
+      })
+      .addCase(fetchColourType.fulfilled, (state, action) => {
+        state.status.colorType.fetch = Status.SUCCESS;
+        state.colorType = action.payload;
+      })
+      .addCase(fetchColourType.rejected, state => {
+        state.status.colorType.fetch = Status.ERROR;
+      })
+      .addCase(createColourType.pending, state => {
+        state.status.colorType.create = Status.PENDING;
+      })
+      .addCase(createColourType.fulfilled, (state, action) => {
+        state.status.colorType.create = Status.SUCCESS;
+        state.colorType.unshift(action.payload);
+      })
+      .addCase(createColourType.rejected, state => {
+        state.status.colorType.create = Status.ERROR;
+      })
+      .addCase(updateColourType.pending, state => {
+        state.status.colorType.create = Status.PENDING;
+      })
+      .addCase(updateColourType.fulfilled, (state, action) => {
+        state.status.colorType.create = Status.SUCCESS;
+        state.colorType = state.colorType.map(type =>
+          type.colorTypeId === action.payload.colorTypeId ? action.payload : type
+        );
+      })
+      .addCase(updateColourType.rejected, state => {
+        state.status.colorType.create = Status.ERROR;
+      })
+      .addCase(deleteColourType.pending, state => {
+        state.status.colorType.create = Status.PENDING;
+      })
+      .addCase(deleteColourType.fulfilled, (state, action) => {
+        state.status.colorType.create = Status.SUCCESS;
+        state.colorType = state.colorType.filter(type => type.colorTypeId !== action.meta.arg);
+      })
+      .addCase(deleteColourType.rejected, state => {
+        state.status.colorType.create = Status.ERROR;
+      })
+
+      //color item customfield
+      .addCase(fetchColourItemCustomField.pending, state => {
+        state.status.colorItemCustomField.fetch = Status.PENDING;
+      })
+      .addCase(fetchColourItemCustomField.fulfilled, (state, action) => {
+        state.status.colorItemCustomField.fetch = Status.SUCCESS;
+        const parent = state.color.find(i =>
+          i.colorCategories.find(i => i.items.find(i => i.colorItemId === action.meta.arg))
+        );
+        if (parent) {
+          const category = parent.colorCategories.find(i =>
+            i.items.find(i => i.colorItemId === action.meta.arg)
+          );
+          if (category) {
+            const item = category.items.find(i => i.colorItemId === action.meta.arg);
+            if (item) {
+              item.customFields = action.payload.colorItemCustomFields;
+            }
+          }
+        }
+      })
+      .addCase(fetchColourItemCustomField.rejected, state => {
+        state.status.colorItemCustomField.fetch = Status.ERROR;
+      })
+      .addCase(createColourItemCustomField.pending, state => {
+        state.status.colorItemCustomField.create = Status.PENDING;
+      })
+      .addCase(createColourItemCustomField.fulfilled, (state, action) => {
+        state.status.colorItemCustomField.create = Status.SUCCESS;
+        const parent = state.color.find(i =>
+          i.colorCategories.find(i => i.items.find(i => i.colorItemId === action.payload.colorItem))
+        );
+        if (parent) {
+          const category = parent.colorCategories.find(i =>
+            i.items.find(i => i.colorItemId === action.payload.colorItem)
+          );
+          if (category) {
+            const item = category.items.find(i => i.colorItemId === action.payload.colorItem);
+            if (item) {
+              item.customFields.unshift(action.payload);
+            }
+          }
+        }
+      })
+      .addCase(createColourItemCustomField.rejected, state => {
+        state.status.colorItemCustomField.create = Status.ERROR;
+      })
+      .addCase(updateColourItemCustomField.pending, state => {
+        state.status.colorItemCustomField.create = Status.PENDING;
+      })
+      .addCase(updateColourItemCustomField.fulfilled, (state, action) => {
+        state.status.colorItemCustomField.create = Status.SUCCESS;
+        const parent = state.color.find(i =>
+          i.colorCategories.find(i => i.items.find(i => i.colorItemId === action.payload.colorItem))
+        );
+        if (parent) {
+          const category = parent.colorCategories.find(i =>
+            i.items.find(i => i.colorItemId === action.payload.colorItem)
+          );
+          if (category) {
+            const item = category.items.find(i => i.colorItemId === action.payload.colorItem);
+            if (item) {
+              item.customFields.map(i =>
+                i.colorItemCustomFieldId === action.payload.colorItemCustomFieldId
+                  ? action.payload
+                  : i
+              );
+            }
+          }
+        }
+      })
+      .addCase(updateColourItemCustomField.rejected, state => {
+        state.status.colorItemCustomField.create = Status.ERROR;
+      })
+      .addCase(deleteColourItemCustomField.pending, state => {
+        state.status.colorItemCustomField.create = Status.PENDING;
+      })
+      .addCase(deleteColourItemCustomField.fulfilled, (state, action) => {
+        state.status.colorItemCustomField.create = Status.SUCCESS;
+        const parent = state.color.find(i =>
+          i.colorCategories.find(i =>
+            i.items.find(i => i.colorItemId === action.meta.arg.colorItemId)
+          )
+        );
+        if (parent) {
+          const category = parent.colorCategories.find(i =>
+            i.items.find(i => i.colorItemId === action.meta.arg.colorItemId)
+          );
+          if (category) {
+            const item = category.items.find(i => i.colorItemId === action.meta.arg.colorItemId);
+            if (item) {
+              item.customFields = item.customFields.filter(
+                i => i.colorItemCustomFieldId !== action.meta.arg.id
+              );
+            }
+          }
+        }
+      })
+      .addCase(deleteColourItemCustomField.rejected, state => {
+        state.status.colorItemCustomField.create = Status.ERROR;
+      });
   },
 });
 
-export const { toggleExpandColourCategory, toggleExpandColourCategoryItem } = ColourSlice.actions;
+export const {
+  toggleExpandColourCategory,
+  toggleExpandColourCategoryItem,
+  resetAllCategoriesIsExpanded,
+} = ColourSlice.actions;
 export default ColourSlice.reducer;

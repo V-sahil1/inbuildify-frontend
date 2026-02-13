@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Form,
   Input,
@@ -12,85 +12,75 @@ import {
   Col,
   Button,
   Upload,
-  UploadFile,
   Select,
   Checkbox,
   Table,
   Empty,
+  Popconfirm,
 } from 'antd';
-import { SubCategoryItem } from '@redux/feature/color/iColourState';
-import { nameRules, optionalNotesRule, acceptOnlyImageRule } from '@lib/constants/formInputValidations';
-import dayjs from 'dayjs';
-import { useUsersHook } from '@hooks/useUserHook';
-import MultiSelectDropdown from '../MultiSelectDropdown';
-import { ColorRange, ColorTypes, FieldTypes } from 'data/color/ColorData';
+import {
+  nameRules,
+  optionalNotesRule,
+  acceptOnlyImageRule,
+} from '@lib/constants/formInputValidations';
 import { IconUpload } from '@tabler/icons-react';
 import { Status } from '@lib/constants/enum';
+import { PackageGroupField } from '@/components/package/PackageGroupField';
+import useDwellingAndRangeHook from '@hooks/useDwellingAndRangeHook';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { createRange, updateRange } from '@redux/feature/admin/sales/range/rangeThunk';
+import { formDataGenerator } from '@lib/utils/formDataGenerator';
+import {
+  createColourItem,
+  createColourItemCustomField,
+  createColourType,
+  deleteColourItemCustomField,
+  updateColourItem,
+  updateColourType,
+} from '@redux/feature/color/colorThunk';
+import { useSupplierHook } from '@hooks/useSupplierHook';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
+import { ColorItem, ColorItemCustomField } from '@redux/feature/color/iColourState';
+import { useColorTypeHook } from '@hooks/useColorTypeHook';
+import { values } from 'lodash';
 
 interface ColorCategoryItemModalProps {
   open: boolean;
   onClose: () => void;
   categoryId?: string;
-  selectedColorSubCategoryId?: string;
-  categoryItem?: SubCategoryItem;
+  selectedColorCategoryId?: string;
+  categoryItem?: ColorItem;
   handleAddColorItem?: (values) => void;
 }
 
-interface FormValues {
-  name: string;
-  itemCode: string;
-  units?: number;
-  image: any[];
-  costType: 'standard' | 'upgrade';
-  upgradeOption: 'fixed' | 'startFrom' | 'tba';
-  notes?: string;
-  price?: number;
-  supplierId?: string;
-  categoryId?: string;
-  isActive: boolean;
-  expirationDate?: string;
-}
-interface SpecificationItem {
-  file?: any[]; // File object
-  note?: string;
-}
+const FieldTypes = [
+  { value: 'text', name: 'text' },
+  { value: 'dropdown_list', name: 'dropdown_list' },
+  { value: 'checkbox', name: 'checkbox' },
+  { value: 'radio_button', name: 'radio_button' },
+];
 
 const ColorCategoryItemModel = ({
   open,
   onClose,
-  selectedColorSubCategoryId,
+  selectedColorCategoryId,
   categoryItem,
-  handleAddColorItem,
 }: ColorCategoryItemModalProps) => {
   const [form] = Form.useForm();
-  const [colorTypes, setColorTypes] = useState<{ id: string; name: string }[]>(ColorTypes);
-  const [range, setRange] = useState<{ id: string; name: string }[]>(ColorRange);
-  const [selectedColorTypes, setSelectedColorTypes] = useState<{ id: string; name: string }[]>([]);
-  const [selectedRange, setSelectedRange] = useState<{ id: string; name: string }[]>([]);
-  const [colorImages, setColorImages] = useState<any[]>([]);
-  const [specificationItems, setSpecificationItems] = useState<SpecificationItem>();
-  const [loading, setLoading] = useState(false);
-  const [formLoading, setFormLoading] = useState(false);
-  const isStandard = Form.useWatch('costType', form)
-  const isTBA = Form.useWatch('upgradeOption', form)
-  const [customFields, setCustomFields] = useState<Array<{
-    fieldType: number;
-    fieldName: string;
-    isRequired: boolean;
-    sortOrder: number;
-  }>>([]);
-  const { userOptions, isLoading: usersLoading } = useUsersHook();
-
-
-  useEffect(() => {
-    // Set form loading to false once users are loaded
-    if (!usersLoading) {
-      setFormLoading(false);
-    }
-  }, [usersLoading]);
-
+  const dispatch = useAppDispatch();
+  const { status } = useAppSelector(state => state.colour);
+  const { rangeOptions } = useDwellingAndRangeHook({ type: 'range' });
+  const { colorType } = useColorTypeHook();
+  const [images, setImages] = useState<{ color: File[]; specification: File[] }>({
+    color: [],
+    specification: [],
+  });
+  const isStandard = Form.useWatch('costType', form);
+  const isTBA = Form.useWatch('upgradeOption', form);
+  const { supplierOptions } = useSupplierHook();
   const uploadRef = useRef(null);
   const imageUploadRef = useRef(null);
+
   const handleUploadClick = () => {
     // Trigger the hidden upload input
     const input = uploadRef.current?.upload?.uploader?.fileInput;
@@ -102,102 +92,102 @@ const ColorCategoryItemModel = ({
     if (input) input.click();
   };
 
-  const handleAddCustomField = (e?: React.MouseEvent) => {
-    e?.preventDefault();
-
+  const handleRangeSubmit = async (values, selectedRange) => {
     try {
-      const values = form.getFieldsValue(['customFieldType', 'customFieldName', 'requiredField', 'sortOrder']);
+      if (!!selectedRange) {
+        await dispatch(updateRange({ data: values, id: selectedRange.rangeId })).unwrap();
+        message.success('Range updated successfully');
+      } else {
+        await dispatch(createRange(values)).unwrap();
+        message.success('Range saved successfully');
+      }
+    } catch (error) {
+      message.error(error || 'Failed to save range');
+    }
+  };
 
-      if (!values.customFieldType || !values.customFieldName) {
+  const handleColorTypeSubmit = async (values, selectedColorType) => {
+    try {
+      if (!!selectedColorType) {
+        await dispatch(
+          updateColourType({ data: values, id: selectedColorType.colorTypeId })
+        ).unwrap();
+        message.success('Color type updated successfully');
+      } else {
+        await dispatch(createColourType(values)).unwrap();
+        message.success('Color type saved successfully');
+      }
+    } catch (error) {
+      message.error(error || 'Failed to save color type');
+    }
+  };
+
+  const handleAddCustomField = async (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    try {
+      const values = form.getFieldsValue(['fieldType', 'fieldName', 'requiredField']);
+      const sortOrder = form.getFieldValue('customFieldSortOrder');
+
+      if (!values.fieldType || !values.fieldName) {
         message.error('Please fill in all required fields');
         return;
       }
-
-      setCustomFields(prev => [
-        ...prev,
-        {
-          fieldType: values.customFieldType,
-          fieldName: values.customFieldName,
-          isRequired: values.requiredField || false,
-          sortOrder: Number(values.sortOrder) || 0
-        }
-      ]);
-      // Reset the form fields
+      await dispatch(
+        createColourItemCustomField({ ...values, sortOrder, colorItem: categoryItem?.colorItemId })
+      ).unwrap();
+      message.success('Custom field added successfully');
       form.setFieldsValue({
-        customFieldType: undefined,
-        customFieldName: '',
+        fieldType: undefined,
+        fieldName: '',
         requiredField: false,
-        sortOrder: ''
+        customFieldSortOrder: '',
       });
+    } catch (error) {
+      const errorMessage = error?.message || error?.toString() || 'Failed to add custom field';
+      message.error(errorMessage);
     }
-    catch (error) {
-      console.error('Error adding custom field:', error);
-    }
-  }
+  };
 
-  const handleAddNewColorType = useCallback(async (name: string) => {
-    // In a real app, you would save this to your backend first
-    const newColorType = {
-      id: Date.now().toString(),
-      name,
-    };
-
-    setColorTypes(prev => [...prev, newColorType]);
-    return newColorType;
-  }, []);
-
-  const handleAddNewRange = useCallback(async (name: string) => {
-    // In a real app, you would save this to your backend first
-    const newRange = {
-      id: Date.now().toString(),
-      name,
-    };
-
-    setRange(prev => [...prev, newRange]);
-    return newRange;
-  }, []);
-
-  const onFinish = async (values: FormValues) => {
+  const onFinish = async values => {
     try {
       await form.validateFields();
-      setLoading(true);
-
       const { ...restValues } = values;
-
-      // Prepare form data
-      const formData = {
+      const payload = {
         ...restValues,
-        colorTypes: selectedColorTypes,
-        colorRange: selectedRange,
-        customData: customFields,
-        colorImage: colorImages,
-        specification: specificationItems,
-        colorSubCategoryId: selectedColorSubCategoryId,
-        image: values?.image?.[0]?.originFileObj,
+        colorImage: images?.color,
+        specification: images?.specification,
       };
-
-      // const formDataToSubmit = formDataGenerator(formData);
-      console.log('Form Data to Submit:', formData);
-      handleAddColorItem(formData);
-      // if (categoryItem) {
-      //   await dispatch(
-      //     updateColourSubCategoryItem({
-      //       id: categoryItem.colorItemId,
-      //       data: formDataToSubmit,
-      //     })
-      //   ).unwrap();
-      //   message.success('Sub-category item updated successfully');
-      // } else {
-      //   await dispatch(createColourSubCategoryItem(formDataToSubmit)).unwrap();
-      //   message.success('Sub-category item created successfully');
-      // }
-
+      if (categoryItem) {
+        const { isUpdated, updatedFields } = getUpdatedFields(payload, categoryItem);
+        if (!isUpdated) {
+          message.info('No changes detected');
+          return;
+        }
+        const formData = formDataGenerator(updatedFields);
+        await dispatch(updateColourItem({ data: formData, id: categoryItem.colorItemId })).unwrap();
+        message.success('Sub-category item updated successfully');
+      } else {
+        const formData = formDataGenerator({
+          ...payload,
+          colorCategoryId: selectedColorCategoryId,
+        });
+        await dispatch(createColourItem(formData)).unwrap();
+        message.success('Sub-category item created successfully');
+      }
       handleCancel();
-    } catch (error: any) {
-      console.error('Form submission error:', error);
-      message.error(error?.message || 'Failed to save sub-category item');
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      message.error(error || 'Failed to save category item');
+    }
+  };
+
+  const handleDeleteCustomField = async (id: string) => {
+    try {
+      await dispatch(
+        deleteColourItemCustomField({ id, colorItemId: categoryItem.colorItemId })
+      ).unwrap();
+      message.success('Custom field deleted successfully');
+    } catch (error) {
+      message.error(error || 'Failed to delete custom field');
     }
   };
 
@@ -207,37 +197,21 @@ const ColorCategoryItemModel = ({
   };
 
   const initialValues = categoryItem
-    ? {
-      ...categoryItem,
-      costType: categoryItem.standard ? 'standard' : 'upgrade',
-      image: categoryItem.image
-        ? [
-          {
-            uid: '-1',
-            name: 'current-image',
-            status: 'done',
-            url: categoryItem.image,
-            thumbUrl: categoryItem.image,
-          } as UploadFile,
-        ]
-        : undefined,
-      expirationDate: categoryItem.expirationDate ? dayjs(categoryItem.expirationDate) : undefined,
-      isActive: categoryItem.isActive ?? true,
-    }
+    ? categoryItem
     : {
-      isActive: true,
-      highlightNotesOnPdf: false,
-    };
+        isActive: true,
+        highlightNotesOnPdf: false,
+      };
 
   const columns = [
     {
       title: 'Field Type',
       dataIndex: 'fieldType',
       key: 'fieldType',
-      render: (fieldType) => {
+      render: fieldType => {
         const field = FieldTypes.find(ft => ft.value === fieldType);
         return field ? field.name : fieldType;
-      }
+      },
     },
     {
       title: 'Field Name',
@@ -246,8 +220,9 @@ const ColorCategoryItemModel = ({
     },
     {
       title: 'Required',
-      dataIndex: 'isRequired',
-      key: 'isRequired',
+      dataIndex: 'requiredField',
+      key: 'requiredField',
+      render: value => (value ? 'Yes' : 'No'),
     },
     {
       title: 'Sort Order',
@@ -258,19 +233,16 @@ const ColorCategoryItemModel = ({
       title: 'Actions',
       key: 'actions',
       width: 120,
-      render: (_: any, index) => (
+      render: (record: ColorItemCustomField) => (
         <div className="flex gap-2">
-          <Button
-            type="link"
-            danger
-            onClick={() => {
-              const newFields = [...customFields];
-              newFields.splice(index, 1);
-              setCustomFields(newFields);
-            }}
+          <Popconfirm
+            title="Are you sure you want to delete custom field"
+            onConfirm={() => handleDeleteCustomField(record.colorItemCustomFieldId)}
           >
-            Delete
-          </Button>
+            <Button type="link" danger>
+              Delete
+            </Button>
+          </Popconfirm>
         </div>
       ),
     },
@@ -286,7 +258,7 @@ const ColorCategoryItemModel = ({
       style={{ maxWidth: 1400 }}
       className="responsive-modal"
     >
-      <Form<FormValues>
+      <Form
         form={form}
         layout="vertical"
         onFinish={onFinish}
@@ -299,9 +271,9 @@ const ColorCategoryItemModel = ({
         }}
         className="responsive-form"
         initialValues={initialValues}
-        disabled={formLoading}
+        disabled={status.colorItem.create === Status.PENDING}
       >
-        {formLoading ? (
+        {false ? (
           <div className="text-center p-4">Loading form data...</div>
         ) : (
           <>
@@ -309,11 +281,7 @@ const ColorCategoryItemModel = ({
               <Col xs={20} md={10}>
                 <Row gutter={16}>
                   <Col xs={24} md={24}>
-                    <Form.Item
-                      name="name"
-                      label="Item Name"
-                      rules={nameRules}
-                    >
+                    <Form.Item name="itemName" label="Item Name" rules={nameRules}>
                       <Input placeholder="Enter item name" />
                     </Form.Item>
                   </Col>
@@ -335,7 +303,12 @@ const ColorCategoryItemModel = ({
                       initialValue="standard"
                       rules={[{ required: true, message: 'Please select cost type' }]}
                     >
-                      <Radio.Group options={[{ label: 'Standard', value: 'standard' }, { label: 'Upgrade', value: 'upgrade' }]} />
+                      <Radio.Group
+                        options={[
+                          { label: 'Standard', value: 'standard' },
+                          { label: 'Upgrade', value: 'upgrade' },
+                        ]}
+                      />
                     </Form.Item>
                   </Col>
                 </Row>
@@ -346,29 +319,25 @@ const ColorCategoryItemModel = ({
                       label="Supplier"
                       rules={[{ required: true, message: 'Please select a supplier' }]}
                     >
-                      <Select
-                        showSearch
-                        placeholder="Select supplier"
-                        optionFilterProp="children"
-                        filterOption={(input, option) =>
-                          (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                        }
-                        options={userOptions}
-                        loading={formLoading}
-                      />
+                      <Select showSearch placeholder="Select supplier" options={supplierOptions} />
                     </Form.Item>
                   </Col>
                   <Col xs={12} md={12}>
                     <Form.Item
                       name="upgradeOption"
                       label="Upgrade Option"
-                      initialValue="fixed"
                       rules={[{ required: false, message: 'Please select upgrade option' }]}
                     >
-                      <Radio.Group disabled={isStandard === 'standard'} options={[{ label: 'Fixed', value: 'fixed' }, { label: 'Start From', value: 'startFrom' }, { label: 'TBA', value: 'tba' }]} />
+                      <Radio.Group
+                        disabled={isStandard === 'standard'}
+                        options={[
+                          { label: 'Fixed', value: 'fixed' },
+                          { label: 'Start From', value: 'start_from' },
+                          { label: 'TBA', value: 'tba' },
+                        ]}
+                      />
                     </Form.Item>
                   </Col>
-
                 </Row>
 
                 <Row gutter={16}>
@@ -379,15 +348,17 @@ const ColorCategoryItemModel = ({
                       initialValue="active"
                       rules={[{ required: true, message: 'Please select status' }]}
                     >
-                      <Radio.Group>
-                        <Radio value="active">Active</Radio>
-                        <Radio value="inactive">Inactive</Radio>
-                      </Radio.Group>
+                      <Radio.Group
+                        options={[
+                          { label: 'Active', value: true },
+                          { label: 'Inactive', value: false },
+                        ]}
+                      />
                     </Form.Item>
                   </Col>
                   <Col xs={12} md={12}>
                     <Form.Item
-                      name="price"
+                      name="cost"
                       label="Price"
                       rules={[
                         {
@@ -432,14 +403,16 @@ const ColorCategoryItemModel = ({
                     <Form.Item
                       name="units"
                       label="Units"
-                      initialValue="nonMandatory"
+                      initialValue="non_mandatory"
                       rules={[{ required: true, message: 'Please select units' }]}
                     >
-                      <Radio.Group>
-                        <Radio value="mandatory">Mandatory</Radio>
-                        <Radio value="nonMandatory">Non Mandatory</Radio>
-                        <Radio value="notRequired">Not Required</Radio>
-                      </Radio.Group>
+                      <Radio.Group
+                        options={[
+                          { label: 'Mandatory', value: 'mandatory' },
+                          { label: 'Non Mandatory', value: 'non_mandatory' },
+                          { label: 'Not Required', value: 'not_required' },
+                        ]}
+                      />
                     </Form.Item>
                   </Col>
                 </Row>
@@ -460,26 +433,36 @@ const ColorCategoryItemModel = ({
                 </Row>
                 <Row gutter={16}>
                   <Col xs={24} md={24}>
-                    <Form.Item name="colorTypes" label="Color Types" rules={optionalNotesRule}>
-                      <MultiSelectDropdown
-                        items={colorTypes}
-                        selectedItems={selectedColorTypes}
-                        onSelectionChange={setSelectedColorTypes}
-                        onAddNewItem={handleAddNewColorType}
-                        placeholder="Color Type"
+                    <Form.Item name="colorTypeId" label="Color Types">
+                      <PackageGroupField
+                        form={form}
+                        formName="colorTypeId"
+                        label="Color Types"
+                        fields={[{ label: 'Name', name: 'colorTypeName', type: 'text' }]}
+                        onSubmit={handleColorTypeSubmit}
+                        data={colorType?.map(i => ({
+                          ...i,
+                          name: i.colorTypeName,
+                          id: i.colorTypeId,
+                        }))}
                       />
                     </Form.Item>
                   </Col>
                 </Row>
                 <Row gutter={16}>
                   <Col xs={24} md={24}>
-                    <Form.Item name="colorRange" label="Range" rules={optionalNotesRule}>
-                      <MultiSelectDropdown
-                        items={range}
-                        selectedItems={selectedRange}
-                        onSelectionChange={setSelectedRange}
-                        onAddNewItem={handleAddNewRange}
-                        placeholder="Range"
+                    <Form.Item name="rangeId" label="Range">
+                      <PackageGroupField
+                        form={form}
+                        formName="rangeId"
+                        label="Range"
+                        fields={[{ label: 'Range Name', name: 'name', type: 'text' }]}
+                        onSubmit={handleRangeSubmit}
+                        data={rangeOptions?.map(item => ({
+                          ...item,
+                          name: item.label,
+                          id: item.value,
+                        }))}
                       />
                     </Form.Item>
                   </Col>
@@ -492,7 +475,7 @@ const ColorCategoryItemModel = ({
                     <Row gutter={16}>
                       <Col xs={12} md={6}>
                         <Form.Item
-                          name="customFieldType"
+                          name="fieldType"
                           label="Field Type"
                           rules={[{ required: false, message: 'Please select a field type' }]}
                         >
@@ -512,7 +495,7 @@ const ColorCategoryItemModel = ({
                       </Col>
                       <Col xs={10} md={5}>
                         <Form.Item
-                          name="customFieldName"
+                          name="fieldName"
                           label="Field name"
                           rules={[{ required: false, message: 'Please enter field name' }]}
                         >
@@ -520,21 +503,22 @@ const ColorCategoryItemModel = ({
                         </Form.Item>
                       </Col>
                       <Col xs={8} md={4}>
-                        <Form.Item name="requiredField" valuePropName="checked" label="Required Field" className='text-center'>
+                        <Form.Item
+                          name="requiredField"
+                          valuePropName="checked"
+                          label="Required Field"
+                          className="text-center"
+                        >
                           <Checkbox />
                         </Form.Item>
                       </Col>
                       <Col xs={10} md={5}>
-                        <Form.Item name="sortOrder" label="Sort Order">
+                        <Form.Item name="customFieldSortOrder" label="Sort Order">
                           <Input type="number" placeholder="Enter sort order" />
                         </Form.Item>
                       </Col>
-                      <Col xs={8} md={4} className='flex justify-end items-center'>
-                        <Button
-                          type="primary"
-                          onClick={handleAddCustomField}
-                          loading={formLoading}
-                        >
+                      <Col xs={8} md={4} className="flex justify-end items-center">
+                        <Button type="primary" onClick={handleAddCustomField}>
                           Add
                         </Button>
                       </Col>
@@ -542,13 +526,13 @@ const ColorCategoryItemModel = ({
 
                     {/* Add the table below the form */}
                     <div className="mt-4">
-                      {customFields.length > 0 ? (
+                      {categoryItem?.customFields?.length > 0 ? (
                         <Table
                           columns={columns}
-                          dataSource={customFields}
+                          dataSource={categoryItem?.customFields}
                           pagination={false}
-                          loading={status === Status.PENDING}
-                          rowKey="id"
+                          loading={status.colorItemCustomField.fetch === Status.PENDING}
+                          rowKey="colorItemCustomFieldId"
                         />
                       ) : (
                         <div className="text-center py-2">
@@ -563,32 +547,43 @@ const ColorCategoryItemModel = ({
                           />
                         </div>
                       )}
-
                     </div>
                   </Col>
                 </Row>
                 <Row gutter={16}>
                   <Col xs={24} md={24}>
-                    <p className='mt-4'>Color Image</p>
+                    <p className="mt-4">Color Image</p>
                     <Form.Item name="colorImage">
-                      <Button icon={<IconUpload />} className='ml-auto flex self-end' onClick={handleImageUploadClick} />
-                      <Upload ref={imageUploadRef} beforeUpload={() => false} maxCount={10} listType="picture" accept={acceptOnlyImageRule} onChange={(info) => {
-                        const files = info.fileList;
-                        const imageFiles = files.filter(file => file.type.startsWith('image/'));
-                        setColorImages(imageFiles);
-                      }}>
-                        {/* <Button icon={<IconUpload />} className='ml-auto flex self-end'></Button> */}
-                      </Upload>
+                      <Button
+                        icon={<IconUpload />}
+                        className="ml-auto flex self-end"
+                        onClick={handleImageUploadClick}
+                      />
+                      <Upload
+                        ref={imageUploadRef}
+                        beforeUpload={() => false}
+                        maxCount={10}
+                        listType="picture"
+                        accept={acceptOnlyImageRule}
+                        onChange={info => {
+                          const files = info.fileList
+                            .map(file => file.originFileObj)
+                            .filter(Boolean);
+                          setImages({
+                            ...images,
+                            color: files,
+                          });
+                        }}
+                      />
+
                       <div>
-                        {colorImages?.length > 0 ? null : (
+                        {images?.color?.length > 0 ? null : (
                           <div className="w-full">
                             <div className="text-center py-2">
                               <Empty
                                 image={Empty.PRESENTED_IMAGE_SIMPLE}
                                 description={
-                                  <span className="text-gray-500">
-                                    No image uploaded
-                                  </span>
+                                  <span className="text-gray-500">No image uploaded</span>
                                 }
                               />
                             </div>
@@ -601,10 +596,10 @@ const ColorCategoryItemModel = ({
                 <Row gutter={16}>
                   <Col xs={24} md={24}>
                     <p>Specification</p>
-                    <Form.Item name="specification">
+                    <Form.Item name="specificationName">
                       <Button
                         icon={<IconUpload />}
-                        className='ml-auto flex self-end'
+                        className="ml-auto flex self-end"
                         onClick={handleUploadClick}
                       />
                       <Upload
@@ -612,57 +607,56 @@ const ColorCategoryItemModel = ({
                         beforeUpload={() => false}
                         maxCount={10}
                         listType="picture"
-                        className='text-center'
+                        className="text-center"
                         accept="image/*,.pdf"
-                        onChange={(info) => {
-                          const files = info.fileList;
-                          const validFiles = files.filter(file =>
-                            file.type.startsWith('image/') || file.type === 'application/pdf'
-                          );
-                          setSpecificationItems({ file: validFiles });
+                        onChange={info => {
+                          const files = info.fileList
+                            .map(file => file.originFileObj)
+                            .filter(Boolean);
+                          setImages({
+                            ...images,
+                            specification: files,
+                          });
                         }}
-                      >
-                        {/* <Button icon={<IconUpload />}></Button> */}
-                      </Upload>
+                      />
                     </Form.Item>
-                    <Form.Item name="specificationText">
-                      <Input placeholder="Enter specification text" onChange={(e) => setSpecificationItems({ note: e.target.value })} />
+                    <Form.Item name="specificationName">
+                      <Input placeholder="Enter specification text" />
                     </Form.Item>
                     <div>
-                      {(specificationItems?.file?.length > 0 || specificationItems?.note) ? null : (
+                      {images.specification?.length > 0 ? null : (
                         <div className="w-full">
                           <div className="text-center py-2">
                             <Empty
                               image={Empty.PRESENTED_IMAGE_SIMPLE}
                               description={
-                                <span className="text-gray-500">
-                                  No Document uploaded
-                                </span>
+                                <span className="text-gray-500">No Document uploaded</span>
                               }
                             />
                           </div>
                         </div>
                       )}
                     </div>
-
                   </Col>
                 </Row>
               </Col>
             </Row>
-
-            {/* <Col span={12}>
-    <Form.Item name="supplier" label="Supplier">
-      <Select placeholder="Enter supplier name" options={assigneeOptions}/>
-    </Form.Item>
-  </Col> */}
-
             {/* Submit Button */}
             <Row gutter={16} justify="end">
-              <Col className='pb-2'>
-                <Button onClick={handleCancel} style={{ marginRight: 8 }} disabled={loading}>
+              <Col className="pb-2">
+                <Button
+                  onClick={handleCancel}
+                  style={{ marginRight: 8 }}
+                  disabled={status.colorItem.create === Status.PENDING}
+                >
                   Cancel
                 </Button>
-                <Button type="primary" htmlType="submit" loading={loading}>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  loading={status.colorItem.create === Status.PENDING}
+                  disabled={status.colorItem.create === Status.PENDING}
+                >
                   {categoryItem ? 'Update' : 'Create'}
                 </Button>
               </Col>

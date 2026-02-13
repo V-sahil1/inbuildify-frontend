@@ -32,7 +32,7 @@ const supplierSlice = createSlice({
       state.status.fetch = Status.PENDING;
     });
     builder.addCase(fetchAllSuppliers.fulfilled, (state, action) => {
-      state.suppliers = action.payload.suppliers;
+      state.suppliers = action.payload;
       state.status.fetch = Status.SUCCESS;
     });
     builder.addCase(fetchAllSuppliers.rejected, state => {

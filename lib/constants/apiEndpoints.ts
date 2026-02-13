@@ -84,10 +84,16 @@ class API_ENDPOINTS {
 
   //  Colour
   public static COLOUR = '/color';
+  public static COLOR_COPY = id => `${this.COLOUR}/copy/${id}`;
   public static COLOUR_CATEGORY_BASE = '/color-category';
+  public static COLOUR_CATEGORY_COPY = id => `${this.COLOUR_CATEGORY_BASE}/copy/${id}`;
   public static COLOUR_SUB_CATEGORY_BASE = '/color-sub-category';
   public static COLOUR_SUB_CATEGORY_ITEM = `/color-item`;
+  public static COLOUR_SUB_CATEGORY_ITEM_COPY = id => `${this.COLOUR_SUB_CATEGORY_ITEM}/copy/${id}`;
+  public static COLOR_ITEM_MOVE = (id: string) => `${this.COLOUR_SUB_CATEGORY_ITEM}/move/${id}`;
   public static COLOUR_GROUP = `/color-group`;
+  public static COLOUR_TYPE = `/color-type`;
+  public static COLOR_ITEM_CUSTOM_FIELD = `/color-item-custom-field`;
 
   // Property
   public static PROPERTY_BASE = '/property';

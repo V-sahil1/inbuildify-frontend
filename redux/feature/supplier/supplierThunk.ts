@@ -23,9 +23,7 @@ export const fetchAllSuppliers = createAsyncThunk(
   'supplier/fetchAll',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get<
-        ApiResponse<{ suppliers: Supplier[]; pagination: CommonPagination }>
-      >(API_ENDPOINTS.SUPPLIER);
+      const response = await api.get<ApiResponse<Supplier[]>>(API_ENDPOINTS.SUPPLIER);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);

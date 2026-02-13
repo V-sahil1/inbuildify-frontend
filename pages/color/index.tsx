@@ -1,11 +1,37 @@
 import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import { createColourCategory, createColourSubCategory, deleteColourCategory, deleteColourSubCategory, deleteColourSubCategoryItem, fetchColourCategory, fetchColourGroups, fetchColourSubCategory, fetchColourSubCategoryItems, updateColourCategory, updateColourSubCategory } from '@redux/feature/color/colorThunk';
-import { message, Empty, Tooltip, Button, Input } from 'antd';
-import { IconChevronDown, IconChevronUp, IconCopy, IconEdit, IconPlus, IconSearch, IconTrash } from '@tabler/icons-react';
+import {
+  copyColorCategory,
+  copyColour,
+  copyColourItem,
+  createColour,
+  createColourCategory,
+  deleteColour,
+  deleteColourCategory,
+  deleteColourItem,
+  fetchAllColour,
+  fetchColourCategory,
+  fetchColourItemCustomField,
+  fetchColourItems,
+  updateColour,
+  updateColourCategory,
+} from '@redux/feature/color/colorThunk';
+import { message, Empty, Button, Input } from 'antd';
+import {
+  IconChevronDown,
+  IconChevronUp,
+  IconCopy,
+  IconEdit,
+  IconPlus,
+  IconSearch,
+  IconTrash,
+} from '@tabler/icons-react';
 import { Status } from '@lib/constants/enum';
-import { toggleExpandColourCategory, toggleExpandColourCategoryItem } from '@redux/feature/color/ColourSlice';
-import { Color, Category } from '@redux/feature/color/iColourState';
+import {
+  toggleExpandColourCategory,
+  toggleExpandColourCategoryItem,
+} from '@redux/feature/color/ColourSlice';
+import { Category, ColorItem, ColorType } from '@redux/feature/color/iColourState';
 import Loading from '@/components/common/Loading';
 import ConfirmationModal from '@/components/common/ConfirmationModal';
 import ColorCategoryItemModel from '@/components/common/Models/ColorCategoryItemModel';
@@ -14,372 +40,291 @@ import { ColorMasterCategoryFields } from '@/components/formFields/colorCategory
 import { ColorSubCategoryFields } from '@/components/formFields/colorSubCategoryFields';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import { debouncedURL } from '@lib/utils/debounceURL';
-import { buildCopyFields as getBuildCopyFields } from '@/components/formFields/copyColorcategories';
 import { CopyType } from 'types/common.types';
-import { fetchAllSuppliers } from '@redux/feature/supplier/supplierThunk';
 import TooltipButton from '@/components/common/TooltipButton';
+import { useColorGroupHook } from '@hooks/useColorGroupHook';
+import { useSupplierHook } from '@hooks/useSupplierHook';
+import { CopyInitialValues, useBuildCopyFields } from '@/components/formFields/copyColorcategories';
 
-// add the popover  on the delete button if the status ia active and make it inactive , if ie is inactive then  delte it with conformation modaltype CopyType = 'category' | 'subcategory' | 'subcategoryitem';  
+// add the popover  on the delete button if the status ia active and make it inactive , if ie is inactive then  delte it with conformation modal
+
 interface ColorViewProps {
   showSearchBar?: boolean;
 }
 
 const ColorView = ({ showSearchBar = true }: ColorViewProps) => {
-  let isActive = true;
   const dispatch = useAppDispatch();
-  const { ColorGroup, Color, status } = useAppSelector(state => state.colour);
-  const { suppliers } = useAppSelector(state => state.supplier);
+  const { color, status } = useAppSelector(state => state.colour);
+  const [modalOpen, setModalOpen] = useState<
+    | 'color'
+    | 'category'
+    | 'colorItem'
+    | 'deleteColor'
+    | 'deleteCategory'
+    | 'deleteColorItem'
+    | 'copyColor'
+    | 'copyCategory'
+    | 'copyColorItem'
+    | null
+  >(null);
+  const [selectedColorId, setSelectedColorId] = useState('');
+  const [colorSubCategoryId, setColorSubCategoryId] = useState('');
+  const [dropDowns, setDropDowns] = useState<Record<string, boolean>>({});
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [copyInitialValues, setCopyInitialValues] = useState<CopyInitialValues>({});
+  const { colorGroupOptions } = useColorGroupHook();
+  const { supplierOptions } = useSupplierHook();  
+  const copyFields = useBuildCopyFields({
+    copyModal: modalOpen,
+    copyInitialValues,
+    color,
+  });
+  const loading =
+    status.color.create === Status.PENDING ||
+    status.category.create === Status.PENDING ||
+    status.colorItem.create === Status.PENDING;
 
-  const fetchColourCategoryData = async () => {
+  const { setParams } = debouncedURL({
+    filtersKey: ['search'],
+  });
+  useEffect(() => {
+    if (status.color.fetch === Status.IDLE) {
+      fetchColourData();
+    }
+  }, [status.color.fetch]);
+
+  const fetchColourData = async () => {
     try {
-      await dispatch(fetchColourCategory()).unwrap();
+      await dispatch(fetchAllColour()).unwrap();
     } catch (error) {
       message.error(error || 'Failed to fetch colour category');
     }
   };
 
-  const fetchSupplierData = async () => {
-    try {
-      await dispatch(fetchAllSuppliers()).unwrap();
-      await dispatch(fetchColourGroups()).unwrap();
-    } catch (error) {
-      message.error(error || 'Failed to fetch suppliers');
-    }
-  };
-  useEffect(() => {
-    if (status === Status.IDLE) {
-      fetchColourCategoryData();
-      fetchSupplierData();
-    }
-  }, [status]);
-
-  const [colorId, setColorId] = useState('');
-  const [addColourModal, setAddColourModal] = useState(false);
-  const [addColourCategoryModal, setAddColourCategoryModal] = useState(false);
-  const [addColourSubCategoryItemModal, setAddColourSubCategoryItemModal] = useState(false);
-  const [colorSubCategoryId, setColorSubCategoryId] = useState('');
-  const [dropDowns, setDropDowns] = useState<Record<string, boolean>>({});
-  const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({});
-  const [selectedItem, setSelectedItem] = useState<any>();
-  const [loading, setLoading] = useState(false);
-  const [deleteModal, setDeleteModal] = useState({
-    open: false,
-    type: 'subCategory',
-  });
-
-  const [copyModal, setCopyModal] = useState<{ open: boolean, type: CopyType }>({
-    open: false,
-    type: 'category',
-  });
-  const [copySelectedCategoryId, setCopySelectedCategoryId] = useState<string>('');
-  const [copySubCategoryList, setCopySubCategoryList] = useState<Array<{ value: string; label: string }>>([]);
-  const [copyInitialValues, setCopyInitialValues] = useState<any>({});
-  const [editing, setEditing] = useState<boolean>(false);
-
-  const { setParams } = debouncedURL({
-    filtersKey: ["search"], 
-    delay: 500,                 
-    shouldSyncURL: true
-  });
-
-  const handleFilterChange = (filters: any) => {
-    setParams(filters);
-  };
-
-
   const openAddColourSubCategoryModal = (colorCategoryId: string) => {
-    setColorId(colorCategoryId);
-    setAddColourCategoryModal(true);
+    setSelectedColorId(colorCategoryId);
+    setModalOpen('category');
   };
 
-  const openAddColourSubCategoryItemModal = (colorSubCategoryId: string) => {
-    setAddColourSubCategoryItemModal(true);
+  const openAddColourSubCategoryItemModal = async (colorSubCategoryId: string) => {
+    setModalOpen('colorItem');
     setColorSubCategoryId(colorSubCategoryId);
+    try {
+      await dispatch(fetchColourItemCustomField(colorSubCategoryId)).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch custom fields');
+    }
   };
-  const handleColorCategoryExpand = async (colorCategoryId: string, isExpanded: boolean) => {
-    const currentDropdownState = dropDowns[colorCategoryId] || false;
-    
-    // Only toggle the dropdown state
+  const handleColorCategoryExpand = async (colorCategory: ColorType) => {
+    const currentDropdownState = dropDowns[colorCategory.colorId] || false;
     setDropDowns(prev => ({
       ...prev,
-      [colorCategoryId]: !currentDropdownState,
+      [colorCategory?.colorId]: !currentDropdownState,
     }));
-
-    // Only call API if we're expanding (current state is false, new state will be true)
-    if (!currentDropdownState) {
+    if (!colorCategory.isExpanded) {
       try {
-        setLoadingItems(prev => ({ ...prev, [colorCategoryId]: true }));
-        dispatch(toggleExpandColourCategory(colorCategoryId));
-
-        await dispatch(fetchColourSubCategory(colorCategoryId)).unwrap();
-      } catch (error: any) {
+        dispatch(toggleExpandColourCategory(colorCategory.colorId));
+        await dispatch(fetchColourCategory(colorCategory.colorId)).unwrap();
+      } catch (error) {
         message.error(error || 'Failed to fetch colour sub category');
-      } finally {
-        setLoadingItems(prev => ({ ...prev, [colorCategoryId]: false }));
       }
     }
   };
 
   const handleSubCategoryExpand = async (item: Category) => {
     const currentDropdownState = dropDowns[item.colorCategoryId] || false;
-    
-    // Only toggle the dropdown state
     setDropDowns(prev => ({
       ...prev,
       [item.colorCategoryId]: !currentDropdownState,
     }));
-
-    // Only call API if we're expanding (current state is false, new state will be true)
-    if (!currentDropdownState) {
+    if (!item.isExpanded) {
       try {
-        setLoadingItems(prev => ({
-          ...prev,
-          [item.colorCategoryId]: true,
-        }));
         dispatch(
           toggleExpandColourCategoryItem({
-            colorSubCategoryId: item.colorCategoryId,
+            colorCategoryId: item.colorCategoryId,
             colorId: item.colorId,
           })
         );
-
         await dispatch(
-          fetchColourSubCategoryItems({
-            colorSubCategoryId: item.colorCategoryId,
-            colorCategoryId: item.colorId,
+          fetchColourItems({
+            colorCategoryId: item.colorCategoryId,
+            colorId: item.colorId,
           })
         ).unwrap();
-      } catch (error: any) {
+      } catch (error) {
         message.error(error || 'Failed to fetch colour sub category');
-      } finally {
-        setLoadingItems(prev => ({
-          ...prev,
-          [item.colorCategoryId]: false,
-        }));
       }
     }
   };
-  const handleColourSubCategoryAction = (action: string, subCategory: any, actionType?: string) => {
+
+  const handleColourSubCategoryAction = (
+    action: string,
+    subCategory: Category | ColorItem,
+    actionType?: string
+  ) => {
     setSelectedItem(subCategory);
     if (actionType === 'subCategoryItem') {
+      const subCategoryItem = subCategory as ColorItem;
       if (action === 'edit') {
-        setEditing(true);
-        openAddColourSubCategoryItemModal(subCategory.colorItemId);
+        openAddColourSubCategoryItemModal(subCategoryItem.colorItemId);
       } else if (action === 'delete') {
-        setDeleteModal({ open: true, type: 'subCategoryItem' });
+        setModalOpen('deleteColorItem');
       }
     } else {
+      const category = subCategory as Category;
       if (action === 'edit') {
-        setEditing(true);
-        openAddColourSubCategoryModal(subCategory.colorSubCategoryId);
+        openAddColourSubCategoryModal(category.colorCategoryId);
       } else if (action === 'delete') {
-        setDeleteModal({ open: true, type: 'subCategory' });
+        setModalOpen('deleteCategory');
       }
     }
   };
 
-  const handleColourCategoryAction = (action: 'edit' | 'delete', colorCategory: Color) => {
+  const handleColourCategoryAction = (action: 'edit' | 'delete', colorCategory: ColorType) => {
     setSelectedItem(colorCategory);
     if (action === 'edit') {
-      setEditing(true);
-      setAddColourModal(true);
+      setModalOpen('color');
     } else if (action === 'delete') {
-      setDeleteModal({ open: true, type: 'colorCategory' });
+      setModalOpen('deleteColor');
     }
   };
+
   //copy category model open
-  const handleCategoryCopyModelOpen = ({ colorCategory, type }: { colorCategory: Color; type: CopyType }) => {
-    setSelectedItem(colorCategory);
+  const handleCategoryCopyModelOpen = (record: ColorType) => {
+    setSelectedItem(record);
     setCopyInitialValues({
-      categoryName: `${colorCategory.colorName} (Copy)`,
-      sortOrder: (Color?.length || 0) + 1,
+      categoryName: `${record.colorName} (Copy)`,
+      sortOrder: (color?.length || 0) + 1,
     });
-    setCopyModal({ open: true, type: type });
-    setCopySelectedCategoryId('');
-    setCopySubCategoryList([]);
+    setModalOpen('copyColor');
   };
 
-  const handleSubCategoryCopyModelOpen = (data: Category, type: CopyType) => {
-    if (type === "subcategory") {
-      setSelectedItem(data);
-      // find parent category id for the subcategory
-      const parent = Color.find(cat =>
-        cat.colorCategories?.some((sc: Category) => sc.colorCategoryId === data.colorCategoryId)
-      );
-      const categoryId = parent?.colorId ?? '';
-
+  const handleSubCategoryCopyModelOpen = (data: Category | ColorItem, type: CopyType) => {
+    setSelectedItem(data);
+    if (type === 'subcategory') {
+      const categoryData = data as Category;
       setCopyInitialValues({
-        categoryId: categoryId,
-        subCategoryName: `${data.categoryName} (Copy)`,
-        sortOrder: data?.sortOrder ? data.sortOrder + 1 : 1,
+        colorId: categoryData.colorId,
+        categoryName: `${categoryData.categoryName} (Copy)`,
+        sortOrder: categoryData?.sortOrder ? categoryData.sortOrder + 1 : 1,
       });
-      setCopyModal({ open: true, type });
-      setCopySelectedCategoryId(categoryId);
-
-      // fetch subcategories of that category so UI shows them (if needed)
-      if (categoryId) {
-        fetchSubcategoriesForCopy(categoryId);
-      } else {
-        setCopySubCategoryList([]);
-      }
-    } else if (type === "subcategoryitem") {
-      setSelectedItem(data);
-      // find parent category id from subCategoryId inside the item
-      const parentCategory = Color.find(cat =>
-        cat.colorCategories?.some((sc: Category) => sc.colorCategoryId === data.colorCategoryId)
-      );
-      const categoryId = parentCategory?.colorId ?? '';
-
+      setModalOpen('copyCategory');
+    } else if (type === 'subcategoryitem') {
+      const subCategoryItemData = data as ColorItem;
       setCopyInitialValues({
-        categoryId: categoryId,
-        subCategoryId: data.colorCategoryId,
-        subCategoryItemName: `${data.categoryName} (Copy)`,
-        sortOrder: data?.sortOrder ? data.sortOrder + 1 : 1,
+        colorId: '',
+        colorCategoryId: '',
+        itemName: `${subCategoryItemData.itemName} (Copy)`,
+        sortOrder: subCategoryItemData?.sortOrder ? subCategoryItemData.sortOrder + 1 : 1,
       });
-      setCopyModal({ open: true, type });
-      setCopySelectedCategoryId(categoryId);
-
-      if (categoryId) {
-        fetchSubcategoriesForCopy(categoryId);
-      } else {
-        setCopySubCategoryList([]);
-      }
-
-    }
-
-  }
-
-  const fetchSubcategoriesForCopy = async (categoryId: string) => {
-    try {
-      const res = await dispatch(fetchColourSubCategory(categoryId)).unwrap();
-      const mapped = res.data.map((it: any) => ({ value: it.colorSubCategoryId, label: it.name }));
-      setCopySubCategoryList(mapped);
-    } catch (err) {
-      message.error('Failed to fetch subcategories for copy');
-      setCopySubCategoryList([]);
+      setModalOpen('copyColorItem');
     }
   };
 
-  const handleAddColourCategorySubmit = async (values: { colorName: string; status: string; sortOrder?: number}) => {
+  const handleAddColourCategorySubmit = async (values: ColorType) => {
     try {
-      setLoading(true);
-      // Ensure sortOrder is within valid range (1 to total categories + 1)
-      const maxSortOrder = Color?.length ? Color.length + 1 : 1;
-      const sortOrder = values.sortOrder ? Math.min(Math.max(1, values.sortOrder), maxSortOrder) : maxSortOrder;
-
+      const sortOrder = Math.min(Math.max(1, values?.sortOrder || 0), color?.length || 1);
       const payload = {
         ...values,
         status: values?.status === 'active',
-        sortOrder
+        sortOrder,
       };
 
-      if (editing) {
+      if (!!selectedItem) {
         await dispatch(
-          updateColourCategory({
+          updateColour({
             id: selectedItem.colorId,
             payload: payload,
           })
         ).unwrap();
         message.success('Color category updated successfully');
       } else {
-        await dispatch(createColourCategory(payload)).unwrap();
+        await dispatch(createColour(payload)).unwrap();
         message.success('Color category created successfully');
       }
-      setAddColourModal(false);
-    } catch (error) {
-      message.error(error?.message || 'Failed to process color category');
-    } finally {
-      setEditing(false);
+      setModalOpen(null);
       setSelectedItem(null);
-      setLoading(false);
+    } catch (error) {
+      message.error(error || 'Failed to process color category');
     }
   };
-  const handleAddColourSubCategorySubmit = async (values) => {
+
+  const handleAddColourSubCategorySubmit = async values => {
     try {
-      setLoading(true);
-      if (editing) {
+      if (!!selectedItem) {
         await dispatch(
-          updateColourSubCategory({
-            data: {...values, status : values.status === 'active'},
+          updateColourCategory({
+            data: { ...values, status: values.status === 'active' },
             colorCategoryId: selectedItem.colorCategoryId,
           })
         ).unwrap();
         message.success('Workflow process updated successfully');
       } else {
-        await dispatch(createColourSubCategory({ ...values , status : values.status === 'active' ,colorId: colorId })).unwrap();
+        await dispatch(
+          createColourCategory({
+            ...values,
+            status: values.status === 'active',
+            colorId: selectedColorId,
+          })
+        ).unwrap();
         message.success('Workflow process task created successfully');
       }
-      setAddColourCategoryModal(false);
+      setModalOpen(null);
+      setSelectedItem(null);
     } catch (error) {
       message.error(error || 'Failed to create workflow process task');
-    } finally {
-      setSelectedItem(null);
-      setLoading(false);
     }
   };
 
-  const handleDelete = async (type: string, id: any) => {
-    setLoading(true);
+  const handleDelete = async (
+    type: string,
+    colorId?: string,
+    colorCategoryId?: string,
+    colorItemId?: string
+  ) => {
     try {
-      if (type === 'subCategoryItem') {
-        await dispatch(deleteColourSubCategoryItem({ workflowProcessTaskId: id })).unwrap();
+      if (type === 'deleteColorItem') {
+        await dispatch(deleteColourItem({ id: colorItemId, colorCategoryId })).unwrap();
         message.success('Sub Category Item deleted successfully');
-      } else if (type === 'subCategory') {
-        await dispatch(deleteColourSubCategory({ colorCategoryId: id })).unwrap();
+      } else if (type === 'deleteCategory') {
+        await dispatch(
+          deleteColourCategory({ colorCategoryId: colorCategoryId, colorId })
+        ).unwrap();
         message.success('Sub Category deleted successfully');
-      } else if (type === 'colorCategory') {
-        await dispatch(deleteColourCategory(id)).unwrap();
+      } else if (type === 'deleteColor') {
+        await dispatch(deleteColour(colorId)).unwrap();
         message.success('Color category deleted successfully');
       }
-    } catch (error) {
-      message.error(error || 'Failed to delete workflow process');
-    } finally {
-      setDeleteModal({ open: false, type });
+      setModalOpen(null);
       setSelectedItem(null);
-      setLoading(false);
+    } catch (error) {
+      message.error(error || 'Failed to delete item');
     }
   };
 
-  // Build category list options
-  const categoryList = Color?.map((item: any) => ({
-    value: item.colorId,
-    label: item.colorName,
-  }));
-
-  // Build fields for copy flows dynamically based on copyModal.type
-  const buildCopyFields = () => {
-    return getBuildCopyFields(
-      copyModal,
-      copyInitialValues,
-      Color?.length || 0,
-      categoryList,
-      copySubCategoryList
-    );
-  };
-  const handleCopySubmit = async (values: any) => {
-    console.log(values);
-    // try {
-    //   setLoading(true);
-    //   if (editing) {
-    //     await dispatch(
-    //       updateColourSubCategory({
-    //         name: values.name,
-    //         description: values.description,
-    //         colorSubCategoryId: selectedItem.colorSubCategoryId,
-    //       })
-    //     ).unwrap();
-    //     message.success('Workflow process updated successfully');
-    //   } else {
-    //     await dispatch(createColourSubCategory({ ...values, colorCategoryId })).unwrap();
-    //     message.success('Workflow process task created successfully');
-    //   }
-    //   setAddColourSubCategoryModal(false);
-    // } catch (error) {
-    //   message.error(error || 'Failed to create workflow process task');
-    // } finally {
-    //   setSelectedItem(null);
-    //   setLoading(false);
-    // }
+  const handleCopySubmit = async values => {
+    try {
+      if (modalOpen === 'copyColor') {
+        await dispatch(copyColour({ data: values, id: selectedItem?.colorId })).unwrap();
+        message.success('Color copy successfully');
+      } else if (modalOpen === 'copyCategory') {
+        await dispatch(
+          copyColorCategory({
+            data: values,
+            id: selectedItem?.colorCategoryId,
+            colorId: selectedItem?.colorId,
+          })
+        ).unwrap();
+        message.success('Color category copy successfully');
+      } else {
+        await dispatch(copyColourItem({ data: values, id: selectedItem?.colorItemId })).unwrap();
+        message.success('Color item copy successfully');
+      }
+      setSelectedItem(null);
+      setModalOpen(null);
+    } catch (error) {
+      message.error(error || 'Failed to copy item');
+    }
   };
 
   return (
@@ -388,119 +333,113 @@ const ColorView = ({ showSearchBar = true }: ColorViewProps) => {
         <h2 className="text-[24px]/[30px] font-black my-4 text-[var(--font-color-bl)]">
           Colour Master
         </h2>
-        {showSearchBar && <div className="flex items-center justify-between mb-4">
-          <div className="flex gap-2 w-[60%]">
-            <Input
-              addonBefore={<IconSearch size={20} />}
-              onChange={e => handleFilterChange({ search: e.target.value })}
-              placeholder="Search by color, colorcategory or item code"
-              style={{ width: '80%' }}
-            />
+        {showSearchBar && (
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex gap-2 w-[60%]">
+              <Input
+                addonBefore={<IconSearch size={20} />}
+                onChange={e => setParams({ search: e.target.value })}
+                placeholder="Search by color, colorcategory or item code"
+                style={{ width: '80%' }}
+              />
+            </div>
+            <Button
+              type="primary"
+              disabled={status.color.create == Status.PENDING}
+              onClick={() => {
+                setModalOpen('color');
+              }}
+            >
+              Add Color Master
+            </Button>
           </div>
-          <Button
-            type="primary"
-            disabled={status == Status.PENDING}
-            onClick={() => {
-              setEditing(false);
-              setAddColourModal(true);
-            }}
-          >
-            Add Color Master
-          </Button>
-        </div>}
+        )}
       </div>
 
-      {status == Status.PENDING ? (
+      {status.color.fetch == Status.PENDING ? (
         <div className="flex justify-center items-center pt-[20vh]">
           <Loading type="primary" />
         </div>
-      ) : Color?.length > 0 ? (
+      ) : color?.length > 0 ? (
         <div className="space-y-4">
-          {Color?.map((colorCategory: Color) => {
-            const isDropdownOpen = dropDowns[colorCategory?.colorId] || false;
-            const isLoading = loadingItems[colorCategory?.colorId] || false;
+          {color?.map((record: ColorType) => {
+            const isDropdownOpen = dropDowns[record?.colorId] || false;
             return (
               <div
-                key={colorCategory?.colorId}
-                className={`${isActive ? "bg-white" : "bg-gray-100"} shadow-md rounded-xl border border-gray-200 transition hover:shadow-lg`}
+                key={record?.colorId}
+                className="shadow-md rounded-xl border border-gray-200 transition hover:shadow-lg"
               >
                 {/* color category */}
                 <div
                   className="flex items-center justify-between px-4 py-3 cursor-pointer rounded-t-xl"
-                  onClick={() =>
-                    handleColorCategoryExpand(
-                      colorCategory?.colorId,
-                      colorCategory?.isExpanded
-                    )
-                  }
+                  onClick={() => handleColorCategoryExpand(record)}
                 >
                   <div className="flex items-center gap-2 w-full min-w-0">
                     <div className="min-w-0">
                       <h3 className="text-lg font-semibold text-gray-800 break-words">
-                        {colorCategory?.colorName}
+                        {record?.colorName}
                       </h3>
                     </div>
                   </div>
 
                   <div className="flex gap-3 flex-shrink-0">
                     <TooltipButton
-                      className="p-2 rounded-lg hover:!bg-green-50 transition border-none "
+                      type="text"
                       onClick={e => {
                         e.preventDefault();
                         e.stopPropagation();
-                        setSelectedItem(colorCategory);
-                        handleCategoryCopyModelOpen({ colorCategory, type: "category" });
+                        setSelectedItem(record);
+                        handleCategoryCopyModelOpen(record);
                       }}
                       title="Copy"
-                      icon={<IconCopy size={18} className="text-gray-600 hover:text-blue-600" />}
+                      icon={<IconCopy size={16} />}
                     />
                     <TooltipButton
-                      className="p-2 rounded-lg hover:!bg-green-50 transition border-none"
-                      // disabled={!isActive}
+                      type="text"
                       onClick={e => {
                         e.preventDefault();
                         e.stopPropagation();
-                        openAddColourSubCategoryModal(colorCategory?.colorId);
+                        openAddColourSubCategoryModal(record?.colorId);
                       }}
                       title="Add Category"
-                      icon={<IconPlus size={18} className="text-gray-600 hover:text-green-600" />}
+                      icon={<IconPlus size={16} />}
                     />
                     <TooltipButton
-                      className="p-2 rounded-lg hover:!bg-blue-50 transition border-none"
+                      type="text"
                       onClick={e => {
                         e.stopPropagation();
-                        handleColourCategoryAction('edit', colorCategory);
+                        handleColourCategoryAction('edit', record);
                       }}
-                      title='Edit Color'
-                      icon={<IconEdit size={18} className="text-gray-600 hover:text-blue-600" />}
-
+                      title="Edit Color"
+                      icon={<IconEdit size={16} />}
                     />
                     <TooltipButton
-                      className="p-2 rounded-lg hover:!bg-red-50 transition border-none"
+                      type="text"
                       onClick={e => {
                         e.stopPropagation();
-                        handleColourCategoryAction('delete', colorCategory);
+                        handleColourCategoryAction('delete', record);
                       }}
-                      title='Delete'
-                      icon={<IconTrash size={18} className="text-gray-600 hover:text-red-600" />}
+                      title="Delete"
+                      icon={<IconTrash size={16} />}
                     />
 
-                    <Button className="mt-1 flex-shrink-0 text-gray-600 hover:text-blue-500 transition border-none">
-                      {isDropdownOpen ? <IconChevronUp /> : <IconChevronDown />}
-                    </Button>
+                    <Button
+                      type="text"
+                      icon={isDropdownOpen ? <IconChevronUp /> : <IconChevronDown />}
+                    />
                   </div>
                 </div>
 
                 {/* Dropdown */}
                 {isDropdownOpen && (
                   <div className="px-4 pb-4">
-                    {isLoading ? (
+                    {status.category.fetch === Status.PENDING ? (
                       <div className="flex justify-center items-center py-10 gap-4 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 h-[85px]">
                         <Loading type="primary" />
                       </div>
-                    ) : colorCategory?.colorCategories?.length > 0 ? (
+                    ) : record?.colorCategories?.length > 0 ? (
                       <div className="mt-2 max-h-[300px] overflow-y-auto space-y-2 pr-2">
-                        {colorCategory?.colorCategories?.map((item: Category) => (
+                        {record?.colorCategories?.map((item: Category) => (
                           <NestedItem
                             key={item?.colorCategoryId}
                             item={item}
@@ -509,7 +448,7 @@ const ColorView = ({ showSearchBar = true }: ColorViewProps) => {
                             onAdd={() => openAddColourSubCategoryItemModal(item.colorCategoryId)}
                             handleClick={handleColourSubCategoryAction}
                             onToggleDropdown={handleSubCategoryExpand}
-                            isLoading={loadingItems[item.colorCategoryId]}
+                            isLoading={status.colorItem.fetch === Status.PENDING}
                           />
                         ))}
                       </div>
@@ -533,113 +472,114 @@ const ColorView = ({ showSearchBar = true }: ColorViewProps) => {
       )}
 
       {/* Modals */}
-      {addColourModal && (
+      {modalOpen === 'color' && (
         <ActionDialogmodel
           title="Color"
-          isEditing={editing}
-          open={addColourModal}
-          loading={loading}
+          isEditing={!!selectedItem}
+          open={modalOpen === 'color'}
+          loading={status.color.create === Status.PENDING}
           onCancel={() => {
-            setEditing(false);
             setSelectedItem(null);
-            setAddColourModal(false);
+            setModalOpen(null);
           }}
           initialValues={{
             ...selectedItem,
-            sortOrder: selectedItem?.sortOrder || (Color?.length || 0) + 1,
+            sortOrder: selectedItem?.sortOrder || (color?.length || 0) + 1,
             status: selectedItem?.status ? 'active' : 'inactive',
           }}
           onSubmit={handleAddColourCategorySubmit}
-          fields={ColorMasterCategoryFields(Color?.length || 0)}
+          fields={ColorMasterCategoryFields(color?.length || 0)}
         />
       )}
 
-      {addColourCategoryModal && (
+      {modalOpen === 'category' && (
         <ActionDialogmodel
-          title={`${editing ? 'Edit' : 'Add'} Colour Category`}
-          isEditing={editing}
-          open={addColourCategoryModal}
-          loading={loading}
+          title={`${!!selectedItem ? 'Edit' : 'Add'} Colour Category`}
+          isEditing={!!selectedItem}
+          open={modalOpen === 'category'}
+          loading={status.category.create === Status.PENDING}
           onCancel={() => {
-            setEditing(false);
             setSelectedItem(null);
-            setAddColourCategoryModal(false);
+            setModalOpen(null);
           }}
           initialValues={{
             ...selectedItem,
-            sortOrder: editing ? selectedItem?.sortOrder : (() => {
-              const selectedColor = Color?.find(c => c.colorId === colorId);
-              console.log("Selected color", selectedColor?.colorCategories?.length);
-              return ((selectedColor?.colorCategories?.length || 0) + 1);
-            })(),
-            status:  editing ? selectedItem?.status ? 'active' : 'inactive'   : 'active',
+            status: !!selectedItem ? (selectedItem?.status ? 'active' : 'inactive') : 'active',
           }}
           onSubmit={handleAddColourSubCategorySubmit}
-          fields={ColorSubCategoryFields({ group:ColorGroup, users: suppliers, totalCount: selectedItem?.subCategories?.length || 0 })}
+          fields={ColorSubCategoryFields({
+            groupOptions: colorGroupOptions,
+            supplierOptions: supplierOptions,
+            totalCount: selectedItem?.subCategories?.length || 0,
+          })}
         />
       )}
 
-      {addColourSubCategoryItemModal && (
+      {modalOpen === 'colorItem' && (
         <ColorCategoryItemModel
-          open={addColourSubCategoryItemModal}
+          open={modalOpen === 'colorItem'}
           onClose={() => {
-            setEditing(false);
             setSelectedItem(null);
-            setAddColourSubCategoryItemModal(false);
+            setModalOpen(null);
           }}
-          selectedColorSubCategoryId={colorSubCategoryId}
-          categoryItem={selectedItem}
+          selectedColorCategoryId={colorSubCategoryId}
+          categoryItem={color
+            ?.find(c =>
+              c.colorCategories?.find(cat =>
+                cat.items?.find(item => item.colorItemId === selectedItem?.colorItemId)
+              )
+            )
+            ?.colorCategories?.find(cat =>
+              cat.items?.find(item => item.colorItemId === selectedItem?.colorItemId)
+            )
+            ?.items?.find(item => item.colorItemId === selectedItem?.colorItemId)}
         />
       )}
 
       {/* Copy flows through ActionDialogmodel */}
-      {copyModal.open && (
+      {['copyColor', 'copyCategory', 'copyColorItem'].includes(modalOpen) && (
         <ActionDialogmodel
           title={
-            copyModal.type === 'category'
-              ? 'Copy Colour Category'
-              : copyModal.type === 'subcategory'
-                ? 'Copy Subcategory'
-                : 'Copy Subcategory Item'
+            modalOpen === 'copyColor'
+              ? 'Copy Colour'
+              : modalOpen === 'copyCategory'
+                ? 'Copy Category'
+                : 'Copy Category Item'
           }
-          open={copyModal.open}
+          open={['copyColor', 'copyCategory', 'copyColorItem'].includes(modalOpen)}
           loading={loading}
           onCancel={() => {
-            setCopyModal(prev => ({ ...prev, open: false }));
-            setCopySubCategoryList([]);
-            setCopySelectedCategoryId('');
+            setModalOpen(null);
             setSelectedItem(null);
           }}
           initialValues={copyInitialValues}
           onSubmit={handleCopySubmit}
-          fields={buildCopyFields()}
+          fields={copyFields}
         />
       )}
 
-      {deleteModal.open && (
+      {['deleteColor', 'deleteCategory', 'deleteColorItem'].includes(modalOpen) && (
         <ConfirmationModal
           loading={loading}
-          open={deleteModal.open}
+          open={['deleteColor', 'deleteCategory', 'deleteColorItem'].includes(modalOpen)}
           onClose={() => {
             setSelectedItem(null);
-            setDeleteModal({ open: false, type: deleteModal.type });
+            setModalOpen(null);
           }}
           onConfirm={() =>
             handleDelete(
-              deleteModal.type,
-              deleteModal.type === 'subCategoryItem'
-                ? selectedItem?.colorItemId
-                : deleteModal.type === 'subCategory'
-                  ? selectedItem?.colorCategoryId
-                  : selectedItem?.colorId
+              modalOpen,
+              selectedItem?.colorId,
+              selectedItem?.colorCategoryId,
+              selectedItem?.colorItemId
             )
           }
           type="danger"
           title="Confirm Deletion"
           message={
-            deleteModal.type === 'subCategoryItem'
+            modalOpen === 'deleteColorItem'
               ? 'Are you sure you want to delete this Sub Category Item? Deleting it will also remove it from any associated subcategory.'
-              : deleteModal.type === 'subCategory'
+              : modalOpen === 'deleteCategory'
                 ? 'Are you sure you want to delete this Sub Category? Deleting it will also remove it from any associated Color category.'
                 : 'Are you sure you want to delete this Category? Deleting it will also remove all the subcategories and subcategory items under it and affect any places where it is used.'
           }
