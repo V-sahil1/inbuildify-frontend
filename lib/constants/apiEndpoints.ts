@@ -255,6 +255,9 @@ class API_ENDPOINTS {
   //holiday
   public static HOLIDAY = '/holiday';
   public static HOLIDAY_RECALCULATE_DATE = `/recalculate-date`;
+
+  //contact
+  public static CONTACT = '/contact';
   // common
   public static FUNCTIONALITY_BASE = '/functionality';
   public static TIMEZONE_BASE = '/timezone';

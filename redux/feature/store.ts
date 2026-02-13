@@ -35,6 +35,7 @@ import supplierReducer from './supplier/supplierSlice';
 import costCenterReducer from './costCenter/costCenterSlice';
 import surveyTemplateReducer from './surveyTemplate/surveyTemplateSlice';
 import holidayReducer from './holiday/holidaySlice';
+import contactReducer from './contacts/contactSlice';
 
 const authPersistConfig = {
   key: 'auth',
@@ -75,7 +76,8 @@ const appReducer = combineReducers({
   drive: driveReducer,
   costCenter: costCenterReducer,
   surveyTemplate: surveyTemplateReducer,
-  holiday:holidayReducer
+  holiday: holidayReducer,
+  contact: contactReducer,
 });
 
 const rootReducer = (state: ReturnType<typeof appReducer> | undefined, action: any) => {
