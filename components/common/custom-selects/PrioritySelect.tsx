@@ -1,9 +1,9 @@
 import CustomSelect from './CustomSelect';
 
 const priorityOptions = [
-  { value: 'high', label: 'High' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'low', label: 'Low' },
+  { value: 'High', label: 'High' },
+  { value: 'Medium', label: 'Medium' },
+  { value: 'Low', label: 'Low' },
 ];
 
 interface PrioritySelectProps {

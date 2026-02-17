@@ -112,10 +112,12 @@ export interface TaskDetails {
   description: string;
   assignee: { id: string; name: string };
   attachment?: { uid: string; name: string; url?: string }[];
+  attachFiles?: File;
   status?: 'completed' | 'yettostart' | 'working' | 'Skipped' | 'Cancelled' | '';
   contactName?: string;
   phone?: string;
   tags?: string[];
+  linkTo?: string;
 }
 
 export interface SmsDetails {

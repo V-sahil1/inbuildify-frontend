@@ -25,7 +25,7 @@ import leadCreateFields from '../formFields/LeadCreateFields';
 import { JobCreationModal } from '../common/Models/JobModal';
 import { CreateTaskModal } from '../common/Models/CreatetaskModel';
 import { CreateAppointmentModal } from '../common/Models/createAppointementModel';
-import { setTask } from '@redux/feature/task/taskSlice';
+import { createTask } from '@redux/feature/task/taskThunk';
 
 export default function Header({
   toggleMobileNav,
@@ -57,7 +57,7 @@ export default function Header({
   });
   const dispatch = useAppDispatch();
   const router = useRouter();
-  
+
   useEffect(() => {
     const sidebarElement = document.querySelector('.admin-wrapper');
     if (sidebarElement) {
@@ -126,7 +126,7 @@ export default function Header({
     try {
       setIsLogoutLoading(true);
       const response = await dispatch(logoutThunk()).unwrap();
-      message.success("logout successfully");
+      message.success('logout successfully');
       dispatch(logout());
       persister.purge();
       router.push(SystemRoutes.LOGIN);
@@ -142,8 +142,12 @@ export default function Header({
     setCreateMenuOpen('');
   };
 
-  const handleTaskSubmit = (values) => {
-    dispatch(setTask({ ...values.task, taskId: Math.floor(Math.random() * 100000).toString() }))
+  const handleTaskSubmit = async values => {
+    try {
+      await dispatch(createTask(values?.task)).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to save task');
+    }
     setCreateMenuOpen('');
   };
   const renderCreateModal = () => {
@@ -189,7 +193,7 @@ export default function Header({
             onClose={() => setCreateMenuOpen('')}
             title="Create Appointment"
             loading={false}
-            onSubmit={()=>{}}
+            onSubmit={() => {}}
             initialData={undefined}
           />
         );

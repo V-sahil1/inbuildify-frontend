@@ -1,20 +1,30 @@
-import { Button, Input, Popconfirm, Tag, Tooltip } from 'antd';
+import { Input, message, Popconfirm, Select, Tag } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import { TaskDetails } from 'data/types';
 import DateFilterDropdown from '../common/custom-selects/DateFilterDropdown';
 import PrioritySelect from '../common/custom-selects/PrioritySelect';
-import StatusSelect from '../common/custom-selects/StatusSelect';
 import AssigneeSelect from '../common/custom-selects/AssigneeSelect';
-import CustomAvtar from '../common/CustomAvtar';
 import { IconCalendarX, IconExternalLink } from '@tabler/icons-react';
 import Link from 'next/link';
-import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import { setTask, updateTask } from '@redux/feature/task/taskSlice';
+import { useAppDispatch } from '@hooks/redux';
 import { contactData } from '@/components/common/TimeLineComponents/CreateTaskCard';
-export const TaskColumn = (selectedTask, filters, setParams) => {
-  const { task } = useAppSelector(state => state.task) || { task: [] };
+import { createTask, updateTask } from '@redux/feature/task/taskThunk';
+import { ITask } from '@redux/feature/task/ITaskStates';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
+import { formDataGenerator } from '@lib/utils/formDataGenerator';
+import TooltipButton from '../common/TooltipButton';
+import CustomAvtar from '../common/CustomAvtar';
+
+export const TaskColumn = (selectedTask, filters, setParams, setModalOpen) => {
   const dispatch = useAppDispatch();
-  const columns: ColumnsType<TaskDetails> = [
+  const statusOptions = [
+    { label: 'Completed', value: 'Completed' },
+    { label: 'Yet To Start', value: 'Yet to Start' },
+    { label: 'In Progress', value: 'In Progress' },
+    { label: 'Skipped', value: 'Skipped' },
+    { label: 'Cancelled', value: 'Cancelled' },
+  ];
+
+  const columns: ColumnsType<ITask> = [
     {
       title: (
         <>
@@ -28,7 +38,7 @@ export const TaskColumn = (selectedTask, filters, setParams) => {
       render: (_, record) => (
         <>
           <p className={record.status === 'Cancelled' ? 'line-through' : ''}>{record.name}</p>
-          <Tag color="purple">{contactData.filter(i => i.id === record.contactName)[0]?.type}</Tag>
+          <Tag color="purple">{contactData.filter(i => i.id === record.name)[0]?.type}</Tag>
         </>
       ),
     },
@@ -45,7 +55,6 @@ export const TaskColumn = (selectedTask, filters, setParams) => {
       dataIndex: 'contactName',
       key: 'contactName',
       width: 200,
-      render: (_, record) => contactData.filter(i => i.id === record.contactName)[0]?.name,
     },
     {
       title: (
@@ -57,7 +66,6 @@ export const TaskColumn = (selectedTask, filters, setParams) => {
       dataIndex: 'phone',
       key: 'phone',
       width: 150,
-      render: (_, record) => contactData.filter(i => i.id === record.contactName)[0]?.phone,
     },
     {
       title: (
@@ -69,7 +77,6 @@ export const TaskColumn = (selectedTask, filters, setParams) => {
               setParams({ dueDate: dateString });
             }}
             onClear={() => {
-              console.log('Cleared date filter');
               setParams({ dueDate: '' });
             }}
           />
@@ -98,7 +105,11 @@ export const TaskColumn = (selectedTask, filters, setParams) => {
       title: (
         <div className="flex flex-col">
           <span>Status</span>
-          <StatusSelect value={filters.status} onChange={value => setParams({ status: value })} />
+          <Select
+            value={filters.status}
+            onChange={value => setParams({ status: value })}
+            options={statusOptions}
+          />
         </div>
       ),
       dataIndex: 'status',
@@ -115,30 +126,58 @@ export const TaskColumn = (selectedTask, filters, setParams) => {
           />
         </>
       ),
-      dataIndex: 'assignee',
-      key: 'assignee',
+      dataIndex: 'assigneeName',
+      key: 'assigneeName',
       width: 200,
       render: (_, record) => (
         <div className="flex justify-between items-center">
-          <CustomAvtar label={record?.assignee?.name} />
+          <CustomAvtar label={record?.assigneeName[0]} />
           {record.status === 'yettostart' && (
             <Popconfirm title="Do you want to cancel?" okText="Yes" cancelText="No">
-              <Tooltip title="Cancel Task">
-                <Button type="text" icon={<IconCalendarX size={15} />} />
-              </Tooltip>
+              <TooltipButton
+                type="text"
+                title="Cancel Task"
+                icon={<IconCalendarX size={15} />}
+                onClick={e => {
+                  e.stopPropagation();
+                }}
+              />
             </Popconfirm>
           )}
           <Link href={`job/jobStatus/${record.taskId}`}>
-            <IconExternalLink size={22} className="cursor-pointer text-blue" />
+            <IconExternalLink
+              size={22}
+              className="cursor-pointer text-blue"
+              onClick={e => {
+                e.stopPropagation();
+              }}
+            />
           </Link>
         </div>
       ),
     },
   ];
-  function handleSubmit(values) {
-    selectedTask
-      ? dispatch(updateTask({ id: selectedTask.taskId, value: values }))
-      : dispatch(setTask({ ...values, taskId: Math.floor(Math.random() * 100000).toString() }));
+  async function handleSubmit(values) {
+    try {
+      if (selectedTask) {
+        const { isUpdated, updatedFields } = getUpdatedFields(values, selectedTask);
+        const formData = formDataGenerator(updatedFields);
+        if (!isUpdated) {
+          message.warning('No changes detected');
+          return;
+        }
+        await dispatch(updateTask({ id: selectedTask.taskId, data: formData })).unwrap();
+        message.success('Task updated successfully');
+        setModalOpen(null);
+      } else {
+        const formData = formDataGenerator(values);
+        await dispatch(createTask(formData)).unwrap();
+        message.success('Task created successfully');
+      }
+    } catch (error) {
+      message.error(error || 'Failed to save ');
+    }
   }
-  return { columns, taskData: task, taskSubmit: handleSubmit };
+
+  return { columns, taskSubmit: handleSubmit };
 };
