@@ -15,7 +15,7 @@ export const useStateHook = (countryId?: string) => {
   const isSuccess = status === Status.SUCCESS;
 
   useEffect(() => {
-    if (status === Status.IDLE || countryId) {
+    if (status === Status.IDLE) {
       fetchStates();
     }
   }, [countryId, dispatch, status]);

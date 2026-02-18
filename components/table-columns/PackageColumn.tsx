@@ -6,6 +6,7 @@ import { useAppDispatch } from '@hooks/redux';
 import { createPackage, updatePackage } from '@redux/feature/package/packageThunk';
 import TooltipButton from '../common/TooltipButton';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
+import RangeSelect from '../common/custom-selects/RangeSelect';
 
 export const PackageColumn = ({
   filters,
@@ -105,11 +106,7 @@ export const PackageColumn = ({
       title: (
         <div className="flex flex-col">
           <span className="font-medium">Label</span>
-          <Select
-            options={[{ label: 'All', value: 'all' }]}
-            value={filters.label}
-            onChange={value => setParams({ label: value })}
-          />
+          <RangeSelect value={filters.label} onChange={value => setParams({ label: value })} />
         </div>
       ),
       dataIndex: 'range',
