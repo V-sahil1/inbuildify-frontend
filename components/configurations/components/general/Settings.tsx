@@ -41,12 +41,13 @@ const SettingsPage = () => {
   const onFinish = async (values: GeneralSetting) => {
     try {
       const { isUpdated, updatedFields } = getUpdatedFields<GeneralSetting>(values, settings);
-      if (isUpdated) {
+      if (!isUpdated) {
         message.info('No changes detected');
         return;
       }
       await dispatch(updateGeneralSetting({ data: updatedFields, id: settings.id })).unwrap();
       message.success('Setting updated successfully');
+      setIsChange(false);
     } catch (error) {
       message.error(error || 'Failed to update setting');
     }
@@ -67,9 +68,7 @@ const SettingsPage = () => {
     <>
       <Paragraph className="text-font-color-100 text-[13px] mt-1">{mainText}</Paragraph>
       {noteText && (
-        <Paragraph className="text-xs mt-[-6px] text-font-color-400">
-          Note: {noteText}
-        </Paragraph>
+        <Paragraph className="text-xs mt-[-6px] text-font-color-400">Note: {noteText}</Paragraph>
       )}
     </>
   );

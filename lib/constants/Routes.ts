@@ -46,6 +46,7 @@ class SystemRoutes {
   public static PRICELIST = `/pricelist`;
   public static ESTATE = `/estate`;
   public static SUPPLIER = `/supplier`;
+
   public static SURVEY_TEMPLATE = `/survey_template`;
   public static USER_GROUP = `/user-group`;
   public static QUOTATION_FORMAT = `/quotation-format`;
@@ -53,6 +54,11 @@ class SystemRoutes {
   public static UTILIZATION_GRAPH = `/reports/workflow/utililization-graph`;
   public static SALES_DASHBOARD = `/sales`;
   public static COLOR_GENERATE_DOCUMENT = `${this.COLOR}/generate-doc`;
+  public static CONSTRUCTION_TYPE = `${this.ADMIN}/${this.CONSTRUCTION}/?tab=types`;
+  public static CONSTRUCTION_STAGE = `${this.ADMIN}/${this.CONSTRUCTION}/?tab=stages`;
+  public static CONSTRUCTION_OPTION = `${this.ADMIN}/${this.CONSTRUCTION}/?tab=options`;
+  public static CONSTRUCTION_INSPETION_CHECKLIST = `${this.ADMIN}/${this.CONSTRUCTION}/?tab=inspection-checklist`;
+  public static SALES_DWELLING_TYPE = `${this.ADMIN}/sales/?tab=dwelling-type`;
 }
 
 export default SystemRoutes;

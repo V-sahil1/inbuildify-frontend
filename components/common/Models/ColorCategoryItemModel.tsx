@@ -43,6 +43,8 @@ import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import { ColorItem, ColorItemCustomField } from '@redux/feature/color/iColourState';
 import { useColorTypeHook } from '@hooks/useColorTypeHook';
 import { values } from 'lodash';
+import NoDataMessage from '../NoDataMessage';
+import SystemRoutes from '@lib/constants/Routes';
 
 interface ColorCategoryItemModalProps {
   open: boolean;
@@ -319,7 +321,14 @@ const ColorCategoryItemModel = ({
                       label="Supplier"
                       rules={[{ required: true, message: 'Please select a supplier' }]}
                     >
-                      <Select showSearch placeholder="Select supplier" options={supplierOptions} />
+                      <Select
+                        showSearch
+                        placeholder="Select supplier"
+                        options={supplierOptions}
+                        notFoundContent={
+                          <NoDataMessage label="Supplier" link={SystemRoutes.SUPPLIER} />
+                        }
+                      />
                     </Form.Item>
                   </Col>
                   <Col xs={12} md={12}>

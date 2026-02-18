@@ -5,7 +5,7 @@ import { Status } from '@lib/constants/enum';
 import { message } from 'antd';
 import { fetchAllConstructionStage } from '@redux/feature/admin/construction/constructionStage/constructionStageThunk';
 
-export const useConstructionStageHook = () => {
+export const useConstructionStageHook = (construction_type_id?: string) => {
   const dispatch = useAppDispatch();
   const { stage, status } = useAppSelector(
     (state: RootState) => state.construction.constructionStage
@@ -13,7 +13,9 @@ export const useConstructionStageHook = () => {
 
   const fetchConstructionStageData = async () => {
     try {
-      await dispatch(fetchAllConstructionStage()).unwrap();
+      await dispatch(
+        fetchAllConstructionStage(!!construction_type_id && { construction_type_id })
+      ).unwrap();
     } catch (error) {
       message.error(error || 'Failed to fetch buiders');
     }

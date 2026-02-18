@@ -2,7 +2,14 @@ import api from '@lib/constants/api';
 import API_ENDPOINTS from '@lib/constants/apiEndpoints';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { ApiResponse } from '../../../auth/IAuthState';
-import { JobPredecessorTask, JobProcessFunctionality, JobProcessStage, JobProcessSubStage, JobProcessSubTask, JobProcessTask } from './IJobProcessState';
+import {
+  JobPredecessorTask,
+  JobProcessFunctionality,
+  JobProcessStage,
+  JobProcessSubStage,
+  JobProcessSubTask,
+  JobProcessTask,
+} from './IJobProcessState';
 
 export const fetchJobProcessFunctionality = createAsyncThunk(
   'jobProcessFunctionality/fetch',
@@ -145,12 +152,13 @@ export const updateJobProcessSubStages = createAsyncThunk(
 
 export const deleteJobProcessSubStages = createAsyncThunk(
   'jobProcessSubStage/delete',
-  async (subStageId: string, { rejectWithValue }) => {
+  async (payload: { subStageId: string; taskId?: string }, { rejectWithValue }) => {
     try {
       const response = await api.delete<ApiResponse<JobProcessSubStage>>(
-        `${API_ENDPOINTS.JOB_PROCESS_SUB_STAGE_BASE}/${subStageId}`
+        `${API_ENDPOINTS.JOB_PROCESS_SUB_STAGE_BASE}/${payload.subStageId}`,
+        { data: { taskId: payload.taskId } }
       );
-      return subStageId;
+      return payload.subStageId;
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -158,6 +166,18 @@ export const deleteJobProcessSubStages = createAsyncThunk(
 );
 
 // job process task
+export const fetchAllJobProcessSubStageTasks = createAsyncThunk(
+  'jobProcessSubStageTask/fetchAll',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get<ApiResponse<JobProcessTask[]>>(API_ENDPOINTS.JOB_TASK_ONLY);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 export const fetchJobProcessSubStageTasks = createAsyncThunk(
   'jobProcessSubStageTask/fetch',
   async (subStageId: string, { rejectWithValue }) => {
@@ -191,10 +211,7 @@ export const createJobProcessTasks = createAsyncThunk(
 
 export const updateJobProcessTasks = createAsyncThunk(
   'jobProcessSubStageTask/update',
-  async (
-    payload: { taskId: string; data: Partial<JobProcessTask> },
-    { rejectWithValue }
-  ) => {
+  async (payload: { taskId: string; data: Partial<JobProcessTask> }, { rejectWithValue }) => {
     try {
       const response = await api.put<ApiResponse<JobProcessTask>>(
         `${API_ENDPOINTS.JOB_TASK_BASE}/${payload.taskId}`,
@@ -221,7 +238,7 @@ export const deleteJobProcessTasks = createAsyncThunk(
   }
 );
 
-// job process sub task 
+// job process sub task
 export const createJobProcessSubTasks = createAsyncThunk(
   'jobProcessSubTask/create',
   async (payload: { taskId: string; data: Partial<JobProcessSubTask> }, { rejectWithValue }) => {
@@ -241,10 +258,7 @@ export const createJobProcessSubTasks = createAsyncThunk(
 
 export const updateJobProcessSubTasks = createAsyncThunk(
   'jobProcessSubTask/update',
-  async (
-    payload: { subTaskId: string; data: Partial<JobProcessSubTask> },
-    { rejectWithValue }
-  ) => {
+  async (payload: { subTaskId: string; data: Partial<JobProcessSubTask> }, { rejectWithValue }) => {
     try {
       const response = await api.put<ApiResponse<JobProcessSubTask>>(
         `${API_ENDPOINTS.JOB_SUB_TASK_BASE}/${payload.subTaskId}`,
@@ -259,12 +273,12 @@ export const updateJobProcessSubTasks = createAsyncThunk(
 
 export const deleteJobProcessSubTasks = createAsyncThunk(
   'jobProcessSubTask/delete',
-  async (payload:{subTaskId: string,taskId:string}, { rejectWithValue }) => {
+  async (payload: { subTaskId: string; taskId: string }, { rejectWithValue }) => {
     try {
       const response = await api.delete<ApiResponse<JobProcessSubTask>>(
         `${API_ENDPOINTS.JOB_SUB_TASK_BASE}/${payload.subTaskId}`
       );
-      return {subTaskId: payload.subTaskId,taskId:payload.taskId};
+      return { subTaskId: payload.subTaskId, taskId: payload.taskId };
     } catch (error) {
       return rejectWithValue(error.message);
     }

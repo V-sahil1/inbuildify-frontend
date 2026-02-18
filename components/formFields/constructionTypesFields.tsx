@@ -1,5 +1,7 @@
 import { FormField } from '../common/Models/ActionDialogModel';
 import { CustomBulkSelect } from '../common/CustomBulkSelect';
+import NoDataMessage from '../common/NoDataMessage';
+import SystemRoutes from '@lib/constants/Routes';
 
 export const constructionTypesFields = (
   dwellingTypeOptions: { label: string; value: string }[] = []
@@ -17,7 +19,15 @@ export const constructionTypesFields = (
       name: 'dwellingType',
       type: 'custom',
       placeholder: 'Select dwelling type',
-      render: <CustomBulkSelect options={dwellingTypeOptions} onChange={() => {}} />,
+      render: (
+        <CustomBulkSelect
+          options={dwellingTypeOptions}
+          onChange={() => {}}
+          notFoundContent={
+            <NoDataMessage label="Dwelling Type" link={SystemRoutes.SALES_DWELLING_TYPE} />
+          }
+        />
+      ),
       rules: [{ required: true, message: 'Please select a dwelling type' }],
     },
     {

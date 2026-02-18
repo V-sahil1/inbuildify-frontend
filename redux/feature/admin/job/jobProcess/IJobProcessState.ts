@@ -16,7 +16,7 @@ export interface JobProcessStage {
   name: string;
   sortOrder: number;
   dependentStage: Entity;
-  functionality: JobProcessFunctionality;
+  functionality: Entity;
   isWorkflow: boolean;
 }
 
@@ -31,7 +31,7 @@ export interface JobProcessSubTask {
   subTaskId: string;
   name: string;
   sortOrder: number;
-  jobProcessTask?:Entity
+  jobProcessTask?: Entity;
 }
 
 export interface JobProcessTask {
@@ -55,6 +55,7 @@ export interface IJobSettingState {
   jobProcessSubStage: JobProcessSubStage[];
   jobProcessTask: JobProcessTask[];
   jobProcessSubTask: JobProcessSubTask[];
+  jobProcessAllTask: JobProcessTask[];
   status: {
     fetchFunctionality: Status;
     fetchbPredecessorTask: Status;

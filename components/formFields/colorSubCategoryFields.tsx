@@ -1,6 +1,8 @@
 import { numberRules, settingNameRules } from '@lib/constants/formInputValidations';
 import { FormField } from '../common/Models/ActionDialogModel';
 import { CustomBulkSelect } from '../common/CustomBulkSelect';
+import NoDataMessage from '../common/NoDataMessage';
+import SystemRoutes from '@lib/constants/Routes';
 
 interface ColorSubCategoryFieldsProps {
   totalCount?: number;
@@ -47,6 +49,7 @@ export const ColorSubCategoryFields = (
           options={supplierOptions}
           onChange={() => {}}
           placeholder="Select the Suppliers"
+          notFoundContent={<NoDataMessage label="Supplier" link={SystemRoutes.SUPPLIER} />}
         />
       ),
       rules: [{ required: true, message: 'Please select suppliers' }],
@@ -85,6 +88,7 @@ export const ColorSubCategoryFields = (
           options={groupOptions}
           onChange={() => {}}
           placeholder="Select the Group"
+          notFoundContent={<NoDataMessage label="Color Group" link={SystemRoutes.COLOR_GROUP} />}
         />
       ),
       rules: [{ required: true, message: 'Please select group' }],

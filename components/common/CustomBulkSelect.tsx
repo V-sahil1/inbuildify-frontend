@@ -1,5 +1,6 @@
 import { Select, Tag } from 'antd';
 import { useMemo } from 'react';
+import NoDataMessage from './NoDataMessage';
 // onchange is set to required as it is being calling in the form item and the form item managing the onchange and values prop
 // when using only without the form item need to handkle the onchnage
 // in form item pass as empty function for onchange
@@ -9,6 +10,9 @@ export const CustomBulkSelect = ({
   options,
   className = '',
   placeholder = '',
+  notFoundContent = null,
+  noDataLabel = '',
+  noDataLink = '',
 }) => {
   const ALL_VALUE = 'All';
   const allValues = useMemo(() => options.map(o => o.value), [options]);
@@ -30,6 +34,11 @@ export const CustomBulkSelect = ({
     ? { label: 'Unselect All', value: ALL_VALUE }
     : { label: 'Select All', value: ALL_VALUE };
 
+  const defaultNotFoundContent =
+    noDataLabel && noDataLink ? <NoDataMessage label={noDataLabel} link={noDataLink} /> : null;
+
+  const selectOptions = options.length > 0 ? [dynamicSelectAllOption, ...options] : options;
+
   return (
     <Select
       mode="multiple"
@@ -38,7 +47,7 @@ export const CustomBulkSelect = ({
       placeholder={placeholder}
       maxTagCount={2}
       filterOption={(input, option) =>
-        (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+        (option?.label?.toString() ?? '').toLowerCase().includes(input.toLowerCase())
       }
       tagRender={props => {
         if (props.value === ALL_VALUE) return null;
@@ -48,8 +57,9 @@ export const CustomBulkSelect = ({
           </Tag>
         );
       }}
-      options={[dynamicSelectAllOption, ...options]}
+      options={selectOptions}
       className={className}
+      notFoundContent={notFoundContent || defaultNotFoundContent}
     />
   );
 };

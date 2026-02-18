@@ -10,17 +10,19 @@ import {
 } from '@redux/feature/admin/sales/quotation/quotationThunk';
 import { quotationSetting } from '@redux/feature/admin/sales/quotation/IQuotationState';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
-import { fetchPricelist } from '@redux/feature/admin/sales/pricelist/pricelistThunk';
+import NoDataMessage from '@/components/common/NoDataMessage';
+import SystemRoutes from '@lib/constants/Routes';
+import { fetchPricelistMaster } from '@redux/feature/masterPriceList/masterPriceListThunk';
 
 export const Quotation: React.FC = () => {
   const [form] = Form.useForm();
   const dispatch = useAppDispatch();
   const { quotationSetting, status } = useAppSelector(state => state.sales.quotation);
-  const { pricelist, status: pricelistStatus } = useAppSelector(state => state.sales.pricelist);
+  const { priceMaster, status: priceMasterStatus } = useAppSelector(state => state.masterPriceList);
   const isDisabled = status.update === Status.PENDING;
   const pricelistOptions =
-    pricelist &&
-    pricelist.map(item => ({
+    priceMaster &&
+    priceMaster.map(item => ({
       label: item.name,
       value: item.priceListId,
     }));
@@ -28,13 +30,13 @@ export const Quotation: React.FC = () => {
     if (status.fetch === Status.IDLE) {
       fetchData();
     }
-    if (pricelistStatus === Status.IDLE) {
+    if (priceMasterStatus.priceMaster === Status.IDLE) {
       getPriceclist();
     }
     if (quotationSetting) {
       form.setFieldsValue(quotationSetting);
     }
-  }, [status.fetch, pricelistStatus]);
+  }, [status.fetch, priceMasterStatus.priceMaster]);
   async function fetchData() {
     try {
       await dispatch(fetchQuotationSetting()).unwrap();
@@ -44,7 +46,7 @@ export const Quotation: React.FC = () => {
   }
   async function getPriceclist() {
     try {
-      await dispatch(fetchPricelist()).unwrap();
+      await dispatch(fetchPricelistMaster({})).unwrap();
     } catch (error) {
       message.error(error || 'Failed to fetch price list');
     }
@@ -91,7 +93,12 @@ export const Quotation: React.FC = () => {
           label="Make Contact Details mandatory to Issue Quotation"
           name="mandatoryContactDetails"
           valuePropName="checked"
-          extra={<p className='text-font-color-400'>When contact details are marked as mandatory, user cannot issue quotation (Preview / Email).</p>}
+          extra={
+            <p className="text-font-color-400">
+              When contact details are marked as mandatory, user cannot issue quotation (Preview /
+              Email).
+            </p>
+          }
         >
           <Switch />
         </Form.Item>
@@ -100,7 +107,12 @@ export const Quotation: React.FC = () => {
           label="Make Dwelling Type as Mandatory"
           name="mandatoryDwellingType"
           valuePropName="checked"
-          extra={<p className='text-font-color-400'>User can only view or add pricelist items in quotation after selecting the dwelling type.</p>}
+          extra={
+            <p className="text-font-color-400">
+              User can only view or add pricelist items in quotation after selecting the dwelling
+              type.
+            </p>
+          }
         >
           <Switch />
         </Form.Item>
@@ -109,7 +121,11 @@ export const Quotation: React.FC = () => {
           label="Make Sketch Number as Mandatory"
           name="mandatorySketchNumber"
           valuePropName="checked"
-          extra={<p className='text-font-color-400'>Lead cannot be closed won without a Sketch Number for the approved quotation.</p>}
+          extra={
+            <p className="text-font-color-400">
+              Lead cannot be closed won without a Sketch Number for the approved quotation.
+            </p>
+          }
         >
           <Switch />
         </Form.Item>
@@ -166,7 +182,12 @@ export const Quotation: React.FC = () => {
           label="Auto approve Quote when close sale as Won?"
           name="autoApproveOnSalesWon"
           valuePropName="checked"
-          extra={<p className='text-font-color-400'>Enabling this option will automatically update the quotation status to Approved when closing a lead/opportunity as WON.</p>}
+          extra={
+            <p className="text-font-color-400">
+              Enabling this option will automatically update the quotation status to Approved when
+              closing a lead/opportunity as WON.
+            </p>
+          }
         >
           <Switch />
         </Form.Item>
@@ -183,7 +204,12 @@ export const Quotation: React.FC = () => {
           label="Hide Price to Customer"
           name="hidePriceToCustomer"
           valuePropName="checked"
-          extra={<p className='text-font-color-400'>The quotations issued by the builders checked below will hide the price of individual variations and facades from their customers.</p>}
+          extra={
+            <p className="text-font-color-400">
+              The quotations issued by the builders checked below will hide the price of individual
+              variations and facades from their customers.
+            </p>
+          }
         >
           <Switch />
         </Form.Item>
@@ -192,7 +218,12 @@ export const Quotation: React.FC = () => {
           label="Enable Estimated Price Range"
           name="enableEstimatedPriceRange"
           valuePropName="checked"
-          extra={<p className='text-font-color-400'>When this toggle is enabled, user can view the price range while viewing the quotation in PDF.</p>}
+          extra={
+            <p className="text-font-color-400">
+              When this toggle is enabled, user can view the price range while viewing the quotation
+              in PDF.
+            </p>
+          }
         >
           <Switch />
         </Form.Item>
@@ -241,7 +272,12 @@ export const Quotation: React.FC = () => {
         <Form.Item
           label="Extend Validity from Updated Date"
           name="extendValidityFromUpdatedDate"
-          extra={<p className='text-font-color-400'>Quotation validity period from the quotation updated date, including weekends and holidays.</p>}
+          extra={
+            <p className="text-font-color-400">
+              Quotation validity period from the quotation updated date, including weekends and
+              holidays.
+            </p>
+          }
           rules={[{ required: true, message: 'Please enter extend validity from updated date' }]}
         >
           <Input placeholder="No days given" disabled={isDisabled} />
@@ -267,7 +303,12 @@ export const Quotation: React.FC = () => {
               name="defaultPricelistId"
               rules={[{ required: true, message: 'Please select default pricelist' }]}
             >
-              <Select showSearch options={pricelistOptions} disabled={isDisabled} />
+              <Select
+                showSearch
+                options={pricelistOptions}
+                disabled={isDisabled}
+                notFoundContent={<NoDataMessage label="Pricelist" link={SystemRoutes.PRICELIST} />}
+              />
             </Form.Item>
           </div>
         </div>

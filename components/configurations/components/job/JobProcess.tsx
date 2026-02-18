@@ -151,7 +151,7 @@ export const JobProcess: React.FC = () => {
           fields={jobProcessStageFields(jobProcessFunctionalityOptions)}
           initialValues={{
             ...modal.stage,
-            functionalityId: modal.stage?.functionality?.name,
+            functionalityId: modal.stage?.functionality?.id,
           }}
           isEditing={modal.type === 'edit'}
         />

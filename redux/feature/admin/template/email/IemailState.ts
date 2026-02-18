@@ -8,7 +8,7 @@ export interface IEmailTemplate {
   subject: string | null;
   emailContent: string;
   additionalRecipientUsers: string[] | Entity[];
-  additionalRecipientGroups: string[];
+  additionalRecipientGroups: string[] | Entity[];
   isActive: boolean;
 }
 

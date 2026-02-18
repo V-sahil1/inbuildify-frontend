@@ -189,6 +189,7 @@ class API_ENDPOINTS {
     return `${this.JOB_PROCESS_STAGE}/${stageId}/sub-stages`;
   };
   public static JOB_TASK_BASE = `${this.JOB_PROCESS_BASE}/tasks`;
+  public static JOB_TASK_ONLY = `${this.JOB_PROCESS_BASE}/tasks-only`;
   public static JOB_PROCESS_TASK = (subStageId: string) => {
     return `${this.JOB_PROCESS_SUB_STAGE_BASE}/${subStageId}/tasks`;
   };

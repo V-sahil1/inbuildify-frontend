@@ -74,9 +74,9 @@ const JobCommissionSlice = createSlice({
     //outgoing commission
     builder.addCase(createOutgoingCommission.pending, (state, action) => {
       if (action.meta.arg.commissionType === 'outgoing') {
-        state.outgoingCommissionStatus.fetch = Status.PENDING;
+        state.outgoingCommissionStatus.update = Status.PENDING;
       } else {
-        state.incomingCommissionStatus.fetch = Status.PENDING;
+        state.incomingCommissionStatus.update = Status.PENDING;
       }
     });
     builder.addCase(createOutgoingCommission.fulfilled, (state, action) => {
@@ -86,6 +86,13 @@ const JobCommissionSlice = createSlice({
       } else {
         state.incomingCommission.unshift(action.payload);
         state.incomingCommissionStatus.update = Status.SUCCESS;
+      }
+    });
+    builder.addCase(createOutgoingCommission.rejected, (state, action) => {
+      if (action.meta.arg.commissionType === 'outgoing') {
+        state.outgoingCommissionStatus.update = Status.ERROR;
+      } else {
+        state.incomingCommissionStatus.update = Status.ERROR;
       }
     });
 
@@ -109,12 +116,19 @@ const JobCommissionSlice = createSlice({
         state.incomingCommissionStatus.fetch = Status.SUCCESS;
       }
     });
+    builder.addCase(fetchAllOutgoingCommission.rejected, (state, action) => {
+      if (action.meta.arg.commission_type === 'outgoing') {
+        state.outgoingCommissionStatus.fetch = Status.ERROR;
+      } else {
+        state.incomingCommissionStatus.fetch = Status.ERROR;
+      }
+    });
 
     builder.addCase(updateOutgoingCommission.pending, (state, action) => {
       if (action.meta.arg.commissionType === 'outgoing') {
-        state.outgoingCommissionStatus.fetch = Status.PENDING;
+        state.outgoingCommissionStatus.update = Status.PENDING;
       } else {
-        state.incomingCommissionStatus.fetch = Status.PENDING;
+        state.incomingCommissionStatus.update = Status.PENDING;
       }
     });
     builder.addCase(updateOutgoingCommission.fulfilled, (state, action) => {
@@ -128,6 +142,13 @@ const JobCommissionSlice = createSlice({
           i.jobCommissionId === action.payload.data.jobCommissionId ? action.payload.data : i
         );
         state.incomingCommissionStatus.update = Status.SUCCESS;
+      }
+    });
+    builder.addCase(updateOutgoingCommission.rejected, (state, action) => {
+      if (action.meta.arg.commissionType === 'outgoing') {
+        state.outgoingCommissionStatus.update = Status.ERROR;
+      } else {
+        state.incomingCommissionStatus.update = Status.ERROR;
       }
     });
 

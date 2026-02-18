@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { Table, Button, message, Dropdown, Switch } from 'antd';
 import { IconPencil, IconPlus, IconTrash } from '@tabler/icons-react';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
-import { inspectionChecklistSettingFields } from '@/components/formFields/InspectionChecklistSettingFields';
 import { ChecklistHeader } from '../ChecklistHeader';
 import { ConfirmationContentModal } from '@/components/common/ConfirmationContentModal';
 import { toggleExpand } from '@redux/feature/admin/construction/InspectionChecklist/InspectionchecklistSlice';
@@ -21,6 +20,7 @@ import { fetchAllConstructionOption } from '@redux/feature/admin/construction/co
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import { InspectionChecklistType } from '@redux/feature/admin/construction/InspectionChecklist/InspectionChecklistState';
 import TooltipButton from '@/components/common/TooltipButton';
+import { inspectionChecklistSettingFields } from '@/components/formFields/InspectionChecklistSettingFields';
 
 export const InspectionChecklist: React.FC = () => {
   const dispatch = useAppDispatch();

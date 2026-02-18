@@ -59,9 +59,10 @@ export const EmailTemplate = () => {
     },
     {
       title: 'Additional Recipients',
-      dataIndex: 'additionalRecipients',
-      key: 'additionalRecipients',
+      dataIndex: 'additionalRecipientUsers',
+      key: 'additionalRecipientUsers',
       width: '20%',
+      render: value => value?.map(i => i.name).join(', ') || '',
     },
     {
       title: 'Actions',
@@ -89,7 +90,9 @@ export const EmailTemplate = () => {
           templateId={EditTemplate.templateEmailId}
           templateName={EditTemplate.name}
           template={{
-            additionalRecipientUsers: EditTemplate.additionalRecipientUsers || [],
+            additionalRecipientUsers: EditTemplate.additionalRecipientUsers?.map(i => i.id) || [],
+            additionalRecipientGroups:
+              EditTemplate?.additionalRecipientGroups?.map(i => i.id) || [],
             subject: EditTemplate.subject || '',
             emailContent: EditTemplate.emailContent || '',
           }}

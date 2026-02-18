@@ -12,6 +12,9 @@ import { updateEmailTemplate } from '@redux/feature/admin/template/email/emailTh
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import { Status } from '@lib/constants/enum';
 import { IEmailTemplate } from '@redux/feature/admin/template/email/IemailState';
+import { useUserGroupHook } from '@hooks/useUserGroupHook';
+import NoDataMessage from '@/components/common/NoDataMessage';
+import SystemRoutes from '@lib/constants/Routes';
 
 export const EmailTemplateForm = ({
   templateId,
@@ -25,14 +28,15 @@ export const EmailTemplateForm = ({
   onCancel: () => void;
 }) => {
   const { userOptions } = useUsersHook();
+  const { userGroupOptions } = useUserGroupHook();
   const dispatch = useAppDispatch();
   const { status } = useAppSelector(state => state.template.emailTemplate);
   const inputRef = useRef<TextAreaRef>(null);
-
   const [formData, setFormData] = useState({
     additionalRecipientUsers: template?.additionalRecipientUsers.map(i => i.id) || [],
     subject: template?.subject || '',
     emailContent: template?.emailContent || '',
+    additionalRecipientGroups: template?.additionalRecipientGroups.map(i => i.id) || [],
   });
 
   // Memoize original template for comparison
@@ -41,6 +45,7 @@ export const EmailTemplateForm = ({
       additionalRecipientUsers: template?.additionalRecipientUsers || [],
       subject: template?.subject || '',
       emailContent: template?.emailContent || '',
+      additionalRecipientGroups: template?.additionalRecipientGroups || [],
     }),
     [template]
   );
@@ -51,6 +56,7 @@ export const EmailTemplateForm = ({
         additionalRecipientUsers: template?.additionalRecipientUsers || [],
         subject: template?.subject || '',
         emailContent: template?.emailContent || '',
+        additionalRecipientGroups: template?.additionalRecipientGroups || [],
       });
     }
   }, [template]);
@@ -102,14 +108,25 @@ export const EmailTemplateForm = ({
 
       <div className="flex flex-col gap-2">
         <label className="min-w-[160px]">Additional Recipient</label>
-        <Select
-          className="flex-1"
-          mode="multiple"
-          placeholder="Select recipient"
-          value={formData.additionalRecipientUsers}
-          onChange={value => updateField('additionalRecipientUsers', value)}
-          options={userOptions}
-        />
+        <div className="flex gap-2 ">
+          <Select
+            className="min-w-[25%]"
+            mode="multiple"
+            placeholder="Select recipient Users"
+            value={formData.additionalRecipientUsers}
+            onChange={value => updateField('additionalRecipientUsers', value)}
+            options={userOptions}
+          />
+          <Select
+            className="min-w-[25%]"
+            mode="multiple"
+            placeholder="Select recipient Groups"
+            value={formData.additionalRecipientGroups}
+            onChange={value => updateField('additionalRecipientGroups', value)}
+            options={userGroupOptions}
+            notFoundContent={<NoDataMessage label="User Group" link={SystemRoutes.USER_GROUP} />}
+          />
+        </div>
       </div>
 
       <div className="flex flex-col gap-2">

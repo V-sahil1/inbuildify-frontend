@@ -1,4 +1,6 @@
 import { FormField } from '../common/Models/ActionDialogModel';
+import SystemRoutes from '@lib/constants/Routes';
+import NoDataMessage from '../common/NoDataMessage';
 
 export const inspectionChecklistSettingFields = (
   type: 'checklist' | 'section' | 'deleteChecklist' | 'deleteSection',
@@ -22,6 +24,7 @@ export const inspectionChecklistSettingFields = (
         type: 'select',
         options: options,
         rules: [{ required: true, message: 'Please enter options' }],
+        notFoundContent: <NoDataMessage label="Option" link={SystemRoutes.CONSTRUCTION_OPTION} />,
       },
       {
         label: 'Section Title',
@@ -29,6 +32,9 @@ export const inspectionChecklistSettingFields = (
         type: 'select',
         options: sectionOptions,
         rules: [{ required: true, message: 'Please enter section title' }],
+        notFoundContent: (
+          <NoDataMessage label="Section" link={SystemRoutes.CONSTRUCTION_INSPETION_CHECKLIST} />
+        ),
       },
       {
         label: 'Sort',

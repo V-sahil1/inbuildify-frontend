@@ -8,7 +8,6 @@ import quotationReducer from './quotation/quotationSlice';
 import hlPackageSettingReducer from './hlPackage/hlPackageSlice';
 import rangeReducer from './range/rangeSlice';
 import dwellingTypeReducer from './dwellingType/dwellingTypeSlice';
-import pricelistReducer from './pricelist/pricelistSlice';
 
 export const salesReducer = combineReducers({
   process: processReducer,
@@ -20,5 +19,4 @@ export const salesReducer = combineReducers({
   hlPackageSetting: hlPackageSettingReducer,
   range: rangeReducer,
   dwellingType: dwellingTypeReducer,
-  pricelist: pricelistReducer,
 });

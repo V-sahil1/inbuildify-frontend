@@ -1,6 +1,8 @@
 import { Button, Drawer, Select } from 'antd';
+import { useState } from 'react';
 
-export const JobStageDeleteDrawer = ({ open, onClose, onSubmit }) => {
+export const JobStageDeleteDrawer = ({ open, onClose, onSubmit, taskOptions }) => {
+  const [taskId, setTaskId] = useState('');
   return (
     <Drawer title="Deleting the Stage" open={open} onClose={onClose} size="large">
       <div className="text-font-color">
@@ -23,11 +25,17 @@ export const JobStageDeleteDrawer = ({ open, onClose, onSubmit }) => {
         <p className="my-3">Predecessor Mapping</p>
         <div className="flex justify-between items-center">
           <p>Request Working Drawer</p>
-          <Select placeholder="Please Select" />
+          <Select
+            placeholder="Please Select"
+            value={taskId}
+            options={taskOptions}
+            onChange={value => setTaskId(value)}
+            className="min-w-100"
+          />
         </div>
         <div className="flex gap-2 justify-end mt-3">
           <Button onClick={onClose}>Cancel</Button>
-          <Button onClick={onSubmit}>Delete</Button>
+          <Button onClick={() => onSubmit(taskId)}>Delete</Button>
         </div>
       </div>
     </Drawer>

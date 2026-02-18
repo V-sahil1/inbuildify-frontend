@@ -2,7 +2,6 @@ import api from '@lib/constants/api';
 import API_ENDPOINTS from '@lib/constants/apiEndpoints';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { ApiResponse } from '../../../auth/IAuthState';
-import { Pagination } from '../../general/surveyor/ISurveyorState';
 import { ConstructionStage } from './IConstructionStageState';
 
 export const createStage = createAsyncThunk(
@@ -24,10 +23,11 @@ export const createStage = createAsyncThunk(
 
 export const fetchAllConstructionStage = createAsyncThunk(
   'stage/fetchAll',
-  async (_, { rejectWithValue }) => {
+  async (params: { construction_type_id?: string } = {}, { rejectWithValue }) => {
     try {
       const response = await api.get<ApiResponse<ConstructionStage[]>>(
-        API_ENDPOINTS.CONSTRUCTION_STAGE
+        API_ENDPOINTS.CONSTRUCTION_STAGE,
+        { params }
       );
       return response.data;
     } catch (error) {

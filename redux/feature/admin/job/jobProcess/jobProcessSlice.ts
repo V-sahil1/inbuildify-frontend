@@ -18,6 +18,7 @@ import {
   createJobProcessSubTasks,
   updateJobProcessSubTasks,
   deleteJobProcessSubTasks,
+  fetchAllJobProcessSubStageTasks,
 } from './jobProcessThunk';
 import { IJobSettingState } from './IJobProcessState';
 
@@ -28,6 +29,7 @@ const initialState: IJobSettingState = {
   jobProcessSubStage: [],
   jobProcessTask: [],
   jobProcessSubTask: [],
+  jobProcessAllTask: [],
   status: {
     fetchFunctionality: Status.IDLE,
     fetchbPredecessorTask: Status.IDLE,
@@ -199,6 +201,19 @@ const JobProcessSlice = createSlice({
       });
 
     // Task
+
+    builder
+      .addCase(fetchAllJobProcessSubStageTasks.pending, state => {
+        state.status.task.fetch = Status.PENDING;
+      })
+      .addCase(fetchAllJobProcessSubStageTasks.fulfilled, (state, action) => {
+        state.jobProcessAllTask = action.payload;
+        state.status.task.fetch = Status.SUCCESS;
+      })
+      .addCase(fetchAllJobProcessSubStageTasks.rejected, state => {
+        state.status.task.fetch = Status.ERROR;
+      });
+
     builder
       .addCase(fetchJobProcessSubStageTasks.pending, state => {
         state.status.task.fetch = Status.PENDING;
@@ -217,6 +232,7 @@ const JobProcessSlice = createSlice({
       })
       .addCase(createJobProcessTasks.fulfilled, (state, action) => {
         state.jobProcessTask.push(action.payload);
+        state.jobProcessAllTask.push(action.payload);
         state.status.task.create = Status.SUCCESS;
       })
       .addCase(createJobProcessTasks.rejected, state => {
@@ -247,6 +263,9 @@ const JobProcessSlice = createSlice({
       .addCase(deleteJobProcessTasks.fulfilled, (state, action) => {
         state.jobProcessTask = state.jobProcessTask.filter(
           task => task.jobProcessTaskId !== action.payload
+        );
+        state.jobProcessAllTask = state.jobProcessAllTask.filter(
+          i => i.jobProcessTaskId !== action.payload
         );
         state.status.task.delete = Status.SUCCESS;
       })

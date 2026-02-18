@@ -16,6 +16,7 @@ import {
   createJobProcessSubStages,
   updateJobProcessSubStages,
   deleteJobProcessSubStages,
+  fetchAllJobProcessSubStageTasks,
 } from '@redux/feature/admin/job/jobProcess/jobProcessThunk';
 import { Status } from '@lib/constants/enum';
 import { JobStageDeleteDrawer } from './JobStageDeleteDrawer';
@@ -28,13 +29,17 @@ interface JobWorkflowDrawerProps {
 
 export const JobWorkflowDrawer: React.FC<JobWorkflowDrawerProps> = ({ open, onClose, record }) => {
   const dispatch = useAppDispatch();
-  const { jobProcessSubStage = [], status } = useAppSelector(state => state.job.jobProcess);
+  const {
+    jobProcessSubStage = [],
+    status,
+    jobProcessAllTask,
+  } = useAppSelector(state => state.job.jobProcess);
   const [modal, setModal] = useState<{ type: string; subStage: JobProcessSubStage }>(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [existingJobModal, setExistingJobModal] = useState(false);
   const loading =
     status.subStage.create === Status.PENDING || status.subStage.update === Status.PENDING;
-
+  const taskOptions = jobProcessAllTask?.map(i => ({ label: i.name, value: i.jobProcessTaskId }));
   const fetchJobProcessSubStageData = async () => {
     try {
       await dispatch(fetchJobProcessSubStages(record.stageId)).unwrap();
@@ -44,9 +49,18 @@ export const JobWorkflowDrawer: React.FC<JobWorkflowDrawerProps> = ({ open, onCl
     }
   };
 
+  const fetchAllTask = async () => {
+    try {
+      await dispatch(fetchAllJobProcessSubStageTasks()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch all task');
+    }
+  };
+
   useEffect(() => {
     if (status.subStage.fetch === Status.IDLE) fetchJobProcessSubStageData();
-  }, [status.subStage.fetch]);
+    if (status.task.fetch === Status.IDLE) fetchAllTask();
+  }, [status.subStage.fetch, status.task.fetch]);
 
   const handleModal = (type: string, value?: JobProcessSubStage) => {
     setModal({ type: type, subStage: value });
@@ -75,9 +89,9 @@ export const JobWorkflowDrawer: React.FC<JobWorkflowDrawerProps> = ({ open, onCl
     }
   };
 
-  const handleDeleteSubStage = async (subStageId: string) => {
+  const handleDeleteSubStage = async (subStageId: string, taskId?: string) => {
     try {
-      await dispatch(deleteJobProcessSubStages(subStageId)).unwrap();
+      await dispatch(deleteJobProcessSubStages({ subStageId, taskId })).unwrap();
       setModal(null);
     } catch (error) {
       message.error(error || 'Failed to delete sub stage');
@@ -231,7 +245,8 @@ export const JobWorkflowDrawer: React.FC<JobWorkflowDrawerProps> = ({ open, onCl
         <JobStageDeleteDrawer
           open={modal.type === 'delete'}
           onClose={() => setModal(null)}
-          onSubmit={() => handleDeleteSubStage(modal?.subStage?.subStageId)}
+          onSubmit={taskId => handleDeleteSubStage(modal?.subStage?.subStageId, taskId)}
+          taskOptions={taskOptions}
         />
       )}
     </Drawer>

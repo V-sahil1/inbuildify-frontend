@@ -17,8 +17,6 @@ import { IconCheck, IconEdit, IconPlus, IconX, IconTrash } from '@tabler/icons-r
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { RootState } from '@redux/feature/store';
 import { Status } from '@lib/constants/enum';
-import { fetchAllType } from '@redux/feature/admin/construction/constructionType/constructionTypeThunk';
-import { fetchAllConstructionStage } from '@redux/feature/admin/construction/constructionStage/constructionStageThunk';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import {
   createChecklistItem,
@@ -26,13 +24,16 @@ import {
   fetchAllChecklistItem,
   updateChecklistItem,
 } from '@redux/feature/admin/general/checklist/checklistThunk';
-import { ConstructionType } from '@redux/feature/admin/construction/constructionType/IConstructionTypeState';
-import { ConstructionStage } from '@redux/feature/admin/construction/constructionStage/IConstructionStageState';
+
 import {
   ChecklistItemType,
   ChecklistType,
 } from '@redux/feature/admin/general/checklist/IChecklistState';
 import TooltipButton from '@/components/common/TooltipButton';
+import { useConstructionTypeHook } from '@hooks/useConstructionTypeHook';
+import { useConstructionStageHook } from '@hooks/useConstrutcionStageHook';
+import NoDataMessage from '@/components/common/NoDataMessage';
+import SystemRoutes from '@lib/constants/Routes';
 
 interface ChecklistDrawerProps {
   open: boolean;
@@ -42,12 +43,7 @@ interface ChecklistDrawerProps {
 
 const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({ open, onClose, record }) => {
   const dispatch = useAppDispatch();
-  const { type, status: typeStatus } = useAppSelector(
-    (state: RootState) => state.construction.constructionType
-  );
-  const { stage, status: stageStatus } = useAppSelector(
-    (state: RootState) => state.construction.constructionStage
-  );
+
   const { checklistItem, checklistItemStatus } = useAppSelector(
     (state: RootState) => state.general.checklist
   );
@@ -64,47 +60,27 @@ const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({ open, onClose, record
     type: string;
     sortOrder: string;
   } | null>(null);
-  const typeOption =
-    type &&
-    type.map((item: ConstructionType) => ({
-      label: item.typesName,
-      value: item.constructionTypeId,
-    }));
-  const stageOption =
-    stage &&
-    stage.map((item: ConstructionStage) => ({
-      label: item.stageName,
-      value: item.constructionStage,
-    }));
+  const { typeOptions } = useConstructionTypeHook();
+  const { stageOptions } = useConstructionStageHook(filters?.constructionType);
 
   useEffect(() => {
     fetchData();
     if (checklistItem && checklistItem.length > 0) {
       record && setData(checklistItem.filter(item => item.checklistId === record?.checklistId));
     }
-    if (type.length > 0 && stage.length > 0) {
+    if (typeOptions.length > 0 && stageOptions.length > 0) {
       setFilters({
-        constructionType: type && type[0].constructionTypeId,
-        stage: stage && stage[0].constructionStage,
+        constructionType: typeOptions[0].value,
+        stage: stageOptions[0].value,
       });
     }
-  }, [typeStatus.fetch, stageStatus.fetch, record, checklistItem]);
+  }, [record, checklistItem]);
+
+  const handleConstructionTypeChange = (value: string) => {
+    setFilters(prev => ({ ...prev, constructionType: value, stage: '' }));
+  };
 
   async function fetchData() {
-    if (typeStatus.fetch === Status.IDLE) {
-      try {
-        await dispatch(fetchAllType()).unwrap();
-      } catch (error) {
-        message.error(error || 'failed to fetch type');
-      }
-    }
-    if (stageStatus.fetch === Status.IDLE) {
-      try {
-        await dispatch(fetchAllConstructionStage()).unwrap();
-      } catch (error) {
-        message.error(error || 'Failed to fetch stages');
-      }
-    }
     if (
       checklistItemStatus.fetch === Status.IDLE ||
       (checklistItem &&
@@ -379,8 +355,11 @@ const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({ open, onClose, record
           <Select
             style={{ width: 200 }}
             value={filters.constructionType}
-            onChange={val => setFilters(p => ({ ...p, constructionType: val }))}
-            options={typeOption}
+            onChange={handleConstructionTypeChange}
+            options={typeOptions}
+            notFoundContent={
+              <NoDataMessage label="Construction Type" link={SystemRoutes.CONSTRUCTION_TYPE} />
+            }
           />
         </Form.Item>
 
@@ -389,7 +368,10 @@ const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({ open, onClose, record
             style={{ width: 200 }}
             value={filters.stage}
             onChange={val => setFilters(p => ({ ...p, stage: val }))}
-            options={stageOption}
+            options={stageOptions}
+            notFoundContent={
+              <NoDataMessage label="Construction Stages" link={SystemRoutes.CONSTRUCTION_STAGE} />
+            }
           />
         </Form.Item>
 

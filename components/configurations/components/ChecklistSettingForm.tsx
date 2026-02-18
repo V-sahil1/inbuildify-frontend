@@ -35,6 +35,8 @@ import { useComplianceTypeHook } from '@hooks/useComplianceTypeHook';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import TooltipButton from '@/components/common/TooltipButton';
 import { useSupplierTypeOptions } from '@hooks/useSupplierTypeHook';
+import NoDataMessage from '@/components/common/NoDataMessage';
+import SystemRoutes from '@lib/constants/Routes';
 
 export function ChecklistSettingForm({
   setModalOpen,
@@ -140,7 +142,14 @@ export function ChecklistSettingForm({
               </Col>
               <Col flex="1" className="p-2 rounded">
                 <Form.Item name="supplierTypeId">
-                  <Select placeholder="Select Type" className="w-full" options={activeOptions} />
+                  <Select
+                    placeholder="Select Type"
+                    className="w-full"
+                    options={activeOptions}
+                    notFoundContent={
+                      <NoDataMessage label="Supplier Type" link={SystemRoutes.SUPPLIER} />
+                    }
+                  />
                 </Form.Item>
               </Col>
               <Col flex="1" className="p-2 rounded">
@@ -254,6 +263,10 @@ export function ChecklistSettingForm({
                       options={costCenterOptions || []}
                       placeholder="Select Cost Center"
                       onChange={() => {}}
+                      notFoundContent={
+                        <NoDataMessage label="Cost Center" link={SystemRoutes.COST_CENTER} />
+                      }
+                      className="min-w-100"
                     />
                   </Form.Item>
                 </div>
@@ -266,6 +279,13 @@ export function ChecklistSettingForm({
                       options={constructionOptions || []}
                       placeholder="Select Construction Options"
                       onChange={() => {}}
+                      notFoundContent={
+                        <NoDataMessage
+                          label="Construction Option"
+                          link={SystemRoutes.CONSTRUCTION_OPTION}
+                        />
+                      }
+                      className="min-w-100"
                     />
                   </Form.Item>
                 </div>

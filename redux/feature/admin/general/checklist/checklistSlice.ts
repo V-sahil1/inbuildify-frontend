@@ -78,6 +78,9 @@ const checklistSlice = createSlice({
       state.checklistItem.unshift(action.payload);
       state.checklistItemStatus.create = Status.SUCCESS;
     });
+    builder.addCase(createChecklistItem.rejected, state => {
+      state.checklistItemStatus.create = Status.ERROR;
+    });
 
     builder.addCase(fetchAllChecklistItem.pending, state => {
       state.checklistItemStatus.fetch = Status.PENDING;
@@ -85,6 +88,9 @@ const checklistSlice = createSlice({
     builder.addCase(fetchAllChecklistItem.fulfilled, (state, action) => {
       state.checklistItem = action.payload;
       state.checklistItemStatus.fetch = Status.SUCCESS;
+    });
+    builder.addCase(fetchAllChecklistItem.rejected, state => {
+      state.checklistItemStatus.fetch = Status.ERROR;
     });
 
     builder.addCase(updateChecklistItem.pending, state => {
@@ -96,6 +102,9 @@ const checklistSlice = createSlice({
       );
       state.checklistItemStatus.create = Status.SUCCESS;
     });
+    builder.addCase(updateChecklistItem.rejected, state => {
+      state.checklistItemStatus.create = Status.ERROR;
+    });
 
     builder.addCase(deleteChecklistItem.pending, state => {
       state.checklistItemStatus.create = Status.PENDING;
@@ -103,6 +112,9 @@ const checklistSlice = createSlice({
     builder.addCase(deleteChecklistItem.fulfilled, (state, action) => {
       state.checklistItem = state.checklistItem.filter(i => i.checklistItemId !== action.payload);
       state.checklistItemStatus.create = Status.SUCCESS;
+    });
+    builder.addCase(deleteChecklistItem.rejected, state => {
+      state.checklistItemStatus.create = Status.ERROR;
     });
   },
 });
