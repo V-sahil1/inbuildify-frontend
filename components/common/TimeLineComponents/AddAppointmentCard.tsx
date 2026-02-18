@@ -40,13 +40,13 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
 
   const dispatch = useAppDispatch();
   useEffect(() => {
-    if (status.users === Status.IDLE) {
+    if (status.users.fetch === Status.IDLE) {
       fetchuserData();
     }
   }, [status.users]);
   const fetchuserData = async () => {
     try {
-      await dispatch(getUsersThunk()).unwrap();
+      await dispatch(getUsersThunk({})).unwrap();
     } catch (error) {
       message.error(error || 'failed to fetch the users');
     }

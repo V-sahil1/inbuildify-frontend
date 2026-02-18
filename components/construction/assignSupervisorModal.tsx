@@ -17,14 +17,14 @@ const AssignSupervisorDropdown = ({ onAssign, assignedSupervisor }) => {
 
   const fetchuserData = async () => {
     try {
-      await dispatch(getUsersThunk()).unwrap();
+      await dispatch(getUsersThunk({})).unwrap();
     } catch (error) {
       message.error(error || 'failed to fetch the users');
     }
   };
 
   useEffect(() => {
-    if (status.users === Status.IDLE) {
+    if (status.users.fetch === Status.IDLE) {
       fetchuserData();
     }
   }, [status]);

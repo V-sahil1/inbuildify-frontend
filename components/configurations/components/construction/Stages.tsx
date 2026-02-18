@@ -41,7 +41,7 @@ export function Stages() {
 
   const fetchStageData = async () => {
     try {
-      await dispatch(fetchAllConstructionStage()).unwrap();
+      await dispatch(fetchAllConstructionStage({})).unwrap();
     } catch (error) {
       message.error(error || 'Failed to fetch construction stage');
     }

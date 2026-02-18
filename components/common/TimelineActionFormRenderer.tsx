@@ -12,6 +12,7 @@ import {
   TaskDetails,
   SmsDetails,
 } from 'data/types';
+import { ITask } from '@redux/feature/task/ITaskStates';
 
 interface TimelineActionFormRendererProps {
   activeAction: ActionType;
@@ -19,7 +20,7 @@ interface TimelineActionFormRendererProps {
   loading: boolean;
   handleSaveNote: (note: NoteDetails) => void;
   handleSaveAppointment: (appointment: AppointmentDetails) => void;
-  handleSaveTask: (task: TaskDetails) => void;
+  handleSaveTask: (task: ITask) => void;
   handleSaveSms: (sms: SmsDetails) => void;
   handleClose: () => void;
 }

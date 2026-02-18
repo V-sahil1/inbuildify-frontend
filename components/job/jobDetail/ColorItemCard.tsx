@@ -13,19 +13,21 @@ import {
   Col,
   Empty,
 } from 'antd';
-import { SubCategoryItem } from '@redux/feature/color/iColourState';
+// import { SubCategoryItem } from '@redux/feature/color/iColourState';
 import Loading from '@/components/common/Loading';
 
 const { Title, Text } = Typography;
 
 interface Props {
-  data: SubCategoryItem[];
+  data: any[]; //SubCategoryItem[]
   isGridView: boolean;
   loading: boolean;
 }
 
 // Extracted card content to avoid duplication
-const CardContent = ({ item, isGridView }: { item: SubCategoryItem; isGridView: boolean }) => (
+const CardContent = (
+  { item, isGridView }: { item: any; isGridView: boolean } // item:SubCategoryItem
+) => (
   <>
     <div className={isGridView ? 'flex flex-col h-full' : 'flex flex-col md:flex-row gap-6 h-full'}>
       {/* Image Carousel */}

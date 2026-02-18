@@ -10,17 +10,17 @@ export const useSupplierHook = () => {
 
   const fetchSuppliers = async () => {
     try {
-      await dispatch(fetchAllSuppliers()).unwrap();
+      await dispatch(fetchAllSuppliers({})).unwrap();
     } catch (error) {
       message.error(error || 'Failed to fetch supplier');
     }
   };
 
   useEffect(() => {
-    if (status.fetch === Status.IDLE) {
+    if (status.supplier.fetch === Status.IDLE) {
       fetchSuppliers();
     }
-  }, [status.fetch]);
+  }, [status.supplier.fetch]);
 
   const supplierOptions = useMemo(() => {
     if (!suppliers || suppliers.length === 0) {

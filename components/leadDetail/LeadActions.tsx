@@ -16,6 +16,7 @@ import TimelineActionFormRenderer from '../common/TimelineActionFormRenderer';
 import { useAppDispatch } from '@hooks/redux';
 import { getActionsThunk } from '@redux/feature/action/actionThunk';
 import Loading from '../common/Loading';
+import { ITask } from '@redux/feature/task/ITaskStates';
 
 const actionItems: MenuProps['items'] = [
   { key: 'addNotes', label: 'Add Notes' },
@@ -113,7 +114,7 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
   };
 
   // Save from CreateTaskCard
-  const handleSaveTask = async (task: TaskDetails) => {
+  const handleSaveTask = async (task: ITask) => {
     setFormLoading(true);
     try {
       await handleSaveTimelineCard(

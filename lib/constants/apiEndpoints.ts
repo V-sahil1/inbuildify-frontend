@@ -274,6 +274,9 @@ class API_ENDPOINTS {
   public static CONTRACT_FORMAT = '/contract-format';
   public static CONTRACT_FORMAT_SECTION = '/contract-section';
 
+  //task
+  public static TASK_BASE = '/task'
+
   // common
   public static FUNCTIONALITY_BASE = '/functionality';
   public static TIMEZONE_BASE = '/timezone';

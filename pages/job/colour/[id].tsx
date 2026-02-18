@@ -3,7 +3,7 @@ import ColorFilter from '@/components/job/jobDetail/ColorFilter';
 import { ColorItemCard } from '@/components/job/jobDetail/ColorItemCard';
 import ColorSideMenu from '@/components/job/jobDetail/ColorSideMenu';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import { fetchColourSubCategoryItems } from '@redux/feature/color/colorThunk';
+import { fetchColourItems } from '@redux/feature/color/colorThunk';
 import { toggleExpandColourCategoryItem } from '@redux/feature/color/ColourSlice';
 import { Button, Dropdown, message, Select } from 'antd';
 import React, { useEffect, useState } from 'react';
@@ -29,7 +29,7 @@ const Index = () => {
     email: false,
   });
   const [isGridView, setIsGridView] = useState(true);
-  const { ColorCategory } = useAppSelector(state => state.colour);
+  const { color } = useAppSelector(state => state.colour);
   const { range, status } = useAppSelector(state => state.types);
   const [subCategoryItem, setSubCategoryItem] = useState([]);
   const [confirmationModal, setConfirmationModal] = useState(false);
@@ -59,11 +59,11 @@ const Index = () => {
   }) => {
     setSelectedSubCategory(selectedSubCategory.subCategoryId);
     setLoading(true);
-    const category = ColorCategory.find(
-      item => item.colorCategoryId === selectedSubCategory.categoryId
+    const category = color.find(
+      item => item.colorId === selectedSubCategory.categoryId
     );
-    const subCategory = category?.subCategories.find(
-      item => item.colorSubCategoryId === selectedSubCategory.subCategoryId
+    const subCategory = category?.colorCategories.find(
+      item => item.colorCategoryId === selectedSubCategory.subCategoryId
     );
 
     if (!subCategory) return;
@@ -72,18 +72,18 @@ const Index = () => {
       try {
         dispatch(
           toggleExpandColourCategoryItem({
-            colorSubCategoryId: subCategory.colorSubCategoryId,
+            colorSubCategoryId: subCategory.colorCategoryId,
             colorCategoryId: subCategory.colorCategoryId,
           })
         );
 
         const response = await dispatch(
-          fetchColourSubCategoryItems({
-            colorSubCategoryId: subCategory.colorSubCategoryId,
+          fetchColourItems({
             colorCategoryId: subCategory.colorCategoryId,
+            colorId: subCategory.colorId,
           })
         ).unwrap();
-        setSubCategoryItem(response?.data?.colorItems || []);
+        setSubCategoryItem(response?.colorItems || []);
       } catch (error) {
         message.error(error || 'Failed to fetch colour sub category');
       }
@@ -98,11 +98,11 @@ const Index = () => {
     console.log('Selected template:', selectedTemplate);
     setSelectedTemplate(templateKey);
   };
-  const addedCount = ColorCategory?.reduce((total, category) => {
-    if (!category.subCategories) return total;
+  const addedCount = color?.reduce((total, category) => {
+    if (!category.colorCategories) return total;
     return (
       total +
-      category.subCategories.reduce((subTotal, subCategory) => {
+      category.colorCategories.reduce((subTotal, subCategory) => {
         if (!subCategory.items) return subTotal;
         return subTotal + subCategory.items.filter(item => item).length;
       }, 0)

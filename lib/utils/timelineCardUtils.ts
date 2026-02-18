@@ -9,6 +9,7 @@ import {
   TimelineCardProps,
 } from 'data/types';
 import { formDataGenerator } from './formDataGenerator';
+import { ITask } from '@redux/feature/task/ITaskStates';
 
 interface EditingItem {
   item: TimelineCardProps;
@@ -22,7 +23,7 @@ export const handleSaveTimelineCard = async <
     : T extends 'Appointments'
       ? AppointmentDetails
       : T extends 'Tasks'
-        ? TaskDetails
+        ? ITask
         : SmsDetails,
 >(
   leadId: string,

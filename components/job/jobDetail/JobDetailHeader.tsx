@@ -255,7 +255,6 @@ const JobDetailHeader = () => {
           onSubmit={() => {
             setManageUserOpen(false);
           }}
-          initialValue={[]}
           loading={false}
           isLinkContact={true}
           showContact={false}

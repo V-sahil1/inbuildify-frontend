@@ -1,6 +1,7 @@
 import { FilterOption } from '@/components/common/FilterTabs';
 import TimelineActionFormRenderer from '@/components/common/TimelineActionFormRenderer';
 import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineActionsBar';
+import { ITask } from '@redux/feature/task/ITaskStates';
 // import TimelineCard from '@/components/common/TimeLineComponents/TimelineCard';
 // import { handleSaveTimelineCard } from '@lib/utils/timelineCardUtils';
 import { Empty, MenuProps } from 'antd';
@@ -9,7 +10,6 @@ import {
   AppointmentDetails,
   NoteDetails,
   SmsDetails,
-  TaskDetails,
   TimelineCardProps,
 } from 'data/types';
 import React, { useState } from 'react';
@@ -134,7 +134,7 @@ const JobAction = () => {
   // Save handlers (integrate logic later)
   const handleSaveNote = (note: NoteDetails) => {};
   const handleSaveAppointment = (appointment: AppointmentDetails) => {};
-  const handleSaveTask = (task: TaskDetails) => {};
+  const handleSaveTask = (task: ITask) => {};
   const handleSaveSms = (sms: SmsDetails) => {};
 
   return (

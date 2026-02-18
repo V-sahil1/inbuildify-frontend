@@ -13,6 +13,7 @@ export interface ITask {
   linkType: string;
   attachFiles: string;
   assigneeName?:string
+  actionId?:string
 }
 export interface TaskQueryParams {
   page?: number;

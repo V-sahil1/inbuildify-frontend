@@ -18,10 +18,10 @@ const useTransferLeadFields = (): readonly ContractorFormField[] => {
   const { users, status } = useAppSelector(state => state?.user);
   const [isLoading, setIsLoading] = useState(false);
   const fetchUsers = useCallback(async () => {
-    if (isLoading || status.users !== Status.IDLE) return;
+    if (isLoading || status.users.fetch !== Status.IDLE) return;
     setIsLoading(true);
     try {
-      await dispatch(getUsersThunk()).unwrap();
+      await dispatch(getUsersThunk({})).unwrap();
     } catch {
       message.error('Failed to fetch users');
     } finally {
