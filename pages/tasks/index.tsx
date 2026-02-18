@@ -1,29 +1,57 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Table, Input, Button, Space } from 'antd';
+import { Table, Button, Space, message } from 'antd';
 import { IconFilter, IconDownload, IconBell } from '@tabler/icons-react';
 import { exportToExcel } from '@lib/utils/exportToExcel';
 import SystemRoutes from '@lib/constants/Routes';
 import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineActionsBar';
 import { debouncedURL } from '@lib/utils/debounceURL';
-import { TaskDetails } from 'data/types';
 import { CreateTaskModal } from '@/components/common/Models/CreatetaskModel';
 import { TaskColumn } from '@/components/table-columns/TaskColumn';
-import { contactData } from '@/components/common/TimeLineComponents/CreateTaskCard';
+import { fetchAllTask } from '@redux/feature/task/taskThunk';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { getPaginationConfig } from '@lib/utils/getPaginationConfig';
+import { ITask } from '@redux/feature/task/ITaskStates';
 const TaskTable: React.FC = () => {
+  const dispatch = useAppDispatch();
   const router = useRouter();
   const [modalOpen, setModalOpen] = useState<'create' | null>(null);
   const [selectedTask, setSelectedTask] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const { debouncedUpdateURL, setParams, filters } = debouncedURL({
     filtersKey: ['name', 'contactName', 'phone', 'dueDate', 'priority', 'status', 'assignedTo'],
   });
-  const { columns, taskData, taskSubmit } = TaskColumn(selectedTask, filters, setParams);
+  const { columns, taskSubmit } = TaskColumn(selectedTask, filters, setParams, setModalOpen);
+  const { tasks, pagination } = useAppSelector(state => state.task);
+  const PAGE_SIZE = 10;
+  const fetchTask = async (page: number = currentPage, limit: number = PAGE_SIZE) => {
+    try {
+      const params = {
+        page,
+        limit,
+        name: filters?.name || undefined,
+        status: filters?.status || undefined,
+        priority: filters?.priority || undefined,
+        assignedTo: filters?.assignedTo || undefined,
+        due_date: filters?.dueDate || undefined,
+        assignee_id: filters?.assignedTo || undefined,
+      };
+      await dispatch(fetchAllTask(params)).unwrap();
+    } catch (error) {
+      message.error(error || 'Faied to fetch all tasks');
+    }
+  };
+  useEffect(() => {
+    fetchTask();
+  }, [filters, currentPage]);
+
   useEffect(() => {
     return () => {
       debouncedUpdateURL.cancel();
     };
   }, [debouncedUpdateURL]);
-  const handleExport = (data: TaskDetails[]) => {
+
+  const handleExport = (data: ITask[]) => {
     const column = {
       name: 'Name',
       contactName: 'Contact Name',
@@ -31,7 +59,7 @@ const TaskTable: React.FC = () => {
       dueDate: 'Due Date',
       priority: 'Priority',
       status: 'Status',
-      assignedTo: 'Assignee',
+      assigneeName: 'Assignee',
     };
     exportToExcel({
       data,
@@ -53,15 +81,15 @@ const TaskTable: React.FC = () => {
     label: string;
     count: number;
   }> = [
-    { type: 'today', label: 'Today', count: taskData.length },
-    { type: 'tomorrow', label: 'Tomorrow', count: taskData.length },
-    { type: 'this-week', label: 'This Week', count: taskData.length },
-    { type: 'next-week', label: 'Next Week', count: taskData.length },
-    { type: 'overdue', label: 'Overdue', count: taskData.length },
+    { type: 'today', label: 'Today', count: tasks.length },
+    { type: 'tomorrow', label: 'Tomorrow', count: tasks.length },
+    { type: 'this-week', label: 'This Week', count: tasks.length },
+    { type: 'next-week', label: 'Next Week', count: tasks.length },
+    { type: 'overdue', label: 'Overdue', count: tasks.length },
     {
       type: 'pending',
       label: 'Pending',
-      count: taskData.filter(d => d.status === 'yettostart').length,
+      count: tasks.filter(d => d.status === 'yettostart').length,
     },
   ];
 
@@ -86,7 +114,7 @@ const TaskTable: React.FC = () => {
           <Button
             icon={<IconDownload />}
             onClick={() => {
-              handleExport(taskData);
+              handleExport(tasks);
             }}
           >
             Export
@@ -99,15 +127,16 @@ const TaskTable: React.FC = () => {
 
       <Table
         columns={columns}
-        dataSource={taskData}
+        dataSource={tasks}
         rowSelection={{
           type: 'checkbox',
         }}
-        pagination={{
-          pageSize: 10,
-          showSizeChanger: true,
-          showQuickJumper: true,
-        }}
+        pagination={getPaginationConfig({
+          currentPage,
+          limit: pagination?.limit,
+          totalRecords: pagination?.totalRecords,
+          setCurrentPage,
+        })}
         onRow={record => ({
           onClick: () => {
             setModalOpen('create');
@@ -123,12 +152,11 @@ const TaskTable: React.FC = () => {
           title={!!selectedTask ? 'Edit Task' : 'Create Task'}
           loading={false}
           onSubmit={values => {
-            console.log('task submit', values.task);
             taskSubmit(values.task);
-            setModalOpen(null);
           }}
           initialData={selectedTask}
-          status={contactData.filter(i => i.id === selectedTask.contactName)[0].type === 'Job'}
+          // status={contactData.filter(i => i.id === selectedTask.contactName)[0].type === 'Job'}
+          status={false}
         />
       )}
     </div>

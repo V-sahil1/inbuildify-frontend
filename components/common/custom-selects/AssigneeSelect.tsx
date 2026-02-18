@@ -14,7 +14,7 @@ const AssigneeSelect: React.FC<CustomSelectProps> = ({ value, onChange, width })
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await dispatch(getUsersThunk({})).unwrap();
+        const response = await dispatch(getUsersThunk()).unwrap();
         setUsers(response || []);
       } catch (error) {
         message.error(error instanceof Error ? error.message : 'Failed to fetch users');

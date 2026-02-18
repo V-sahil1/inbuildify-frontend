@@ -35,6 +35,7 @@ import supplierReducer from './supplier/supplierSlice';
 import costCenterReducer from './costCenter/costCenterSlice';
 import surveyTemplateReducer from './surveyTemplate/surveyTemplateSlice';
 import holidayReducer from './holiday/holidaySlice';
+import contactReducer from './contacts/contactSlice';
 import contractFormatReducer from './contractFormat/contractFormatSlice';
 
 const authPersistConfig = {
@@ -77,6 +78,7 @@ const appReducer = combineReducers({
   costCenter: costCenterReducer,
   surveyTemplate: surveyTemplateReducer,
   holiday: holidayReducer,
+  contact: contactReducer,
   contractFormat: contractFormatReducer,
 });
 

@@ -1,28 +1,17 @@
-import { Form, Checkbox, Input } from 'antd';
-import { useState } from 'react';
-import { IconSearch } from '@tabler/icons-react';
-import {
-  numberRules,
-  settingNameRules,
-} from '@lib/constants/formInputValidations';
+import { numberRules, settingNameRules } from '@lib/constants/formInputValidations';
 import { FormField } from '../common/Models/ActionDialogModel';
-import { useAppSelector } from '@hooks/redux';
 import { CustomBulkSelect } from '../common/CustomBulkSelect';
 
 interface ColorSubCategoryFieldsProps {
   totalCount?: number;
-  users?: any[];
-  group?: any;
+  supplierOptions?: { label: string; value: string }[];
+  groupOptions?: { label: string; value: string }[];
 }
 
-export const ColorSubCategoryFields = (props: ColorSubCategoryFieldsProps = { totalCount: 0 }): FormField[] => {
-  const { totalCount, users, group } = props;
-  const supplierList = users?.map((supplier: any) => ({ value: supplier.supplierId, label: supplier.companyName })) || [];
-  const groupList = group?.map((item: any) => ({ value: item.colorGroupId, label: item.name })) || [];
-
-  // Get count from props
-  const count = totalCount || 0;
-
+export const ColorSubCategoryFields = (
+  props: ColorSubCategoryFieldsProps = { totalCount: 0 }
+): FormField[] => {
+  const { totalCount, supplierOptions, groupOptions } = props;
   return [
     {
       label: 'Sub Category Name',
@@ -36,7 +25,7 @@ export const ColorSubCategoryFields = (props: ColorSubCategoryFieldsProps = { to
       name: 'sortOrder',
       type: 'number',
       placeholder: 'Enter sort order',
-      initialValue: count + 1,
+      initialValue: totalCount + 1,
       rules: [
         ...numberRules,
         {
@@ -50,18 +39,24 @@ export const ColorSubCategoryFields = (props: ColorSubCategoryFieldsProps = { to
       ],
     },
     {
-      label: "Select Suppliers",
-      name: "suppliers",
-      type: "custom",
-      render: <CustomBulkSelect options={supplierList} onChange={() => { }} placeholder='Select the Suppliers'/>,
+      label: 'Select Suppliers',
+      name: 'suppliers',
+      type: 'custom',
+      render: (
+        <CustomBulkSelect
+          options={supplierOptions}
+          onChange={() => {}}
+          placeholder="Select the Suppliers"
+        />
+      ),
       rules: [{ required: true, message: 'Please select suppliers' }],
     },
 
     {
-      label: "Selection Type",
-      name: "selectionType",
-      type: "radio",
-      placeholder: "Select selection type",
+      label: 'Selection Type',
+      name: 'selectionType',
+      type: 'radio',
+      placeholder: 'Select selection type',
       initialValue: 'multiple',
       rules: [{ required: true, message: 'Please select a selection type' }],
       options: [
@@ -70,11 +65,11 @@ export const ColorSubCategoryFields = (props: ColorSubCategoryFieldsProps = { to
       ],
     },
     {
-      label: "Status",
-      name: "status",
-      type: "radio",
+      label: 'Status',
+      name: 'status',
+      type: 'radio',
       initialValue: 'active',
-      placeholder: "Select status",
+      placeholder: 'Select status',
       rules: [{ required: true, message: 'Please select a status' }],
       options: [
         { value: 'active', label: 'Active' },
@@ -82,12 +77,17 @@ export const ColorSubCategoryFields = (props: ColorSubCategoryFieldsProps = { to
       ],
     },
     {
-      label: "Select Group",
-      name: "colorGroups",
-      type: "custom",
-      render: <CustomBulkSelect options={groupList} onChange={() => { }} placeholder='Select the Group'/>,
+      label: 'Select Group',
+      name: 'colorGroups',
+      type: 'custom',
+      render: (
+        <CustomBulkSelect
+          options={groupOptions}
+          onChange={() => {}}
+          placeholder="Select the Group"
+        />
+      ),
       rules: [{ required: true, message: 'Please select group' }],
-    }
+    },
   ];
 };
-

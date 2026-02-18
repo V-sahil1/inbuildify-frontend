@@ -5,96 +5,102 @@ export interface Category {
   colorId: string;
   categoryName: string;
   image?: string;
-  items: SubCategoryItem[] | null;
-  isExpanded: boolean;
-  createdAt: string;
-  updatedAt: string;
+  items?: ColorItem[] | null;
+  isExpanded?: boolean;
   status: string;
   sortOrder?: number;
   suppliers: string[];
-  colorGroups:string[]; 
-  createdBy?: string;
-  updatedBy?: string;
+  colorGroups: string[];
   colorName?: string;
+  selectionType?: string;
 }
 
-export interface ColorMaster {
+export interface ColorType {
   colorId?: string;
   colorName: string;
-  status: string;
+  status: boolean | string;
   sortOrder: number;
-  companyId: string;
-  builderId: string;
-  createdBy: string;
-  updatedBy: string;
-  createdAt: string;
-  updatedAt: string;
-  subCategories: Category[] | null;
-  isExpanded: boolean;
-  loadingItems: boolean;
-}
-
-export interface Color {
-  // colorCategoryId?: string;
-  colorId: string;
-  colorName: string;
-  status: boolean;
-  sortOrder: number;
-  createdAt?: string;
-  updatedAt?: string;
   colorCategories?: Category[] | null;
   isExpanded?: boolean;
   loadingItems?: boolean;
-  companyId?: string;
-  builderId?: string;
-  createdBy?: string;
-  updatedBy?: string;
 }
-
-export interface ColorMaster{
-  colors: Color[];
-  pagination ?:{
-    currentPage: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  }
-
-}
-
-export interface SubCategoryItem {
+export interface ColorItem {
   colorItemId: string;
-  colorSubCategoryId: string;
+  companyId: string;
   builderId: string;
-  name: string;
-  code: string;
-  standard: boolean;
-  upgrade: boolean;
-  units: number;
-  notes: string;
-  highlightNotesOnPdf: boolean;
+  colorCategoryId: string;
+  itemName: string;
+  itemCode: string;
   supplierId: string;
-  image: string;
-  isDeleted: boolean;
-  createdAt: string;
-  updatedAt: string;
-  expirationDate?: string;
-  isActive?: boolean;
+  upgradeOption: string | null;
+  costType: string;
+  cost: string | number | null;
+  features: string | null;
+  description: string | null;
+  specificationName: string | null;
+  sortOrder: number;
+  units: string;
+  colorImage: any[];
+  specification: any[];
+  status: boolean;
+  customFields?: ColorItemCustomField[];
 }
+
+export interface ColorItemCopy {
+  colorId: string;
+  colorCategoryId: string;
+  itemName: string;
+  sortOrder: number;
+}
+
 export interface ColorGroup {
-  colorGroupId?: string,
-  companyId?: string,
-  builderId?: string,
-  name: string,
-  status?: boolean,
-  createdBy?: string,
-  updatedBy?: string,
-  createdAt?: string,
-  updatedAt?: string
+  colorGroupId?: string;
+  name: string;
+  status?: boolean;
+}
+
+export interface IColorType {
+  colorTypeId?: string;
+  colorTypeName: string;
+}
+
+export interface ColorItemCustomField {
+  colorItemCustomFieldId?: string;
+  colorItem: string;
+  fieldType: string;
+  fieldName: string;
+  requiredField: boolean;
+  sortOrder: number;
+  colorItemName: string;
 }
 export interface ColorInitialState {
-  status: Status;
-  Color: Color[];
-  ColorGroup: ColorGroup[];
-  loading: boolean;
+  status: {
+    color: {
+      fetch: Status;
+      create: Status;
+    };
+    category: {
+      fetch: Status;
+      create: Status;
+    };
+    group: {
+      fetch: Status;
+      create: Status;
+    };
+    colorItem: {
+      fetch: Status;
+      create: Status;
+    };
+    colorType: {
+      fetch: Status;
+      create: Status;
+    };
+    colorItemCustomField: {
+      fetch: Status;
+      create: Status;
+    };
+  };
+  color: ColorType[];
+  colorGroup: ColorGroup[];
+  colorType: IColorType[];
 }

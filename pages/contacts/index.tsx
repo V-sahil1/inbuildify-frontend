@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Input, Button, Switch, Dropdown, Radio, Table } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Input, Button, Switch, Dropdown, Radio, Table, message } from 'antd';
 import {
   IconPencil,
   IconTrash,
@@ -21,65 +21,47 @@ import TooltipButton from '@/components/common/TooltipButton';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import { ConfirmationContentModal } from '@/components/common/ConfirmationContentModal';
 import AssociatedEntitiesList from '@/components/common/AssociatedEntitiesList';
-import { contactData } from 'data/sampleData';
 import { debouncedURL } from '@lib/utils/debounceURL';
 import { ContactList } from '@lib/utils/Reports/contact/ContactList';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { fetchAllContact } from '@redux/feature/contacts/contactThunk';
+import { IContact } from '@redux/feature/contacts/contactState';
+import { ContactColumn } from '@/components/table-columns/ContactColumn';
+import { CustomFilterButtons } from '@/components/common/CustomFilterButtons';
 
 const ContactListing = () => {
-  const [contacts, setContacts] = useState(contactData);
-  const [showActive, setShowActive] = useState(true);
+  const dispatch = useAppDispatch();
+  const { contact } = useAppSelector(state => state.contact);
   const [showCustomers, setShowCustomers] = useState(true);
   const [portalAccess, setPortalAccess] = useState('noLogin');
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { setParams, filters } = debouncedURL({
     delay: 500,
-    filtersKey: ['search'],
+    filtersKey: ['search', 'status'],
+    initialValue: { status: '' },
   });
-  const [modalOpen, setModalOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
-  const [isEditing, setIsEditing] = useState(false);
-  const [actionModal, setActionModal] = useState<{
-    type: 'audit' | null;
-    contact: { id: number; name: string; phone: string; email: string } | null;
-  }>(null);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [contactToDelete, setContactToDelete] = useState<{
-    id: number;
-    name: string;
-    phone: string;
-    email: string;
-  } | null>(null);
-
-  const handleOpenDelete = (contact: {
-    id: number;
-    name: string;
-    phone: string;
-    email: string;
-  }) => {
-    setContactToDelete(contact);
-    setDeleteOpen(true);
-  };
-
-  const handleConfirmDelete = () => {
-    if (!contactToDelete) return;
-    setContacts(prev => prev.filter(c => c.id !== contactToDelete.id));
-    setDeleteOpen(false);
-    setContactToDelete(null);
-  };
-
-  const search = (filters.search || '').toString();
-
-  const filteredContacts = contacts.filter(c => {
-    const matchSearch =
-      c.name.toLowerCase().includes(search.toLowerCase()) ||
-      c.email.toLowerCase().includes(search.toLowerCase()) ||
-      c.phone.includes(search);
-    const matchActive = showActive ? c.active : !c.active;
-    return matchSearch && matchActive;
+  const [selectedContact, setSelectedContact] = useState<IContact | null>(null);
+  const [modalOpen, setModalOpen] = useState<'delete' | 'filter' | 'audit' | 'create' | null>(null);
+  const { columns, handleContactSubmit, handleContactDelete } = ContactColumn({
+    setSelectedContact,
+    setModalOpen,
+    selectedContact,
   });
 
-  const toggleActive = checked => {
-    setShowActive(checked);
+  useEffect(() => {
+    fetchContactData();
+  }, [filters]);
+
+  const fetchContactData = async () => {
+    try {
+      const params = {
+        search: filters?.search || undefined,
+        is_active: filters?.status !== '' ? filters?.status === 'Active' : undefined,
+      };
+      await dispatch(fetchAllContact(params)).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch Contacts');
+    }
   };
 
   // Filter Dropdown
@@ -96,83 +78,15 @@ const ContactListing = () => {
         className="flex flex-col gap-2"
         value={portalAccess}
         onChange={e => setPortalAccess(e.target.value)}
-      >
-        <Radio value="all">All Customers</Radio>
-        <Radio value="loginActive">Login Provided (Active)</Radio>
-        <Radio value="loginInactive">Login Provided (Inactive)</Radio>
-        <Radio value="noLogin">No Login Provided</Radio>
-      </Radio.Group>
+        options={[
+          { label: 'All Customers', value: 'all' },
+          { label: 'Login Provided (Active)', value: 'loginActive' },
+          { label: 'Login Provided (Inactive)', value: 'loginInactive' },
+          { label: 'No Login Provided', value: 'noLogin' },
+        ]}
+      />
     </div>
   );
-
-  // Table Columns
-  const columns = [
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-      render: text => <span className="font-semibold text-gray-800">{text}</span>,
-      width: '20%',
-    },
-    {
-      title: 'Address',
-      dataIndex: 'address',
-      key: 'address',
-      width: '30%',
-    },
-    {
-      title: 'Phone',
-      dataIndex: 'phone',
-      key: 'phone',
-      render: text => (
-        <div className="flex items-center gap-2">
-          <IconPhone size={16} className="text-gray-500" />
-          {text}
-        </div>
-      ),
-      width: '15%',
-    },
-    {
-      title: 'Email',
-      dataIndex: 'email',
-      key: 'email',
-      render: text => (
-        <div className="flex items-center gap-2">
-          <IconMail size={16} className="text-gray-500" />
-          {text}
-        </div>
-      ),
-      width: '15%',
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      render: (_, contact) => (
-        <div className="flex items-center gap-2">
-          <TooltipButton
-            title="Edit"
-            icon={<IconPencil size={16} />}
-            onClick={() => {
-              setIsEditing(true);
-              setModalOpen(true);
-            }}
-          />
-          <TooltipButton
-            title="Audit"
-            icon={<IconStopwatch size={18} />}
-            onClick={() => setActionModal({ type: 'audit', contact })}
-          />
-          <TooltipButton
-            title="Delete"
-            icon={<IconTrash size={18} className="!text-red-500" />}
-            onClick={() => handleOpenDelete(contact)}
-          />
-        </div>
-      ),
-      width: '20%',
-    },
-  ];
-
   return (
     <div className="p-6  min-h-screen">
       <h1 className="text-2xl font-semibold mb-4">Contact Listing</h1>
@@ -182,33 +96,35 @@ const ContactListing = () => {
         <Input.Search
           placeholder="Search contacts by name, email, or phone number"
           allowClear
-          value={search}
+          value={filters?.search}
           onChange={e => setParams({ search: e.target.value })}
           className="w-full md:w-1/2"
         />
 
-        <div className="flex items-center gap-2">
-          <span className={`font-medium ${showActive ? 'text-blue-600' : 'text-gray-400'}`}>
-            Active
-          </span>
-          <Switch checked={showActive} onChange={toggleActive} />
-          <span className={`${!showActive ? 'text-blue-600' : 'text-gray-400'}`}>Inactive</span>
-        </div>
+        <CustomFilterButtons
+          filterButtons={['Active', 'InActive']}
+          activeTab={filters.status}
+          setActiveTab={value => setParams({ status: value })}
+        />
 
         <div className="flex items-center gap-2">
-          <p className="text-gray-500 text-sm">Total Contacts: {filteredContacts.length}</p>
+          <p className="text-gray-500 text-sm">Total Contacts: {contact?.length}</p>
         </div>
 
         <div className="ml-auto flex items-center gap-2">
-          <Button type="primary" icon={<IconPlus size={16} />} onClick={() => setModalOpen(true)}>
+          <Button
+            type="primary"
+            icon={<IconPlus size={16} />}
+            onClick={() => setModalOpen('create')}
+          >
             New Contact
           </Button>
 
           {/* Filter Dropdown */}
           <Dropdown
             dropdownRender={() => filterMenu}
-            open={isFilterOpen}
-            onOpenChange={setIsFilterOpen}
+            open={modalOpen === 'filter'}
+            onOpenChange={() => setModalOpen('filter')}
             trigger={['click']}
           >
             <Button icon={<IconFilter size={16} />} />
@@ -244,7 +160,7 @@ const ContactListing = () => {
                   icon: <IconFileTypeCsv size={16} />,
                 },
               ],
-              onClick: e => ContactList(e.key, filteredContacts),
+              onClick: e => ContactList(e.key, contact),
             }}
             trigger={['click']}
           >
@@ -256,71 +172,75 @@ const ContactListing = () => {
       {/* Grid or Table View */}
       {viewMode === 'grid' ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
-          {filteredContacts.map(contact => (
-            <div
-              key={contact.id}
-              className="bg-card-color rounded-2xl hover:shadow-lg transition-all p-4"
-            >
-              <div className="flex items-center justify-between gap-4 w-full">
-                {/* Left: contact details */}
-                <div className="flex flex-col gap-2 flex-1">
-                  <div className="text-gray-800 font-semibold text-base">
-                    {contact.name || 'N/A'}
+          {contact &&
+            contact?.map(contact => (
+              <div
+                key={contact.usersId}
+                className="bg-card-color rounded-2xl hover:shadow-lg transition-all p-4"
+              >
+                <div className="flex items-center justify-between gap-4 w-full">
+                  {/* Left: contact details */}
+                  <div className="flex flex-col gap-2 flex-1">
+                    <div className="text-gray-800 font-semibold text-base">
+                      {contact.name || 'N/A'}
+                    </div>
+
+                    <div className="flex items-center gap-2 text-gray-600 text-sm">
+                      <IconMapPin size={18} />
+                      <span>{contact.addressLine1 || 'No address provided'}</span>
+                    </div>
+
+                    <div className="flex items-center gap-2 text-gray-800 font-medium text-sm">
+                      <IconPhone size={18} />
+                      <span>{contact.phone || 'No phone available'}</span>
+                    </div>
+
+                    <div className="flex items-center gap-2 text-gray-700 text-sm">
+                      <IconMail size={18} />
+                      <span>{contact.email || 'No email available'}</span>
+                    </div>
                   </div>
 
-                  <div className="flex items-center gap-2 text-gray-600 text-sm">
-                    <IconMapPin size={18} />
-                    <span>{contact.address || 'No address provided'}</span>
+                  {/* Right: action buttons */}
+                  <div className="flex flex-col items-end gap-1">
+                    <TooltipButton
+                      title="Edit"
+                      icon={<IconPencil size={18} />}
+                      onClick={() => {
+                        setSelectedContact(contact);
+                        setModalOpen('create');
+                      }}
+                      type="text"
+                    />
+                    {/* it will redirect to the linked lead detail page (note: the id will be multiple or the unique need check from the BE) */}
+                    {/* this icon will get hidden if the lead is not being associated it with any lead */}
+                    <TooltipButton title="Lead" icon={<IconSignLeft size={18} />} type="text" />
+
+                    <TooltipButton
+                      title="Audit log"
+                      icon={<IconStopwatch size={18} />}
+                      onClick={() => setModalOpen('audit')}
+                      type="text"
+                    />
+
+                    <TooltipButton
+                      title="Delete"
+                      icon={<IconTrash size={18} className="!text-red-500" />}
+                      onClick={() => {
+                        setSelectedContact(contact);
+                        setModalOpen('delete');
+                      }}
+                      type="text"
+                    />
                   </div>
-
-                  <div className="flex items-center gap-2 text-gray-800 font-medium text-sm">
-                    <IconPhone size={18} />
-                    <span>{contact.phone || 'No phone available'}</span>
-                  </div>
-
-                  <div className="flex items-center gap-2 text-gray-700 text-sm">
-                    <IconMail size={18} />
-                    <span>{contact.email || 'No email available'}</span>
-                  </div>
-                </div>
-
-                {/* Right: action buttons */}
-                <div className="flex flex-col items-end gap-1">
-                  <TooltipButton
-                    title="Edit"
-                    icon={<IconPencil size={18} />}
-                    onClick={() => {
-                      setIsEditing(true);
-                      setModalOpen(true);
-                    }}
-                    type="text"
-                  />
-                  {/* it will redirect to the linked lead detail page (note: the id will be multiple or the unique need check from the BE) */}
-                  {/* this icon will get hidden if the lead is not being associated it with any lead */}
-                  <TooltipButton title="Lead" icon={<IconSignLeft size={18} />} type="text" />
-
-                  <TooltipButton
-                    title="Audit log"
-                    icon={<IconStopwatch size={18} />}
-                    onClick={() => setActionModal({ type: 'audit', contact })}
-                    type="text"
-                  />
-
-                  <TooltipButton
-                    title="Delete"
-                    icon={<IconTrash size={18} className="!text-red-500" />}
-                    onClick={() => handleOpenDelete(contact)}
-                    type="text"
-                  />
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       ) : (
         <Table
           rowKey="id"
-          dataSource={filteredContacts}
+          dataSource={contact}
           columns={columns}
           pagination={false}
           className="bg-white rounded-xl shadow-sm"
@@ -329,22 +249,22 @@ const ContactListing = () => {
 
       {/* Lead Details Modal */}
       <LeadDetailsForm
-        open={modalOpen}
-        setOpen={setModalOpen}
+        open={modalOpen === 'create'}
         onCancel={() => {
-          setModalOpen(false);
-          setIsEditing(false);
+          setModalOpen(null);
+          setSelectedContact(null);
         }}
-        showStatus={!!isEditing}
+        showStatus={!!selectedContact}
         showContact={false}
-        initialValue={isEditing}
+        isEditing={!!selectedContact}
+        initialValues={selectedContact}
+        onSubmit={handleContactSubmit}
       />
 
       <ActionDialogmodel
-        open={deleteOpen}
+        open={modalOpen === 'delete'}
         onCancel={() => {
-          setDeleteOpen(false);
-          setContactToDelete(null);
+          setModalOpen(null);
         }}
         title="Confirm Deletion"
         headerMessage={
@@ -352,10 +272,10 @@ const ContactListing = () => {
             <span className="text-gray-400">
               The below associated details of this contact will also be deleted:
             </span>
-            {contactToDelete && (
+            {selectedContact && (
               <div className="max-h-64 overflow-y-auto px-3 py-2 mb-2 custom-scrollbar">
                 <div className="font-bold text-font-color mb-1">
-                  {contactToDelete.id} - {contactToDelete.name}
+                  {selectedContact.usersId} - {selectedContact.name}
                 </div>
                 <AssociatedEntitiesList />
               </div>
@@ -370,19 +290,19 @@ const ContactListing = () => {
             label: 'Notes',
             type: 'textarea',
             placeholder: 'Enter notes...',
-            extra: `Are you sure you want to delete the contact${contactToDelete ? ` \'${contactToDelete.name}\'` : ''}?`,
+            extra: `Are you sure you want to delete the contact${selectedContact ? ` \'${selectedContact.name}\'` : ''}?`,
           },
         ]}
-        onSubmit={handleConfirmDelete}
+        onSubmit={handleContactDelete}
         submitButtonText="Confirm"
       />
 
       {/* Audit Log Confirmation */}
-      {actionModal?.type === 'audit' && (
+      {modalOpen === 'audit' && (
         <ConfirmationContentModal
-          open={actionModal?.type === 'audit'}
-          onClose={() => setActionModal(null)}
-          onSubmit={() => setActionModal(null)}
+          open={modalOpen === 'audit'}
+          onClose={() => setModalOpen(null)}
+          onSubmit={() => {}}
           title="Audit Log information"
           content="Are you sure you want to audit this contact?"
           okText="Audit"

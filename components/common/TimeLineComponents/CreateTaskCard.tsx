@@ -1,12 +1,10 @@
 'use client';
-import { FC, useEffect } from 'react';
+import { FC } from 'react';
 import { Button, DatePicker, TimePicker, Input, Select, Upload, Form, message, Tag } from 'antd';
 import dayjs from 'dayjs';
 import { IconUpload } from '@tabler/icons-react';
 import { TaskDetails } from 'data/types';
-import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import { Status } from '@lib/constants/enum';
-import { getUsersThunk } from '@redux/feature/user/userThunk';
+
 import {
   acceptOnlyImageRule,
   descriptionRules,
@@ -18,9 +16,11 @@ import {
 import { disablePastDates } from '@lib/utils/getDisabledTimeDate';
 import NoDataMessage from '../NoDataMessage';
 import SystemRoutes from '@lib/constants/Routes';
+import { useUsersHook } from '@hooks/useUserHook';
+import { ITask } from '@redux/feature/task/ITaskStates';
 
 interface CreateTaskCardProps {
-  onSave: (task: any) => void;
+  onSave: (task: ITask) => void;
   onCancel: () => void;
   loading: boolean;
   initialData?: TaskDetails;
@@ -29,15 +29,15 @@ interface CreateTaskCardProps {
 }
 
 const priorityOptions = [
-  { label: 'Low', value: 'LOW' },
-  { label: 'Medium', value: 'MEDIUM' },
-  { label: 'High', value: 'HIGH' },
+  { label: 'Low', value: 'Low' },
+  { label: 'Medium', value: 'Medium' },
+  { label: 'High', value: 'High' },
 ];
 
 const statusOptions = [
-  { label: 'Completed', value: 'completed' },
-  { label: 'Yet To Start', value: 'yettostart' },
-  { label: 'Working', value: 'working' },
+  { label: 'Completed', value: 'Completed' },
+  { label: 'Yet To Start', value: 'Yet to Start' },
+  { label: 'In Progress', value: 'In Progress' },
   { label: 'Skipped', value: 'Skipped' },
   { label: 'Cancelled', value: 'Cancelled' },
 ];
@@ -63,56 +63,26 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
   attachment = true,
 }) => {
   const [form] = Form.useForm();
-  const { users, status } = useAppSelector(state => state.user);
-  const { email } = useAppSelector(state => state.auth.user);
-  const dispatch = useAppDispatch();
-  useEffect(() => {
-    if (status.users === Status.IDLE) {
-      fetchuserData();
-    }
-  }, [status]);
-  const fetchuserData = async () => {
-    try {
-      await dispatch(getUsersThunk()).unwrap();
-    } catch (error) {
-      message.error(error || 'failed to fetch the users');
-    }
-  };
-  const assigneeOptions = users.reduce(
-    (acc, user) => {
-      if (user.email !== email) {
-        acc.push({ label: user.name, value: user.usersId });
-      }
-      return acc;
-    },
-    [] as { label: string; value: string }[]
-  );
-  const handleFinish = async (values: any) => {
+  const { userOptions } = useUsersHook();
+
+  const handleFinish = async values => {
     await form.validateFields();
+
     values.type = 'TASK';
-    if (values.task?.assignee?.value) {
-      values.task.assignee = values.task.assignee.value;
+    if (values.task?.assigneeId?.value) {
+      values.task.assigneeId = values.task.assigneeId.value;
     }
     if (initialData) {
       values.actionId = initialData?.actionId;
       values.action_type_id = initialData?.taskId;
     }
     values.task.dueDate = values.task?.dueDate?.format('YYYY-MM-DD');
-    values.task.time = values.task?.time?.format('HH:mm');
-    values.attachment = values?.attachment ? values?.attachment?.[0]?.originFileObj : null;
+    values.task.dueTime = values.task?.dueTime?.format('HH:mm');
+    values.task.attachFiles = values?.attachFiles ? values?.attachFiles?.[0]?.originFileObj : null;
     onSave(values);
   };
   return (
-    <Form
-      form={form}
-      layout="vertical"
-      onFinish={handleFinish}
-      // initialValues={{
-      //   task: {
-      //     priority: "MEDIUM",
-      //   },
-      // }}
-    >
+    <Form form={form} layout="vertical" onFinish={handleFinish}>
       <Form.Item
         label="Task Name"
         name={['task', 'name']}
@@ -135,9 +105,9 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
             className="w-full"
             inputReadOnly
             onChange={date => {
-              // Reset the time field whenever due_date changes
+              // Reset the time field whenever dueDate changes
               form.setFieldsValue({
-                task: { ...form.getFieldValue('task'), time: null },
+                task: { ...form.getFieldValue('task'), dueTime: null },
               });
             }}
             disabledDate={disablePastDates}
@@ -146,7 +116,7 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
 
         <Form.Item
           label="Time"
-          name={['task', 'time']}
+          name={['task', 'dueTime']}
           rules={timeRules}
           initialValue={initialData?.time ? dayjs(initialData.time, 'HH:mm') : null}
         >
@@ -181,7 +151,7 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
       </div>
       <Form.Item
         label="Assignee"
-        name={['task', 'assignee']}
+        name={['task', 'assigneeId']}
         initialValue={
           initialData?.assignee?.id
             ? {
@@ -198,7 +168,7 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
       >
         <Select
           disabled={isStatusShow}
-          options={assigneeOptions}
+          options={userOptions}
           placeholder="Select Assignee"
           notFoundContent={<NoDataMessage label="User" link={SystemRoutes.USERS} />}
         />
@@ -218,7 +188,6 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
             />
           </Form.Item>
         )}
-        {/* {isStatusShow && ( */}
         <Form.Item
           label="Status"
           name={['task', 'status']}
@@ -230,11 +199,7 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
         {/* )} */}
       </div>
 
-      <Form.Item
-        label="Link To"
-        name={['task', 'contactName']}
-        initialValue={initialData?.contactName}
-      >
+      <Form.Item label="Link To" name={['task', 'linkTo']} initialValue={initialData?.linkTo}>
         <Select disabled={isStatusShow} options={linkToOption} />
       </Form.Item>
       <Form.Item
@@ -252,18 +217,23 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
       </Form.Item>
 
       <Form.Item
-        name="attachment"
-        valuePropName="fileList"
-        getValueFromEvent={e => e.fileList}
+        name="attachFiles"
+        valuePropName="attachFiles"
+        getValueFromEvent={e => {
+          if (e && e.fileList) {
+            return e.fileList;
+          }
+          return [];
+        }}
         className="max-w-[200px] sm:max-w-[350px]"
         initialValue={
-          initialData?.attachment
+          initialData?.attachFiles
             ? [
                 {
                   uid: '-1',
                   name: 'attachment.jpg',
                   status: 'done',
-                  url: initialData?.attachment,
+                  url: initialData?.attachFiles,
                 },
               ]
             : []
