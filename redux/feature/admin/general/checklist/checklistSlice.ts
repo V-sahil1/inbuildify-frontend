@@ -40,6 +40,9 @@ const checklistSlice = createSlice({
 
       state.status.create = Status.SUCCESS;
     });
+    builder.addCase(createChecklist.rejected, state => {
+      state.status.create = Status.ERROR;
+    });
 
     builder.addCase(fetchAllChecklist.pending, state => {
       state.status.fetch = Status.PENDING;
@@ -48,6 +51,9 @@ const checklistSlice = createSlice({
       state.checklist = action.payload.checklist;
       state.pagination = action.payload.pagination;
       state.status.fetch = Status.SUCCESS;
+    });
+    builder.addCase(fetchAllChecklist.rejected, state => {
+      state.status.fetch = Status.ERROR;
     });
 
     builder.addCase(updateChecklist.pending, state => {
@@ -59,6 +65,9 @@ const checklistSlice = createSlice({
       );
       state.status.create = Status.SUCCESS;
     });
+    builder.addCase(updateChecklist.rejected, state => {
+      state.status.create = Status.ERROR;
+    });
 
     builder.addCase(deleteChecklist.pending, state => {
       state.status.create = Status.PENDING;
@@ -67,6 +76,9 @@ const checklistSlice = createSlice({
       state.checklist = state.checklist.filter(i => i.checklistId !== action.payload);
       state.status.create = Status.SUCCESS;
       state.pagination.totalRecords--;
+    });
+    builder.addCase(deleteChecklist.rejected, state => {
+      state.status.create = Status.ERROR;
     });
 
     // checkllist item

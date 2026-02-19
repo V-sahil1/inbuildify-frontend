@@ -33,7 +33,7 @@ export const Invoice: React.FC = () => {
     showInvoiceSummaryInPdf: false,
     invoiceTermsDays: 0,
   });
-  const PAGE_SIZE = 1;
+  const PAGE_SIZE = 10;
   useEffect(() => {
     if (status?.fetch === Status.IDLE) {
       fetchJobInvoiceSettingData();
