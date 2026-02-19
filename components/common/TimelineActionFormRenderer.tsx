@@ -19,7 +19,7 @@ interface TimelineActionFormRendererProps {
   editingItem: { item: TimelineCardProps; index: number } | null;
   loading: boolean;
   handleSaveNote: (note: NoteDetails) => void;
-  handleSaveAppointment: (appointment: AppointmentDetails) => void;
+  handleSaveAppointment: (appointment: any) => void;//appointmentDetails
   handleSaveTask: (task: ITask) => void;
   handleSaveSms: (sms: SmsDetails) => void;
   handleClose: () => void;
@@ -80,9 +80,9 @@ const TimelineActionFormRenderer: React.FC<TimelineActionFormRendererProps> = ({
             onSave={handleSaveAppointment}
             onCancel={handleClose}
             loading={loading}
-            initialData={
-              currentData?.type === 'APPOINTMENT' ? currentData?.item?.appointment[0] : undefined
-            }
+            // initialData={
+            //   currentData?.type === 'APPOINTMENT' ? currentData?.item?.appointment[0] : undefined
+            // }
           />
         </TimelineCard>
       );
