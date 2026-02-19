@@ -128,15 +128,15 @@ const PriceList = () => {
       limit,
       price_list_id: selectedPriceMaster?.priceListId,
     };
-    params.range_id = filters?.range;
+    params.range_id = filters?.range || undefined;
     params.status =
       filters?.status !== '' ? (filters?.status === 'true' ? 'active' : 'inactive') : undefined;
     params.price = Number(filters?.price) || undefined;
-    params.cost_option = filters?.costOption;
-    params.sort_order = filters?.sort;
-    params.item_description = filters?.description;
-    params.location_id = filters?.location;
-    params.dwelling_type_id = filters?.dwellingType;
+    params.cost_option = filters?.costOption || undefined;
+    params.sort_order = filters?.sort || undefined;
+    params.item_description = filters?.description || undefined;
+    params.location_id = filters?.location || undefined;
+    params.dwelling_type_id = filters?.dwellingType || undefined;
     try {
       if (!selectedPriceMaster?.isExpanded) {
         dispatch(toggleExpand(selectedPriceMaster?.priceListId));

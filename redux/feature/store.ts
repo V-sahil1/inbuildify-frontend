@@ -37,6 +37,7 @@ import surveyTemplateReducer from './surveyTemplate/surveyTemplateSlice';
 import holidayReducer from './holiday/holidaySlice';
 import contactReducer from './contacts/contactSlice';
 import contractFormatReducer from './contractFormat/contractFormatSlice';
+import appointMentReducer from './appointment/appointmentSlice';
 
 const authPersistConfig = {
   key: 'auth',
@@ -80,6 +81,7 @@ const appReducer = combineReducers({
   holiday: holidayReducer,
   contact: contactReducer,
   contractFormat: contractFormatReducer,
+  appointment:appointMentReducer
 });
 
 const rootReducer = (state: ReturnType<typeof appReducer> | undefined, action: any) => {

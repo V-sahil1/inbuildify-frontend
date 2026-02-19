@@ -270,6 +270,9 @@ class API_ENDPOINTS {
   //contact
   public static CONTACT = '/contact';
 
+  //appointment
+  public static APPOINTMENT = '/appointment';
+
   //contract format
   public static CONTRACT_FORMAT = '/contract-format';
   public static CONTRACT_FORMAT_SECTION = '/contract-section';

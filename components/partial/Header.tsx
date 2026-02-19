@@ -26,6 +26,7 @@ import { JobCreationModal } from '../common/Models/JobModal';
 import { CreateTaskModal } from '../common/Models/CreatetaskModel';
 import { CreateAppointmentModal } from '../common/Models/createAppointementModel';
 import { createTask } from '@redux/feature/task/taskThunk';
+import { createAppointment } from '@redux/feature/appointment/appointmentThunk';
 
 export default function Header({
   toggleMobileNav,
@@ -150,6 +151,14 @@ export default function Header({
     }
     setCreateMenuOpen('');
   };
+  const handleAppointmentSubmit = async values => {
+    try {
+      await dispatch(createAppointment(values)).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to save appointment');
+    }
+    setCreateMenuOpen('');
+  };
   const renderCreateModal = () => {
     switch (createMenuOpen) {
       case 'lead':
@@ -193,7 +202,7 @@ export default function Header({
             onClose={() => setCreateMenuOpen('')}
             title="Create Appointment"
             loading={false}
-            onSubmit={() => {}}
+            onSubmit={handleAppointmentSubmit}
             initialData={undefined}
           />
         );

@@ -5,17 +5,27 @@ import CustomAvtar from '@/components/common/CustomAvtar';
 import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineActionsBar';
 import { exportToExcel } from '@lib/utils/exportToExcel';
 import { IconDots, IconDownload } from '@tabler/icons-react';
-import { Button, Input, Popover, Switch, Table, Tag } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+import { Button, Input, message, Popover, Switch, Table, Tag } from 'antd';
 import { useEffect, useState } from 'react';
 import { data, DataType } from 'data/appointmentData';
 import { debouncedURL } from '@lib/utils/debounceURL';
-//todo : in appointment create form add link to field it's present in video but not in ui
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { fetchAllAppointment } from '@redux/feature/appointment/appointmentThunk';
+import { Status } from '@lib/constants/enum';
+//todo : in appointment create form add link to field it's present in video but not in ui and add filter
 export default function Appointments() {
+  const dispatch = useAppDispatch();
   const [CancelledIncluded, setCancelledIncluded] = useState(false);
+  const { appointment, status } = useAppSelector(state => state.appointment);
   const { debouncedUpdateURL, setParams, filters } = debouncedURL({
     filtersKey: ['title', 'location', 'date', 'assignee', 'category', 'status'],
   });
+
+  useEffect(() => {
+    if (status.fetch === Status.IDLE) {
+      fetchAppointmentData();
+    }
+  }, [status.fetch]);
 
   useEffect(() => {
     return () => {
@@ -23,7 +33,22 @@ export default function Appointments() {
     };
   }, [debouncedUpdateURL]);
 
-  const columns: ColumnsType<DataType> = [
+  const fetchAppointmentData = async () => {
+    try {
+      const params = {
+        title: filters?.title,
+        location_id: filters?.location,
+        date: filters?.date,
+        assignee: filters?.assignee,
+        category: filters?.category,
+        status: filters?.status,
+      };
+      await dispatch(fetchAllAppointment()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch appointment');
+    }
+  };
+  const columns = [
     {
       title: (
         <div>
@@ -50,6 +75,7 @@ export default function Appointments() {
       dataIndex: 'location',
       key: 'location',
       width: 150,
+      render: location => location.name,
     },
     {
       title: (
@@ -89,10 +115,10 @@ export default function Appointments() {
           />
         </div>
       ),
-      dataIndex: 'assignee',
-      key: 'assignee',
+      dataIndex: 'selectUsers',
+      key: 'selectUsers',
       width: 150,
-      render: (_, record) => <CustomAvtar label={record.assignee} />,
+      render: (_, record) => <CustomAvtar label={record?.selectUsers?.[0]?.name} />,
     },
     {
       title: (
@@ -104,8 +130,8 @@ export default function Appointments() {
           />
         </div>
       ),
-      dataIndex: 'category',
-      key: 'category',
+      // dataIndex: 'category',
+      // key: 'category',
       width: 150,
     },
   ];
@@ -189,7 +215,7 @@ export default function Appointments() {
       )}
       <Table
         columns={columns}
-        dataSource={data}
+        dataSource={appointment}
         pagination={{
           pageSize: 10,
         }}

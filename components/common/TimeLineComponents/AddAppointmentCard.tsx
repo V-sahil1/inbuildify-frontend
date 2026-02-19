@@ -1,11 +1,8 @@
 'use client';
-import { FC, useEffect, useState } from 'react';
-import { Button, DatePicker, TimePicker, Input, Select, Switch, message, Form } from 'antd';
+import { FC } from 'react';
+import { Button, DatePicker, TimePicker, Input, Select, Switch, Form } from 'antd';
 import dayjs from 'dayjs';
-import { AppointmentDetails } from 'data/types';
-import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import { Status } from '@lib/constants/enum';
-import { getUsersThunk } from '@redux/feature/user/userThunk';
+
 import {
   dueDateRules,
   locationRules,
@@ -13,20 +10,19 @@ import {
   taskNameRules,
   timeRules,
 } from '@lib/constants/formInputValidations';
-import {
-  disablePastDates,
-  getDisabledTime,
-  getEndDisabledTime,
-} from '@lib/utils/getDisabledTimeDate';
+import { disablePastDates, getEndDisabledTime } from '@lib/utils/getDisabledTimeDate';
 import NoDataMessage from '../NoDataMessage';
 import SystemRoutes from '@lib/constants/Routes';
+import { useUsersHook } from '@hooks/useUserHook';
+import { IAppointment } from '@redux/feature/appointment/IAppointmentState';
+import { useLocationAndTimezoneHook } from '@hooks/useLocationAndTimezoneHook';
 const { TextArea } = Input;
 
 interface AddAppointmentCardProps {
-  onSave: (appointment: AppointmentDetails) => void;
+  onSave: (appointment: IAppointment) => void;
   onCancel: () => void;
   loading: boolean;
-  initialData?: AppointmentDetails;
+  initialData?: IAppointment;
 }
 
 const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
@@ -35,42 +31,20 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
   loading,
   initialData,
 }) => {
-  const { users, status } = useAppSelector(state => state.user);
-  const { email } = useAppSelector(state => state.auth.user);
+  const { userOptions } = useUsersHook();
+  const { locationOptions } = useLocationAndTimezoneHook({ type: 'location' });
 
-  const dispatch = useAppDispatch();
-  useEffect(() => {
-    if (status.users.fetch === Status.IDLE) {
-      fetchuserData();
-    }
-  }, [status.users]);
-  const fetchuserData = async () => {
-    try {
-      await dispatch(getUsersThunk({})).unwrap();
-    } catch (error) {
-      message.error(error || 'failed to fetch the users');
-    }
-  };
-  const userOptions = users.reduce(
-    (acc, user) => {
-      if (user.email !== email) {
-        acc.push({ label: user.name, value: user.usersId });
-      }
-      return acc;
-    },
-    [] as { label: string; value: string }[]
-  );
   const [form] = Form.useForm();
   const handleFinish = (values: any) => {
     form.validateFields();
-    values.type = 'APPOINTMENT';
-    if (initialData) {
-      values.actionId = initialData.actionId;
-      values.action_type_id = initialData?.appointmentId;
-    }
-    values.start_time = values.start_time.format('HH:mm');
+    // values.type = 'APPOINTMENT';
+    // if (initialData) {
+    //   values.actionId = initialData.actionId;
+    //   values.action_type_id = initialData?.appointmentId;
+    // }
+    values.startTime = values.startTime.format('HH:mm');
     values.date = values.date?.format('YYYY-MM-DD');
-    values.end_time = values.end_time.format('HH:mm');
+    values.endTime = values.endTime.format('HH:mm');
     onSave(values);
   };
 
@@ -92,8 +66,8 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
             disabledDate={disablePastDates}
             onChange={() => {
               form.setFieldsValue({
-                start_time: null,
-                end_time: null,
+                startTime: null,
+                endTime: null,
               });
             }}
           />
@@ -101,11 +75,11 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
 
         <Form.Item
           label="Location"
-          name="location"
+          name="locationId"
           rules={locationRules}
-          initialValue={initialData?.location}
+          initialValue={initialData?.locationId}
         >
-          <Input placeholder="Location" />
+          <Select placeholder="Select Location" options={locationOptions} />
         </Form.Item>
 
         {/* Start Time */}
@@ -113,7 +87,7 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
           {({ getFieldValue }) => (
             <Form.Item
               label="Start Time"
-              name="start_time"
+              name="startTime"
               rules={timeRules}
               initialValue={initialData?.startTime ? dayjs(initialData.startTime, 'HH:mm') : null}
             >
@@ -152,20 +126,20 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
         {/* End Time */}
         <Form.Item
           shouldUpdate={(prev, curr) =>
-            prev.date !== curr.date || prev.start_time !== curr.start_time
+            prev.date !== curr.date || prev.startTime !== curr.startTime
           }
         >
           {({ getFieldValue }) => (
             <Form.Item
               label="End Time"
-              name="end_time"
-              dependencies={['start_time', 'date']}
+              name="endTime"
+              dependencies={['startTime', 'date']}
               initialValue={initialData?.endTime ? dayjs(initialData.endTime, 'HH:mm') : null}
               rules={[
                 ...timeRules,
                 ({ getFieldValue }) => ({
                   validator(_, value) {
-                    const start = getFieldValue('start_time');
+                    const start = getFieldValue('startTime');
                     if (!value || !start) return Promise.resolve();
                     return value.isAfter(start)
                       ? Promise.resolve()
@@ -178,9 +152,9 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
                 format="HH:mm"
                 className="w-full"
                 hideDisabledOptions
-                disabled={!getFieldValue('date') || !getFieldValue('start_time')}
+                disabled={!getFieldValue('date') || !getFieldValue('startTime')}
                 disabledTime={() =>
-                  getEndDisabledTime(getFieldValue('date'), getFieldValue('start_time'))
+                  getEndDisabledTime(getFieldValue('date'), getFieldValue('startTime'))
                 }
               />
             </Form.Item>
@@ -190,7 +164,7 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
 
       <Form.Item
         label="User"
-        name="select_users"
+        name="selectUsers"
         rules={[{ required: true, message: 'Please select user(s)' }]}
         initialValue={initialData?.selectUsers?.map(user => user.id)}
       >

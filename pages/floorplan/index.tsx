@@ -78,11 +78,11 @@ const FloorPlanMaster = () => {
         page,
         limit,
       };
-      params.name = debouncedFilters?.name;
-      params.dwelling_type_id = debouncedFilters?.dwellingType;
+      params.name = debouncedFilters?.name || undefined;
+      params.dwelling_type_id = debouncedFilters?.dwellingType || undefined;
       params.location_id =
         debouncedFilters?.location !== '' ? debouncedFilters?.location : undefined;
-      params.range_id = debouncedFilters?.label;
+      params.range_id = debouncedFilters?.label || undefined;
       params.status =
         debouncedFilters?.status !== 'all' ? debouncedFilters?.status === 'true' : undefined;
       await dispatch(fetchFloorPlans(params)).unwrap();

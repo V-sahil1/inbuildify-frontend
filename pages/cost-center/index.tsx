@@ -47,9 +47,9 @@ export default function CostCenterMaster() {
   const fetchCostCenter = async () => {
     try {
       const params: CostCennterGetParams = {
-        code: filters.code,
-        name: filters.name,
-        description: filters.description,
+        code: filters.code || undefined,
+        name: filters.name || undefined,
+        description: filters.description || undefined,
         sort_order: Number(filters.sortOrder) || undefined,
         status: filters.isActive !== '' ? filters.isActive === 'true' : undefined,
       };
