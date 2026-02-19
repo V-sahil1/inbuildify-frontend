@@ -104,7 +104,23 @@ const PriceList = () => {
     if (status.priceMaster === Status.IDLE) {
       fetchCategoriesData();
     }
-  }, [dispatch, status]);
+  }, [dispatch, status.priceMaster]);
+
+  const fetchItems = async () => {
+    try {
+      priceMaster?.map(async i => {
+        if (!i.isExpanded) {
+          dispatch(toggleExpand(i.priceListId));
+          await dispatch(fetchCategoryItems({ price_list_id: i.priceListId })).unwrap();
+        }
+      });
+    } catch (error) {
+      message.error(error || 'Failed to fetch items');
+    }
+  };
+  useEffect(() => {
+    fetchItems();
+  }, [status.priceMaster]);
 
   const fetchAllCategoryItems = async (page: number = currentPage, limit: number = PAGE_SIZE) => {
     const params: PricelistItemFtechParams = {

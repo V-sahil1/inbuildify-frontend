@@ -141,7 +141,7 @@ const FloorPlanMaster = () => {
       />
       {createFloorPlanOpen && (
         <FloorPlanFormModal
-          title="Create FloorPlan"
+          title={!!selectedFloorplan ? 'Edit FloorPlan' : 'Create FloorPlan'}
           open={createFloorPlanOpen}
           onCancel={() => {
             setcreateFloorPlanOpen(false);

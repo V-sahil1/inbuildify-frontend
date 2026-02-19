@@ -3,36 +3,53 @@ import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { useEffect } from 'react';
 import { PricelistItemFtechParams } from '@redux/feature/masterPriceList/iMasterPriceListState';
-import { fetchCategoryItems } from '@redux/feature/masterPriceList/masterPriceListThunk';
+import {
+  fetchCategoryItems,
+  fetchPricelistMaster,
+} from '@redux/feature/masterPriceList/masterPriceListThunk';
 import { message } from 'antd';
+import { Status } from '@lib/constants/enum';
 
 export const MasterPricelistCollection = ({ filters, setParams }) => {
-  const { priceListItems, pagination } = useAppSelector(state => state.masterPriceList);
+  const { priceListItems, pagination, priceMaster, status } = useAppSelector(
+    state => state.masterPriceList
+  );
   const [currentPage, setCurrentPage] = useState(1);
   const dispatch = useAppDispatch();
   const PAGE_SIZE = 10;
+  const pricelistOptions = priceMaster?.map(i => ({ label: i.name, value: i.priceListId }));
   const fetchPriceListItemsData = async (page: number = currentPage, limit: number = PAGE_SIZE) => {
     try {
       const params: PricelistItemFtechParams = {
         page,
         limit,
       };
-      params.price_list_id = filters?.name;
-      params.item_description = filters?.description;
-      params.uom = filters?.uom;
-      params.price = filters?.cost;
-      params.cost_type = filters?.costType;
-      params.cost_option = filters?.costOption;
-      params.range_id = filters?.range;
-      params.dwelling_type_id = filters?.dwellingType;
+      // params.price_list_id = filters?.name;
+      params.item_description = filters?.description || undefined;
+      params.uom = filters?.uom || undefined;
+      params.price = filters?.cost || undefined;
+      params.cost_type = filters?.costType || undefined;
+      params.cost_option = filters?.costOption || undefined;
+      params.range_id = filters?.range || undefined;
+      params.dwelling_type_id = filters?.dwellingType || undefined;
 
       dispatch(fetchCategoryItems(params)).unwrap();
     } catch (error) {
       message.error(error.message);
     }
   };
+  const fetchPricelistMasterData = async () => {
+    try {
+      await dispatch(fetchPricelistMaster({})).unwrap();
+    } catch (error) {
+      message.error(error);
+    }
+  };
   useEffect(() => {
     fetchPriceListItemsData();
+    // if (status.priceMaster === Status.IDLE) {
+    //   fetchPricelistMasterData();
+    // }
   }, [filters, currentPage]);
 
   const columns = [
@@ -41,9 +58,9 @@ export const MasterPricelistCollection = ({ filters, setParams }) => {
         <div className="flex flex-col">
           <span className="font-medium text-gray-700">Price List Name </span>
           <Select
-            options={[{ label: 'All', value: 'all' }]}
-            value={filters?.name}
-            onChange={value => setParams({ name: value })}
+            options={pricelistOptions}
+            // value={filters?.name}
+            // onChange={value => setParams({ name: value })}
           />
         </div>
       ),

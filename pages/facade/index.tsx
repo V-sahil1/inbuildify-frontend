@@ -341,13 +341,13 @@ const FacadeMaster = () => {
           },
         }}
         loading={status === Status.PENDING}
-        rootClassName="cursor-pointer"
-        rowClassName="cursor-pointer"
-        onRow={(record, rowIndex) => ({
-          onClick: event => {
-            setDrawerOpen('quotation');
-          },
-        })}
+        // rootClassName="cursor-pointer"
+        // rowClassName="cursor-pointer"
+        // onRow={(record, rowIndex) => ({
+        //   onClick: event => {
+        //     setDrawerOpen('quotation');
+        //   },
+        // })}
       />
 
       {drawerOpen === 'quotation' && (
