@@ -67,11 +67,17 @@ export const userSlice = createSlice({
       state.status.users.create = Status.PENDING;
     });
     builder.addCase(updateUserLockThunk.fulfilled, (state, action) => {
-      const index = state.users.findIndex(user => user.usersId === action.payload.usersId);
-      if (index !== -1) {
-        state.users[index] = { ...state.users[index], ...action.payload };
+      if (action.meta.arg.type === 'user') {
+        const index = state.users.findIndex(user => user.usersId === action.meta.arg.id);
+        if (index !== -1) {
+          // Type guard to ensure payload is IUser
+          const payload = action.payload;
+          if ('usersId' in payload) {
+            state.users[index] = { ...state.users[index], ...payload };
+          }
+        }
+        state.status.users.create = Status.SUCCESS;
       }
-      state.status.users.create = Status.SUCCESS;
     });
     builder.addCase(updateUserLockThunk.rejected, state => {
       state.status.users.create = Status.ERROR;
@@ -95,11 +101,13 @@ export const userSlice = createSlice({
       state.status.users.create = Status.PENDING;
     });
     builder.addCase(updateUserLoginIdThunk.fulfilled, (state, action) => {
-      const index = state.users.findIndex(user => user.usersId === action.payload.usersId);
-      if (index !== -1) {
-        state.users[index] = { ...state.users[index], ...action.payload };
+      if (action.meta.arg.type === 'user') {
+        const index = state.users.findIndex(user => user.usersId === action.meta.arg.id);
+        if (index !== -1 && 'usersId' in action.payload) {
+          state.users[index] = { ...state.users[index], ...action.payload };
+        }
+        state.status.users.create = Status.SUCCESS;
       }
-      state.status.users.create = Status.SUCCESS;
     });
     builder.addCase(updateUserLoginIdThunk.rejected, state => {
       state.status.users.create = Status.ERROR;
@@ -109,11 +117,13 @@ export const userSlice = createSlice({
       state.status.users.create = Status.PENDING;
     });
     builder.addCase(resetUserPasswordThunk.fulfilled, (state, action) => {
-      const index = state.users.findIndex(user => user.usersId === action.payload.usersId);
-      if (index !== -1) {
-        state.users[index] = { ...state.users[index], ...action.payload };
+      if (action.meta.arg.type === 'user') {
+        const index = state.users.findIndex(user => user.usersId === action.meta.arg.id);
+        if (index !== -1 && 'usersId' in action.payload) {
+          state.users[index] = { ...state.users[index], ...action.payload };
+        }
+        state.status.users.create = Status.SUCCESS;
       }
-      state.status.users.create = Status.SUCCESS;
     });
     builder.addCase(resetUserPasswordThunk.rejected, state => {
       state.status.users.create = Status.ERROR;

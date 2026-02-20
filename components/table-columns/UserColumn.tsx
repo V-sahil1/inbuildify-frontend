@@ -146,7 +146,7 @@ export const UserColumn = (setModalOpen, setSelectedUser, setDrawerOpen, selecte
 
   async function handleLock() {
     try {
-      await dispatch(updateUserLockThunk(selectedUser.usersId)).unwrap();
+      await dispatch(updateUserLockThunk({ id: selectedUser.usersId, type: 'user' })).unwrap();
       message.success('User locked/unlocked sucessfully');
       setModalOpen(null);
     } catch (error) {
@@ -166,7 +166,9 @@ export const UserColumn = (setModalOpen, setSelectedUser, setDrawerOpen, selecte
 
   async function handleLoginId(values) {
     try {
-      await dispatch(updateUserLoginIdThunk({ data: values, id: selectedUser.usersId })).unwrap();
+      await dispatch(
+        updateUserLoginIdThunk({ data: values, id: selectedUser.usersId, type: 'user' })
+      ).unwrap();
       message.success('User login id updated sucessfully');
       setModalOpen(null);
     } catch (error) {
@@ -176,7 +178,9 @@ export const UserColumn = (setModalOpen, setSelectedUser, setDrawerOpen, selecte
 
   async function handleResetPassword(values) {
     try {
-      await dispatch(resetUserPasswordThunk({ data: values, id: selectedUser.usersId })).unwrap();
+      await dispatch(
+        resetUserPasswordThunk({ data: values, id: selectedUser.usersId, type: 'user' })
+      ).unwrap();
       message.success('User password updated sucessfully');
       setDrawerOpen(null);
     } catch (error) {

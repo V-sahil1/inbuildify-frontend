@@ -7,14 +7,15 @@ import {
   IconTrash,
   IconKey,
   IconLock,
-  IconLockOpen
+  IconLockOpen,
 } from '@tabler/icons-react';
-import { Partners } from 'data/agentreferralData';
+import { IAgentReferralPartner } from '@redux/feature/agentReferral/IAgentReferralState';
+import TooltipButton from '../common/TooltipButton';
 
 const getInitials = (name: string) => {
-  const split = name.trim().split(' ');
-  if (split.length >= 2) return (split[0][0] + split[1][0]).toUpperCase();
-  return name.substring(0, 2).toUpperCase();
+  const split = name?.trim().split(' ');
+  if (split?.length >= 2) return (split[0][0] + split[1][0]).toUpperCase();
+  return name?.substring(0, 2).toUpperCase();
 };
 
 const AgentReferralGrid = ({
@@ -25,37 +26,37 @@ const AgentReferralGrid = ({
   onResetPassword,
   onViewDetails,
 }: {
-  partners: Partners[];
-  onEdit: (partner: Partners) => void;
-  onDelete: (partner: Partners) => void;
-  onLock: (partner: Partners) => void;
-  onResetPassword: (partner: Partners) => void;
-  onViewDetails: (partner: Partners) => void; 
+  partners?: IAgentReferralPartner[];
+  onEdit: (partner: IAgentReferralPartner) => void;
+  onDelete: (partner: IAgentReferralPartner) => void;
+  onLock: (partner: IAgentReferralPartner) => void;
+  onResetPassword: (partner: IAgentReferralPartner) => void;
+  onViewDetails: (partner: IAgentReferralPartner) => void;
 }) => {
-
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {partners.map((p) => {
-        const isLocked = p.isLocked ?? false;
-        const hasLogin = !!p.loginId;
+      {partners?.map(p => {
+        const isLocked = p.user.isLocked ?? false;
+        const hasLogin = !!p.user?.loginId;
 
         return (
           <div
-            key={p.id}
+            key={p.agentReferralPartnerId}
             onClick={() => onViewDetails(p)}
             className="rounded-2xl border border-border-color shadow-sm p-6 cursor-pointer hover:shadow-xl hover:scale-[1.02] transition-all duration-200 bg-card-color flex flex-col"
           >
             <div className="flex justify-between items-start mb-3">
-              <h3 className="text-lg font-semibold text-blue-600">{p.name}</h3>
-              <Avatar>{getInitials(p.name)}</Avatar>
+              <h3 className="text-lg font-semibold text-blue-600">{p?.user?.name}</h3>
+              <Avatar>{getInitials(p?.user?.name)}</Avatar>
             </div>
 
             <div className="flex justify-between items-center">
-              <p className="text-sm text-gray-600 mb-2">{p.address1}</p>
-              <IconPencil
-                size={18}
-                className="cursor-pointer hover:text-blue"
-                onClick={(e) => {
+              <p className="text-sm text-gray-600 mb-2">{p?.addressLine1}</p>
+              <TooltipButton
+                type="text"
+                title="Edit"
+                icon={<IconPencil size={18} className="cursor-pointer hover:text-blue" />}
+                onClick={e => {
                   e.stopPropagation();
                   onEdit(p);
                 }}
@@ -65,12 +66,13 @@ const AgentReferralGrid = ({
             <div className="flex justify-between items-center">
               <p className="flex items-center text-sm">
                 <IconPhone size={16} className="mr-2 text-gray-400" />
-                {p.phone}
+                {p?.user?.phone}
               </p>
-              <IconTrash
-                size={18}
-                className="cursor-pointer hover:text-red-500"
-                onClick={(e) => {
+              <TooltipButton
+                type="text"
+                title="Delete"
+                icon={<IconTrash size={18} className="cursor-pointer hover:text-red-500" />}
+                onClick={e => {
                   e.stopPropagation();
                   onDelete(p);
                 }}
@@ -80,14 +82,15 @@ const AgentReferralGrid = ({
             <div className="flex justify-between items-center">
               <p className="flex items-center text-sm mb-2">
                 <IconMail size={16} className="mr-2 text-gray-400" />
-                {p.email}
+                {p?.user?.email}
               </p>
 
               {hasLogin && (
-                <IconKey
-                  size={18}
-                  className="cursor-pointer hover:text-blue"
-                  onClick={(e) => {
+                <TooltipButton
+                  type="text"
+                  title="Reset Password"
+                  icon={<IconKey size={18} className="cursor-pointer hover:text-blue" />}
+                  onClick={e => {
                     e.stopPropagation();
                     onResetPassword(p);
                   }}
@@ -102,25 +105,27 @@ const AgentReferralGrid = ({
               </div>
 
               {hasLogin && (
-                isLocked ? (
-                  <IconLock
-                    size={20}
-                    className="cursor-pointer text-red-600 hover:text-red-700"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onLock(p);
-                    }}
-                  />
-                ) : (
-                  <IconLockOpen
-                    size={20}
-                    className="cursor-pointer text-blue-600 hover:text-blue-400"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onLock(p);
-                    }}
-                  />
-                )
+                <TooltipButton
+                  type="text"
+                  title={isLocked ? 'Unlock' : 'Lock'}
+                  icon={
+                    isLocked ? (
+                      <IconLock
+                        size={20}
+                        className="cursor-pointer text-red-600 hover:text-red-700"
+                      />
+                    ) : (
+                      <IconLockOpen
+                        size={20}
+                        className="cursor-pointer text-blue-600 hover:text-blue-400"
+                      />
+                    )
+                  }
+                  onClick={e => {
+                    e.stopPropagation();
+                    onLock(p);
+                  }}
+                />
               )}
             </div>
           </div>

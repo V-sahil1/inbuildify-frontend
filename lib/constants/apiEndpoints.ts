@@ -278,7 +278,10 @@ class API_ENDPOINTS {
   public static CONTRACT_FORMAT_SECTION = '/contract-section';
 
   //task
-  public static TASK_BASE = '/task'
+  public static TASK_BASE = '/task';
+
+  //agent referral
+  public static AGENT_REFERRAL = '/agent-referral-partner';
 
   // common
   public static FUNCTIONALITY_BASE = '/functionality';

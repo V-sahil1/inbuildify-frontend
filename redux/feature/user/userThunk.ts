@@ -4,6 +4,7 @@ import API_ENDPOINTS from '@lib/constants/apiEndpoints';
 import { ApiResponse } from '../auth/IAuthState';
 import { storeAuthToken, storeRefreshToken } from '@lib/constants/authToken';
 import { invitedUserResponse, IUser, ResetUserPassword } from './UserState';
+import { IAgentReferralPartner } from '../agentReferral/IAgentReferralState';
 
 export const AcceptInviteThunk = createAsyncThunk(
   'user/acceptInvite',
@@ -81,9 +82,11 @@ export const updateUserThunk = createAsyncThunk(
 
 export const updateUserLockThunk = createAsyncThunk(
   'user/updateUserLock',
-  async (id: string, { rejectWithValue }) => {
+  async (payload: { id: string; type: 'user' | 'agentReferral' }, { rejectWithValue }) => {
     try {
-      const res = await api.post<ApiResponse<IUser>>(API_ENDPOINTS.USER_LOCK(id));
+      const res = await api.post<ApiResponse<IUser | IAgentReferralPartner>>(
+        API_ENDPOINTS.USER_LOCK(payload.id)
+      );
       return res.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -106,13 +109,20 @@ export const updateUserStatusThunk = createAsyncThunk(
 export const updateUserLoginIdThunk = createAsyncThunk(
   'user/updateUserLoginId',
   async (
-    payload: { data: { newLoginId: string; emailLoginId: string }; id: string },
+    payload: {
+      data: { newLoginId: string; emailLoginId: string };
+      id: string;
+      type: 'user' | 'agentReferral';
+    },
     { rejectWithValue }
   ) => {
     try {
-      const res = await api.post<ApiResponse<IUser>>(API_ENDPOINTS.USER_LOGIN_ID(payload.id), {
-        data: payload.data,
-      });
+      const res = await api.post<ApiResponse<{ usersId: string; loginId: string }>>(
+        API_ENDPOINTS.USER_LOGIN_ID(payload.id),
+        {
+          data: payload.data,
+        }
+      );
       return res.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -122,9 +132,12 @@ export const updateUserLoginIdThunk = createAsyncThunk(
 
 export const resetUserPasswordThunk = createAsyncThunk(
   'user/resetUserPassword',
-  async (payload: { data: ResetUserPassword; id: string }, { rejectWithValue }) => {
+  async (
+    payload: { data: ResetUserPassword; id: string; type: 'user' | 'agentReferral' },
+    { rejectWithValue }
+  ) => {
     try {
-      const res = await api.post<ApiResponse<IUser>>(
+      const res = await api.post<ApiResponse<IUser | IAgentReferralPartner>>(
         API_ENDPOINTS.RESET_USER_PASSWORD(payload.id),
         {
           data: payload.data,
