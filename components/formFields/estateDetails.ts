@@ -1,7 +1,10 @@
 import React from 'react';
 import { FormField } from '../common/Models/ActionDialogModel';
 
-export const estateDetailsFields = (renderRegionField: () => React.ReactNode): FormField[] => {
+export const estateDetailsFields = (
+  renderRegionField: () => React.ReactNode,
+  stateOptions?: {label:string,value:string}[]
+): FormField[] => {
   const fields: FormField[] = [
     {
       name: 'name',
@@ -22,20 +25,10 @@ export const estateDetailsFields = (renderRegionField: () => React.ReactNode): F
       placeholder: 'Enter city or suburb',
     },
     {
-      name: 'state',
+      name: 'stateId',
       label: 'State / Region',
       type: 'select',
-      options: [
-        { label: 'Please Select', value: '' },
-        { label: 'Victoria', value: 'Victoria' },
-        { label: 'New South Wales', value: 'NewSouthWales' },
-        { label: 'Queensland', value: 'Queensland' },
-        { label: 'South Australia', value: 'SouthAustralia' },
-        { label: 'Western Australia', value: 'WesternAustralia' },
-        { label: 'Tasmania', value: 'Tasmania' },
-        { label: 'Northern Territory', value: 'NorthernTerritory' },
-        { label: 'Australian Capital Territory', value: 'AustralianCapitalTerritory' },
-      ],
+      options: stateOptions,
     },
     {
       name: 'region',
@@ -44,13 +37,13 @@ export const estateDetailsFields = (renderRegionField: () => React.ReactNode): F
       render: renderRegionField,
     },
     {
-      name: 'postcode',
+      name: 'zip',
       label: 'Zip / Postal Code',
       type: 'text',
       placeholder: 'e.g. 3000',
     },
     {
-      name: 'logo',
+      name: 'estateLogo',
       label: 'Estate Logo',
       type: 'image',
       acceptFileType: 'image/*',

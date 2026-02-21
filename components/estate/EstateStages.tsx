@@ -4,11 +4,12 @@ import React from 'react';
 import { Table, Button } from 'antd';
 import { IconCirclePlus } from '@tabler/icons-react';
 import { useEstateStagesColumns } from 'components/table-columns/EstateStagesColumns';
+import { IEstate } from '@redux/feature/estate/IEstateState';
 
-type Props = { estateName?: string };
+type Props = { estate?: IEstate };
 
-export default function EstateStages({ estateName }: Props) {
-  const { columns, data, startAdd } = useEstateStagesColumns(estateName);
+export default function EstateStages({ estate }: Props) {
+  const { columns, data, startAdd } = useEstateStagesColumns(estate);
 
   return (
     <div className="bg-card-color p-4 flex flex-col">

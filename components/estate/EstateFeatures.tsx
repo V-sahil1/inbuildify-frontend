@@ -1,90 +1,76 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button, Input, List, Tooltip } from 'antd';
+import { Button, Input, List, message } from 'antd';
 import { IconCirclePlus, IconPencil } from '@tabler/icons-react';
 import dayjs from 'dayjs';
-import { useAppSelector } from '@hooks/redux';
+import { useAppDispatch } from '@hooks/redux';
+import { EstateFeature, IEstate } from '@redux/feature/estate/IEstateState';
+import { createEStateFeature, updateEStateFeature } from '@redux/feature/estate/estateThunk';
+import TooltipButton from '../common/TooltipButton';
 
-interface FeatureItem {
-  id: string;
-  text: string;
-  author: string;
-  createdAt: string;
-}
+export default function EstateFeatures({ estate }: { estate: IEstate }) {
+  const dispatch = useAppDispatch();
+  const [editingFeature, setEditingFeature] = useState<EstateFeature | null>(null);
+  const [isAdding, setIsAdding] = useState(false);
 
-export default function EstateFeatures() {
-  const { user } = useAppSelector(state => state.auth);
-  const currentUserName = user?.name || '';
-  const [items, setItems] = useState<FeatureItem[]>([
-    { id: '1', text: 'new', author: currentUserName, createdAt: new Date().toISOString() },
-  ]);
-  const [adding, setAdding] = useState(false);
-  const [value, setValue] = useState('');
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editingValue, setEditingValue] = useState('');
-
-  const onAdd = () => {
-    setAdding(true);
-    setValue('');
+  const handleFeatureSubmit = async () => {
+    const featureName = editingFeature?.featureName?.trim() || '';
+    if (!featureName || !estate?.estateId) return;
+    try {
+      if (editingFeature?.estateFeatureId === '') {
+        const newFeature: Partial<EstateFeature> = {
+          estateId: estate.estateId,
+          featureName,
+        };
+        await dispatch(createEStateFeature(newFeature as EstateFeature)).unwrap();
+        message.success('Feature created successfully');
+      } else {
+        await dispatch(
+          updateEStateFeature({
+            id: editingFeature?.estateFeatureId,
+            data: { featureName },
+          })
+        ).unwrap();
+        message.success('Feature updated successfully');
+      }
+      setEditingFeature(null);
+      setIsAdding(false);
+    } catch (error) {
+      message.error(error || `Failed to save feature`);
+    }
   };
 
-  const confirmAdd = () => {
-    if (!value.trim()) return;
-    setItems(prev => [
-      {
-        id: String(Date.now()),
-        text: value.trim(),
-        author: currentUserName,
-        createdAt: new Date().toISOString(),
-      },
-      ...prev,
-    ]);
-    setAdding(false);
-    setValue('');
+  const startAdd = () => {
+    setIsAdding(true);
+    setEditingFeature({ estateFeatureId: '', featureName: '' });
   };
 
   const cancelAdd = () => {
-    setAdding(false);
-    setValue('');
-  };
-
-  const startEdit = (id: string, text: string) => {
-    setEditingId(id);
-    setEditingValue(text);
-  };
-
-  const saveEdit = () => {
-    if (!editingId) return;
-    setItems(prev => prev.map(it => (it.id === editingId ? { ...it, text: editingValue } : it)));
-    setEditingId(null);
-    setEditingValue('');
-  };
-
-  const cancelEdit = () => {
-    setEditingId(null);
-    setEditingValue('');
+    setIsAdding(false);
+    setEditingFeature(null);
   };
 
   return (
     <div className="bg-white p-4">
       <div className="flex items-center justify-center mb-3 text-primary">
-        <Button type="text" onClick={onAdd} disabled={adding}>
+        <Button type="text" onClick={startAdd} disabled={isAdding}>
           <IconCirclePlus size={16} />
           <span>Feature</span>
         </Button>
       </div>
 
-      {adding && (
+      {isAdding && (
         <div className="mb-3">
-          <Input.TextArea
-            value={value}
-            onChange={e => setValue(e.target.value)}
-            placeholder="Write feature description..."
+          <Input
+            value={editingFeature?.featureName || ''}
+            onChange={e => setEditingFeature({ estateFeatureId: '', featureName: e.target.value })}
+            placeholder="Enter feature name..."
+            onPressEnter={() => handleFeatureSubmit()}
           />
           <div className="mt-2 flex gap-2 justify-end">
             <Button onClick={cancelAdd}>Cancel</Button>
-            <Button type="primary" onClick={confirmAdd}>
+            <Button type="primary" onClick={() => handleFeatureSubmit()}>
               Add
             </Button>
           </div>
@@ -92,38 +78,40 @@ export default function EstateFeatures() {
       )}
 
       <List
-        dataSource={items}
-        renderItem={item => (
+        dataSource={estate?.features || []}
+        locale={{ emptyText: 'No features added yet' }}
+        renderItem={(item: EstateFeature) => (
           <List.Item className="border rounded-md mb-3 p-3">
             <div className="w-full mx-3">
-              {editingId === item.id ? (
+              {editingFeature?.estateFeatureId === item.estateFeatureId ? (
                 <div>
-                  <Input.TextArea
-                    autoSize={{ minRows: 2, maxRows: 6 }}
-                    value={editingValue}
-                    onChange={e => setEditingValue(e.target.value)}
+                  <Input
+                    value={editingFeature?.featureName || ''}
+                    onChange={e =>
+                      setEditingFeature({ ...editingFeature, featureName: e.target.value })
+                    }
+                    onPressEnter={() => handleFeatureSubmit()}
                   />
                   <div className="mt-2 flex gap-2 justify-end">
-                    <Button onClick={cancelEdit}>Cancel</Button>
-                    <Button type="primary" onClick={saveEdit}>
+                    <Button onClick={() => setEditingFeature(null)}>Cancel</Button>
+                    <Button type="primary" onClick={() => handleFeatureSubmit()}>
                       Save
                     </Button>
                   </div>
                 </div>
               ) : (
                 <div className="flex items-start justify-between">
-                  <div>{item.text}</div>
-                  <Tooltip title="Edit">
-                    <Button
-                      type="text"
-                      icon={<IconPencil size={16} />}
-                      onClick={() => startEdit(item.id, item.text)}
-                    />
-                  </Tooltip>
+                  <div>{item.featureName}</div>
+                  <TooltipButton
+                    type="text"
+                    title="Edit"
+                    icon={<IconPencil size={16} />}
+                    onClick={() => setEditingFeature(item)}
+                  />
                 </div>
               )}
               <div className="text-xs text-primary mt-2">
-                {item.author} added feature on {dayjs(item.createdAt).format('DD-MM-YYYY')}
+                {item?.featureName} added on {dayjs(item.createdAt).format('DD-MM-YYYY')}
               </div>
             </div>
           </List.Item>

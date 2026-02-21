@@ -283,6 +283,13 @@ class API_ENDPOINTS {
   //agent referral
   public static AGENT_REFERRAL = '/agent-referral-partner';
 
+  //estate
+  public static ESTATE = '/estate';
+  public static ESTATE_DOCUMENT = '/estate-document-image/documents';
+  public static ESTATE_FEATURE = '/estate-feature';
+  public static ESTATE_STAGE = '/estate-stage';
+  public static ESTATE_IMAGE = '/estate-document-image/image';
+
   // common
   public static FUNCTIONALITY_BASE = '/functionality';
   public static TIMEZONE_BASE = '/timezone';

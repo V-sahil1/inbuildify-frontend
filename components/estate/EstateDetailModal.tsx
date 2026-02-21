@@ -5,12 +5,14 @@ import { Button, Form, Input, Popover, Tag, List } from 'antd';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import { IconPlus } from '@tabler/icons-react';
 import { estateDetailsFields } from '@/components/formFields/estateDetails';
+import { useStateHook } from '@hooks/useStateHook';
+import { IEstate } from '@redux/feature/estate/IEstateState';
 
 interface EstateDetailModalProps {
   open: boolean;
   loading?: boolean;
   onCancel: () => void;
-  onSubmit: (values: any) => void;
+  onSubmit: (values: IEstate) => void;
 }
 
 export const RegionField: React.FC = () => {
@@ -23,6 +25,7 @@ export const RegionField: React.FC = () => {
   const [editingRegion, setEditingRegion] = useState<string | null>(null);
   const [editActionType, setEditActionType] = useState<'editName' | 'editRegion' | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
+  //todo: region
 
   const toggleRegion = (name: string) => {
     const current: string[] = form.getFieldValue('region') || [];
@@ -190,6 +193,8 @@ const EstateDetailModal: React.FC<EstateDetailModalProps> = ({
   onCancel,
   onSubmit,
 }) => {
+  const { stateOptions } = useStateHook();
+
   return (
     <ActionDialogmodel
       open={open}
@@ -197,9 +202,12 @@ const EstateDetailModal: React.FC<EstateDetailModalProps> = ({
       title="New Estate"
       isEditing={true}
       loading={loading}
-      fields={estateDetailsFields(() => (
-        <RegionField />
-      ))}
+      fields={estateDetailsFields(
+        () => (
+          <RegionField />
+        ),
+        stateOptions
+      )}
       onSubmit={onSubmit}
       submitButtonText="Save"
     />

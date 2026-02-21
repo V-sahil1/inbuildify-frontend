@@ -1,52 +1,63 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Space, Typography } from 'antd';
+import { Table, Button, Space, Typography, message } from 'antd';
 import { useRouter } from 'next/router';
-import {
-  Estate,
-  filterEstates,
-  getEstateColumns,
-  useEstateFilters,
-  initialData,
-} from 'components/table-columns/EstateColumns';
+import { getEstateColumns } from 'components/table-columns/EstateColumns';
 import EstateDetailModal from '@/components/estate/EstateDetailModal';
 import EstateFeatured from '@/components/estate/EstateFeatured';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { createEState, fetchAllEState } from '@redux/feature/estate/estateThunk';
+import { IEstate } from '@redux/feature/estate/IEstateState';
+import { formDataGenerator } from '@lib/utils/formDataGenerator';
+import { debouncedURL } from '@lib/utils/debounceURL';
+import { Status } from '@lib/constants/enum';
 
 export default function EstatePage() {
   const router = useRouter();
-  const [data, setData] = useState<Estate[]>(initialData);
-  const { debouncedUpdateURL, setParams, filters } = useEstateFilters();
+  const dispatch = useAppDispatch();
+  const { estate, status } = useAppSelector(state => state.estate);
+  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+    delay: 500,
+    filtersKey: ['name', 'location', 'zip', 'status'],
+    initialValue: { status: '' },
+  });
 
   const [newEstateOpen, setNewEstateOpen] = useState(false);
   const [featuredOpen, setFeaturedOpen] = useState(false);
 
-  const handleCreateEstate = (values: any) => {
-    const newItem: Estate = {
-      key: `${Date.now()}`,
-      name: values.name || '',
-      location: [values.streetName, values.city, values.state].filter(Boolean).join(', '),
-      postcode: values.postcode || '',
-      isActive: true,
-      logo:
-        Array.isArray(values.logo) && values.logo.length > 0
-          ? values.logo[0].url ||
-            (values.logo[0].originFileObj
-              ? URL.createObjectURL(values.logo[0].originFileObj)
-              : undefined)
-          : undefined,
-      description: values.description || '',
-      regions: values.region || [],
-    };
-    setData(prev => [...prev, newItem]);
-    setNewEstateOpen(false);
+  useEffect(() => {
+    if (status.estate.fetch === Status.IDLE) fetchEStateData();
+  }, [status.estate]);
+
+  const fetchEStateData = async () => {
+    try {
+      const params = {
+        name: filters?.name || undefined,
+        status: filters?.status !== '' ? filters.status === 'active' : undefined,
+        zip: filters?.zip || undefined,
+        location: filters?.location || undefined,
+      };
+      await dispatch(fetchAllEState(params)).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch estate data');
+    }
   };
 
   useEffect(() => () => debouncedUpdateURL.cancel(), [debouncedUpdateURL]);
 
-  const filteredData = filterEstates(data, filters);
-
   const { columns } = getEstateColumns({ filters, setParams });
+
+  const handleCreateEstate = async (values: IEstate) => {
+    try {
+      const formData = formDataGenerator(values);
+      await dispatch(createEState(formData)).unwrap();
+      message.success('Estate created successfully');
+      setNewEstateOpen(false);
+    } catch (error) {
+      message.error(error || 'Failed to save estate');
+    }
+  };
 
   return (
     <div style={{ padding: 20 }}>
@@ -63,10 +74,10 @@ export default function EstatePage() {
 
       <Table
         columns={columns}
-        dataSource={filteredData}
+        dataSource={estate}
         pagination={false}
-        onRow={(record: Estate) => ({
-          onClick: () => router.push(`/estate/${record.key}`),
+        onRow={(record: IEstate) => ({
+          onClick: () => router.push(`/estate/${record.estateId}`),
           style: { cursor: 'pointer' },
         })}
       />

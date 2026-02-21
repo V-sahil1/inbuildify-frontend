@@ -1,23 +1,14 @@
 import { Button, Tooltip } from 'antd';
 import { IconExternalLink } from '@tabler/icons-react';
 import dayjs from 'dayjs';
-
-export interface EstateDocItem {
-  key: string;
-  name: string;
-  createdAt: string;
-  url?: string;
-}
+import { EstateDocument } from '@redux/feature/estate/IEstateState';
 
 export const EstateDocumentsColumns = () => {
-  const estateDocumentsData: EstateDocItem[] = [
-    { key: '1', name: 'ready-reckoner.pdf', createdAt: '2025-09-30T10:00:00.000Z' },
-  ];
   const columns = [
     {
       title: 'File Name',
-      dataIndex: 'name',
-      key: 'name',
+      dataIndex: 'documentName',
+      key: 'documentName',
       width: '50%',
       render: (text: string) => <span className="whitespace-pre-wrap">{text}</span>,
     },
@@ -32,17 +23,17 @@ export const EstateDocumentsColumns = () => {
       title: 'Actions',
       key: 'actions',
       width: '20%',
-      render: (_: any, record: EstateDocItem) => (
+      render: (_, record: EstateDocument) => (
         <Tooltip title="Open">
           <Button
             type="text"
             icon={<IconExternalLink size={16} />}
-            onClick={() => record.url && window.open(record.url, '_blank')}
+            onClick={() => record.fileUrl && window.open(record.fileUrl, '_blank')}
           />
         </Tooltip>
       ),
     },
   ];
 
-  return { columns, estateDocumentsData };
+  return { columns };
 };

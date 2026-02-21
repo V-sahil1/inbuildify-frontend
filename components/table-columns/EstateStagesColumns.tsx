@@ -1,42 +1,47 @@
-import { Button, Badge, Tooltip, Input, DatePicker, Popover, Upload, List } from 'antd';
+import { Button, Tooltip, Input, DatePicker, Upload,message } from 'antd';
 import { IconPaperclip, IconX, IconPencil, IconUpload, IconCheck } from '@tabler/icons-react';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import { useRouter } from 'next/router';
 import React, { useMemo, useState } from 'react';
 import { data as landLots } from 'data/landData';
-
-export interface StageItem {
-  key: string;
-  name: string;
-  releaseDate: string;
-  document?: string;
-}
-
-export interface AttachmentItem {
-  name: string;
-  url?: string;
-  uploadedAt?: string;
-}
-
-export const useEstateStagesColumns = (estateName?: string) => {
+import { EstateStage, IEstate } from '@redux/feature/estate/IEstateState';
+import { useAppDispatch } from '@hooks/redux';
+import { createEStateStage, updateEStateStage } from '@redux/feature/estate/estateThunk';
+import { formDataGenerator } from '@lib/utils/formDataGenerator';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
+//todo: lot manage
+export const useEstateStagesColumns = (estate?: IEstate) => {
   const router = useRouter();
+  const dispatch = useAppDispatch();
+  const [editingRow, setEditingRow] = useState<EstateStage | null>(null);
 
-  const estateStagesSampleData: StageItem[] = [
-    { key: '4', name: 'Stage 4', releaseDate: '30-09-2025' },
-    { key: '3', name: 'Stage 3', releaseDate: '24-09-2025' },
-    { key: '2', name: 'Stage 2', releaseDate: '04-09-2025' },
-    { key: '1', name: 'Stage 1', releaseDate: '28-08-2025' },
-  ];
+  const handleDocumentUpload = (file: File) => {
+    if (!editingRow) return false;
+    if (file.type !== 'application/pdf') {
+      message.error('Only PDF files are allowed');
+      return false;
+    }
+    setEditingRow(prev => ({
+      ...prev!,
+      attachFile: [...(prev?.attachFile || []), file],
+    }));
 
-  const [data, setData] = useState<StageItem[]>(estateStagesSampleData);
-  const [adding, setAdding] = useState(false);
-  const [newName, setNewName] = useState('');
-  const [newDate, setNewDate] = useState<Dayjs | null>(null);
-  const [attachments, setAttachments] = useState<Record<string, AttachmentItem[]>>({});
+    return false;
+  };
+
+  const handleRemoveDocument = (index: number) => {
+    if (!editingRow) return;
+
+    setEditingRow(prev => {
+      const docs = [...(prev?.attachFile || [])];
+      docs.splice(index, 1);
+      return { ...prev!, attachFile: docs };
+    });
+  };
 
   const lotsByStage = useMemo(() => {
     const counts: Record<string, number> = {};
-    const estateNorm = (estateName || '').trim().toLowerCase();
+    const estateNorm = (estate?.name || '').trim().toLowerCase();
     landLots.forEach(lot => {
       const stage = lot.stageName;
       if (!stage) return;
@@ -48,51 +53,40 @@ export const useEstateStagesColumns = (estateName?: string) => {
       counts[stage] = (counts[stage] || 0) + 1;
     });
     return counts;
-  }, [estateName]);
-
-  const handleBeforeUpload = (recordKey: string) => (file: File) => {
-    const url = URL.createObjectURL(file);
-    const uploadedAt = new Date().toISOString();
-    setAttachments(prev => ({
-      ...prev,
-      [recordKey]: [...(prev[recordKey] || []), { name: file.name, url, uploadedAt }],
-    }));
-    return false;
-  };
-
-  const handleRemoveAttachment = (recordKey: string, idx: number) => {
-    setAttachments(prev => {
-      const list = [...(prev[recordKey] || [])];
-      const [removed] = list.splice(idx, 1);
-      if (removed?.url) URL.revokeObjectURL(removed.url);
-      return { ...prev, [recordKey]: list };
-    });
-  };
+  }, [estate?.name]);
 
   const handleLotsClick = (stageName: string) => {
     const params = new URLSearchParams();
     params.set('stageName', stageName);
-    if (estateName) params.set('estate', estateName);
+    if (estate?.name) params.set('estate', estate?.name);
     router.push(`/land?${params.toString()}`);
   };
 
-  const handleConfirm = () => {
-    if (!newName.trim() || !newDate) return;
-    const newItem: StageItem = {
-      key: String(Date.now()),
-      name: newName.trim(),
-      releaseDate: newDate.format('DD-MM-YYYY'),
-    };
-    setData(prev => [newItem, ...prev]);
-    setAdding(false);
-    setNewName('');
-    setNewDate(null);
-  };
-
-  const handleCancel = () => {
-    setAdding(false);
-    setNewName('');
-    setNewDate(null);
+  const handleConfirm = async () => {
+    try {
+      if (editingRow?.estateStageId === '') {
+        delete editingRow?.estateStageId;
+        const formData = formDataGenerator({ ...editingRow, estateId: estate.estateId });
+        await dispatch(createEStateStage(formData)).unwrap();
+        message.success('Estate stage created successfully');
+      } else {
+        const { isUpdated, updatedFields } = getUpdatedFields(
+          editingRow,
+          estate.stages.find(i => i.estateStageId === editingRow?.estateStageId)
+        );
+        if (!isUpdated) {
+          setEditingRow(null);
+          return;
+        }
+        await dispatch(
+          updateEStateStage({ id: editingRow?.estateStageId, data: updatedFields })
+        ).unwrap();
+        message.success('Estate stage updated successfully');
+      }
+      setEditingRow(null);
+    } catch (error) {
+      message.error(error || 'Failed to save estate stage');
+    }
   };
 
   const columns = [
@@ -100,12 +94,12 @@ export const useEstateStagesColumns = (estateName?: string) => {
       title: 'Stage Name',
       dataIndex: 'name',
       key: 'name',
-      render: (_: any, record: StageItem) =>
-        record.key === '__new__' ? (
+      render: (_, record: EstateStage) =>
+        record.estateStageId === editingRow?.estateStageId ? (
           <Input
             autoFocus
-            value={newName}
-            onChange={e => setNewName(e.target.value)}
+            value={editingRow?.name}
+            onChange={e => setEditingRow(prev => ({ ...prev, name: e.target.value }))}
             placeholder="Stage name"
           />
         ) : (
@@ -116,73 +110,80 @@ export const useEstateStagesColumns = (estateName?: string) => {
       title: 'Release Date',
       dataIndex: 'releaseDate',
       key: 'releaseDate',
-      render: (_: any, record: StageItem) =>
-        record.key === '__new__' ? (
+      render: (_, record: EstateStage) =>
+        record.estateStageId === editingRow?.estateStageId ? (
           <DatePicker
-            value={newDate}
-            onChange={d => setNewDate(d)}
+            value={editingRow?.releaseDate ? dayjs(editingRow.releaseDate) : null}
+            onChange={d =>
+              setEditingRow(prev => ({ ...prev, releaseDate: d?.format('YYYY-MM-DD') || '' }))
+            }
             format={'DD-MM-YYYY'}
             className="w-full"
           />
         ) : (
-          <span>{record.releaseDate}</span>
+          <span>{dayjs(record.releaseDate).format('DD-MM-YYYY')}</span>
         ),
     },
     {
       title: 'Documents',
       dataIndex: 'document',
       key: 'documents',
-      render: (_: string | undefined, record: StageItem) => {
-        const files = attachments[record.key] || [];
-        const content = (
-          <div className="w-96">
-            <div className="flex items-center justify-between">
-              <span>Attachments</span>
-              <Upload multiple showUploadList={false} beforeUpload={handleBeforeUpload(record.key)}>
-                <Button type="primary" size="small" className="mb-3">
-                  <IconUpload size={16} />
-                </Button>
-              </Upload>
-            </div>
-            <List
-              dataSource={files}
-              locale={{ emptyText: 'No attachments' }}
-              renderItem={(item, idx) => (
-                <List.Item className="py-1 flex justify-between items-start gap-3">
-                  <div className="flex gap-2 items-center">
-                    <a
-                      className="text-primary hover:underline"
-                      onClick={() => item.url && window.open(item.url, '_blank')}
-                    >
-                      {item.name}
-                    </a>
-                    <span className="text-xs text-gray-500">
-                      {item.uploadedAt ? dayjs(item.uploadedAt).format('DD-MM-YYYY') : ''}
-                    </span>
-                  </div>
-                  <Button
-                    type="text"
-                    danger
-                    size="small"
-                    onClick={() => handleRemoveAttachment(record.key, idx)}
-                  >
-                    <IconX size={14} />
-                  </Button>
-                </List.Item>
-              )}
-            />
-          </div>
-        );
+      render: (_, record: EstateStage) => {
+        // Show documents from record when not editing, from editingRow when editing
+        const documents =
+          record.estateStageId === editingRow?.estateStageId
+            ? editingRow?.attachFile || []
+            : record.attachFile || [];
+
         return (
-          <Popover content={content} trigger="click">
-            <Button size="small" type="text">
-              <Badge count={files.length} size="small" color="orange" offset={[3, 0]}>
-                <Tooltip title="Documents">
-                  <IconPaperclip size={16} />
-                </Tooltip>
-              </Badge>
-            </Button>
-          </Popover>
+          <div className="w-full">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium">PDF Documents</span>
+              {record.estateStageId === editingRow?.estateStageId && (
+                <Upload
+                  multiple
+                  showUploadList={false}
+                  beforeUpload={handleDocumentUpload}
+                  accept=".pdf"
+                >
+                  <Button type="primary" size="small">
+                    <IconUpload size={14} />
+                    <span className="ml-1">Add PDF</span>
+                  </Button>
+                </Upload>
+              )}
+            </div>
+
+            {documents.length > 0 && (
+              <div className="space-y-1">
+                {documents?.map((doc, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-2 border rounded bg-gray-50"
+                  >
+                    <div className="flex items-center gap-2 flex-1">
+                      <IconPaperclip size={14} className="text-red-500" />
+                      <span className="text-sm truncate">{doc.name}</span>
+                      <span className="text-xs text-gray-500">
+                        {dayjs(doc.lastModified).format('DD-MM-YYYY HH:mm')}
+                      </span>
+                    </div>
+                    {record.estateStageId === editingRow?.estateStageId && (
+                      <Button
+                        type="text"
+                        danger
+                        size="small"
+                        onClick={() => handleRemoveDocument(index)}
+                        title="Remove document"
+                      >
+                        <IconX size={12} />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         );
       },
     },
@@ -190,13 +191,13 @@ export const useEstateStagesColumns = (estateName?: string) => {
       title: 'Lots',
       dataIndex: 'lots',
       key: 'lots',
-      render: (_: string, record: StageItem) => {
+      render: (_: string, record: EstateStage) => {
         const lotsCount = lotsByStage[record.name] || 0;
         return (
           <Button
             size="small"
             type="primary"
-            disabled={record.key === '__new__'}
+            disabled={record.estateStageId === editingRow?.estateStageId}
             onClick={() => handleLotsClick(record.name)}
           >
             Lots
@@ -212,43 +213,43 @@ export const useEstateStagesColumns = (estateName?: string) => {
     {
       title: 'Actions',
       key: 'actions',
-      render: (_: any, record: StageItem) =>
-        record.key === '__new__' ? (
+      render: (_, record: EstateStage) =>
+        record.estateStageId === editingRow?.estateStageId ? (
           <div className="flex items-center gap-2">
             <Button type="text" onClick={handleConfirm}>
               <IconCheck size={18} className="text-green-600" />
             </Button>
-            <Button type="text" onClick={handleCancel}>
+            <Button type="text" onClick={() => setEditingRow(null)}>
               <IconX size={18} className="text-red-600" />
             </Button>
           </div>
         ) : (
           <Tooltip title="Edit">
-            <Button type="text" icon={<IconPencil size={16} />} />
+            <Button
+              type="text"
+              icon={<IconPencil size={16} />}
+              onClick={() => setEditingRow(record)}
+            />
           </Tooltip>
         ),
     },
   ];
 
-  const tempRow: StageItem | null = useMemo(() => {
-    if (!adding) return null;
-    return {
-      key: '__new__',
-      name: newName,
-      releaseDate: newDate ? newDate.format('DD-MM-YYYY') : '',
-      document: '0',
-    };
-  }, [adding, newName, newDate]);
-
   const startAdd = () => {
-    setAdding(true);
-    setNewName('');
-    setNewDate(null);
+    const tempRow = {
+      estateStageId: '',
+      name: '',
+      releaseDate: '',
+    };
+    setEditingRow(tempRow);
   };
 
   return {
     columns,
-    data: tempRow ? [tempRow, ...data] : data,
+    data:
+      !!editingRow && editingRow?.estateStageId === ''
+        ? [editingRow, ...estate?.stages]
+        : estate?.stages,
     startAdd,
   };
 };
