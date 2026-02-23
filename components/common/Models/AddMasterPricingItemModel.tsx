@@ -92,7 +92,7 @@ const AddMasterPricingItemModal = ({
     } else {
       form.resetFields();
       setCostType('Included');
-      // // if provided Pre-fill range and dw elling type only from package modal
+      // // if provided Pre-fill range and dwelling type only from package modal
       // if (preselectedRange && preselectedDwelling) {
       //   form.setFieldsValue({
       //     range: preselectedRange,

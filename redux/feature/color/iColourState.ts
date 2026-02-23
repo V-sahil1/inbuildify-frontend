@@ -28,7 +28,7 @@ export interface ColorItem {
   colorItemId: string;
   companyId: string;
   builderId: string;
-  colorCategoryId: string;
+  colorCategoryId?: string;
   itemName: string;
   itemCode: string;
   supplierId: string;
@@ -44,6 +44,7 @@ export interface ColorItem {
   specification: any[];
   status: boolean;
   customFields?: ColorItemCustomField[];
+  colorGroups?: { colorGroupId: string; colorGroupName: string }[];
 }
 
 export interface ColorItemCopy {
@@ -57,11 +58,18 @@ export interface ColorGroup {
   colorGroupId?: string;
   name: string;
   status?: boolean;
+  items?: ColorGroupItem[] | null;
 }
 
 export interface IColorType {
   colorTypeId?: string;
   colorTypeName: string;
+}
+
+export interface ColorGroupItem {
+  id?: string;
+  colorGroupId: string;
+  colorItemId: string;
 }
 
 export interface ColorItemCustomField {
@@ -99,8 +107,13 @@ export interface ColorInitialState {
       fetch: Status;
       create: Status;
     };
+    colorGroupItem: {
+      fetch: Status;
+      create: Status;
+    };
   };
   color: ColorType[];
   colorGroup: ColorGroup[];
   colorType: IColorType[];
+  colorItems: ColorItem[];
 }

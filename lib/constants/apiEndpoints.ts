@@ -96,11 +96,13 @@ class API_ENDPOINTS {
   public static COLOUR_CATEGORY_COPY = id => `${this.COLOUR_CATEGORY_BASE}/copy/${id}`;
   public static COLOUR_SUB_CATEGORY_BASE = '/color-sub-category';
   public static COLOUR_SUB_CATEGORY_ITEM = `/color-item`;
+  public static GET_COLOR_GROUP_ITEM = `${this.COLOUR_SUB_CATEGORY_ITEM}/without-category`;
   public static COLOUR_SUB_CATEGORY_ITEM_COPY = id => `${this.COLOUR_SUB_CATEGORY_ITEM}/copy/${id}`;
   public static COLOR_ITEM_MOVE = (id: string) => `${this.COLOUR_SUB_CATEGORY_ITEM}/move/${id}`;
   public static COLOUR_GROUP = `/color-group`;
   public static COLOUR_TYPE = `/color-type`;
   public static COLOR_ITEM_CUSTOM_FIELD = `/color-item-custom-field`;
+  public static COLOR_GROUP_ITEM = `/color-group-item-map`;
 
   // Property
   public static PROPERTY_BASE = '/property';

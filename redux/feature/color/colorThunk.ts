@@ -10,6 +10,7 @@ import {
   IColorType,
   ColorItemCopy,
   ColorItemCustomField,
+  ColorGroupItem,
 } from './iColourState';
 
 // In colorThunk.ts
@@ -262,7 +263,7 @@ export const updateColourItem = createAsyncThunk(
 
 export const deleteColourItem = createAsyncThunk(
   'workflowProcess/deleteItem',
-  async (payload: { id: string; colorCategoryId: string }, { rejectWithValue }) => {
+  async (payload: { id: string; colorCategoryId?: string }, { rejectWithValue }) => {
     try {
       const res = await api.delete<ApiResponse>(
         API_ENDPOINTS.COLOUR_SUB_CATEGORY_ITEM + '/' + payload.id
@@ -304,6 +305,19 @@ export const moveColourItem = createAsyncThunk(
         API_ENDPOINTS.COLOR_ITEM_MOVE(payload.id),
         { data: payload.data }
       );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+export const fetchColourGroupItems = createAsyncThunk(
+  'color/fetchColourGroupItems',
+  async (params: { color_group_id?: string }, { rejectWithValue }) => {
+    try {
+      const res = await api.get<ApiResponse<ColorItem[]>>(API_ENDPOINTS.GET_COLOR_GROUP_ITEM, {
+        params,
+      });
       return res.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -393,9 +407,7 @@ export const fetchColourGroups = createAsyncThunk(
   'color/getGroup',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await api.get<ApiResponse<{ colorGroups: ColorGroup[] }>>(
-        API_ENDPOINTS.COLOUR_GROUP
-      );
+      const res = await api.get<ApiResponse<ColorGroup[]>>(API_ENDPOINTS.COLOUR_GROUP);
       return res.data;
     } catch (err) {
       return rejectWithValue(err.message);
@@ -405,7 +417,7 @@ export const fetchColourGroups = createAsyncThunk(
 
 export const updateColourGroup = createAsyncThunk(
   'color/updateGroup',
-  async ({ payload, id }: { payload: FormData; id: string }, { rejectWithValue }) => {
+  async ({ payload, id }: { payload: Partial<ColorGroup>; id: string }, { rejectWithValue }) => {
     try {
       const res = await api.put<ApiResponse<ColorGroup>>(API_ENDPOINTS.COLOUR_GROUP + '/' + id, {
         data: payload,
@@ -476,6 +488,50 @@ export const deleteColourType = createAsyncThunk(
   async (id: string, { rejectWithValue }) => {
     try {
       const res = await api.delete<ApiResponse>(API_ENDPOINTS.COLOUR_TYPE + '/' + id);
+      return;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+//color group item mapping
+export const fetchColourGroupItem = createAsyncThunk(
+  'color/fetchColourGroupItem',
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const res = await api.get<ApiResponse<{ mappings: ColorGroupItem[] }>>(
+        API_ENDPOINTS.COLOR_GROUP_ITEM,
+        {
+          params: { color_group_id: id },
+        }
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const createColourGroupItem = createAsyncThunk(
+  'color/createColourGroupItem',
+  async (data: ColorGroupItem, { rejectWithValue }) => {
+    try {
+      const res = await api.post<ApiResponse<ColorGroupItem>>(API_ENDPOINTS.COLOR_GROUP_ITEM, {
+        data,
+      });
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const deleteColourGroupItem = createAsyncThunk(
+  'color/deleteColourGroupItem',
+  async (payload: { id: string; itemId: string; groupId: string }, { rejectWithValue }) => {
+    try {
+      const res = await api.delete<ApiResponse>(API_ENDPOINTS.COLOR_GROUP_ITEM + '/' + payload.id);
       return;
     } catch (error) {
       return rejectWithValue(error.message);

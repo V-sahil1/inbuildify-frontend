@@ -40,9 +40,8 @@ import {
 } from '@redux/feature/color/colorThunk';
 import { useSupplierHook } from '@hooks/useSupplierHook';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
-import { ColorItem, ColorItemCustomField } from '@redux/feature/color/iColourState';
+import { ColorItem, ColorItemCustomField, ColorGroup } from '@redux/feature/color/iColourState';
 import { useColorTypeHook } from '@hooks/useColorTypeHook';
-import { values } from 'lodash';
 import NoDataMessage from '../NoDataMessage';
 import SystemRoutes from '@lib/constants/Routes';
 
@@ -51,8 +50,9 @@ interface ColorCategoryItemModalProps {
   onClose: () => void;
   categoryId?: string;
   selectedColorCategoryId?: string;
-  categoryItem?: ColorItem;
+  categoryItem?: ColorItem | ColorGroup;
   handleAddColorItem?: (values) => void;
+  type?: 'group' | 'category';
 }
 
 const FieldTypes = [
@@ -67,6 +67,7 @@ const ColorCategoryItemModel = ({
   onClose,
   selectedColorCategoryId,
   categoryItem,
+  type = 'category',
 }: ColorCategoryItemModalProps) => {
   const [form] = Form.useForm();
   const dispatch = useAppDispatch();
@@ -135,7 +136,12 @@ const ColorCategoryItemModel = ({
         return;
       }
       await dispatch(
-        createColourItemCustomField({ ...values, sortOrder, colorItem: categoryItem?.colorItemId })
+        createColourItemCustomField({
+          ...values,
+          sortOrder,
+          colorItem:
+            categoryItem && 'colorItemId' in categoryItem ? categoryItem.colorItemId : undefined,
+        })
       ).unwrap();
       message.success('Custom field added successfully');
       form.setFieldsValue({
@@ -159,7 +165,7 @@ const ColorCategoryItemModel = ({
         colorImage: images?.color,
         specification: images?.specification,
       };
-      if (categoryItem) {
+      if (categoryItem && 'colorItemId' in categoryItem) {
         const { isUpdated, updatedFields } = getUpdatedFields(payload, categoryItem);
         if (!isUpdated) {
           message.info('No changes detected');
@@ -169,10 +175,14 @@ const ColorCategoryItemModel = ({
         await dispatch(updateColourItem({ data: formData, id: categoryItem.colorItemId })).unwrap();
         message.success('Sub-category item updated successfully');
       } else {
-        const formData = formDataGenerator({
-          ...payload,
-          colorCategoryId: selectedColorCategoryId,
-        });
+        const formData = formDataGenerator(
+          type === 'category'
+            ? {
+                ...payload,
+                colorCategoryId: selectedColorCategoryId,
+              }
+            : payload
+        );
         await dispatch(createColourItem(formData)).unwrap();
         message.success('Sub-category item created successfully');
       }
@@ -184,10 +194,12 @@ const ColorCategoryItemModel = ({
 
   const handleDeleteCustomField = async (id: string) => {
     try {
-      await dispatch(
-        deleteColourItemCustomField({ id, colorItemId: categoryItem.colorItemId })
-      ).unwrap();
-      message.success('Custom field deleted successfully');
+      if (categoryItem && 'colorItemId' in categoryItem) {
+        await dispatch(
+          deleteColourItemCustomField({ id, colorItemId: categoryItem.colorItemId })
+        ).unwrap();
+        message.success('Custom field deleted successfully');
+      }
     } catch (error) {
       message.error(error || 'Failed to delete custom field');
     }
@@ -388,23 +400,25 @@ const ColorCategoryItemModel = ({
                   </Col>
                 </Row>
 
-                <Row gutter={16}>
-                  <Col xs={12} md={12}>
-                    <Form.Item
-                      name="sortOrder"
-                      label=" Sort Order"
-                      rules={[{ required: false, message: 'Please select sort order' }]}
-                    >
-                      <InputNumber
-                        style={{ width: '100%' }}
-                        min={0}
-                        step={1}
-                        type="number"
-                        placeholder="Enter sort order"
-                      />
-                    </Form.Item>
-                  </Col>
-                </Row>
+                {type === 'category' && (
+                  <Row gutter={16}>
+                    <Col xs={12} md={12}>
+                      <Form.Item
+                        name="sortOrder"
+                        label=" Sort Order"
+                        rules={[{ required: false, message: 'Please select sort order' }]}
+                      >
+                        <InputNumber
+                          style={{ width: '100%' }}
+                          min={0}
+                          step={1}
+                          type="number"
+                          placeholder="Enter sort order"
+                        />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                )}
 
                 {/* Row 2: Item Code + Cost Type */}
                 <Row gutter={16}>
@@ -440,125 +454,133 @@ const ColorCategoryItemModel = ({
                     </Form.Item>
                   </Col>
                 </Row>
-                <Row gutter={16}>
-                  <Col xs={24} md={24}>
-                    <Form.Item name="colorTypeId" label="Color Types">
-                      <PackageGroupField
-                        form={form}
-                        formName="colorTypeId"
-                        label="Color Types"
-                        fields={[{ label: 'Name', name: 'colorTypeName', type: 'text' }]}
-                        onSubmit={handleColorTypeSubmit}
-                        data={colorType?.map(i => ({
-                          ...i,
-                          name: i.colorTypeName,
-                          id: i.colorTypeId,
-                        }))}
-                      />
-                    </Form.Item>
-                  </Col>
-                </Row>
-                <Row gutter={16}>
-                  <Col xs={24} md={24}>
-                    <Form.Item name="rangeId" label="Range">
-                      <PackageGroupField
-                        form={form}
-                        formName="rangeId"
-                        label="Range"
-                        fields={[{ label: 'Range Name', name: 'name', type: 'text' }]}
-                        onSubmit={handleRangeSubmit}
-                        data={rangeOptions?.map(item => ({
-                          ...item,
-                          name: item.label,
-                          id: item.value,
-                        }))}
-                      />
-                    </Form.Item>
-                  </Col>
-                </Row>
-              </Col>
-              <Col xs={28} md={14}>
-                <Row gutter={16}>
-                  <Col xs={24} md={24}>
-                    <p>Color Item Custom Field</p>
+                {type === 'category' && (
+                  <>
                     <Row gutter={16}>
-                      <Col xs={12} md={6}>
-                        <Form.Item
-                          name="fieldType"
-                          label="Field Type"
-                          rules={[{ required: false, message: 'Please select a field type' }]}
-                        >
-                          <Select
-                            showSearch
-                            placeholder="Select field type"
-                            optionFilterProp="children"
-                            filterOption={(input, option) =>
-                              (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                            }
-                            options={FieldTypes.map(type => ({
-                              value: type.value,
-                              label: type.name,
+                      <Col xs={24} md={24}>
+                        <Form.Item name="colorTypeId" label="Color Types">
+                          <PackageGroupField
+                            form={form}
+                            formName="colorTypeId"
+                            label="Color Types"
+                            fields={[{ label: 'Name', name: 'colorTypeName', type: 'text' }]}
+                            onSubmit={handleColorTypeSubmit}
+                            data={colorType?.map(i => ({
+                              ...i,
+                              name: i.colorTypeName,
+                              id: i.colorTypeId,
                             }))}
                           />
                         </Form.Item>
                       </Col>
-                      <Col xs={10} md={5}>
-                        <Form.Item
-                          name="fieldName"
-                          label="Field name"
-                          rules={[{ required: false, message: 'Please enter field name' }]}
-                        >
-                          <Input placeholder="Enter field name" />
+                    </Row>
+                    <Row gutter={16}>
+                      <Col xs={24} md={24}>
+                        <Form.Item name="rangeId" label="Range">
+                          <PackageGroupField
+                            form={form}
+                            formName="rangeId"
+                            label="Range"
+                            fields={[{ label: 'Range Name', name: 'name', type: 'text' }]}
+                            onSubmit={handleRangeSubmit}
+                            data={rangeOptions?.map(item => ({
+                              ...item,
+                              name: item.label,
+                              id: item.value,
+                            }))}
+                          />
                         </Form.Item>
-                      </Col>
-                      <Col xs={8} md={4}>
-                        <Form.Item
-                          name="requiredField"
-                          valuePropName="checked"
-                          label="Required Field"
-                          className="text-center"
-                        >
-                          <Checkbox />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={10} md={5}>
-                        <Form.Item name="customFieldSortOrder" label="Sort Order">
-                          <Input type="number" placeholder="Enter sort order" />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={8} md={4} className="flex justify-end items-center">
-                        <Button type="primary" onClick={handleAddCustomField}>
-                          Add
-                        </Button>
                       </Col>
                     </Row>
+                  </>
+                )}
+              </Col>
+              <Col xs={28} md={14}>
+                {type === 'category' && (
+                  <Row gutter={16}>
+                    <Col xs={24} md={24}>
+                      <p>Color Item Custom Field</p>
+                      <Row gutter={16}>
+                        <Col xs={12} md={6}>
+                          <Form.Item
+                            name="fieldType"
+                            label="Field Type"
+                            rules={[{ required: false, message: 'Please select a field type' }]}
+                          >
+                            <Select
+                              showSearch
+                              placeholder="Select field type"
+                              optionFilterProp="children"
+                              filterOption={(input, option) =>
+                                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                              }
+                              options={FieldTypes.map(type => ({
+                                value: type.value,
+                                label: type.name,
+                              }))}
+                            />
+                          </Form.Item>
+                        </Col>
+                        <Col xs={10} md={5}>
+                          <Form.Item
+                            name="fieldName"
+                            label="Field name"
+                            rules={[{ required: false, message: 'Please enter field name' }]}
+                          >
+                            <Input placeholder="Enter field name" />
+                          </Form.Item>
+                        </Col>
+                        <Col xs={8} md={4}>
+                          <Form.Item
+                            name="requiredField"
+                            valuePropName="checked"
+                            label="Required Field"
+                            className="text-center"
+                          >
+                            <Checkbox />
+                          </Form.Item>
+                        </Col>
+                        <Col xs={10} md={5}>
+                          <Form.Item name="customFieldSortOrder" label="Sort Order">
+                            <Input type="number" placeholder="Enter sort order" />
+                          </Form.Item>
+                        </Col>
+                        <Col xs={8} md={4} className="flex justify-end items-center">
+                          <Button type="primary" onClick={handleAddCustomField}>
+                            Add
+                          </Button>
+                        </Col>
+                      </Row>
 
-                    {/* Add the table below the form */}
-                    <div className="mt-4">
-                      {categoryItem?.customFields?.length > 0 ? (
-                        <Table
-                          columns={columns}
-                          dataSource={categoryItem?.customFields}
-                          pagination={false}
-                          loading={status.colorItemCustomField.fetch === Status.PENDING}
-                          rowKey="colorItemCustomFieldId"
-                        />
-                      ) : (
-                        <div className="text-center py-2">
-                          <Empty
-                            image={Empty.PRESENTED_IMAGE_SIMPLE}
-                            description={
-                              <span className="text-gray-500">
-                                {/* <InfoCircleOutlined className="mr-2" /> */}
-                                No Custom Color found
-                              </span>
-                            }
+                      {/* Add the table below the form */}
+                      <div className="mt-4">
+                        {categoryItem &&
+                        'customFields' in categoryItem &&
+                        categoryItem.customFields?.length > 0 ? (
+                          <Table
+                            columns={columns}
+                            dataSource={categoryItem.customFields}
+                            pagination={false}
+                            loading={status.colorItemCustomField.fetch === Status.PENDING}
+                            rowKey="colorItemCustomFieldId"
                           />
-                        </div>
-                      )}
-                    </div>
-                  </Col>
-                </Row>
+                        ) : (
+                          <div className="text-center py-2">
+                            <Empty
+                              image={Empty.PRESENTED_IMAGE_SIMPLE}
+                              description={
+                                <span className="text-gray-500">
+                                  {/* <InfoCircleOutlined className="mr-2" /> */}
+                                  No Custom Color found
+                                </span>
+                              }
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </Col>
+                  </Row>
+                )}
                 <Row gutter={16}>
                   <Col xs={24} md={24}>
                     <p className="mt-4">Color Image</p>
@@ -571,7 +593,7 @@ const ColorCategoryItemModel = ({
                       <Upload
                         ref={imageUploadRef}
                         beforeUpload={() => false}
-                        maxCount={10}
+                        maxCount={type === 'category' ? 10 : 1}
                         listType="picture"
                         accept={acceptOnlyImageRule}
                         onChange={info => {
@@ -614,7 +636,7 @@ const ColorCategoryItemModel = ({
                       <Upload
                         ref={uploadRef}
                         beforeUpload={() => false}
-                        maxCount={10}
+                        maxCount={type === 'category' ? 10 : 1}
                         listType="picture"
                         className="text-center"
                         accept="image/*,.pdf"

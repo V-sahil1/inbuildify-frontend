@@ -3,12 +3,12 @@
 import React, { useMemo, useState } from 'react';
 import { Drawer, Input, Button, Badge } from 'antd';
 import { IconMapPin } from '@tabler/icons-react';
-import { Estate, initialData } from 'components/table-columns/EstateColumns';
+import { IEstate } from '@redux/feature/estate/IEstateState';
 
 interface EstateFeaturedProps {
   open: boolean;
   onClose: () => void;
-  estates?: Estate[];
+  estates?: IEstate[];
   initialSelectedKeys?: string[];
   onChangeSelected?: (keys: string[]) => void;
 }
@@ -16,7 +16,7 @@ interface EstateFeaturedProps {
 const EstateFeatured: React.FC<EstateFeaturedProps> = ({
   open,
   onClose,
-  estates = initialData,
+  estates = [],
   initialSelectedKeys = [],
   onChangeSelected,
 }) => {
@@ -30,8 +30,8 @@ const EstateFeatured: React.FC<EstateFeaturedProps> = ({
         if (!term) return true;
         return (
           e.name.toLowerCase().includes(term) ||
-          e.location.toLowerCase().includes(term) ||
-          e.postcode.toLowerCase().includes(term)
+          // e.location.toLowerCase().includes(term) ||
+          e.zip.toLowerCase().includes(term)
         );
       }),
     [estates, search]
@@ -75,12 +75,12 @@ const EstateFeatured: React.FC<EstateFeaturedProps> = ({
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-2 flex-1">
           {filteredEstates.map(estate => {
-            const isSelected = selected.includes(estate.key);
+            const isSelected = selected.includes(estate.estateId);
             return (
               <button
-                key={estate.key}
+                key={estate.estateId}
                 type="button"
-                onClick={() => toggleSelected(estate.key)}
+                onClick={() => toggleSelected(estate.estateId)}
                 className={`relative text-left rounded-xl border p-3 h-72 flex flex-col justify-between transition-all cursor-pointer focus:outline-none ${
                   isSelected
                     ? 'border-primary ring-2 ring-primary bg-primary-10'
@@ -88,9 +88,9 @@ const EstateFeatured: React.FC<EstateFeaturedProps> = ({
                 }`}
               >
                 <div className="w-full h-[60%] flex items-center justify-center overflow-hidden">
-                  {estate.logo ? (
+                  {estate.estateLogo ? (
                     <img
-                      src={estate.logo}
+                      src={estate.estateLogo}
                       alt={estate.name}
                       className="w-full h-full object-cover"
                     />
@@ -101,8 +101,8 @@ const EstateFeatured: React.FC<EstateFeaturedProps> = ({
                   <div className="flex items-start gap-1 text-xs text-gray-600">
                     <IconMapPin size={14} className="mt-0.5" />
                     <span>
-                      {estate.location}
-                      {estate.postcode ? `, ${estate.postcode}` : ''}
+                      {/* {estate.location} */}
+                      {estate.zip ? `, ${estate.zip}` : ''}
                     </span>
                   </div>
                 </div>

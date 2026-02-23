@@ -1,5 +1,5 @@
-import { FormField } from "../common/Models/ActionDialogModel";
-import { settingNameRules } from "@lib/constants/formInputValidations";
+import { FormField } from '../common/Models/ActionDialogModel';
+import { settingNameRules } from '@lib/constants/formInputValidations';
 
 export const ColorGroupFields = (isEditing: boolean): FormField[] => {
   return [
@@ -14,10 +14,10 @@ export const ColorGroupFields = (isEditing: boolean): FormField[] => {
     ...(isEditing
       ? [
           {
-            label: "Status",
-            name: "status",
-            type: "radio" as const,
-            placeholder: "Select status",
+            label: 'Status',
+            name: 'status',
+            type: 'radio' as const,
+            placeholder: 'Select status',
             initialValue: 'active',
             rules: [{ required: true, message: 'Please select a status' }],
             options: [

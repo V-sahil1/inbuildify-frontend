@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import {
   IconPencil,
   IconPlus,
@@ -7,10 +7,8 @@ import {
   IconTrash,
   IconX,
 } from '@tabler/icons-react';
-import { Button, Empty, Input, Select } from 'antd';
-import { useUsersHook } from '@hooks/useUserHook';
+import { Button, Empty, Input, message, Select } from 'antd';
 import { ColorGroupFields } from '@/components/formFields/colorGroupFields';
-import { ColorItems } from 'data/color/ColorData';
 import ConfirmationModal from '@/components/common/ConfirmationModal';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import ColorCategoryItemModel from '@/components/common/Models/ColorCategoryItemModel';
@@ -18,183 +16,146 @@ import { debouncedURL } from '@lib/utils/debounceURL';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import {
   createColourGroup,
+  createColourGroupItem,
   deleteColourGroup,
+  deleteColourGroupItem,
+  deleteColourItem,
+  fetchColourGroupItem,
+  fetchColourGroupItems,
   fetchColourGroups,
   updateColourGroup,
 } from '@redux/feature/color/colorThunk';
 import { useSupplierHook } from '@hooks/useSupplierHook';
 import TooltipButton from '@/components/common/TooltipButton';
+import { Status } from '@lib/constants/enum';
+import { ColorGroup, ColorItem } from '@redux/feature/color/iColourState';
 
 const ColorGroupPage = () => {
   const dispatch = useAppDispatch();
   const { setParams, filters } = debouncedURL({
-    filtersKey: ['search', 'supplier', 'groupSearch', 'selectedGroup'],
+    filtersKey: ['search', 'supplier', 'groupSearch'],
   });
   const [selectedView, setSelectedView] = useState<'all' | 'selected'>('all');
-  const [colorItemData, setColorItemData] = useState(ColorItems);
-  const [filterdItems, setFilterdItems] = useState<any[]>(ColorItems);
   const [modalOpen, setModalOpen] = useState<
     'addColorGroup' | 'addColorSubCategory' | 'group' | 'item' | null
   >(null);
-  const [selectedEditGroup, setSelectedEditGroup] = useState<any>();
-  const [isEditingGroup, setIsEditingGroup] = useState<boolean>(false);
-  const [loading, setLoading] = useState(false);
-  const [selectedGroupItem, setSelectedGroupItem] = useState<any>();
-  //replace this withe subcategoryId in the item object
-  const colorSubCategoryId = '1';
-  const { colorGroup } = useAppSelector(state => state.colour);
-  const [groupItemData, setGroupItemData] = useState<any[]>([]);
+  const [selectedGroup, setSelectedGroup] = useState<ColorGroup | null>(null);
+  const [selectedItem, setSelectedItem] = useState<ColorItem | null>(null);
+
+  const { colorGroup, colorItems, status } = useAppSelector(state => state.colour);
   const { supplierOptions } = useSupplierHook();
 
   useEffect(() => {
-    if (JSON.stringify(colorGroup) !== JSON.stringify(groupItemData)) {
-      setGroupItemData(colorGroup);
+    if (status.group.fetch === Status.IDLE) fetchColorGroup();
+    if (status.colorGroupItem.fetch === Status.IDLE) {
+      fetchColorItems();
     }
-  }, [colorGroup]);
-
-  // let filteredGroups = filters.groupSearch
-  //   ? groupItemData.filter(g => g.name.toLowerCase().includes(filters?.groupSearch?.toLowerCase()))
-  //   : groupItemData;
-  useEffect(() => {
-    setParams({ selectedGroup: groupItemData?.[0]?.name || '' });
-  }, [groupItemData]);
-
-  // const fetchColorGroup = async () => {
-  //   try {
-  //     await dispatch(fetchColourGroups()).unwrap();
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   fetchColorGroup();
-  // }, []);
+  }, [status.group.fetch, status.colorItem.fetch]);
 
   useEffect(() => {
-    let data = [...colorItemData];
-    // if view = selected → show only items that contain selectedGroup
-    if (selectedView === 'selected') {
-      data = data.filter(item =>
-        item?.group?.some((group: any) => group === filters?.selectedGroup)
-      );
-    }
-    if (filters?.supplier) {
-      data = data.filter(item => item.supplierId === filters?.supplier);
-    }
+    fetchColorGroupItems();
+  }, [status.group.fetch]);
 
-    if (filters.search && filters?.search?.trim() !== '') {
-      const s = filters?.search?.toLowerCase();
-      data = data.filter(
-        item => item.name.toLowerCase().includes(s) || item.itemCode.toLowerCase().includes(s)
-      );
-    }
-    setFilterdItems(data);
-  }, [filters?.selectedGroup, selectedView, filters?.search, filters?.supplier]);
-  useEffect(() => {
-    setFilterdItems(colorItemData);
-  }, [colorItemData]);
-
-  const handleAddColorItem = values => {
-    selectedGroupItem
-      ? setColorItemData(prev =>
-          prev.map(i => (i.id === selectedGroupItem.id ? { ...i, ...values } : i))
-        )
-      : setColorItemData(prev => [
-          ...prev,
-          { ...values, id: Math.floor(Math.random() * 100000).toString() },
-        ]);
-  };
-
-  const handleRemoveItemFromGroup = (item: any) => {
-    // Update the filtered items
-    setFilterdItems(prevItems =>
-      prevItems.map(i =>
-        i.id === item.id
-          ? { ...i, group: i.group.filter((g: any) => g !== filters?.selectedGroup) }
-          : i
-      )
-    );
-
-    // Update the original ColorItems array
-    const index = colorItemData.findIndex(i => i.id === item.id);
-    if (index !== -1) {
-      colorItemData[index] = {
-        ...colorItemData[index],
-        group: colorItemData[index].group.filter((g: any) => g !== filters?.selectedGroup),
-      };
-    }
-  };
-
-  const handleAddItemToGroup = (item: any) => {
-    const groupToAdd = groupItemData?.find(g => g.name === filters?.selectedGroup);
-    if (!groupToAdd) return;
-
-    const newGroup = filters?.selectedGroup;
-
-    // Update the filtered items
-    setFilterdItems(prevItems =>
-      prevItems.map(i =>
-        i.id === item.id
-          ? {
-              ...i,
-              group: i.group ? [...i.group, newGroup] : [newGroup],
-            }
-          : i
-      )
-    );
-
-    // Update the original ColorItems array
-    const index = colorItemData.findIndex(i => i.id === item.id);
-    if (index !== -1) {
-      const currentItem = colorItemData[index];
-      colorItemData[index] = {
-        ...currentItem,
-        group: currentItem.group ? [...currentItem.group, newGroup] : [newGroup],
-      };
-    }
-  };
-
-  const handleAddColourGroupSubmit = async (values: any) => {
-    setLoading(true);
-
+  const fetchColorGroup = async () => {
     try {
-      if (selectedEditGroup && selectedEditGroup.colorGroupId) {
-        // Convert status from radio value back to boolean for API
+      await dispatch(fetchColourGroups()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch color groups');
+    }
+  };
+
+  const fetchColorGroupItems = async () => {
+    try {
+      await Promise.all(
+        colorGroup.map(async i => await dispatch(fetchColourGroupItem(i.colorGroupId)).unwrap())
+      );
+    } catch (error) {
+      message.error(error || 'Failed to fetch color group item');
+    }
+  };
+
+  const fetchColorItems = async () => {
+    try {
+      await dispatch(
+        fetchColourGroupItems({ color_group_id: selectedGroup?.colorGroupId })
+      ).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch color items');
+    }
+  };
+
+  const handleRemoveItemFromGroup = async (id: string, itemId: string, groupId: string) => {
+    try {
+      if (!id || !itemId || !groupId) {
+        message.error('error');
+        return;
+      }
+      await dispatch(deleteColourGroupItem({ id, itemId, groupId })).unwrap();
+      message.success('Item removed successfully');
+    } catch (error) {
+      message.error(error || 'Failed to remove item from group');
+    }
+  };
+
+  const handleAddItemToGroup = async (item: ColorItem) => {
+    try {
+      if (!selectedGroup) {
+        message.error('Group not selected');
+        return;
+      }
+      await dispatch(
+        createColourGroupItem({
+          colorGroupId: selectedGroup?.colorGroupId,
+          colorItemId: item.colorItemId,
+        })
+      ).unwrap();
+      message.success('Item added successfully');
+    } catch (error) {
+      message.error(error || 'Failed to add item from group');
+    }
+  };
+
+  const handleAddColourGroupSubmit = async values => {
+    try {
+      if (selectedGroup) {
         const payload = {
           ...values,
           status: values.status === 'active',
         };
-        const response = await dispatch(
+        await dispatch(
           updateColourGroup({
             payload: payload,
-            id: selectedEditGroup.colorGroupId,
+            id: selectedGroup?.colorGroupId,
           })
         ).unwrap();
+        message.success('Color group updated successfully');
       } else {
-        const response = await dispatch(createColourGroup(values)).unwrap();
+        await dispatch(createColourGroup(values)).unwrap();
+        message.success('Color group created successfully');
       }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setSelectedEditGroup(null);
+      setSelectedGroup(null);
       setModalOpen(null);
-      setIsEditingGroup(false);
-      setLoading(false);
+    } catch (error) {
+      message.error(error || 'Failed to save color group');
     }
   };
 
-  const handleDeleteGroup = async (id: string) => {
+  const handleDeleteGroup = async () => {
     try {
       if (modalOpen === 'group') {
-        const response = await dispatch(deleteColourGroup(id)).unwrap();
+        await dispatch(deleteColourGroup(selectedGroup?.colorGroupId)).unwrap();
+        message.success('Group deleted successfully');
+        setSelectedGroup(null);
       } else {
-        setColorItemData(prev => prev.filter(i => i.id !== id));
+        await dispatch(deleteColourItem({ id: selectedItem.colorItemId })).unwrap();
+        message.success('Color Item deleted successfully');
+        setSelectedItem(null);
       }
+
+      setModalOpen(null);
     } catch (error) {
-      console.error('Error deleting group:', error);
+      message.error('Error deleting group:', error);
     }
-    setModalOpen(null);
   };
 
   return (
@@ -227,44 +188,47 @@ const ColorGroupPage = () => {
             />
           </div>
           <div className="flex flex-col ">
-            {groupItemData?.map(item => (
+            {colorGroup?.map(item => (
               <div
                 key={item.colorGroupId}
-                onClick={() => setParams({ selectedGroup: item.name })}
-                className={` ${filters?.selectedGroup === item?.name ? 'bg-primary text-white' : ''} group flex justify-between items-center px-2 py-4 border-b cursor-pointer`}
+                onClick={() => setSelectedGroup(item)}
+                className={` ${filters?.selectedGroup === item?.name || selectedGroup?.colorGroupId === item?.colorGroupId ? 'bg-primary text-white' : ''} group flex justify-between items-center px-2 py-4 border-b cursor-pointer`}
               >
                 <p>{item.name}</p>
-                <div>
-                  <TooltipButton
-                    type="text"
-                    onClick={() => {
-                      setSelectedEditGroup(item);
-                      setIsEditingGroup(true);
-                      setModalOpen('addColorGroup');
-                    }}
-                    title="Edit"
-                    icon={
-                      <IconPencil
-                        size={16}
-                        className={` ${filters.selectedGroup === item?.name ? '!text-white' : '!text-primary'}  group-hover:text-black transition-all`}
-                      />
-                    }
-                  />
-                  <TooltipButton
-                    type="text"
-                    onClick={() => {
-                      setSelectedGroupItem(item);
-                      setModalOpen('group');
-                    }}
-                    title="Delete"
-                    icon={
-                      <IconTrash
-                        size={16}
-                        className={` ${filters.selectedGroup === item?.name ? '!text-white' : '!text-primary'}  group-hover:text-black transition-all`}
-                      />
-                    }
-                  />
-                </div>
+                {item.status ? (
+                  <div>
+                    <TooltipButton
+                      type="text"
+                      onClick={() => {
+                        setSelectedGroup(item);
+                        setModalOpen('addColorGroup');
+                      }}
+                      title="Edit"
+                      icon={
+                        <IconPencil
+                          size={16}
+                          className={` ${filters?.selectedGroup === item?.name ? '!text-white' : '!text-primary'}  group-hover:text-black transition-all`}
+                        />
+                      }
+                    />
+                    <TooltipButton
+                      type="text"
+                      onClick={() => {
+                        setSelectedGroup(item);
+                        setModalOpen('group');
+                      }}
+                      title="Delete"
+                      icon={
+                        <IconTrash
+                          size={16}
+                          className={` ${filters?.selectedGroup === item?.name ? '!text-white' : '!text-primary'}  group-hover:text-black transition-all`}
+                        />
+                      }
+                    />
+                  </div>
+                ) : (
+                  <TooltipButton title="Activate" type="text" icon={<IconPlus size={16} />} />
+                )}
               </div>
             ))}
           </div>
@@ -306,7 +270,6 @@ const ColorGroupPage = () => {
                 type={selectedView === 'all' ? 'primary' : 'default'}
                 className="!rounded-none"
                 onClick={() => {
-                  setFilterdItems(colorItemData);
                   setSelectedView('all');
                   setParams({ search: null, supplier: null });
                 }}
@@ -324,72 +287,83 @@ const ColorGroupPage = () => {
           </div>
 
           <div className="flex flex-col">
-            {filterdItems.length > 0 ? (
-              filterdItems.map(item => (
-                <div key={item.id} className="group w-full bg-card-color py-4 px-6 border-b">
-                  <div className="w-full grid grid-cols-[2fr_2fr_2fr_auto] items-center gap-4">
-                    <p className="font-semibold line-clamp-1">{item.name}</p>
-                    <p className="text-sm line-clamp-1">{item.itemCode}</p>
-                    <p className="text-sm line-clamp-1">{item.description}</p>
-                    <div className="flex justify-end gap-2">
-                      {/* this button is there in the UI but no functionality of it shown in the video */}
-                      <TooltipButton title="History" icon={<IconRotate2 size={18} />} />
-                      {item.group?.some((g: any) => g === filters.selectedGroup) ? (
-                        <TooltipButton
-                          title="Remove from group"
-                          onClick={() => {
-                            handleRemoveItemFromGroup(item);
-                          }}
-                          icon={<IconX size={18} />}
-                        />
-                      ) : (
-                        <TooltipButton
-                          title="Add to group"
-                          onClick={() => {
-                            handleAddItemToGroup(item);
-                          }}
-                          icon={<IconPlus size={18} />}
-                        />
-                      )}
-                      <TooltipButton
-                        title="Delete"
-                        onClick={() => {
-                          setSelectedGroupItem(item);
-                          setModalOpen('item');
-                        }}
-                        icon={<IconTrash size={16} />}
-                      />
-                      <TooltipButton
-                        title="Edit Item"
-                        onClick={() => {
-                          setSelectedGroupItem(item);
-                          setModalOpen('addColorSubCategory');
-                          console.log('item', item);
-                        }}
-                        icon={<IconPencil size={16} />}
-                      />
-                    </div>
+            {colorItems.length > 0 ? (
+              colorItems.map(item => {
+                const i = item.colorGroups?.find(
+                  g => g.colorGroupId === selectedGroup?.colorGroupId
+                );
 
-                    <div className="col-span-full flex flex-wrap gap-2 mt-2">
-                      {/* {item.supplierId && supplierOptions?.length > 0 &&
-                        <span className="text-xs bg-orange-400 text-white px-2 py-1 rounded whitespace-nowrap">
-                          {supplierOptions?.filter(i => i.value === item.supplierId)[0]?.label}
-                        </span>
-                      } */}
-                      {item.group &&
-                        item.group.length > 0 &&
-                        item.group.map((grp, idx) => (
-                          <span
-                            key={idx}
-                            className="text-xs bg-gray-500 text-white px-2 py-1 rounded whitespace-nowrap"
-                          >
-                            {grp}
-                          </span>
-                        ))}
+                const id = colorGroup
+                  ?.find(i => i.colorGroupId === selectedGroup?.colorGroupId)
+                  ?.items?.find(i => i.colorItemId === item.colorItemId)?.id;
+
+                return (
+                  <div
+                    key={item.colorItemId}
+                    className="group w-full bg-card-color py-4 px-6 border-b"
+                  >
+                    <div className="w-full grid grid-cols-[2fr_2fr_2fr_auto] items-center gap-4">
+                      <p className="font-semibold line-clamp-1">{item.itemName}</p>
+                      <p className="text-sm line-clamp-1">{item.itemCode}</p>
+                      <p className="text-sm line-clamp-1">{item.description}</p>
+                      <div className="flex justify-end gap-2">
+                        {/* this button is there in the UI but no functionality of it shown in the video */}
+                        <TooltipButton title="History" icon={<IconRotate2 size={18} />} />
+                        {!!i ? (
+                          <TooltipButton
+                            title="Remove from group"
+                            onClick={() => {
+                              handleRemoveItemFromGroup(
+                                id,
+                                item.colorItemId,
+                                selectedGroup?.colorGroupId
+                              );
+                            }}
+                            icon={<IconX size={18} />}
+                          />
+                        ) : (
+                          <TooltipButton
+                            title="Add to group"
+                            onClick={() => {
+                              handleAddItemToGroup(item);
+                            }}
+                            icon={<IconPlus size={18} />}
+                          />
+                        )}
+                        <TooltipButton
+                          title="Delete"
+                          onClick={() => {
+                            setSelectedItem(item);
+                            setModalOpen('item');
+                          }}
+                          icon={<IconTrash size={16} />}
+                        />
+                        <TooltipButton
+                          title="Edit Item"
+                          onClick={() => {
+                            setSelectedItem(item);
+                            setModalOpen('addColorSubCategory');
+                          }}
+                          icon={<IconPencil size={16} />}
+                        />
+                      </div>
+
+                      <div className="col-span-full flex flex-wrap gap-2 mt-2">
+                        {item.colorGroups &&
+                          item.colorGroups.length > 0 &&
+                          item.colorGroups.map((grp, idx) => (
+                            <span
+                              key={idx}
+                              className="text-xs bg-gray-500 text-white px-2 py-1 rounded whitespace-nowrap"
+                            >
+                              {grp.colorGroupName}
+                            </span>
+                          ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             ) : (
               <Empty
                 description={<span className="text-gray-500">No Workflow Process found.</span>}
@@ -404,20 +378,18 @@ const ColorGroupPage = () => {
       {modalOpen === 'addColorGroup' && (
         <ActionDialogmodel
           title="Color"
-          isEditing={!!selectedEditGroup}
+          isEditing={!!selectedGroup}
           open={modalOpen === 'addColorGroup'}
-          loading={loading}
+          loading={false}
           onCancel={() => {
-            setSelectedEditGroup(null);
-            setIsEditingGroup(false);
             setModalOpen(null);
           }}
           initialValues={{
-            ...selectedEditGroup,
-            status: selectedEditGroup?.status ? 'active' : 'inactive',
+            ...selectedGroup,
+            status: selectedGroup?.status ? 'active' : 'inactive',
           }}
           onSubmit={handleAddColourGroupSubmit}
-          fields={ColorGroupFields(isEditingGroup)}
+          fields={ColorGroupFields(!!selectedGroup)}
         />
       )}
 
@@ -425,28 +397,22 @@ const ColorGroupPage = () => {
         <ColorCategoryItemModel
           open={modalOpen === 'addColorSubCategory'}
           onClose={() => {
-            setSelectedGroupItem(null);
             setModalOpen(null);
           }}
-          // selectedColorSubCategoryId={colorSubCategoryId}
-          categoryItem={selectedGroupItem}
-          handleAddColorItem={handleAddColorItem}
+          categoryItem={selectedItem}
+          type="group"
         />
       )}
 
       {['group', 'item'].includes(modalOpen) && (
         <ConfirmationModal
-          loading={loading}
+          loading={false} //todo
           open={['group', 'item'].includes(modalOpen)}
           onClose={() => {
             setModalOpen(null);
           }}
           onConfirm={() => {
-            if (modalOpen === 'group') {
-              handleDeleteGroup(selectedGroupItem?.colorGroupId);
-            } else {
-              handleDeleteGroup(selectedGroupItem?.colorGroupId);
-            }
+            handleDeleteGroup();
           }}
           type="danger"
           title="Conformation"
@@ -454,14 +420,14 @@ const ColorGroupPage = () => {
           message={
             modalOpen === 'group'
               ? 'Color Group : ' +
-                selectedGroupItem?.name +
+                selectedGroup?.name +
                 ' is been used in existing color selections.\n ' +
-                selectedGroupItem.name +
+                selectedGroup?.name +
                 " can't be deleted . You can inactivate the color group if not required.\n Are you sure you want to inactivate"
               : 'Color Item : ' +
-                selectedGroupItem.name +
+                selectedItem?.itemName +
                 ' is been used in existing color item selections.\n ' +
-                selectedGroupItem.name +
+                selectedItem?.itemName +
                 " can't be deleted . You can inactivate the color item if not required.\n Are you sure you want to inactivate"
           }
         />
