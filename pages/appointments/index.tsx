@@ -12,6 +12,7 @@ import { debouncedURL } from '@lib/utils/debounceURL';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { fetchAllAppointment } from '@redux/feature/appointment/appointmentThunk';
 import { Status } from '@lib/constants/enum';
+import dayjs from 'dayjs';
 //todo : in appointment create form add link to field it's present in video but not in ui and add filter
 export default function Appointments() {
   const dispatch = useAppDispatch();
@@ -98,7 +99,7 @@ export default function Appointments() {
       width: 150,
       render: (_, record) => (
         <div>
-          <div>{record.date}</div>
+          <div>{dayjs(record.date).format('DD-MM-YYYY')}</div>
           <div>
             <Tag color="orange">{record.status}</Tag>
           </div>

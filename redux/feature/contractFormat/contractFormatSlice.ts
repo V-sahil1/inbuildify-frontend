@@ -42,7 +42,7 @@ const contractFormatSlice = createSlice({
       state.status.create = Status.PENDING;
     });
     builder.addCase(createContractFormat.fulfilled, (state, action) => {
-      state.contractFormat.unshift(action.payload);
+      state.contractFormat.unshift({ ...action.payload, sections: [] });
       state.contractDetail = { ...action.payload, sections: [] };
       state.status.create = Status.SUCCESS;
     });
@@ -106,7 +106,7 @@ const contractFormatSlice = createSlice({
         i => i.contractFormatId === action.payload.contractFormatId
       );
       if (contract) {
-        contract.sections.unshift(action.payload);
+        contract.sections?.unshift(action.payload);
       }
       state.contractDetail = { ...state.contractDetail, ...contract };
       state.contractSectionStatus.create = Status.SUCCESS;

@@ -81,7 +81,7 @@ export const ColorSubCategoryFields = (
     },
     {
       label: 'Select Group',
-      name: 'colorGroups',
+      name: 'colorGroup',
       type: 'custom',
       render: (
         <CustomBulkSelect

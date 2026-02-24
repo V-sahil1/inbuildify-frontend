@@ -10,7 +10,7 @@ export interface Category {
   status: string;
   sortOrder?: number;
   suppliers: string[];
-  colorGroups: string[];
+  colorGroup: string[];
   colorName?: string;
   selectionType?: string;
 }

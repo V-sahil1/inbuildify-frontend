@@ -201,6 +201,7 @@ const PriceList = () => {
                 setCurrentPage(page);
               },
             }}
+            scroll={{ x: 'max-content' }}
           />
         </div>
       </div>

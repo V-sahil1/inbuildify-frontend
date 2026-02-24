@@ -175,15 +175,18 @@ const Package = () => {
                   ? showAll
                     ? priceListItems
                     : packages
-                        .find(i => i.packageId === selectedPackage.packageId)
-                        ?.priceListItem.map(i =>
-                          priceListItems.find(p => p.priceListItemId === i.priceListItemId)
-                        )
+                      .find(i => i.packageId === selectedPackage.packageId)
+                      ?.priceListItem.map(i =>
+                        priceListItems.find(p => p.priceListItemId === i.priceListItemId)
+                      )
                   : quotationHistoryData,
             },
           ]}
           open={['pricelist', 'quotation'].includes(drawerOpen)}
-          onClose={() => setDrawerOpen(null)}
+          onClose={() => {
+            setSelectedPackage(null);
+            setDrawerOpen(null)
+          }}
           width={drawerOpen === 'pricelist' ? 700 : 900}
         >
           {drawerOpen === 'pricelist' && (

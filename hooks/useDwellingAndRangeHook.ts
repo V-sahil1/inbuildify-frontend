@@ -66,7 +66,7 @@ export const useDwellingAndRangeHook = ({
 
   const dwellingTypeOptions = useMemo(
     () =>
-      dwellingType.map(d => ({
+      dwellingType.filter(d => d.isActive)?.map(d => ({
         label: d.name,
         value: d.dwellingTypeId,
       })),
@@ -75,7 +75,7 @@ export const useDwellingAndRangeHook = ({
 
   const rangeOptions = useMemo(
     () =>
-      range.map(r => ({
+      range.filter(r => r.isActive)?.map(r => ({
         label: r.name,
         value: r.rangeId,
       })),

@@ -27,7 +27,7 @@ export const useUsersHook = (verified: boolean = true) => {
       return [];
     }
     return users
-      .filter(i => i.isActive === verified)
+      .filter(i => i.isActive === verified && i.isVerified === verified)
       .map((user: IUser) => ({
         label: user.name,
         value: user.usersId,

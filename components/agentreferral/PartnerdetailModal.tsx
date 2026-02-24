@@ -166,7 +166,7 @@ const PartnerDetailModal = ({
                 </Form.Item>
               </Col>
               <Col span={8}>
-                <Form.Item name="accountNumber" label="Company Name">
+                <Form.Item name="companyName" label="Company Name">
                   <Input />
                 </Form.Item>
               </Col>

@@ -83,7 +83,7 @@ const packageSlice = createSlice({
     });
     builder.addCase(fetchPackages.fulfilled, (state, action) => {
       state.status.packages = Status.SUCCESS;
-      state.packages = action.payload.package;
+      state.packages = action.payload.package.map(i => ({ ...i, priceListItem: [] }));
       state.pagination = action.payload.pagination;
     });
     builder.addCase(fetchPackages.rejected, state => {
@@ -95,7 +95,7 @@ const packageSlice = createSlice({
     });
     builder.addCase(createPackage.fulfilled, (state, action) => {
       state.status.item = Status.SUCCESS;
-      state.packages.unshift(action.payload);
+      state.packages.unshift({ ...action.payload, priceListItem: [] });
       state.pagination.totalRecords++;
     });
     builder.addCase(createPackage.rejected, state => {
@@ -109,7 +109,7 @@ const packageSlice = createSlice({
       state.status.item = Status.SUCCESS;
       state.packages = state.packages?.map(pkg => {
         if (pkg.packageId === action.payload.packageId) {
-          return action.payload;
+          return { ...pkg, ...action.payload };
         }
         return pkg;
       });

@@ -33,7 +33,7 @@ const costCenterSlice = createSlice({
       state.status.fetch = Status.PENDING;
     });
     builder.addCase(fetchAllCostCenter.fulfilled, (state, action) => {
-      state.costCenter = action.payload;
+      state.costCenter = action.payload.map(i => ({ ...i, checklist: [] })) ;
       state.status.fetch = Status.SUCCESS;
     });
     builder.addCase(fetchAllCostCenter.rejected, state => {
@@ -44,7 +44,7 @@ const costCenterSlice = createSlice({
       state.status.create = Status.PENDING;
     });
     builder.addCase(createCostCenter.fulfilled, (state, action) => {
-      state.costCenter.unshift(action.payload);
+      state.costCenter.unshift({ ...action.payload, checklist: [] });
       state.status.create = Status.SUCCESS;
     });
     builder.addCase(createCostCenter.rejected, state => {
