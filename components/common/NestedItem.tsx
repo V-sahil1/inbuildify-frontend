@@ -81,8 +81,8 @@ export const NestedItem = ({
             </p>
 
             <div className="flex gap-2 ">
-              {item?.colorGroups &&
-                item?.colorGroups.map((group: string) => {
+              {item?.colorGroup &&
+                item?.colorGroup.map((group: string) => {
                   const groupvalue = colorGroup.find(c => c.colorGroupId === group);
                   return (
                     <span

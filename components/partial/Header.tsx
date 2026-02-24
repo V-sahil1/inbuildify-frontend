@@ -27,6 +27,7 @@ import { CreateTaskModal } from '../common/Models/CreatetaskModel';
 import { CreateAppointmentModal } from '../common/Models/createAppointementModel';
 import { createTask } from '@redux/feature/task/taskThunk';
 import { createAppointment } from '@redux/feature/appointment/appointmentThunk';
+import { ActionDialogmodel } from '../common/Models/ActionDialogModel';
 
 export default function Header({
   toggleMobileNav,
@@ -163,7 +164,7 @@ export default function Header({
     switch (createMenuOpen) {
       case 'lead':
         return (
-          <CreateFormModal
+          <ActionDialogmodel
             title="Lead"
             open={true}
             loading={false}
