@@ -154,7 +154,7 @@ const ColorGroupPage = () => {
 
       setModalOpen(null);
     } catch (error) {
-      message.error('Error deleting group:', error);
+      message.error(error || 'Error deleting item');
     }
   };
 
@@ -397,6 +397,7 @@ const ColorGroupPage = () => {
         <ColorCategoryItemModel
           open={modalOpen === 'addColorSubCategory'}
           onClose={() => {
+            setSelectedItem(null);
             setModalOpen(null);
           }}
           categoryItem={selectedItem}
@@ -409,6 +410,8 @@ const ColorGroupPage = () => {
           loading={false} //todo
           open={['group', 'item'].includes(modalOpen)}
           onClose={() => {
+            setSelectedGroup(null);
+            setSelectedItem(null);
             setModalOpen(null);
           }}
           onConfirm={() => {

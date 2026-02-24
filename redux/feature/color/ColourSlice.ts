@@ -378,7 +378,7 @@ const ColourSlice = createSlice({
             }
           }
         } else {
-          state.colorItems = state.colorItems.filter(i => i.colorItemId === action.meta.arg.id);
+          state.colorItems = state.colorItems.filter(i => i.colorItemId !== action.meta.arg.id);
         }
       })
       .addCase(deleteColourItem.rejected, state => {
