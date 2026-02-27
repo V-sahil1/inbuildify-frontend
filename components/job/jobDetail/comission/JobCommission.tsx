@@ -44,7 +44,7 @@ const initialPartners: Partner[] = [
 ];
 
 export const JobCommission = () => {
-  const [partners, setPartners] = useState<Partner[]>(initialPartners);
+  const [partners, setPartners] = useState<any[]>(initialPartners);// type should be jobcommission
   const [openDrawer, setOpenDrawer] = useState(false);
   const [disabledPartners, setDisabledPartners] = useState<string[]>([]);
 
@@ -201,9 +201,9 @@ export const JobCommission = () => {
         openDrawer={openDrawer}
         setOpenDrawer={setOpenDrawer}
         partners={partners}
-        setPartners={setPartners}
+        setPartners={()=> {}}
         disabledPartners={disabledPartners}
-        setDisabledPartners={setDisabledPartners}
+        setDisabledPartners={()=>{}}
       />
 
       {isModalOpen && editData && (

@@ -3,7 +3,7 @@ import { QuotationResponse } from '../quotation/IQuotationState';
 import { Status } from '@lib/constants/enum';
 
 export interface InitialState {
-  leads: ILead[];
+  leads: Lead[];
   status: {
     leads: Status;
     leadSources: Status;
@@ -90,4 +90,44 @@ export interface LeadSource {
   builderId: string | null;
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
+}
+
+//new
+export interface Lead {
+  leadsId: string;
+  slugId?: string;
+  refrenceNumber: string;
+  companyId: string;
+  builderId: string;
+  name: string;
+  email: string;
+  phone: string;
+  notes: string;
+  sendLetter: boolean;
+  leadSourceId: string;
+  status: "New" | "Contacted" | "Qualified" | "Lost" | string; 
+  outcome: string | null;
+  rating: "Hot" | "Warm" | "Cold" | string;
+  land: "Yes" | "No" | string;
+  finance: "Yes" | "No" | string;
+  faceToFace: "Yes" | "No" | string;
+  purpose: string;
+  clientTypeId: string;
+  forcastClose: string; // ISO date
+  buildBudget: string;
+  regionId: string;
+  prelimAgreement: string; // ISO date
+  clientProfile: string;
+  hLBudget: string;
+  assigneeId: string;
+  createdBy: string;
+  updatedBy: string;
+  createdAt: string; // ISO date
+  updatedAt: string; // ISO date
+  leadSourceName: string;
+  clientTypeName: string;
+  stateName: string;
+  assigneeName: string;
+  createdByName: string;
+  updatedByName: string;
 }

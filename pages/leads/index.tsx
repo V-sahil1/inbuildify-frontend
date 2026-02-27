@@ -11,7 +11,7 @@ import RatingSelect from '@/components/common/custom-selects/RatingSelect';
 import { getLeadThunk } from '@redux/feature/lead/leadThunk';
 import { Status } from '@lib/constants/enum';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import { ILead } from '@redux/feature/lead/ILeadState';
+import { Lead } from '@redux/feature/lead/ILeadState';
 import TooltipButton from '@/components/common/TooltipButton';
 import SystemRoutes from '@lib/constants/Routes';
 import CustomAvtar from '@/components/common/CustomAvtar';
@@ -29,7 +29,6 @@ const LeadPage: React.FC = () => {
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [deleteModelOpen, setDeleteModelOpen] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-
   const { leads } = useAppSelector(state => state.lead);
   const { leads: leadLoading } = useAppSelector(state => state.lead.status);
   const dispatch = useAppDispatch();
@@ -62,7 +61,7 @@ const LeadPage: React.FC = () => {
     };
   }, [debouncedUpdateURL]);
 
-  const handleExport = (data: ILead[]) => {
+  const handleExport = (data: Lead[]) => {
     const column = {
       name: 'Name',
       refrenceId: 'Refrence ID',
@@ -99,7 +98,7 @@ const LeadPage: React.FC = () => {
     // You can call your API or set state here
   };
 
-  const columns: ColumnsType<ILead> = [
+  const columns: ColumnsType<Lead> = [
     {
       title: (
         <div>
@@ -254,7 +253,7 @@ const LeadPage: React.FC = () => {
   ];
 
   const handleOpenDeleteModal = () => {
-    const selectedLeads = leads.filter(lead => selectedRowKeys.includes(lead.leadId));
+    const selectedLeads = leads.filter(lead => selectedRowKeys.includes(lead.leadsId));
     if (selectedLeads.length === 0) {
       setDeleteModelOpen(true);
     } else {
@@ -266,7 +265,7 @@ const LeadPage: React.FC = () => {
     setIsDeleteModalVisible(false);
   };
 
-  const selectedLeads = leads.filter(lead => selectedRowKeys.includes(lead.leadId));
+  const selectedLeads = leads.filter(lead => selectedRowKeys.includes(lead.leadsId));
 
   return (
     <div className="p-4">
@@ -327,7 +326,7 @@ const LeadPage: React.FC = () => {
         }}
         onRow={record => ({
           onClick: () => {
-            router.push(`${SystemRoutes.LEADS}/${record.leadId}`);
+            router.push(`${SystemRoutes.LEADS}/${record.leadsId}`);
           },
           style: { cursor: 'pointer' },
         })}
@@ -352,7 +351,7 @@ const LeadPage: React.FC = () => {
               {selectedLeads.length > 0 ? (
                 <div className="space-y-4">
                   {selectedLeads.map((lead, idx) => (
-                    <div key={lead.leadId}>
+                    <div key={lead.leadsId}>
                       <div className="font-bold text-font-color mb-1">
                         {idx + 1}. {lead.slugId} - {lead.name}
                       </div>

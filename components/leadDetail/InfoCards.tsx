@@ -31,14 +31,15 @@ import LeadDetailsForm from './forms/LeadDetailsForm';
 import { ILeadContact } from '@redux/feature/lead/ILeadState';
 import { setQuotationContact } from '@redux/feature/quotation/quotationSlice';
 import { clearStandardFilter, clearUpgradeFilter } from '@redux/feature/facade/facadeSlice';
+import { IFloorPlanState } from '@redux/feature/floorPlan/IFloorPlanState';
 
 interface InfoCardsProps {
   leadDetails: ILeadContact;
   propertyDetails: any;
-  selectedPlan?: Plan;
+  selectedPlan?: IFloorPlanState;
   selectedFacade?: IFacadeState;
   selectedPackage?: Package;
-  onPlanSelect: (plan: Plan) => void;
+  onPlanSelect: (plan: IFloorPlanState) => void;
   onFacadeSelect: (facade: IFacadeState) => void;
   onPackageSelect: (pkg: Package) => void;
   onPropertyUpdate: (property: PropertyDetails) => void;
@@ -249,19 +250,19 @@ const InfoCards: React.FC<InfoCardsProps> = ({
                     <div className="w-6 h-6 flex items-center justify-center">
                       <IconBath size={20} />
                     </div>
-                    <span className="text-sm">{selectedPlan?.bath || 0}</span>
+                    <span className="text-sm">{selectedPlan?.baths || 0}</span>
                   </div>
                   <div className="flex flex-col items-center text-gray-400 w-full">
                     <div className="w-6 h-6 flex items-center justify-center">
                       <IconCar size={20} />
                     </div>
-                    <span className="text-sm">{selectedPlan?.carPark || 0}</span>
+                    <span className="text-sm">{selectedPlan?.carpark || 0}</span>
                   </div>
                   <div className="flex flex-col items-center text-gray-400 w-full">
                     <div className="w-6 h-6 flex items-center justify-center">
                       <IconForklift size={20} />
                     </div>
-                    <span className="text-sm">{selectedPlan?.garage || 0}</span>
+                    <span className="text-sm">{selectedPlan?.garageArea || 0}</span>
                   </div>
                 </div>
               </>
@@ -378,7 +379,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
             dispatch(clearUpgradeFilter());
           }}
           onSave={data => {
-            onFacadeSelect(data);
+            onFacadeSelect(data as IFacadeState);
             dispatch(clearStandardFilter());
             dispatch(clearUpgradeFilter());
           }}

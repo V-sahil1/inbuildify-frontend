@@ -6,41 +6,41 @@ import {
   optionalNotesRule,
   optionalPhoneRule,
 } from '@lib/constants/formInputValidations';
-import { CreateFormField } from '@/components/common/Models/CreateFormModel';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { useEffect } from 'react';
-import { getLeadSourcesThunk } from '@redux/feature/lead/leadThunk';
 import { message } from 'antd';
 import { setAddInstSourceModal } from '@redux/feature/lead/leadSlice';
 import { enumToReadable } from '@lib/utils/enumToRedable';
+import { FormField } from '../common/Models/ActionDialogModel';
+import { fetchAllleadSource } from '@redux/feature/admin/sales/leadSource/leadSourceThunk';
 
-export type LeadFormField = Omit<CreateFormField, 'type'> & {
-  type?: 'email' | 'phone' | 'select' | 'textarea';
+export type LeadFormField = Omit<FormField, 'type'> & {
+  type?: 'email' | 'phone' | 'select' | 'textarea' | 'checkbox';
 };
 
 const leadCreateFields = (
   { isEmailDisable }: { isEmailDisable: boolean } = { isEmailDisable: false }
-): readonly LeadFormField[] => {
+): readonly FormField[] => {
   const dispatch = useAppDispatch();
-  const { leadSources } = useAppSelector(state => state.lead);
-  const status = useAppSelector(state => state.lead.status.leadSources);
-  const LeadSourceOptions = leadSources && leadSources.length > 0 && leadSources?.map(item => ({
+  const { leadSource, status } = useAppSelector(state => state.sales.leadSource);
+  const LeadSourceOptions = leadSource && leadSource.length > 0 && leadSource?.map(item => ({
     label: enumToReadable(item?.name),
-    value: item?.name,
+    value: item?.leadSourceId,
   }));
 
-  useEffect(() => {
-    async function getLeadSources() {
-      try {
-        await dispatch(getLeadSourcesThunk()).unwrap();
-      } catch (error) {
-        message.error(error || 'failed to fetch the Lead sources');
-      }
+  async function getLeadSources() {
+    try {
+      await dispatch(fetchAllleadSource({})).unwrap();
+    } catch (error) {
+      message.error(error || 'failed to fetch the Lead sources');
     }
-    if (status === Status.IDLE) {
+  }
+
+  useEffect(() => {
+    if (status.fetch === Status.IDLE) {
       getLeadSources();
     }
-  }, []);
+  }, [status.fetch]);
 
   const handleAddSource = () => {
     dispatch(setAddInstSourceModal(true));
@@ -70,7 +70,7 @@ const leadCreateFields = (
     },
     {
       label: 'Lead Source',
-      name: 'leadSource',
+      name: 'leadSourceId',
       placeholder: 'e.g. Social Media, Referral, etc.',
       type: 'select',
       options: LeadSourceOptions,
@@ -85,6 +85,11 @@ const leadCreateFields = (
       type: 'textarea',
       rules: optionalNotesRule,
     },
+    {
+      label: 'Send Welcome Letter to Customer',
+      name: 'sendLetter',
+      type: 'checkbox',
+    }
   ] as const;
 };
 

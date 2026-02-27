@@ -30,6 +30,7 @@ import { getDwellingTypes, getRanges } from '@redux/feature/types/typesThunk';
 import { clearFilters } from '@redux/feature/facade/facadeSlice';
 import Loading from '../common/Loading';
 import JobDocumentPdf from '../common/pdf/JobDocumentPdf';
+import { IFloorPlanState } from '@redux/feature/floorPlan/IFloorPlanState';
 
 const QuotationManager = () => {
   const dispatch = useAppDispatch();
@@ -54,7 +55,7 @@ const QuotationManager = () => {
     quoteDetails,
   } = useAppSelector((state: RootState) => state.quotation);
   const lastFetchedFiltersRef = useRef<{ range?: string; dwelling_type?: string } | null>(null);
-  const [selectedPlan, setSelectedPlan] = useState<Plan | undefined>(plan);
+  const [selectedPlan, setSelectedPlan] = useState<IFloorPlanState | undefined>(plan);
   const [selectedPackage, setSelectedPackage] = useState<Package | undefined>(undefined);
   const isJob = useMemo(() => quoteDetails?.leadStatus === 'JOB', [quoteDetails]);
 

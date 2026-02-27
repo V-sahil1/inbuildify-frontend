@@ -3,9 +3,9 @@ import { CommonPagination } from '@redux/feature/common/ICommonState';
 export interface LeadSourceType {
   leadSourceId?: string;
   name: string;
-  sortOrder: number;
-  allowChange: boolean;
-  isActive: boolean;
+  sortOrder?: number;
+  allowChange?: boolean;
+  isActive?: boolean;
   isNew?:boolean
 }
 

@@ -3,23 +3,22 @@ import api from '@lib/constants/api';
 import API_ENDPOINTS from '@lib/constants/apiEndpoints';
 import { ApiResponse } from '../auth/IAuthState';
 // import { PropertyDetails } from "data/types";
-import { ILeadContact, LeadSourceRequest, LeadSource } from './ILeadState';
-
+import { ILeadContact, LeadSourceRequest, LeadSource, Lead } from './ILeadState';
 export interface createLeadPayload {
-  lead_source: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  leadSourceId?: string;
   notes: string;
-  contact: {
-    name: string;
-    email?: string;
-    phone?: string;
-  };
+  sendLetter: boolean;
+  forceCreate?: boolean;
 }
 
 export const getLeadThunk = createAsyncThunk('lead/getLead', async (_, { rejectWithValue }) => {
   try {
-    const response: ApiResponse<any> = await api.get(API_ENDPOINTS.LEAD_BASE);
+    const response: ApiResponse<{ leads: Lead[] }> = await api.get(API_ENDPOINTS.LEAD_BASE);
     return response.data;
-  } catch (err: any) {
+  } catch (err) {
     return rejectWithValue(err.message);
   }
 });
@@ -30,8 +29,15 @@ export const createLeadThunk = createAsyncThunk(
     try {
       const response: ApiResponse<any> = await api.post(API_ENDPOINTS.LEAD_BASE, { data: payload });
       return response.data;
-    } catch (err: any) {
-      return rejectWithValue(err.message);
+    } catch (err) {
+      if (err?.data?.statusCode === 409) {
+        return rejectWithValue({ 
+          isConflict: true, 
+          message: 'Email already exists',
+          email: payload.email 
+        });
+      }
+      return rejectWithValue(err.response?.data?.message || err.message);
     }
   }
 );
