@@ -13,7 +13,7 @@ import { useEffect, useState } from 'react';
 import { useAppSelector } from '@hooks/redux';
 import { ILandLot } from '@redux/feature/land/ILandState';
 import { createLandLot, createLandPackage, fetchAllLandLot, fetchAllLandPackage, updateLandLot } from '@redux/feature/land/landThunk';
-import { Status } from '@lib/constants/enum';
+import { toggleLotExpand } from '@redux/feature/land/landSlice';
 import dayjs from 'dayjs';
 
 export default function Land() {
@@ -22,35 +22,6 @@ export default function Land() {
   const [drawerOpen, setDrawerOpen] = useState<'lot' | 'package' | 'createPackage' | null>(null)
   const [selectedLot, setSelectedLot] = useState<ILandLot | null>(null)
   const [isCopy, setIsCopy] = useState(false);
-
-  useEffect(() => {
-    if (status.lot.fetch === Status.IDLE) {
-      fetchLot()
-    }
-    fetchHLPackage()
-  }, [status.lot.fetch])
-
-  const fetchLot = async () => {
-    try {
-      await dispatch(fetchAllLandLot()).unwrap()
-    }
-    catch (error) {
-      message.error(error || 'Failed to fetch land lot')
-    }
-  };
-
-  const fetchHLPackage = async () => {
-    try {
-      const promises = lot?.map(item =>
-        dispatch(fetchAllLandPackage({ lotId: item.lotId })).unwrap()
-      ) || [];
-      await Promise.all(promises);
-    }
-    catch (error) {
-      message.error(error || 'Failed to fetch land package')
-    }
-  }
-
   const { debouncedUpdateURL, setParams, filters } = debouncedURL({
     filtersKey: [
       'lotNumber',
@@ -63,6 +34,52 @@ export default function Land() {
       'createdby',
     ]
   });
+
+
+  useEffect(() => {
+    fetchLot()
+  }, [filters])
+
+  useEffect(() => {
+    fetchHLPackage()
+  }, [status.lot.fetch])
+
+  const fetchLot = async () => {
+    try {
+      const params = {
+        lot_number: filters?.lotNumber || undefined,
+        price: filters?.price || undefined,
+        size: filters?.size || undefined,
+        estate_name: filters?.estate || undefined,
+        stage_name: filters?.stageName || undefined,
+        address: filters?.address || undefined,
+        status: filters?.status || undefined,
+        created_by: filters?.createdby || undefined
+      }
+      await dispatch(fetchAllLandLot(params)).unwrap()
+    }
+    catch (error) {
+      message.error(error || 'Failed to fetch land lot')
+    }
+  };
+
+  const fetchHLPackage = async () => {
+    try {
+      const promises = lot?.map(item => {
+        if (!item?.isExpanded) {
+          dispatch(toggleLotExpand(item.lotId));
+          return dispatch(fetchAllLandPackage({ lot_id: item.lotId })).unwrap();
+        }
+      }
+      ) || [];
+      await Promise.all(promises);
+    }
+    catch (error) {
+      message.error(error || 'Failed to fetch land package')
+    }
+  }
+
+
 
   useEffect(() => {
     return () => {

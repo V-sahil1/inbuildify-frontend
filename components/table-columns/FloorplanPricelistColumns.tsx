@@ -77,7 +77,6 @@ export const FloorplanPricelistColumns = (
       }
       await dispatch(createFloorPlanPricelist(payload)).unwrap();
       message.success('Item added successfully');
-      setSelectedFloorplan(null);
     } catch (error) {
       message.error(error || 'Failed to add item');
     }
@@ -105,10 +104,6 @@ export const FloorplanPricelistColumns = (
       },
     }));
   };
-
-  function isChecklistAdded(record) {
-    return floorPlanPricelist?.map(i => i.priceListItemId).includes(record.priceListItemId);
-  }
 
   const columns = [
     {
@@ -144,7 +139,7 @@ export const FloorplanPricelistColumns = (
                 : false
             }
             onChange={checked => updateItemState(record.priceListItemId, 'included', checked)}
-            disabled={isChecklistAdded(record)}
+            disabled={!!floorPlanPricelist?.find(i => i.priceListItemId === record.priceListItemId)}
           />
         );
       },
@@ -161,7 +156,7 @@ export const FloorplanPricelistColumns = (
               : false
           }
           onChange={checked => updateItemState(record.priceListItemId, 'modify', checked)}
-          disabled={isChecklistAdded(record)}
+          disabled={!!floorPlanPricelist?.find(i => i.priceListItemId === record.priceListItemId)}
         />
       ),
     },
@@ -177,7 +172,7 @@ export const FloorplanPricelistColumns = (
             placeholder="Enter quantity"
             type="number"
             min="1"
-            disabled={isChecklistAdded(record)}
+            disabled={!!floorPlanPricelist?.find(i => i.priceListItemId === record.priceListItemId)}
           />
         ) : null;
       },
@@ -192,7 +187,7 @@ export const FloorplanPricelistColumns = (
     {
       render: (_, record) => {
         const item = floorPlanPricelist?.find(i => i.priceListItemId === record.priceListItemId);
-        return isChecklistAdded(record) ? (
+        return  !!item? (
           <Popconfirm
             title="Are you sure you want to remove this item?"
             onConfirm={() => removeItem(item.floorPlanId, item.id)}

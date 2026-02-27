@@ -2,7 +2,7 @@ import api, { apiWithFormDataMethods } from '@lib/constants/api';
 import API_ENDPOINTS from '@lib/constants/apiEndpoints';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { ApiResponse } from '../auth/IAuthState';
-import { HLPackageCommission, HLPackagePriceItem, HouseLandPackage, ILandLot, LotPackageGroup } from './ILandState';
+import { HLPackageCommission, HLPackagePriceItem, HouseLandPackage, ILandLot, LotFiltersParams, LotPackageGroup, PackageFilters } from './ILandState';
 
 export const createLandLot = createAsyncThunk(
   'landLot/create',
@@ -20,11 +20,11 @@ export const createLandLot = createAsyncThunk(
 
 export const fetchAllLandLot = createAsyncThunk(
   'landLot/fetchAll',
-  async (_, { rejectWithValue }) => {
+  async (params: LotFiltersParams = {}, { rejectWithValue }) => {
     try {
       const response = await api.get<
         ApiResponse<ILandLot[]>
-      >(API_ENDPOINTS.LAND_LOT);
+      >(API_ENDPOINTS.LAND_LOT, { params });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -90,11 +90,11 @@ export const createLandPackage = createAsyncThunk(
 
 export const fetchAllLandPackage = createAsyncThunk(
   'landPackage/fetchAll',
-  async (payload: { lotId?: string } = {}, { rejectWithValue }) => {
+  async (params: PackageFilters, { rejectWithValue }) => {
     try {
       const response = await api.get<
         ApiResponse<{ houseLandPackages: HouseLandPackage[] }>
-      >(API_ENDPOINTS.HL_PACKAGE, { params: { lot_id: payload.lotId } });
+      >(API_ENDPOINTS.HL_PACKAGE, { params });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);

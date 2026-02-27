@@ -10,7 +10,7 @@ export const useLotHook = () => {
 
     const fetchLotData = async () => {
         try {
-            await dispatch(fetchAllLandLot()).unwrap()
+            await dispatch(fetchAllLandLot({})).unwrap()
         }
         catch (error) {
             message.error(error || 'Failed to fetch lot data')

@@ -33,13 +33,19 @@ const initialState: ILandState = {
 const landSlice = createSlice({
   name: 'land',
   initialState,
-  reducers: {},
+  reducers: {
+    toggleLotExpand(state, action) {
+      state.lot = state.lot.map(i =>
+        i.lotId === action.payload ? { ...i, isExpanded: true } : i
+      );
+    }
+  },
   extraReducers: builder => {
     builder.addCase(createLandLot.pending, state => {
       state.status.lot.create = Status.PENDING;
     });
     builder.addCase(createLandLot.fulfilled, (state, action) => {
-      state.lot.unshift({ ...action.payload, packages: [] });
+      state.lot.unshift({ ...action.payload, packages: [], isExpanded: false });
       state.status.lot.create = Status.SUCCESS;
     });
     builder.addCase(createLandLot.rejected, state => {
@@ -49,7 +55,7 @@ const landSlice = createSlice({
       state.status.lot.fetch = Status.PENDING;
     });
     builder.addCase(fetchAllLandLot.fulfilled, (state, action) => {
-      state.lot = action.payload.map((lot: ILandLot) => ({ ...lot, packages: [] })) || [];
+      state.lot = action.payload.map((lot: ILandLot) => ({ ...lot, packages: [], isExpanded: false })) || [];
       state.status.lot.fetch = Status.SUCCESS;
     });
     builder.addCase(fetchAllLandLot.rejected, state => {
@@ -105,8 +111,8 @@ const landSlice = createSlice({
       state.status.package.fetch = Status.PENDING;
     });
     builder.addCase(fetchAllLandPackage.fulfilled, (state, action) => {
-      if (action.meta.arg && Object.keys(action.meta.arg).length > 0) {
-        const lot = state.lot.find(i => i.lotId === action.meta.arg.lotId);
+      if (action.meta.arg?.lot_id) {
+        const lot = state.lot.find(i => i.lotId === action.meta.arg.lot_id);
         if (lot) {
           lot.packages = action.payload.houseLandPackages.map(pkg => ({ ...pkg, commissions: [] }));
         }
@@ -283,4 +289,5 @@ const landSlice = createSlice({
 
   },
 });
+export const { toggleLotExpand } = landSlice.actions;
 export default landSlice.reducer;

@@ -15,13 +15,12 @@ import { debouncedURL } from '@lib/utils/debounceURL';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { HouseLandPackage } from '@redux/feature/land/ILandState';
 import { createLandPackage, fetchAllLandPackage } from '@redux/feature/land/landThunk';
-import { Status } from '@lib/constants/enum';
 import dayjs from 'dayjs';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 
 export default function HLPackages() {
   const dispatch = useAppDispatch()
-  const { package: packages, status } = useAppSelector(state => state.land)
+  const { package: packages } = useAppSelector(state => state.land)
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState<'create' | 'copy' | null>(null);
   const { debouncedUpdateURL, setParams, filters } = debouncedURL({
@@ -38,7 +37,16 @@ export default function HLPackages() {
   });
   const fetchAllLandPackageData = async () => {
     try {
-      await dispatch(fetchAllLandPackage({})).unwrap()
+      const params = {
+        title: filters?.packages || undefined,
+        estate_name: filters?.estateName || undefined,
+        facade_name: filters?.facadeName || undefined,
+        floor_plan_name: filters?.floorplanName || undefined,
+        total_price: filters?.cost || undefined,
+        created_date: filters?.createdDate || undefined,
+        assignee_id: filters?.assignee || undefined
+      } 
+      await dispatch(fetchAllLandPackage(params)).unwrap()
     }
     catch (error) {
       message.error(error || 'Failed to fetch land package')
@@ -46,10 +54,8 @@ export default function HLPackages() {
   }
 
   useEffect(() => {
-    if (status.package.fetch === Status.IDLE) {
-      fetchAllLandPackageData()
-    }
-  }, [status.package.fetch])
+    fetchAllLandPackageData()
+  }, [filters])
 
   useEffect(() => {
     return () => {
@@ -74,8 +80,8 @@ export default function HLPackages() {
         <div>
           <span>Lot Address</span>
           <Input
-            value={filters.lotAddress}
-            onChange={e => setParams({ lotAddress: e.target.value })}
+            // value={filters.lotAddress}
+            // onChange={e => setParams({ lotAddress: e.target.value })}
           />
         </div>
       ),

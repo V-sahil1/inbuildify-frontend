@@ -37,7 +37,8 @@ export interface ILandLot {
   estate?: Entity;
   estateStage?: Entity;
   packages?: HouseLandPackage[];
-  estateName?:string
+  estateName?:string;
+  isExpanded?:boolean;
 }
 
 export interface HouseLandPackage {
@@ -119,7 +120,26 @@ export interface HLPackagePriceItem {
   note: string | null;
 }
 
-
+export interface PackageFilters {
+  title?: string;
+  estate_name?: string;
+  facade_name?: string;
+  floor_plan_name?: string;
+  total_price?: number | string;
+  created_date?: string;
+  assignee_id?: string;
+  lot_id?: string;
+}
+export interface LotFiltersParams {
+  lot_number?: string;
+  price?: string;
+  size?: string;
+  estate_name?: string;
+  stage_name?: string;
+  address?: string;
+  status?: string;
+  created_by?: string;
+}
 export interface ILandState {
   lot: ILandLot[];
   package: HouseLandPackage[];
