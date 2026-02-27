@@ -292,6 +292,14 @@ class API_ENDPOINTS {
   public static ESTATE_STAGE = '/estate-stage';
   public static ESTATE_IMAGE = '/estate-document-image/image';
 
+  //land
+  public static LAND_LOT = '/lot';
+  public static LAND_PACKAGE = '/lot-package';
+  public static LAND_PACKAGE_GROUP = '/lot-package-group';
+  public static HL_PACKAGE = '/house-land-package';
+  public static HL_PACKAGE_COMMISSION = '/hl-package-pricelist-item-commission/package-commission'
+  public static HL_PACKAGE_PRICELIST = '/hl-package-pricelist-item-commission'
+
   // common
   public static FUNCTIONALITY_BASE = '/functionality';
   public static TIMEZONE_BASE = '/timezone';

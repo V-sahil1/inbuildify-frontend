@@ -1,35 +1,27 @@
+import { useEstateHook } from '@hooks/useEStateHook';
+import { useEstateStage } from '@hooks/useEstateStageHook';
+import { useStateHook } from '@hooks/useStateHook';
+import { ILandLot } from '@redux/feature/land/ILandState';
 import { IconX } from '@tabler/icons-react';
 import { Button, DatePicker, Drawer, Form, Input, Radio, Select } from 'antd';
-
-type LandLotFormField = {
-  lotNumber: string;
-  lotPrice: string;
-  estate: string;
-  stage: string;
-  street: string;
-  city: string;
-  state: string;
-  zipcode: string;
-  titleStatus: string;
-  date: string;
-  lotType: string;
-  cornerBlock: string;
-  siteFall: string;
-  landFill: string;
-  width: number;
-  depth: number;
-  totalSize: number;
-};
+import { useEffect } from 'react';
 
 type LandLotFormModelProps = {
   title: string;
   open: boolean;
   onClose: () => void;
-  onSubmit: (values) => void;
+  onSubmit: (values: ILandLot) => void;
   isCopy: boolean;
-  initialValues?: LandLotFormField[];
+  initialValues?: ILandLot;
 };
-
+const titleStatusOptions = [
+  { label: 'Available', value: 'available' },
+  { label: 'Sold', value: 'sold' },
+  { label: 'Reserved', value: 'reserved' },
+  { label: 'Pending', value: 'pending' },
+  { label: 'Under Contract', value: 'under_contract' },
+  { label: 'Off Market', value: 'off_market' },
+]
 const LandLotFormModel: React.FC<LandLotFormModelProps> = ({
   title,
   open,
@@ -39,9 +31,18 @@ const LandLotFormModel: React.FC<LandLotFormModelProps> = ({
   initialValues,
 }) => {
   const [form] = Form.useForm();
+  const estateId = Form.useWatch('estateId', form);
+  const { estateOptions } = useEstateHook()
+  const { estateStageOptions } = useEstateStage(estateId)
+  const { stateOptions } = useStateHook()
 
-  const handleSubmit = async values => {
-    console.log(values);
+  useEffect(() => {
+    if (initialValues) {
+      form.setFieldsValue(initialValues)
+    }
+  }, [initialValues])
+
+  const handleSubmit = (values: ILandLot) => {
     onSubmit(values);
     form.resetFields();
   };
@@ -60,16 +61,16 @@ const LandLotFormModel: React.FC<LandLotFormModelProps> = ({
           <Form.Item label="Lot Number" name="lotNumber" className="!text-red-500">
             <Input />
           </Form.Item>
-          <Form.Item label="Lot Price" name="lotPrice">
+          <Form.Item label="Lot Price" name="price">
             <Input addonBefore={<div className="bg-gray-300">$</div>}></Input>
           </Form.Item>
         </div>
         <div className="grid grid-cols-2 gap-2 ">
-          <Form.Item label="Estate" name="estate">
-            <Select />
+          <Form.Item label="Estate" name="estateId">
+            <Select options={estateOptions} />
           </Form.Item>
-          <Form.Item label="stage" name="stage">
-            <Select />
+          <Form.Item label="stage" name="estateStageId">
+            <Select options={estateStageOptions} />
           </Form.Item>
         </div>
         <div className="grid grid-cols-2 gap-2 ">
@@ -81,18 +82,21 @@ const LandLotFormModel: React.FC<LandLotFormModelProps> = ({
           </Form.Item>
         </div>
         <div className="grid grid-cols-2 gap-2 ">
-          <Form.Item label="State/Region" name="state">
-            <Select />
+          <Form.Item label="State/Region" name="stateId">
+            <Select options={stateOptions} />
           </Form.Item>
-          <Form.Item label="Zip/Postal Code" name="zipcode">
+          <Form.Item label="Zip/Postal Code" name="zipCode">
             <Input />
           </Form.Item>
         </div>
         <div className="grid grid-cols-2 gap-2 ">
           <Form.Item label="Title Status" name="titleStatus">
-            <Select />
+            <Select options={titleStatusOptions} />
           </Form.Item>
-          <Form.Item label="Title Date" name="date">
+          <Form.Item
+            label="Title Date"
+            name="titleDate"
+          >
             <DatePicker style={{ width: '100%' }} />
           </Form.Item>
         </div>
@@ -110,28 +114,28 @@ const LandLotFormModel: React.FC<LandLotFormModelProps> = ({
             <Radio.Group
               block
               options={[
-                { label: 'Yes', value: 'yes' },
-                { label: 'No', value: 'no' },
+                { label: 'Yes', value: true },
+                { label: 'No', value: false },
               ]}
             />
           </Form.Item>
         </div>
         <div className="grid grid-cols-2 gap-2 ">
-          <Form.Item label="Site Fall (mm)" name="sitefall">
+          <Form.Item label="Site Fall (mm)" name="siteFallMm">
             <Input />
           </Form.Item>
-          <Form.Item label="Land Fill (mm)" name="landFill">
+          <Form.Item label="Land Fill (mm)" name="landFillMm">
             <Input />
           </Form.Item>
         </div>
         <div className="grid grid-cols-3 gap-2 ">
-          <Form.Item label="Width(m)" name="width">
+          <Form.Item label="Width(m)" name="widthM">
             <Input />
           </Form.Item>
-          <Form.Item label="Depth(m)" name="depth">
+          <Form.Item label="Depth(m)" name="depthM">
             <Input />
           </Form.Item>
-          <Form.Item label="Total Size (m2)" name="totalsize">
+          <Form.Item label="Total Size (m2)" name="totalSizeM2">
             <Input />
           </Form.Item>
         </div>

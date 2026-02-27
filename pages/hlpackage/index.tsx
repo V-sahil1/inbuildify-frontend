@@ -1,23 +1,29 @@
 import AssigneeSelect from '@/components/common/custom-selects/AssigneeSelect';
 import DateFilterDropdown from '@/components/common/custom-selects/DateFilterDropdown';
 import { IconCopy, IconDotsVertical, IconShare3, IconTable } from '@tabler/icons-react';
-import { Button, Dropdown, Input, Space, Table, Tooltip } from 'antd';
+import { Button, Dropdown, Input, message, Space, Table, Tooltip } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import CustomAvtar from '@/components/common/CustomAvtar';
-import { CreateFormModal } from '@/components/common/Models/CreateFormModel';
 import HLPackageCopyModal from '@/components/common/Models/HLPackageCopyModal';
-import { data, DataType } from 'data/hlpackageData';
+import { data } from 'data/hlpackageData';
 import Link from 'next/link';
 import SystemRoutes from '@lib/constants/Routes';
 import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineActionsBar';
 import { debouncedURL } from '@lib/utils/debounceURL';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { HouseLandPackage } from '@redux/feature/land/ILandState';
+import { createLandPackage, fetchAllLandPackage } from '@redux/feature/land/landThunk';
+import { Status } from '@lib/constants/enum';
+import dayjs from 'dayjs';
+import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 
 export default function HLPackages() {
+  const dispatch = useAppDispatch()
+  const { package: packages, status } = useAppSelector(state => state.land)
   const router = useRouter();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isCopyModalOpen, setIsCopyModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState<'create' | 'copy' | null>(null);
   const { debouncedUpdateURL, setParams, filters } = debouncedURL({
     filtersKey: [
       'packages',
@@ -30,6 +36,20 @@ export default function HLPackages() {
       'assignee',
     ],
   });
+  const fetchAllLandPackageData = async () => {
+    try {
+      await dispatch(fetchAllLandPackage({})).unwrap()
+    }
+    catch (error) {
+      message.error(error || 'Failed to fetch land package')
+    }
+  }
+
+  useEffect(() => {
+    if (status.package.fetch === Status.IDLE) {
+      fetchAllLandPackageData()
+    }
+  }, [status.package.fetch])
 
   useEffect(() => {
     return () => {
@@ -37,7 +57,7 @@ export default function HLPackages() {
     };
   }, [debouncedUpdateURL]);
 
-  const columns: ColumnsType<DataType> = [
+  const columns: ColumnsType<HouseLandPackage> = [
     {
       title: (
         <div>
@@ -45,8 +65,8 @@ export default function HLPackages() {
           <Input value={filters.packages} onChange={e => setParams({ packages: e.target.value })} />
         </div>
       ),
-      dataIndex: 'packages',
-      key: 'packages',
+      dataIndex: 'title',
+      key: 'title',
       width: 150,
     },
     {
@@ -59,9 +79,10 @@ export default function HLPackages() {
           />
         </div>
       ),
-      dataIndex: 'lotAddress',
-      key: 'lotAddress',
       width: 150,
+      render: (_, record) => (
+        record?.lotDetails && record?.lotDetails?.street + ',' + record?.lotDetails?.city
+      )
     },
     {
       title: (
@@ -73,9 +94,10 @@ export default function HLPackages() {
           />
         </div>
       ),
-      dataIndex: 'estateName',
-      key: 'estateName',
       width: 150,
+      render: (_, record) => (
+        record?.lotDetails?.estateName
+      )
     },
     {
       title: (
@@ -87,9 +109,12 @@ export default function HLPackages() {
           />
         </div>
       ),
-      dataIndex: 'facadeName',
-      key: 'facadeName',
+      dataIndex: 'facade',
+      key: 'facade  ',
       width: 150,
+      render: (_, record) => (
+        record?.facade?.name
+      )
     },
     {
       title: (
@@ -101,9 +126,12 @@ export default function HLPackages() {
           />
         </div>
       ),
-      dataIndex: 'floorplanName',
-      key: 'floorplanName',
+      dataIndex: 'floorPlan',
+      key: 'floorPlan',
       width: 150,
+      render: (_, record) => (
+        record?.floorPlan?.name
+      )
     },
     {
       title: (
@@ -112,8 +140,8 @@ export default function HLPackages() {
           <Input value={filters.cost} onChange={e => setParams({ cost: e.target.value })} />
         </div>
       ),
-      dataIndex: 'cost',
-      key: 'cost',
+      dataIndex: 'totalPrice',
+      key: 'totalPrice',
       width: 150,
     },
     {
@@ -126,15 +154,17 @@ export default function HLPackages() {
               setParams({ createdDate: dateString });
             }}
             onClear={() => {
-              console.log('Cleared date filter');
               setParams({ createdDate: '' });
             }}
           />
         </div>
       ),
-      dataIndex: 'createdDate',
-      key: 'createdDate',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
       width: 150,
+      render: (_, record) => (
+        dayjs(record.createdAt).format('DD/MM/YYYY')
+      )
     },
     {
       title: (
@@ -146,12 +176,10 @@ export default function HLPackages() {
           />
         </div>
       ),
-      dataIndex: 'assignee',
-      key: 'assignee',
       width: 200,
       render: (_, record) => (
         <div className="flex justify-between items-center">
-          <CustomAvtar label={record.assignee} />
+          <CustomAvtar label={record?.createdByName} />
           <div className="flex gap-4 text-blue items-center">
             <Dropdown
               menu={{
@@ -159,12 +187,12 @@ export default function HLPackages() {
                   {
                     key: 'Available',
                     label: 'Available',
-                    onClick: () => {},
+                    onClick: () => { },
                   },
                   {
                     key: 'Delete',
                     label: 'Delete',
-                    onClick: () => {},
+                    onClick: () => { },
                   },
                 ],
               }}
@@ -181,7 +209,7 @@ export default function HLPackages() {
                 size={15}
                 onClick={e => {
                   e.stopPropagation();
-                  setIsCopyModalOpen(true);
+                  setIsModalOpen('copy');
                 }}
                 className="cursor-pointer"
               />
@@ -209,21 +237,27 @@ export default function HLPackages() {
     label: string;
     count: number;
   }> = [
-    { type: 'all', label: 'All', count: data.length },
-    { type: 'available', label: 'Available', count: data.length },
-    { type: 'modified', label: 'Modified', count: data.length },
-    { type: 'approved', label: 'Approved', count: data.length },
-    { type: 'published', label: 'Published', count: data.length },
-    { type: 'sold', label: 'Sold', count: data.length },
-    { type: 'unavailable', label: 'Unavailable', count: data.length },
-  ];
+      { type: 'all', label: 'All', count: data.length },
+      { type: 'available', label: 'Available', count: data.length },
+      { type: 'modified', label: 'Modified', count: data.length },
+      { type: 'approved', label: 'Approved', count: data.length },
+      { type: 'published', label: 'Published', count: data.length },
+      { type: 'sold', label: 'Sold', count: data.length },
+      { type: 'unavailable', label: 'Unavailable', count: data.length },
+    ];
   const handleFilterTabChange = (selectedType: string) => {
     console.log('Selected filter:', selectedType);
   };
 
-  const handleNewPackageSubmit = () => {
-    setIsModalOpen(false);
-    // create new package
+  const handleNewPackageSubmit = async (values) => {
+    try {
+      await dispatch(createLandPackage(values)).unwrap()
+      message.success('Package created successfully')
+      setIsModalOpen(null);
+    }
+    catch (error) {
+      message.error(error || 'Failed to create package')
+    }
   };
 
   return (
@@ -239,7 +273,7 @@ export default function HLPackages() {
           />
         </div>
         <Space>
-          <Button onClick={() => setIsModalOpen(true)}>New Package</Button>
+          <Button onClick={() => setIsModalOpen('create')}>New Package</Button>
           <div className="text-primary border border-primary p-1 rounded-lg">
             {' '}
             <IconTable />
@@ -248,22 +282,22 @@ export default function HLPackages() {
       </div>
       <Table
         columns={columns}
-        dataSource={data}
+        dataSource={packages}
         pagination={{
           pageSize: 10,
         }}
         onRow={record => ({
           style: { cursor: 'pointer' },
-          onClick: () => router.push(`/${SystemRoutes.HLPACKAGE}/${record.id}`),
+          onClick: () => router.push(`/${SystemRoutes.HLPACKAGE}/${record.houseLandPackageId}`),
         })}
       />
 
       {/* create package modal */}
-      {isModalOpen && (
-        <CreateFormModal
+      {isModalOpen === 'create' && (
+        <ActionDialogmodel
           title="New Package"
-          open={isModalOpen}
-          onCancel={() => setIsModalOpen(false)}
+          open={isModalOpen === 'create'}
+          onCancel={() => setIsModalOpen(null)}
           onSubmit={handleNewPackageSubmit}
           fields={[
             {
@@ -275,13 +309,13 @@ export default function HLPackages() {
       )}
 
       {/* copy package modal */}
-      {isCopyModalOpen && (
+      {isModalOpen === 'copy' && (
         <HLPackageCopyModal
           title="Copy Package"
-          open={isCopyModalOpen}
-          onCancel={() => setIsCopyModalOpen(false)}
+          open={isModalOpen === 'copy'}
+          onCancel={() => setIsModalOpen(null)}
           onOk={() => {
-            setIsCopyModalOpen(false);
+            setIsModalOpen(null);
           }}
         />
       )}

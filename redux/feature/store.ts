@@ -40,6 +40,7 @@ import contractFormatReducer from './contractFormat/contractFormatSlice';
 import appointMentReducer from './appointment/appointmentSlice';
 import agentReferralPartnerReducer from './agentReferral/agentReferralSlice';
 import estateReducer from './estate/estateSlice';
+import landReducer from './land/landSlice';
 
 const authPersistConfig = {
   key: 'auth',
@@ -86,6 +87,7 @@ const appReducer = combineReducers({
   appointment: appointMentReducer,
   agentReferralPartner: agentReferralPartnerReducer,
   estate: estateReducer,
+  land: landReducer,  
 });
 
 const rootReducer = (state: ReturnType<typeof appReducer> | undefined, action: any) => {

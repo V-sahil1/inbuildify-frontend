@@ -134,12 +134,12 @@ const JobCommissionSlice = createSlice({
     builder.addCase(updateOutgoingCommission.fulfilled, (state, action) => {
       if (action.payload.commissionType === 'outgoing') {
         state.outgoingCommission = state.outgoingCommission.map(i =>
-          i.jobCommissionId === action.payload.data.jobCommissionId ? action.payload.data : i
+          i.jobCommissionId === action.payload.data.jobCommissionId ? { ...i, ...action.payload.data } : i
         );
         state.outgoingCommissionStatus.update = Status.SUCCESS;
       } else {
         state.incomingCommission = state.incomingCommission.map(i =>
-          i.jobCommissionId === action.payload.data.jobCommissionId ? action.payload.data : i
+          i.jobCommissionId === action.payload.data.jobCommissionId ? { ...i, ...action.payload.data } : i
         );
         state.incomingCommissionStatus.update = Status.SUCCESS;
       }

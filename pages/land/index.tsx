@@ -4,49 +4,65 @@ import CustomAvtar from '@/components/common/CustomAvtar';
 import LandCreatePackageDrawerModel from '@/components/common/Models/LandCreatePackageDrawerModel';
 import LandLotFormModel from '@/components/common/Models/LandLotFormModel';
 import LandPackageDrawer from '@/components/common/Models/LandPackageDrawer';
+import { useAppDispatch } from '@hooks/redux';
 import { debouncedURL } from '@lib/utils/debounceURL';
 import { IconCopy, IconPlus, IconTable } from '@tabler/icons-react';
-import { Button, Input, Space, Table, Tooltip } from 'antd';
+import { Button, Input, message, Space, Table, Tooltip } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import { data, DataType } from 'data/landData';
-
 import { useEffect, useState } from 'react';
+import { useAppSelector } from '@hooks/redux';
+import { ILandLot } from '@redux/feature/land/ILandState';
+import { createLandLot, createLandPackage, fetchAllLandLot, fetchAllLandPackage, updateLandLot } from '@redux/feature/land/landThunk';
+import { Status } from '@lib/constants/enum';
+import dayjs from 'dayjs';
 
 export default function Land() {
-  const [isPackageDrawerOpen, setIsPackageDrawerOpen] = useState(false);
-  const [isLotFormDrawerOpen, setIsLotFormDrawerOpen] = useState(false);
-  const [isNewPackageDrawerOpen, setIsNewPackageDrawerOpen] = useState(false);
+  const dispatch = useAppDispatch();
+  const { lot, status } = useAppSelector(state => state.land)
+  const [drawerOpen, setDrawerOpen] = useState<'lot' | 'package' | 'createPackage' | null>(null)
+  const [selectedLot, setSelectedLot] = useState<ILandLot | null>(null)
   const [isCopy, setIsCopy] = useState(false);
 
-  const initialValues = {
-    lotNumber: '',
-    lotPrice: '',
-    estate: '',
-    stage: '',
-    street: '',
-    city: '',
-    state: '',
-    zipcode: '',
-    titleStatus: '',
-    date: '',
-    lotType: '',
-    cornerBlock: '',
-    sitefall: '',
-    landFill: '',
-    width: '',
-    depth: '',
-    totalsize: '',
+  useEffect(() => {
+    if (status.lot.fetch === Status.IDLE) {
+      fetchLot()
+    }
+    fetchHLPackage()
+  }, [status.lot.fetch])
+
+  const fetchLot = async () => {
+    try {
+      await dispatch(fetchAllLandLot()).unwrap()
+    }
+    catch (error) {
+      message.error(error || 'Failed to fetch land lot')
+    }
   };
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({filtersKey:[
-    'lotNumber',
-    'price',
-    'size',
-    'estate',
-    'stageName',
-    'address',
-    'status',
-    'createdby',
-  ]} );
+
+  const fetchHLPackage = async () => {
+    try {
+      const promises = lot?.map(item =>
+        dispatch(fetchAllLandPackage({ lotId: item.lotId })).unwrap()
+      ) || [];
+      await Promise.all(promises);
+    }
+    catch (error) {
+      message.error(error || 'Failed to fetch land package')
+    }
+  }
+
+  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+    filtersKey: [
+      'lotNumber',
+      'price',
+      'size',
+      'estate',
+      'stageName',
+      'address',
+      'status',
+      'createdby',
+    ]
+  });
 
   useEffect(() => {
     return () => {
@@ -54,7 +70,7 @@ export default function Land() {
     };
   }, [debouncedUpdateURL]);
 
-  const columns: ColumnsType<DataType> = [
+  const columns: ColumnsType<ILandLot> = [
     {
       title: (
         <div>
@@ -87,8 +103,8 @@ export default function Land() {
           <Input value={filters.size} onChange={e => setParams({ size: e.target.value })} />
         </div>
       ),
-      dataIndex: 'size',
-      key: 'size',
+      dataIndex: 'totalSizeM2',
+      key: 'totalSizeM2',
       width: 150,
     },
     {
@@ -101,6 +117,7 @@ export default function Land() {
       dataIndex: 'estate',
       key: 'estate',
       width: 150,
+      render: (estate) => estate.name
     },
     {
       title: (
@@ -112,9 +129,10 @@ export default function Land() {
           />
         </div>
       ),
-      dataIndex: 'stageName',
-      key: 'stageName',
+      dataIndex: 'estateStage',
+      key: 'estateStage',
       width: 150,
+      render: (estateStage) => estateStage.name
     },
     {
       title: (
@@ -126,6 +144,7 @@ export default function Land() {
       dataIndex: 'address',
       key: 'address',
       width: 150,
+      render: (_, record) => record?.street + ', ' + record?.city
     },
     {
       title: (
@@ -135,7 +154,7 @@ export default function Land() {
         </div>
       ),
       dataIndex: 'status',
-      key: 'status',
+      key: 'stattus',
       width: 150,
     },
     {
@@ -148,21 +167,22 @@ export default function Land() {
           />
         </div>
       ),
-      dataIndex: 'createdby',
-      key: 'createdby',
+      dataIndex: 'createdByName',
+      key: 'createdByName',
       width: 200,
       render: (_, record) => (
         <div className="flex justify-between items-center">
-          <Tooltip title={record.createdby} className="cursor-pointer">
-            {' '}
-            <CustomAvtar label={record.createdby} />
+          <Tooltip title={record.createdByName} className="cursor-pointer">
+            <CustomAvtar label={record.createdByName} />
           </Tooltip>
           <div className="flex gap-4 text-blue items-center">
             <Tooltip title="Copy Lot">
               <IconCopy
                 size={15}
-                onClick={() => {
-                  setIsLotFormDrawerOpen(true);
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedLot(record)
+                  setDrawerOpen('lot');
                   setIsCopy(true);
                 }}
                 className="cursor-pointer"
@@ -171,14 +191,22 @@ export default function Land() {
             <Tooltip title="Packages">
               <IconTable
                 size={15}
-                onClick={() => setIsPackageDrawerOpen(true)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedLot(record)
+                  setDrawerOpen('package')
+                }}
                 className="cursor-pointer"
               />
             </Tooltip>
             <Tooltip title="Add Package">
               <IconPlus
                 size={15}
-                onClick={() => setIsNewPackageDrawerOpen(true)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedLot(record)
+                  setDrawerOpen('createPackage')
+                }}
                 className="cursor-pointer"
               />
             </Tooltip>
@@ -188,16 +216,36 @@ export default function Land() {
     },
   ];
 
-  const handleNewPackaheSubmit = values => {
-    // create new package
-    console.log('new package', values);
-    setIsNewPackageDrawerOpen(false);
+  const handleNewPackaheSubmit = async values => {
+    try {
+      await dispatch(createLandPackage({ lotId: selectedLot?.lotId, ...values })).unwrap()
+      message.success('Land package created successfully')
+      setDrawerOpen(null)
+    }
+    catch (error) {
+      message.error(error || 'Failed to save land package')
+    }
   };
 
-  const handleLotSubmit = values => {
-    //create new lot
-    console.log('new lot', values);
-    setIsLotFormDrawerOpen(false);
+  const handleLotSubmit = async values => {
+    const payload = {
+      ...values,
+      titleDate: dayjs(values.titleDate).format('YYYY-MM-DD'),
+    };
+    try {
+      if (selectedLot) {
+        await dispatch(updateLandLot({ id: selectedLot.lotId, data: payload })).unwrap()
+        message.success('Land lot updated successfully')
+      } else {
+        await dispatch(createLandLot(payload)).unwrap()
+        message.success('Land lot created successfully')
+      }
+      setSelectedLot(null)
+      setDrawerOpen(null)
+    }
+    catch (error) {
+      message.error(error || 'Failed to save land lot')
+    }
   };
 
   return (
@@ -205,45 +253,52 @@ export default function Land() {
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Land Listing</h1>
         <Space>
-          <Button onClick={() => setIsLotFormDrawerOpen(true)}>New Lot</Button>
+          <Button onClick={() => setDrawerOpen('lot')}>New Lot</Button>
           <div className="text-primary border border-primary p-1 rounded-lg">
-            {' '}
             <IconTable />
           </div>
         </Space>
       </div>
       <Table
         columns={columns}
-        dataSource={data}
+        dataSource={lot}
         pagination={{
           pageSize: 10,
         }}
+        onRow={record => ({
+          onClick: () => {
+            setDrawerOpen('lot')
+            setSelectedLot(record)
+          },
+          style: { cursor: 'pointer' },
+        })}
       />
-      {isPackageDrawerOpen && (
+      {drawerOpen === 'package' && (
         <LandPackageDrawer
           title="Packages"
-          open={isPackageDrawerOpen}
-          onClose={() => setIsPackageDrawerOpen(false)}
+          open={drawerOpen === 'package'}
+          onClose={() => setDrawerOpen(null)}
+          data={selectedLot?.packages}
         />
       )}
-      {isLotFormDrawerOpen && (
+      {drawerOpen === 'lot' && (
         <LandLotFormModel
           title="Lot Details"
-          open={isLotFormDrawerOpen}
+          open={drawerOpen === 'lot'}
           isCopy={isCopy}
           onSubmit={handleLotSubmit}
-          initialValues={initialValues as any}
+          initialValues={{ ...selectedLot, titleDate: selectedLot?.titleDate ? dayjs(selectedLot.titleDate) : null, estateId: selectedLot?.estate?.id, estateStageId: selectedLot?.estateStage?.id }}
           onClose={() => {
-            setIsLotFormDrawerOpen(false);
+            setDrawerOpen(null);
             setIsCopy(false);
           }}
         />
       )}
-      {isNewPackageDrawerOpen && (
+      {drawerOpen === 'createPackage' && (
         <LandCreatePackageDrawerModel
-          title="New Package for 333"
-          open={isNewPackageDrawerOpen}
-          onClose={() => setIsNewPackageDrawerOpen(false)}
+          title={"New Package for " + selectedLot?.lotNumber}
+          open={drawerOpen === 'createPackage'}
+          onClose={() => setDrawerOpen(null)}
           onSubmit={handleNewPackaheSubmit}
         />
       )}

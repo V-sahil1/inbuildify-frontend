@@ -12,7 +12,7 @@ export type JobCommission = {
   recipient: 'sales_person' | 'reporting_to' | 'referral_partner' | 'customer' | 'other_user';
   recipientUserId: string | null;
   commissionUnit: 'percentage' | 'amount';
-  commissionValue: string;
+  commissionValue: number;
   sortOrder: number;
   stages: CommissionStage[];
   isExpanded: boolean;
@@ -23,7 +23,7 @@ export type CommissionStage = {
   jobCommissionId: string;
   name: string;
   commissionUnit: 'percentage' | 'amount';
-  commissionValue: string;
+  commissionValue: number;
   sortOrder: number;
 };
 

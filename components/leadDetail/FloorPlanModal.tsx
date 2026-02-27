@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Tabs, Button, Typography, Spin } from 'antd';
-import { Plan } from 'data/types';
 import AvailablePlansTab from './AvailablePlansTab';
 import CustomPlanTab from './CustomPlanTab';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
@@ -9,14 +8,15 @@ import { setQuotationPlan } from '@redux/feature/quotation/quotationSlice';
 import { Status } from '@lib/constants/enum';
 import { RootState } from '@redux/feature/store';
 import Loading from '../common/Loading';
+import { IFloorPlanState } from '@redux/feature/floorPlan/IFloorPlanState';
 
 const { Title } = Typography;
 
 interface FloorPlanModalProps {
   visible: boolean;
   onCancel: () => void;
-  onSave: (plan: Plan) => void;
-  selectedPlan?: Plan;
+  onSave: (plan: IFloorPlanState) => void;
+  selectedPlan?: IFloorPlanState;
 }
 
 const FloorPlanModal: React.FC<FloorPlanModalProps> = ({
@@ -29,7 +29,7 @@ const FloorPlanModal: React.FC<FloorPlanModalProps> = ({
   const { floorPlans, status, filters } = useAppSelector((state: RootState) => state.floorPlan);
 
   const [activeTab, setActiveTab] = useState<'available' | 'custom'>('available');
-  const [selectedFloorPlan, setSelectedFloorPlan] = useState<Plan | null>(selectedPlan || null);
+  const [selectedFloorPlan, setSelectedFloorPlan] = useState<IFloorPlanState | null>(selectedPlan || null);
 
   // Update local state when selectedPlan prop changes
   useEffect(() => {

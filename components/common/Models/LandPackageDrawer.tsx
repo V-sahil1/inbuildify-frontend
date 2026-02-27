@@ -2,47 +2,19 @@ import { Drawer, Table, Tooltip } from 'antd';
 import CustomAvtar from '../CustomAvtar';
 import { IconShare3, IconX } from '@tabler/icons-react';
 import Link from 'next/link';
-import { ColumnsType } from 'antd/es/table';
+import SystemRoutes from '@lib/constants/Routes';
 
-interface DataType {
-  name: string;
-  cost: string;
-  status: string;
-  createdby: string;
-}
-
-const data = [
-  {
-    name: 'Lot 33 Tarneit',
-    cost: '34,000.00',
-    status: 'Published',
-    createdby: 'Akshay',
-  },
-  {
-    name: 'Lot 87',
-    cost: '34,000.00',
-    status: 'Available',
-    createdby: 'Meet',
-  },
-  {
-    name: '60 Tarneit',
-    cost: '34,000.00',
-    status: 'Published',
-    createdby: 'Heer',
-  },
-];
-
-const LandPackageDrawer = ({ title, onClose, open }) => {
-  const columns: ColumnsType<DataType> = [
+const LandPackageDrawer = ({ title, onClose, open, data }) => {
+  const columns = [
     {
       title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
+      dataIndex: 'title',
+      key: 'title',
     },
     {
       title: 'Cost',
-      dataIndex: 'cost',
-      key: 'cost',
+      dataIndex: 'totalPrice',
+      key: 'totalPrice',
     },
     {
       title: 'Status',
@@ -56,10 +28,9 @@ const LandPackageDrawer = ({ title, onClose, open }) => {
       render: (_, record) => (
         <div className="flex justify-between items-center">
           <Tooltip title={record.createdby}>
-            {' '}
             <CustomAvtar label={record.createdby} />
           </Tooltip>
-          <Link href="#">
+          <Link href={SystemRoutes.HLPACKAGE +'/'+ record.houseLandPackageId}>
             <IconShare3 size={15} className="cursor-pointer text-blue" />
           </Link>
         </div>

@@ -6,14 +6,15 @@ import AvailableFacadesTab from './AvailableFacadesTab';
 import CustomFacadeForm from './forms/CustomFacadeForm';
 import { setQuotationFacade } from '@redux/feature/quotation/quotationSlice';
 import { setSelectedFilters } from '@redux/feature/facade/facadeSlice';
+import { IFacadeState } from '@redux/feature/facade/IFacadeState';
 
 const { Title } = Typography;
 
 interface FacadeModalProps {
   visible: boolean;
   onCancel: () => void;
-  onSave: (data: any) => void;
-  selectedFacade?: any;
+  onSave: (data: IFacadeState | { type: string, facade: IFacadeState }) => void;
+  selectedFacade?: IFacadeState;
 }
 
 const FacadeModal: React.FC<FacadeModalProps> = ({ visible, onCancel, onSave, selectedFacade }) => {
@@ -22,14 +23,14 @@ const FacadeModal: React.FC<FacadeModalProps> = ({ visible, onCancel, onSave, se
   const [form] = Form.useForm();
 
   const [activeTab, setActiveTab] = useState<'available' | 'custom'>('available');
-  const [selected, setSelected] = useState<any>(selectedFacade || null);
+  const [selected, setSelected] = useState<IFacadeState>(selectedFacade || null);
   const [formValues, setFormValues] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     // if (status === Status.IDLE) {
     if (visible) {
-      dispatch(getFacades(selectedFilters)).unwrap().catch(console.error);
+      dispatch(getFacades({})).unwrap().catch(console.error);
     }
     // }
   }, [dispatch, visible, selectedFilters]);
