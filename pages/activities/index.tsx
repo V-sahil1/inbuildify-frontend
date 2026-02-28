@@ -18,7 +18,7 @@ const EmailActivity: React.FC = () => {
         />
         <div className="flex flex-col border-l-4 px-3">
           <span className="text-primary text-sm">All</span>
-          <span className="text-font=color text-sm flex gap-1">
+          <span className="text-font-color text-sm flex gap-1">
             Email activity <IconInfoSquareRoundedFilled size={20} className="text-primary" />
           </span>
         </div>
