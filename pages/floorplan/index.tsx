@@ -25,7 +25,7 @@ const FloorPlanMaster = () => {
   const { floorPlans, status, pagination } = useAppSelector((state: RootState) => state.floorPlan);
   const [createFloorPlanOpen, setcreateFloorPlanOpen] = useState(false);
   const [selectedFloorplan, setSelectedFloorplan] = useState<IFloorPlanState | null>(null);
-  const [activeFilter, setActiveFilter] = useState('All');
+  const [activeFilter, setActiveFilter] = useState<'All' | 'Standard' | 'Upgrade'>('All');
   const [drawerOpen, setDrawerOpen] = useState<'floorplan' | 'facade' | 'quotation' | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [showSelectedData, setShowSelectedData] = useState<'facade' | 'pricelist' | null>(null);
@@ -35,13 +35,14 @@ const FloorPlanMaster = () => {
     setParams,
   } = debouncedURL({
     filtersKey: ['name', 'dwellingType', 'location', 'label', 'status'],
-    initialValue: { status: 'all' },
+    initialValue: { status: '', dwellingType: 'all', label: 'all', location: 'all' },
   });
   const { columns: floorPlanColumns, handleFloorPlan } = FloorPlanColumn(
     setDrawerOpen,
     setParams,
     selectedFloorplan,
-    setSelectedFloorplan
+    setSelectedFloorplan,
+    debouncedFilters
   );
   const { columns: quotationColumns, data } = QuotationHistoryColumn();
   const { columns: floorplanPricelistColumn, priceListItems } = FloorplanPricelistColumns(
@@ -52,9 +53,10 @@ const FloorPlanMaster = () => {
   const { columns: facadeColumns, facades } = FacadeColumns(
     floorPlans?.find(i => i?.floorPlanId === selectedFloorplan?.floorPlanId)?.facade,
     selectedFloorplan,
-    setSelectedFloorplan
+    setSelectedFloorplan,
+    activeFilter
   );
-  const filterButtons = ['All', 'Standard', 'Upgrade'];
+  const filterButtons: ('All' | 'Standard' | 'Upgrade')[] = ['All', 'Standard', 'Upgrade'];
   const PAGE_SIZE = 10;
 
   useEffect(() => {
@@ -79,12 +81,12 @@ const FloorPlanMaster = () => {
         limit,
       };
       params.name = debouncedFilters?.name || undefined;
-      params.dwelling_type_id = debouncedFilters?.dwellingType || undefined;
-      params.location_id =
-        debouncedFilters?.location !== '' ? debouncedFilters?.location : undefined;
-      params.range_id = debouncedFilters?.label || undefined;
+      params.dwelling_type_id = debouncedFilters?.dwellingType !== 'all' ? debouncedFilters?.dwellingType : undefined;
+      // params.location_id =
+      //   debouncedFilters?.location !== '' ? debouncedFilters?.location : undefined;
+      params.range_id = debouncedFilters?.label !== 'all' ? debouncedFilters?.label : undefined;
       params.status =
-        debouncedFilters?.status !== 'all' ? debouncedFilters?.status === 'true' : undefined;
+        debouncedFilters?.status !== '' ? debouncedFilters?.status === 'true' : undefined;
       await dispatch(fetchFloorPlans(params)).unwrap();
     } catch (error) {
       message.error(error || 'Failed to fetch Floor Plans');
@@ -138,6 +140,8 @@ const FloorPlanMaster = () => {
           totalRecords: pagination?.totalRecords,
           setCurrentPage,
         })}
+        loading={status?.floorPlan.fetch === Status.PENDING}
+        scroll={{ x: 'max-content' }}
       />
       {createFloorPlanOpen && (
         <FloorPlanFormModal
@@ -193,10 +197,10 @@ const FloorPlanMaster = () => {
               columns: floorplanPricelistColumn,
               data: !!showSelectedData
                 ? floorPlans
-                    ?.find(i => i?.floorPlanId === selectedFloorplan?.floorPlanId)
-                    ?.pricelistItems?.map(i =>
-                      priceListItems.find(c => c?.priceListItemId === i?.priceListItemId)
-                    )
+                  ?.find(i => i?.floorPlanId === selectedFloorplan?.floorPlanId)
+                  ?.pricelistItems?.map(i =>
+                    priceListItems.find(c => c?.priceListItemId === i?.priceListItemId)
+                  )
                 : priceListItems,
             },
           ]}
@@ -234,8 +238,8 @@ const FloorPlanMaster = () => {
               columns: facadeColumns,
               data: !!showSelectedData
                 ? floorPlans
-                    ?.find(i => i?.floorPlanId === selectedFloorplan?.floorPlanId)
-                    ?.facade?.map(i => facades.find(c => c?.facadeId === i?.facadeId))
+                  ?.find(i => i?.floorPlanId === selectedFloorplan?.floorPlanId)
+                  ?.facade?.map(i => facades.find(c => c?.facadeId === i?.facadeId))
                 : facades,
             },
           ]}

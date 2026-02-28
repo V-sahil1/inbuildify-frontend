@@ -1,22 +1,23 @@
 import { IFloorPlanState } from '@redux/feature/floorPlan/IFloorPlanState';
 import { Badge, Button, Image, Input, message, Select, Tooltip } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import DwellingTypeSelect from '../common/custom-selects/DwellingTypeSelect';
 import StatusSelect from '../common/custom-selects/StatusSelect';
 import { IconClockHour7, IconDeviceIpadDollar, IconPhoto } from '@tabler/icons-react';
 import { useAppDispatch } from '@hooks/redux';
 import { createFloorPlan, updateFloorPlan } from '@redux/feature/floorPlan/floorPlanThunk';
 import { useLocationAndTimezoneHook } from '@hooks/useLocationAndTimezoneHook';
-import RangeSelect from '../common/custom-selects/RangeSelect';
+import useDwellingAndRangeHook from '@hooks/useDwellingAndRangeHook';
 
 export const FloorPlanColumn = (
   setDrawerOpen,
   setParams,
   selectedFloorplan,
-  setSelectedFloorplan
+  setSelectedFloorplan,
+  debouncedFilters
 ) => {
   const dispatch = useAppDispatch();
   const { locationOptions } = useLocationAndTimezoneHook({ type: 'location' });
+  const { dwellingTypeOptions, rangeOptions } = useDwellingAndRangeHook({ type: ['dwellingType', 'range'] });
   const columns: ColumnsType<IFloorPlanState> = [
     {
       title: 'Image',
@@ -37,7 +38,7 @@ export const FloorPlanColumn = (
       title: (
         <div>
           <p>Name</p>
-          <Input className="w-full" onChange={e => setParams({ name: e.target.value })} />
+          <Input value={debouncedFilters?.name} className="w-full" onChange={e => setParams({ name: e.target.value })} />
         </div>
       ),
       dataIndex: 'name',
@@ -48,7 +49,7 @@ export const FloorPlanColumn = (
       title: (
         <div>
           <p>Dwelling Type</p>
-          <DwellingTypeSelect onChange={value => setParams({ dwellingType: value })} />
+          <Select value={debouncedFilters?.dwellingType} className="w-full" onChange={value => setParams({ dwellingType: value })} options={[{ label: 'All', value: 'all' }, ...dwellingTypeOptions]} />
         </div>
       ),
       dataIndex: 'dwellingTypeName',
@@ -97,6 +98,7 @@ export const FloorPlanColumn = (
         <div>
           <p>Location</p>
           <Select
+            value={debouncedFilters?.location}
             className="w-full"
             options={[{ label: 'All', value: 'all' }, ...locationOptions]}
             onChange={value => setParams({ location: value })}
@@ -111,7 +113,7 @@ export const FloorPlanColumn = (
       title: (
         <div>
           <p>Label</p>
-          <RangeSelect onChange={value => setParams({ label: value })} />
+          <Select value={debouncedFilters?.label} className="w-full" onChange={value => setParams({ label: value })} options={[{ label: 'All', value: 'all' }, ...rangeOptions]} />
         </div>
       ),
       dataIndex: 'rangeName',
@@ -122,7 +124,7 @@ export const FloorPlanColumn = (
       title: (
         <div>
           <p>Status</p>
-          <StatusSelect onChange={value => setParams({ status: value })} activeInactive={true} />
+          <StatusSelect value={debouncedFilters?.status} onChange={value => setParams({ status: value })} activeInactive={true} />
         </div>
       ),
       dataIndex: 'status',

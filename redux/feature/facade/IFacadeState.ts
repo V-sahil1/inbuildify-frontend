@@ -1,7 +1,7 @@
 import { Entity } from "types/common.types";
 
 export interface IFacadeState {
-  facadeId: string,
+  facadeId?: string,
   name: string,
   costType: string,
   cost: string,
@@ -11,6 +11,19 @@ export interface IFacadeState {
   location: Entity,
   dwellingtype: Entity,
   range: Entity,
-  standard?:boolean,
-  upgrade?:boolean
+  standard?: boolean,
+  upgrade?: boolean
 }
+export interface GetFacadesParams {
+  status?: boolean;
+  cost_type?: string;
+  name?: string;
+  dwelling_type_id?: string;
+  range_id?: string;
+  page?: number;
+  limit?: number;
+  standard?: boolean;
+  upgrade?: boolean;
+  location_id?: string;
+}
+

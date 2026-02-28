@@ -24,7 +24,7 @@ export const MasterPricelistCollection = ({ filters, setParams }) => {
         page,
         limit,
       };
-      // params.price_list_id = filters?.name;
+      params.price_list_id = filters?.name || undefined;
       params.item_description = filters?.description || undefined;
       params.uom = filters?.uom || undefined;
       params.price = filters?.cost || undefined;
@@ -47,9 +47,9 @@ export const MasterPricelistCollection = ({ filters, setParams }) => {
   };
   useEffect(() => {
     fetchPriceListItemsData();
-    // if (status.priceMaster === Status.IDLE) {
-    //   fetchPricelistMasterData();
-    // }
+    if (status.priceMaster === Status.IDLE) {
+      fetchPricelistMasterData();
+    }
   }, [filters, currentPage]);
 
   const columns = [
@@ -59,8 +59,8 @@ export const MasterPricelistCollection = ({ filters, setParams }) => {
           <span className="font-medium text-gray-700">Price List Name </span>
           <Select
             options={pricelistOptions}
-            // value={filters?.name}
-            // onChange={value => setParams({ name: value })}
+            value={filters?.name}
+            onChange={value => setParams({ name: value })}
           />
         </div>
       ),

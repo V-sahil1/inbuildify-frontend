@@ -49,9 +49,9 @@ export interface PricelistItemFtechParams {
   cost_option?: string;
   item_description?: string;
   sort_order?: string;
-  price?: number;
+  price?: string;
   status?: 'active' | 'inactive';
-  cost_type?:string,
-  uom?:string
+  cost_type?: string,
+  uom?: string
 }
 

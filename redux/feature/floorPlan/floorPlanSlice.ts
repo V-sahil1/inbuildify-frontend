@@ -55,8 +55,7 @@ const floorPlanSlice = createSlice({
       .addCase(fetchFloorPlans.rejected, state => {
         state.status.floorPlan.fetch = Status.ERROR;
       })
-      .addCase(createFloorPlan.pending, (state, action) => {
-        state.floorPlans.unshift(action.payload);
+      .addCase(createFloorPlan.pending, (state) => {
         state.status.floorPlan.create = Status.PENDING;
       })
       .addCase(createFloorPlan.fulfilled, (state, action) => {
@@ -73,7 +72,7 @@ const floorPlanSlice = createSlice({
       })
       .addCase(updateFloorPlan.fulfilled, (state, action) => {
         state.floorPlans = state.floorPlans.map(floorPlan =>
-          floorPlan.floorPlanId === action.payload.floorPlanId ? action.payload : floorPlan
+          floorPlan.floorPlanId === action.payload.floorPlanId ? { ...floorPlan, ...action.payload } : floorPlan
         );
         state.status.floorPlan.create = Status.SUCCESS;
       })

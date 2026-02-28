@@ -115,17 +115,14 @@ const masterPriceListSlice = createSlice({
         state.status.priceListItem.fetch = Status.PENDING;
       })
       .addCase(fetchCategoryItems.fulfilled, (state, action) => {
-        const { priceListId, items } = action.payload;
-        if (!!priceListId) {
-          const category = state.priceMaster.find(c => c.priceListId === priceListId);
+        if (!!action.meta.arg?.price_list_id) {
+          const category = state.priceMaster.find(c => c.priceListId === action.meta.arg?.price_list_id);
           if (category) {
-            category.items = items.priceListItem;
+            category.items = action.payload.priceListItem;
           }
-        } else {
-          state.priceListItems = items.priceListItem;
         }
-        state.pagination = items.pagination;
-
+        state.priceListItems = action.payload.priceListItem;
+        state.pagination = action.payload.pagination;
         state.status.priceListItem.fetch = Status.SUCCESS;
       })
 

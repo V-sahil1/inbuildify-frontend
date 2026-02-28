@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Select, Input, Button, Tag, Image, Tooltip, Space, message } from 'antd';
 import { IconPlus, IconRotate, IconEdit, IconTrash, IconDownload } from '@tabler/icons-react';
-import DwellingTypeSelect from '@/components/common/custom-selects/DwellingTypeSelect';
-import RangeSelect from '@/components/common/custom-selects/RangeSelect';
 import StatusSelect from '@/components/common/custom-selects/StatusSelect';
 import { debouncedURL } from '@lib/utils/debounceURL';
 import { TableDrawer } from '@/components/common/TableDrawer';
@@ -10,7 +8,7 @@ import { facadeFields } from '@/components/formFields/facadeFields';
 import { ActionDialogmodel, FormField } from '@/components/common/Models/ActionDialogModel';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { getFacades, createFacade, updateFacade, deleteFacade } from '@redux/feature/facade/facadeThunk';
-import { IFacadeState } from '@redux/feature/facade/IFacadeState';
+import { GetFacadesParams, IFacadeState } from '@redux/feature/facade/IFacadeState';
 import { useLocationAndTimezoneHook } from '@hooks/useLocationAndTimezoneHook';
 import { Status } from '@lib/constants/enum';
 import { formDataGenerator } from '@lib/utils/formDataGenerator';
@@ -19,20 +17,16 @@ import ConfirmationModal from '@/components/common/ConfirmationModal';
 import useDwellingAndRangeHook from '@hooks/useDwellingAndRangeHook';
 import { QuotationHistoryColumn } from '@/components/table-columns/QuotationHistoryColumn';
 import { QuotationHistory } from '@lib/utils/Reports/quotation/QuotationHistory';
+import { getPaginationConfig } from '@lib/utils/getPaginationConfig';
 
-const { Option } = Select;
-// TODO: OPTIMIZE SEARCHING ON THE API CALLS WITH THE FILTER
 const FacadeMaster = () => {
-  const [drawerOpen, setDrawerOpen] = useState<'quotation' | 'facade' | null>(null);
+  const [open, setOpen] = useState<'quotation' | 'facade' | 'delete' | null>(null);
   const [isEditing, setIsEditing] = useState<IFacadeState | null>(null);
   const [loading, setLoading] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const { facades, status, pagination } = useAppSelector(state => state.facade);
   const dispatch = useAppDispatch();
-    const { columns: quotationColumns, data } = QuotationHistoryColumn();
+  const { columns: quotationColumns, data } = QuotationHistoryColumn();
   const { locationOptions } = useLocationAndTimezoneHook({ type: 'location' });
   const { dwellingTypeOptions, rangeOptions } = useDwellingAndRangeHook({ type: ['dwellingType', 'range'] });
 
@@ -44,8 +38,7 @@ const FacadeMaster = () => {
   }) as FormField[];
 
   const { debouncedUpdateURL, setParams, filters } = debouncedURL({
-    filtersKey: ['name', 'dwellingType', 'range', 'costType', 'location', 'status', 'cost'],
-    delay: 1000, 
+    filtersKey: ['name', 'dwellingType', 'range', 'costType', 'location', 'status', 'cost']
   });
 
   useEffect(() => {
@@ -60,54 +53,31 @@ const FacadeMaster = () => {
 
   const fetchFacadesData = async () => {
     try {
-      const params: any = {
+      const params: GetFacadesParams = {
         page: currentPage,
         limit: PAGE_SIZE,
       };
-      
-      // Add filter parameters
-      if (filters.status === 'active') {
-        params.status = true;
-      } else if (filters.status === 'inactive') {
-        params.status = false;
-      }
-      
-      // Helper function to find ID by name from options
-      const findIdByName = (name: string, options: Array<{ label: string; value: string }>) => {
-        const option = options.find(opt => opt.label === name);
-        return option ? option.value : name;
-      };
-      
-      // Add other filters from URL params (convert names to IDs)
-      if (filters.name) params.name = filters.name;
-      if (filters.costType) params.cost_type = filters.costType;
-      if (filters.dwellingType) {
-        params.dwelling_type_id = findIdByName(filters.dwellingType, dwellingTypeOptions);
-      }
-      if (filters.range) {
-        params.range_id = findIdByName(filters.range, rangeOptions);
-      }
-      if (filters.location) {
-        params.location_id = findIdByName(filters.location, locationOptions);
-      }
-      
+      params.status = filters?.status !== '' ? filters?.status === 'active' : undefined;
+      params.name = filters?.name || undefined;
+      params.cost_type = filters?.costType || undefined;
+      params.dwelling_type_id = filters.dwellingType || undefined;
+      params.range_id = filters.range || undefined;
+      params.location_id = filters.location || undefined
       await dispatch(getFacades(params)).unwrap();
     } catch (error) {
       message.error(error || 'Failed to fetch Facades');
     }
   };
 
-  const handleCreateFacade = async (values: any) => {
+  const handleCreateFacade = async (values: IFacadeState) => {
     try {
       setLoading(true);
-
       const formData = formDataGenerator({
         ...values,
         image: values.image,
       });
 
       if (isEditing) {
-        // Use getUpdatedFields to detect what changed
         const { updatedFields } = getUpdatedFields(values, isEditing);
         const updateFormData = formDataGenerator(updatedFields);
         await dispatch(
@@ -119,9 +89,7 @@ const FacadeMaster = () => {
         await dispatch(createFacade(formData)).unwrap();
         message.success('Facade created successfully');
       }
-      
-      setDrawerOpen(null);
-      fetchFacadesData();
+      setOpen(null);
     } catch (error) {
       message.error(error || 'Failed to create/update Facade');
     } finally {
@@ -129,26 +97,16 @@ const FacadeMaster = () => {
     }
   };
 
-  const handleDelete = async (facadeId: string) => {
+  const handleDelete = async () => {
     try {
-      setIsDeleting(true);
-      setDeletingId(facadeId);
-      await dispatch(deleteFacade(facadeId)).unwrap();
+      await dispatch(deleteFacade(isEditing?.facadeId)).unwrap();
       message.success('Facade deleted successfully');
+      setOpen(null);
     } catch (error) {
       message.error(error || 'Failed to delete Facade');
-    } finally {
-      setIsDeleting(false);
-      setDeletingId(null);
-      setShowDeleteConfirm(false);
     }
   };
 
-  useEffect(() => {
-    // if (status === Status.IDLE) {
-    fetchFacadesData();
-    // }
-  }, []);
   const columns = [
     {
       title: 'Image',
@@ -191,7 +149,7 @@ const FacadeMaster = () => {
             placeholder="Select Location"
             size="small"
             onChange={v => setParams({ location: v })}
-            options={locationOptions}
+            options={[{ label: 'All', value: 'all' }, ...locationOptions]}
           />
         </div>
       ),
@@ -204,7 +162,7 @@ const FacadeMaster = () => {
       title: (
         <div className="flex flex-col gap-1">
           <span>Dwelling Type</span>
-          <DwellingTypeSelect onChange={v => setParams({ dwellingType: v })} />
+          <Select placeholder="Select Dwelling Type" size="small" onChange={v => setParams({ dwellingType: v })} options={[{ label: 'All', value: 'all' }, ...dwellingTypeOptions]} />
         </div>
       ),
       dataIndex: 'dwellingtype',
@@ -216,7 +174,7 @@ const FacadeMaster = () => {
       title: (
         <div className="flex flex-col gap-1">
           <span>Range</span>
-          <RangeSelect onChange={v => setParams({ range: v })} width="100%" />
+          <Select placeholder="Select Range" size="small" onChange={v => setParams({ range: v })} options={[{ label: 'All', value: 'all' }, ...rangeOptions]} />
         </div>
       ),
       dataIndex: 'range',
@@ -228,10 +186,7 @@ const FacadeMaster = () => {
       title: (
         <div className="flex flex-col gap-1">
           <span>Cost Type</span>
-          <Select size="small" onChange={v => setParams({ costType: v })}>
-            <Option value="standard">Standard</Option>
-            <Option value="upgrade">Upgrade</Option>
-          </Select>
+          <Select size="small" onChange={v => setParams({ costType: v })} options={[{ label: 'All', value: 'all' }, { label: 'Standard', value: 'standard' }, { label: 'Upgrade', value: 'upgrade' }]} />
         </div>
       ),
       dataIndex: 'costType',
@@ -274,7 +229,7 @@ const FacadeMaster = () => {
                 onClick={e => {
                   e.stopPropagation();
                   setIsEditing(record);
-                  setDrawerOpen('facade');
+                  setOpen('facade');
                 }}
                 icon={<IconEdit size={14} />}
               />
@@ -286,8 +241,8 @@ const FacadeMaster = () => {
                 danger
                 onClick={e => {
                   e.stopPropagation();
-                  setShowDeleteConfirm(true);
-                  setDeletingId(record.facadeId);
+                  setOpen('delete');
+                  setIsEditing(record);
                 }}
                 icon={<IconTrash size={14} />}
               />
@@ -298,7 +253,7 @@ const FacadeMaster = () => {
                 size="small"
                 onClick={e => {
                   e.stopPropagation();
-                  setDrawerOpen('quotation');
+                  setOpen('quotation');
                 }}
                 icon={<IconRotate size={14} className="text-gray-400" />}
               />
@@ -319,7 +274,7 @@ const FacadeMaster = () => {
           <Button
             type="primary"
             icon={<IconPlus size={16} />}
-            onClick={() => setDrawerOpen('facade')}
+            onClick={() => setOpen('facade')}
           >
             New Facade
           </Button>
@@ -329,32 +284,16 @@ const FacadeMaster = () => {
       <Table
         columns={columns}
         dataSource={facades}
-        pagination={{
-          current: pagination.currentPage,
-          pageSize: pagination.limit,
-          total: pagination.totalRecords,
-          showSizeChanger: true,
-          showQuickJumper: true,
-          showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
-          onChange: (page, size) => {
-            setCurrentPage(page);
-          },
-        }}
+        pagination={getPaginationConfig({ currentPage, limit: pagination.limit, totalRecords: pagination.totalRecords, setCurrentPage })}
         loading={status === Status.PENDING}
-        // rootClassName="cursor-pointer"
-        // rowClassName="cursor-pointer"
-        // onRow={(record, rowIndex) => ({
-        //   onClick: event => {
-        //     setDrawerOpen('quotation');
-        //   },
-        // })}
+        scroll={{ x: 'max-content' }}
       />
 
-      {drawerOpen === 'quotation' && (
+      {open === 'quotation' && (
         <TableDrawer
-          open={drawerOpen === 'quotation'}
+          open={open === 'quotation'}
           width={1200}
-          onClose={() => setDrawerOpen(null)}
+          onClose={() => setOpen(null)}
           title={
             <div className="flex justify-between items-center">
               <p>Quotation History</p>
@@ -372,11 +311,11 @@ const FacadeMaster = () => {
         />
       )}
 
-      {drawerOpen === 'facade' && (
+      {open === 'facade' && (
         <ActionDialogmodel
-          open={drawerOpen === 'facade'}
+          open={open === 'facade'}
           onCancel={() => {
-            setDrawerOpen(null);
+            setOpen(null);
             setIsEditing(null);
           }}
           title={`${isEditing ? 'Edit' : 'New'} Facade Information`}
@@ -384,17 +323,17 @@ const FacadeMaster = () => {
           initialValues={
             isEditing
               ? {
-                  facadeId: isEditing.facadeId,
-                  name: isEditing.name,
-                  locationId: isEditing.location?.id,
-                  dwellingTypeId: isEditing.dwellingtype?.id,
-                  rangeId: isEditing.range?.id,
-                  costType: isEditing.costType,
-                  cost: isEditing.cost,
-                  builderCost: isEditing.builderCost,
-                  status: isEditing.status,
-                  image: isEditing.image,
-                }
+                facadeId: isEditing.facadeId,
+                name: isEditing.name,
+                locationId: isEditing.location?.id,
+                dwellingTypeId: isEditing.dwellingtype?.id,
+                rangeId: isEditing.range?.id,
+                costType: isEditing.costType,
+                cost: isEditing.cost,
+                builderCost: isEditing.builderCost,
+                status: isEditing.status,
+                image: isEditing.image,
+              }
               : {}
           }
           fields={fields}
@@ -403,21 +342,20 @@ const FacadeMaster = () => {
         />
       )}
 
-      {showDeleteConfirm && (
+      {open === 'delete' && (
         <ConfirmationModal
-          open={showDeleteConfirm}
+          open={open === 'delete'}
           onClose={() => {
-            setShowDeleteConfirm(false);
-            setDeletingId(null);
-            setIsDeleting(false);
+            setOpen(null);
+            setIsEditing(null);
           }}
-          onConfirm={() => deletingId && handleDelete(deletingId)}
+          onConfirm={handleDelete}
           title="Confirm Delete"
           message="Are you sure you want to delete this facade? This action cannot be undone."
           type="danger"
           confirmText="Delete"
           cancelText="Cancel"
-          loading={isDeleting}
+          loading={!!isEditing}
           maxWidth="sm"
         />
       )}

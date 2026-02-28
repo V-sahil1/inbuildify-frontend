@@ -2,35 +2,14 @@ import API_ENDPOINTS from '@lib/constants/apiEndpoints';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import api, { apiWithFormDataMethods } from '@lib/constants/api';
 import { ApiResponse } from '../auth/IAuthState';
-import { IFacadeState } from './IFacadeState';
-
-interface GetFacadesParams {
-  status?: boolean;
-  cost_type?: string;
-  name?: string;
-  dwelling_type_id?: string;
-  range_id?: string;
-  page?: number;
-  limit?: number;
-  standard?: boolean;
-  upgrade?: boolean;  
-}
-
-interface FacadeResponse {
-  facades: IFacadeState[];
-  pagination: {
-    currentPage: number;
-    totalPages: number;
-    totalRecords: number;
-    limit: number;
-  };
-}
+import { GetFacadesParams, IFacadeState } from './IFacadeState';
+import { CommonPagination } from '../common/ICommonState';
 
 export const getFacades = createAsyncThunk(
   'facade/getAll',
   async (params: GetFacadesParams = {}, { rejectWithValue }) => {
     try {
-      const res = await api.get<ApiResponse<FacadeResponse>>(API_ENDPOINTS.FACADE_BASE, { params });
+      const res = await api.get<ApiResponse<{ facades: IFacadeState[], pagination: CommonPagination }>>(API_ENDPOINTS.FACADE_BASE, { params });
       return res.data;
     } catch (error) {
       return rejectWithValue(error.message);

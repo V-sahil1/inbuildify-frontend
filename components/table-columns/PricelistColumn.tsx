@@ -38,6 +38,7 @@ export const PricelistColumn = (
           </div>
         </>
       ),
+      width: 150
     },
     {
       title: (
@@ -53,6 +54,7 @@ export const PricelistColumn = (
       dataIndex: 'cost',
       key: 'cost',
       render: cost => cost && <span>${cost}</span>,
+      width: 120,
     },
     {
       title: (
@@ -94,6 +96,7 @@ export const PricelistColumn = (
       ),
       dataIndex: 'sortOrder',
       key: 'sortOrder',
+      width: 120,
     },
     {
       title: (

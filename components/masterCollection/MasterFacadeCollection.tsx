@@ -11,8 +11,8 @@ export const MasterFacadeCollection = ({ filters }) => {
   const fetchFacadeData = async () => {
     try {
       const params = {
-        range_id: filters?.range,
-        dwelling_type_id: filters?.dwellingType,
+        range_id: filters?.range || undefined,
+        dwelling_type_id: filters?.dwellingType || undefined,
         name: filters?.search || undefined,
       };
       await dispatch(getFacades(params)).unwrap();

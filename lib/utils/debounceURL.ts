@@ -17,10 +17,10 @@ export function debouncedURL({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [filters, setFilters] = useState<Record<string, string> | null>(
+  const [filters, setFilters] = useState<Record<string, string>>(
     filtersKey.reduce(
       (acc, key) => {
-        acc[key] = searchParams.get(key) || (initialValue && initialValue[key]);
+        acc[key] = searchParams.get(key) || (initialValue && initialValue[key]) || '';
         return acc;
       },
       {} as Record<string, string>
@@ -28,40 +28,41 @@ export function debouncedURL({
   );
   const debouncedUpdateURL = useMemo(
     () =>
-      debounce((newFilters: Record<string, string | number | null | undefined>) => {
+      debounce((newFilters: Record<string, string>) => {
+        setFilters(newFilters);
         if (shouldSyncURL) {
           const params = new URLSearchParams(searchParams.toString());
-          newFilters &&
-            Object.entries(newFilters).forEach(([key, value]) => {
-              if (value !== null && value !== undefined && value !== '') {
-                params.set(key, value.toString());
-              } else {
-                params.delete(key);
-              }
-            });
+          Object.entries(newFilters).forEach(([key, value]) => {
+            if (value !== null && value !== undefined && value !== '') {
+              params.set(key, value.toString());
+            } else {
+              params.delete(key);
+            }
+          });
           router.replace(`${pathname}?${params.toString()}`);
         }
       }, delay),
     [pathname, router, delay, shouldSyncURL]
   );
+
   const setParams = useCallback(
-    updatedParams => {
-      setFilters(prev => {
-        const newFilters = { ...prev, ...updatedParams };
-        debouncedUpdateURL(newFilters);
-        return newFilters;
-      });
+    (updatedParams: Record<string, string>) => {
+      const newFilters = { ...filters, ...updatedParams };
+      debouncedUpdateURL(newFilters);
     },
-    [debouncedUpdateURL]
+    [filters, debouncedUpdateURL]
   );
 
   const resetParams = useCallback(() => {
-    setFilters(null);
-    debouncedUpdateURL(null);
-  }, [debouncedUpdateURL]);
+    const resetFilters = filtersKey.reduce(
+      (acc, key) => {
+        acc[key] = initialValue[key] || '';
+        return acc;
+      },
+      {} as Record<string, string>
+    );
+    debouncedUpdateURL(resetFilters);
+  }, [debouncedUpdateURL, filtersKey, initialValue]);
 
-  useEffect(() => {
-    debouncedUpdateURL(filters);
-  }, []);
   return { debouncedUpdateURL, setParams, filters, resetParams };
 }

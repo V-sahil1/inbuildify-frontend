@@ -93,9 +93,16 @@ const commonSlice = createSlice({
       state.status.locationStatus.create = Status.PENDING;
     });
     builder.addCase(updateLocation.fulfilled, (state, action) => {
-      state.locations = state.locations.map(location =>
-        location.locationId === action.payload.locationId ? action.payload : location
-      );
+      const location = state.locations.find(i => i.locationId === action.payload.locationId);
+      if (location) {
+        if (location.status !== action.payload.status) {
+          state.locations = state.locations.filter(i => i.locationId !== action.payload.locationId);
+        } else {
+          state.locations = state.locations.map(location =>
+            location.locationId === action.payload.locationId ? action.payload : location
+          );
+        }
+      }
       state.status.locationStatus.create = Status.SUCCESS;
     });
     builder.addCase(updateLocation.rejected, (state, action) => {

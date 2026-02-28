@@ -2,7 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import api from '@lib/constants/api';
 import { ApiResponse } from '../auth/IAuthState';
 import API_ENDPOINTS from '@lib/constants/apiEndpoints';
-import { IPriceList, IPriceListItem } from './iMasterPriceListState';
+import { IPriceList, IPriceListItem, PricelistItemFtechParams } from './iMasterPriceListState';
 import { CommonPagination } from '../common/ICommonState';
 
 export const fetchPricelistMaster = createAsyncThunk(
@@ -100,16 +100,16 @@ export const updateSuggestedPricelistMaster = createAsyncThunk(
 export const fetchCategoryItems = createAsyncThunk(
   'masterPriceList/fetchItems',
   async (
-    args: { price_list_id?: string; range_id?: string; dwelling_type_id?: string },
+    params: PricelistItemFtechParams,
     { rejectWithValue }
   ) => {
     try {
       const res = await api.get<
         ApiResponse<{ priceListItem: IPriceListItem[]; pagination: CommonPagination }>
       >(API_ENDPOINTS.PRICELIST_ITEM, {
-        params: args,
+        params
       });
-      return { priceListId: args?.price_list_id || null, items: res.data };
+      return res.data;
     } catch (error) {
       return rejectWithValue(error.message);
     }

@@ -9,9 +9,8 @@ import {
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import TooltipButton from '../common/TooltipButton';
 import { getFacades } from '@redux/feature/facade/facadeThunk';
-import { Status } from '@lib/constants/enum';
 
-export const FacadeColumns = (floorPlanFacede, selectedFloorplan, setSelectedFloorplan) => {
+export const FacadeColumns = (floorPlanFacede, selectedFloorplan, setSelectedFloorplan, activeFilter) => {
   const dispatch = useAppDispatch();
   const { facades, status } = useAppSelector(state => state.facade);
   const { debouncedUpdateURL, setParams, filters } = debouncedURL({
@@ -19,18 +18,21 @@ export const FacadeColumns = (floorPlanFacede, selectedFloorplan, setSelectedFlo
     shouldSyncURL: false,
   });
   useEffect(() => {
-    if (status === Status.IDLE) {
-      fetchFacades();
-    }
-  }, [status]);
+    fetchFacades();
+  }, [activeFilter]);
+
   useEffect(() => {
     return () => {
       debouncedUpdateURL.cancel();
     };
   }, [debouncedUpdateURL]);
+
   async function fetchFacades() {
     try {
-      await dispatch(getFacades({})).unwrap();
+      const params = {
+        cost_type: activeFilter !== 'All' ? activeFilter.toLowerCase() : undefined,
+      };
+      await dispatch(getFacades(params)).unwrap();
     } catch (error) {
       message.error(error || 'Failed to fetch facades');
     }
