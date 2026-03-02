@@ -1,32 +1,37 @@
 'use client';
-import { Divider, message } from 'antd';
+import { Button, Divider, message } from 'antd';
 import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import { getLeadSourcesThunk, updateLeadThunk } from '@redux/feature/lead/leadThunk';
+import {
+  createBusinessContactThunk,
+  deleteBusinessContactThunk,
+  updateBusinessContactThunk,
+  updateLeadThunk,
+} from '@redux/feature/lead/leadThunk';
 import { Status } from '@lib/constants/enum';
 import { RootState } from '@redux/feature/store';
 import LeadUpdateDetail from '../leadDetail/LeadUpdateDetail';
 import EditableField from './EditableField';
 import { notesRules, leadSourceRules } from '@lib/constants/formInputValidations';
 import { mapToOptions } from '@lib/utils/rangeAndDwellingObjToOptions';
-import { IconCirclePlus } from '@tabler/icons-react';
+import { IconCirclePlus, IconTrash } from '@tabler/icons-react';
 import HouseLandPopover from '../common/HLPopover';
 import LeadSourceDetailsDrawer from '../common/LeadSourceDetailDrawer';
-import {
-  ClientTypeOptions,
-  PurposeOptions,
-  RatingOptions,
-  RegionOptions,
-  YesNoOptions,
-} from 'data/options';
+import { PurposeOptions, RatingOptions, YesNoOptions } from 'data/options';
+import { BusinessContact, Lead } from '@redux/feature/lead/ILeadState';
+import { fetchAllleadSource } from '@redux/feature/admin/sales/leadSource/leadSourceThunk';
+import { useClientTypeHook } from '@hooks/useClientTypeHook';
+import { useStateHook } from '@hooks/useStateHook';
 
 export const LeadSource = () => {
   const dispatch = useAppDispatch();
-  const { leadDetail, leadSources } = useAppSelector((state: RootState) => state.lead);
+  const { leadDetail } = useAppSelector((state: RootState) => state.lead);
+  const { leadSource, status } = useAppSelector((state: RootState) => state.sales.leadSource);
   const updateLeadStatusState = useAppSelector(
     (state: RootState) => state.lead.status.updateLeadSource
   );
-
+  const { clientTypeOptions } = useClientTypeHook();
+  const { stateOptions } = useStateHook();
   const [isLeadEditing, setIsLeadEditing] = useState({
     leadSource: false,
     notes: false,
@@ -35,85 +40,89 @@ export const LeadSource = () => {
     finance: false,
     faceToFace: false,
     purpose: false,
-    clientType: false,
-    forecastClose: false,
-    budgetBuild: false,
-    region: false,
-    agreementDate: false,
+    clientTypeId: false,
+    forcastClose: false,
+    buildBudget: false,
+    regionId: false,
+    prelimAgreement: false,
     clientProfile: false,
-    budgetHL: false,
+    hLBudget: false,
   });
-
-  const getLeadSourceStatus = useAppSelector((state: RootState) => state.lead.status.leadSources);
-
-  const LeadSourceOptions = mapToOptions(leadSources);
-
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [isDrawerOpenwithAbnAcn, setIsDrawerOpenwithAbnAcn] = useState(false);
-  const [drawerTitle, setDrawerTitle] = useState('');
+  const LeadSourceOptions = mapToOptions(leadSource, 'name', 'leadSourceId');
+  const [drawerOpen, setDrawerOpen] = useState<
+    'company' | 'conveyancer' | 'mortgage_broker' | 'financer' | null
+  >(null);
+  const [editingContact, setEditingContact] = useState<BusinessContact | null>(null);
 
   useEffect(() => {
     async function fetchLeadSource() {
-      if (getLeadSourceStatus === Status.IDLE) {
+      if (status.fetch === Status.IDLE) {
         try {
-          await dispatch(getLeadSourcesThunk()).unwrap();
+          await dispatch(fetchAllleadSource({})).unwrap();
         } catch (error) {
           message.error(error || 'Failed to fetch lead sources');
         }
       }
     }
     fetchLeadSource();
-  }, [getLeadSourceStatus, dispatch]);
+  }, [status.fetch, dispatch]);
 
-  const handleSave = (values: any) => {
-    message.success('Field saved successfully!');
-    setIsLeadEditing(prev => {
-      const reset: typeof prev = {} as typeof prev;
-      for (const key in prev) reset[key] = false;
-      return reset;
-    });
-  };
-
-  const handleLeadSourceEdit = async (values: any) => {
+  const handleLeadSourceEdit = async (values: Partial<Lead>) => {
     try {
       await dispatch(
         updateLeadThunk({
-          id: leadDetail.lead.leadId,
-          details: {
-            lead_source: values.leadSource,
-            notes: values?.notes?.trim(),
-          },
+          id: leadDetail.lead.leadsId,
+          details: values,
         })
       ).unwrap();
       message.success('Lead updated successfully');
-      setIsLeadEditing(prev => ({
-        ...prev,
-        leadSource: false,
-        notes: false,
-      }));
+      setIsLeadEditing(prev => {
+        const updated = { ...prev };
+        Object.keys(values).forEach(key => (updated[key] = false));
+        return updated;
+      });
     } catch (error) {
       message.error(error || 'Failed to update lead');
     }
   };
 
-  const openDrawer = (title: string) => {
-    setDrawerTitle(title);
-    setIsDrawerOpen(true);
-  };
-  const openDrawerWithAbnAcn = (title: string) => {
-    setDrawerTitle(title);
-    setIsDrawerOpenwithAbnAcn(true);
+  const handleDataSave = async (values: BusinessContact) => {
+    try {
+      if (editingContact) {
+        await dispatch(
+          updateBusinessContactThunk({ id: editingContact?.businessContactId, payload: values })
+        ).unwrap();
+        message.success('Lead details updated successfully');
+      } else {
+        await dispatch(
+          createBusinessContactThunk({
+            ...values,
+            leadsId: leadDetail.lead.leadsId,
+            contactType: drawerOpen,
+          })
+        ).unwrap();
+        message.success(`lead details saved!`);
+      }
+      setEditingContact(null);
+      setDrawerOpen(null);
+    } catch (error) {
+      message.error(error || 'Failed to save lead source details');
+    }
   };
 
-  const closeDrawer = () => {
-    setIsDrawerOpen(false);
-    setIsDrawerOpenwithAbnAcn(false);
-  };
-
-  const handleDataSave = (values: any) => {
-    console.log(`Saved ${drawerTitle} Details:`, values);
-    message.success(`${drawerTitle} details saved!`);
-    closeDrawer();
+  const handleDeleteData = async record => {
+    try {
+      await dispatch(
+        deleteBusinessContactThunk({
+          leadsId: record?.leadsId,
+          id: record?.businessContactId,
+          contactType: record?.contactType,
+        })
+      ).unwrap();
+      message.success('Item deleted successfully');
+    } catch (error) {
+      message.error(error || 'Failed to delete data');
+    }
   };
 
   return (
@@ -126,14 +135,14 @@ export const LeadSource = () => {
 
         <EditableField
           label="Lead Source"
-          name="leadSource"
-          value={leadDetail.lead?.leadSource}
+          name="leadSourceId"
+          value={leadDetail.lead?.leadSourceId}
           rules={leadSourceRules}
           isleadEditing={isLeadEditing.leadSource}
           setIsLeadEditing={setIsLeadEditing}
           loading={updateLeadStatusState === Status.PENDING}
           options={LeadSourceOptions}
-          initialValues={{ leadSource: leadDetail.lead?.leadSource || '' }}
+          initialValues={{ leadSource: leadDetail.lead?.leadSourceId || '' }}
           type="Select"
           onSave={handleLeadSourceEdit}
         />
@@ -154,99 +163,206 @@ export const LeadSource = () => {
         <EditableField
           label="Rating"
           name="rating"
-          value=""
+          value={leadDetail.lead?.rating}
           type="Select"
           options={RatingOptions}
           isleadEditing={isLeadEditing.rating}
           setIsLeadEditing={setIsLeadEditing}
-          onSave={handleSave}
+          loading={updateLeadStatusState === Status.PENDING}
+          initialValues={{ rating: leadDetail.lead?.rating || '' }}
+          onSave={handleLeadSourceEdit}
         />
 
         <EditableField
           label="Land"
           name="land"
-          value=""
+          value={leadDetail?.lead?.land}
           type="Select"
           options={YesNoOptions}
           isleadEditing={isLeadEditing.land}
           setIsLeadEditing={setIsLeadEditing}
-          onSave={handleSave}
+          loading={updateLeadStatusState === Status.PENDING}
+          initialValues={{ land: leadDetail.lead?.land || '' }}
+          onSave={handleLeadSourceEdit}
         />
 
         <EditableField
           label="Finance"
           name="finance"
-          value=""
+          value={leadDetail?.lead?.finance}
           type="Select"
           options={YesNoOptions}
           isleadEditing={isLeadEditing.finance}
           setIsLeadEditing={setIsLeadEditing}
-          onSave={handleSave}
+          loading={updateLeadStatusState === Status.PENDING}
+          initialValues={{ finance: leadDetail.lead?.finance || '' }}
+          onSave={handleLeadSourceEdit}
         />
 
         <EditableField
           label="Face to Face"
           name="faceToFace"
-          value=""
+          value={leadDetail?.lead?.faceToFace}
           type="Select"
           options={YesNoOptions}
           isleadEditing={isLeadEditing.faceToFace}
           setIsLeadEditing={setIsLeadEditing}
-          onSave={handleSave}
+          loading={updateLeadStatusState === Status.PENDING}
+          initialValues={{ faceToFace: leadDetail.lead?.faceToFace || '' }}
+          onSave={handleLeadSourceEdit}
         />
 
         <EditableField
           label="Purpose"
           name="purpose"
-          value=""
+          value={leadDetail?.lead?.purpose}
           type="Select"
           options={PurposeOptions}
           isleadEditing={isLeadEditing.purpose}
           setIsLeadEditing={setIsLeadEditing}
-          onSave={handleSave}
+          loading={updateLeadStatusState === Status.PENDING}
+          initialValues={{ purpose: leadDetail.lead?.purpose || '' }}
+          onSave={handleLeadSourceEdit}
         />
 
         <EditableField
           label="Client Type"
-          name="clientType"
-          value=""
+          name="clientTypeId"
+          value={leadDetail?.lead?.clientTypeId}
           type="Select"
-          options={ClientTypeOptions}
-          isleadEditing={isLeadEditing.clientType}
+          options={clientTypeOptions}
+          isleadEditing={isLeadEditing.clientTypeId}
           setIsLeadEditing={setIsLeadEditing}
-          onSave={handleSave}
+          loading={updateLeadStatusState === Status.PENDING}
+          initialValues={{ clientTypeId: leadDetail.lead?.clientTypeId || '' }}
+          onSave={handleLeadSourceEdit}
         />
 
         <EditableField
           label="Forecast Close"
-          name="forecastClose"
-          value=""
+          name="forcastClose"
+          value={leadDetail?.lead?.forcastClose}
           type="Date"
-          isleadEditing={isLeadEditing.forecastClose}
+          isleadEditing={isLeadEditing.forcastClose}
           setIsLeadEditing={setIsLeadEditing}
-          onSave={handleSave}
+          loading={updateLeadStatusState === Status.PENDING}
+          initialValues={{ forcastClose: leadDetail.lead?.forcastClose || '' }}
+          onSave={handleLeadSourceEdit}
         />
       </div>
 
       <div className="flex-1 md:mt-[0px] lg:mt-7">
         <div className="text-md lg:mt-6 flex flex-col gap-1 text-primary">
-          <HouseLandPopover>
-            <button className="flex items-center gap-2 hover:text-blue-800">
-              <IconCirclePlus /> House and Land Package
+          <div>
+            <HouseLandPopover onSave={handleLeadSourceEdit}>
+              <button className="flex items-center gap-2 hover:text-blue-800">
+                <IconCirclePlus /> House and Land Package
+              </button>
+            </HouseLandPopover>
+            <p className="text-sm text-font-color">{leadDetail?.lead?.houseLandPackageId}</p>
+          </div>
+
+          <div>
+            <button className="flex gap-2" onClick={() => setDrawerOpen('company')}>
+              <IconCirclePlus /> Company Details
             </button>
-          </HouseLandPopover>
-          <button className="flex gap-2" onClick={() => openDrawerWithAbnAcn('Company Details')}>
-            <IconCirclePlus /> Company Details
-          </button>
-          <button className="flex gap-2" onClick={() => openDrawer('Conveyancer / Solicitor')}>
-            <IconCirclePlus /> Conveyancer / Solicitor
-          </button>
-          <button className="flex gap-2" onClick={() => openDrawer('Mortgage Broker')}>
-            <IconCirclePlus /> Mortgage Broker
-          </button>
-          <button className="flex gap-2" onClick={() => openDrawer('Bank / Financer')}>
-            <IconCirclePlus /> Bank / Financer
-          </button>
+            {leadDetail?.lead?.company && (
+              <div className="flex items-center gap-2 justify-between text-sm text-font-color">
+                <p
+                  className="cursor-pointer"
+                  onClick={() => {
+                    setDrawerOpen('company');
+                    setEditingContact(leadDetail?.lead?.company);
+                  }}
+                >
+                  {leadDetail?.lead?.company.name}
+                </p>
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<IconTrash size={16} color="red" />}
+                  onClick={() => {
+                    handleDeleteData(leadDetail?.lead?.company);
+                  }}
+                />
+              </div>
+            )}
+          </div>
+          <div>
+            <button className="flex gap-2" onClick={() => setDrawerOpen('conveyancer')}>
+              <IconCirclePlus /> Conveyancer / Solicitor
+            </button>
+            {leadDetail?.lead?.conveyancer && (
+              <div className="flex items-center gap-2 justify-between text-sm text-font-color">
+                <p
+                  onClick={() => {
+                    setDrawerOpen('conveyancer');
+                    setEditingContact(leadDetail?.lead?.conveyancer);
+                  }}
+                >
+                  {leadDetail?.lead?.conveyancer.name}
+                </p>
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<IconTrash size={16} color="red" />}
+                  onClick={() => {
+                    handleDeleteData(leadDetail?.lead?.conveyancer);
+                  }}
+                />
+              </div>
+            )}
+          </div>
+          <div>
+            <button className="flex gap-2" onClick={() => setDrawerOpen('mortgage_broker')}>
+              <IconCirclePlus /> Mortgage Broker
+            </button>
+            {leadDetail?.lead?.mortgageBroker && (
+              <div className="flex items-center gap-2 justify-between text-sm text-font-color">
+                <p
+                  onClick={() => {
+                    setDrawerOpen('mortgage_broker');
+                    setEditingContact(leadDetail?.lead?.mortgageBroker);
+                  }}
+                >
+                  {leadDetail?.lead?.mortgageBroker.name}
+                </p>
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<IconTrash size={16} color="red" />}
+                  onClick={() => {
+                    handleDeleteData(leadDetail?.lead?.mortgageBroker);
+                  }}
+                />
+              </div>
+            )}
+          </div>
+          <div>
+            <button className="flex gap-2" onClick={() => setDrawerOpen('financer')}>
+              <IconCirclePlus /> Bank / Financer
+            </button>
+            {leadDetail?.lead?.financer && (
+              <div className="flex items-center gap-2 justify-between text-sm text-font-color">
+                <p
+                  onClick={() => {
+                    setDrawerOpen('financer');
+                    setEditingContact(leadDetail?.lead?.financer);
+                  }}
+                >
+                  {leadDetail?.lead?.financer.name}
+                </p>
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<IconTrash size={16} color="red" />}
+                  onClick={() => {
+                    handleDeleteData(leadDetail?.lead?.financer);
+                  }}
+                />
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -258,53 +374,53 @@ export const LeadSource = () => {
 
         <EditableField
           label="Budget (Build)"
-          name="budgetBuild"
-          value=""
+          name="buildBudget"
+          value={leadDetail?.lead?.buildBudget}
           type="InputNumber"
-          isleadEditing={isLeadEditing.budgetBuild}
+          isleadEditing={isLeadEditing.buildBudget}
           setIsLeadEditing={setIsLeadEditing}
-          onSave={handleSave}
+          onSave={handleLeadSourceEdit}
         />
 
         <EditableField
           label="Region"
-          name="region"
-          value=""
+          name="regionId"
+          value={leadDetail?.lead?.regionId}
           type="Select"
-          options={RegionOptions}
-          isleadEditing={isLeadEditing.region}
+          options={stateOptions}
+          isleadEditing={isLeadEditing.regionId}
           setIsLeadEditing={setIsLeadEditing}
-          onSave={handleSave}
+          onSave={handleLeadSourceEdit}
         />
 
         <EditableField
           label="Prelim Agreement Signed"
-          name="agreementDate"
-          value=""
+          name="prelimAgreement"
+          value={leadDetail?.lead?.prelimAgreement}
           type="Date"
-          isleadEditing={isLeadEditing.agreementDate}
+          isleadEditing={isLeadEditing.prelimAgreement}
           setIsLeadEditing={setIsLeadEditing}
-          onSave={handleSave}
+          onSave={handleLeadSourceEdit}
         />
 
         <EditableField
           label="Client Profile"
           name="clientProfile"
-          value=""
+          value={leadDetail?.lead?.clientProfile}
           type="TextArea"
           isleadEditing={isLeadEditing.clientProfile}
           setIsLeadEditing={setIsLeadEditing}
-          onSave={handleSave}
+          onSave={handleLeadSourceEdit}
         />
 
         <EditableField
           label="Budget (H&L)"
-          name="budgetHL"
-          value=""
+          name="hLBudget"
+          value={leadDetail?.lead?.hLBudget}
           type="InputNumber"
-          isleadEditing={isLeadEditing.budgetHL}
+          isleadEditing={isLeadEditing.hLBudget}
           setIsLeadEditing={setIsLeadEditing}
-          onSave={handleSave}
+          onSave={handleLeadSourceEdit}
         />
       </div>
 
@@ -314,9 +430,9 @@ export const LeadSource = () => {
         </div>
         <Divider className="bg-border-color my-3" />
 
-        <LeadUpdateDetail label="Assignee" value={leadDetail.lead?.assignee?.name} />
-        <LeadUpdateDetail label="Created by" value={leadDetail.lead?.createdBy?.name} />
-        <LeadUpdateDetail label="Updated by" value={leadDetail.lead?.updatedBy?.name} />
+        <LeadUpdateDetail label="Assignee" value={leadDetail.lead?.assigneeName} />
+        <LeadUpdateDetail label="Created by" value={leadDetail.lead?.createdByName} />
+        <LeadUpdateDetail label="Updated by" value={leadDetail.lead?.updatedByName} />
       </div>
 
       <div className="flex-1 md:mt-[0px] lg:mt-7">
@@ -324,7 +440,6 @@ export const LeadSource = () => {
           <p>Dates</p>
         </div>
         <Divider className="bg-border-color my-3" />
-
         <LeadUpdateDetail
           label="Created"
           value={new Date(leadDetail.lead?.createdAt).toLocaleDateString()}
@@ -335,21 +450,25 @@ export const LeadSource = () => {
         />
       </div>
 
-      {isDrawerOpen && (
+      {drawerOpen && (
         <LeadSourceDetailsDrawer
-          isOpen={isDrawerOpen}
-          onClose={closeDrawer}
+          isOpen={!!drawerOpen}
+          onClose={() => setDrawerOpen(null)}
           onSave={handleDataSave}
-          title={drawerTitle}
-        />
-      )}
-      {isDrawerOpenwithAbnAcn && (
-        <LeadSourceDetailsDrawer
-          isOpen={isDrawerOpenwithAbnAcn}
-          onClose={closeDrawer}
-          onSave={handleDataSave}
-          title={drawerTitle}
-          isABNACNShow={true}
+          title={
+            drawerOpen === 'company'
+              ? 'Company Details'
+              : drawerOpen === 'conveyancer'
+                ? 'Conveyancer / Solicitor'
+                : drawerOpen === 'mortgage_broker'
+                  ? 'Mortgage Broker'
+                  : drawerOpen === 'financer'
+                    ? 'Bank / Financer'
+                    : ''
+          }
+          isABNACNShow={drawerOpen === 'company'}
+          isEditing={!!editingContact}
+          initialValue={editingContact}
         />
       )}
     </div>

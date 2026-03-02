@@ -1,6 +1,4 @@
 import { CreateFormField } from '../common/Models/CreateFormModel';
-import { useAppSelector } from '@hooks/redux';
-import { mapToOptions } from '@lib/utils/rangeAndDwellingObjToOptions';
 import NoDataMessage from '../common/NoDataMessage';
 import SystemRoutes from '@lib/constants/Routes';
 import {
@@ -8,11 +6,13 @@ import {
   numberRules,
   settingNameRules,
 } from '@lib/constants/formInputValidations';
+import useDwellingAndRangeHook from '@hooks/useDwellingAndRangeHook';
 
 export const floorPlanFields = (): CreateFormField[] => {
-  const { range, dwellingType } = useAppSelector(state => state.types);
-  const rangeOptions = mapToOptions(range);
-  const dwellingTypeOptions = mapToOptions(dwellingType);
+  const { rangeOptions, dwellingTypeOptions } = useDwellingAndRangeHook({
+    type: ['range', 'dwellingType'],
+  });
+
   return [
     {
       label: 'Name',

@@ -47,36 +47,22 @@ export const TemplateDummyOptions: MenuProps['items'] = [
 ];
 
 export const RatingOptions = [
-  { label: 'Hot', value: 'hot' },
-  { label: 'Cold', value: 'cold' },
-  { label: 'Warm', value: 'warm' },
+  { label: 'None', value: 'None' },
+  { label: 'Hot', value: 'Hot' },
+  { label: 'Cold', value: 'Cold' },
+  { label: 'Warm', value: 'Warm' },
 ];
 
 export const YesNoOptions = [
-  { label: 'None', value: 'none' },
-  { label: 'Yes', value: 'yes' },
-  { label: 'No', value: 'no' },
+  { label: 'None', value: 'None' },
+  { label: 'Yes', value: 'Yes' },
+  { label: 'No', value: 'No' },
 ];
 
 export const PurposeOptions = [
-  { label: 'Own House', value: 'ownhouse' },
-  { label: 'Investment Property', value: 'investmentproperty' },
-];
-
-export const RegionOptions = [
-  { label: 'Sydney East', value: 'sydneyeast' },
-  { label: 'Melbourne North', value: 'melbournenorth' },
-  { label: 'Brisbane South', value: 'brisbanesouth' },
-];
-
-export const ClientTypeOptions = [
-  { label: 'None', value: 'none' },
-  { label: 'Renovator', value: 'renovator' },
-  { label: 'New Build', value: 'newbuild' },
-  { label: 'First Home Buyer', value: 'firsthomebuyer' },
-  { label: 'Second Home Buyer', value: 'secondhomebuyer' },
-  { label: 'Fourth Home Buyer', value: 'fourthhomebuyer' },
-  { label: 'Investor', value: 'investor' },
+  { label: 'None', value: 'None' },
+  { label: 'Own House', value: 'Own House' },
+  { label: 'Investment Property', value: 'Investment Property' },
 ];
 
 export const JobOptions = [

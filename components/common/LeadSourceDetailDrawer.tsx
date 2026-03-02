@@ -1,51 +1,46 @@
+import { useCountryHook } from '@hooks/useCountryHook';
+import { useStateHook } from '@hooks/useStateHook';
+import { BusinessContact } from '@redux/feature/lead/ILeadState';
 import { IconX } from '@tabler/icons-react';
 import { Drawer, Form, Input, Select, Button, Space } from 'antd';
-import { useEffect, useState } from 'react';
-
+import { useEffect } from 'react';
 interface LeadSourceDetailsFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (values: any) => void;
+  onSave: (values: BusinessContact) => void;
   title: string;
   isABNACNShow?: boolean;
+  isEditing?: boolean;
+  initialValue?: BusinessContact;
 }
-
-const { Option } = Select;
-
 const LeadSourceDetailsDrawer = ({
   isOpen,
   onClose,
   onSave,
   title,
   isABNACNShow = false,
+  isEditing = false,
+  initialValue,
 }: LeadSourceDetailsFormProps) => {
   const [form] = Form.useForm();
-  const [country, setCountry] = useState('Australia');
+  const { countryOptions } = useCountryHook();
+  const { stateOptions } = useStateHook();
+
+  const handleFinish = (values: BusinessContact) => {
+    onSave(values);
+    form.resetFields();
+  };
 
   useEffect(() => {
-    if (isOpen) {
-      form.resetFields();
+    if (isEditing) {
+      form.setFieldsValue(initialValue);
     }
-  }, [isOpen, form]);
-
-  const handleFinish = (values: any) => {
-    onSave(values);
-  };
-
-  const handleCountryChange = (value: string) => {
-    setCountry(value);
-  };
-
-  const statesByCountry: { [key: string]: string[] } = {
-    Australia: ['Victoria', 'New South Wales', 'Queensland', 'Western Australia'],
-    USA: ['California', 'New York', 'Texas'],
-    Canada: ['Ontario', 'Quebec', 'British Columbia'],
-  };
+  }, [isEditing]);
 
   return (
     <Drawer
       title={title}
-      width="30%"
+      size="large"
       onClose={onClose}
       open={isOpen}
       bodyStyle={{ padding: 0 }}
@@ -98,44 +93,24 @@ const LeadSourceDetailsDrawer = ({
           <Form.Item name="city" label={<div>City / Suburb</div>} className="mb-4">
             <Input />
           </Form.Item>
-          <Form.Item name="zip" label={<div>Zip/Postal Code</div>} className="mb-4">
+          <Form.Item name="zipCode" label={<div>Zip/Postal Code</div>} className="mb-4">
             <Input />
           </Form.Item>
 
-          <Form.Item
-            name="country"
-            label={<div>Country</div>}
-            initialValue="Australia"
-            className="mb-4"
-          >
-            <Select onChange={handleCountryChange}>
-              <Option value="Australia">Australia</Option>
-              <Option value="USA">USA</Option>
-              <Option value="Canada">Canada</Option>
-            </Select>
+          <Form.Item name="countryId" label={<div>Country</div>} className="mb-4">
+            <Select options={countryOptions} />
           </Form.Item>
-          <Form.Item
-            name="state"
-            label={<div>State / Region</div>}
-            initialValue="Victoria"
-            className="mb-4"
-          >
-            <Select value={statesByCountry[country]?.[0] || ''}>
-              {statesByCountry[country]?.map(state => (
-                <Option key={state} value={state}>
-                  {state}
-                </Option>
-              ))}
-            </Select>
+          <Form.Item name="stateId" label={<div>State / Region</div>} className="mb-4">
+            <Select options={stateOptions} />
           </Form.Item>
 
           {isABNACNShow && (
-            <Form.Item name="abn" label={<div>ABN</div>} className="mb-4">
+            <Form.Item name="abnNumber" label={<div>ABN</div>} className="mb-4">
               <Input />
             </Form.Item>
           )}
           {isABNACNShow && (
-            <Form.Item name="acn" label={<div>ACN</div>} className="mb-4">
+            <Form.Item name="acnNumber" label={<div>ACN</div>} className="mb-4">
               <Input />
             </Form.Item>
           )}

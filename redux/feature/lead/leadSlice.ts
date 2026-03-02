@@ -2,16 +2,20 @@ import { createSlice } from '@reduxjs/toolkit';
 import {
   convertLeadToJobThunk,
   convertLeadToOpportunityThunk,
+  createBusinessContactThunk,
   createLeadContactThunk,
   createLeadSourceThunk,
   createLeadThunk,
+  deleteBusinessContactThunk,
   deleteLeadSourceThunk,
+  getBusinessContactByIdThunk,
   getLeadSourcesThunk,
   getLeadThunk,
   getQuotationsByLeadIdThunk,
   leadConvertThunk,
   leadDeleteThunk,
   transferLeadThunk,
+  updateBusinessContactThunk,
   updateLeadContactThunk,
   updateLeadSourceThunk,
   updateLeadThunk,
@@ -89,38 +93,41 @@ export const leadSlice = createSlice({
     });
     builder.addCase(getLeadByIdThunk.fulfilled, (state, action) => {
       const payload: any = action.payload;
-      const prop = payload?.property;
-      let normalizedProperty = prop;
-      if (prop && typeof prop === 'object') {
-        normalizedProperty = {
-          propertyId: prop.propertyId ?? prop.property_id,
-          builderId: prop.builderId ?? prop.builder_id,
-          leadId: prop.leadId ?? prop.lead_id,
-          country: prop.country,
-          address1: prop.address1,
-          address2: prop.address2,
-          citySuburb: prop.citySuburb ?? prop.city_suburb,
-          stateRegion: prop.stateRegion ?? prop.state_region,
-          zipPostalCode: prop.zipPostalCode ?? prop.zip_postal_code,
-          estateName: prop.estateName ?? prop.estate_name,
-          titleStatus: prop.titleStatus ?? prop.title_status,
-          titleDate: prop.titleDate ?? prop.title_date,
-          compactionReport: prop.compactionReport ?? prop.compaction_report,
-          landType: prop.landType ?? prop.land_type,
-          widthM: prop.widthM ?? prop.width_m,
-          depthM: prop.depthM ?? prop.depth_m,
-          totalSizeM2: prop.totalSizeM2 ?? prop.total_size_m2,
-          siteFallMm: prop.siteFallMm ?? prop.site_fall_mm,
-          landFillMm: prop.landFillMm ?? prop.land_fill_mm,
-          bushFire: (prop.bushFire ?? prop.bush_fire) as any,
-          cornerBlock: (prop.cornerBlock ?? prop.corner_block) as any,
-          createdAt: prop.createdAt ?? prop.created_at,
-          updatedAt: prop.updatedAt ?? prop.updated_at,
-        };
-      }
+      // const prop = payload?.property;
+      // let normalizedProperty = prop;
+      // if (prop && typeof prop === 'object') {
+      //   normalizedProperty = {
+      //     propertyId: prop.propertyId ?? prop.property_id,
+      //     builderId: prop.builderId ?? prop.builder_id,
+      //     leadId: prop.leadId ?? prop.lead_id,
+      //     country: prop.country,
+      //     address1: prop.address1,
+      //     address2: prop.address2,
+      //     citySuburb: prop.citySuburb ?? prop.city_suburb,
+      //     stateRegion: prop.stateRegion ?? prop.state_region,
+      //     zipPostalCode: prop.zipPostalCode ?? prop.zip_postal_code,
+      //     estateName: prop.estateName ?? prop.estate_name,
+      //     titleStatus: prop.titleStatus ?? prop.title_status,
+      //     titleDate: prop.titleDate ?? prop.title_date,
+      //     compactionReport: prop.compactionReport ?? prop.compaction_report,
+      //     landType: prop.landType ?? prop.land_type,
+      //     widthM: prop.widthM ?? prop.width_m,
+      //     depthM: prop.depthM ?? prop.depth_m,
+      //     totalSizeM2: prop.totalSizeM2 ?? prop.total_size_m2,
+      //     siteFallMm: prop.siteFallMm ?? prop.site_fall_mm,
+      //     landFillMm: prop.landFillMm ?? prop.land_fill_mm,
+      //     bushFire: (prop.bushFire ?? prop.bush_fire) as any,
+      //     cornerBlock: (prop.cornerBlock ?? prop.corner_block) as any,
+      //     createdAt: prop.createdAt ?? prop.created_at,
+      //     updatedAt: prop.updatedAt ?? prop.updated_at,
+      //   };
+      // }
       state.leadDetail = {
-        ...payload,
-        property: normalizedProperty ?? payload?.property,
+        // ...payload,
+        lead: payload,
+        contacts: [],
+        property: [],
+        createdQuotations: { quotations: [] },
       };
       state.status.leadById = Status.SUCCESS;
     });
@@ -134,20 +141,16 @@ export const leadSlice = createSlice({
       state.status.updateLeadSource = Status.PENDING;
     });
     builder.addCase(updateLeadThunk.fulfilled, (state, action) => {
-      const { leadId, notes, leadSource, updatedBy, updatedAt } = action.payload;
-      state.leadDetail.lead = action.payload;
+      state.leadDetail.lead = { ...state.leadDetail.lead, ...action.payload };
       if (state.leads == null) {
         state.leads = [];
       }
       if (state.leads.length === 0) {
         state.leads.push(action.payload);
       } else {
-        const lead = state.leads.find(item => item.leadsId === leadId);
-        lead.notes = notes;
-        lead.leadSourceId = leadSource;
-        lead.updatedByName = updatedBy.name;
-        lead.updatedBy = updatedBy.id;
-        lead.updatedAt = updatedAt;
+        state.leads = state.leads.map(item =>
+          item.leadsId === action.payload.leadsId ? { ...item, ...action.payload } : item
+        );
       }
       state.status.updateLeadSource = Status.SUCCESS;
     });
@@ -178,7 +181,7 @@ export const leadSlice = createSlice({
       });
     });
     builder.addCase(transferLeadThunk.fulfilled, (state, action) => {
-      state.leadDetail.lead.assignee = action.payload?.assignee;
+      state.leadDetail.lead.assigneeId = action.payload?.assigneeId;
     });
     builder.addCase(getQuotationsByLeadIdThunk.pending, state => {
       state.status.leadQuotations = Status.PENDING;
@@ -267,6 +270,81 @@ export const leadSlice = createSlice({
       state.leadSources = state.leadSources.filter(
         service => service.leadSourceId !== action.payload
       );
+    });
+
+    //lead business contact
+    builder.addCase(createBusinessContactThunk.fulfilled, (state, action) => {
+      const lead = state.leads.find(lead => lead.leadsId === action.payload.leadsId);
+      if (lead) {
+        action.payload.contactType === 'company'
+          ? (lead.company = action.payload)
+          : action.payload.contactType === 'conveyancer'
+            ? (lead.conveyancer = action.payload)
+            : action.payload.contactType === 'mortgage_broker'
+              ? (lead.mortgageBroker = action.payload)
+              : action.payload.contactType === 'financer'
+                ? (lead.financer = action.payload)
+                : null;
+      }
+      state.leadDetail.lead.conveyancer =
+        action.payload.contactType === 'conveyancer'
+          ? action.payload
+          : state.leadDetail.lead.conveyancer;
+      state.leadDetail.lead.mortgageBroker =
+        action.payload.contactType === 'mortgage_broker'
+          ? action.payload
+          : state.leadDetail.lead.mortgageBroker;
+      state.leadDetail.lead.financer =
+        action.payload.contactType === 'financer' ? action.payload : state.leadDetail.lead.financer;
+      state.leadDetail.lead.company =
+        action.payload.contactType === 'company' ? action.payload : state.leadDetail.lead.company;
+    });
+
+    builder.addCase(getBusinessContactByIdThunk.fulfilled, (state, action) => {
+      action.payload?.map(i => {
+        switch (i.contactType) {
+          case 'conveyancer':
+            state.leadDetail.lead.conveyancer = i;
+            break;
+          case 'mortgage_broker':
+            state.leadDetail.lead.mortgageBroker = i;
+            break;
+          case 'financer':
+            state.leadDetail.lead.financer = i;
+            break;
+          case 'company':
+            state.leadDetail.lead.company = i;
+            break;
+        }
+      });
+    });
+    builder.addCase(updateBusinessContactThunk.fulfilled, (state, action) => {
+      switch (action.payload.contactType) {
+        case 'conveyancer':
+          state.leadDetail.lead.conveyancer = action.payload;
+          break;
+        case 'mortgage_broker':
+          state.leadDetail.lead.mortgageBroker = action.payload;
+          break;
+        case 'financer':
+          state.leadDetail.lead.financer = action.payload;
+          break;
+        case 'company':
+          state.leadDetail.lead.company = action.payload;
+          break;
+      }
+    });
+    builder.addCase(deleteBusinessContactThunk.fulfilled, (state, action) => {
+      state.leadDetail.lead.conveyancer =
+        action.meta.arg.contactType === 'conveyancer' ? null : state.leadDetail.lead.conveyancer;
+      state.leadDetail.lead.mortgageBroker =
+        action.meta.arg.contactType === 'mortgage_broker'
+          ? null
+          : state.leadDetail.lead.mortgageBroker;
+      state.leadDetail.lead.financer =
+        action.meta.arg.contactType === 'financer' ? null : state.leadDetail.lead.financer;
+      state.leadDetail.lead.company =
+        action.meta.arg.contactType === 'company' ? null : state.leadDetail.lead.company;
     });
   },
 });

@@ -6,6 +6,7 @@ export function useClickOutside(ref, handler) {
       if (
         event.target.closest('button') ||
         event.target.closest('.ant-select-dropdown') ||
+        event.target.closest('.ant-picker-dropdown') ||
         (ref.current && ref.current.contains(event.target))
       ) {
         return;

@@ -16,11 +16,11 @@ import {
   setSelectedFilters as setQuotationFilters,
 } from '@redux/feature/quotation/quotationSlice';
 import { message, Select } from 'antd';
-import { mapToOptions } from '@lib/utils/rangeAndDwellingObjToOptions';
 import { Status } from '@lib/constants/enum';
 import { getDwellingTypes, getRanges } from '@redux/feature/types/typesThunk';
 import NoDataMessage from '../common/NoDataMessage';
 import SystemRoutes from '@lib/constants/Routes';
+import useDwellingAndRangeHook from '@hooks/useDwellingAndRangeHook';
 
 interface QuotationFilterProps {
   isReadOnly?: boolean;
@@ -33,8 +33,7 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({
 }) => {
   const dispatch = useAppDispatch();
   const { range, dwellingType, status } = useAppSelector(state => state.types);
-  const rangeOptions = mapToOptions(range);
-  const dwellingOptions = mapToOptions(dwellingType);
+  const { rangeOptions, dwellingTypeOptions } = useDwellingAndRangeHook({type : ['range','dwellingType']});
   const { selectedFilters: selectedQuotationFilters } = useAppSelector(state => state.quotation);
   const { selectedFilters: selectedPackageFilters } = useAppSelector(state => state.package);
   const initialLoad = useRef(true);
@@ -236,7 +235,7 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({
             dispatch(resetAllCategoriesIsExpanded());
             onFilterChange?.();
           }}
-          options={dwellingOptions}
+          options={dwellingTypeOptions}
           disabled={isReadOnly}
         />
       </div>

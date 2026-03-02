@@ -14,7 +14,7 @@ export interface InitialState {
   leadSources: LeadSource[];
   addInstSourceModal: boolean;
   leadDetail: {
-    lead: ILead | null;
+    lead: Lead | null;
     contacts: ILeadContact[] | null;
     property: any | null;
     createdQuotations: { quotations: QuotationResponse[] };
@@ -105,7 +105,7 @@ export interface Lead {
   notes: string;
   sendLetter: boolean;
   leadSourceId: string;
-  status: "New" | "Contacted" | "Qualified" | "Lost" | string; 
+  status: "New" | "Contacted" | "Qualified" | "Lost" | string;
   outcome: string | null;
   rating: "Hot" | "Warm" | "Cold" | string;
   land: "Yes" | "No" | string;
@@ -113,21 +113,47 @@ export interface Lead {
   faceToFace: "Yes" | "No" | string;
   purpose: string;
   clientTypeId: string;
-  forcastClose: string; // ISO date
+  forcastClose: string; 
   buildBudget: string;
   regionId: string;
-  prelimAgreement: string; // ISO date
+  prelimAgreement: string; 
   clientProfile: string;
   hLBudget: string;
   assigneeId: string;
   createdBy: string;
   updatedBy: string;
-  createdAt: string; // ISO date
-  updatedAt: string; // ISO date
+  createdAt: string; 
+  updatedAt: string; 
   leadSourceName: string;
   clientTypeName: string;
   stateName: string;
   assigneeName: string;
   createdByName: string;
   updatedByName: string;
+  leadsContactId?: string // todo add
+  houseLandPackage: string;
+  company: BusinessContact;
+  conveyancer: BusinessContact;
+  mortgageBroker: BusinessContact;
+  financer: BusinessContact;
+  houseLandPackageId?: string
+}
+
+export interface BusinessContact {
+  businessContactId?: string;
+  leadsId: string;
+  contactType?: "company" | "conveyancer" | "mortgage_broker" | "financer";
+  name?: string;
+  email?: string;
+  phone?: string;
+  address1?: string;
+  address2?: string;
+  city?: string;
+  zipCode?: string;
+  countryId?: string | null;
+  stateId?: string | null;
+  abnNumber?: string;
+  acnNumber?: string;
+  createdAt?: string; 
+  updatedAt?: string;
 }

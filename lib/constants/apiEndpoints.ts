@@ -51,6 +51,9 @@ class API_ENDPOINTS {
   public static CONVERT_LEAD_TO_JOB = `/job`;
   public static LEAD_CONTACT = `/leads-contact`;
   public static LEAD_SOURCE = `/lead-source`;
+  public static LEAD_BUSINESS_CONTACT = `/business-contact`;
+  public static LEAD_BUSINESS_CONTACT_BY_ID = (id: string) =>
+    `${this.LEAD_BUSINESS_CONTACT}/lead/${id}`;
 
   //  Master PricingList
   public static MASTER_PRICE_LIST_CATEGORY = '/category';
@@ -297,8 +300,8 @@ class API_ENDPOINTS {
   public static LAND_PACKAGE = '/lot-package';
   public static LAND_PACKAGE_GROUP = '/lot-package-group';
   public static HL_PACKAGE = '/house-land-package';
-  public static HL_PACKAGE_COMMISSION = '/hl-package-pricelist-item-commission/package-commission'
-  public static HL_PACKAGE_PRICELIST = '/hl-package-pricelist-item-commission'
+  public static HL_PACKAGE_COMMISSION = '/hl-package-pricelist-item-commission/package-commission';
+  public static HL_PACKAGE_PRICELIST = '/hl-package-pricelist-item-commission';
 
   // common
   public static FUNCTIONALITY_BASE = '/functionality';

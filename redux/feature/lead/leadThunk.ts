@@ -3,7 +3,7 @@ import api from '@lib/constants/api';
 import API_ENDPOINTS from '@lib/constants/apiEndpoints';
 import { ApiResponse } from '../auth/IAuthState';
 // import { PropertyDetails } from "data/types";
-import { ILeadContact, LeadSourceRequest, LeadSource, Lead } from './ILeadState';
+import { ILeadContact, LeadSourceRequest, LeadSource, Lead, BusinessContact } from './ILeadState';
 export interface createLeadPayload {
   name: string;
   email?: string;
@@ -31,10 +31,10 @@ export const createLeadThunk = createAsyncThunk(
       return response.data;
     } catch (err) {
       if (err?.data?.statusCode === 409) {
-        return rejectWithValue({ 
-          isConflict: true, 
+        return rejectWithValue({
+          isConflict: true,
           message: 'Email already exists',
-          email: payload.email 
+          email: payload.email,
         });
       }
       return rejectWithValue(err.response?.data?.message || err.message);
@@ -95,14 +95,14 @@ export const createLeadContactThunk = createAsyncThunk(
 
 export const updateLeadThunk = createAsyncThunk(
   'lead/updateLead',
-  async (
-    payload: { id: string; details: { lead_source?: string; notes?: string } },
-    { rejectWithValue }
-  ) => {
+  async (payload: { id: string; details: Partial<Lead> }, { rejectWithValue }) => {
     try {
-      const response: ApiResponse<any> = await api.put(`${API_ENDPOINTS.LEAD_BASE}/${payload.id}`, {
-        data: payload.details,
-      });
+      const response: ApiResponse<Lead> = await api.put(
+        `${API_ENDPOINTS.LEAD_BASE}/${payload.id}`,
+        {
+          data: payload.details,
+        }
+      );
       return response.data;
     } catch (err: any) {
       return rejectWithValue(err?.message);
@@ -285,6 +285,68 @@ export const deleteLeadSourceThunk = createAsyncThunk(
       );
       return leadSourceId;
     } catch (err: any) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+// lead business contact
+
+export const createBusinessContactThunk = createAsyncThunk(
+  'businessContact/create',
+  async (payload: BusinessContact, { rejectWithValue }) => {
+    try {
+      const response: ApiResponse<BusinessContact> = await api.post(
+        API_ENDPOINTS.LEAD_BUSINESS_CONTACT,
+        {
+          data: payload,
+        }
+      );
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+export const getBusinessContactByIdThunk = createAsyncThunk(
+  'businessContact/getById',
+  async (leadsId: string, { rejectWithValue }) => {
+    try {
+      const response: ApiResponse<BusinessContact[]> = await api.get(
+        API_ENDPOINTS.LEAD_BUSINESS_CONTACT_BY_ID(leadsId)
+      );
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+export const updateBusinessContactThunk = createAsyncThunk(
+  'businessContact/update',
+  async ({ id, payload }: { id: string; payload: BusinessContact }, { rejectWithValue }) => {
+    try {
+      const response: ApiResponse<BusinessContact> = await api.put(
+        `${API_ENDPOINTS.LEAD_BUSINESS_CONTACT}/${id}`,
+        { data: payload }
+      );
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+export const deleteBusinessContactThunk = createAsyncThunk(
+  'businessContact/delete',
+  async (payload: { leadsId: string; id: string; contactType: string }, { rejectWithValue }) => {
+    try {
+      const response: ApiResponse = await api.delete(
+        `${API_ENDPOINTS.LEAD_BUSINESS_CONTACT}/${payload.id}`
+      );
+      return;
+    } catch (err) {
       return rejectWithValue(err.message);
     }
   }

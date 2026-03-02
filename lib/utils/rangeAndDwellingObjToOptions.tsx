@@ -1,19 +1,22 @@
-import { LeadSource } from '@redux/feature/lead/ILeadState';
 import { DwellingType, Range } from '@redux/feature/types/ITypesState';
-import { enumToReadable } from './enumToRedable';
- 
+import { LeadSourceType } from '@redux/feature/admin/sales/leadSource/ILeadSourceState';
+
 export type Option = {
   label: string;
   value: string;
 };
 
-export function mapToOptions<T extends Range | DwellingType | LeadSource>(items: T[]): Option[] {
+export function mapToOptions<T extends Range | DwellingType | LeadSourceType>(
+  items: T[],
+  label: string,
+  values: string
+): Option[] {
   return (
     items &&
     items?.length > 0 &&
     items?.map(item => ({
-      label: item.name,
-      value: item.name,
+      label: item[label],
+      value: item[values],
     }))
   );
 }

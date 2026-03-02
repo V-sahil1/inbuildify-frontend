@@ -6,6 +6,7 @@ import { useClickOutside } from '@hooks/useClickOutside';
 import { Option } from '@lib/utils/rangeAndDwellingObjToOptions';
 import { Rule } from 'antd/es/form';
 import dayjs from 'dayjs';
+import { Lead } from '@redux/feature/quotation/IQuotationState';
 const { TextArea } = Input;
 
 type EditableFieldProps = {
@@ -17,7 +18,7 @@ type EditableFieldProps = {
   type: string;
   options?: Option[];
   initialValues?: {};
-  onSave?: (values: any) => void;
+  onSave?: (values: Partial<Lead>) => void;
   isleadEditing?: boolean;
   setIsLeadEditing?: (values) => void;
 };
@@ -93,8 +94,18 @@ const EditableField: React.FC<EditableFieldProps> = ({
             </Form.Item>
           ) : (
             <div className="text-font-color">
-              <Tooltip title={enumToReadable(value) || 'Not Available'}>
-                <p className="truncate">{enumToReadable(value) || 'N/A'}</p>
+              <Tooltip
+                title={
+                  type === 'Date'
+                    ? dayjs(value).format('DD-MM-YYYY')
+                    : enumToReadable(value) || 'Not Available'
+                }
+              >
+                {type === 'Date' ? (
+                  <p className="truncate">{!!value ? dayjs(value).format('DD-MM-YYYY') : 'N/A'}</p>
+                ) : (
+                  <p className="truncate">{enumToReadable(value) || 'N/A'}</p>
+                )}
               </Tooltip>
             </div>
           )}

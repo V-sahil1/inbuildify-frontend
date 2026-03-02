@@ -8,17 +8,16 @@ import { useAppDispatch, useAppSelector } from '@hooks/redux';
 // import { Status } from "@lib/constants/enum";
 import { createFloorPlan } from '@redux/feature/floorPlan/floorPlanThunk';
 import { setQuotationPlan } from '@redux/feature/quotation/quotationSlice';
-import { mapToOptions } from '@lib/utils/rangeAndDwellingObjToOptions';
 import { acceptOnlyImageRule } from '@lib/constants/formInputValidations';
+import useDwellingAndRangeHook from '@hooks/useDwellingAndRangeHook';
 
 const CustomPlanTab: React.FC<{ onCancel: () => void }> = ({ onCancel }) => {
   const [form] = Form.useForm<IFloorPlanState>();
   const dispatch = useAppDispatch();
-  const { dwellingType, range } = useAppSelector((state: any) => state.types);
   const { selectedFilters } = useAppSelector((state: any) => state.quotation);
   const [loading, setLoading] = useState(false);
-  const dwellingTypeOptions = mapToOptions(dwellingType);
-  const rangeOptions = mapToOptions(range);
+   const { rangeOptions, dwellingTypeOptions } = useDwellingAndRangeHook({type : ['range','dwellingType']});
+ 
 
   useEffect(() => {
     form.setFieldsValue({

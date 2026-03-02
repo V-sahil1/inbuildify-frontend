@@ -4,13 +4,22 @@ import { useState } from 'react';
 import { Popover, Input, List, message } from 'antd';
 import { IconSearch } from '@tabler/icons-react';
 import { data } from 'data/hlpackageData';
+import { useHLPackageHook } from '@hooks/useHLPackageHook';
+import { Lead } from '@redux/feature/lead/ILeadState';
 
-const HouseLandPopover = ({ children }: { children: React.ReactNode }) => {
+const HouseLandPopover = ({
+  children,
+  onSave,
+}: {
+  children: React.ReactNode;
+  onSave: (val: Partial<Lead>) => void;
+}) => {
   const [openPopover, setOpenPopover] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const { packageOptions } = useHLPackageHook();
 
-  const filteredPackages = data.filter(pkg =>
-    pkg.packages.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredPackages = packageOptions.filter(pkg =>
+    pkg.label.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -36,11 +45,11 @@ const HouseLandPopover = ({ children }: { children: React.ReactNode }) => {
               <List.Item
                 className="cursor-pointer hover:bg-gray-100"
                 onClick={() => {
-                  message.success(`Selected: ${item.packages}`);
+                  onSave({ houseLandPackageId: item.value });
                   setOpenPopover(false);
                 }}
               >
-                {item.packages}
+                {item.label}
               </List.Item>
             )}
           />

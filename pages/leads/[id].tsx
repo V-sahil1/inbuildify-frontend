@@ -18,6 +18,7 @@ import { useRouter } from 'next/router';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import {
   createLeadContactThunk,
+  getBusinessContactByIdThunk,
   getLeadByIdThunk,
   updateLeadContactThunk,
 } from '@redux/feature/lead/leadThunk';
@@ -78,11 +79,10 @@ function App() {
   const [isDepositModalVisible, setIsDepositModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
-  const { leadDetail } = useAppSelector(state => state.lead);
-  const status = useAppSelector(state => state.lead.status.leadById);
+  const { leadDetail, status } = useAppSelector(state => state.lead);
   const isLoggedIn = useAppSelector(state => state.auth.isAuthenticated);
 
-  const isOpportunity = leadDetail?.lead?.status !== 'NEW';
+  const isOpportunity = leadDetail?.lead?.status !== 'New';
   const title = isOpportunity ? 'Opportunity' : 'Lead';
   const contacts: ILeadContact[] = leadDetail?.contacts;
   const propertyFromSlice = leadDetail?.property;
@@ -100,16 +100,12 @@ function App() {
 
   useEffect(() => {
     if (leadId) {
-      async function fetchData() {
-        await dispatch(getLeadByIdThunk(leadId));
-        await dispatch(getQuotationsByLeadIdThunk({ leadId, page: 1, limit: 25 }));
-      }
       fetchData();
     }
-  }, [router.query.id, dispatch]);
+  }, [router.query.id, dispatch, status.leads]);
 
   const primaryContact = contacts?.find(
-    (cont: ILeadContact) => cont.leadsContactId === leadDetail?.lead?.leadContactId
+    (cont: ILeadContact) => cont.leadsContactId === leadDetail?.lead?.leadsContactId
   );
 
   useEffect(() => {
@@ -122,6 +118,16 @@ function App() {
       }
     };
   }, [dispatch, primaryContact, isLoggedIn]);
+
+  async function fetchData() {
+    try {
+      await dispatch(getLeadByIdThunk(leadId)).unwrap();
+      await dispatch(getBusinessContactByIdThunk(leadId)).unwrap();
+      await dispatch(getQuotationsByLeadIdThunk({ leadId, page: 1, limit: 25 })).unwrap();
+    } catch (err) {
+      message.error(err || 'Failed to fetch lead details');
+    }
+  }
 
   const handleConvertClick = () => {
     setIsConvertModalVisible(true);
@@ -227,7 +233,7 @@ function App() {
     ];
   }, [isOpportunity]);
 
-  if (status === Status.PENDING) {
+  if (status.leads === Status.PENDING) {
     return (
       <div className="flex items-center justify-center h-screen">
         <Spin />
@@ -278,7 +284,7 @@ function App() {
             </div>
             <h2 className="font-semibold text-lg">{primaryContact?.name ?? '-'}</h2>
             <p className="text-sm">
-              {enumToReadable(leadDetail?.lead?.leadSource) || 'Lead Source not provided'}
+              {enumToReadable(leadDetail?.lead?.leadSourceName) || 'Lead Source not provided'}
             </p>
 
             <div className="flex items-center gap-2 mt-2">
@@ -295,7 +301,7 @@ function App() {
           {/* Property Card */}
           <Card className="relative">
             <div className="flex items-center justify-between mb-3">
-              {leadDetail?.lead?.status === 'NEW' && propertyFromSlice?.zipPostalCode === null ? (
+              {leadDetail?.lead?.status === 'New' || propertyFromSlice?.zipPostalCode === null ? (
                 <div className="flex items-center justify-center h-full p-4 w-full">
                   <Card className="text-center h-full my-auto">
                     <button
@@ -304,7 +310,7 @@ function App() {
                     >
                       Add property details
                     </button>
-                    {/* <p className="text-sm text-gray-600 mt-2">Add Job details</p> */}
+                    <p className="text-sm text-gray-600 mt-2">Add Job details</p>
                   </Card>
                 </div>
               ) : (
@@ -361,7 +367,7 @@ function App() {
                 </div>
               </>
             ) : (
-              leadDetail?.lead?.status !== 'NEW' && (
+              leadDetail?.lead?.status !== 'New' && (
                 <div className="flex flex-col items-center justify-center p-6 rounded-lg">
                   <IconBarrierBlock />
                   <p className="text-sm text-gray-500 text-center">No property details added yet</p>
@@ -374,7 +380,7 @@ function App() {
           </Card>
 
           {/* Quotation Card */}
-          {leadDetail?.lead?.status === 'NEW' ? (
+          {leadDetail?.lead?.status === 'New' ? (
             <Card className="flex flex-col items-center justify-center p-6 rounded-lg">
               <Link
                 href={SystemRoutes.QUOTATION_CREATE(leadId)}
@@ -390,7 +396,7 @@ function App() {
               </p>
             </Card>
           ) : (
-            leadDetail?.lead?.status !== 'NEW' && (
+            leadDetail?.lead?.status !== 'New' && (
               <Card>
                 <div className="flex flex-col justify-between">
                   <Link
@@ -491,17 +497,17 @@ function App() {
                 <FileExplorer
                   rootFolders={sdriveRootFolders}
                   enableSearch={true}
-                  onSearchChange={(query) => console.log('Search:', query)}
+                  onSearchChange={query => console.log('Search:', query)}
                   enableMultiSelect={true}
-                  onDelete={(items) => console.log('Delete items:', items)}
+                  onDelete={items => console.log('Delete items:', items)}
                   enableAddFolder={true}
-                  onAddFolder={(parentId) => console.log('Add folder to parent:', parentId)}
+                  onAddFolder={parentId => console.log('Add folder to parent:', parentId)}
                   enableAddFile={true}
-                  onAddFile={(parentId) => console.log('Add file to parent:', parentId)}
+                  onAddFile={parentId => console.log('Add file to parent:', parentId)}
                   enableShare={true}
-                  onShare={(items) => console.log('Share items:', items)}
+                  onShare={items => console.log('Share items:', items)}
                   enableExport={true}
-                  onExport={(items) => console.log('Export items:', items)}
+                  onExport={items => console.log('Export items:', items)}
                 />
               </div>
             </TabPane>
