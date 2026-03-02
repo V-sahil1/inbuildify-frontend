@@ -1,28 +1,31 @@
-import { Badge, Button, Input, message, Select, Tag, Tooltip } from 'antd';
-import DwellingTypeSelect from '../common/custom-selects/DwellingTypeSelect';
+import { Badge, Input, message, Select, Tag } from 'antd';
 import StatusSelect from '../common/custom-selects/StatusSelect';
 import { IconDeviceIpadDollar, IconPlus, IconRotate, IconTrash } from '@tabler/icons-react';
 import { useAppDispatch } from '@hooks/redux';
 import { createPackage, updatePackage } from '@redux/feature/package/packageThunk';
 import TooltipButton from '../common/TooltipButton';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
-import RangeSelect from '../common/custom-selects/RangeSelect';
+import useDwellingAndRangeHook from '@hooks/useDwellingAndRangeHook';
+import { debouncedURL } from '@lib/utils/debounceURL';
 
 export const PackageColumn = ({
-  filters,
-  setParams,
   setDrawerOpen,
   setSelectedPackage,
   selectedPackage,
 }) => {
   const dispatch = useAppDispatch();
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
+    filtersKey: ['name', 'cost', 'add', 'remove', 'sort', 'label', 'dwellingType', 'status'],
+    initialValue: { status: '', add: 'all', remove: 'all', dwellingType: 'all', label: 'all' },
+  });
+  const { dwellingTypeOptions, rangeOptions } = useDwellingAndRangeHook({ type: ['dwellingType', 'range'] });
 
   const column = [
     {
       title: (
         <div className="flex flex-col">
           <span className="font-medium">Package Name</span>
-          <Input value={filters.name} onChange={e => setParams({ name: e.target.value })} />
+          <Input value={instantFilters?.name} onChange={e => setParams({ name: e.target.value })} />
         </div>
       ),
       dataIndex: 'name',
@@ -42,13 +45,14 @@ export const PackageColumn = ({
           <span className="font-medium">Cost</span>
           <Input
             type="number"
-            value={filters.cost}
+            value={instantFilters.cost}
             onChange={e => setParams({ cost: e.target.value })}
           />
         </div>
       ),
       dataIndex: 'cost',
       key: 'cost',
+      width: 150
     },
     {
       title: (
@@ -56,10 +60,11 @@ export const PackageColumn = ({
           <span className="font-medium">Add</span>
           <Select
             options={[
+              { label: 'All', value: 'all' },
               { label: 'Yes', value: 'yes' },
               { label: 'No', value: 'no' },
             ]}
-            value={filters.add}
+            value={instantFilters.add}
             onChange={value => setParams({ add: value })}
           />
         </div>
@@ -75,10 +80,11 @@ export const PackageColumn = ({
           <span className="font-medium">Remove</span>
           <Select
             options={[
+              { label: 'All', value: 'all' },
               { label: 'Yes', value: 'yes' },
               { label: 'No', value: 'no' },
             ]}
-            value={filters.remove}
+            value={instantFilters.remove}
             onChange={value => setParams({ remove: value })}
           />
         </div>
@@ -94,19 +100,24 @@ export const PackageColumn = ({
           <span className="font-medium">Sort Order</span>
           <Input
             type="number"
-            value={filters.sort}
+            value={instantFilters.sort}
             onChange={e => setParams({ sort: e.target.value })}
           />
         </div>
       ),
       dataIndex: 'sortOrder',
       key: 'sortOrder',
+      width: 120,
     },
     {
       title: (
         <div className="flex flex-col">
           <span className="font-medium">Label</span>
-          <RangeSelect value={filters.label} onChange={value => setParams({ label: value })} />
+          <Select
+            options={rangeOptions}
+            value={instantFilters.label}
+            onChange={value => setParams({ label: value })}
+          />
         </div>
       ),
       dataIndex: 'range',
@@ -118,8 +129,9 @@ export const PackageColumn = ({
       title: (
         <div className="flex flex-col">
           <span className="font-medium">Dwelling Type</span>
-          <DwellingTypeSelect
-            value={filters.dwellingType}
+          <Select
+            options={dwellingTypeOptions}
+            value={instantFilters.dwellingType}
             onChange={value => setParams({ dwellingType: value })}
           />
         </div>
@@ -133,7 +145,7 @@ export const PackageColumn = ({
         <div className="flex flex-col">
           <span className="font-medium">Status</span>
           <StatusSelect
-            value={filters.status}
+            value={instantFilters.status}
             onChange={value => setParams({ status: value })}
             activeInactive={true}
           />
@@ -243,5 +255,7 @@ export const PackageColumn = ({
     column,
     handlePackageSubmit,
     handlePackageStatus,
+    debouncedUpdateURL,
+    filters,
   };
 };

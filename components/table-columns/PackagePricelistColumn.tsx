@@ -7,7 +7,7 @@ import {
   deletePackagePricelist,
 } from '@redux/feature/package/packageThunk';
 import { IconPlus, IconX } from '@tabler/icons-react';
-import { Input, message, Select, Tag } from 'antd';
+import { Input, message, Popconfirm, Select, Tag } from 'antd';
 import { useEffect } from 'react';
 import TooltipButton from '../common/TooltipButton';
 
@@ -84,26 +84,26 @@ export const PackagePricelistColumn = (packagePricelist, selectedPackage, setSel
       render: (_, record) => {
         const item = packagePricelist?.find(i => i.priceListItemId === record.priceListItemId);
         return isPriceListAdded(record) ? (
-          <TooltipButton
-            title="Remove"
-            type="text"
-            size="small"
-            icon={<IconX size={16} color="red" />}
-            onClick={() => removeItem(item.packageId, item.id)}
-          />
+          <Popconfirm title="Are you sure you want to remove this item?" onConfirm={() => removeItem(item.packageId, item.id)}>
+            <TooltipButton
+              title="Remove"
+              type="text"
+              size="small"
+              icon={<IconX size={16} color="red" />}
+            />
+          </Popconfirm>
         ) : (
-          <TooltipButton
-            title="Add"
-            type="text"
-            size="small"
-            icon={<IconPlus size={16} />}
-            onClick={() =>
-              addItem({
-                packageId: selectedPackage?.packageId || '',
-                priceListItemId: record.priceListItemId,
-              })
-            }
-          />
+          <Popconfirm title="Are you sure you want to add this item?" onConfirm={() => addItem({
+            packageId: selectedPackage?.packageId || '',
+            priceListItemId: record.priceListItemId,
+          })}>
+            <TooltipButton
+              title="Add"
+              type="text"
+              size="small"
+              icon={<IconPlus size={16} />}
+            />
+          </Popconfirm>
         );
       },
     },

@@ -33,6 +33,7 @@ const FloorPlanMaster = () => {
     filters: debouncedFilters,
     debouncedUpdateURL,
     setParams,
+    instantFilters
   } = debouncedURL({
     filtersKey: ['name', 'dwellingType', 'location', 'label', 'status'],
     initialValue: { status: '', dwellingType: 'all', label: 'all', location: 'all' },
@@ -42,7 +43,7 @@ const FloorPlanMaster = () => {
     setParams,
     selectedFloorplan,
     setSelectedFloorplan,
-    debouncedFilters
+    instantFilters
   );
   const { columns: quotationColumns, data } = QuotationHistoryColumn();
   const { columns: floorplanPricelistColumn, priceListItems } = FloorplanPricelistColumns(
@@ -82,8 +83,8 @@ const FloorPlanMaster = () => {
       };
       params.name = debouncedFilters?.name || undefined;
       params.dwelling_type_id = debouncedFilters?.dwellingType !== 'all' ? debouncedFilters?.dwellingType : undefined;
-      // params.location_id =
-      //   debouncedFilters?.location !== '' ? debouncedFilters?.location : undefined;
+      params.location_id =
+        debouncedFilters?.location !== 'all' ? debouncedFilters?.location : undefined;
       params.range_id = debouncedFilters?.label !== 'all' ? debouncedFilters?.label : undefined;
       params.status =
         debouncedFilters?.status !== '' ? debouncedFilters?.status === 'true' : undefined;

@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react';
 const MasterCollection = () => {
   const [activeTab, setActiveTab] = useState('Price List');
 
-  const { debouncedUpdateURL, setParams, filters, resetParams } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters, resetParams, instantFilters } = debouncedURL({
     filtersKey: [
       'name',
       'description',
@@ -45,12 +45,12 @@ const MasterCollection = () => {
         <div className="flex gap-2 items-center">
           <span>
             Range :
-            <RangeSelect value={filters?.range} onChange={value => setParams({ range: value })} />
+            <RangeSelect value={instantFilters?.range} onChange={value => setParams({ range: value })} />
           </span>
           <span>
             Dwelling Type :
             <DwellingTypeSelect
-              value={filters?.dwellingType}
+              value={instantFilters?.dwellingType}
               onChange={value => setParams({ dwellingType: value })}
             />
           </span>
@@ -72,13 +72,13 @@ const MasterCollection = () => {
             addonBefore={<IconSearch size={15} />}
             className="max-w-[200px]"
             placeholder={`search ${activeTab}`}
-            value={filters?.search}
+            value={instantFilters?.search}
             onChange={e => setParams({ search: e.target.value })}
           />
         )}
       </div>
       {activeTab === 'Price List' ? (
-        <MasterPricelistCollection filters={filters} setParams={setParams} />
+        <MasterPricelistCollection filters={filters} instantFilters={instantFilters} setParams={setParams} />
       ) : activeTab === 'Facade' ? (
         <MasterFacadeCollection filters={filters} />
       ) : (

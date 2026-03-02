@@ -12,9 +12,8 @@ import {
   fetchAllSupplierType,
   fetchAllSupplierTypeMapping,
 } from '@redux/feature/supplier/supplierThunk';
-import { Status } from '@lib/constants/enum';
 import { debouncedURL } from '@lib/utils/debounceURL';
-import { P } from 'framer-motion/dist/types.d-BJcRxCew';
+import { toggleChecklistExpand, toggleSupplierExpand } from '@redux/feature/supplier/supplierSlice';
 
 interface SupplierTypeProps {
   open: boolean;
@@ -56,9 +55,12 @@ const SupplierType: React.FC<SupplierTypeProps> = ({ open, onClose }) => {
 
   useEffect(() => {
     fetchSupplierType();
+  }, [filters]);
+
+  useEffect(() => {
     fetchSupplierChecklist();
     fetchSupplierMapping();
-  }, [filters]);
+  }, [status.supplierType.fetch]);
 
   const fetchSupplierType = async () => {
     try {
@@ -75,8 +77,10 @@ const SupplierType: React.FC<SupplierTypeProps> = ({ open, onClose }) => {
   const fetchSupplierChecklist = async () => {
     try {
       supplierType?.map(async type => {
-        if (status.supplierChecklist.fetch === Status.IDLE)
+        if (!type.isChecklistExpand) {
+          dispatch(toggleChecklistExpand(type.supplierTypeId));
           await dispatch(fetchAllSupplierChecklist(type.supplierTypeId)).unwrap();
+        }
       });
     } catch (error) {
       message.error('Failed to fetch supplier checklist');
@@ -86,7 +90,8 @@ const SupplierType: React.FC<SupplierTypeProps> = ({ open, onClose }) => {
   const fetchSupplierMapping = async () => {
     try {
       supplierType?.map(async type => {
-        if (status.supplierMapping.fetch === Status.IDLE) {
+        if (!type.isSupplierExpand) {
+          dispatch(toggleSupplierExpand(type.supplierTypeId));
           await dispatch(fetchAllSupplierTypeMapping(type.supplierTypeId)).unwrap();
         }
       });
@@ -157,10 +162,10 @@ const SupplierType: React.FC<SupplierTypeProps> = ({ open, onClose }) => {
                 selectAll === 'supplier'
                   ? supplierData
                   : supplierType
-                      .find(type => type.supplierTypeId === selectedType?.supplierTypeId)
-                      ?.suppliers?.map(i =>
-                        supplierData.find(c => c?.supplierId === i?.supplierId)
-                      ),
+                    .find(type => type.supplierTypeId === selectedType?.supplierTypeId)
+                    ?.suppliers?.map(i =>
+                      supplierData.find(c => c?.supplierId === i?.supplierId)
+                    ),
             },
           ]}
         >
@@ -194,12 +199,12 @@ const SupplierType: React.FC<SupplierTypeProps> = ({ open, onClose }) => {
                 selectAll === 'checklist'
                   ? checklistData
                   : supplierType
-                      ?.find(i => i?.supplierTypeId === selectedType?.supplierTypeId)
-                      ?.checklists?.map(i =>
-                        checklistData.find(
-                          c => c?.constructionChecklistId === i?.constructionChecklistId
-                        )
-                      ),
+                    ?.find(i => i?.supplierTypeId === selectedType?.supplierTypeId)
+                    ?.checklists?.map(i =>
+                      checklistData.find(
+                        c => c?.constructionChecklistId === i?.constructionChecklistId
+                      )
+                    ),
             },
           ]}
         >

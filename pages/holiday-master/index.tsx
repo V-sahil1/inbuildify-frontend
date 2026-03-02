@@ -22,12 +22,12 @@ export default function HolidayMaster() {
   const [modalOpen, setModalOpen] = useState<'holiday' | 'recalculate' | 'delete' | null>(null);
   const [selectedHoliday, setSelectedHoliday] = useState<IHoliday | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
     filtersKey: ['startDate', 'endDate', 'desc', 'state', 'status', 'year'],
     initialValue: { status: '', year: '' },
   });
   const { columns, handleSubmit, handleHolidayStatus } = useHolidayMasterColumns({
-    filters,
+    instantFilters,
     setParams,
     selectedHoliday,
     setSelectedHoliday,
@@ -44,8 +44,8 @@ export default function HolidayMaster() {
         limit,
       };
       params.holiday_description = filters?.desc || undefined;
-      params.holiday_end_date = filters?.endDate || undefined;
-      params.holiday_start_date = filters?.startDate || undefined;
+      params.holiday_end_date = !!filters?.endDate && dayjs(filters?.endDate).format('YYYY-MM-DD') || undefined;
+      params.holiday_start_date = !!filters?.startDate && dayjs(filters?.startDate).format('YYYY-MM-DD') || undefined;
       params.state = filters?.state || undefined;
       params.status = filters?.status !== '' ? filters?.status === 'true' : undefined;
       params.year = filters?.year !== '' ? filters?.year : undefined;

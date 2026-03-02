@@ -54,7 +54,22 @@ const initialState: ISupplierState = {
 const supplierSlice = createSlice({
   name: 'supplier',
   initialState,
-  reducers: {},
+  reducers: {
+    toggleSupplierExpand: (state, action) => {
+      state.supplierType = state.supplierType.map((supplierType: ISupplierType) =>
+        supplierType.supplierTypeId === action.payload
+          ? { ...supplierType, isSupplierExpand: true }
+          : supplierType
+      );
+    },
+    toggleChecklistExpand: (state, action) => {
+      state.supplierType = state.supplierType.map((supplierType: ISupplierType) =>
+        supplierType.supplierTypeId === action.payload
+          ? { ...supplierType, isChecklistExpand: true }
+          : supplierType
+      );
+    }
+  },
   extraReducers: builder => {
     builder.addCase(fetchAllSupplierType.pending, state => {
       state.status.supplierType.fetch = Status.PENDING;
@@ -349,4 +364,5 @@ const supplierSlice = createSlice({
     });
   },
 });
+export const { toggleSupplierExpand, toggleChecklistExpand } = supplierSlice.actions;
 export default supplierSlice.reducer;

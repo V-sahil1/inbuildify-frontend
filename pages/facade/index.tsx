@@ -37,7 +37,7 @@ const FacadeMaster = () => {
     type: (isEditing?.costType as 'standard' | 'upgrade') || 'standard',
   }) as FormField[];
 
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
     filtersKey: ['name', 'dwellingType', 'range', 'costType', 'location', 'status', 'cost']
   });
 
@@ -133,7 +133,7 @@ const FacadeMaster = () => {
       title: (
         <div className="flex flex-col gap-1">
           <span>Name</span>
-          <Input placeholder="Search Name" onChange={e => setParams({ name: e.target.value })} />
+          <Input value={instantFilters.name} placeholder="Search Name" onChange={e => setParams({ name: e.target.value })} />
         </div>
       ),
       dataIndex: 'name',
@@ -146,6 +146,7 @@ const FacadeMaster = () => {
         <div className="flex flex-col gap-1">
           <span>Location</span>
           <Select
+            value={instantFilters?.location}
             placeholder="Select Location"
             size="small"
             onChange={v => setParams({ location: v })}
@@ -162,7 +163,7 @@ const FacadeMaster = () => {
       title: (
         <div className="flex flex-col gap-1">
           <span>Dwelling Type</span>
-          <Select placeholder="Select Dwelling Type" size="small" onChange={v => setParams({ dwellingType: v })} options={[{ label: 'All', value: 'all' }, ...dwellingTypeOptions]} />
+          <Select value={instantFilters?.dwellingType} placeholder="Select Dwelling Type" size="small" onChange={v => setParams({ dwellingType: v })} options={[{ label: 'All', value: 'all' }, ...dwellingTypeOptions]} />
         </div>
       ),
       dataIndex: 'dwellingtype',
@@ -174,7 +175,7 @@ const FacadeMaster = () => {
       title: (
         <div className="flex flex-col gap-1">
           <span>Range</span>
-          <Select placeholder="Select Range" size="small" onChange={v => setParams({ range: v })} options={[{ label: 'All', value: 'all' }, ...rangeOptions]} />
+          <Select value={instantFilters?.range} placeholder="Select Range" size="small" onChange={v => setParams({ range: v })} options={[{ label: 'All', value: 'all' }, ...rangeOptions]} />
         </div>
       ),
       dataIndex: 'range',
@@ -186,7 +187,7 @@ const FacadeMaster = () => {
       title: (
         <div className="flex flex-col gap-1">
           <span>Cost Type</span>
-          <Select size="small" onChange={v => setParams({ costType: v })} options={[{ label: 'All', value: 'all' }, { label: 'Standard', value: 'standard' }, { label: 'Upgrade', value: 'upgrade' }]} />
+          <Select value={instantFilters?.costType} size="small" onChange={v => setParams({ costType: v })} options={[{ label: 'All', value: 'all' }, { label: 'Standard', value: 'standard' }, { label: 'Upgrade', value: 'upgrade' }]} />
         </div>
       ),
       dataIndex: 'costType',
@@ -211,7 +212,7 @@ const FacadeMaster = () => {
       title: (
         <div className="flex flex-col gap-1">
           <span>Status</span>
-          <StatusSelect activeInactive={true} onChange={v => setParams({ status: v })} />
+          <StatusSelect value={instantFilters?.status} activeInactive={true} onChange={v => setParams({ status: v })} />
         </div>
       ),
       dataIndex: 'status',

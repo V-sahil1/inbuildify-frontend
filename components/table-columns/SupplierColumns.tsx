@@ -23,7 +23,7 @@ export const useSupplierColumns = (selectedSupplier, setSelectedSupplier, setDra
   const dispatch = useAppDispatch();
   const { suppliers, status } = useAppSelector(state => state.supplier);
   const { activeOptions } = useSupplierTypeOptions();
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
     delay: 500,
     filtersKey: ['name', 'email', 'phone', 'website', 'type', 'induction', 'isActive'],
     initialValue: { induction: '', isActive: '' },
@@ -42,7 +42,7 @@ export const useSupplierColumns = (selectedSupplier, setSelectedSupplier, setDra
         emails: filters?.email || undefined,
         phone: filters?.phone || undefined,
         website: filters?.website || undefined,
-        supplier_type_id: filters?.type || undefined,
+        supplier_type_id: filters?.type !== 'all' ? filters?.type : undefined,
         induction: filters?.induction !== '' ? filters?.induction === 'yes' : undefined,
         status: filters?.isActive !== '' ? filters?.isActive === 'true' : undefined,
       };
@@ -134,7 +134,7 @@ export const useSupplierColumns = (selectedSupplier, setSelectedSupplier, setDra
       title: (
         <div className="flex flex-col">
           <span>Supplier Name</span>
-          <Input value={filters.name} onChange={e => setParams({ name: e.target.value ?? '' })} />
+          <Input value={instantFilters.name} onChange={e => setParams({ name: e.target.value ?? '' })} />
         </div>
       ),
       dataIndex: 'companyName',
@@ -144,7 +144,7 @@ export const useSupplierColumns = (selectedSupplier, setSelectedSupplier, setDra
       title: (
         <div className="flex flex-col">
           <span>Email</span>
-          <Input value={filters.email} onChange={e => setParams({ email: e.target.value ?? '' })} />
+          <Input value={instantFilters.email} onChange={e => setParams({ email: e.target.value ?? '' })} />
         </div>
       ),
       dataIndex: 'emails',
@@ -155,7 +155,7 @@ export const useSupplierColumns = (selectedSupplier, setSelectedSupplier, setDra
       title: (
         <div className="flex flex-col">
           <span>Phone</span>
-          <Input value={filters.phone} onChange={e => setParams({ phone: e.target.value ?? '' })} />
+          <Input value={instantFilters?.phone} onChange={e => setParams({ phone: e.target.value ?? '' })} />
         </div>
       ),
       dataIndex: 'primaryPhone',
@@ -166,7 +166,7 @@ export const useSupplierColumns = (selectedSupplier, setSelectedSupplier, setDra
         <div className="flex flex-col">
           <span>Website</span>
           <Input
-            value={filters.website}
+            value={instantFilters.website}
             onChange={e => setParams({ website: e.target.value ?? '' })}
           />
         </div>
@@ -188,9 +188,9 @@ export const useSupplierColumns = (selectedSupplier, setSelectedSupplier, setDra
           <span>Type</span>
           <Select
             allowClear
-            value={filters.type}
+            value={instantFilters.type}
             onChange={val => setParams({ type: val ?? '' })}
-            options={activeOptions}
+            options={[{ label: 'All', value: 'all' }, ...activeOptions]}
           />
         </div>
       ),
@@ -207,7 +207,7 @@ export const useSupplierColumns = (selectedSupplier, setSelectedSupplier, setDra
           <span>Induction</span>
           <Select
             allowClear
-            value={filters.induction}
+            value={instantFilters.induction}
             onChange={val => setParams({ induction: val ?? '' })}
             options={[
               { value: '', label: 'All' },
@@ -227,7 +227,7 @@ export const useSupplierColumns = (selectedSupplier, setSelectedSupplier, setDra
           <span>Status</span>
           <StatusSelect
             activeInactive={true}
-            value={filters.isActive}
+            value={instantFilters.isActive}
             onChange={val => setParams({ isActive: val ?? '' })}
           />
         </div>
@@ -249,6 +249,7 @@ export const useSupplierColumns = (selectedSupplier, setSelectedSupplier, setDra
             e.stopPropagation();
             handleDelete(record.supplierId);
           }}
+          onCancel={(e) => e.stopPropagation()}
         >
           <TooltipButton
             title="Delete"

@@ -1,5 +1,5 @@
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { Input, message, Select, Tag } from 'antd';
+import { DatePicker, Input, message, Select, Tag } from 'antd';
 import StatusSelect from '../common/custom-selects/StatusSelect';
 import { useStateHook } from '@hooks/useStateHook';
 import { IHoliday } from '@redux/feature/holiday/IHolidayState';
@@ -10,7 +10,7 @@ import TooltipButton from '../common/TooltipButton';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 
 export const useHolidayMasterColumns = ({
-  filters,
+  instantFilters,
   setParams,
   selectedHoliday,
   setSelectedHoliday,
@@ -24,12 +24,9 @@ export const useHolidayMasterColumns = ({
       title: (
         <div className="flex flex-col">
           <span className="font-medium text-gray-700">Holiday Start Date</span>
-          <Input
-            size="small"
-            className="mt-1"
-            placeholder="Filter by start date"
-            value={filters.startDate}
-            onChange={e => setParams({ startDate: e.target.value })}
+          <DatePicker
+            value={instantFilters?.startDate ? dayjs(instantFilters.startDate) : null}
+            onChange={(date) => setParams({ startDate: date })}
           />
         </div>
       ),
@@ -41,12 +38,9 @@ export const useHolidayMasterColumns = ({
       title: (
         <div className="flex flex-col">
           <span className="font-medium text-gray-700">Holiday End Date</span>
-          <Input
-            size="small"
-            className="mt-1"
-            placeholder="Filter by end date"
-            value={filters.endDate}
-            onChange={e => setParams({ endDate: e.target.value })}
+          <DatePicker
+            value={instantFilters?.endDate ? dayjs(instantFilters.endDate) : null}
+            onChange={(date) => setParams({ endDate: date })}
           />
         </div>
       ),
@@ -62,7 +56,7 @@ export const useHolidayMasterColumns = ({
             size="small"
             className="mt-1"
             placeholder="Filter by description"
-            value={filters.desc}
+            value={instantFilters.desc}
             onChange={e => setParams({ desc: e.target.value })}
           />
         </div>
@@ -77,7 +71,7 @@ export const useHolidayMasterColumns = ({
           <Select
             size="small"
             className="mt-1 w-full"
-            value={filters.state}
+            value={instantFilters.state}
             onChange={value => setParams({ state: value })}
             options={stateOptions}
           />
@@ -86,6 +80,7 @@ export const useHolidayMasterColumns = ({
       dataIndex: 'state',
       key: 'state',
       render: state => state.map(i => <Tag>{i.name}</Tag>),
+      width: 150
     },
     {
       title: (
@@ -93,7 +88,7 @@ export const useHolidayMasterColumns = ({
           <span className="font-medium text-gray-700">Status</span>
 
           <StatusSelect
-            value={filters.status}
+            value={instantFilters.status}
             onChange={value => setParams({ status: value })}
             activeInactive={true}
           />

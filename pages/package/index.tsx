@@ -6,7 +6,6 @@ import { PackagePricelistColumn } from '@/components/table-columns/PackagePricel
 import { QuotationHistoryColumn } from '@/components/table-columns/QuotationHistoryColumn';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { Status } from '@lib/constants/enum';
-import { debouncedURL } from '@lib/utils/debounceURL';
 import { getPaginationConfig } from '@lib/utils/getPaginationConfig';
 import { QuotationHistory } from '@lib/utils/Reports/quotation/QuotationHistory';
 import type { Package, PackageFetchParams } from '@redux/feature/package/IPackageState';
@@ -23,18 +22,14 @@ const Package = () => {
   const [drawerOpen, setDrawerOpen] = useState<
     'pricelist' | 'quotation' | 'delete' | 'edit' | 'create' | null
   >(null);
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
-    filtersKey: ['name', 'cost', 'add', 'remove', 'sort', 'label', 'dwellingType', 'status'],
-    initialValue: { status: '' },
-  });
   const { packages, status, pagination } = useAppSelector(state => state.package);
   const {
     column: packageColumn,
     handlePackageSubmit,
     handlePackageStatus,
-  } = PackageColumn({
+    debouncedUpdateURL,
     filters,
-    setParams,
+  } = PackageColumn({
     setDrawerOpen,
     setSelectedPackage,
     selectedPackage,
@@ -57,10 +52,10 @@ const Package = () => {
       params.cost = filters?.cost ? Number(filters?.cost) : undefined;
       params.sort_order = filters?.sort || undefined;
       params.status = filters?.status !== '' ? filters?.status === 'true' : undefined;
-      params.add = filters?.add && filters?.add === 'yes';
-      params.remove = filters?.remove && filters?.remove === 'yes';
-      params.dwelling_type_id = filters?.dwellingType;
-      params.range_id = filters?.label;
+      params.add = filters?.add !== 'all' ? filters?.add === 'yes' : undefined;
+      params.remove = filters?.remove !== 'all' ? filters?.remove === 'yes' : undefined;
+      params.dwelling_type_id = filters?.dwellingType !== 'all' ? filters?.dwellingType : undefined;
+      params.range_id = filters?.label !== 'all' ? filters?.label : undefined;
 
       await dispatch(fetchPackages(params)).unwrap();
     } catch (error) {

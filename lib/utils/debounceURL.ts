@@ -26,6 +26,9 @@ export function debouncedURL({
       {} as Record<string, string>
     )
   );
+
+  const [instantFilters, setInstantFilters] = useState<Record<string, string>>(filters);
+
   const debouncedUpdateURL = useMemo(
     () =>
       debounce((newFilters: Record<string, string>) => {
@@ -48,9 +51,11 @@ export function debouncedURL({
   const setParams = useCallback(
     (updatedParams: Record<string, string>) => {
       const newFilters = { ...filters, ...updatedParams };
+      const newInstantFilters = { ...instantFilters, ...updatedParams };
+      setInstantFilters(newInstantFilters);
       debouncedUpdateURL(newFilters);
     },
-    [filters, debouncedUpdateURL]
+    [filters, instantFilters, debouncedUpdateURL]
   );
 
   const resetParams = useCallback(() => {
@@ -61,8 +66,9 @@ export function debouncedURL({
       },
       {} as Record<string, string>
     );
+    setInstantFilters(resetFilters);
     debouncedUpdateURL(resetFilters);
   }, [debouncedUpdateURL, filtersKey, initialValue]);
 
-  return { debouncedUpdateURL, setParams, filters, resetParams };
+  return { debouncedUpdateURL, setParams, filters, instantFilters, resetParams };
 }

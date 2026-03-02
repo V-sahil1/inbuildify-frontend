@@ -34,6 +34,8 @@ export interface ISupplierType {
   isNew?: boolean;
   suppliers?: SupplierMapping[];
   checklists?: SupplierChecklist[];
+  isSupplierExpand?: boolean;
+  isChecklistExpand?: boolean;
 }
 
 export interface Supplier {

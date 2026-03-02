@@ -36,7 +36,7 @@ const SurveyTemplate = () => {
   const [selectedTemplate, setSelectedTemplate] = useState<ISurveyTemplate | null>(null);
   const [selectedQuestion, setSelectedQuestion] = useState(null);
 
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
     filtersKey: ['template', 'sort', 'status'],
     initialValue: {
       status: '',
@@ -93,7 +93,7 @@ const SurveyTemplate = () => {
     setDrawerOpen,
     setParams,
     setModalOpen,
-    filters
+    instantFilters
   );
   const {
     column: questionColumn,
@@ -127,6 +127,9 @@ const SurveyTemplate = () => {
           onClick: () => {
             setSelectedTemplate(record);
             setModalOpen('create');
+          },
+          style: {
+            cursor: 'pointer',
           },
         })}
         pagination={getPaginationConfig({

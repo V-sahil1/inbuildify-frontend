@@ -53,6 +53,7 @@ export default function SupplierPage() {
             setDrawerOpen('supplier');
           },
         })}
+        scroll={{ x: 'max-content' }}
       />
 
       {drawerOpen === 'supplierType' && (

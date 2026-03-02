@@ -10,7 +10,7 @@ import {
 import { message } from 'antd';
 import { Status } from '@lib/constants/enum';
 
-export const MasterPricelistCollection = ({ filters, setParams }) => {
+export const MasterPricelistCollection = ({ filters, instantFilters, setParams }) => {
   const { priceListItems, pagination, priceMaster, status } = useAppSelector(
     state => state.masterPriceList
   );
@@ -58,8 +58,8 @@ export const MasterPricelistCollection = ({ filters, setParams }) => {
         <div className="flex flex-col">
           <span className="font-medium text-gray-700">Price List Name </span>
           <Select
+            value={instantFilters?.name}
             options={pricelistOptions}
-            value={filters?.name}
             onChange={value => setParams({ name: value })}
           />
         </div>
@@ -74,7 +74,7 @@ export const MasterPricelistCollection = ({ filters, setParams }) => {
         <div className="flex flex-col">
           <span className="font-medium text-gray-700">Item Description</span>
           <Input
-            value={filters?.description}
+            value={instantFilters?.description}
             onChange={e => setParams({ description: e.target.value })}
           />
         </div>
@@ -87,7 +87,7 @@ export const MasterPricelistCollection = ({ filters, setParams }) => {
       title: (
         <div className="flex flex-col">
           <span className="font-medium text-gray-700">UOM</span>
-          <Input value={filters?.uom} onChange={e => setParams({ uom: e.target.value })} />
+          <Input value={instantFilters?.uom} onChange={e => setParams({ uom: e.target.value })} />
         </div>
       ),
       dataIndex: 'uom',
@@ -99,8 +99,8 @@ export const MasterPricelistCollection = ({ filters, setParams }) => {
         <div className="flex flex-col">
           <span className="font-medium text-gray-700">Cost</span>
           <Input
+            value={instantFilters?.cost}
             type="number"
-            value={filters?.cost}
             onChange={e => setParams({ cost: e.target.value })}
           />
         </div>
@@ -114,12 +114,12 @@ export const MasterPricelistCollection = ({ filters, setParams }) => {
         <div className="flex flex-col">
           <span className="font-medium text-gray-700">Cost Type</span>
           <Select
+            value={instantFilters?.costType}
             options={[
               { label: 'Fixed', value: 'Fixed' },
               { label: 'Included', value: 'Included' },
               { label: 'Variable', value: 'Variable' },
             ]}
-            value={filters?.costType}
             onChange={value => setParams({ costType: value })}
           />
         </div>
@@ -134,12 +134,12 @@ export const MasterPricelistCollection = ({ filters, setParams }) => {
         <div className="flex flex-col">
           <span className="font-medium text-gray-700">Cost Option</span>
           <Select
+            value={instantFilters?.costOption}
             options={[
               { label: 'All', value: 'none' },
               { label: 'TBA', value: 'tba' },
               { label: 'TBC', value: 'tbc' },
             ]}
-            value={filters?.costOption}
             onChange={value => setParams({ costOption: value })}
           />
         </div>
