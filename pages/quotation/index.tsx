@@ -16,7 +16,7 @@ import { debouncedURL } from '@lib/utils/debounceURL';
 const QuotationPage: React.FC = () => {
   const [showBlocked, setShowBlocked] = useState(false);
   const [isCopyModalOpen, setIsCopyModalOpen] = useState(false);
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
     filtersKey: [
       'refrenceId',
       'customerName',
@@ -63,7 +63,7 @@ const QuotationPage: React.FC = () => {
         <div>
           <span>Refrence ID</span>
           <Input
-            value={filters.refrenceId}
+            value={instantFilters.refrenceId}
             onChange={e => setParams({ refrenceId: e.target.value })}
           />
         </div>
@@ -77,7 +77,7 @@ const QuotationPage: React.FC = () => {
         <div>
           <span>Customer Name</span>
           <Input
-            value={filters.customerName}
+            value={instantFilters.customerName}
             onChange={e => setParams({ customerName: e.target.value })}
           />
         </div>
@@ -91,7 +91,7 @@ const QuotationPage: React.FC = () => {
         <div>
           <span>Property Address</span>
           <Input
-            value={filters.propertyAddress}
+            value={instantFilters.propertyAddress}
             onChange={e =>
               setParams({
                 propertyAddress: e.target.value,
@@ -109,7 +109,7 @@ const QuotationPage: React.FC = () => {
         <div>
           <span>Contact Address</span>
           <Input
-            value={filters.contactAddress}
+            value={instantFilters.contactAddress}
             onChange={e =>
               setParams({
                 contactAddress: e.target.value,
@@ -148,7 +148,7 @@ const QuotationPage: React.FC = () => {
         <div>
           <span>Approver</span>
           <AssigneeSelect
-            value={filters.approver}
+            value={instantFilters.approver}
             onChange={value => setParams({ approver: value })}
           />
         </div>
@@ -167,7 +167,7 @@ const QuotationPage: React.FC = () => {
         <div>
           <span>Assignee</span>
           <AssigneeSelect
-            value={filters.assignee}
+            value={instantFilters.assignee}
             onChange={value => setParams({ assignee: value })}
           />
         </div>

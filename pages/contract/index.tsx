@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 
 const Contract = () => {
   const router = useRouter();
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters,instantFilters } = debouncedURL({
     filtersKey: [
       'builderName',
       'formatName',
@@ -28,8 +28,9 @@ const Contract = () => {
     };
   }, [debouncedUpdateURL]);
   const { columns, contractData } = ContractColumn({
-    filters,
+    instantFilters,
     setParams,
+    filters
   });
   return (
     <div className="p-4">

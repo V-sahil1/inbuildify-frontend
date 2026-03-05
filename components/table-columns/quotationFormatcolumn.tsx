@@ -59,7 +59,7 @@ export const useQuotationFormatColumns = () => {
   const [data] = useState<QuotationFormat[]>(initialData);
   const [warningForKey, setWarningForKey] = useState<string | null>(null);
 
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
     delay: 500,
     filtersKey: ['builderName', 'formatName', 'created', 'updated', 'isActive', 'defaultQuotation'],
   });
@@ -74,7 +74,7 @@ export const useQuotationFormatColumns = () => {
           <Select
             size="small"
             allowClear
-            value={filters.builderName}
+            value={instantFilters.builderName}
             onChange={val => setParams({ builderName: val ?? '' })}
           >
             {Array.from(new Set(data.map(d => d.builderName))).map(name => (
@@ -95,7 +95,7 @@ export const useQuotationFormatColumns = () => {
           <span>Format Name</span>
           <Input
             size="small"
-            value={filters.formatName}
+            value={instantFilters.formatName}
             onChange={e => setParams({ formatName: e.target.value ?? '' })}
           />
         </div>
@@ -143,7 +143,7 @@ export const useQuotationFormatColumns = () => {
           <Select
             size="small"
             allowClear
-            value={filters.isActive}
+            value={instantFilters.isActive}
             onChange={val => setParams({ isActive: val ?? '' })}
           >
             <Option value="active">Active</Option>
@@ -165,7 +165,7 @@ export const useQuotationFormatColumns = () => {
           <Select
             size="small"
             allowClear
-            value={filters.defaultQuotation}
+            value={instantFilters.defaultQuotation}
             onChange={val => setParams({ defaultQuotation: val ?? '' })}
           >
             <Option value="yes">Yes</Option>

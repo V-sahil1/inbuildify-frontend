@@ -22,7 +22,7 @@ export const FloorplanPricelistColumns = (
   }>({});
   const { priceListItems, status } = useAppSelector(state => state.masterPriceList);
 
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
     filtersKey: ['search'],
     shouldSyncURL: false,
   });
@@ -112,6 +112,7 @@ export const FloorplanPricelistColumns = (
           <Input
             addonBefore={<Select defaultValue="All" options={[{ label: 'All', value: 'All' }]} />}
             placeholder="Search Items"
+            value={instantFilters?.search}
             onChange={e => setParams({ search: e.target.value })}
           />
         </div>
@@ -187,7 +188,7 @@ export const FloorplanPricelistColumns = (
     {
       render: (_, record) => {
         const item = floorPlanPricelist?.find(i => i.priceListItemId === record.priceListItemId);
-        return  !!item? (
+        return !!item ? (
           <Popconfirm
             title="Are you sure you want to remove this item?"
             onConfirm={() => removeItem(item.floorPlanId, item.id)}

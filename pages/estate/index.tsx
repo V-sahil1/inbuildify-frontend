@@ -17,7 +17,7 @@ export default function EstatePage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { estate, status } = useAppSelector(state => state.estate);
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters ,instantFilters} = debouncedURL({
     delay: 500,
     filtersKey: ['name', 'location', 'zip', 'status'],
     initialValue: { status: '' },
@@ -46,7 +46,7 @@ export default function EstatePage() {
 
   useEffect(() => () => debouncedUpdateURL.cancel(), [debouncedUpdateURL]);
 
-  const { columns } = getEstateColumns({ filters, setParams });
+  const { columns } = getEstateColumns({ instantFilters, setParams });
 
   const handleCreateEstate = async (values: IEstate) => {
     try {

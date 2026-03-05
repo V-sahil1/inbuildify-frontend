@@ -34,7 +34,7 @@ const ContactListing = () => {
   const { contact } = useAppSelector(state => state.contact);
   const [showCustomers, setShowCustomers] = useState(true);
   const [portalAccess, setPortalAccess] = useState('noLogin');
-  const { setParams, filters } = debouncedURL({
+  const { setParams, filters,instantFilters } = debouncedURL({
     delay: 500,
     filtersKey: ['search', 'status'],
     initialValue: { status: '' },
@@ -96,14 +96,14 @@ const ContactListing = () => {
         <Input.Search
           placeholder="Search contacts by name, email, or phone number"
           allowClear
-          value={filters?.search}
+          value={instantFilters?.search}
           onChange={e => setParams({ search: e.target.value })}
           className="w-full md:w-1/2"
         />
 
         <CustomFilterButtons
           filterButtons={['Active', 'InActive']}
-          activeTab={filters.status}
+          activeTab={instantFilters.status}
           setActiveTab={value => setParams({ status: value })}
         />
 

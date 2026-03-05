@@ -12,17 +12,23 @@ import { ColumnsType } from 'antd/es/table';
 import { useEffect, useState } from 'react';
 import { useAppSelector } from '@hooks/redux';
 import { ILandLot } from '@redux/feature/land/ILandState';
-import { createLandLot, createLandPackage, fetchAllLandLot, fetchAllLandPackage, updateLandLot } from '@redux/feature/land/landThunk';
+import {
+  createLandLot,
+  createLandPackage,
+  fetchAllLandLot,
+  fetchAllLandPackage,
+  updateLandLot,
+} from '@redux/feature/land/landThunk';
 import { toggleLotExpand } from '@redux/feature/land/landSlice';
 import dayjs from 'dayjs';
 
 export default function Land() {
   const dispatch = useAppDispatch();
-  const { lot, status } = useAppSelector(state => state.land)
-  const [drawerOpen, setDrawerOpen] = useState<'lot' | 'package' | 'createPackage' | null>(null)
-  const [selectedLot, setSelectedLot] = useState<ILandLot | null>(null)
+  const { lot, status } = useAppSelector(state => state.land);
+  const [drawerOpen, setDrawerOpen] = useState<'lot' | 'package' | 'createPackage' | null>(null);
+  const [selectedLot, setSelectedLot] = useState<ILandLot | null>(null);
   const [isCopy, setIsCopy] = useState(false);
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
     filtersKey: [
       'lotNumber',
       'price',
@@ -32,17 +38,16 @@ export default function Land() {
       'address',
       'status',
       'createdby',
-    ]
+    ],
   });
 
+  useEffect(() => {
+    fetchLot();
+  }, [filters]);
 
   useEffect(() => {
-    fetchLot()
-  }, [filters])
-
-  useEffect(() => {
-    fetchHLPackage()
-  }, [status.lot.fetch])
+    fetchHLPackage();
+  }, [status.lot.fetch]);
 
   const fetchLot = async () => {
     try {
@@ -54,32 +59,28 @@ export default function Land() {
         stage_name: filters?.stageName || undefined,
         address: filters?.address || undefined,
         status: filters?.status || undefined,
-        created_by: filters?.createdby || undefined
-      }
-      await dispatch(fetchAllLandLot(params)).unwrap()
-    }
-    catch (error) {
-      message.error(error || 'Failed to fetch land lot')
+        created_by: filters?.createdby || undefined,
+      };
+      await dispatch(fetchAllLandLot(params)).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch land lot');
     }
   };
 
   const fetchHLPackage = async () => {
     try {
-      const promises = lot?.map(item => {
-        if (!item?.isExpanded) {
-          dispatch(toggleLotExpand(item.lotId));
-          return dispatch(fetchAllLandPackage({ lot_id: item.lotId })).unwrap();
-        }
-      }
-      ) || [];
+      const promises =
+        lot?.map(item => {
+          if (!item?.isExpanded) {
+            dispatch(toggleLotExpand(item.lotId));
+            return dispatch(fetchAllLandPackage({ lot_id: item.lotId })).unwrap();
+          }
+        }) || [];
       await Promise.all(promises);
+    } catch (error) {
+      message.error(error || 'Failed to fetch land package');
     }
-    catch (error) {
-      message.error(error || 'Failed to fetch land package')
-    }
-  }
-
-
+  };
 
   useEffect(() => {
     return () => {
@@ -93,7 +94,7 @@ export default function Land() {
         <div>
           <span>Lot Number</span>
           <Input
-            value={filters.lotNumber}
+            value={instantFilters.lotNumber}
             onChange={e => setParams({ lotNumber: e.target.value })}
           />
         </div>
@@ -106,7 +107,10 @@ export default function Land() {
       title: (
         <div>
           <span>Price</span>
-          <Input value={filters.price} onChange={e => setParams({ price: e.target.value })} />
+          <Input
+            value={instantFilters.price}
+            onChange={e => setParams({ price: e.target.value })}
+          />
         </div>
       ),
       dataIndex: 'price',
@@ -117,7 +121,7 @@ export default function Land() {
       title: (
         <div>
           <span>Size</span>
-          <Input value={filters.size} onChange={e => setParams({ size: e.target.value })} />
+          <Input value={instantFilters.size} onChange={e => setParams({ size: e.target.value })} />
         </div>
       ),
       dataIndex: 'totalSizeM2',
@@ -128,20 +132,23 @@ export default function Land() {
       title: (
         <div>
           <span>Estate</span>
-          <Input value={filters.estate} onChange={e => setParams({ estate: e.target.value })} />
+          <Input
+            value={instantFilters.estate}
+            onChange={e => setParams({ estate: e.target.value })}
+          />
         </div>
       ),
       dataIndex: 'estate',
       key: 'estate',
       width: 150,
-      render: (estate) => estate.name
+      render: estate => estate.name,
     },
     {
       title: (
         <div>
           <span>Stage Name</span>
           <Input
-            value={filters.stageName}
+            value={instantFilters.stageName}
             onChange={e => setParams({ stageName: e.target.value })}
           />
         </div>
@@ -149,25 +156,31 @@ export default function Land() {
       dataIndex: 'estateStage',
       key: 'estateStage',
       width: 150,
-      render: (estateStage) => estateStage.name
+      render: estateStage => estateStage.name,
     },
     {
       title: (
         <div>
           <span>Address</span>
-          <Input value={filters.address} onChange={e => setParams({ address: e.target.value })} />
+          <Input
+            value={instantFilters.address}
+            onChange={e => setParams({ address: e.target.value })}
+          />
         </div>
       ),
       dataIndex: 'address',
       key: 'address',
       width: 150,
-      render: (_, record) => record?.street + ', ' + record?.city
+      render: (_, record) => record?.street + ', ' + record?.city,
     },
     {
       title: (
         <div>
           <span>Status</span>
-          <StatusSelect value={filters.status} onChange={value => setParams({ status: value })} />
+          <StatusSelect
+            value={instantFilters.status}
+            onChange={value => setParams({ status: value })}
+          />
         </div>
       ),
       dataIndex: 'status',
@@ -179,7 +192,7 @@ export default function Land() {
         <div>
           <span>Created By</span>
           <AssigneeSelect
-            value={filters.createdby}
+            value={instantFilters.createdby}
             onChange={value => setParams({ createdby: value })}
           />
         </div>
@@ -196,9 +209,9 @@ export default function Land() {
             <Tooltip title="Copy Lot">
               <IconCopy
                 size={15}
-                onClick={(e) => {
+                onClick={e => {
                   e.stopPropagation();
-                  setSelectedLot(record)
+                  setSelectedLot(record);
                   setDrawerOpen('lot');
                   setIsCopy(true);
                 }}
@@ -208,10 +221,10 @@ export default function Land() {
             <Tooltip title="Packages">
               <IconTable
                 size={15}
-                onClick={(e) => {
+                onClick={e => {
                   e.stopPropagation();
-                  setSelectedLot(record)
-                  setDrawerOpen('package')
+                  setSelectedLot(record);
+                  setDrawerOpen('package');
                 }}
                 className="cursor-pointer"
               />
@@ -219,10 +232,10 @@ export default function Land() {
             <Tooltip title="Add Package">
               <IconPlus
                 size={15}
-                onClick={(e) => {
+                onClick={e => {
                   e.stopPropagation();
-                  setSelectedLot(record)
-                  setDrawerOpen('createPackage')
+                  setSelectedLot(record);
+                  setDrawerOpen('createPackage');
                 }}
                 className="cursor-pointer"
               />
@@ -235,12 +248,11 @@ export default function Land() {
 
   const handleNewPackaheSubmit = async values => {
     try {
-      await dispatch(createLandPackage({ lotId: selectedLot?.lotId, ...values })).unwrap()
-      message.success('Land package created successfully')
-      setDrawerOpen(null)
-    }
-    catch (error) {
-      message.error(error || 'Failed to save land package')
+      await dispatch(createLandPackage({ lotId: selectedLot?.lotId, ...values })).unwrap();
+      message.success('Land package created successfully');
+      setDrawerOpen(null);
+    } catch (error) {
+      message.error(error || 'Failed to save land package');
     }
   };
 
@@ -251,17 +263,16 @@ export default function Land() {
     };
     try {
       if (selectedLot) {
-        await dispatch(updateLandLot({ id: selectedLot.lotId, data: payload })).unwrap()
-        message.success('Land lot updated successfully')
+        await dispatch(updateLandLot({ id: selectedLot.lotId, data: payload })).unwrap();
+        message.success('Land lot updated successfully');
       } else {
-        await dispatch(createLandLot(payload)).unwrap()
-        message.success('Land lot created successfully')
+        await dispatch(createLandLot(payload)).unwrap();
+        message.success('Land lot created successfully');
       }
-      setSelectedLot(null)
-      setDrawerOpen(null)
-    }
-    catch (error) {
-      message.error(error || 'Failed to save land lot')
+      setSelectedLot(null);
+      setDrawerOpen(null);
+    } catch (error) {
+      message.error(error || 'Failed to save land lot');
     }
   };
 
@@ -284,8 +295,8 @@ export default function Land() {
         }}
         onRow={record => ({
           onClick: () => {
-            setDrawerOpen('lot')
-            setSelectedLot(record)
+            setDrawerOpen('lot');
+            setSelectedLot(record);
           },
           style: { cursor: 'pointer' },
         })}
@@ -304,7 +315,12 @@ export default function Land() {
           open={drawerOpen === 'lot'}
           isCopy={isCopy}
           onSubmit={handleLotSubmit}
-          initialValues={{ ...selectedLot, titleDate: selectedLot?.titleDate ? dayjs(selectedLot.titleDate) : null, estateId: selectedLot?.estate?.id, estateStageId: selectedLot?.estateStage?.id }}
+          initialValues={{
+            ...selectedLot,
+            titleDate: selectedLot?.titleDate ? dayjs(selectedLot.titleDate) : null,
+            estateId: selectedLot?.estate?.id,
+            estateStageId: selectedLot?.estateStage?.id,
+          }}
           onClose={() => {
             setDrawerOpen(null);
             setIsCopy(false);
@@ -313,7 +329,7 @@ export default function Land() {
       )}
       {drawerOpen === 'createPackage' && (
         <LandCreatePackageDrawerModel
-          title={"New Package for " + selectedLot?.lotNumber}
+          title={'New Package for ' + selectedLot?.lotNumber}
           open={drawerOpen === 'createPackage'}
           onClose={() => setDrawerOpen(null)}
           onSubmit={handleNewPackaheSubmit}

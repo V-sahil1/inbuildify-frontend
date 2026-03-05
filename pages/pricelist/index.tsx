@@ -131,7 +131,7 @@ const PriceList = () => {
     params.range_id = filters?.range || undefined;
     params.status =
       filters?.status !== '' ? (filters?.status === 'true' ? 'active' : 'inactive') : undefined;
-    params.price = Number(filters?.price) || undefined;
+    params.price = filters?.price || undefined;
     params.cost_option = filters?.costOption || undefined;
     params.sort_order = filters?.sort || undefined;
     params.item_description = filters?.description || undefined;

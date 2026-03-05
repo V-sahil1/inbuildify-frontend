@@ -15,7 +15,9 @@ export interface referralLead {
 }
 
 const ReferralLeads = () => {
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({ filtersKey: ['search'] });
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
+    filtersKey: ['search'],
+  });
   useEffect(() => {
     return () => {
       debouncedUpdateURL.cancel();
@@ -66,7 +68,7 @@ const ReferralLeads = () => {
         <Input
           addonBefore={<IconSearch size={18} />}
           placeholder="Search by Name or Reference No"
-          value={filters.search}
+          value={instantFilters.search}
           onChange={e => setParams({ search: e.target.value })}
           size="large"
         />

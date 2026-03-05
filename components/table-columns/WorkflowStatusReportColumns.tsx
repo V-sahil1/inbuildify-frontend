@@ -89,7 +89,7 @@ export interface WorkflowStatusType {
 }
 
 export const useWorkflowStatusColumns = () => {
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
     delay: 500,
     filtersKey: [
       'referenceId',
@@ -215,7 +215,7 @@ export const useWorkflowStatusColumns = () => {
           <span>Reference ID</span>
           <Input
             size="small"
-            value={filters.referenceId}
+            value={instantFilters.referenceId}
             onChange={e => setParams({ referenceId: e.target.value ?? '' })}
           />
         </div>
@@ -230,7 +230,7 @@ export const useWorkflowStatusColumns = () => {
           <span>Customer Name</span>
           <Input
             size="small"
-            value={filters.customerName}
+            value={instantFilters.customerName}
             onChange={e => setParams({ customerName: e.target.value ?? '' })}
           />
         </div>
@@ -245,7 +245,7 @@ export const useWorkflowStatusColumns = () => {
           <span>Job Address</span>
           <Input
             size="small"
-            value={filters.jobAddress}
+            value={instantFilters.jobAddress}
             onChange={e => setParams({ jobAddress: e.target.value ?? '' })}
           />
         </div>
@@ -261,7 +261,7 @@ export const useWorkflowStatusColumns = () => {
           <Select
             size="small"
             allowClear
-            value={filters.dwellingType}
+            value={instantFilters.dwellingType}
             onChange={val => setParams({ dwellingType: val ?? '' })}
           >
             <Option value="Single Story">Single Story</Option>
@@ -280,7 +280,7 @@ export const useWorkflowStatusColumns = () => {
           <span>Assignee</span>
           <Input
             size="small"
-            value={filters.assignee}
+            value={instantFilters.assignee}
             onChange={e => setParams({ assignee: e.target.value ?? '' })}
           />
         </div>
@@ -302,7 +302,7 @@ export const useWorkflowStatusColumns = () => {
           <Select
             size="small"
             allowClear
-            value={filters.leadSource}
+            value={instantFilters.leadSource}
             onChange={val => setParams({ leadSource: val ?? '' })}
           >
             <Option value="Website">Website</Option>
@@ -322,7 +322,7 @@ export const useWorkflowStatusColumns = () => {
           <span>Supervisor Name</span>
           <Input
             size="small"
-            value={filters.supervisorName}
+            value={instantFilters.supervisorName}
             onChange={e => setParams({ supervisorName: e.target.value ?? '' })}
           />
         </div>

@@ -11,17 +11,16 @@ export interface Communication {
   to: string;
   sentBy: string;
   sentDate: string;
-  stage : 'sent' | 'delivered'| 'opened' | 'failed' 
+  stage: 'sent' | 'delivered' | 'opened' | 'failed';
 }
 
 export const useUtilizedGraphColumns = () => {
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
     delay: 500,
     filtersKey: ['referenceNo', 'propertyAddress', 'subject', 'to', 'sentBy', 'sentDate'],
   });
 
-    React.useEffect(() => () => debouncedUpdateURL.cancel(), [debouncedUpdateURL]);
-  
+  React.useEffect(() => () => debouncedUpdateURL.cancel(), [debouncedUpdateURL]);
 
   const data: Communication[] = [
     {
@@ -32,7 +31,7 @@ export const useUtilizedGraphColumns = () => {
       to: 'ben@harty.com.au',
       sentBy: 'Kishan',
       sentDate: '10/2/2025 9:39:40 AM',
-      stage: 'sent'
+      stage: 'sent',
     },
     {
       key: '2',
@@ -42,7 +41,7 @@ export const useUtilizedGraphColumns = () => {
       to: 'ben@harty.com.au',
       sentBy: 'Kishan',
       sentDate: '10/2/2025 9:37:43 AM',
-      stage: 'delivered'
+      stage: 'delivered',
     },
     {
       key: '3',
@@ -52,7 +51,7 @@ export const useUtilizedGraphColumns = () => {
       to: 'doca@mailinator.com',
       sentBy: 'Kishan',
       sentDate: '10/2/2025 5:55:39 AM',
-      stage: 'sent'      
+      stage: 'sent',
     },
     {
       key: '4',
@@ -62,7 +61,7 @@ export const useUtilizedGraphColumns = () => {
       to: 'yash@insimplifyyy.com.au',
       sentBy: 'Kishan',
       sentDate: '10/1/2025 11:36:11 AM',
-      stage: 'failed'
+      stage: 'failed',
     },
     {
       key: '5',
@@ -72,7 +71,7 @@ export const useUtilizedGraphColumns = () => {
       to: 'yash@insimplifyyy.com.au',
       sentBy: 'Kishan',
       sentDate: '10/1/2025 11:36:11 AM',
-      stage: 'opened'
+      stage: 'opened',
     },
   ];
 
@@ -82,7 +81,7 @@ export const useUtilizedGraphColumns = () => {
         <div className="flex flex-col">
           <span>Reference No</span>
           <Input
-            value={filters.referenceNo}
+            value={instantFilters.referenceNo}
             onChange={e => setParams({ referenceNo: e.target.value })}
             placeholder="Search reference..."
           />
@@ -97,7 +96,7 @@ export const useUtilizedGraphColumns = () => {
         <div className="flex flex-col">
           <span>Property Address</span>
           <Input
-            value={filters.propertyAddress}
+            value={instantFilters.propertyAddress}
             onChange={e => setParams({ propertyAddress: e.target.value })}
             placeholder="Search address..."
           />
@@ -112,7 +111,7 @@ export const useUtilizedGraphColumns = () => {
         <div className="flex flex-col">
           <span>Subject</span>
           <Input
-            value={filters.subject}
+            value={instantFilters.subject}
             onChange={e => setParams({ subject: e.target.value })}
             placeholder="Search subject..."
           />
@@ -127,7 +126,7 @@ export const useUtilizedGraphColumns = () => {
         <div className="flex flex-col">
           <span>To</span>
           <Input
-            value={filters.to}
+            value={instantFilters.to}
             onChange={e => setParams({ to: e.target.value })}
             placeholder="Search email..."
           />
@@ -142,7 +141,7 @@ export const useUtilizedGraphColumns = () => {
         <div className="flex flex-col">
           <span>Sent By</span>
           <Input
-            value={filters.sentBy}
+            value={instantFilters.sentBy}
             onChange={e => setParams({ sentBy: e.target.value })}
             placeholder="Search sender..."
           />
@@ -157,7 +156,7 @@ export const useUtilizedGraphColumns = () => {
         <div className="flex flex-col">
           <span>Sent Date</span>
           <Input
-            value={filters.sentDate}
+            value={instantFilters.sentDate}
             onChange={e => setParams({ sentDate: e.target.value })}
             placeholder="Search date..."
           />

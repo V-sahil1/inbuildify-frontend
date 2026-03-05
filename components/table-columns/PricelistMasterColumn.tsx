@@ -24,7 +24,7 @@ export const PricelistMasterColumn = (
   );
 
   const { locationOptions } = useLocationAndTimezoneHook({ type: 'location' });
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
     filtersKey: ['isActive', 'search'],
     initialValue: { isActive: 'active' },
     shouldSyncURL: false,
@@ -57,7 +57,7 @@ export const PricelistMasterColumn = (
           <Input
             addonBefore={
               <Select
-                value={filters?.isActive}
+                value={instantFilters?.isActive}
                 onChange={value => setParams({ isActive: value })}
                 defaultValue="active"
                 options={[
@@ -67,7 +67,7 @@ export const PricelistMasterColumn = (
                 className="min-w-[100px]"
               />
             }
-            value={filters.search}
+            value={instantFilters.search}
             onChange={e => setParams({ search: e.target.value })}
             placeholder="Search Items"
           />

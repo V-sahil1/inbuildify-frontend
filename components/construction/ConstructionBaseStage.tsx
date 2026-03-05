@@ -22,7 +22,7 @@ const ConstructionBaseStage = ({ setCurrent, id }) => {
   const [checkItems, setcheckItems] = useState<{ values: any; isDefect: Boolean }[]>([]);
   const [checkSupplierItems, setSuppliercheckItems] = useState([]);
   const [form] = Form.useForm();
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
     filtersKey: ['checklistFilter', 'checklist'],
   });
   const actionButton = [

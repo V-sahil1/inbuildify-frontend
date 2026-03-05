@@ -10,7 +10,7 @@ export const PricelistLocationColumn = (setModalOpen, setSelectedLocation, selec
   const dispatch = useAppDispatch();
   const { locations, status } = useAppSelector(state => state.common);
 
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
     filtersKey: ['status', 'search'],
     initialValue: { status: 'active' },
     shouldSyncURL: false,
@@ -37,7 +37,7 @@ export const PricelistLocationColumn = (setModalOpen, setSelectedLocation, selec
           <Input
             addonBefore={
               <Select
-                value={filters?.status}
+                value={instantFilters?.status}
                 onChange={value => setParams({ status: value })}
                 defaultValue="Active"
                 options={[
@@ -47,7 +47,7 @@ export const PricelistLocationColumn = (setModalOpen, setSelectedLocation, selec
                 className="min-w-[100px]"
               />
             }
-            value={filters.search}
+            value={instantFilters.search}
             onChange={e => setParams({ search: e.target.value })}
             placeholder="Search Items"
           />

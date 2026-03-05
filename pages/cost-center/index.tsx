@@ -22,12 +22,12 @@ export default function CostCenterMaster() {
   const { costCenter, status } = useAppSelector(state => state.costCenter);
   const [openModal, setOpenModal] = useState<'costCenter' | 'checklist' | null>(null);
   const [editRecord, setEditRecord] = useState<ICostCenter | null>(null);
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters, instantFilters} = debouncedURL({
     filtersKey: ['code', 'name', 'description', 'sortOrder', 'isActive'],
     initialValue: { isActive: '' },
   });
   const { columns, handleSubmit } = CostCenterColumn(
-    filters,
+    instantFilters,
     setParams,
     setEditRecord,
     setOpenModal,

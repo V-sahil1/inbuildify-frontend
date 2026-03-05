@@ -20,7 +20,7 @@ export const SupplierChecklistColumn = (
   const { checklist } = useAppSelector(state => state.construction.constructionChecklist);
   const dispatch = useAppDispatch();
   const { builderOptions } = useBuildersHook();
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
     delay: 500,
     filtersKey: ['name', 'builder'],
     shouldSyncURL: false,
@@ -65,6 +65,7 @@ export const SupplierChecklistColumn = (
           <Input
             addonBefore={
               <Select
+                value={instantFilters?.builder}
                 options={[{ value: '', label: 'All' }, ...(builderOptions || [])]}
                 onChange={value => setParams({ builder: value })}
               />
@@ -72,6 +73,7 @@ export const SupplierChecklistColumn = (
             placeholder="Search Checklist..."
             prefix={<IconSearch size={16} />}
             onChange={e => setParams({ name: e.target.value })}
+            value={instantFilters?.name}
           />
         </div>
       ),

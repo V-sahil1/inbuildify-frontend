@@ -10,10 +10,15 @@ import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import TooltipButton from '../common/TooltipButton';
 import { getFacades } from '@redux/feature/facade/facadeThunk';
 
-export const FacadeColumns = (floorPlanFacede, selectedFloorplan, setSelectedFloorplan, activeFilter) => {
+export const FacadeColumns = (
+  floorPlanFacede,
+  selectedFloorplan,
+  setSelectedFloorplan,
+  activeFilter
+) => {
   const dispatch = useAppDispatch();
   const { facades, status } = useAppSelector(state => state.facade);
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
     filtersKey: ['search'],
     shouldSyncURL: false,
   });
@@ -67,6 +72,7 @@ export const FacadeColumns = (floorPlanFacede, selectedFloorplan, setSelectedFlo
         <Input
           addonBefore={<IconSearch size={15} />}
           placeholder="Search Name"
+          value={instantFilters?.search}
           onChange={e => setParams({ search: e.target.value })}
         />
       ),

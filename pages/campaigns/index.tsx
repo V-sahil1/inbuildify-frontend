@@ -8,7 +8,9 @@ import SystemRoutes from '@lib/constants/Routes';
 import { debouncedURL } from '@lib/utils/debounceURL';
 export default function Campaigns() {
   const router = useRouter();
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({ filtersKey: ['campaignName'] });
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
+    filtersKey: ['campaignName'],
+  });
   useEffect(() => {
     return () => {
       debouncedUpdateURL.cancel();
@@ -133,7 +135,7 @@ export default function Campaigns() {
           <div className="flex gap-2 w-[60%]">
             <Input
               addonBefore={<IconSearch size={20} />}
-              value={filters.campaignName}
+              value={instantFilters.campaignName}
               onChange={e => setParams({ campaignName: e.target.value })}
               placeholder="Search Campaigns by Campaign name"
               style={{ width: '80%' }}

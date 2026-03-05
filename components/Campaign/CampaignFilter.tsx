@@ -5,7 +5,9 @@ import { useUsersHook } from '@hooks/useUserHook';
 import { debouncedURL } from '@lib/utils/debounceURL';
 export default function CampaignFilter() {
   const { userOptions } = useUsersHook();
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({ filtersKey: ['address'] });
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
+    filtersKey: ['address'],
+  });
 
   useEffect(() => {
     return () => {
@@ -90,7 +92,7 @@ export default function CampaignFilter() {
                   <Input
                     size="small"
                     placeholder="search"
-                    value={filters.address}
+                    value={instantFilters.address}
                     onChange={e => setParams({ address: e.target.value })}
                   />
                 </Form.Item>

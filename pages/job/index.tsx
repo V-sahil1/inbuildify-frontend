@@ -20,7 +20,7 @@ const JobPage: React.FC = () => {
   const [showBlocked, setShowBlocked] = useState(false);
   const [currentBar, setCurrentBar] = useState<string>();
 
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
     filtersKey: [
       'refrenceId',
       'customerName',
@@ -71,7 +71,7 @@ const JobPage: React.FC = () => {
         <div>
           <span>Refrence ID</span>
           <Input
-            value={filters.refrenceId}
+            value={instantFilters.refrenceId}
             onChange={e => setParams({ refrenceId: e.target.value })}
           />
         </div>
@@ -85,7 +85,7 @@ const JobPage: React.FC = () => {
         <div>
           <span>Customer Name</span>
           <Input
-            value={filters.customerName}
+            value={instantFilters.customerName}
             onChange={e => setParams({ customerName: e.target.value })}
           />
         </div>
@@ -99,7 +99,7 @@ const JobPage: React.FC = () => {
         <div>
           <span>Job Address</span>
           <Input
-            value={filters.jobAddress}
+            value={instantFilters.jobAddress}
             onChange={e =>
               setParams({
                 jobAddress: e.target.value,
@@ -160,7 +160,7 @@ const JobPage: React.FC = () => {
         <div>
           <span>Estate Name</span>
           <Input
-            value={filters.estateName}
+            value={instantFilters.estateName}
             onChange={e =>
               setParams({
                 estateName: e.target.value,
@@ -178,7 +178,7 @@ const JobPage: React.FC = () => {
         <div>
           <span>Consultant</span>
           <AssigneeSelect
-            value={filters.consultant}
+            value={instantFilters.consultant}
             onChange={value => setParams({ consultant: value })}
           />
         </div>

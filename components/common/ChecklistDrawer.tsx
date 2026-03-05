@@ -47,7 +47,7 @@ export const ChecklistDrawer: React.FC<Props> = ({
   onRemove,
 }) => {
   const searchParams = useSearchParams();
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
     filtersKey: ['builder'],
     initialValue: {
       builder: 'All',
@@ -158,7 +158,7 @@ export const ChecklistDrawer: React.FC<Props> = ({
       <Input
         addonBefore={
           <Select
-            value={filters.builder}
+            value={instantFilters?.builder}
             onChange={val => setParams({ builder: val })}
             className="mb-2.5 w-36"
             options={builderOptions}

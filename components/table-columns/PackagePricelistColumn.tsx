@@ -13,7 +13,7 @@ import TooltipButton from '../common/TooltipButton';
 
 export const PackagePricelistColumn = (packagePricelist, selectedPackage, setSelectedPackage) => {
   const dispatch = useAppDispatch();
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
     filtersKey: ['search'],
     shouldSyncURL: false,
   });
@@ -64,6 +64,7 @@ export const PackagePricelistColumn = (packagePricelist, selectedPackage, setSel
         <Input
           addonBefore={<Select options={[{ label: 'All', value: 'All' }]} defaultValue="All" />}
           placeholder="Search Items"
+          value={instantFilters?.search}
           onChange={e => setParams({ search: e.target.value })}
         />
       ),
@@ -84,7 +85,10 @@ export const PackagePricelistColumn = (packagePricelist, selectedPackage, setSel
       render: (_, record) => {
         const item = packagePricelist?.find(i => i.priceListItemId === record.priceListItemId);
         return isPriceListAdded(record) ? (
-          <Popconfirm title="Are you sure you want to remove this item?" onConfirm={() => removeItem(item.packageId, item.id)}>
+          <Popconfirm
+            title="Are you sure you want to remove this item?"
+            onConfirm={() => removeItem(item.packageId, item.id)}
+          >
             <TooltipButton
               title="Remove"
               type="text"
@@ -93,16 +97,16 @@ export const PackagePricelistColumn = (packagePricelist, selectedPackage, setSel
             />
           </Popconfirm>
         ) : (
-          <Popconfirm title="Are you sure you want to add this item?" onConfirm={() => addItem({
-            packageId: selectedPackage?.packageId || '',
-            priceListItemId: record.priceListItemId,
-          })}>
-            <TooltipButton
-              title="Add"
-              type="text"
-              size="small"
-              icon={<IconPlus size={16} />}
-            />
+          <Popconfirm
+            title="Are you sure you want to add this item?"
+            onConfirm={() =>
+              addItem({
+                packageId: selectedPackage?.packageId || '',
+                priceListItemId: record.priceListItemId,
+              })
+            }
+          >
+            <TooltipButton title="Add" type="text" size="small" icon={<IconPlus size={16} />} />
           </Popconfirm>
         );
       },

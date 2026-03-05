@@ -28,7 +28,7 @@ const SupplierType: React.FC<SupplierTypeProps> = ({ open, onClose }) => {
   const [drawerOpen, setDrawerOpen] = useState<'checklist' | 'supplier' | null>(null);
   const [selectAll, setSelectAll] = useState<'checklist' | 'supplier' | null>(null);
 
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
     delay: 500,
     filtersKey: ['name', 'isActive'],
     initialValue: { isActive: '' },
@@ -41,7 +41,7 @@ const SupplierType: React.FC<SupplierTypeProps> = ({ open, onClose }) => {
     selectedType,
     setSelectAll,
     setParams,
-    filters
+    instantFilters
   );
   useEffect(() => () => debouncedUpdateURL.cancel(), [debouncedUpdateURL]);
   const { columns: supplierColumns, data: supplierData } = SupplierMappingColumn(
@@ -162,10 +162,10 @@ const SupplierType: React.FC<SupplierTypeProps> = ({ open, onClose }) => {
                 selectAll === 'supplier'
                   ? supplierData
                   : supplierType
-                    .find(type => type.supplierTypeId === selectedType?.supplierTypeId)
-                    ?.suppliers?.map(i =>
-                      supplierData.find(c => c?.supplierId === i?.supplierId)
-                    ),
+                      .find(type => type.supplierTypeId === selectedType?.supplierTypeId)
+                      ?.suppliers?.map(i =>
+                        supplierData.find(c => c?.supplierId === i?.supplierId)
+                      ),
             },
           ]}
         >
@@ -199,12 +199,12 @@ const SupplierType: React.FC<SupplierTypeProps> = ({ open, onClose }) => {
                 selectAll === 'checklist'
                   ? checklistData
                   : supplierType
-                    ?.find(i => i?.supplierTypeId === selectedType?.supplierTypeId)
-                    ?.checklists?.map(i =>
-                      checklistData.find(
-                        c => c?.constructionChecklistId === i?.constructionChecklistId
-                      )
-                    ),
+                      ?.find(i => i?.supplierTypeId === selectedType?.supplierTypeId)
+                      ?.checklists?.map(i =>
+                        checklistData.find(
+                          c => c?.constructionChecklistId === i?.constructionChecklistId
+                        )
+                      ),
             },
           ]}
         >

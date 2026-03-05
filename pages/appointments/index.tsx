@@ -18,7 +18,7 @@ export default function Appointments() {
   const dispatch = useAppDispatch();
   const [CancelledIncluded, setCancelledIncluded] = useState(false);
   const { appointment, status } = useAppSelector(state => state.appointment);
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
     filtersKey: ['title', 'location', 'date', 'assignee', 'category', 'status'],
   });
 
@@ -54,7 +54,10 @@ export default function Appointments() {
       title: (
         <div>
           <span>Title</span>
-          <Input onChange={e => setParams({ title: e.target.value })} />
+          <Input
+            value={instantFilters?.title}
+            onChange={e => setParams({ title: e.target.value })}
+          />
         </div>
       ),
       dataIndex: 'title',
@@ -70,7 +73,10 @@ export default function Appointments() {
       title: (
         <div>
           <span>Location</span>
-          <Input onChange={e => setParams({ location: e.target.value })} />
+          <Input
+            value={instantFilters?.location}
+            onChange={e => setParams({ location: e.target.value })}
+          />
         </div>
       ),
       dataIndex: 'location',
@@ -111,7 +117,7 @@ export default function Appointments() {
         <div>
           <span>Assignee</span>
           <AssigneeSelect
-            value={filters.assignee}
+            value={instantFilters.assignee}
             onChange={value => setParams({ assignee: value })}
           />
         </div>
@@ -126,7 +132,7 @@ export default function Appointments() {
         <div>
           <div>Category</div>
           <CategorySelect
-            value={filters.category}
+            value={instantFilters.category}
             onChange={value => setParams({ category: value })}
           />
         </div>

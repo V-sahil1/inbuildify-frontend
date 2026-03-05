@@ -42,7 +42,7 @@ export const useMaintenanceTableLogic = ({
   const [isStatusChangeModalVisible, setIsStatusChangeModalVisible] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [isRevertModalVisible, setIsRevertModalVisible] = useState(false);
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
     filtersKey: ['id', 'customerName', 'jobAddress', 'startDate', 'endDate', 'assignee'],
   });
   useEffect(() => () => debouncedUpdateURL.cancel(), [debouncedUpdateURL]);
@@ -81,7 +81,7 @@ export const useMaintenanceTableLogic = ({
             <span className="font-semibold">Reference ID</span>
             <Input
               placeholder="Search ID"
-              value={filters.id}
+              value={instantFilters.id}
               onChange={e => setParams({ id: e.target.value })}
             />
           </div>
@@ -97,7 +97,7 @@ export const useMaintenanceTableLogic = ({
             <span className="font-semibold">Customer Name</span>
             <Input
               placeholder="Search Customer"
-              value={filters.customerName}
+              value={instantFilters.customerName}
               onChange={e => setParams({ customerName: e.target.value })}
             />
           </div>
@@ -112,7 +112,7 @@ export const useMaintenanceTableLogic = ({
             <span className="font-semibold">Job Address</span>
             <Input
               placeholder="Search Address"
-              value={filters.jobAddress}
+              value={instantFilters.jobAddress}
               onChange={e => setParams({ jobAddress: e.target.value })}
             />
           </div>
@@ -127,7 +127,10 @@ export const useMaintenanceTableLogic = ({
             <div className="font-semibold">Start Date</div>
             <DateFilterDropdown
               onFilter={(type, dates) => {
-                setParams({ startDate: dates });
+                const dateString = dates
+                  ? `${dates[0].toISOString()},${dates[1].toISOString()}`
+                  : '';
+                setParams({ startDate: dateString });
               }}
               onClear={() => setParams({ startDate: null })}
             />
@@ -147,7 +150,10 @@ export const useMaintenanceTableLogic = ({
             <div className="font-semibold">End Date</div>
             <DateFilterDropdown
               onFilter={(type, dates) => {
-                setParams({ endDate: dates });
+                const dateString = dates
+                  ? `${dates[0].toISOString()},${dates[1].toISOString()}`
+                  : '';
+                setParams({ endDate: dateString });
               }}
               onClear={() => setParams({ endDate: null })}
             />
@@ -166,7 +172,7 @@ export const useMaintenanceTableLogic = ({
           <div className="flex flex-col gap-1">
             <span className="font-semibold">Site Supervisor</span>
             <AssigneeSelect
-              value={filters.assignee}
+              value={instantFilters.assignee}
               onChange={value => setParams({ assignee: value })}
             />
           </div>

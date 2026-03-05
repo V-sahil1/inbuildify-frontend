@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button, Input, Table, Dropdown, message } from 'antd';
+import { Button, Input, Table, Dropdown, message, Spin } from 'antd';
 import {
   IconDownload,
   IconFileSpreadsheet,
@@ -37,7 +37,7 @@ const Users = () => {
     UserColumn(setModalOpen, setSelectedUser, setDrawerOpen, selectedUser);
 
   const user = selectedUser && users.filter(i => i.loginId === selectedUser.loginId)[0];
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
     filtersKey: ['search', 'status'],
     initialValue: { status: '' },
   });
@@ -73,14 +73,14 @@ const Users = () => {
         <Input.Search
           placeholder="Search contacts by name, email, or phone number"
           allowClear
-          value={filters.search}
+          value={instantFilters.search}
           onChange={e => setParams({ search: e.target.value })}
           className="w-full md:w-1/2"
         />
 
         <CustomFilterButtons
           filterButtons={['Active', 'InActive']}
-          activeTab={filters.status}
+          activeTab={instantFilters.status}
           setActiveTab={value => setParams({ status: value })}
         />
 
@@ -119,21 +119,31 @@ const Users = () => {
         </div>
       </div>
       {viewMode === 'grid' ? (
-        <div className="grid grid-cols-3 gap-2 ">
-          {users &&
-            users.length > 0 &&
-            users.map((user, index) => (
-              <UserCard
-                key={index}
-                user={user}
-                setDrawerOpen={setDrawerOpen}
-                setModalOpen={setModalOpen}
-                setSelectedUser={setSelectedUser}
-              />
-            ))}
-        </div>
+        status.users.fetch === Status.PENDING ? (
+          <div className="flex justify-center items-center h-full">
+            <Spin />
+          </div>
+        ) : (
+          <div className="grid grid-cols-3 gap-2 ">
+            {users &&
+              users.length > 0 &&
+              users.map((user, index) => (
+                <UserCard
+                  key={index}
+                  user={user}
+                  setDrawerOpen={setDrawerOpen}
+                  setModalOpen={setModalOpen}
+                  setSelectedUser={setSelectedUser}
+                />
+              ))}
+          </div>
+        )
       ) : (
-        <Table columns={column} dataSource={users} />
+        <Table
+          columns={column}
+          dataSource={users}
+          loading={status.users.fetch === Status.PENDING}
+        />
       )}
       {!!drawerOpen && (
         <UserFormDrawer

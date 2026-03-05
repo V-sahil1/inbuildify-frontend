@@ -19,11 +19,11 @@ import dayjs from 'dayjs';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 
 export default function HLPackages() {
-  const dispatch = useAppDispatch()
-  const { package: packages } = useAppSelector(state => state.land)
+  const dispatch = useAppDispatch();
+  const { package: packages } = useAppSelector(state => state.land);
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState<'create' | 'copy' | null>(null);
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
     filtersKey: [
       'packages',
       'lotAddress',
@@ -44,18 +44,17 @@ export default function HLPackages() {
         floor_plan_name: filters?.floorplanName || undefined,
         total_price: filters?.cost || undefined,
         created_date: filters?.createdDate || undefined,
-        assignee_id: filters?.assignee || undefined
-      } 
-      await dispatch(fetchAllLandPackage(params)).unwrap()
+        assignee_id: filters?.assignee || undefined,
+      };
+      await dispatch(fetchAllLandPackage(params)).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch land package');
     }
-    catch (error) {
-      message.error(error || 'Failed to fetch land package')
-    }
-  }
+  };
 
   useEffect(() => {
-    fetchAllLandPackageData()
-  }, [filters])
+    fetchAllLandPackageData();
+  }, [filters]);
 
   useEffect(() => {
     return () => {
@@ -68,7 +67,10 @@ export default function HLPackages() {
       title: (
         <div>
           <span>Package</span>
-          <Input value={filters.packages} onChange={e => setParams({ packages: e.target.value })} />
+          <Input
+            value={instantFilters.packages}
+            onChange={e => setParams({ packages: e.target.value })}
+          />
         </div>
       ),
       dataIndex: 'title',
@@ -80,37 +82,34 @@ export default function HLPackages() {
         <div>
           <span>Lot Address</span>
           <Input
-            // value={filters.lotAddress}
-            // onChange={e => setParams({ lotAddress: e.target.value })}
+          // value={instantFilters.lotAddress}
+          // onChange={e => setParams({ lotAddress: e.target.value })}
           />
         </div>
       ),
       width: 150,
-      render: (_, record) => (
-        record?.lotDetails && record?.lotDetails?.street + ',' + record?.lotDetails?.city
-      )
+      render: (_, record) =>
+        record?.lotDetails && record?.lotDetails?.street + ',' + record?.lotDetails?.city,
     },
     {
       title: (
         <div>
           <span>Estate Name</span>
           <Input
-            value={filters.estateName}
+            value={instantFilters.estateName}
             onChange={e => setParams({ estateName: e.target.value })}
           />
         </div>
       ),
       width: 150,
-      render: (_, record) => (
-        record?.lotDetails?.estateName
-      )
+      render: (_, record) => record?.lotDetails?.estateName,
     },
     {
       title: (
         <div>
           <span>Facade Name</span>
           <Input
-            value={filters.facadeName}
+            value={instantFilters.facadeName}
             onChange={e => setParams({ facadeName: e.target.value })}
           />
         </div>
@@ -118,16 +117,14 @@ export default function HLPackages() {
       dataIndex: 'facade',
       key: 'facade  ',
       width: 150,
-      render: (_, record) => (
-        record?.facade?.name
-      )
+      render: (_, record) => record?.facade?.name,
     },
     {
       title: (
         <div>
           <span>Floor Plan Name</span>
           <Input
-            value={filters.floorplanName}
+            value={instantFilters.floorplanName}
             onChange={e => setParams({ floorplanName: e.target.value })}
           />
         </div>
@@ -135,15 +132,13 @@ export default function HLPackages() {
       dataIndex: 'floorPlan',
       key: 'floorPlan',
       width: 150,
-      render: (_, record) => (
-        record?.floorPlan?.name
-      )
+      render: (_, record) => record?.floorPlan?.name,
     },
     {
       title: (
         <div>
           <span>Cost</span>
-          <Input value={filters.cost} onChange={e => setParams({ cost: e.target.value })} />
+          <Input value={instantFilters.cost} onChange={e => setParams({ cost: e.target.value })} />
         </div>
       ),
       dataIndex: 'totalPrice',
@@ -168,16 +163,14 @@ export default function HLPackages() {
       dataIndex: 'createdAt',
       key: 'createdAt',
       width: 150,
-      render: (_, record) => (
-        dayjs(record.createdAt).format('DD/MM/YYYY')
-      )
+      render: (_, record) => dayjs(record.createdAt).format('DD/MM/YYYY'),
     },
     {
       title: (
         <div>
           <span>Assignee</span>
           <AssigneeSelect
-            value={filters.assignee}
+            value={instantFilters.assignee}
             onChange={value => setParams({ assignee: value })}
           />
         </div>
@@ -193,12 +186,12 @@ export default function HLPackages() {
                   {
                     key: 'Available',
                     label: 'Available',
-                    onClick: () => { },
+                    onClick: () => {},
                   },
                   {
                     key: 'Delete',
                     label: 'Delete',
-                    onClick: () => { },
+                    onClick: () => {},
                   },
                 ],
               }}
@@ -243,26 +236,25 @@ export default function HLPackages() {
     label: string;
     count: number;
   }> = [
-      { type: 'all', label: 'All', count: data.length },
-      { type: 'available', label: 'Available', count: data.length },
-      { type: 'modified', label: 'Modified', count: data.length },
-      { type: 'approved', label: 'Approved', count: data.length },
-      { type: 'published', label: 'Published', count: data.length },
-      { type: 'sold', label: 'Sold', count: data.length },
-      { type: 'unavailable', label: 'Unavailable', count: data.length },
-    ];
+    { type: 'all', label: 'All', count: data.length },
+    { type: 'available', label: 'Available', count: data.length },
+    { type: 'modified', label: 'Modified', count: data.length },
+    { type: 'approved', label: 'Approved', count: data.length },
+    { type: 'published', label: 'Published', count: data.length },
+    { type: 'sold', label: 'Sold', count: data.length },
+    { type: 'unavailable', label: 'Unavailable', count: data.length },
+  ];
   const handleFilterTabChange = (selectedType: string) => {
     console.log('Selected filter:', selectedType);
   };
 
-  const handleNewPackageSubmit = async (values) => {
+  const handleNewPackageSubmit = async values => {
     try {
-      await dispatch(createLandPackage(values)).unwrap()
-      message.success('Package created successfully')
+      await dispatch(createLandPackage(values)).unwrap();
+      message.success('Package created successfully');
       setIsModalOpen(null);
-    }
-    catch (error) {
-      message.error(error || 'Failed to create package')
+    } catch (error) {
+      message.error(error || 'Failed to create package');
     }
   };
 

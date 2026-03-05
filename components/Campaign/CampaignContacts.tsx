@@ -13,7 +13,9 @@ const CampaignContacts = ({ current, setCurrent }) => {
   const pathname = usePathname();
   const [activeTab, setActiveTab] = useState('Selected');
   const [form] = Form.useForm();
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({ filtersKey: ['contact'] });
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
+    filtersKey: ['contact'],
+  });
 
   useEffect(() => {
     return () => {
@@ -87,7 +89,7 @@ const CampaignContacts = ({ current, setCurrent }) => {
               addonBefore={<IconSearch size={20} />}
               placeholder="Search Contacts by name,email"
               style={{ width: '800px' }}
-              value={filters.contact}
+              value={instantFilters.contact}
               onChange={e => setParams({ contact: e.target.value })}
             />
             <div className="flex">

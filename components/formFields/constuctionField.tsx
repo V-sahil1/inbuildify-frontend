@@ -83,7 +83,7 @@ export const useConstructionTableLogic = ({
     statusLabel: string;
   } | null>(null);
 
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
     filtersKey: [
       'id',
       'customerName',
@@ -136,7 +136,7 @@ export const useConstructionTableLogic = ({
             <span className="font-semibold">Reference ID</span>
             <Input
               placeholder="Search ID"
-              value={filters.id}
+              value={instantFilters.id}
               onChange={e => setParams({ id: e.target.value })}
             />
           </div>
@@ -152,7 +152,7 @@ export const useConstructionTableLogic = ({
             <span className="font-semibold">Customer Name</span>
             <Input
               placeholder="Search Customer"
-              value={filters.customerName}
+              value={instantFilters.customerName}
               onChange={e => setParams({ customerName: e.target.value })}
             />
           </div>
@@ -167,7 +167,7 @@ export const useConstructionTableLogic = ({
             <span className="font-semibold">Job Address</span>
             <Input
               placeholder="Search Address"
-              value={filters.jobAddress}
+              value={instantFilters.jobAddress}
               onChange={e => setParams({ jobAddress: e.target.value })}
             />
           </div>
@@ -182,7 +182,7 @@ export const useConstructionTableLogic = ({
             <span className="font-semibold">Job Type</span>
             <Input
               placeholder="Search Job Type"
-              value={filters.jobType}
+              value={instantFilters.jobType}
               onChange={e => setParams({ jobType: e.target.value })}
             />
           </div>
@@ -195,7 +195,10 @@ export const useConstructionTableLogic = ({
         title: (
           <div className="flex flex-col gap-1">
             <span className="font-semibold">Builder</span>
-            <Select value={filters.builderName} onChange={val => setParams({ builderName: val })}>
+            <Select
+              value={instantFilters.builderName}
+              onChange={val => setParams({ builderName: val })}
+            >
               {uniqueBuilders.map(b => (
                 <Select.Option key={b} value={b}>
                   {b}
@@ -212,7 +215,10 @@ export const useConstructionTableLogic = ({
         title: (
           <div className="flex flex-col gap-1">
             <span className="font-semibold">Current Stage</span>
-            <Select value={filters.currentStage} onChange={val => setParams({ currentStage: val })}>
+            <Select
+              value={instantFilters.currentStage}
+              onChange={val => setParams({ currentStage: val })}
+            >
               {uniqueStages.map(s => (
                 <Select.Option key={s} value={s}>
                   {s}
@@ -234,7 +240,7 @@ export const useConstructionTableLogic = ({
                 const dateString = dates
                   ? `${dates[0].toISOString()},${dates[1].toISOString()}`
                   : '';
-                setParams({ dueDate: dates });
+                setParams({ dueDate: dateString });
               }}
               onClear={() => {
                 console.log('Cleared date filter');
@@ -253,7 +259,7 @@ export const useConstructionTableLogic = ({
           <div className="flex flex-col gap-1">
             <span className="font-semibold">Site Supervisor</span>
             <AssigneeSelect
-              value={filters.siteSupervisor}
+              value={instantFilters.siteSupervisor}
               onChange={value => setParams({ siteSupervisor: value })}
             />
           </div>

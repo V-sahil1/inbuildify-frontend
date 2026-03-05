@@ -15,7 +15,7 @@ import { ChecklistDateChange } from '@/components/common/todo/ChecklistDateChang
 const TodosPage: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
     filtersKey: [
       'jobAddress',
       'taskName',
@@ -60,7 +60,7 @@ const TodosPage: React.FC = () => {
         <div>
           <span>Job Address</span>
           <Input
-            value={filters.jobAddress}
+            value={instantFilters.jobAddress}
             onChange={e => setParams({ jobAddress: e.target.value })}
           />
         </div>
@@ -73,7 +73,10 @@ const TodosPage: React.FC = () => {
       title: (
         <div>
           <span>Task Name</span>
-          <Input value={filters.taskName} onChange={e => setParams({ taskName: e.target.value })} />
+          <Input
+            value={instantFilters.taskName}
+            onChange={e => setParams({ taskName: e.target.value })}
+          />
         </div>
       ),
       dataIndex: 'taskName',
@@ -127,7 +130,7 @@ const TodosPage: React.FC = () => {
         <div className="flex flex-col">
           <span>Site Supervisor</span>
           <AssigneeSelect
-            value={filters.siteSupervisor}
+            value={instantFilters.siteSupervisor}
             onChange={value => setParams({ siteSupervisor: value })}
           />
         </div>

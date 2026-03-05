@@ -32,7 +32,7 @@ import { ColorGroup, ColorItem } from '@redux/feature/color/iColourState';
 
 const ColorGroupPage = () => {
   const dispatch = useAppDispatch();
-  const { setParams, filters } = debouncedURL({
+  const { setParams, filters, instantFilters } = debouncedURL({
     filtersKey: ['search', 'supplier', 'groupSearch'],
   });
   const [selectedView, setSelectedView] = useState<'all' | 'selected'>('all');
@@ -184,6 +184,7 @@ const ColorGroupPage = () => {
               onChange={e => {
                 setParams({ groupSearch: e.target.value });
               }}
+              value={instantFilters?.groupSearch}
               placeholder="Search Color Group...."
             />
           </div>
@@ -239,7 +240,7 @@ const ColorGroupPage = () => {
             <div className="flex w-[60%] gap-2">
               <Select
                 options={supplierOptions}
-                value={filters?.supplier}
+                value={instantFilters?.supplier}
                 onChange={e => {
                   setParams({ supplier: e });
                 }}
@@ -251,7 +252,7 @@ const ColorGroupPage = () => {
                 onChange={e => {
                   setParams({ search: e.target.value });
                 }}
-                value={filters?.search}
+                value={instantFilters?.search}
                 placeholder="Search by Color item or item code"
                 style={{ width: '60%' }}
               />

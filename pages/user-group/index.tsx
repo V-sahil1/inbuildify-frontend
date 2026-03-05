@@ -20,7 +20,7 @@ const UserGroup = () => {
     setSelectedGroup,
     selectedGroup
   );
-  const { debouncedUpdateURL, setParams, filters, resetParams } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters, resetParams, instantFilters } = debouncedURL({
     filtersKey: ['groupName', 'status'],
     initialValue: { status: 'Active' },
   });
@@ -64,7 +64,7 @@ const UserGroup = () => {
         <div>
           <p>Status</p>
           <StatusSelect
-            value={filters?.status}
+            value={instantFilters?.status}
             onChange={value => setParams({ status: value })}
             activeInactive={true}
             width={200}
@@ -73,7 +73,7 @@ const UserGroup = () => {
         <div>
           <p>Group</p>
           <Input
-            value={filters?.groupName}
+            value={instantFilters?.groupName}
             onChange={e => setParams({ groupName: e.target.value })}
           />
         </div>
@@ -90,7 +90,9 @@ const UserGroup = () => {
           }}
           fields={userGroupFields}
           isEditing={!!selectedGroup}
-          initialValues={selectedGroup && {...selectedGroup,usersId:selectedGroup.users?.map((i)=> i.id)}}
+          initialValues={
+            selectedGroup && { ...selectedGroup, usersId: selectedGroup.users?.map(i => i.id) }
+          }
         />
       )}
     </div>

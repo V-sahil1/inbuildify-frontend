@@ -17,7 +17,7 @@ import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import dayjs from 'dayjs';
 import { useBuildersHook } from '@hooks/useBuildersHook';
 
-export const ContractColumn = ({ filters, setParams }) => {
+export const ContractColumn = ({ filters, setParams, instantFilters }) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { contractFormat } = useAppSelector(state => state.contractFormat);
@@ -62,7 +62,7 @@ export const ContractColumn = ({ filters, setParams }) => {
         <>
           <span>Builder Name</span>
           <Select
-            value={filters.builderName}
+            value={instantFilters.builderName}
             onChange={value => setParams({ builderName: value })}
             className="w-full"
             options={builderOptions}
@@ -78,7 +78,7 @@ export const ContractColumn = ({ filters, setParams }) => {
         <>
           <span>Format Name</span>
           <Input
-            value={filters.formatName}
+            value={instantFilters.formatName}
             onChange={e => setParams({ formatName: e.target.value })}
           />
         </>
@@ -137,7 +137,7 @@ export const ContractColumn = ({ filters, setParams }) => {
           <span>Status</span>
           <StatusSelect
             activeInactive={true}
-            value={filters.status}
+            value={instantFilters.status}
             onChange={value => setParams({ status: value })}
           />
         </>
@@ -152,7 +152,7 @@ export const ContractColumn = ({ filters, setParams }) => {
         <>
           <span>Default Contract</span>
           <Select
-            value={filters.contract}
+            value={instantFilters.contract}
             onChange={value => setParams({ contract: value })}
             options={[
               { label: 'All', value: '' },

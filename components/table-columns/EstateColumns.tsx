@@ -5,17 +5,20 @@ import { IEstate } from '@redux/feature/estate/IEstateState';
 const { Option } = Select;
 
 export interface EstateColumnsParams {
-  filters: Record<string, string>;
+  instantFilters: Record<string, string>;
   setParams: (params: Record<string, string>) => void;
 }
 
-export const getEstateColumns = ({ filters, setParams }: EstateColumnsParams) => {
+export const getEstateColumns = ({ instantFilters, setParams }: EstateColumnsParams) => {
   const columns = [
     {
       title: (
         <div className="flex flex-col">
           <span>Estate Name</span>
-          <Input value={filters.name} onChange={e => setParams({ name: e.target.value ?? '' })} />
+          <Input
+            value={instantFilters?.name}
+            onChange={e => setParams({ name: e.target.value ?? '' })}
+          />
         </div>
       ),
       dataIndex: 'name',
@@ -37,7 +40,7 @@ export const getEstateColumns = ({ filters, setParams }: EstateColumnsParams) =>
         <div className="flex flex-col">
           <span>Location</span>
           <Input
-            value={filters.location}
+            value={instantFilters?.location}
             onChange={e => setParams({ location: e.target.value ?? '' })}
           />
         </div>
@@ -49,7 +52,7 @@ export const getEstateColumns = ({ filters, setParams }: EstateColumnsParams) =>
           <span>Post Code</span>
           <Input
             type="number"
-            value={filters.postcode}
+            value={instantFilters?.postcode}
             onChange={e => setParams({ zip: e.target.value ?? '' })}
           />
         </div>
@@ -61,7 +64,11 @@ export const getEstateColumns = ({ filters, setParams }: EstateColumnsParams) =>
       title: (
         <div className="flex flex-col">
           <span>Status</span>
-          <Select allowClear value={filters.isActive} onChange={val => setParams({ status: val })}>
+          <Select
+            allowClear
+            value={instantFilters?.isActive}
+            onChange={val => setParams({ status: val })}
+          >
             <Option value="active">Active</Option>
             <Option value="inactive">Inactive</Option>
           </Select>

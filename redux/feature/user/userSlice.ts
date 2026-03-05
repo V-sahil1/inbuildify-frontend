@@ -16,8 +16,8 @@ const initialState: UserInitialState = {
   invitedUsers: [],
   status: {
     users: {
-      fetch: Status.IDLE,
-      create: Status.IDLE,
+      fetch: Status.IDLE as Status,
+      create: Status.IDLE as Status,
     },
     invitedUsers: Status.IDLE,
   },

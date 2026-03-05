@@ -47,13 +47,17 @@ class API_ENDPOINTS {
   public static GET_LEAD_BY_ID = (id: string) => `${this.LEAD_BASE}/${id}`;
   public static LEAD_TRANSFER = `${this.LEAD_BASE}/transfer`;
   public static LEAD_CONVERT = `${this.LEAD_BASE}/convert`;
-  public static CONVERT_LEAD_TO_OPPORTUNITY = '/opportunities';
+  public static CONVERT_LEAD_TO_OPPORTUNITY = (id: string) => `${this.LEAD_BASE}/${id}/convert`;
+
   public static CONVERT_LEAD_TO_JOB = `/job`;
   public static LEAD_CONTACT = `/leads-contact`;
   public static LEAD_SOURCE = `/lead-source`;
   public static LEAD_BUSINESS_CONTACT = `/business-contact`;
   public static LEAD_BUSINESS_CONTACT_BY_ID = (id: string) =>
     `${this.LEAD_BUSINESS_CONTACT}/lead/${id}`;
+  public static LEAD_CONTACT_MAP = '/leads-contact-map'
+  public static LEAD_JOB = '/job-form'
+  public static LEAD_INVOICE = '/invoice'
 
   //  Master PricingList
   public static MASTER_PRICE_LIST_CATEGORY = '/category';

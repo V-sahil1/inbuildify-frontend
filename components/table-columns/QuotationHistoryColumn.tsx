@@ -1,8 +1,8 @@
-import { Input } from 'antd';
+import { Input, Select } from 'antd';
 import React, { useEffect } from 'react';
 import StatusSelect from '../common/custom-selects/StatusSelect';
 import { debouncedURL } from '@lib/utils/debounceURL';
-
+const { Option } = Select;
 interface QuotationRecord {
   key: string;
   referenceNo: string;
@@ -13,7 +13,7 @@ interface QuotationRecord {
 }
 
 export const QuotationHistoryColumn = () => {
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
     filtersKey: ['referenceNo', 'customerName', 'propertyAddress', 'quotationStatus', 'leadStatus'],
     shouldSyncURL: false,
   });
@@ -30,6 +30,7 @@ export const QuotationHistoryColumn = () => {
           {' '}
           <span>Reference No</span>{' '}
           <Input
+            value={instantFilters?.referenceNo}
             placeholder="Search Reference No"
             onChange={e => {
               setParams({ referenceNo: e.target.value });
@@ -49,6 +50,7 @@ export const QuotationHistoryColumn = () => {
           {' '}
           <span>Customer Name</span>{' '}
           <Input
+            value={instantFilters?.customerName}
             placeholder="Search Customer Name"
             onChange={e => {
               setParams({ customerName: e.target.value });
@@ -66,6 +68,7 @@ export const QuotationHistoryColumn = () => {
           {' '}
           <span>Property Address</span>{' '}
           <Input
+            value={instantFilters?.propertyAddress}
             placeholder="Search Property Address"
             onChange={e => {
               setParams({ propertyAddress: e.target.value });
@@ -82,6 +85,7 @@ export const QuotationHistoryColumn = () => {
         <div className="flex flex-col gap-1">
           <span>Quotation Status</span>
           <StatusSelect
+            value={instantFilters?.quotationStatus}
             approveOption={true}
             onChange={value => {
               setParams({ quotationStatus: value });
@@ -110,17 +114,18 @@ export const QuotationHistoryColumn = () => {
       title: (
         <div className="flex flex-col gap-1">
           <span>Lead Status</span>
-          <select
+          <Select
             className="border rounded text-sm px-2 py-1 outline-none"
             defaultValue="All"
-            onChange={e => {
-              setParams({ leadStatus: e.target.value });
+            value={instantFilters?.leadStatus}
+            onChange={value => {
+              setParams({ leadStatus: value });
             }}
           >
-            <option value="All">All</option>
-            <option value="Open">Open</option>
-            <option value="Closed Won">Closed Won</option>
-          </select>
+            <Option value="All">All</Option>
+            <Option value="Open">Open</Option>
+            <Option value="Closed Won">Closed Won</Option>
+          </Select>
         </div>
       ),
       dataIndex: 'leadStatus',

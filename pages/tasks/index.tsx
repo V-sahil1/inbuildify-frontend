@@ -18,10 +18,10 @@ const TaskTable: React.FC = () => {
   const [modalOpen, setModalOpen] = useState<'create' | null>(null);
   const [selectedTask, setSelectedTask] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters,instantFilters } = debouncedURL({
     filtersKey: ['name', 'contactName', 'phone', 'dueDate', 'priority', 'status', 'assignedTo'],
   });
-  const { columns, taskSubmit } = TaskColumn(selectedTask, filters, setParams, setModalOpen);
+  const { columns, taskSubmit } = TaskColumn(selectedTask, instantFilters, setParams, setModalOpen);
   const { tasks, pagination } = useAppSelector(state => state.task);
   const PAGE_SIZE = 10;
   const fetchTask = async (page: number = currentPage, limit: number = PAGE_SIZE) => {
