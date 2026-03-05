@@ -3,12 +3,21 @@ import {
   convertLeadToJobThunk,
   convertLeadToOpportunityThunk,
   createBusinessContactThunk,
+  createLeadContactMapThunk,
   createLeadContactThunk,
+  createLeadInvoiceThunk,
+  createLeadJobThunk,
   createLeadSourceThunk,
   createLeadThunk,
   deleteBusinessContactThunk,
+  deleteLeadContactMapThunk,
+  deleteLeadInvoiceThunk,
+  deleteLeadJobThunk,
   deleteLeadSourceThunk,
   getBusinessContactByIdThunk,
+  getLeadContactMapThunk,
+  getLeadInvoiceThunk,
+  getLeadJobThunk,
   getLeadSourcesThunk,
   getLeadThunk,
   getQuotationsByLeadIdThunk,
@@ -17,12 +26,14 @@ import {
   transferLeadThunk,
   updateBusinessContactThunk,
   updateLeadContactThunk,
+  updateLeadJobThunk,
   updateLeadSourceThunk,
   updateLeadThunk,
 } from './leadThunk';
 import { getLeadByIdThunk } from './leadThunk';
 import { InitialState } from './ILeadState';
 import { Status } from '@lib/constants/enum';
+import { updateContact } from '../contacts/contactThunk';
 
 const initialState: InitialState = {
   leads: [],
@@ -32,6 +43,9 @@ const initialState: InitialState = {
     leadById: Status.IDLE,
     leadQuotations: Status.IDLE,
     updateLeadSource: Status.IDLE,
+    leadContact: Status.IDLE,
+    leadJob: Status.IDLE,
+    leadDeposit: Status.IDLE,
   },
   leadSources: [],
   addInstSourceModal: false,
@@ -40,6 +54,8 @@ const initialState: InitialState = {
     contacts: null,
     property: null,
     createdQuotations: { quotations: [] },
+    job: null,
+    invoice: [],
   },
 };
 export const leadSlice = createSlice({
@@ -52,6 +68,8 @@ export const leadSlice = createSlice({
         contacts: null,
         property: null,
         createdQuotations: { quotations: [] },
+        job: null,
+        invoice: [],
       };
     },
     setAddInstSourceModal: (state, action) => {
@@ -125,8 +143,10 @@ export const leadSlice = createSlice({
       state.leadDetail = {
         // ...payload,
         lead: payload,
-        contacts: [],
+        contacts: null,
         property: [],
+        job: null,
+        invoice: [],
         createdQuotations: { quotations: [] },
       };
       state.status.leadById = Status.SUCCESS;
@@ -164,6 +184,8 @@ export const leadSlice = createSlice({
         lead: null,
         contacts: null,
         property: null,
+        job: null,
+        invoice: [],
         createdQuotations: { quotations: [] },
       };
     });
@@ -222,24 +244,24 @@ export const leadSlice = createSlice({
     builder.addCase(updateLeadContactThunk.fulfilled, (state, action) => {
       const { payload } = action;
       if (!state.leadDetail.contacts) {
-        state.leadDetail.contacts = [];
+        // state.leadDetail.contacts = [];
       }
-      state.leadDetail.contacts = state.leadDetail.contacts.map(contact => {
-        if (contact.leadsContactId === payload.leadsContactId) {
-          return {
-            ...payload,
-          };
-        }
-        return contact;
-      });
+      // state.leadDetail.contacts = state.leadDetail.contacts.map(contact => {
+      //   if (contact.leadsContactId === payload.leadsContactId) {
+      //     return {
+      //       ...payload,
+      //     };
+      //   }
+      //   return contact;
+      // });
     });
 
     builder.addCase(createLeadContactThunk.fulfilled, (state, action) => {
       const { payload } = action;
       if (!state.leadDetail.contacts) {
-        state.leadDetail.contacts = [];
+        // state.leadDetail.contacts = [];
       }
-      state.leadDetail.contacts.unshift(payload);
+      // state.leadDetail.contacts.unshift(payload);
     });
 
     builder.addCase(getLeadSourcesThunk.pending, state => {
@@ -345,6 +367,122 @@ export const leadSlice = createSlice({
         action.meta.arg.contactType === 'financer' ? null : state.leadDetail.lead.financer;
       state.leadDetail.lead.company =
         action.meta.arg.contactType === 'company' ? null : state.leadDetail.lead.company;
+    });
+
+    //lead contact map
+    builder.addCase(createLeadContactMapThunk.pending, state => {
+      state.status.leadContact = Status.PENDING;
+    });
+    builder.addCase(createLeadContactMapThunk.fulfilled, (state, action) => {
+      state.leadDetail.contacts = action.payload || null;
+      state.status.leadContact = Status.SUCCESS;
+    });
+    builder.addCase(createLeadContactMapThunk.rejected, state => {
+      state.status.leadContact = Status.ERROR;
+    });
+    builder.addCase(getLeadContactMapThunk.pending, state => {
+      state.status.leadContact = Status.PENDING;
+    });
+    builder.addCase(getLeadContactMapThunk.fulfilled, (state, action) => {
+      state.leadDetail.contacts = action.payload || null;
+      state.status.leadContact = Status.SUCCESS;
+    });
+    builder.addCase(getLeadContactMapThunk.rejected, state => {
+      state.status.leadContact = Status.ERROR;
+    });
+    builder.addCase(updateContact.pending, state => {
+      state.status.leadContact = Status.PENDING;
+    });
+    builder.addCase(updateContact.fulfilled, (state, action) => {
+      state.leadDetail.contacts = { ...state.leadDetail.contacts, ...action.payload };
+      state.status.leadContact = Status.SUCCESS;
+    });
+    builder.addCase(updateContact.rejected, state => {
+      state.status.leadContact = Status.ERROR;
+    });
+    builder.addCase(deleteLeadContactMapThunk.pending, state => {
+      state.status.leadContact = Status.PENDING;
+    });
+    builder.addCase(deleteLeadContactMapThunk.fulfilled, state => {
+      state.leadDetail.contacts = null;
+      state.status.leadContact = Status.SUCCESS;
+    });
+    builder.addCase(deleteLeadContactMapThunk.rejected, state => {
+      state.status.leadContact = Status.ERROR;
+    });
+
+    //lead job
+    builder.addCase(createLeadJobThunk.pending, state => {
+      state.status.leadJob = Status.PENDING;
+    });
+    builder.addCase(createLeadJobThunk.fulfilled, (state, action) => {
+      state.leadDetail.job = action.payload;
+      state.status.leadJob = Status.SUCCESS;
+    });
+    builder.addCase(createLeadJobThunk.rejected, state => {
+      state.status.leadJob = Status.ERROR;
+    });
+    builder.addCase(getLeadJobThunk.pending, state => {
+      state.status.leadJob = Status.PENDING;
+    });
+    builder.addCase(getLeadJobThunk.fulfilled, (state, action) => {
+      state.leadDetail.job = action.payload;
+      state.status.leadJob = Status.SUCCESS;
+    });
+    builder.addCase(getLeadJobThunk.rejected, state => {
+      state.status.leadJob = Status.ERROR;
+    });
+    builder.addCase(updateLeadJobThunk.pending, state => {
+      state.status.leadJob = Status.PENDING;
+    });
+    builder.addCase(updateLeadJobThunk.fulfilled, (state, action) => {
+      state.leadDetail.job = action.payload;
+      state.status.leadJob = Status.SUCCESS;
+    });
+    builder.addCase(updateLeadJobThunk.rejected, state => {
+      state.status.leadJob = Status.ERROR;
+    });
+    builder.addCase(deleteLeadJobThunk.pending, (state, action) => {
+      state.status.leadJob = Status.PENDING;
+    });
+
+    builder.addCase(deleteLeadJobThunk.fulfilled, (state, action) => {
+      state.leadDetail.job = null;
+      state.status.leadJob = Status.SUCCESS;
+    });
+    builder.addCase(deleteLeadJobThunk.rejected, (state, action) => {
+      state.status.leadJob = Status.ERROR;
+    });
+
+    //lead invoice
+    builder.addCase(createLeadInvoiceThunk.pending, (state, action) => {
+      state.status.leadDeposit = Status.PENDING;
+    });
+    builder.addCase(createLeadInvoiceThunk.fulfilled, (state, action) => {
+      state.status.leadDeposit = Status.SUCCESS;
+      state.leadDetail.invoice.push(action.payload);
+    });
+    builder.addCase(createLeadInvoiceThunk.rejected, (state, action) => {
+      state.status.leadDeposit = Status.ERROR;
+    });
+    builder.addCase(getLeadInvoiceThunk.pending, (state, action) => {
+      state.status.leadDeposit = Status.PENDING;
+    });
+    builder.addCase(getLeadInvoiceThunk.fulfilled, (state, action) => {
+      state.status.leadDeposit = Status.SUCCESS;
+      state.leadDetail.invoice = action.payload;
+    });
+    builder.addCase(getLeadInvoiceThunk.rejected, (state, action) => {
+      state.status.leadDeposit = Status.ERROR;
+    });
+    builder.addCase(deleteLeadInvoiceThunk.pending, (state, action) => {
+      state.status.leadDeposit = Status.PENDING;
+    });
+    builder.addCase(deleteLeadInvoiceThunk.fulfilled, (state, action) => {
+      state.status.leadDeposit = Status.SUCCESS;
+    });
+    builder.addCase(deleteLeadInvoiceThunk.rejected, (state, action) => {
+      state.status.leadDeposit = Status.ERROR;
     });
   },
 });

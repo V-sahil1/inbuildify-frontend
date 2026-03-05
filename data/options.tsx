@@ -21,13 +21,13 @@ import {
 import { MenuProps } from 'antd';
 
 export const paymentOptions = [
-  { label: 'Cash', value: 'Cash' },
-  { label: 'Cheque', value: 'Cheque' },
+  { label: 'Cash', value: 'cash' },
+  { label: 'Cheque', value: 'cheque' },
   {
     label: 'Personal - Online Transfer',
-    value: 'Personal - Online Transfer',
+    value: 'personal_online_transfer',
   },
-  { label: 'Loan - Online Transfer', value: 'Loan - Online Transfer' },
+  { label: 'Loan - Online Transfer', value: 'loan_online_transfer' },
   { label: 'EFTPOS', value: 'EFTPOS' },
 ];
 

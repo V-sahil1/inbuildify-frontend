@@ -35,14 +35,13 @@ const DepositModel = ({
   title = 'Capture Deposit',
 }: DepositModelProps) => {
   const [form] = Form.useForm();
-  const [isPaid, setIsPaid] = useState<boolean>(false);
+  const isInvoice = Form.useWatch('generateInvoice', form);
 
   // Reset form when initialValues or visibility changes
   useEffect(() => {
     if (visible) {
       const values = initialValues || { isPaid: false };
       const isPaidValue = !!values.isPaid;
-      setIsPaid(isPaidValue);
 
       // Ensure date is properly converted to Dayjs
       const formattedValues: any = {
@@ -85,40 +84,53 @@ const DepositModel = ({
     >
       <Form form={form} layout="vertical" onFinish={onFormFinish} initialValues={{ isPaid: false }}>
         <Form.Item
-          label="Deposit Amount"
-          name="amount"
+          label={isInvoice ? 'Invoice Amount' : 'Deposit Amount'}
+          name={isInvoice ? 'invoiceAmount' : 'depositeAmount'}
           rules={[{ required: true, message: 'Please enter deposit amount' }]}
         >
           <Input prefix={'$'} type="number" placeholder="Enter amount" />
         </Form.Item>
 
         <Form.Item
-          label="Deposit Date"
-          name="date"
+          label={isInvoice ? 'Invoice Date' : 'Deposit Date'}
+          name={isInvoice ? 'invoiceDate' : 'depositeDate'}
           rules={[{ required: true, message: 'Please select deposit date' }]}
         >
           <DatePicker style={{ width: '100%' }} suffixIcon={<IconCalendar />} format="DD/MM/YYYY" />
         </Form.Item>
 
-        {isPaid && (
-          <Form.Item
-            label="Payment Method"
-            name="paymentMethod"
-            rules={[{ required: true, message: 'Please select payment method' }]}
-          >
-            <Select placeholder="Select payment method">
-              {paymentOptions.map(option => (
-                <Option key={option.value} value={option.value}>
-                  {option.label}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
+        {isInvoice && (
+          <>
+            <Form.Item
+              label="Due Date"
+              name="dueDate"
+              rules={[{ required: true, message: 'Please select deposit date' }]}
+            >
+              <DatePicker
+                style={{ width: '100%' }}
+                suffixIcon={<IconCalendar />}
+                format="DD/MM/YYYY"
+              />
+            </Form.Item>
+          </>
         )}
+        <Form.Item
+          label="Payment Method"
+          name="paymentMethod"
+          rules={[{ required: true, message: 'Please select payment method' }]}
+        >
+          <Select placeholder="Select payment method">
+            {paymentOptions.map(option => (
+              <Option key={option.value} value={option.value}>
+                {option.label}
+              </Option>
+            ))}
+          </Select>
+        </Form.Item>
 
         <Form.Item
           label="Reference Number"
-          name="referenceNumber"
+          name="transactionNo"
           rules={[{ required: true, message: 'Please enter reference number' }]}
         >
           <Input placeholder="Enter reference number" />
@@ -128,16 +140,8 @@ const DepositModel = ({
           <Input.TextArea rows={3} placeholder="Add any additional notes" />
         </Form.Item>
 
-        <Form.Item name="isPaid" label="Send Invoice to Customer" valuePropName="checked">
-          <Switch
-            checked={isPaid}
-            onChange={checked => {
-              setIsPaid(checked);
-              if (!checked) {
-                form.setFieldsValue({ paymentMode: undefined });
-              }
-            }}
-          />
+        <Form.Item name="generateInvoice" label="Send Invoice to Customer" valuePropName="checked">
+          <Switch />
         </Form.Item>
       </Form>
     </Modal>

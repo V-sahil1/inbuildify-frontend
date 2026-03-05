@@ -187,17 +187,17 @@ const ContactListing = () => {
 
                     <div className="flex items-center gap-2 text-gray-600 text-sm">
                       <IconMapPin size={18} />
-                      <span>{contact.addressLine1 || 'No address provided'}</span>
+                      <span>{contact?.address?.addressLine1 || 'No address provided'}</span>
                     </div>
 
                     <div className="flex items-center gap-2 text-gray-800 font-medium text-sm">
                       <IconPhone size={18} />
-                      <span>{contact.phone || 'No phone available'}</span>
+                      <span>{contact?.phone || 'No phone available'}</span>
                     </div>
 
                     <div className="flex items-center gap-2 text-gray-700 text-sm">
                       <IconMail size={18} />
-                      <span>{contact.email || 'No email available'}</span>
+                      <span>{contact?.email || 'No email available'}</span>
                     </div>
                   </div>
 

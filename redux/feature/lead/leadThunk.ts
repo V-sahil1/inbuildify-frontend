@@ -3,7 +3,17 @@ import api from '@lib/constants/api';
 import API_ENDPOINTS from '@lib/constants/apiEndpoints';
 import { ApiResponse } from '../auth/IAuthState';
 // import { PropertyDetails } from "data/types";
-import { ILeadContact, LeadSourceRequest, LeadSource, Lead, BusinessContact } from './ILeadState';
+import {
+  ILeadContact,
+  LeadSourceRequest,
+  LeadSource,
+  Lead,
+  BusinessContact,
+  LeadContact,
+  ILeadJob,
+  InvoiceDetails,
+} from './ILeadState';
+import { leadDetails } from 'data/sampleData';
 export interface createLeadPayload {
   name: string;
   email?: string;
@@ -124,7 +134,7 @@ export const leadConvertThunk = createAsyncThunk(
   'lead/leadConvert',
   async (leadId: string, { rejectWithValue }) => {
     try {
-      const response: ApiResponse<any> = await api.put(`${API_ENDPOINTS.LEAD_CONVERT}/${leadId}`);
+      const response: ApiResponse<any> = await api.post(API_ENDPOINTS.LEAD_CONVERT(leadId));
       return { data: response.data, leadId };
     } catch (err: any) {
       return rejectWithValue(err?.message);
@@ -163,10 +173,11 @@ export const updatePropertyDetailsThunk = createAsyncThunk(
 
 export const convertLeadToOpportunityThunk = createAsyncThunk(
   'lead/convertLeadToOpportunity',
-  async (leadId: string, { rejectWithValue }) => {
+  async (payload: { leadId: string; opportunityNotes: string }, { rejectWithValue }) => {
     try {
       const response: ApiResponse<any> = await api.post(
-        `${API_ENDPOINTS.CONVERT_LEAD_TO_OPPORTUNITY}/${leadId}`
+        API_ENDPOINTS.CONVERT_LEAD_TO_OPPORTUNITY(payload.leadId),
+        { data: { opportunityNotes: payload.opportunityNotes } }
       );
       return response.data;
     } catch (err: any) {
@@ -344,6 +355,151 @@ export const deleteBusinessContactThunk = createAsyncThunk(
     try {
       const response: ApiResponse = await api.delete(
         `${API_ENDPOINTS.LEAD_BUSINESS_CONTACT}/${payload.id}`
+      );
+      return;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+// lead business contact
+
+export const createLeadContactMapThunk = createAsyncThunk(
+  'leadContactMap/create',
+  async (payload: { leadsId: string; contactId: string }, { rejectWithValue }) => {
+    try {
+      const response: ApiResponse<LeadContact> = await api.post(API_ENDPOINTS.LEAD_CONTACT_MAP, {
+        data: payload,
+      });
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+export const getLeadContactMapThunk = createAsyncThunk(
+  'leadContactMap/get',
+  async (leadsId: string, { rejectWithValue }) => {
+    try {
+      const response: ApiResponse<LeadContact> = await api.get(
+        API_ENDPOINTS.LEAD_CONTACT_MAP + '/' + leadsId
+      );
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+export const deleteLeadContactMapThunk = createAsyncThunk(
+  'leadContactMap/delete',
+  async (id:string, { rejectWithValue }) => {
+    try {
+      const response: ApiResponse = await api.delete(
+        `${API_ENDPOINTS.LEAD_CONTACT_MAP}/${id}`
+      );
+      return;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+// lead job
+
+export const createLeadJobThunk = createAsyncThunk(
+  'leadJob/create',
+  async (payload: ILeadJob, { rejectWithValue }) => {
+    try {
+      const response: ApiResponse<ILeadJob> = await api.post(API_ENDPOINTS.LEAD_JOB, {
+        data: payload,
+      });
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+export const getLeadJobThunk = createAsyncThunk(
+  'leadJob/get',
+  async (leadsId: string, { rejectWithValue }) => {
+    try {
+      const response: ApiResponse<ILeadJob> = await api.get(API_ENDPOINTS.LEAD_JOB + '/' + leadsId);
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+export const updateLeadJobThunk = createAsyncThunk(
+  'leadJob/update',
+  async (payload: { data: Partial<ILeadJob>; id: string }, { rejectWithValue }) => {
+    try {
+      const response: ApiResponse<ILeadJob> = await api.put(
+        `${API_ENDPOINTS.LEAD_JOB}/${payload.id}`,
+        {
+          data: payload.data,
+        }
+      );
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+export const deleteLeadJobThunk = createAsyncThunk(
+  'leadJob/delete',
+  async (id:string, { rejectWithValue }) => {
+    try {
+      const response: ApiResponse = await api.delete(`${API_ENDPOINTS.LEAD_JOB}/${id}`);
+      return;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+// lead deposit
+
+export const createLeadInvoiceThunk = createAsyncThunk(
+  'leadInvoice/create',
+  async (payload: InvoiceDetails, { rejectWithValue }) => {
+    try {
+      const response: ApiResponse<InvoiceDetails> = await api.post(API_ENDPOINTS.LEAD_INVOICE, {
+        data: payload,
+      });
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+export const getLeadInvoiceThunk = createAsyncThunk(
+  'leadInvoice/get',
+  async (leadsId: string, { rejectWithValue }) => {
+    try {
+      const response: ApiResponse<InvoiceDetails[]> = await api.get(
+        API_ENDPOINTS.LEAD_INVOICE_BY_ID + '/' + leadsId
+      );
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+export const deleteLeadInvoiceThunk = createAsyncThunk(
+  'leadInvoice/delete',
+  async (leadId: string, { rejectWithValue }) => {
+    try {
+      const response: ApiResponse = await api.delete(
+        `${API_ENDPOINTS.LEAD_INVOICE_BY_ID}/${leadId}`
       );
       return;
     } catch (err) {

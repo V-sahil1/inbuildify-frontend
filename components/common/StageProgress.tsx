@@ -368,7 +368,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
             if (selectedAction === 'delete') {
               handleDelete(lead?.lead?.leadId);
             } else if (selectedAction === 'converttolead') {
-              handleConvertToLead(lead?.lead?.leadId);
+              handleConvertToLead(lead?.lead?.leadsId);
             }
           }}
           message={

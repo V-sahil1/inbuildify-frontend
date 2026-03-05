@@ -1,6 +1,7 @@
-import { LeadDetails, PropertyDetails } from 'data/types';
+import { PropertyDetails } from 'data/types';
 import { QuotationResponse } from '../quotation/IQuotationState';
 import { Status } from '@lib/constants/enum';
+import { IAddress } from '../contacts/contactState';
 
 export interface InitialState {
   leads: Lead[];
@@ -10,17 +11,23 @@ export interface InitialState {
     leadById: Status;
     leadQuotations: Status;
     updateLeadSource: Status;
+    leadContact: Status;
+    leadJob: Status;
+    leadDeposit: Status;
   };
   leadSources: LeadSource[];
   addInstSourceModal: boolean;
   leadDetail: {
     lead: Lead | null;
-    contacts: ILeadContact[] | null;
+    contacts: LeadContact | null;
     property: any | null;
     createdQuotations: { quotations: QuotationResponse[] };
+    job: ILeadJob | null;
+    invoice: InvoiceDetails[];
   };
 }
 export interface ILead {
+  //old
   slugId?: string;
   leadId: string;
   builderId: string;
@@ -53,6 +60,7 @@ export interface IDNamePair {
   name: string;
 }
 export interface ILeadContact {
+  //old
   leadId?: string;
   leadsContactId: string;
   name: string;
@@ -105,44 +113,52 @@ export interface Lead {
   notes: string;
   sendLetter: boolean;
   leadSourceId: string;
-  status: "New" | "Contacted" | "Qualified" | "Lost" | string;
+  status: 'New' | 'Contacted' | 'Qualified' | 'Lost' | string;
   outcome: string | null;
-  rating: "Hot" | "Warm" | "Cold" | string;
-  land: "Yes" | "No" | string;
-  finance: "Yes" | "No" | string;
-  faceToFace: "Yes" | "No" | string;
+  rating: 'Hot' | 'Warm' | 'Cold' | string;
+  land: 'Yes' | 'No' | string;
+  finance: 'Yes' | 'No' | string;
+  faceToFace: 'Yes' | 'No' | string;
   purpose: string;
   clientTypeId: string;
-  forcastClose: string; 
+  forcastClose: string;
   buildBudget: string;
   regionId: string;
-  prelimAgreement: string; 
+  prelimAgreement: string;
   clientProfile: string;
   hLBudget: string;
   assigneeId: string;
   createdBy: string;
   updatedBy: string;
-  createdAt: string; 
-  updatedAt: string; 
+  createdAt: string;
+  updatedAt: string;
   leadSourceName: string;
   clientTypeName: string;
-  stateName: string;
+  regionName: string;
   assigneeName: string;
   createdByName: string;
   updatedByName: string;
-  leadsContactId?: string // todo add
+  leadsContactId?: string; // todo add
   houseLandPackage: string;
   company: BusinessContact;
   conveyancer: BusinessContact;
   mortgageBroker: BusinessContact;
   financer: BusinessContact;
-  houseLandPackageId?: string
+  houseLandPackageId?: string;
+  houseLandPackageDetails: {
+    houseLandPackageId: string;
+    title: string;
+    lotId: string | null;
+    facadeId: string | null;
+    floorPlanId: string | null;
+    attachFiles: string[] | null;
+  };
 }
 
 export interface BusinessContact {
   businessContactId?: string;
   leadsId: string;
-  contactType?: "company" | "conveyancer" | "mortgage_broker" | "financer";
+  contactType?: 'company' | 'conveyancer' | 'mortgage_broker' | 'financer';
   name?: string;
   email?: string;
   phone?: string;
@@ -154,6 +170,114 @@ export interface BusinessContact {
   stateId?: string | null;
   abnNumber?: string;
   acnNumber?: string;
-  createdAt?: string; 
+  createdAt?: string;
   updatedAt?: string;
 }
+
+export type LeadContact = {
+  id: string;
+  leadsId: string;
+  contactId: string;
+  usersId: string;
+  name: string;
+  email: string;
+  phone: string;
+  secondaryPhone: string | null;
+  remark: string | null;
+  roleId: string;
+  addressId: string;
+  hasLogin: boolean;
+  isActive: boolean;
+  address: IAddress;
+  contactCreatedAt: string;
+  contactUpdatedAt: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ILeadJob = {
+  jobFormId:string;
+  leadsId: string;
+  streetName: string;
+  landDeveloper: string;
+  council: string;
+  titleVolume: string;
+  folio: string;
+  planSubdivision: string;
+  siteFall: string;
+  existingTree: boolean;
+  driveawayLocation: string;
+  anySewerTie: boolean;
+  easements: boolean;
+  buildupAreaEasements: boolean;
+  buildZone: string;
+  storyId: string;
+  finishedSurfaceM: number;
+  existingSurfaceM: number;
+  filledAreaFailM: number;
+  maxFillLocation: string;
+  maxFinishedSurfaceM: number;
+  minFinishedSurfaceM: number;
+  engineeringFailM: number;
+  failType: string;
+  ceilingHeight: number;
+  eavesLocation: string;
+  lotType: string;
+  siteCoverageAllowed: string;
+  eavesSize: string;
+  eavesReturn: string;
+  roofCovering: string;
+  roofPitch: string;
+  flatRoofPitch: string;
+  parapetWall: string;
+  singleStory: string;
+  doubleStoryGf: string;
+  doubleStoryFf: string;
+  wallOverGarage: string;
+  wallOverLowerRoof: string;
+  allElectric: boolean;
+  typeOfCooling: string;
+  garageDoorType: string;
+  connection: string;
+  recycledWater: boolean;
+  extraRequirement: string;
+  threePhase: boolean;
+  driveway: string;
+  frontWall: string;
+  betweenGarageBuilding: string;
+  garageSide: string;
+  otherSide: string;
+  rear: string;
+  allowedPorchEncroachment: string;
+  boundryBuild: boolean;
+  boundryConstruction: boolean;
+  doubleStoryFrontWall: string;
+  doubleStoryGarageSide: string;
+  doubleStoryOtherSide: string;
+  doubleStoryRear: string;
+  doubleStoryBalconyEncroachment: string;
+  raisedPorchFacade: boolean;
+  parapetWallsPitchRoof: boolean;
+  parapetWallsTrayDeckRoof: boolean;
+  conceptInspiration: boolean;
+  planSubdivisionEngineering: boolean;
+  memorandumCommonProvisions: boolean;
+  developerGuidelines: boolean;
+  contactForSale: boolean;
+  variationalList: boolean;
+  specialJobNotes: string;
+};
+
+export type InvoiceDetails = {
+  leadsId: string;
+  generateInvoice: boolean;
+  invoiceDate: string;
+  dueDate: string;
+  invoiceAmount: string;
+  // Optional deposit fields
+  depositeDate?: string;
+  depositeAmount?: string;
+  paymentMethod?: string;
+  transactionNo?: string;
+  description: string;
+};

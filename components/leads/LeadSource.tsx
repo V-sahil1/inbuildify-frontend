@@ -136,7 +136,7 @@ export const LeadSource = () => {
         <EditableField
           label="Lead Source"
           name="leadSourceId"
-          value={leadDetail.lead?.leadSourceId}
+          value={leadDetail.lead?.leadSourceName}
           rules={leadSourceRules}
           isleadEditing={isLeadEditing.leadSource}
           setIsLeadEditing={setIsLeadEditing}
@@ -228,7 +228,7 @@ export const LeadSource = () => {
         <EditableField
           label="Client Type"
           name="clientTypeId"
-          value={leadDetail?.lead?.clientTypeId}
+          value={leadDetail?.lead?.clientTypeName}
           type="Select"
           options={clientTypeOptions}
           isleadEditing={isLeadEditing.clientTypeId}
@@ -259,7 +259,7 @@ export const LeadSource = () => {
                 <IconCirclePlus /> House and Land Package
               </button>
             </HouseLandPopover>
-            <p className="text-sm text-font-color">{leadDetail?.lead?.houseLandPackageId}</p>
+            <p className="text-sm text-font-color">{leadDetail?.lead?.houseLandPackageDetails?.title || ''}</p>
           </div>
 
           <div>
@@ -385,7 +385,7 @@ export const LeadSource = () => {
         <EditableField
           label="Region"
           name="regionId"
-          value={leadDetail?.lead?.regionId}
+          value={leadDetail?.lead?.regionName}
           type="Select"
           options={stateOptions}
           isleadEditing={isLeadEditing.regionId}

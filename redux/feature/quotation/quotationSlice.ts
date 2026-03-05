@@ -2,7 +2,7 @@ import { PropertyDetails } from 'data/types';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Status } from '@lib/constants/enum';
 import { createQuotation, getQuotationVersionById } from './quotationThunk';
-import { ILeadContact } from '../lead/ILeadState';
+import { ILeadContact, LeadContact } from '../lead/ILeadState';
 import { Package } from '../package/IPackageState';
 import { IPriceListItem } from '../masterPriceList/iMasterPriceListState';
 
@@ -63,7 +63,7 @@ const quotationSlice = createSlice({
       state.items = [];
       state.package = null;
     },
-    setQuotationContact(state, action: PayloadAction<ILeadContact | null>) {
+    setQuotationContact(state, action: PayloadAction<LeadContact | null>) {
       state.contact = action.payload as any;
     },
     setQuotationProperty(state, action: PayloadAction<PropertyDetails | null>) {

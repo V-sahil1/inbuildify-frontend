@@ -21,7 +21,9 @@ const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({ visible, onCancel, 
   const handleConvert = async () => {
     try {
       setLoading(true);
-      const res = await dispatch(convertLeadToOpportunityThunk(leadId)).unwrap();
+      const res = await dispatch(
+        convertLeadToOpportunityThunk({ leadId, opportunityNotes: form.getFieldValue('notes') })
+      ).unwrap();
       if (res.leadId) {
         message.success('Lead converted to opportunity successfully');
       }

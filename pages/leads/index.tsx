@@ -32,7 +32,7 @@ const LeadPage: React.FC = () => {
   const { leads } = useAppSelector(state => state.lead);
   const { leads: leadLoading } = useAppSelector(state => state.lead.status);
   const dispatch = useAppDispatch();
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters,instantFilters } = debouncedURL({
     filtersKey: [
       'refrenceId',
       'name',
@@ -104,7 +104,7 @@ const LeadPage: React.FC = () => {
         <div>
           <span>Refrence ID</span>
           <Input
-            value={filters.refrenceId}
+            value={instantFilters.refrenceId}
             onChange={e => setParams({ refrenceId: e.target.value })}
           />
         </div>
@@ -117,7 +117,7 @@ const LeadPage: React.FC = () => {
       title: (
         <div>
           <span>Name</span>
-          <Input value={filters.name} onChange={e => setParams({ name: e.target.value })} />
+          <Input value={instantFilters.name} onChange={e => setParams({ name: e.target.value })} />
         </div>
       ),
       dataIndex: 'name',
@@ -129,7 +129,7 @@ const LeadPage: React.FC = () => {
         <div>
           <span>Property Address</span>
           <Input
-            value={filters.propertyAddress}
+            value={instantFilters.propertyAddress}
             onChange={e =>
               setParams({
                 propertyAddress: e.target.value,
@@ -146,7 +146,7 @@ const LeadPage: React.FC = () => {
       title: (
         <div>
           <span>Source</span>
-          <SourceSelect value={filters.source} onChange={value => setParams({ source: value })} />
+          <SourceSelect value={instantFilters.source} onChange={value => setParams({ source: value })} />
         </div>
       ),
       dataIndex: 'leadSource',
@@ -157,7 +157,7 @@ const LeadPage: React.FC = () => {
       title: (
         <div className="flex flex-col">
           <span>Rating</span>
-          <RatingSelect value={filters.rating} onChange={value => setParams({ rating: value })} />
+          <RatingSelect value={instantFilters.rating} onChange={value => setParams({ rating: value })} />
         </div>
       ),
       dataIndex: 'rating',
@@ -211,7 +211,7 @@ const LeadPage: React.FC = () => {
         <div>
           <span>Assignee</span>
           <AssigneeSelect
-            value={filters.assignedTo}
+            value={instantFilters.assignedTo}
             onChange={value => setParams({ assignedTo: value })}
           />
         </div>

@@ -318,7 +318,7 @@ const LeadDetailsForm: React.FC<LeadDetailsFormProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full items-center">
                   <div className="col-span-1">
                     <h3 className="font-semibold text-[16px]">{initialValues?.name}</h3>
-                    <p className="text-gray-600 text-sm">{initialValues?.address}</p>
+                    <p className="text-gray-600 text-sm">{initialValues?.address?.addressLine1}</p>
                   </div>
 
                   <div className="col-span-1">
