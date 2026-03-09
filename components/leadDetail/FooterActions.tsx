@@ -13,7 +13,6 @@ import { ConfirmationContentModal } from '../common/ConfirmationContentModal';
 
 interface FooterActionsProps {
   id?: string;
-  expiryDate?: string;
   total: number;
   quoteVersionId?: string;
   isEditMode: boolean;
@@ -24,11 +23,12 @@ interface FooterActionsProps {
   loading: boolean;
   previewLoading: boolean;
   disableAction: boolean;
+  hasUnsavedChanges?: boolean;
+  onSaveChanges?: () => void;
 }
 
 const FooterActions: React.FC<FooterActionsProps> = ({
   id,
-  expiryDate,
   total,
   quoteVersionId,
   isEditMode,
@@ -39,6 +39,8 @@ const FooterActions: React.FC<FooterActionsProps> = ({
   loading,
   previewLoading,
   disableAction,
+  hasUnsavedChanges = false,
+  onSaveChanges,
 }) => {
   const [approveOpen, setApproveOpen] = useState(false);
   const [sketchNum, setSketchNum] = useState('');
@@ -159,10 +161,17 @@ const FooterActions: React.FC<FooterActionsProps> = ({
         </Space>
       </div>
 
-      <div className="flex items-center gap-8">
-        {/* <div className="text-sm">
-            Expiry date: <span className="font-medium">{expiryDate}</span>
-          </div> */}
+      <div className="flex items-center gap-4">
+        {hasUnsavedChanges && onSaveChanges && (
+          <Button
+            type="primary"
+            icon={<IconDeviceFloppy size={16} />}
+            onClick={onSaveChanges}
+            loading={loading}
+          >
+            Save Changes
+          </Button>
+        )}
         <div className="text-2xl font-bold">
           Total: <span className="text-green-600">${total.toLocaleString()}</span>
         </div>

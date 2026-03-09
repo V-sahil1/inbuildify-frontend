@@ -1,197 +1,89 @@
-import { useAppDispatch, useAppSelector } from '@hooks/redux';
-// import { enumArrayToOptions } from "@lib/utils/enumArrayToOptionsConvert";
+import { useAppDispatch } from '@hooks/redux';
 import { fetchFloorPlans } from '@redux/feature/floorPlan/floorPlanThunk';
-import { setSelectedFilters } from '@redux/feature/floorPlan/floorPlanSlice';
-import { useEffect, useCallback, useRef } from 'react';
-import { setSelectedFilters as setFacadeFilters } from '@redux/feature/facade/facadeSlice';
+import { useEffect } from 'react';
 import { getFacades } from '@redux/feature/facade/facadeThunk';
 import { fetchPackages } from '@redux/feature/package/packageThunk';
-import { setSelectedFilters as setPackageFilters } from '@redux/feature/package/packageSlice';
-import {
-  resetAllCategoriesIsExpanded,
-  setSelectedFilters as setMplFilters,
-} from '@redux/feature/masterPriceList/masterPriceListSlice';
-import {
-  clearSelectedFloorplanFacadePackageReducer,
-  setSelectedFilters as setQuotationFilters,
-} from '@redux/feature/quotation/quotationSlice';
 import { message, Select } from 'antd';
-import { Status } from '@lib/constants/enum';
-import { getDwellingTypes, getRanges } from '@redux/feature/types/typesThunk';
 import NoDataMessage from '../common/NoDataMessage';
 import SystemRoutes from '@lib/constants/Routes';
 import useDwellingAndRangeHook from '@hooks/useDwellingAndRangeHook';
-
+import { setSelectedFilters } from '@redux/feature/quotation/quotationSlice';
+import { useLocationAndTimezoneHook } from '@hooks/useLocationAndTimezoneHook';
 interface QuotationFilterProps {
   isReadOnly?: boolean;
   onFilterChange?: () => void;
+  setParams?: (value: Record<string, string>) => void;
+  filters?: Record<string, string>;
+  instantFilters?: Record<string, string>;
 }
 
 const QuotationFilter: React.FC<QuotationFilterProps> = ({
   isReadOnly = false,
   onFilterChange,
+  setParams,
+  filters,
+  instantFilters,
 }) => {
   const dispatch = useAppDispatch();
-  const { range, dwellingType, status } = useAppSelector(state => state.types);
-  const { rangeOptions, dwellingTypeOptions } = useDwellingAndRangeHook({type : ['range','dwellingType']});
-  const { selectedFilters: selectedQuotationFilters } = useAppSelector(state => state.quotation);
-  const { selectedFilters: selectedPackageFilters } = useAppSelector(state => state.package);
-  const initialLoad = useRef(true);
+  const { rangeOptions, dwellingTypeOptions } = useDwellingAndRangeHook({
+    type: ['range', 'dwellingType'],
+  });
+  const { locationOptions } = useLocationAndTimezoneHook({ type: 'location' });
+
+  const newFilters = {
+    dwelling_type_id: filters?.dwellingType || undefined,
+    range_id: filters?.range || undefined,
+  };
 
   useEffect(() => {
-    const fetchTypesData = async () => {
-      try {
-        if (status?.range === Status.IDLE) {
-          await dispatch(getRanges()).unwrap();
-        }
-        if (status?.dwellingType === Status.IDLE) {
-          await dispatch(getDwellingTypes()).unwrap();
-        }
-      } catch (error) {
-        message.error(error);
-      }
-    };
-    fetchTypesData();
-  }, [dispatch]);
+    handleFetchFloorPlan();
+    handleFetchFacade();
+    handleFetchPackage();
+  }, [filters]);
 
-  useEffect(() => {
-    if (initialLoad.current && selectedQuotationFilters) {
-      initialLoad.current = false;
-
-      if (selectedQuotationFilters.dwelling_type) {
-        handleFloorPlanDwellingTypeChange(selectedQuotationFilters.dwelling_type);
-        handleFacadeDwellingTypeChange(selectedQuotationFilters.dwelling_type);
-      }
-
-      if (selectedQuotationFilters.range) {
-        handleRangeChange(selectedQuotationFilters.range);
-      }
-      handlePackage();
+  const handleFetchFloorPlan = async () => {
+    try {
+      await dispatch(fetchFloorPlans(newFilters)).unwrap();
+    } catch (error) {
+      message.error('Failed to fetch package data');
     }
-  }, [selectedQuotationFilters]);
+  };
 
-  const handleRangeChange = useCallback(
-    (value: string | undefined) => {
-      const newFilters = { ...selectedQuotationFilters, range: value || '' };
-      dispatch(setSelectedFilters(newFilters));
-      dispatch(setMplFilters({ range: value || '' }));
-      dispatch(setQuotationFilters(newFilters));
+  const handleFetchFacade = async () => {
+    try {
+      await dispatch(getFacades(newFilters)).unwrap();
+    } catch (error) {
+      message.error('Failed to fetch package data');
+    }
+  };
 
-      if (newFilters.range || newFilters.dwelling_type) {
-        dispatch(fetchFloorPlans(newFilters));
-      } else {
-        dispatch(fetchFloorPlans(undefined));
-      }
-    },
-    [dispatch, selectedQuotationFilters]
-  );
-
-  const handleDwellingTypeChange = useCallback(
-    (value: string | undefined) => {
-      const newFilters = {
-        ...selectedQuotationFilters,
-        dwelling_type: value || '',
-      };
-      dispatch(setSelectedFilters(newFilters));
-      dispatch(
-        setMplFilters({
-          ...selectedQuotationFilters,
-          dwelling_type: value || '',
-        })
-      );
-      dispatch(setQuotationFilters(newFilters));
-
-      if (newFilters.range || newFilters.dwelling_type) {
-        dispatch(fetchFloorPlans(newFilters));
-      } else {
-        // If no filters are selected, fetch all floor plans
-        dispatch(fetchFloorPlans(undefined));
-      }
-    },
-    [dispatch, selectedQuotationFilters]
-  );
-
-  const handleFloorPlanDwellingTypeChange = useCallback(
-    (value: string | undefined) => {
-      const newFilters = {
-        ...selectedQuotationFilters,
-        dwelling_type: value || '',
-      };
-      dispatch(setSelectedFilters(newFilters));
-      dispatch(setMplFilters({ dwelling_type: value || '' }));
-      dispatch(setQuotationFilters(newFilters));
-
-      // Only make API call if at least one filter is selected
-      if (newFilters.range || newFilters.dwelling_type) {
-        dispatch(fetchFloorPlans(newFilters));
-      } else {
-        // If no filters are selected, fetch all floor plans
-        dispatch(fetchFloorPlans(undefined));
-      }
-    },
-    [dispatch, selectedQuotationFilters]
-  );
-
-  const handleFacadeDwellingTypeChange = useCallback(
-    (value: string | undefined) => {
-      const newFilters = { dwelling_type_id: value || '' };
-      dispatch(setFacadeFilters(newFilters));
-
-      // Only make API call if dwelling_type filter is selected
-      if (newFilters.dwelling_type_id) {
-        dispatch(getFacades(newFilters));
-      } else {
-        // If no filters are selected, fetch all facades
-        dispatch(getFacades(undefined));
-      }
-    },
-    [dispatch]
-  );
-
-  const handlePackageDwellingTypeChange = useCallback(
-    (value: string | undefined) => {
-      const newFilters = {
-        ...selectedPackageFilters,
-        dwelling_type_id: value || '',
-      };
-      dispatch(setPackageFilters(newFilters));
-
-      if (newFilters.range_id || newFilters.dwelling_type_id) {
-        dispatch(fetchPackages(newFilters));
-      } else {
-        dispatch(fetchPackages(undefined));
-      }
-    },
-    [dispatch, selectedPackageFilters]
-  );
-
-  const handlePackageRangeChange = useCallback(
-    (value: string | undefined) => {
-      const newFilters = {
-        ...selectedPackageFilters,
-        range_id: value || '',
-      };
-      dispatch(setPackageFilters(newFilters));
-
-      if (newFilters.range_id || newFilters.dwelling_type_id) {
-        dispatch(fetchPackages(newFilters));
-      } else {
-        dispatch(fetchPackages(undefined));
-      }
-    },
-    [dispatch, selectedPackageFilters]
-  );
-
-  const handlePackage = useCallback(async () => {
-    await dispatch(fetchPackages(undefined));
-  }, [dispatch]);
-
-  const clearSelectedFloorplanFacadePackage = () => {
-    dispatch(clearSelectedFloorplanFacadePackageReducer());
+  const handleFetchPackage = async () => {
+    try {
+      await dispatch(fetchPackages(newFilters)).unwrap();
+    } catch (error) {
+      message.error('Failed to fetch package data');
+    }
   };
 
   return (
     <div className="flex items-center gap-6 justify-end text-font-color w-[1000px]">
+      <div className="flex items-center gap-4">
+        <span className="text-sm">Location</span>
+        <Select
+          className="w-32"
+          placeholder="Select Location"
+          size="small"
+          allowClear
+          value={instantFilters?.location || undefined}
+          notFoundContent={<NoDataMessage label="Location type" link={SystemRoutes.PRICELIST} />}
+          onChange={value => {
+            dispatch(setSelectedFilters({ ...instantFilters, location: value }));
+            setParams({ location: value });
+          }}
+          options={locationOptions}
+          disabled={isReadOnly}
+        />
+      </div>
       <div className="flex items-center gap-4">
         <span className="text-sm">Range</span>
         <Select
@@ -199,16 +91,13 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({
           placeholder="Select Range"
           size="small"
           allowClear
-          value={selectedQuotationFilters?.range || undefined}
+          value={instantFilters?.range || undefined}
           notFoundContent={
             <NoDataMessage label="Range type" link={SystemRoutes.DWELLING_AND_RANGE} />
           }
           onChange={value => {
-            clearSelectedFloorplanFacadePackage();
-            handleRangeChange(value);
-            handlePackageRangeChange(value);
-            dispatch(resetAllCategoriesIsExpanded());
-            onFilterChange?.();
+            dispatch(setSelectedFilters({ ...instantFilters, range: value }));
+            setParams({ range: value });
           }}
           options={rangeOptions}
           disabled={isReadOnly}
@@ -222,18 +111,13 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({
           placeholder="Select Dwelling Type"
           size="small"
           allowClear
-          value={selectedQuotationFilters?.dwelling_type || undefined}
+          value={instantFilters?.dwellingType || undefined}
           notFoundContent={
             <NoDataMessage label="dwelling type" link={SystemRoutes.DWELLING_AND_RANGE} />
           }
           onChange={value => {
-            clearSelectedFloorplanFacadePackage();
-            (handleDwellingTypeChange(value),
-              handleFloorPlanDwellingTypeChange(value),
-              handleFacadeDwellingTypeChange(value));
-            handlePackageDwellingTypeChange(value);
-            dispatch(resetAllCategoriesIsExpanded());
-            onFilterChange?.();
+            dispatch(setSelectedFilters({ ...instantFilters, dwellingType: value }));
+            setParams({ dwellingType: value });
           }}
           options={dwellingTypeOptions}
           disabled={isReadOnly}

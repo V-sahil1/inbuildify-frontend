@@ -1,5 +1,5 @@
 import { PropertyDetails } from 'data/types';
-import { QuotationResponse } from '../quotation/IQuotationState';
+import { Quotation, QuotationResponse } from '../quotation/IQuotationState';
 import { Status } from '@lib/constants/enum';
 import { IAddress } from '../contacts/contactState';
 
@@ -21,7 +21,7 @@ export interface InitialState {
     lead: Lead | null;
     contacts: LeadContact | null;
     property: any | null;
-    createdQuotations: { quotations: QuotationResponse[] };
+    createdQuotations: { quotations: Quotation[] };
     job: ILeadJob | null;
     invoice: InvoiceDetails[];
   };

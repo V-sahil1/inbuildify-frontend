@@ -1,14 +1,14 @@
 import { useAppSelector } from '@hooks/redux';
 import { enumToReadable } from '@lib/utils/enumToRedable';
 import { RootState } from '@redux/feature/store';
-import { IconPencil, IconPlus, IconX } from '@tabler/icons-react';
-import { Tag, InputNumber, Button, Tooltip } from 'antd';
+import { IconCheck, IconPencil, IconPlus, IconX } from '@tabler/icons-react';
+import { Tag, InputNumber, Button, Tooltip, Input } from 'antd';
 import React, { useState, useEffect } from 'react';
 import AddMasterPricingItemModal from '../common/Models/AddMasterPricingItemModel';
 import { IPriceListItem } from '@redux/feature/masterPriceList/iMasterPriceListState';
-
+const { TextArea } = Input;
 interface QuatationItemProps {
-  item: any;
+  item: IPriceListItem;
   onQuantityChange: (itemId: string, qty: number) => void;
   onToggleAdd: (item: IPriceListItem) => void;
   isSelected: boolean;
@@ -19,18 +19,20 @@ interface QuatationItemProps {
 export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
   ({ item, onToggleAdd, isSelected, onQuantityChange, quantityRef, disabled }) => {
     const { items } = useAppSelector((state: RootState) => state.quotation);
-
-    const reduxQuantity = items.find(i => i.priceListItemId  === item.categoryItemId)?.quantity ?? 1;
-
+    const reduxQuantity =
+      items.find(i => i.priceListItemId === item.priceListItemId)?.quantity ?? 1;
     const [quantity, setQuantity] = useState<number>(reduxQuantity);
     const [isEdited, setIsEdited] = useState({ item: false, extraitem: false });
+    const [showNotesInput, setShowNotesInput] = useState(false);
+    const [notes, setNotes] = useState('');
+
     useEffect(() => {
       setQuantity(reduxQuantity);
     }, [reduxQuantity]);
 
     useEffect(() => {
-      onQuantityChange(item.categoryItemId, quantity);
-    }, [quantity, item.cost, item.categoryItemId, onQuantityChange]);
+      onQuantityChange(item.priceListItemId, quantity);
+    }, [quantity, item.cost, item.priceListItemId, onQuantityChange]);
 
     const handleToggle = (item: IPriceListItem) => {
       onToggleAdd(item);
@@ -40,16 +42,16 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
       setQuantity(value ?? 1);
     };
 
-    const isIncluded = item.costType === 'INCLUDED';
+    const isIncluded = item.costType === 'Included';
     return (
       <div className={isSelected ? 'table-row bg-primary-10' : 'table-row hover:bg-card-color'}>
         {/* Item Info */}
         <div className="table-cell p-3 align-top">
           <div className="flex gap-2 items-center font-medium text-[16px] break-all">
-            <Tooltip title={item.shortDescription ? item.shortDescription : item.description}>
+            <Tooltip title={item.shortDescription ? item.shortDescription : item.itemDescription}>
               {' '}
               <p className="line-clamp-2">
-                {item.shortDescription ? item.shortDescription : item.description}
+                {item.shortDescription ? item.shortDescription : item.itemDescription}
               </p>
             </Tooltip>
             <IconPencil
@@ -60,26 +62,61 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
           </div>
           <div className="flex flex-wrap gap-2 mt-1">
             {item.costType && <Tag color="yellow">{item.costType}</Tag>}
-            {item.dwellingTypeName && item.dwellingTypeName !== 'NONE' && (
-              <Tag color="blue">{enumToReadable(item.dwellingTypeName).toUpperCase()}</Tag>
-            )}
+            {item.dwelling && <Tag color="blue">{enumToReadable(item?.dwelling[0]?.name)}</Tag>}
             {item.costOption && item.costOption !== 'NONE' && (
               <Tag color="red">{enumToReadable(item.costOption).toUpperCase()}</Tag>
             )}
-            {item.status && item.status !== 'NONE' && (
-              <Tag color="purple">{enumToReadable(item.status).toUpperCase()}</Tag>
+            {item?.additionalItem && item.additionalItem && (
+              <Tag color="green">ADDITIONAL ITEM</Tag>
             )}
-            {item.rangeName && item.rangeName !== 'NONE' && (
-              <Tag color="orange">{enumToReadable(item.rangeName).toUpperCase()}</Tag>
+            {item.status && <Tag color="purple">{enumToReadable(item.status).toUpperCase()}</Tag>}
+            {item.range && (
+              <Tag color="orange">{enumToReadable(item?.range[0]?.name).toUpperCase()}</Tag>
             )}
             {/* the extraItemType is need to add in backednd there are 4 types  'Additional' | 'Complimentary' | 'Discount' | 'Note' is opening in the click of the extra */}
             {/* {item.extraItemType && <Tag color="yellow">{item.extraItemType}Additional Item</Tag>} */}
           </div>
           <div className="mt-2">
-            <div className="flex items-center gap-2 cursor-pointer">
+            <div
+              className="flex items-center gap-2 cursor-pointer"
+              onClick={() => setShowNotesInput(!showNotesInput)}
+            >
               <IconPlus size={16} className="border rounded-full border-primary text-primary" />
               Notes
             </div>
+            {showNotesInput && (
+              <div className="mt-2">
+                <TextArea
+                  placeholder="Enter notes..."
+                  value={notes}
+                  onChange={e => setNotes(e.target.value)}
+                  rows={3}
+                  className="!resize-none"
+                />
+                <div className="flex gap-2 mt-2 justify-end">
+                  <Button
+                    size="small"
+                    type="text"
+                    onClick={() => {
+                      // Save notes logic here
+                      console.log('Notes saved:', notes);
+                      setShowNotesInput(false);
+                    }}
+                    icon={<IconCheck size={15} />}
+                  />
+
+                  <Button
+                    type="text"
+                    size="small"
+                    onClick={() => {
+                      // setNotes(item.note || '');
+                      setShowNotesInput(false);
+                    }}
+                    icon={<IconX size={15} />}
+                  />
+                </div>
+              </div>
+            )}
             {/* {item.builderCost && <p>Builder Cost($) : {item.builderCost}</p>} */}
           </div>
         </div>
@@ -125,7 +162,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
             onClose={() => {
               setIsEdited(prev => ({ ...prev, item: false }));
             }}
-            categoryId={item.categoryId}
+            categoryId={item.priceListId}
             categoryItem={item}
           />
         )}

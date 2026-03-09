@@ -11,6 +11,11 @@ import {
 } from '@redux/feature/quotation/quotationSlice';
 import Loading from '../common/Loading';
 import { QuatationExtraItem } from '../quotation/QuatationExtraItem';
+import {
+  createQuotationPricellistThunk,
+  deleteQuotationPricelistThunk,
+} from '@redux/feature/quotation/quotationThunk';
+import { useRouter } from 'next/router';
 
 interface ItemsPanelProps {
   category?: IPriceList;
@@ -32,11 +37,14 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
   select,
   setSelect,
 }) => {
+  const router = useRouter();
+  const { quoteVersionId } = router.query as { quoteVersionId: string };
   const dispatch = useAppDispatch();
   const {
     extraItems,
     items,
     package: selectedPackageFromSlice,
+    quoteDetails
   } = useAppSelector((state: RootState) => state.quotation);
   const [form] = Form.useForm();
   const quantityRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -48,17 +56,24 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
   ];
   const handleItemAdd = (item: IPriceListItem) => {
     const quantity = quantityRefs.current[item.priceListItemId]?.value || '1';
-
-    if (items.some(i => i.priceListItemId === item.priceListItemId)) {
-      dispatch(removeQuotationItem(item.priceListItemId));
+    const pricelist = items.find(i => i.priceListItemId === item.priceListItemId);
+    if (!!pricelist) {
+      dispatch(deleteQuotationPricelistThunk(pricelist?.id));
     } else {
-      dispatch(
-        setQuotationItems({
-          ...item,
-          quantity: Number(quantity),
-          price: parseFloat(item.cost || '0') || 0,
-        })
-      );
+      const payload = {
+        quotationVersionId: quoteDetails?.quotationVersionId,
+        priceListItemId: item?.priceListItemId,
+        quantity: Number(quantity),
+        // note: '',
+      };
+      dispatch(createQuotationPricellistThunk(payload)).unwrap();
+      // dispatch(
+      //   setQuotationItems({
+      //     ...item,
+      //     quantity: Number(quantity),
+      //     itemCost: item?.cost ?? 0,
+      //   })
+      // );
     }
   };
   const handleItemQuantityChange = (itemId: string, quantity: number) => {

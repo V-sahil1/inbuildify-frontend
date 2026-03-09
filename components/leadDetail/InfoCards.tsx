@@ -14,7 +14,7 @@ import {
   IconCar,
   IconForklift,
 } from '@tabler/icons-react';
-import { PropertyDetails, Plan } from 'data/types';
+import { PropertyDetails } from 'data/types';
 import PropertyDetailsModal from './PropertyDetailsModal';
 import FloorPlanModal from './FloorPlanModal';
 import dayjs from 'dayjs';
@@ -23,18 +23,13 @@ import { IFacadeState } from '@redux/feature/facade/IFacadeState';
 import PackageModal from './PackageModal';
 import { Package } from '@redux/feature/package/IPackageState';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
-// import leadCreateFields from "../formFields/LeadCreateFields";
-// import { CreateFormModal } from "../common/Models/CreateFormModel";
 import { createLeadContactThunk, updateLeadContactThunk } from '@redux/feature/lead/leadThunk';
-// import { updateQuotationContact } from "@redux/feature/quotation/quotationSlice";
 import LeadDetailsForm from './forms/LeadDetailsForm';
-import { ILeadContact } from '@redux/feature/lead/ILeadState';
 import { setQuotationContact } from '@redux/feature/quotation/quotationSlice';
 import { clearStandardFilter, clearUpgradeFilter } from '@redux/feature/facade/facadeSlice';
 import { IFloorPlanState } from '@redux/feature/floorPlan/IFloorPlanState';
 
 interface InfoCardsProps {
-  leadDetails: ILeadContact;
   propertyDetails: any;
   selectedPlan?: IFloorPlanState;
   selectedFacade?: IFacadeState;
@@ -44,10 +39,10 @@ interface InfoCardsProps {
   onPackageSelect: (pkg: Package) => void;
   onPropertyUpdate: (property: PropertyDetails) => void;
   isReadOnly?: boolean;
+  filters?: Record<string, string>;
 }
 
 const InfoCards: React.FC<InfoCardsProps> = ({
-  leadDetails,
   propertyDetails,
   selectedPlan,
   selectedFacade,
@@ -57,20 +52,15 @@ const InfoCards: React.FC<InfoCardsProps> = ({
   onPackageSelect,
   onPropertyUpdate,
   isReadOnly,
+  filters,
 }) => {
-  const [propertyModalVisible, setPropertyModalVisible] = useState(false);
-  const [floorPlanModalVisible, setFloorPlanModalVisible] = useState(false);
-  const [facadeModalVisible, setFacadeModalVisible] = useState(false);
-  const [packageModalVisible, setPackageModalVisible] = useState(false);
+  const [modalOpen, setModalOpen] = useState<
+    'property' | 'floorPlan' | 'facade' | 'package' | null
+  >(null);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useAppDispatch();
-  const [activeContactIndex, setActiveContactIndex] = useState<number | null>(null);
   const { leadDetail } = useAppSelector(state => state.lead);
-  // const sliceContacts: ILeadContact[] = leadDetail?.contacts;
-  const { selectedFilters } = useAppSelector(state => state.quotation);
-
   const handleEditLeadSubmit = async (values: any) => {
     const { type, hideAddressForm, ...details } = values;
     try {
@@ -78,14 +68,14 @@ const InfoCards: React.FC<InfoCardsProps> = ({
       if (type === 'update') {
         const response = await dispatch(
           updateLeadContactThunk({
-            id: leadDetails?.leadsContactId,
+            id: leadDetail?.contacts?.contactId,
             details,
           })
         ).unwrap();
         message.success('Lead updated successfully');
         dispatch(setQuotationContact(response));
       } else {
-        await dispatch(createLeadContactThunk({ id: leadDetails?.leadId, details })).unwrap();
+        await dispatch(createLeadContactThunk({ id: leadDetail?.lead?.leadsId, details })).unwrap();
         message.success('Lead contact created successfully');
       }
     } catch (err) {
@@ -95,18 +85,10 @@ const InfoCards: React.FC<InfoCardsProps> = ({
       setLoading(false);
     }
   };
-  const isSelectionDisabled = !selectedFilters?.range || !selectedFilters?.dwelling_type;
+  const isSelectionDisabled = !filters?.range || !filters?.dwellingType;
   const disabledMessage = isSelectionDisabled
     ? 'Please select both Range and Dwelling Type first'
     : '';
-  const [contacts, setContacts] = useState<
-    Array<{
-      name: string;
-      email: string;
-      phone: string;
-      type: string;
-    }>
-  >([]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 p-3">
@@ -123,57 +105,29 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           {!isReadOnly && <IconEdit className="text-gray-400 text-sm" />}
         </div>
         <div className="space-y-2">
-          <div className="font-semibold text-font-color">{leadDetails?.name}</div>
+          <div className="font-semibold text-font-color">{leadDetail?.contacts?.name}</div>
           <div className="flex items-center text-sm text-font-color-100">
             <IconPhone size={14} className="mr-1 text-font-color-100" />
-            {leadDetails?.phone || 'N/A'}
+            {leadDetail?.contacts?.phone || 'N/A'}
           </div>
           <div className="flex items-center text-sm text-font-color-100">
             <IconMail size={14} className="mr-1 text-font-color-100" />
-            {leadDetails?.email || 'N/A'}
+            {leadDetail?.contacts?.email || 'N/A'}
           </div>
-          {leadDetails?.address1 && (
+          {leadDetail?.contacts?.address?.addressLine1 && (
             <div className="flex items-start text-sm text-font-color-100">
               <IconMapPin size={14} className="mr-1 mt-0.5 text-font-color-100 flex-shrink-0" />
-              <span className="line-clamp-2">{leadDetails?.address1 || 'Not provided'}</span>
+              <span className="line-clamp-2">
+                {leadDetail?.contacts?.address?.addressLine1 || 'Not provided'}
+              </span>
             </div>
           )}
         </div>
-
-        {/* Contacts Section */}
-        {contacts.length > 0 && (
-          <div className="mt-4">
-            <Divider className="my-3" />
-            <div className="space-y-3">
-              {contacts.map((contact, index) => (
-                <div
-                  key={index}
-                  className={`p-2 rounded hover:bg-gray-50 ${
-                    activeContactIndex === index ? 'bg-blue-50' : ''
-                  }`}
-                  onClick={e => {
-                    e.stopPropagation();
-                    setActiveContactIndex(activeContactIndex === index ? null : index);
-                  }}
-                >
-                  <div className="font-medium text-font-color">{contact?.name}</div>
-                  <div className="text-xs text-font-color-100">{contact?.type}</div>
-                  {activeContactIndex === index && (
-                    <div className="mt-1 text-xs space-y-1">
-                      <div className="text-font-color-100">{contact?.email}</div>
-                      <div className="text-font-color-100">{contact?.phone}</div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </Card>
 
       <Card
         className="shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-        onClick={!isReadOnly ? () => setPropertyModalVisible(true) : undefined}
+        onClick={!isReadOnly ? () => setModalOpen('property') : undefined}
       >
         <div className="flex items-center gap-2 mb-3">
           <IconHome className="text-green-500" />
@@ -228,7 +182,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           <Card
             className={`shadow-sm transition-shadow ${isSelectionDisabled ? 'opacity-70' : 'hover:shadow-md cursor-pointer'}`}
             onClick={
-              !isSelectionDisabled && !isReadOnly ? () => setFloorPlanModalVisible(true) : undefined
+              !isSelectionDisabled && !isReadOnly ? () => setModalOpen('floorPlan') : undefined
             }
           >
             {selectedPlan ? (
@@ -278,9 +232,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
         <Tooltip title={disabledMessage}>
           <Card
             className={`shadow-sm transition-shadow ${isSelectionDisabled ? 'opacity-70' : 'hover:shadow-md cursor-pointer'}`}
-            onClick={
-              !isSelectionDisabled && !isReadOnly ? () => setFacadeModalVisible(true) : undefined
-            }
+            onClick={!isSelectionDisabled && !isReadOnly ? () => setModalOpen('facade') : undefined}
           >
             {selectedFacade ? (
               <>
@@ -289,12 +241,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
                   <span className="font-medium text-font-color">{selectedFacade?.name}</span>
                   {!isReadOnly && <IconEdit className="text-gray-400 ml-auto" />}
                 </div>
-                <div className="space-y-2">
-                  {/* <div className="font-semibold text-center text-font-color"> */}
-                  {/* @ts-ignore */}
-                  {/* {selectedFacade?.name || selectedFacade?.facade?.name || "-"}
-                </div> */}
-                </div>
+                <div className="space-y-2"></div>
               </>
             ) : (
               <div className="text-center py-4">
@@ -311,9 +258,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
       <Tooltip title={disabledMessage}>
         <Card
           className={`shadow-sm transition-shadow ${isSelectionDisabled ? 'opacity-70' : 'hover:shadow-md cursor-pointer'}`}
-          onClick={
-            !isSelectionDisabled && !isReadOnly ? () => setPackageModalVisible(true) : undefined
-          }
+          onClick={!isSelectionDisabled && !isReadOnly ? () => setModalOpen('package') : undefined}
         >
           {selectedPackage ? (
             <>
@@ -340,10 +285,10 @@ const InfoCards: React.FC<InfoCardsProps> = ({
         </Card>
       </Tooltip>
 
-      {propertyModalVisible && (
+      {modalOpen === 'property' && (
         <PropertyDetailsModal
-          visible={propertyModalVisible}
-          onCancel={() => setPropertyModalVisible(false)}
+          visible={modalOpen === 'property'}
+          onCancel={() => setModalOpen(null)}
           onSave={onPropertyUpdate}
           initialValues={propertyDetails}
         />
@@ -357,24 +302,24 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           onSubmit={handleEditLeadSubmit}
           loading={loading}
           isEditing={true}
-          initialValues={{ ...leadDetails, secondary_phone: leadDetails?.secondaryPhone }}
+          initialValues={leadDetail?.contacts}
         />
       )}
 
-      {floorPlanModalVisible && (
+      {modalOpen === 'floorPlan' && (
         <FloorPlanModal
-          visible={floorPlanModalVisible}
-          onCancel={() => setFloorPlanModalVisible(false)}
+          visible={modalOpen === 'floorPlan'}
+          onCancel={() => setModalOpen(null)}
           onSave={onPlanSelect}
           selectedPlan={selectedPlan}
         />
       )}
 
-      {facadeModalVisible && (
+      {modalOpen === 'facade' && (
         <FacadeModal
-          visible={facadeModalVisible}
+          visible={modalOpen === 'facade'}
           onCancel={() => {
-            setFacadeModalVisible(false);
+            setModalOpen(null);
             dispatch(clearStandardFilter());
             dispatch(clearUpgradeFilter());
           }}
@@ -387,13 +332,14 @@ const InfoCards: React.FC<InfoCardsProps> = ({
         />
       )}
       {/* Package Selection Modal */}
-      {packageModalVisible && (
+      {modalOpen === 'package' && (
         <PackageModal
-          visible={packageModalVisible}
-          onCancel={() => setPackageModalVisible(false)}
+          visible={modalOpen === 'package'}
+          onCancel={() => setModalOpen(null)}
           onSave={onPackageSelect}
           selectedPackage={selectedPackage}
           onSelect={onPackageSelect}
+          filters={filters}
         />
       )}
     </div>

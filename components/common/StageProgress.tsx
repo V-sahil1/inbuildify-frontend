@@ -14,7 +14,7 @@ import { CreateFormModal } from './Models/CreateFormModel';
 import ConfirmationModal from './ConfirmationModal';
 import transferLeadFields from '../formFields/transferLeadFields';
 import CloseLeadModal from '../leadDetail/LeadQuotations/CloseLeadModal';
-import { QuotationResponse } from '@redux/feature/quotation/IQuotationState';
+import { Quotation } from '@redux/feature/quotation/IQuotationState';
 import SystemRoutes from '@lib/constants/Routes';
 import { HeaderContent } from './HeaderContent';
 
@@ -35,7 +35,7 @@ type StageProgressProps = {
   lead?: any;
   showOptions?: boolean;
   idClassName?: string;
-  quotations?: QuotationResponse[];
+  quotations?: Quotation[];
   data?: {
     builder?: string;
     leadSource?: string;

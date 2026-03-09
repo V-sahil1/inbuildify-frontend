@@ -74,7 +74,7 @@ export const updateLeadContactThunk = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response: ApiResponse<ILeadContact> = await api.put(
+      const response: ApiResponse<LeadContact> = await api.put(
         `${API_ENDPOINTS.LEAD_CONTACT}/${payload.id}`,
         { data: payload.details }
       );

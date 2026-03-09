@@ -1,33 +1,32 @@
 import { PropertyDetails } from 'data/types';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Status } from '@lib/constants/enum';
-import { createQuotation, getQuotationVersionById } from './quotationThunk';
+import {
+  createQuotation,
+  createQuotationPricellistThunk,
+  createQuotationThunk,
+  deleteQuotationPricelistThunk,
+  deleteQuotationThunk,
+  getQuotationPricelistThunk,
+  getQuotationThunk,
+  getQuotationVersionById,
+  updateQuotationVersion,
+} from './quotationThunk';
 import { ILeadContact, LeadContact } from '../lead/ILeadState';
 import { Package } from '../package/IPackageState';
-import { IPriceListItem } from '../masterPriceList/iMasterPriceListState';
-
+import { Quotation, QuotationPriceListItem, QuotationVersionDetails } from './IQuotationState';
 export interface QuotationState {
   status: { create: Status; getById: Status };
-  quoteDetails: {
-    slugId: string;
-    quotationId: string;
-    leadStatus: string;
-    createdAt: string; // ISO date string
-    updatedAt: string; // ISO date string
-    totalAmount: number;
-    builder: {
-      builderId: string;
-      name: string;
-    };
-  } | null;
+  quoteDetails: QuotationVersionDetails | null;
   selectedFilters: any;
   contact: ILeadContact;
   property: PropertyDetails;
   plan: any;
   facade: any;
   package: Package;
-  items: (IPriceListItem & { quantity: number; price: number })[];
-  extraItems: (IPriceListItem & { quantity: number; price: number })[];
+  items: QuotationPriceListItem[];
+  extraItems: QuotationPriceListItem[];
+  quotation: Quotation[];
 }
 
 const initialState: QuotationState = {
@@ -41,6 +40,7 @@ const initialState: QuotationState = {
   package: null,
   items: [],
   extraItems: [],
+  quotation: [],
 };
 
 const quotationSlice = createSlice({
@@ -73,22 +73,11 @@ const quotationSlice = createSlice({
       const { builderId, ...propertyWithoutBuilder } = (action.payload || {}) as any;
       state.property = propertyWithoutBuilder as any;
     },
-    setQuotationExtraItems(
-      state,
-      action: PayloadAction<
-        IPriceListItem & {
-          quantity: number;
-          price: number;
-        }
-      >
-    ) {
+    setQuotationExtraItems(state, action: PayloadAction<QuotationPriceListItem>) {
       state.extraItems = [...state.extraItems, action.payload];
       state.items = [...state.items, action.payload];
     },
-    setQuotationItems(
-      state,
-      action: PayloadAction<IPriceListItem & { quantity: number; price: number }>
-    ) {
+    setQuotationItems(state, action: PayloadAction<QuotationPriceListItem>) {
       state.items = [...state.items, action.payload];
     },
     removeQuotationItem(state, action: PayloadAction<string>) {
@@ -145,28 +134,29 @@ const quotationSlice = createSlice({
         state.status.create = Status.ERROR;
       })
       .addCase(getQuotationVersionById.pending, state => {
-        state.status.getById = Status.IDLE;
+        state.status.getById = Status.PENDING;
       })
       .addCase(getQuotationVersionById.fulfilled, (state, action) => {
-        const data = action.payload;
-        state.quoteDetails = {
-          slugId: data.slugId,
-          quotationId: data.quotationId,
-          createdAt: data.createdAt,
-          updatedAt: data.updatedAt,
-          totalAmount: data.totalAmount,
-          builder: data.builder,
-          leadStatus: data.lead.status,
-        };
-        // Set contact from lead.leadContact
-        if (data.lead?.leadContact) {
-          state.contact = data.lead.leadContact;
-        }
+        const data = action.payload.find(i => i.quotationVersionNo === action.payload?.length);
+        state.quoteDetails = data;
+        // state.quoteDetails = {
+        //   slugId: data.slugId,
+        //   quotationId: data.quotationId,
+        //   createdAt: data.createdAt,
+        //   updatedAt: data.updatedAt,
+        //   totalAmount: data.totalAmount,
+        //   builder: data.builder,
+        //   leadStatus: data.lead.status,
+        // };
+        // // Set contact from lead.leadContact
+        // if (data.lead?.leadContact) {
+        //   state.contact = data.lead.leadContact;
+        // }
 
-        // Set property
-        if (data.property) {
-          state.property = data.property;
-        }
+        // // Set property
+        // if (data.property) {
+        //   state.property = data.property;
+        // }
 
         // Set plan from floorPlan
         if (data.floorPlan) {
@@ -178,22 +168,22 @@ const quotationSlice = createSlice({
           state.facade = data.facade;
         }
 
-        // Set package
-        if (data.package) {
-          state.package = data.package;
-        }
+        // // Set package
+        // if (data.package) {
+        //   state.package = data.package;
+        // }
 
         // Set selected filters
         state.selectedFilters = {
-          range: data.range?.name || '',
-          dwelling_type: data.dwellingType?.name || '',
+          range: data.rangeId || '',
+          dwellingType: data.dwellingTypeId || '',
         };
 
-        state.items = data.items?.map(item => ({
-          priceListItemId: item.categoryItemId,
-          quantity: item.categoryItemQuantity, // Default quantity to 1 if not specified
-          price: parseFloat(item.categoryItemCost) || 0,
-        }));
+        // state.items = data.items?.map(item => ({
+        //   priceListItemId: item.categoryItemId,
+        //   quantity: item.categoryItemQuantity, // Default quantity to 1 if not specified
+        //   price: parseFloat(item.categoryItemCost) || 0,
+        // }));
         // Get latest version and set items
         // const versions = data.versions;
         // if (versions) {
@@ -215,6 +205,35 @@ const quotationSlice = createSlice({
       })
       .addCase(getQuotationVersionById.rejected, state => {
         state.status.getById = Status.ERROR;
+      })
+
+      .addCase(updateQuotationVersion.fulfilled, (state, action) => {
+        state.quoteDetails = action.payload;
+        state.plan = action.payload.floorPlan;
+        state.facade = action.payload.facade;
+      })
+
+      //new
+      .addCase(createQuotationThunk.fulfilled, (state, action) => {
+        state.quotation.push(action.payload);
+        state.quoteDetails = action.payload.versions[action.payload.versions.length - 1];
+      })
+      .addCase(getQuotationThunk.fulfilled, (state, action) => {
+        state.quotation = action.payload;
+      })
+      .addCase(deleteQuotationThunk.fulfilled, (state, action) => {
+        state.quotation.filter(i => i.quotationId !== action.meta.arg);
+      })
+
+      // quotation pricelist
+      .addCase(createQuotationPricellistThunk.fulfilled, (state, action) => {
+        state.items.push(action.payload);
+      })
+      .addCase(getQuotationPricelistThunk.fulfilled, (state, action) => {
+        state.items = action.payload;
+      })
+      .addCase(deleteQuotationPricelistThunk.fulfilled, (state, action) => {
+        state.items = state.items?.filter(i => i.id !== action.meta.arg);
       });
   },
 });

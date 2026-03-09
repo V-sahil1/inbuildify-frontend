@@ -19,7 +19,7 @@ export interface IPriceListItem {
   costType?: 'Fixed' | 'Variable' | 'Included';
   costTypeText?: string | null;
   costOption?: string;
-  cost?: string;
+  cost?: number;
   builderCost?: string;
   sortOrder?: number;
   uom?: string;
@@ -36,6 +36,7 @@ export interface IPriceListItem {
   quantity?: number;
   included?: boolean;
   modify?: boolean;
+  additionalItem?: boolean;
   // extraItemType?: 'Additional' | 'Complimentary' | 'Discount' | 'Note';
 }
 

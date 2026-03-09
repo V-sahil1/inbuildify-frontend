@@ -5,7 +5,6 @@ import { RootState } from '@redux/feature/store';
 import { IconPlus, IconX } from '@tabler/icons-react';
 import { Button, Input, Select, message, Form } from 'antd';
 import React, { useState } from 'react';
-import { enumToReadable } from '@lib/utils/enumToRedable';
 import { QuatationItem } from './QuatationItem';
 import { Status } from '@lib/constants/enum';
 import { IPriceListItem } from '@redux/feature/masterPriceList/iMasterPriceListState';
@@ -23,7 +22,7 @@ export const QuatationExtraItem: React.FC<QuatationItemProps> = React.memo(
   ({ onToggleAdd, onItemQuantityChange, form, isReadOnly, quantityRef }) => {
     const [added, setAdded] = useState(false);
     const { priceMaster, status } = useAppSelector((state: RootState) => state.masterPriceList);
-    const { selectedFilters } = useAppSelector((state: RootState) => state.quotation);
+    const { selectedFilters, quoteDetails } = useAppSelector((state: RootState) => state.quotation);
     const dispatch = useAppDispatch();
     const costType = Form.useWatch('cost_type', form);
     const {
@@ -35,7 +34,6 @@ export const QuatationExtraItem: React.FC<QuatationItemProps> = React.memo(
     const handleToggle = async () => {
       const values = await form.validateFields();
       const newAdded = !added;
-      console.log('values', values);
       setAdded(false);
       try {
         if (newAdded) {
@@ -43,19 +41,22 @@ export const QuatationExtraItem: React.FC<QuatationItemProps> = React.memo(
             priceListId: values.category_id,
             costType: values.cost_type,
             itemDescription: values.description,
-            dwellingTypeId: selectedFilters.dwelling_type,
-            rangeId: selectedFilters.range,
-            cost: costType === 'Included' ? null : values.cost,
-            costTypeText: enumToReadable(values.cost_type),
-            status: 'active',
+            dwellingTypeId: [selectedFilters.dwellingType || quoteDetails?.dwellingTypeId],
+            rangeId: [selectedFilters.range || quoteDetails?.rangeId],
+            cost: costType === 'Included' ? null : Number(values.cost),
+            builderCost: values.builderCost,
+            additionalItem: true,
           };
           const response = await dispatch(createCategoryItem(payload)).unwrap();
-
+          const { priceListItemId, itemDescription, shortDescription } = response;
           dispatch(
             setQuotationExtraItems({
-              ...response,
+              priceListItemId: priceListItemId,
+              quotationVersionId: quoteDetails?.quotationVersionId,
+              itemDescription: itemDescription,
+              shortDescription: shortDescription,
               quantity: values.quantity,
-              price: costType === 'Included' ? 0 : parseFloat(values.cost) || 0,
+              itemCost: costType === 'Included' ? 0 : Number(values.cost) || 0,
             })
           );
           form.resetFields();
@@ -90,9 +91,9 @@ export const QuatationExtraItem: React.FC<QuatationItemProps> = React.memo(
                     placeholder="Select Cost Type"
                     style={{ minWidth: '180px' }}
                     options={[
-                      { value: 'INCLUDED', label: 'Included' },
-                      { value: 'FIXED', label: 'Fixed' },
-                      { value: 'VARIABLE', label: 'Variable' },
+                      { value: 'Included', label: 'Included' },
+                      { value: 'Fixed', label: 'Fixed' },
+                      { value: 'Variable', label: 'Variable' },
                     ]}
                   />
                 </Form.Item>

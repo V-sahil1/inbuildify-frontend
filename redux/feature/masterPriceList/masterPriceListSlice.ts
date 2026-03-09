@@ -116,7 +116,9 @@ const masterPriceListSlice = createSlice({
       })
       .addCase(fetchCategoryItems.fulfilled, (state, action) => {
         if (!!action.meta.arg?.price_list_id) {
-          const category = state.priceMaster.find(c => c.priceListId === action.meta.arg?.price_list_id);
+          const category = state.priceMaster.find(
+            c => c.priceListId === action.meta.arg?.price_list_id
+          );
           if (category) {
             category.items = action.payload.priceListItem;
           }
@@ -139,6 +141,9 @@ const masterPriceListSlice = createSlice({
           category.items = [action.payload, ...(category.items || [])];
         }
         state.status.priceListItem.create = Status.SUCCESS;
+      })
+      .addCase(createCategoryItem.rejected, state => {
+        state.status.priceListItem.create = Status.ERROR;
       })
 
       //delete item

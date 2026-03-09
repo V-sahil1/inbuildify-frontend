@@ -3,11 +3,9 @@ import CategorySidebar from '@/components/leadDetail/CategorySidebar';
 import FooterActions from '@/components/leadDetail/FooterActions';
 import InfoCards from '@/components/leadDetail/InfoCards';
 import ItemsPanel from '@/components/leadDetail/ItemsPanel';
-import { Plan } from '@/pages/leads/[id]';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { Status } from '@lib/constants/enum';
 import { toggleExpand } from '@redux/feature/masterPriceList/masterPriceListSlice';
-import { IPriceListItem } from '@redux/feature/masterPriceList/iMasterPriceListState';
 import { IFacadeState } from '@redux/feature/facade/IFacadeState';
 import {
   fetchCategoryItems,
@@ -16,13 +14,22 @@ import {
 import { Package } from '@redux/feature/package/IPackageState';
 import { RootState } from '@redux/feature/store';
 import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
-import { createQuotation, getQuotationVersionById } from '@redux/feature/quotation/quotationThunk';
-import { message, Result, Spin } from 'antd';
+import {
+  createQuotation,
+  getQuotationPricelistThunk,
+  getQuotationVersionById,
+  updateQuotationVersion,
+} from '@redux/feature/quotation/quotationThunk';
+import {
+  setQuotationPlan,
+  setQuotationFacade,
+  setQuotationPackage,
+} from '@redux/feature/quotation/quotationSlice';
+import { message } from 'antd';
 import QuotationFilter from '@/components/quotation/QuotationFilter';
 import { updateLeadStatus } from '@redux/feature/lead/leadSlice';
 import { clearQuotation, setQuotationItems } from '@redux/feature/quotation/quotationSlice';
 import { usePdf } from '@hooks/usePdf';
-import QuatationPdf from '@/components/common/pdf/QuatationPdf';
 import calculateTotalQuotation from '@lib/utils/calculateTotalQuotation';
 import SystemRoutes from '@lib/constants/Routes';
 import { useRouter } from 'next/router';
@@ -31,14 +38,13 @@ import { clearFilters } from '@redux/feature/facade/facadeSlice';
 import Loading from '../common/Loading';
 import JobDocumentPdf from '../common/pdf/JobDocumentPdf';
 import { IFloorPlanState } from '@redux/feature/floorPlan/IFloorPlanState';
+import { debouncedURL } from '@lib/utils/debounceURL';
 
 const QuotationManager = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { id } = router.query;
   const { quoteVersionId } = router.query as { quoteVersionId: string };
   const [onSelect, setSelect] = useState(false);
-  // console.log("🚀 ~ QuotationManager ~ quoteVersionId:", quoteVersionId)
   const [isEditMode, setIsEditMode] = useState(false);
   const isReadOnly = useMemo(() => !!quoteVersionId && !isEditMode, [quoteVersionId, isEditMode]);
   const { user } = useAppSelector(state => state.auth);
@@ -53,18 +59,39 @@ const QuotationManager = () => {
     selectedFilters: quotationFilters,
     status: quotationStatus,
     quoteDetails,
+    quotation,
   } = useAppSelector((state: RootState) => state.quotation);
   const lastFetchedFiltersRef = useRef<{ range?: string; dwelling_type?: string } | null>(null);
+  const [selectedFacade, setSelectedFacade] = useState<IFacadeState | undefined>(facade);
   const [selectedPlan, setSelectedPlan] = useState<IFloorPlanState | undefined>(plan);
   const [selectedPackage, setSelectedPackage] = useState<Package | undefined>(undefined);
-  const isJob = useMemo(() => quoteDetails?.leadStatus === 'JOB', [quoteDetails]);
+  const [hasChanges, setHasChanges] = useState(false);
+  const canContact = !!contact;
+  const canProperty = property && Object.keys(property).length > 0 && property?.propertyId;
+  const canPlan = plan && Object.keys(plan).length > 0;
+  const canFacade = !!facade;
+  const canSelectedPackageFromSlice = !!selectedPackageFromSlice;
+  const canAction =
+    canContact && canProperty && canPlan && canFacade && canSelectedPackageFromSlice;
+  // const isJob = useMemo(() => quoteDetails?.leadStatus === 'JOB', [quoteDetails]);
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
+    filtersKey: ['range', 'dwellingType', 'location'],
+    initialValue: {
+      range: quoteDetails?.rangeId || null,
+      dwellingType: quoteDetails?.dwellingTypeId || null,
+      location: quoteDetails?.locationId || null,
+    },
+  });
 
+  const quotationData = quotation?.[0];
+  useEffect(() => {
+    return debouncedUpdateURL.cancel();
+  }, [debouncedUpdateURL]);
   // Sync local state with Redux store
   useEffect(() => {
     setSelectedPlan(plan);
     setSelectedPackage(selectedPackageFromSlice);
   }, [plan, selectedPackageFromSlice]);
-  const [selectedFacade, setSelectedFacade] = useState<IFacadeState | undefined>(facade);
 
   useEffect(() => {
     return () => {
@@ -74,22 +101,68 @@ const QuotationManager = () => {
 
   useEffect(() => {
     const fetchQuotation = async () => {
-      await dispatch(getQuotationVersionById(quoteVersionId as string)).unwrap();
+      await dispatch(getQuotationVersionById(quotationData?.quotationId)).unwrap();
     };
-    if (quoteVersionId) {
+    if (quotationData?.quotationId) {
       fetchQuotation();
     }
-  }, [dispatch, quoteVersionId]);
+  }, [dispatch, quotationData?.quotationId]);
 
   // Reset edit mode when quoteId changes
   useEffect(() => {
-    setIsEditMode(false);
+    if (!!quoteVersionId) {
+      setIsEditMode(false);
+      fetchQuotationPricelistItem();
+    }
   }, [quoteVersionId]);
 
   // Sync local state with Redux store
   useEffect(() => {
     setSelectedFacade(facade);
   }, [facade]);
+
+  // Single unified handler for all changes (floorplan, facade, package)
+  const handleSelectionChange = useCallback(
+    (type: 'plan' | 'facade' | 'package', value: IFloorPlanState | IFacadeState | Package) => {
+      switch (type) {
+        case 'plan':
+          setSelectedPlan(value as IFloorPlanState);
+          dispatch(setQuotationPlan(value as IFloorPlanState));
+          break;
+        case 'facade':
+          setSelectedFacade(value as IFacadeState);
+          dispatch(setQuotationFacade(value as IFacadeState));
+          break;
+        case 'package':
+          setSelectedPackage(value as Package);
+          dispatch(setQuotationPackage(value as Package));
+          break;
+      }
+      setHasChanges(true);
+    },
+    [dispatch]
+  );
+  console.log('floorplan', selectedPlan);
+
+  const handleSaveChanges = useCallback(async () => {
+    try {
+      const payload = {
+        rangeId: filters?.range || null,
+        dwellingTypeId: filters?.dwellingType || null,
+        floorPlanId: selectedPlan?.floorPlanId || null,
+        facadeId: selectedFacade?.facadeId || null,
+        locationId: filters?.location || null,
+      };
+      console.log('Saving payload:', payload);
+      await dispatch(
+        updateQuotationVersion({ id: quoteDetails?.quotationVersionId, data: payload })
+      ).unwrap();
+      setHasChanges(false);
+      message.success('Changes saved successfully');
+    } catch (error) {
+      message.error(error || 'Failed to save changes');
+    }
+  }, [dispatch, filters, selectedPlan, selectedFacade, quoteDetails?.quotationVersionId]);
 
   // Function to check if a field should be disabled
   // const isFieldDisabled = (fieldName: string) => {
@@ -156,55 +229,6 @@ const QuotationManager = () => {
   }, [dispatch, router]);
 
   useEffect(() => {
-    const fetchAllCategoryItems = async () => {
-      if (!quotationFilters?.range || !quotationFilters?.dwelling_type) return;
-
-      // Prevent fetching again if filters didn't change
-      if (
-        lastFetchedFiltersRef.current?.range === quotationFilters.range &&
-        lastFetchedFiltersRef.current?.dwelling_type === quotationFilters.dwelling_type
-      ) {
-        return;
-      }
-
-      try {
-        const responses = await Promise.all(
-          categoryData.map(async cat => {
-            if (!cat.isExpanded) {
-              dispatch(toggleExpand(cat.priceListId));
-            }
-            return dispatch(
-              fetchCategoryItems({
-                price_list_id: cat.priceListId,
-                range_id: quotationFilters.range,
-                dwelling_type_id: quotationFilters.dwelling_type,
-              })
-            ).unwrap();
-          })
-        );
-
-        // ✅ Step 2: After fetching, auto-add INCLUDED items
-        responses.forEach(res => {
-          res.items.priceListItem?.forEach((item: any) => {
-            if (item?.costType === 'INCLUDED') {
-              // only add if not already in quotation
-              const alreadyAdded = items.some(i => i.priceListItemId === item.priceListItemId);
-              if (!alreadyAdded) {
-                dispatch(setQuotationItems({ ...item, quantity: 1 }));
-              }
-            }
-          });
-        });
-
-        lastFetchedFiltersRef.current = {
-          range: quotationFilters.range,
-          dwelling_type: quotationFilters.dwelling_type,
-        };
-      } catch (error) {
-        message.error(error || 'Failed to fetch category items');
-      }
-    };
-
     if (categoryData.length > 0) {
       fetchAllCategoryItems();
     }
@@ -221,6 +245,63 @@ const QuotationManager = () => {
     [categoryData]
   );
 
+  const fetchAllCategoryItems = async () => {
+    if (!quotationFilters?.range || !quotationFilters?.dwelling_type) return;
+
+    // Prevent fetching again if filters didn't change
+    if (
+      lastFetchedFiltersRef.current?.range === quotationFilters.range &&
+      lastFetchedFiltersRef.current?.dwelling_type === quotationFilters.dwelling_type
+    ) {
+      return;
+    }
+
+    try {
+      const responses = await Promise.all(
+        categoryData.map(async cat => {
+          if (!cat.isExpanded) {
+            dispatch(toggleExpand(cat.priceListId));
+          }
+          return dispatch(
+            fetchCategoryItems({
+              price_list_id: cat.priceListId,
+              range_id: quotationFilters.range,
+              dwelling_type_id: quotationFilters.dwelling_type,
+            })
+          ).unwrap();
+        })
+      );
+
+      // ✅ Step 2: After fetching, auto-add INCLUDED items
+      responses.forEach(res => {
+        res.priceListItem?.forEach((item: any) => {
+          if (item?.costType === 'INCLUDED') {
+            // only add if not already in quotation
+            const alreadyAdded = items.some(i => i.priceListItemId === item.priceListItemId);
+            if (!alreadyAdded) {
+              dispatch(setQuotationItems({ ...item, quantity: 1 }));
+            }
+          }
+        });
+      });
+
+      lastFetchedFiltersRef.current = {
+        range: quotationFilters.range,
+        dwelling_type: quotationFilters.dwelling_type,
+      };
+    } catch (error) {
+      message.error(error || 'Failed to fetch category items');
+    }
+  };
+
+  const fetchQuotationPricelistItem = async () => {
+    try {
+      await dispatch(getQuotationPricelistThunk(quoteVersionId)).unwrap();
+    } catch (error) {
+      message.error(error || 'Faied to fetch quotation items');
+    }
+  };
+
   const handleFetchCategoryItems = async (categoryId: string) => {
     setSelectedCategory(categoryId);
     const currentCategory = getCategoryById(categoryId);
@@ -234,8 +315,8 @@ const QuotationManager = () => {
         const response = await dispatch(
           fetchCategoryItems({
             price_list_id: categoryId,
-            range_id: quotationFilters.range,
-            dwelling_type_id: quotationFilters.dwelling_type,
+            range_id: filters.range,
+            dwelling_type_id: filters.dwellingType,
           })
         ).unwrap();
         // console.log("🚀 ~ handleFetchCategoryItems ~ response:", response);
@@ -309,104 +390,96 @@ const QuotationManager = () => {
       message.error(error);
     }
   };
-  const handlePreview = async () => {
-    setPreviewLoading(true);
-    try {
-      const responses = await Promise.all(
-        categoryData.map(cat => {
-          if (!cat.isExpanded) {
-            dispatch(toggleExpand(cat.priceListId));
-            return dispatch(
-              fetchCategoryItems({
-                price_list_id: cat.priceListId,
-                range_id: quotationFilters?.range || undefined,
-                dwelling_type_id: quotationFilters?.dwelling_type || undefined,
-              })
-            ).unwrap();
-          }
-          return Promise.resolve({
-            priceListId: cat.priceListId,
-            items: cat.items || [],
-          });
-        })
-      );
+  // const handlePreview = async () => {
+  //   setPreviewLoading(true);
+  //   try {
+  //     const responses = await Promise.all(
+  //       categoryData.map(cat => {
+  //         if (!cat.isExpanded) {
+  //           dispatch(toggleExpand(cat.priceListId));
+  //           return dispatch(
+  //             fetchCategoryItems({
+  //               price_list_id: cat.priceListId,
+  //               range_id: quotationFilters?.range || undefined,
+  //               dwelling_type_id: quotationFilters?.dwelling_type || undefined,
+  //             })
+  //           ).unwrap();
+  //         }
+  //         return Promise.resolve({
+  //           priceListId: cat.priceListId,
+  //           items: cat.items || [],
+  //         });
+  //       })
+  //     );
 
-      // Use the updated categories (from Redux or responses)
-      const allCategories = categoryData.map(cat => {
-        const fetched = responses.find(res => res.priceListId === cat.priceListId);
-        return {
-          ...cat,
-          items: fetched?.items || cat.items || [],
-        };
-      });
+  //     // Use the updated categories (from Redux or responses)
+  //     const allCategories = categoryData.map(cat => {
+  //       const fetched = responses.find(res => res.priceListId === cat.priceListId);
+  //       return {
+  //         ...cat,
+  //         items: fetched?.priceListItem || cat.items || [],
+  //       };
+  //     });
 
-      lastFetchedFiltersRef.current = {
-        range: quotationFilters.range,
-        dwelling_type: quotationFilters.dwelling_type,
-      };
+  //     lastFetchedFiltersRef.current = {
+  //       range: quotationFilters.range,
+  //       dwelling_type: quotationFilters.dwelling_type,
+  //     };
 
-      // Now build grouped items
-      const groupedItems = allCategories.map(category => {
-        const categoryItems = Array.isArray(category.items)
-          ? category.items
-          : category.items.priceListItem || [];
-        const matchedItems = categoryItems
-          .filter(catItem =>
-            itemsFromSlice.some(sel => sel.priceListItemId === catItem.priceListItemId)
-          )
-          .map(catItem => {
-            const selected = itemsFromSlice.find(
-              sel => sel.priceListItemId === catItem.priceListItemId
-            );
+  //     // Now build grouped items
+  //     const groupedItems = allCategories.map(category => {
+  //       const categoryItems = Array.isArray(category.items)
+  //         ? category.items
+  //         : category.items.priceListItem || [];
+  //       const matchedItems = categoryItems
+  //         .filter(catItem =>
+  //           itemsFromSlice.some(sel => sel.priceListItemId === catItem.priceListItemId)
+  //         )
+  //         .map(catItem => {
+  //           const selected = itemsFromSlice.find(
+  //             sel => sel.priceListItemId === catItem.priceListItemId
+  //           );
 
-            return {
-              ...catItem,
-              ...selected,
-              total: selected.cost,
-            };
-          });
+  //           return {
+  //             ...catItem,
+  //             ...selected,
+  //             total: selected.itemCost,
+  //           };
+  //         });
 
-        return {
-          categoryId: category.priceListId,
-          categoryName: category.name,
-          // description: category.description,
-          items: matchedItems,
-          categoryTotal: matchedItems.reduce((sum, i) => sum + Number(i.total), 0),
-        };
-      });
-      const filteredGroupedItems = groupedItems.filter(cat => cat.items.length > 0);
-      previewPdf({ showedSection: { quotation: true } });
-    } catch (error) {
-      message.error(error || 'Failed to preview quotation');
-    } finally {
-      setPreviewLoading(false);
-    }
-  };
+  //       return {
+  //         categoryId: category.priceListId,
+  //         categoryName: category.name,
+  //         // description: category.description,
+  //         items: matchedItems,
+  //         categoryTotal: matchedItems.reduce((sum, i) => sum + Number(i.total), 0),
+  //       };
+  //     });
+  //     const filteredGroupedItems = groupedItems.filter(cat => cat.items.length > 0);
+  //     previewPdf({ showedSection: { quotation: true } });
+  //   } catch (error) {
+  //     message.error(error || 'Failed to preview quotation');
+  //   } finally {
+  //     setPreviewLoading(false);
+  //   }
+  // };
 
   const handleExtraClick = () => {
     setExtraItem(true);
     setSelectedCategory(null);
   };
 
-  const canContact = !!contact;
-  const canProperty = property && Object.keys(property).length > 0 && property?.propertyId;
-  const canPlan = plan && Object.keys(plan).length > 0;
-  const canFacade = !!facade;
-  const canSelectedPackageFromSlice = !!selectedPackageFromSlice;
-  const canAction =
-    canContact && canProperty && canPlan && canFacade && canSelectedPackageFromSlice;
-
-  if (quoteVersionId && quotationStatus?.getById === Status.ERROR) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <Result
-          status="error"
-          title="Error"
-          subTitle="Failed to load quotation. Please try again later."
-        />
-      </div>
-    );
-  }
+  // if (quoteVersionId && quotationStatus?.getById === Status.ERROR) {
+  //   return (
+  //     <div className="flex items-center justify-center h-screen">
+  //       <Result
+  //         status="error"
+  //         title="Error"
+  //         subTitle="Failed to load quotation. Please try again later."
+  //       />
+  //     </div>
+  //   );
+  // }
 
   if (
     quoteVersionId &&
@@ -436,25 +509,35 @@ const QuotationManager = () => {
   return (
     <>
       <div className="m-3 flex justify-between items-center">
-        <StageProgress id={quoteDetails?.slugId || ''} title="Quotation" steps={[]} />
-        <QuotationFilter isReadOnly={isReadOnly} onFilterChange={() => setSelectedCategory(null)} />
+        <StageProgress
+          id={quotationData?.referenceNumber + ' V' + quoteDetails?.quotationVersionNo || ''}
+          title="Quotation"
+          steps={[]}
+        />
+        <QuotationFilter
+          isReadOnly={false}
+          onFilterChange={() => setSelectedCategory(null)}
+          setParams={setParams}
+          filters={filters}
+          instantFilters={instantFilters}
+        />
       </div>
 
       <InfoCards
-        leadDetails={{ ...contact, leadId: id as string }}
         propertyDetails={property}
         selectedPlan={selectedPlan}
         selectedFacade={selectedFacade}
         selectedPackage={selectedPackage}
-        onPlanSelect={setSelectedPlan}
-        onFacadeSelect={setSelectedFacade}
-        onPackageSelect={setSelectedPackage}
+        onPlanSelect={plan => handleSelectionChange('plan', plan)}
+        onFacadeSelect={facade => handleSelectionChange('facade', facade)}
+        onPackageSelect={pkg => handleSelectionChange('package', pkg)}
         onPropertyUpdate={() => {}}
-        isReadOnly={isReadOnly}
+        isReadOnly={false}
+        filters={filters}
       />
 
       <div className="flex flex-1 m-3 border rounded-lg h-[365px]">
-        {quotationFilters?.range && quotationFilters?.dwelling_type ? (
+        {filters?.range && filters?.dwellingType ? (
           <>
             <div className="w-64">
               {status.priceMaster === Status.IDLE ? (
@@ -476,7 +559,7 @@ const QuotationManager = () => {
               onItemQuantityChange={handleItemQuantityChange}
               extraItem={extraItem}
               onExtraClick={handleExtraClick}
-              isReadOnly={isReadOnly}
+              isReadOnly={false}
               // itemsLoading={
               //   selectedCategory
               //     ? (getCategoryById(selectedCategory)?.loadingItems ?? false)
@@ -502,17 +585,19 @@ const QuotationManager = () => {
 
       <div className="m-3">
         <FooterActions
-          id={quoteDetails?.slugId || ''}
+          id={quotationData?.referenceNumber || ''}
           total={calculateTotalQuotation(packageFromSlice, itemsFromSlice, Number(facade?.cost))}
           quoteVersionId={quoteVersionId}
           isEditMode={isEditMode}
           onEdit={() => setIsEditMode(true)}
           onCancel={() => setIsEditMode(false)}
           onSave={handleCreateQuotation}
-          onPreview={handlePreview}
-          disableAction={!canAction}
+          onPreview={() => {}} // todo handle preview
+          disableAction={false}
           previewLoading={previewLoading}
           loading={quotationStatus.create === Status.PENDING}
+          hasUnsavedChanges={hasChanges}
+          onSaveChanges={handleSaveChanges}
         />
       </div>
     </>

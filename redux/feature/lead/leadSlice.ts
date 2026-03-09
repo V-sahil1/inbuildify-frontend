@@ -34,6 +34,7 @@ import { getLeadByIdThunk } from './leadThunk';
 import { InitialState } from './ILeadState';
 import { Status } from '@lib/constants/enum';
 import { updateContact } from '../contacts/contactThunk';
+import { getQuotationThunk } from '../quotation/quotationThunk';
 
 const initialState: InitialState = {
   leads: [],
@@ -481,9 +482,15 @@ export const leadSlice = createSlice({
     builder.addCase(deleteLeadInvoiceThunk.fulfilled, (state, action) => {
       state.status.leadDeposit = Status.SUCCESS;
     });
-    builder.addCase(deleteLeadInvoiceThunk.rejected, (state, action) => {
-      state.status.leadDeposit = Status.ERROR;
-    });
+    builder
+      .addCase(deleteLeadInvoiceThunk.rejected, (state, action) => {
+        state.status.leadDeposit = Status.ERROR;
+      })
+
+      //quotation
+      .addCase(getQuotationThunk.fulfilled, (state, action) => {
+        state.leadDetail.createdQuotations.quotations = action.payload;
+      });
   },
 });
 

@@ -1,4 +1,4 @@
-import { PropertyDetails, QuotationVersion } from 'data/types';
+import { PropertyDetails } from 'data/types';
 import { ILeadContact } from '../lead/ILeadState';
 import { IFloorPlanState } from '../floorPlan/IFloorPlanState';
 import { IFacadeState } from '../facade/IFacadeState';
@@ -60,4 +60,88 @@ export type QuotationItemPayload = {
     price: number;
     total: number;
   }[];
+};
+
+//new
+
+export type Quotation = {
+  quotationId: string;
+  leadsId: string;
+  referenceNumber: string;
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string;
+  updatedBy: string | null;
+  totalAmount?: number;
+  leadStatus: string;
+  versions: QuotationVersionDetails[];
+};
+
+export type QuotationVersion = {
+  quotationVersionId: string;
+  quotationVersionNo: number;
+  locationId: string | null;
+  rangeId: string | null;
+  dwellingTypeId: string | null;
+  floorPlanId: string | null;
+  facadeId: string | null;
+  isApprove: boolean;
+  sketchNumber: string | null;
+  totalPackageCost: number;
+  totalPricelistCost: number;
+  grandTotalCost: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type QuotationVersionDetails = {
+  quotationVersionId: string;
+  quotationId?: string;
+  quotationVersionNo: number;
+  locationId: string | null;
+  rangeId: string | null;
+  dwellingTypeId: string | null;
+  floorPlanId: string | null;
+  facadeId: string | null;
+  isApprove: boolean;
+  sketchNumber: string | null;
+  createdAt: string;
+  updatedAt: string;
+  locationName?: string | null;
+  rangeName?: string | null;
+  dwellingTypeName?: string | null;
+  floorPlanName?: string | null;
+  facadeName?: string | null;
+  totalPackageCost: string;
+  totalPricelistCost: string;
+  grandTotalCost: string;
+  leadId?: string;
+  leadLotId?: string | null;
+  leadContacts?: LeadContact[];
+  floorPlan?: IFloorPlanState;
+  facade?: IFacadeState;
+};
+
+export type LeadContact = {
+  id: string;
+  contactId: string;
+  name: string;
+  email: string;
+  phone: string;
+};
+
+export type QuotationPriceListItem = {
+  id?: string;
+  quotationVersionId: string;
+  priceListItemId: string;
+  quantity: number;
+  note?: string;
+  totalPrice?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  itemDescription?: string;
+  shortDescription?: string;
+  itemCost?: number;
+  costType?: string;
+  uom?: string;
 };

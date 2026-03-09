@@ -1,30 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  Button,
-  Card,
-  List,
-  message,
-  Popconfirm,
-  Spin,
-  Tabs,
-  Tag,
-  Tooltip,
-  Typography,
-} from 'antd';
+import { Button, message, Spin, Tabs } from 'antd';
 import StageProgress from '@/components/common/StageProgress';
 import ConvertLeadModal from '@/components/leadDetail/ConvertLeadModal';
 import PropertyDetailsModal from '@/components/leadDetail/PropertyDetailsModal';
-import {
-  IconBarrierBlock,
-  IconEdit,
-  IconFileText,
-  IconMail,
-  IconPhoneCall,
-  IconPlus,
-  IconTrash,
-} from '@tabler/icons-react';
-import Link from 'next/link';
-import SystemRoutes from '@lib/constants/Routes';
+import { IconPlus } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import {
@@ -39,20 +18,19 @@ import {
   getLeadJobThunk,
   updateLeadJobThunk,
 } from '@redux/feature/lead/leadThunk';
-import dayjs from 'dayjs';
 import { setQuotationContact, setQuotationProperty } from '@redux/feature/quotation/quotationSlice';
 import { getQuotationsByLeadIdThunk } from '@redux/feature/lead/leadThunk';
-import LeadQuotations from '@/components/leadDetail/LeadQuotations/LeadQuotations';
+import { LeadQuotation } from '@/components/leads/LeadQuotationPage';
 import LeadDetailsForm from '@/components/leadDetail/forms/LeadDetailsForm';
 import { enumToReadable } from '@lib/utils/enumToRedable';
 import { LeadContact } from '@redux/feature/lead/ILeadState';
-import { QuotationResponse } from '@redux/feature/quotation/IQuotationState';
+import { Quotation, QuotationResponse } from '@redux/feature/quotation/IQuotationState';
 import LeadActions from '@/components/leadDetail/LeadActions';
 import { Status } from '@lib/constants/enum';
 import { LeadSource } from '@/components/leads/LeadSource';
 import CloseLeadModal from '@/components/leadDetail/LeadQuotations/CloseLeadModal';
 import ConfirmationModal from '@/components/common/ConfirmationModal';
-import { deleteQuotation } from '@redux/feature/quotation/quotationThunk';
+import { deleteQuotation, getQuotationThunk } from '@redux/feature/quotation/quotationThunk';
 import { removeQuotation } from '@redux/feature/lead/leadSlice';
 import DepositModel from '@/components/common/Models/DepositModel';
 import ActivityCard from '@/components/common/ActivityCard';
@@ -71,6 +49,9 @@ import { JobFormModel } from '@/components/common/Models/JobFormModel';
 import { TableDrawer } from '@/components/common/TableDrawer';
 import { LeadDepositColumn } from '@/components/table-columns/LeadDepositColumn';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
+import { LeadContactPage } from '@/components/leads/LeadContact';
+import { LeadPropertyPage } from '@/components/leads/LeadPropertyPage';
+import LeadQuotations from '@/components/leadDetail/LeadQuotations/LeadQuotations';
 
 const { TabPane } = Tabs;
 export interface Plan {
@@ -117,16 +98,17 @@ function App() {
   const { leadDetail, status } = useAppSelector(state => state.lead);
   const { contact } = useAppSelector(state => state.contact);
   const isLoggedIn = useAppSelector(state => state.auth.isAuthenticated);
+  const { quotation } = useAppSelector(state => state.quotation);
   const isOpportunity = leadDetail?.lead?.status !== 'New';
   const title = isOpportunity ? 'Opportunity' : 'Lead';
   const contacts: LeadContact = leadDetail?.contacts;
   const propertyFromSlice = leadDetail?.property;
   const leadId = router.query.id as string | undefined;
-  const createdQuotations: QuotationResponse[] = leadDetail?.createdQuotations?.quotations || [];
+  const createdQuotations: Quotation[] = leadDetail?.createdQuotations?.quotations || [];
   const latestLeadDetailRef = useRef<any>(null);
   const { columns } = LeadDepositColumn();
   // const isJob = useMemo(() => leadDetail?.lead?.status === "JOB", [leadDetail]);
-
+  console.log('quotation',createdQuotations)
   useEffect(() => {
     latestLeadDetailRef.current = leadDetail;
   }, [leadDetail]);
@@ -157,7 +139,8 @@ function App() {
       await dispatch(getLeadContactMapThunk(leadId)).unwrap();
       await dispatch(getLeadInvoiceThunk(leadId)).unwrap();
       await dispatch(getLeadJobThunk(leadId)).unwrap();
-      await dispatch(getQuotationsByLeadIdThunk({ leadId, page: 1, limit: 25 })).unwrap();
+      await dispatch(getQuotationThunk(leadId)).unwrap();
+      // await dispatch(getQuotationsByLeadIdThunk({ leadId, page: 1, limit: 25 })).unwrap();
     } catch (err) {
       message.error(err || 'Failed to fetch lead details');
     }
@@ -389,257 +372,26 @@ function App() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 m-3">
           {/* Contact Card */}
 
-          {!leadDetail.contacts ? (
-            <Card className="flex flex-col items-center justify-center p-6 rounded-lg">
-              <p onClick={() => setModalOpen('contact')} className="cursor-pointer">
-                Create Contact
-              </p>
-              <p
-                className="text-blue-600 underline cursor-pointer hover:text-blue-800"
-                onClick={handleOpenContactModal}
-              >
-                Link Contact
-              </p>
-            </Card>
-          ) : (
-            <Card className="relative">
-              <div className="flex items-center justify-between mb-3">
-                <span className="bg-yellow-100 text-yellow-700 text-xs px-2 py-0.5 rounded">
-                  Contact
-                </span>
-                <div className="flex gap-2 items-center">
-                  <IconEdit
-                    className="text-gray-400 text-sm cursor-pointer hover:text-gray-600"
-                    onClick={() => setModalOpen('contact')}
-                    size={15}
-                  />
-                  <Popconfirm title="Are you sure you want to delete lead contact?">
-                    <IconTrash
-                      className="text-red-400 text-sm cursor-pointer hover:text-red-600"
-                      onClick={e => {
-                        handleDeleteContact();
-                      }}
-                      size={15}
-                    />
-                  </Popconfirm>
-                </div>
-              </div>
-              <h2 className="font-semibold text-lg">{primaryContact?.name ?? '-'}</h2>
-              <p className="text-sm">
-                {enumToReadable(leadDetail?.lead?.leadSourceName) || 'Lead Source not provided'}
-              </p>
-
-              <div className="flex items-center gap-2 mt-2">
-                <IconPhoneCall className="w-4 h-4" />
-                <span className="text-sm">{primaryContact?.phone ?? 'N/A'}</span>
-              </div>
-
-              <div className="flex items-center gap-2 mt-1">
-                <IconMail className="w-4 h-4" />
-                <span className="text-sm">{primaryContact?.email ?? 'N/A'}</span>
-              </div>
-            </Card>
-          )}
+          <LeadContactPage
+            setModalOpen={setModalOpen}
+            handleOpenContactModal={handleOpenContactModal}
+            handleDeleteContact={handleDeleteContact}
+          />
 
           {/* Property Card */}
-          <Card className="relative">
-            <div className="flex items-center justify-between mb-3">
-              {leadDetail?.lead?.status === 'New' || propertyFromSlice?.zipPostalCode === null ? (
-                <div className="flex items-center justify-center h-full p-4 w-full">
-                  <Card className="text-center h-full my-auto">
-                    <button
-                      className="text-sm text-blue-600 underline hover:text-blue-800 transition-colors"
-                      onClick={() => setModalOpen('property')}
-                    >
-                      Add property details
-                    </button>
-                    <div className="flex items-center gap-2 mt-2">
-                      <p
-                        className="text-sm text-gray-600 cursor-pointer"
-                        onClick={() => setModalOpen('job')}
-                      >
-                        Add Job details
-                      </p>
-                      {!!leadDetail?.job && (
-                        <Popconfirm
-                          title="Are you sure you want to delete job detail?"
-                          onConfirm={handleDeleteJobDetail}
-                        >
-                          <Button
-                            size="small"
-                            type="text"
-                            icon={<IconTrash color="red" size={16} />}
-                          />
-                        </Popconfirm>
-                      )}
-                    </div>
-                  </Card>
-                </div>
-              ) : (
-                <>
-                  {' '}
-                  <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded">
-                    Property
-                  </span>
-                  <IconEdit
-                    className="text-gray-400 text-sm cursor-pointer hover:text-gray-600"
-                    onClick={() => setModalOpen('property')}
-                  />
-                </>
-              )}
-            </div>
-            {propertyFromSlice?.address1 ||
-            propertyFromSlice?.citySuburb ||
-            propertyFromSlice?.stateRegion ||
-            propertyFromSlice?.zipPostalCode ? (
-              <>
-                <Tooltip title={propertyFromSlice?.address1}>
-                  <Typography.Title
-                    className="font-semibold !text-lg"
-                    ellipsis={{ rows: 2, symbol: '...' }}
-                  >
-                    {propertyFromSlice?.address1 ?? ''}
-                  </Typography.Title>
-                </Tooltip>
-                <p className="text-sm text-gray-600">
-                  {[
-                    propertyFromSlice?.citySuburb,
-                    propertyFromSlice?.stateRegion,
-                    propertyFromSlice?.zipPostalCode,
-                  ]
-                    .filter(Boolean)
-                    .join(', ')}
-                </p>
-
-                <div className="text-sm text-gray-600 mt-2">
-                  <p>
-                    Title :{' '}
-                    {propertyFromSlice?.titleDate
-                      ? dayjs(propertyFromSlice?.titleDate).format('DD-MM-YYYY')
-                      : ''}
-                  </p>
-                  <p>Type : {propertyFromSlice?.landType ?? ''}</p>
-                  <p>
-                    W: {propertyFromSlice?.widthM || ''}
-                    {propertyFromSlice?.widthM ? 'm' : ''} D: {propertyFromSlice?.depthM || ''}
-                    {propertyFromSlice?.depthM ? 'm' : ''} Total:{' '}
-                    {propertyFromSlice?.totalSizeM2 || ''}
-                    {propertyFromSlice?.totalSizeM2 ? ' m²' : ''}
-                  </p>
-                </div>
-              </>
-            ) : (
-              leadDetail?.lead?.status !== 'New' && (
-                <div className="flex flex-col items-center justify-center p-6 rounded-lg">
-                  <IconBarrierBlock />
-                  <p className="text-sm text-gray-500 text-center">No property details added yet</p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    Add property information to get started
-                  </p>
-                </div>
-              )
-            )}
-          </Card>
+          <LeadPropertyPage
+            setModalOpen={setModalOpen}
+            handleDeleteJobDetail={handleDeleteJobDetail}
+          />
 
           {/* Quotation Card */}
-          {leadDetail?.lead?.status === 'Convert' ? (
-            <Card className="flex flex-col items-center justify-center p-6 rounded-lg">
-              <Link
-                href={SystemRoutes.QUOTATION_CREATE(leadId)}
-                className="text-sm text-gray-500 text-center underline"
-              >
-                Create Quotation
-              </Link>
-              <p
-                className="text-sm text-gray-500 text-center underline mt-2 cursor-pointer"
-                onClick={() => setModalOpen('invoice')}
-              >
-                Capture deposit
-              </p>
-            </Card>
-          ) : (
-            leadDetail?.lead?.status !== 'New' && (
-              <Card>
-                <div className="flex flex-col justify-between">
-                  <Link
-                    href={SystemRoutes.QUOTATION_CREATE(leadId)}
-                    className="text-theme-blue text-sm"
-                  >
-                    Create Quotation
-                  </Link>
-                  <div className="max-h-[200px] my-2 overflow-y-auto">
-                    <List
-                      dataSource={createdQuotations || []}
-                      locale={{
-                        emptyText: (
-                          <div className="flex flex-col items-center justify-center p-6">
-                            <IconFileText />
-                            <p className=" text-sm text-gray-500 text-center">
-                              No quotations found
-                            </p>
-                            <p className="text-xs text-gray-400 mt-1">
-                              Create a quotation to get started
-                            </p>
-                          </div>
-                        ),
-                      }}
-                      renderItem={(quotation: any) => (
-                        <List.Item
-                          key={quotation?.quotationId}
-                          onClick={() => {
-                            return router.push(
-                              `/quotation/${quotation?.versions[0]?.quotationVersionId}`
-                            );
-                          }}
-                          style={{ cursor: 'pointer' }}
-                        >
-                          <div className="flex items-center justify-between w-full overflow-hidden">
-                            <div className="flex items-center space-x-4">
-                              <div className="bg-gray-100 p-2 rounded-lg">
-                                {createdQuotations.indexOf(quotation) + 1}
-                              </div>
-                              <div>
-                                <div className="font-medium text-gray-900">
-                                  <span className=" text-sm text-gray-500">
-                                    {quotation?.slugId?.slice(0, 13)}...
-                                  </span>
-                                </div>
-                                <div className="flex items-center space-x-2 mt-1">
-                                  <Tag
-                                    color={quotation?.lead?.status === 'Open' ? 'blue' : 'green'}
-                                    className="m-0"
-                                  >
-                                    {enumToReadable(quotation?.leadStatus)}
-                                  </Tag>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-xs text-gray-500">Total Amount</div>
-                              <div className="text-lg font-semibold text-gray-900">
-                                ${Number(quotation?.totalAmount || 0)}
-                              </div>
-                            </div>
-                            <div className="hover:text-red-500">
-                              <button
-                                onClick={e => {
-                                  e.stopPropagation();
-                                  setSelectedQuotationId(quotation?.quotationId);
-                                  setShowDeleteConfirm(true);
-                                }}
-                              >
-                                <IconTrash size={20} />
-                              </button>
-                            </div>
-                          </div>
-                        </List.Item>
-                      )}
-                    />
-                  </div>
-                </div>
-              </Card>
-            )
-          )}
+          <LeadQuotation
+            leadId={leadId}
+            setModalOpen={setModalOpen}
+            createdQuotations={createdQuotations}
+            setSelectedQuotationId={setSelectedQuotationId}
+            setShowDeleteConfirm={setShowDeleteConfirm}
+          />
         </div>
 
         <div className="m-3">

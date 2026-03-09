@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Tabs, Form, Input, Radio, Select, Alert, message } from 'antd';
 import type { TabsProps } from 'antd';
-import { QuotationResponse } from '@redux/feature/quotation/IQuotationState';
+import { Quotation, QuotationResponse } from '@redux/feature/quotation/IQuotationState';
 import { IconFileText } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
 import { convertLeadToJobThunk } from '@redux/feature/lead/leadThunk';
@@ -17,7 +17,7 @@ interface CloseLeadModalProps {
   setIsModalOpen: (open: boolean) => void;
   leadData?: any;
   active?: string;
-  quotations?: QuotationResponse[];
+  quotations?: Quotation[];
 }
 
 const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
@@ -129,22 +129,22 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
                           value={(quotation?.versions[0] as any)?.quotationVersionId}
                         >
                           <div
-                            key={quotation?.slugId}
+                            key={quotation?.referenceNumber}
                             className={`py-2 items-center ${index < quotations.length - 1 ? 'border-b border-gray-100 ' : ''}`}
                           >
                             <div className="flex items-center justify-between lg:gap-48 max-[1024px]:gap-36 max-[620px]:gap-16 gap-7  ">
                               <div className="ml-2">
-                                {quotation.slugId} (V
+                                {quotation.referenceNumber} (V
                                 {(quotation?.versions[0] as any)?.versionNumber})
                               </div>
                               <div
-                                className={`px-2 py-0.5 rounded text-xs font-medium ${quotation?.leadStatus === 'COMPLETED' ? 'bg-green-50 text-green-600 border border-green-200' : 'bg-blue-50 text-blue-600 border border-blue-200'}`}
+                                // className={`px-2 py-0.5 rounded text-xs font-medium ${quotation?. === 'COMPLETED' ? 'bg-green-50 text-green-600 border border-green-200' : 'bg-blue-50 text-blue-600 border border-blue-200'}`}
                               >
-                                {quotation?.leadStatus}
+                                {/* {quotation?.leadStatus} */}
                               </div>
                               <div>
                                 $
-                                {quotation?.totalAmount.toLocaleString('en-US', {
+                                {quotation?.totalAmount?.toLocaleString('en-US', {
                                   minimumFractionDigits: 2,
                                 })}
                               </div>

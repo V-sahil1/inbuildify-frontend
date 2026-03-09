@@ -1,9 +1,10 @@
 import { IPriceListItem } from '@redux/feature/masterPriceList/iMasterPriceListState';
 import { Package } from '@redux/feature/package/IPackageState';
+import { QuotationPriceListItem } from '@redux/feature/quotation/IQuotationState';
 
 const calculateTotalQuotation = (
   packageFromSlice: Package,
-  itemsFromSlice: (IPriceListItem & { quantity: number })[],
+  itemsFromSlice: QuotationPriceListItem[],
   facadeCost: number
 ) => {
   let total = Number(packageFromSlice?.amount) || 0;
@@ -12,7 +13,7 @@ const calculateTotalQuotation = (
   itemsFromSlice?.forEach(item => {
     if (!packageItemIds?.has(item.priceListItemId)) {
       const qty = Number(item.quantity) || 0;
-      const price = Number(item.cost) || 0;
+      const price = Number(item.itemCost) || 0;
       total += qty * price;
     }
   });
