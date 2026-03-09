@@ -13,7 +13,7 @@ import { Lead } from '@redux/feature/lead/ILeadState';
 import { IconMail, IconPhone } from '@tabler/icons-react';
 import { timeAgo } from '@lib/utils/timeAgo';
 import { enumToReadable } from '@lib/utils/enumToRedable';
-import leadCreateFields from '@/components/formFields/LeadCreateFields';
+import useLeadCreateFields from '@/components/formFields/LeadCreateFields';
 import SystemRoutes from '@lib/constants/Routes';
 import { setAddInstSourceModal } from '@redux/feature/lead/leadSlice';
 import rangeAndDwellingTypeFields from '@/components/formFields/rangeAndDwellingTypeFields';
@@ -28,6 +28,8 @@ const Leads = () => {
   const [showConflictModal, setShowConflictModal] = useState(false);
   const [pendingLeadData, setPendingLeadData] = useState<createLeadPayload | null>(null);
   const [loading, setLoading] = useState({ leadLoading: false, leadSourceLoading: false });
+  
+  const leadCreateFields = useLeadCreateFields({ isEmailDisable: false });
 
   async function fetchData() {
     try {
@@ -172,9 +174,7 @@ const Leads = () => {
         loading={loading.leadLoading}
         onCancel={() => setOpenLeadCreateModal(false)}
         onSubmit={handleSubmit}
-        fields={leadCreateFields({
-          isEmailDisable: false,
-        })}
+        fields={leadCreateFields}
       />}
       {addInstSourceModal && <ActionDialogmodel
         title="LeadSource"

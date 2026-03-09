@@ -18,7 +18,7 @@ export type LeadFormField = Omit<FormField, 'type'> & {
   type?: 'email' | 'phone' | 'select' | 'textarea' | 'checkbox';
 };
 
-const leadCreateFields = (
+export const useLeadCreateFields = (
   { isEmailDisable }: { isEmailDisable: boolean } = { isEmailDisable: false }
 ): readonly FormField[] => {
   const dispatch = useAppDispatch();
@@ -93,4 +93,4 @@ const leadCreateFields = (
   ] as const;
 };
 
-export default leadCreateFields;
+export default useLeadCreateFields;
