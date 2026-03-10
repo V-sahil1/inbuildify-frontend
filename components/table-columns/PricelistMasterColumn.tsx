@@ -254,7 +254,7 @@ export const PricelistMasterColumn = (
           ? // edit price master
             await dispatch(
               updatePricelistMaster({
-                payload: { isActive: values.isActive === 'active' },
+                payload: { ...values, isActive: values.isActive === 'active' },
                 id: selectedPriceMaster.priceListId,
               })
             ).unwrap()
@@ -276,5 +276,6 @@ export const PricelistMasterColumn = (
     categoryData: priceMaster,
     masterFields: masterFields?.filter(Boolean) as FormField[],
     priceMasterSubmit: handleSubmit,
+    handlePriceMasterStatus,
   };
 };

@@ -1,12 +1,12 @@
 import { Entity } from 'types/common.types';
 
 export interface IPriceList {
-  priceListId: string;
+  priceListId?: string;
   name: string;
   sortOrder: number;
-  showInViewList: boolean;
-  isActive: boolean;
-  location: string;
+  showInViewList?: boolean;
+  isActive?: boolean;
+  location?: string;
   isExpanded?: boolean;
   items?: IPriceListItem[];
 }

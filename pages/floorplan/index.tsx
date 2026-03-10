@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Button, message, Space, Table } from 'antd';
+import { Button, Empty, message, Pagination, Space, Spin } from 'antd';
 import { TableDrawer } from '@/components/common/TableDrawer';
 import FloorPlanFormModal from '@/components/floorplan/FloorplanFormModal';
 import { FacadeColumns } from '@/components/table-columns/FacadeColumns';
-import { FloorPlanColumn } from '@/components/table-columns/floorPlanColumn';
 import { FloorplanPricelistColumns } from '@/components/table-columns/FloorplanPricelistColumns';
 import { QuotationHistoryColumn } from '@/components/table-columns/QuotationHistoryColumn';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
@@ -11,14 +10,16 @@ import { Status } from '@lib/constants/enum';
 import { debouncedURL } from '@lib/utils/debounceURL';
 import { QuotationHistory } from '@lib/utils/Reports/quotation/QuotationHistory';
 import {
+  createFloorPlan,
   fetchFloorPlanFacade,
   fetchFloorPlanPricelist,
   fetchFloorPlans,
+  updateFloorPlan,
 } from '@redux/feature/floorPlan/floorPlanThunk';
 import { RootState } from '@redux/feature/store';
 import { IconDownload } from '@tabler/icons-react';
 import { FloorPlanGetParams, IFloorPlanState } from '@redux/feature/floorPlan/IFloorPlanState';
-import { getPaginationConfig } from '@lib/utils/getPaginationConfig';
+import { FloorPlanItem } from '@/components/common/FloorPlanItem';
 
 const FloorPlanMaster = () => {
   const dispatch = useAppDispatch();
@@ -33,18 +34,11 @@ const FloorPlanMaster = () => {
     filters: debouncedFilters,
     debouncedUpdateURL,
     setParams,
-    instantFilters
+    instantFilters,
   } = debouncedURL({
     filtersKey: ['name', 'dwellingType', 'location', 'label', 'status'],
     initialValue: { status: '', dwellingType: 'all', label: 'all', location: 'all' },
   });
-  const { columns: floorPlanColumns, handleFloorPlan } = FloorPlanColumn(
-    setDrawerOpen,
-    setParams,
-    selectedFloorplan,
-    setSelectedFloorplan,
-    instantFilters
-  );
   const { columns: quotationColumns, data } = QuotationHistoryColumn();
   const { columns: floorplanPricelistColumn, priceListItems } = FloorplanPricelistColumns(
     floorPlans?.find(i => i?.floorPlanId === selectedFloorplan?.floorPlanId)?.pricelistItems,
@@ -82,7 +76,8 @@ const FloorPlanMaster = () => {
         limit,
       };
       params.name = debouncedFilters?.name || undefined;
-      params.dwelling_type_id = debouncedFilters?.dwellingType !== 'all' ? debouncedFilters?.dwellingType : undefined;
+      params.dwelling_type_id =
+        debouncedFilters?.dwellingType !== 'all' ? debouncedFilters?.dwellingType : undefined;
       params.location_id =
         debouncedFilters?.location !== 'all' ? debouncedFilters?.location : undefined;
       params.range_id = debouncedFilters?.label !== 'all' ? debouncedFilters?.label : undefined;
@@ -110,9 +105,25 @@ const FloorPlanMaster = () => {
     }
   };
 
+  const handleFloorPlan = async values => {
+    try {
+      if (selectedFloorplan) {
+        await dispatch(
+          updateFloorPlan({ data: values, floorPlanId: selectedFloorplan.floorPlanId })
+        ).unwrap();
+        message.success('Floor Plan Updated Successfully');
+      } else {
+        await dispatch(createFloorPlan(values)).unwrap();
+        message.success('Floor Plan Created Successfully');
+      }
+      setSelectedFloorplan(null);
+    } catch (error) {
+      message.error(error || 'Failed to save Floor Plans');
+    }
+  };
   return (
-    <div className="p-4">
-      <div className="flex justify-between items-center mb-4">
+    <div className="p-4 h-[calc(100vh-150px)] flex flex-col ">
+      <div className="flex justify-between items-center mb-4 flex-shrink-0">
         <h1 className="text-2xl font-bold">Floor Plan Master</h1>
         <Space>
           <Button type="primary">
@@ -126,24 +137,42 @@ const FloorPlanMaster = () => {
           </Button>
         </Space>
       </div>
-      <Table
-        columns={floorPlanColumns}
-        dataSource={floorPlans}
-        onRow={record => ({
-          onClick: () => {
-            setcreateFloorPlanOpen(true);
-            setSelectedFloorplan(record);
-          },
-        })}
-        pagination={getPaginationConfig({
-          currentPage,
-          limit: pagination?.limit,
-          totalRecords: pagination?.totalRecords,
-          setCurrentPage,
-        })}
-        loading={status?.floorPlan.fetch === Status.PENDING}
-        scroll={{ x: 'max-content' }}
-      />
+      <div className="flex-1 overflow-auto custom-scrollbar">
+        {status.floorPlan.fetch === Status.PENDING ? (
+          <div className="flex justify-center items-center h-full">
+            <Spin size="large" />
+          </div>
+        ) : floorPlans?.length > 0 ? (
+          <FloorPlanItem
+            floorPlans={floorPlans}
+            setcreateFloorPlanOpen={setcreateFloorPlanOpen}
+            setSelectedFloorplan={setSelectedFloorplan}
+            setDrawerOpen={setDrawerOpen}
+          />
+        ) : (
+          <Empty
+            description={
+              <span className="text-gray-500">
+                No floor plan found. Create your first floor plan to get started.
+              </span>
+            }
+            className="py-12"
+          />
+        )}
+      </div>
+      <div className="flex justify-end mt-3 flex-shrink-0">
+        <Pagination
+          current={currentPage || 1}
+          pageSize={pagination?.limit || PAGE_SIZE}
+          total={pagination?.totalRecords || 0}
+          showSizeChanger={false}
+          showQuickJumper={false}
+          showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} floor plans`}
+          onChange={page => {
+            setCurrentPage(page);
+          }}
+        />
+      </div>
       {createFloorPlanOpen && (
         <FloorPlanFormModal
           title={!!selectedFloorplan ? 'Edit FloorPlan' : 'Create FloorPlan'}
@@ -198,10 +227,10 @@ const FloorPlanMaster = () => {
               columns: floorplanPricelistColumn,
               data: !!showSelectedData
                 ? floorPlans
-                  ?.find(i => i?.floorPlanId === selectedFloorplan?.floorPlanId)
-                  ?.pricelistItems?.map(i =>
-                    priceListItems.find(c => c?.priceListItemId === i?.priceListItemId)
-                  )
+                    ?.find(i => i?.floorPlanId === selectedFloorplan?.floorPlanId)
+                    ?.pricelistItems?.map(i =>
+                      priceListItems.find(c => c?.priceListItemId === i?.priceListItemId)
+                    )
                 : priceListItems,
             },
           ]}
@@ -239,8 +268,8 @@ const FloorPlanMaster = () => {
               columns: facadeColumns,
               data: !!showSelectedData
                 ? floorPlans
-                  ?.find(i => i?.floorPlanId === selectedFloorplan?.floorPlanId)
-                  ?.facade?.map(i => facades.find(c => c?.facadeId === i?.facadeId))
+                    ?.find(i => i?.floorPlanId === selectedFloorplan?.floorPlanId)
+                    ?.facade?.map(i => facades.find(c => c?.facadeId === i?.facadeId))
                 : facades,
             },
           ]}

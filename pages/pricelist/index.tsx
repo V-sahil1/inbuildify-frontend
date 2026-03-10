@@ -3,7 +3,6 @@ import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel'
 import AddMasterPricingItemModal from '@/components/common/Models/AddMasterPricingItemModel';
 import { TableDrawer } from '@/components/common/TableDrawer';
 import { PricelistHeader } from '@/components/pricelist/PricelistHeader';
-import { PricelistSidebar } from '@/components/pricelist/PricelistSidebar';
 import { PricelistColumn } from '@/components/table-columns/PricelistColumn';
 import { PricelistLocationColumn } from '@/components/table-columns/PricelistLocationColumn';
 import { PricelistMasterColumn } from '@/components/table-columns/PricelistMasterColumn';
@@ -14,28 +13,28 @@ import { debouncedURL } from '@lib/utils/debounceURL';
 import { BulkPricelist } from '@lib/utils/Reports/pricelist/BulkPricelist';
 import { QuotationHistory } from '@lib/utils/Reports/quotation/QuotationHistory';
 import { LocationType } from '@redux/feature/common/ICommonState';
-import {
-  IPriceList,
-  IPriceListItem,
-  PricelistItemFtechParams,
-} from '@redux/feature/masterPriceList/iMasterPriceListState';
+import { IPriceList, IPriceListItem } from '@redux/feature/masterPriceList/iMasterPriceListState';
 import { toggleExpand } from '@redux/feature/masterPriceList/masterPriceListSlice';
 import {
   fetchCategoryItems,
   fetchPricelistMaster,
 } from '@redux/feature/masterPriceList/masterPriceListThunk';
 import { IconDownload } from '@tabler/icons-react';
-import { Button, message, Space, Table, Upload } from 'antd';
+import { Button, Empty, message, Space, Spin, Upload } from 'antd';
 import { useEffect, useState } from 'react';
+import { MasterPricelist } from '@/components/common/MasterPricelist';
 
 const PriceList = () => {
   const [drawerOpen, setDrawerOpen] = useState<
     'create' | 'quotation' | 'copy' | 'location' | 'master' | 'edit' | null
   >(null);
-  const [currentPage, setCurrentPage] = useState(1);
   const [selectedPricelist, setSelectedPricelist] = useState<IPriceListItem | null>(null);
   const [selectedPriceMaster, setSelectedPriceMaster] = useState<IPriceList | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<LocationType | null>(null);
+  const [localCategories, setLocalCategories] = useState<IPriceList[]>([]);
+  const [dropDowns, setDropDowns] = useState<Record<string, boolean>>({});
+  const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({});
+
   const [modalOpen, setModalOpen] = useState<
     | 'copy'
     | 'create'
@@ -46,8 +45,7 @@ const PriceList = () => {
     | 'import'
     | 'createLocation'
   >(null);
-  const { priceMaster, status, pagination } = useAppSelector(state => state.masterPriceList);
-  const PAGE_SIZE = 10;
+  const { priceMaster, status } = useAppSelector(state => state.masterPriceList);
   const dispatch = useAppDispatch();
 
   const { debouncedUpdateURL, setParams, filters } = debouncedURL({
@@ -65,15 +63,8 @@ const PriceList = () => {
     initialValue: { status: '' },
   });
 
-  const {
-    columns: pricelistColumn,
-    handlePricelistSubmit,
-    handleActivateItem,
-  } = PricelistColumn(
-    filters,
-    setParams,
+  const { handlePricelistSubmit, handleActivateItem } = PricelistColumn(
     setDrawerOpen,
-    setModalOpen,
     setSelectedPricelist,
     selectedPricelist
   );
@@ -91,7 +82,12 @@ const PriceList = () => {
     categoryData,
     masterFields,
     priceMasterSubmit,
+    handlePriceMasterStatus,
   } = PricelistMasterColumn(setModalOpen, modalOpen, setSelectedPriceMaster, selectedPriceMaster);
+
+  useEffect(() => {
+    setLocalCategories(priceMaster);
+  }, [priceMaster]);
 
   useEffect(() => {
     const fetchCategoriesData = async () => {
@@ -106,55 +102,38 @@ const PriceList = () => {
     }
   }, [dispatch, status.priceMaster]);
 
-  const fetchItems = async () => {
-    try {
-      priceMaster?.map(async i => {
-        if (!i.isExpanded) {
-          dispatch(toggleExpand(i.priceListId));
-          await dispatch(fetchCategoryItems({ price_list_id: i.priceListId })).unwrap();
-        }
-      });
-    } catch (error) {
-      message.error(error || 'Failed to fetch items');
-    }
-  };
-  useEffect(() => {
-    fetchItems();
-  }, [status.priceMaster]);
-
-  const fetchAllCategoryItems = async (page: number = currentPage, limit: number = PAGE_SIZE) => {
-    const params: PricelistItemFtechParams = {
-      page,
-      limit,
-      price_list_id: selectedPriceMaster?.priceListId,
-    };
-    params.range_id = filters?.range || undefined;
-    params.status =
-      filters?.status !== '' ? (filters?.status === 'true' ? 'active' : 'inactive') : undefined;
-    params.price = filters?.price || undefined;
-    params.cost_option = filters?.costOption || undefined;
-    params.sort_order = filters?.sort || undefined;
-    params.item_description = filters?.description || undefined;
-    params.location_id = filters?.location || undefined;
-    params.dwelling_type_id = filters?.dwellingType || undefined;
-    try {
-      if (!selectedPriceMaster?.isExpanded) {
-        dispatch(toggleExpand(selectedPriceMaster?.priceListId));
-        await dispatch(fetchCategoryItems(params)).unwrap();
-      }
-    } catch (error) {
-      message.error(error || 'Failed to fetch category items');
-    }
-  };
-
-  useEffect(() => {
-    fetchAllCategoryItems();
-  }, [selectedPriceMaster, filters]);
   useEffect(() => {
     return () => {
       debouncedUpdateURL.cancel();
     };
   }, [debouncedUpdateURL]);
+
+  const handleExpand = async (categoryId: string, isExpanded: boolean) => {
+    setDropDowns(prev => ({
+      ...prev,
+      [categoryId]: !prev[categoryId],
+    }));
+
+    if (!isExpanded) {
+      try {
+        setLoadingItems(prev => ({ ...prev, [categoryId]: true }));
+
+        dispatch(toggleExpand(categoryId));
+
+        await dispatch(
+          fetchCategoryItems({
+            price_list_id: categoryId,
+            range_id: filters?.range || undefined,
+            dwelling_type_id: filters?.dwellingType || undefined,
+          })
+        ).unwrap();
+      } catch (error: any) {
+        message.error(error || 'Failed to fetch category items');
+      } finally {
+        setLoadingItems(prev => ({ ...prev, [categoryId]: false }));
+      }
+    }
+  };
   return (
     <div className="p-4">
       <div className="flex items-center justify-between mb-4">
@@ -166,45 +145,32 @@ const PriceList = () => {
           setModalOpen={setModalOpen}
         />
       </div>
-      <div className="grid grid-cols-5 gap-2">
-        <div className="col-span-1">
-          <PricelistSidebar
-            filters={filters}
-            setParams={setParams}
-            selectedCategory={selectedPriceMaster}
-            setSelectedCategory={setSelectedPriceMaster}
-            categories={priceMaster}
-          />
+
+      {status.priceMaster == Status.PENDING ? (
+        <div className="flex justify-center items-center pt-[20vh]">
+          <Spin size="large" />
         </div>
-        <div className="col-span-4">
-          <Table
-            columns={pricelistColumn}
-            dataSource={
-              selectedPriceMaster
-                ? priceMaster.find(i => i.priceListId === selectedPriceMaster?.priceListId)?.items
-                : priceMaster?.map(i => (i.items?.length > 0 ? i.items : [])).flat() || []
-            }
-            onRow={record => ({
-              onClick: () => {
-                setModalOpen('ItemCreate');
-                setSelectedPricelist(record);
-              },
-            })}
-            pagination={{
-              current: pagination?.currentPage,
-              pageSize: pagination?.limit,
-              total: pagination?.totalRecords,
-              showSizeChanger: false,
-              showQuickJumper: false,
-              showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
-              onChange: page => {
-                setCurrentPage(page);
-              },
-            }}
-            scroll={{ x: 'max-content' }}
-          />
-        </div>
-      </div>
+      ) : priceMaster?.length > 0 ? (
+        <MasterPricelist
+          localCategories={localCategories}
+          setLocalCategories={setLocalCategories}
+          dropDowns={dropDowns}
+          loadingItems={loadingItems}
+          handleExpand={handleExpand}
+          handlePriceMasterStatus={handlePriceMasterStatus}
+          setModalOpen={setModalOpen}
+          setDrawerOpen={setDrawerOpen}
+          setSelectedPriceMaster={setSelectedPriceMaster}
+          setSelectedPricelist={setSelectedPricelist}
+          handleActivateItem={handleActivateItem}
+        />
+      ) : (
+        <Empty
+          description={<span className="text-gray-500">No Master Price found.</span>}
+          className="py-12"
+        />
+      )}
+
       {modalOpen === 'ItemCreate' && (
         <AddMasterPricingItemModal
           open={modalOpen === 'ItemCreate'}

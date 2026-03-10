@@ -1,17 +1,17 @@
 import { ConfirmationContentModal } from '@/components/common/ConfirmationContentModal';
 import { TableDrawer } from '@/components/common/TableDrawer';
 import { PackageFormModal } from '@/components/package/PackageFormModal';
+import { PackageItem } from '@/components/package/PackageItem';
 import { PackageColumn } from '@/components/table-columns/PackageColumn';
 import { PackagePricelistColumn } from '@/components/table-columns/PackagePricelistColumn';
 import { QuotationHistoryColumn } from '@/components/table-columns/QuotationHistoryColumn';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { Status } from '@lib/constants/enum';
-import { getPaginationConfig } from '@lib/utils/getPaginationConfig';
 import { QuotationHistory } from '@lib/utils/Reports/quotation/QuotationHistory';
 import type { Package, PackageFetchParams } from '@redux/feature/package/IPackageState';
 import { fetchPackagePricelist, fetchPackages } from '@redux/feature/package/packageThunk';
 import { IconDownload, IconPlus } from '@tabler/icons-react';
-import { Button, message, Space, Table } from 'antd';
+import { Button, Empty, message, Pagination, Space, Spin, Table } from 'antd';
 import { useEffect, useState } from 'react';
 
 const Package = () => {
@@ -23,13 +23,7 @@ const Package = () => {
     'pricelist' | 'quotation' | 'delete' | 'edit' | 'create' | null
   >(null);
   const { packages, status, pagination } = useAppSelector(state => state.package);
-  const {
-    column: packageColumn,
-    handlePackageSubmit,
-    handlePackageStatus,
-    debouncedUpdateURL,
-    filters,
-  } = PackageColumn({
+  const { handlePackageSubmit, handlePackageStatus, debouncedUpdateURL, filters } = PackageColumn({
     setDrawerOpen,
     setSelectedPackage,
     selectedPackage,
@@ -104,24 +98,44 @@ const Package = () => {
           </Button>
         </div>
       </div>
-      <Table
-        columns={packageColumn}
-        dataSource={packages}
-        onRow={record => ({
-          onClick: () => {
-            setSelectedPackage(record);
-            setDrawerOpen('create');
-          },
-        })}
-        pagination={getPaginationConfig({
-          currentPage,
-          limit: pagination?.limit,
-          totalRecords: pagination?.totalRecords,
-          setCurrentPage,
-        })}
-        scroll={{ x: 'max-content' }}
-        loading={status.packages === Status.PENDING}
-      />
+      {status.packages === Status.PENDING ? (
+        <div className="flex justify-center items-center h-64">
+          <Spin size="large" />
+        </div>
+      ) : packages && packages?.length > 0 ? (
+        <div className="space-y-4">
+          {packages?.map(pkg => (
+            <PackageItem
+              key={pkg.packageId}
+              pkg={pkg}
+              setSelectedPackage={setSelectedPackage}
+              setDrawerOpen={setDrawerOpen}
+            />
+          ))}
+        </div>
+      ) : (
+        <Empty
+          description={
+            <span className="text-gray-500">
+              No packages found. Create your first package to get started.
+            </span>
+          }
+          className="py-12"
+        />
+      )}
+      <div className="flex justify-end mt-3 flex-shrink-0">
+        <Pagination
+          current={currentPage || 1}
+          pageSize={pagination?.limit || PAGE_SIZE}
+          total={pagination?.totalRecords || 0}
+          showSizeChanger={false}
+          showQuickJumper={false}
+          showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} floor plans`}
+          onChange={page => {
+            setCurrentPage(page);
+          }}
+        />
+      </div>
       {drawerOpen === 'create' && (
         <PackageFormModal
           title="Package Information"
@@ -170,17 +184,17 @@ const Package = () => {
                   ? showAll
                     ? priceListItems
                     : packages
-                      .find(i => i.packageId === selectedPackage.packageId)
-                      ?.priceListItem.map(i =>
-                        priceListItems.find(p => p.priceListItemId === i.priceListItemId)
-                      )
+                        .find(i => i.packageId === selectedPackage.packageId)
+                        ?.priceListItem.map(i =>
+                          priceListItems.find(p => p.priceListItemId === i.priceListItemId)
+                        )
                   : quotationHistoryData,
             },
           ]}
           open={['pricelist', 'quotation'].includes(drawerOpen)}
           onClose={() => {
             setSelectedPackage(null);
-            setDrawerOpen(null)
+            setDrawerOpen(null);
           }}
           width={drawerOpen === 'pricelist' ? 700 : 900}
         >

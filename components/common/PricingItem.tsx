@@ -1,14 +1,40 @@
 import { enumToReadable } from '@lib/utils/enumToRedable';
-import { Task } from '@redux/feature/workflow/iWorkflowState';
-import { IconEdit, IconLink, IconTrash } from '@tabler/icons-react';
-import { Tag, Tooltip } from 'antd';
+import { IconCopy, IconEdit, IconPlus, IconRotate, IconTrash } from '@tabler/icons-react';
+import { Popconfirm, Tag, Tooltip } from 'antd';
+import TooltipButton from './TooltipButton';
+import { IPriceListItem } from '@redux/feature/masterPriceList/iMasterPriceListState';
 
 interface PricingItemProps {
   item: any;
-  handleClick: (action: string, categoryItem: string) => void;
+  handleClick?: (action: string, categoryItem: string) => void;
+  setSelectedPricelist?: (pricelist: IPriceListItem) => void;
+  setModalOpen?: (
+    open:
+      | 'copy'
+      | 'create'
+      | 'edit'
+      | 'Itemcopy'
+      | 'ItemCreate'
+      | 'activePricelist'
+      | 'import'
+      | 'createLocation'
+  ) => void;
+  setDrawerOpen?: (
+    open: 'create' | 'quotation' | 'copy' | 'location' | 'master' | 'edit' | null
+  ) => void;
+  handleActivateItem?: () => void;
+  isEditable?: boolean;
 }
 
-export const PricingItem = ({ item, handleClick }: PricingItemProps) => {
+export const PricingItem = ({
+  item,
+  handleClick,
+  setSelectedPricelist,
+  setModalOpen,
+  setDrawerOpen,
+  handleActivateItem,
+  isEditable = true,
+}: PricingItemProps) => {
   return (
     <div
       key={item.categoryItemId}
@@ -54,8 +80,9 @@ export const PricingItem = ({ item, handleClick }: PricingItemProps) => {
         </div>
       </div>
 
-      <div className="flex gap-4">
-        {(item?.attachment || item?.image) && (
+      {isEditable && (
+        <div className="flex gap-4">
+          {/* {(item?.attachment || item?.image) && (
           <Tooltip title="View attachment">
             <button
               type="button"
@@ -68,15 +95,71 @@ export const PricingItem = ({ item, handleClick }: PricingItemProps) => {
               <IconLink size={20} className="text-font-color group-hover:text-blue" />
             </button>
           </Tooltip>
-        )}
-
-        <button className="rounded-md p-1 group" onClick={() => handleClick('edit', item)}>
-          <IconEdit size={20} className="text-font-color group-hover:text-blue" />
-        </button>
-        <button className="rounded-md p-1 group" onClick={() => handleClick('delete', item)}>
-          <IconTrash size={20} className="text-font-color group-hover:text-red-500" />
-        </button>
-      </div>
+        )} */}
+          <TooltipButton
+            title="Copy"
+            type="text"
+            icon={<IconCopy size={18} />}
+            onClick={e => {
+              e.stopPropagation();
+              setSelectedPricelist(item);
+              setModalOpen('Itemcopy');
+            }}
+          />
+          <TooltipButton
+            title="Edit"
+            type="text"
+            icon={<IconEdit size={18} />}
+            onClick={e => {
+              e.stopPropagation();
+              setModalOpen('ItemCreate');
+              setSelectedPricelist(item);
+            }}
+          />
+          {item.status === 'active' ? (
+            <Popconfirm
+              title="Do you want to InActivate pricelist item?"
+              okText="InActive"
+              onCancel={e => e.stopPropagation()}
+              onConfirm={e => {
+                e.stopPropagation();
+                handleActivateItem();
+              }}
+              placement="topRight"
+            >
+              <TooltipButton
+                title="InActive"
+                type="text"
+                icon={<IconTrash color="red" size={18} />}
+                onClick={e => {
+                  e.stopPropagation();
+                  setSelectedPricelist(item);
+                }}
+              />
+            </Popconfirm>
+          ) : (
+            <TooltipButton
+              title="Active"
+              type="text"
+              icon={<IconPlus size={18} />}
+              onClick={e => {
+                e.stopPropagation();
+                setModalOpen('activePricelist');
+                setSelectedPricelist(item);
+              }}
+            />
+          )}
+          <TooltipButton
+            title="Quotation History"
+            type="text"
+            icon={<IconRotate size={18} />}
+            onClick={e => {
+              e.stopPropagation();
+              setDrawerOpen('quotation');
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 };

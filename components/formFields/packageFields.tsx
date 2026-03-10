@@ -1,26 +1,26 @@
-import { enumArrayToOptions } from '@lib/utils/enumArrayToOptionsConvert';
 import { CreateFormField } from '../common/Models/CreateFormModel';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { RootState } from '@redux/feature/store';
-import { Status } from '@lib/constants/enum';
 import { fetchPackageItems } from '@redux/feature/package/packageThunk';
 import { setAddInstItemModal } from '@redux/feature/package/packageSlice';
 import NoDataMessage from '../common/NoDataMessage';
 import SystemRoutes from '@lib/constants/Routes';
 import { costRules, settingNameRules } from '@lib/constants/formInputValidations';
+import useDwellingAndRangeHook from '@hooks/useDwellingAndRangeHook';
 
 export const packageFields = (selectedValues?: {
   range?: string;
   dwelling?: string;
 }): CreateFormField[] => {
-  const { range, dwellingType } = useAppSelector(state => state.types);
   const items = useAppSelector((state: RootState) => state.package.items);
   const dispatch = useAppDispatch();
+  const { rangeOptions, dwellingTypeOptions } = useDwellingAndRangeHook({
+    type: ['dwellingType', 'range'],
+  });
 
   // function mapToAntdOptions(items: Item[]) {
   function mapToAntdOptions(items: any[]) {
-
     return items?.map(item => ({
       label: item.description, // what to display
       value: item.categoryItemId, // what to capture
@@ -32,7 +32,10 @@ export const packageFields = (selectedValues?: {
     if (selectedValues?.range && selectedValues?.dwelling) {
       try {
         dispatch(
-          fetchPackageItems({ range: selectedValues.range[0] || '', dwellingType: selectedValues.dwelling[0] || '' })
+          fetchPackageItems({
+            range: selectedValues.range[0] || '',
+            dwellingType: selectedValues.dwelling[0] || '',
+          })
         );
       } catch (error) {
         console.error('🚀 ~ packageFields ~ error:', error);
@@ -43,15 +46,6 @@ export const packageFields = (selectedValues?: {
   const handleAddItem = () => {
     dispatch(setAddInstItemModal(true));
   };
-
-  const rangeOptions = range?.map(range => ({
-    label: range?.name,
-    value: range?.name,
-  }));
-  const dwellingTypeOptions = dwellingType?.map(dwellingType => ({
-    label: dwellingType?.name,
-    value: dwellingType?.name,
-  }));
 
   return [
     {

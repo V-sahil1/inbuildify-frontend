@@ -12,7 +12,8 @@ export interface IFacadeState {
   dwellingtype: Entity,
   range: Entity,
   standard?: boolean,
-  upgrade?: boolean
+  upgrade?: boolean,
+  createdAt?:string
 }
 export interface GetFacadesParams {
   status?: boolean;

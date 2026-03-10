@@ -57,7 +57,6 @@ const Package = () => {
       setIsModalVisible(false);
       setEditingPackage(null);
     } catch (error) {
-      console.error('Error saving package:', error);
       message.error(error || 'Failed to save package');
     }
   };
@@ -76,7 +75,7 @@ const Package = () => {
     if (pkg.rangeId && pkg.dwellingTypeId) {
       setFormValues({
         range: pkg.rangeId[0] || '',
-        dwelling: pkg.dwellingTypeId[0] || '' ,
+        dwelling: pkg.dwellingTypeId[0] || '',
       });
     }
 
@@ -89,7 +88,6 @@ const Package = () => {
       await dispatch(deletePackage(packageId)).unwrap();
       message.success('Package deleted successfully');
     } catch (error) {
-      console.error('Error deleting package:', error);
       message.error(error?.response?.data?.message || 'Failed to delete package');
     }
   };
@@ -122,9 +120,9 @@ const Package = () => {
           <PackageItem
             key={pkg.packageId}
             pkg={pkg}
-            onEdit={handleEditPackage}
-            onDelete={handleDeletePackage}
-            isDeleting={itemStatus === Status.PENDING}
+            // onEdit={handleEditPackage}
+            // onDelete={handleDeletePackage}
+            // isDeleting={itemStatus === Status.PENDING}
           />
         ))}
       </div>

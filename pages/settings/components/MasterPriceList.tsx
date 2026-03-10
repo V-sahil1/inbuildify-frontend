@@ -14,6 +14,7 @@ import {
 import {
   IconChevronDown,
   IconChevronUp,
+  IconCopy,
   IconDownload,
   IconEdit,
   IconGripVertical,
@@ -30,10 +31,11 @@ import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautif
 import RangeSelect from '@/components/common/custom-selects/RangeSelect';
 import DwellingTypeSelect from '@/components/common/custom-selects/DwellingTypeSelect';
 import { IPriceList, IPriceListItem } from '@redux/feature/masterPriceList/iMasterPriceListState';
+import TooltipButton from '@/components/common/TooltipButton';
 
 export const MasterPriceList = () => {
   const dispatch = useAppDispatch();
-  const { categories, status } = useAppSelector((state: any) => state.masterPriceList);
+  const { priceMaster, status } = useAppSelector((state: any) => state.masterPriceList);
   const { selectedFilters: mplFilters } = useAppSelector((state: any) => state.masterPriceList);
 
   useEffect(() => {
@@ -44,8 +46,8 @@ export const MasterPriceList = () => {
 
   const [localCategories, setLocalCategories] = useState<IPriceList[]>([]);
   useEffect(() => {
-    setLocalCategories(categories);
-  }, [categories]);
+    setLocalCategories(priceMaster);
+  }, [priceMaster]);
 
   const [addItemModal, setAddItemModal] = useState(false);
   const [categoryId, setCategoryId] = useState('');
@@ -125,9 +127,7 @@ export const MasterPriceList = () => {
         ).unwrap();
         message.success('Category updated successfully');
       } else {
-        // await dispatch(
-        //   createPricelistMaster({ name: values.name })
-        // ).unwrap();
+        await dispatch(createPricelistMaster({ name: values.name, sortOrder: 1 })).unwrap();
         message.success('Category created successfully');
       }
       setAddCategoryModal(false);
@@ -206,8 +206,8 @@ export const MasterPriceList = () => {
   };
 
   const isOrderChanged = () => {
-    if (localCategories?.length !== categories?.length) return true;
-    return localCategories?.some((c, idx) => c?.priceListId !== categories[idx]?.priceListId);
+    if (localCategories?.length !== priceMaster?.length) return true;
+    return localCategories?.some((c, idx) => c?.priceListId !== priceMaster[idx]?.priceListId);
   };
 
   const handleSaveOrder = async () => {
@@ -226,7 +226,7 @@ export const MasterPriceList = () => {
         message.success('Category order updated successfully');
       }
     } catch (error) {
-      setLocalCategories(categories);
+      setLocalCategories(priceMaster);
       message.error(error || 'Failed to update category order');
     } finally {
       setOrderLoading(prev => ({ ...prev, save: false }));
@@ -235,7 +235,7 @@ export const MasterPriceList = () => {
 
   const handleResetOrder = () => {
     setOrderLoading(prev => ({ ...prev, reset: true }));
-    setLocalCategories(categories);
+    setLocalCategories(priceMaster);
     message.success('Category order reset successfully');
     setOrderLoading(prev => ({ ...prev, reset: false }));
     setResetModalVisible(false);
@@ -309,7 +309,7 @@ export const MasterPriceList = () => {
         <div className="flex justify-center items-center pt-[20vh]">
           <Spin size="large" />
         </div>
-      ) : localCategories?.length > 0 ? (
+      ) : priceMaster?.length > 0 ? (
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="categories">
             {provided => (
@@ -358,47 +358,47 @@ export const MasterPriceList = () => {
                             </div>
                             {!isOrderChanged() && (
                               <div className="flex gap-3 flex-shrink-0">
-                                <button
-                                  className="p-2 rounded-lg hover:bg-green-50 transition"
+                                <TooltipButton
+                                  type="text"
+                                  title="Add Item"
+                                  icon={<IconPlus size={18} />}
                                   onClick={e => {
                                     e.preventDefault();
                                     e.stopPropagation();
                                     openAddItemModal(category?.priceListId);
                                   }}
-                                >
-                                  <IconPlus
-                                    size={18}
-                                    className="text-gray-600 hover:text-green-600"
-                                  />
-                                </button>
-                                <button
-                                  className="p-2 rounded-lg hover:bg-blue-50 transition"
+                                />
+
+                                <TooltipButton
+                                  type="text"
+                                  title="Copy Price Master"
+                                  icon={<IconCopy size={18} />}
+                                  onClick={() => {}}
+                                />
+                                <TooltipButton
+                                  type="text"
+                                  title="Edit"
+                                  icon={<IconEdit size={18} />}
                                   onClick={e => {
                                     e.stopPropagation();
                                     handleCategoryAction('edit', category);
                                   }}
-                                >
-                                  <IconEdit
-                                    size={18}
-                                    className="text-gray-600 hover:text-blue-600"
-                                  />
-                                </button>
-                                <button
-                                  className="p-2 rounded-lg hover:bg-red-50 transition"
+                                />
+                                <TooltipButton
+                                  type="text"
+                                  title="Delete"
+                                  icon={<IconTrash size={18} />}
                                   onClick={e => {
                                     e.stopPropagation();
                                     handleCategoryAction('delete', category);
                                   }}
+                                />
+                                <Button
+                                  type="text"
+                                  className=" text-gray-600 hover:text-blue-500 transition"
                                 >
-                                  <IconTrash
-                                    size={18}
-                                    className="text-gray-600 hover:text-red-600"
-                                  />
-                                </button>
-
-                                <button className="mt-1 flex-shrink-0 text-gray-600 hover:text-blue-500 transition">
                                   {isDropdownOpen ? <IconChevronUp /> : <IconChevronDown />}
-                                </button>
+                                </Button>
                               </div>
                             )}
                           </div>

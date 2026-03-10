@@ -14,14 +14,14 @@ export const facadeSlice = createSlice({
       totalRecords: 0,
       limit: 10,
     },
-    selectedFilters: { dwelling_type_id: '', standard: false, upgrade: false },
+    selectedFilters: { standard: false, upgrade: false },
   },
   reducers: {
     setSelectedFilters: (state, action) => {
       state.selectedFilters = { ...state.selectedFilters, ...action.payload };
     },
     clearFilters: state => {
-      state.selectedFilters.dwelling_type_id = '';
+      state.selectedFilters = { standard: false, upgrade: false };
     },
     clearStandardFilter: state => {
       state.selectedFilters.standard = false;
