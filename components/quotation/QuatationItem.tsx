@@ -10,7 +10,7 @@ const { TextArea } = Input;
 interface QuatationItemProps {
   item: IPriceListItem;
   onQuantityChange: (itemId: string, qty: number) => void;
-  onToggleAdd: (item: IPriceListItem) => void;
+  onToggleAdd: (item: IPriceListItem & { notes: string }) => void;
   isSelected: boolean;
   quantityRef?: any;
   disabled?: boolean;
@@ -19,23 +19,23 @@ interface QuatationItemProps {
 export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
   ({ item, onToggleAdd, isSelected, onQuantityChange, quantityRef, disabled }) => {
     const { items } = useAppSelector((state: RootState) => state.quotation);
-    const reduxQuantity =
-      items.find(i => i.priceListItemId === item.priceListItemId)?.quantity ?? 1;
-    const [quantity, setQuantity] = useState<number>(reduxQuantity);
+    const priceItem = items.find(i => i.priceListItemId === item.priceListItemId);
+    const [quantity, setQuantity] = useState<number>();
     const [isEdited, setIsEdited] = useState({ item: false, extraitem: false });
     const [showNotesInput, setShowNotesInput] = useState(false);
     const [notes, setNotes] = useState('');
 
     useEffect(() => {
-      setQuantity(reduxQuantity);
-    }, [reduxQuantity]);
+      setQuantity(priceItem?.quantity ?? 1);
+      setNotes(priceItem?.note || '');
+    }, [priceItem]);
 
     useEffect(() => {
-      onQuantityChange(item.priceListItemId, quantity);
+      // onQuantityChange(item.priceListItemId, quantity);
     }, [quantity, item.cost, item.priceListItemId, onQuantityChange]);
 
-    const handleToggle = (item: IPriceListItem) => {
-      onToggleAdd(item);
+    const handleToggle = item => {
+      onToggleAdd({ ...item, notes: notes });
     };
 
     const handleQuantityChange = (value: number | null) => {
@@ -67,7 +67,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
               <Tag color="red">{enumToReadable(item.costOption).toUpperCase()}</Tag>
             )}
             {item?.additionalItem && item.additionalItem && (
-              <Tag color="green">ADDITIONAL ITEM</Tag>
+              <Tag color="yellow">ADDITIONAL ITEM</Tag>
             )}
             {item.status && <Tag color="purple">{enumToReadable(item.status).toUpperCase()}</Tag>}
             {item.range && (
@@ -92,32 +92,32 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
                   onChange={e => setNotes(e.target.value)}
                   rows={3}
                   className="!resize-none"
+                  disabled={isSelected}
                 />
-                <div className="flex gap-2 mt-2 justify-end">
-                  <Button
-                    size="small"
-                    type="text"
-                    onClick={() => {
-                      // Save notes logic here
-                      console.log('Notes saved:', notes);
-                      setShowNotesInput(false);
-                    }}
-                    icon={<IconCheck size={15} />}
-                  />
+                {!isSelected && (
+                  <div className="flex gap-2 mt-2 justify-end">
+                    <Button
+                      size="small"
+                      type="text"
+                      onClick={() => {
+                        setShowNotesInput(false);
+                      }}
+                      icon={<IconCheck size={15} />}
+                    />
 
-                  <Button
-                    type="text"
-                    size="small"
-                    onClick={() => {
-                      // setNotes(item.note || '');
-                      setShowNotesInput(false);
-                    }}
-                    icon={<IconX size={15} />}
-                  />
-                </div>
+                    <Button
+                      type="text"
+                      size="small"
+                      onClick={() => {
+                        setNotes('');
+                        setShowNotesInput(false);
+                      }}
+                      icon={<IconX size={15} />}
+                    />
+                  </div>
+                )}
               </div>
             )}
-            {/* {item.builderCost && <p>Builder Cost($) : {item.builderCost}</p>} */}
           </div>
         </div>
 
@@ -131,18 +131,18 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
             type="number"
             size="small"
             className="w-full text-center"
-            disabled={isIncluded || disabled}
+            disabled={isIncluded || disabled || isSelected}
           />
         </div>
 
         {/* Price */}
         <div className="table-cell text-center p-3 align-middle">
-          {!isIncluded ? `$${item.cost ?? 0}` : ' '}
+          {!isIncluded ? `$${item.cost || priceItem?.itemCost || 0}` : ' '}
         </div>
 
         {/* Total */}
         <div className="table-cell text-center p-3 align-middle">
-          {!isIncluded ? `$${(item.cost ?? 0) * quantity}` : ' '}
+          {!isIncluded ? `$${(item.cost || priceItem?.itemCost || 0) * quantity}` : ' '}
         </div>
 
         {/* Action */}

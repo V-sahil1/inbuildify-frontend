@@ -1,10 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Menu } from 'antd';
 import { IPriceList } from '@redux/feature/masterPriceList/iMasterPriceListState';
 
 interface CategorySidebarProps {
-  // TODO
-  // categories: Category[];
   categories: IPriceList[];
 
   selectedCategory: string;
@@ -18,11 +16,11 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
   onCategorySelect,
   setSelect,
 }) => {
-  // useEffect(() => {
-  //   if (categories.length > 0 && !selectedCategory) {
-  //     onCategorySelect(categories[0].categoryId);
-  //   }
-  // }, [categories, selectedCategory, onCategorySelect]);
+  useEffect(() => {
+    if (categories.length > 0 && !selectedCategory) {
+      onCategorySelect(categories[0].priceListId);
+    }
+  }, [categories, selectedCategory, onCategorySelect]);
 
   const menuItems = categories.map(category => ({
     key: category.priceListId,

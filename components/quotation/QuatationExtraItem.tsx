@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 import { QuatationItem } from './QuatationItem';
 import { Status } from '@lib/constants/enum';
 import { IPriceListItem } from '@redux/feature/masterPriceList/iMasterPriceListState';
+import { createQuotationPricellistThunk } from '@redux/feature/quotation/quotationThunk';
 const { TextArea } = Input;
 
 interface QuatationItemProps {
@@ -48,6 +49,14 @@ export const QuatationExtraItem: React.FC<QuatationItemProps> = React.memo(
             additionalItem: true,
           };
           const response = await dispatch(createCategoryItem(payload)).unwrap();
+          await dispatch(
+            createQuotationPricellistThunk({
+              quotationVersionId: quoteDetails?.quotationVersionId,
+              priceListItemId: response?.priceListItemId,
+              quantity: Number(values.quantity),
+              note: values.notes || '',
+            })
+          ).unwrap();
           const { priceListItemId, itemDescription, shortDescription } = response;
           dispatch(
             setQuotationExtraItems({
@@ -165,10 +174,11 @@ export const QuatationExtraItem: React.FC<QuatationItemProps> = React.memo(
             key={item?.priceListItemId}
             item={item}
             disabled={
-              isReadOnly ||
-              selectedPackageFromSlice?.categoryItems?.some(
-                catItem => catItem.id === item.priceListItemId
-              )
+              isReadOnly
+              // ||
+              // selectedPackageFromSlice?.categoryItems?.some(
+              //   catItem => catItem.id === item.priceListItemId
+              // )
             }
             quantityRef={el => (quantityRef.current[item.priceListItemId] = el)}
             onQuantityChange={onItemQuantityChange}

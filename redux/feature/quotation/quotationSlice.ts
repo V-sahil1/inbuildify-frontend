@@ -82,7 +82,6 @@ const quotationSlice = createSlice({
     },
     setQuotationExtraItems(state, action: PayloadAction<QuotationPriceListItem>) {
       state.extraItems = [...state.extraItems, action.payload];
-      state.items = [...state.items, action.payload];
     },
     setQuotationItems(state, action: PayloadAction<QuotationPriceListItem>) {
       state.items = [...state.items, action.payload];
@@ -234,10 +233,10 @@ const quotationSlice = createSlice({
 
       // quotation pricelist
       .addCase(createQuotationPricellistThunk.fulfilled, (state, action) => {
-        state.items.push(action.payload);
+        state.items.push({ ...action.payload, quantity: Number(action.payload.quantity) || 1 });
       })
       .addCase(getQuotationPricelistThunk.fulfilled, (state, action) => {
-        state.items = action.payload;
+        state.items = action.payload.map(i => ({ ...i, quantity: Number(i.quantity) || 1 }));
       })
       .addCase(deleteQuotationPricelistThunk.fulfilled, (state, action) => {
         state.items = state.items?.filter(i => i.id !== action.meta.arg);

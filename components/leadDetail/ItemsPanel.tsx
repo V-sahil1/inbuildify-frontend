@@ -1,14 +1,10 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { Button, Dropdown, Form } from 'antd';
-import { IPriceList, IPriceListItem } from '@redux/feature/masterPriceList/iMasterPriceListState';
+import { IPriceList } from '@redux/feature/masterPriceList/iMasterPriceListState';
 import { QuatationItem } from '../quotation/QuatationItem';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { RootState } from '@redux/feature/store';
-import {
-  removeQuotationItem,
-  setQuotationItems,
-  updateQuotationItem,
-} from '@redux/feature/quotation/quotationSlice';
+import { updateQuotationItem } from '@redux/feature/quotation/quotationSlice';
 import Loading from '../common/Loading';
 import { QuatationExtraItem } from '../quotation/QuatationExtraItem';
 import {
@@ -44,7 +40,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
     extraItems,
     items,
     package: selectedPackageFromSlice,
-    quoteDetails
+    quoteDetails,
   } = useAppSelector((state: RootState) => state.quotation);
   const [form] = Form.useForm();
   const quantityRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -54,26 +50,19 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
     { key: 'discount', label: 'Discount' },
     { key: 'note', label: 'Note' },
   ];
-  const handleItemAdd = (item: IPriceListItem) => {
+  const handleItemAdd = async item => {
     const quantity = quantityRefs.current[item.priceListItemId]?.value || '1';
     const pricelist = items.find(i => i.priceListItemId === item.priceListItemId);
     if (!!pricelist) {
-      dispatch(deleteQuotationPricelistThunk(pricelist?.id));
+      await dispatch(deleteQuotationPricelistThunk(pricelist?.id)).unwrap();
     } else {
       const payload = {
         quotationVersionId: quoteDetails?.quotationVersionId,
         priceListItemId: item?.priceListItemId,
         quantity: Number(quantity),
-        // note: '',
+        note: item?.notes || '',
       };
-      dispatch(createQuotationPricellistThunk(payload)).unwrap();
-      // dispatch(
-      //   setQuotationItems({
-      //     ...item,
-      //     quantity: Number(quantity),
-      //     itemCost: item?.cost ?? 0,
-      //   })
-      // );
+      await dispatch(createQuotationPricellistThunk(payload)).unwrap();
     }
   };
   const handleItemQuantityChange = (itemId: string, quantity: number) => {
@@ -170,10 +159,10 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
                       key={item?.priceListItemId}
                       item={item}
                       disabled={
-                        isReadOnly ||
-                        selectedPackageFromSlice?.categoryItems?.some(
-                          catItem => catItem.id === item.priceListItemId
-                        )
+                        isReadOnly
+                        // || selectedPackageFromSlice?.some(
+                        //   catItem => catItem.id === item.priceListItemId
+                        // )
                       }
                       onQuantityChange={handleItemQuantityChange}
                       quantityRef={el => (quantityRefs.current[item.priceListItemId] = el)}

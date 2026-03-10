@@ -23,7 +23,7 @@ export const LeadPropertyPage = ({ setModalOpen, handleDeleteJobDetail }) => {
                   className="text-sm text-gray-600 cursor-pointer"
                   onClick={() => setModalOpen('job')}
                 >
-                  Add Job details
+                  {!!leadDetail?.job ? 'Job details' : 'Add Job details'}
                 </p>
                 {!!leadDetail?.job && (
                   <Popconfirm

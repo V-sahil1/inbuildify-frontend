@@ -142,7 +142,7 @@ export type QuotationPriceListItem = {
   itemDescription?: string;
   shortDescription?: string;
   itemCost?: number;
-  costType?: string;
+  costType?: 'Fixed' | 'Variable' | 'Included';
   uom?: string;
 };
 
