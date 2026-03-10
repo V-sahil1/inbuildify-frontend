@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Button, Tag, Modal, Divider, Tooltip, message } from 'antd';
+import { Card, Button, Tooltip, message, Popconfirm } from 'antd';
 import {
   IconUser,
   IconHome,
@@ -13,6 +13,7 @@ import {
   IconBath,
   IconCar,
   IconForklift,
+  IconTrash,
 } from '@tabler/icons-react';
 import { PropertyDetails } from 'data/types';
 import PropertyDetailsModal from './PropertyDetailsModal';
@@ -21,22 +22,22 @@ import dayjs from 'dayjs';
 import FacadeModal from './FacadeModal';
 import { IFacadeState } from '@redux/feature/facade/IFacadeState';
 import PackageModal from './PackageModal';
-import { Package } from '@redux/feature/package/IPackageState';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { createLeadContactThunk, updateLeadContactThunk } from '@redux/feature/lead/leadThunk';
 import LeadDetailsForm from './forms/LeadDetailsForm';
 import { setQuotationContact } from '@redux/feature/quotation/quotationSlice';
 import { clearStandardFilter, clearUpgradeFilter } from '@redux/feature/facade/facadeSlice';
 import { IFloorPlanState } from '@redux/feature/floorPlan/IFloorPlanState';
-
+import { QuotationPackage } from '@redux/feature/quotation/IQuotationState';
+import { deleteQuotationPackageThunk } from '@redux/feature/quotation/quotationThunk';
 interface InfoCardsProps {
   propertyDetails: any;
   selectedPlan?: IFloorPlanState;
   selectedFacade?: IFacadeState;
-  selectedPackage?: Package;
+  selectedPackage?: QuotationPackage[];
   onPlanSelect: (plan: IFloorPlanState) => void;
   onFacadeSelect: (facade: IFacadeState) => void;
-  onPackageSelect: (pkg: Package) => void;
+  onPackageSelect: (pkg: QuotationPackage) => void;
   onPropertyUpdate: (property: PropertyDetails) => void;
   isReadOnly?: boolean;
   filters?: Record<string, string>;
@@ -89,6 +90,15 @@ const InfoCards: React.FC<InfoCardsProps> = ({
   const disabledMessage = isSelectionDisabled
     ? 'Please select both Range and Dwelling Type first'
     : '';
+
+  const handleDeletePackage = async (id: string) => {
+    try {
+      await dispatch(deleteQuotationPackageThunk(id)).unwrap();
+      message.success('Package deleted successfully');
+    } catch (error) {
+      message.error(error || 'Failed to delete package');
+    }
+  };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 p-3">
@@ -260,21 +270,40 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           className={`shadow-sm transition-shadow ${isSelectionDisabled ? 'opacity-70' : 'hover:shadow-md cursor-pointer'}`}
           onClick={!isSelectionDisabled && !isReadOnly ? () => setModalOpen('package') : undefined}
         >
-          {selectedPackage ? (
-            <>
-              <div className="flex items-center gap-2 mb-3">
-                <IconGift className="text-red-500" />
-                <span className="font-medium text-font-color">{selectedPackage?.name}</span>
-                {!isReadOnly && <IconEdit className="text-gray-400 ml-auto" />}
-              </div>
-              <div className="space-y-2">
-                {/* <div className="font-semibold text-font-color">Package (1)</div> */}
-                {/* <div className="font-medium text-blue-600">
-                {selectedPackage?.name}
-              </div> */}
-                <div className="text-lg font-bold text-green-600">${selectedPackage?.amount}</div>
-              </div>
-            </>
+          {!!selectedPackage && selectedPackage?.length > 0 ? (
+            selectedPackage.map(pkg => (
+              <>
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <div className="flex items-center gap-2">
+                    <IconGift className="text-red-500" />
+                    <span className="font-medium text-font-color">{pkg?.packageName}</span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-bold text-green-600">${pkg?.price}</span>
+                    {!isReadOnly && (
+                      <Popconfirm
+                        title="Are you sure you want to remove this package?"
+                        okText="Yes"
+                        cancelText="No"
+                        onConfirm={e => {
+                          e.stopPropagation();
+                          handleDeletePackage(pkg.id);
+                        }}
+                      >
+                        <IconTrash
+                          className="text-red-500 ml-auto"
+                          size={15}
+                          onClick={e => {
+                            e.stopPropagation();
+                          }}
+                        />
+                      </Popconfirm>
+                    )}
+                  </div>
+                </div>
+              </>
+            ))
           ) : (
             <div className="text-center py-4">
               <Button type="primary" size="middle" disabled={isSelectionDisabled}>

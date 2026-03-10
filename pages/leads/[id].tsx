@@ -30,7 +30,11 @@ import { Status } from '@lib/constants/enum';
 import { LeadSource } from '@/components/leads/LeadSource';
 import CloseLeadModal from '@/components/leadDetail/LeadQuotations/CloseLeadModal';
 import ConfirmationModal from '@/components/common/ConfirmationModal';
-import { deleteQuotation, getQuotationThunk } from '@redux/feature/quotation/quotationThunk';
+import {
+  deleteQuotation,
+  deleteQuotationThunk,
+  getQuotationThunk,
+} from '@redux/feature/quotation/quotationThunk';
 import { removeQuotation } from '@redux/feature/lead/leadSlice';
 import DepositModel from '@/components/common/Models/DepositModel';
 import ActivityCard from '@/components/common/ActivityCard';
@@ -98,7 +102,6 @@ function App() {
   const { leadDetail, status } = useAppSelector(state => state.lead);
   const { contact } = useAppSelector(state => state.contact);
   const isLoggedIn = useAppSelector(state => state.auth.isAuthenticated);
-  const { quotation } = useAppSelector(state => state.quotation);
   const isOpportunity = leadDetail?.lead?.status !== 'New';
   const title = isOpportunity ? 'Opportunity' : 'Lead';
   const contacts: LeadContact = leadDetail?.contacts;
@@ -108,7 +111,6 @@ function App() {
   const latestLeadDetailRef = useRef<any>(null);
   const { columns } = LeadDepositColumn();
   // const isJob = useMemo(() => leadDetail?.lead?.status === "JOB", [leadDetail]);
-  console.log('quotation',createdQuotations)
   useEffect(() => {
     latestLeadDetailRef.current = leadDetail;
   }, [leadDetail]);
@@ -140,7 +142,6 @@ function App() {
       await dispatch(getLeadInvoiceThunk(leadId)).unwrap();
       await dispatch(getLeadJobThunk(leadId)).unwrap();
       await dispatch(getQuotationThunk(leadId)).unwrap();
-      // await dispatch(getQuotationsByLeadIdThunk({ leadId, page: 1, limit: 25 })).unwrap();
     } catch (err) {
       message.error(err || 'Failed to fetch lead details');
     }
@@ -227,7 +228,7 @@ function App() {
     if (!selectedQuotationId) return;
     try {
       setIsDeleting(true);
-      await dispatch(deleteQuotation(selectedQuotationId))
+      await dispatch(deleteQuotationThunk(selectedQuotationId))
         .unwrap()
         .then(() => dispatch(removeQuotation(selectedQuotationId)));
       message.success('Quotation deleted successfully');

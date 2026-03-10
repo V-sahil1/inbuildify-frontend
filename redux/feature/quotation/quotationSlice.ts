@@ -3,18 +3,25 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Status } from '@lib/constants/enum';
 import {
   createQuotation,
+  createQuotationPackageThunk,
   createQuotationPricellistThunk,
   createQuotationThunk,
+  deleteQuotationPackageThunk,
   deleteQuotationPricelistThunk,
   deleteQuotationThunk,
+  getQuotationPackageThunk,
   getQuotationPricelistThunk,
   getQuotationThunk,
   getQuotationVersionById,
   updateQuotationVersion,
 } from './quotationThunk';
 import { ILeadContact, LeadContact } from '../lead/ILeadState';
-import { Package } from '../package/IPackageState';
-import { Quotation, QuotationPriceListItem, QuotationVersionDetails } from './IQuotationState';
+import {
+  Quotation,
+  QuotationPackage,
+  QuotationPriceListItem,
+  QuotationVersionDetails,
+} from './IQuotationState';
 export interface QuotationState {
   status: { create: Status; getById: Status };
   quoteDetails: QuotationVersionDetails | null;
@@ -23,7 +30,7 @@ export interface QuotationState {
   property: PropertyDetails;
   plan: any;
   facade: any;
-  package: Package;
+  package: QuotationPackage[];
   items: QuotationPriceListItem[];
   extraItems: QuotationPriceListItem[];
   quotation: Quotation[];
@@ -37,7 +44,7 @@ const initialState: QuotationState = {
   property: null,
   plan: null,
   facade: null,
-  package: null,
+  package: [],
   items: [],
   extraItems: [],
   quotation: [],
@@ -222,7 +229,7 @@ const quotationSlice = createSlice({
         state.quotation = action.payload;
       })
       .addCase(deleteQuotationThunk.fulfilled, (state, action) => {
-        state.quotation.filter(i => i.quotationId !== action.meta.arg);
+        state.quotation = state.quotation.filter(i => i.quotationId !== action.payload.quotationId);
       })
 
       // quotation pricelist
@@ -234,6 +241,17 @@ const quotationSlice = createSlice({
       })
       .addCase(deleteQuotationPricelistThunk.fulfilled, (state, action) => {
         state.items = state.items?.filter(i => i.id !== action.meta.arg);
+      })
+
+      // quotation pricelist
+      .addCase(createQuotationPackageThunk.fulfilled, (state, action) => {
+        state.package.push(action.payload);
+      })
+      .addCase(getQuotationPackageThunk.fulfilled, (state, action) => {
+        state.package = action.payload;
+      })
+      .addCase(deleteQuotationPackageThunk.fulfilled, (state, action) => {
+        state.package = state.package?.filter(i => i.id !== action.meta.arg);
       });
   },
 });

@@ -4,16 +4,16 @@ import { fetchPackages } from '@redux/feature/package/packageThunk';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { RootState } from '@redux/feature/store';
 import { Package } from '@redux/feature/package/IPackageState';
-import { setQuotationPackage } from '@redux/feature/quotation/quotationSlice';
 import { useRouter } from 'next/navigation';
 import SystemRoutes from '@lib/constants/Routes';
 import Loading from '../common/Loading';
+import { QuotationPackage } from '@redux/feature/quotation/IQuotationState';
 interface PackageModalProps {
   visible: boolean;
   onCancel: () => void;
-  onSave: (pkg: Package) => void;
-  selectedPackage?: Package;
-  onSelect: (pkg: Package) => void;
+  onSave: (pkg: QuotationPackage) => void;
+  selectedPackage?: QuotationPackage[];
+  onSelect: (pkg: QuotationPackage) => void;
   filters?: Record<string, string>;
 }
 
@@ -29,20 +29,27 @@ const PackageModal: React.FC<PackageModalProps> = ({
   const packages = useAppSelector((state: RootState) => state.package.packages);
   const getAllStatus = useAppSelector((state: RootState) => state.package.status.packages);
   // local temp selection for multiple packages
-  const [tempSelectedPackages, setTempSelectedPackages] = React.useState<Package[]>(
-    selectedPackage ? [selectedPackage] : []
+  const [tempSelectedPackages, setTempSelectedPackages] = React.useState<QuotationPackage[]>(
+    selectedPackage || []
   );
   const { selectedFilters } = useAppSelector(state => state.quotation);
   const [loading, setLoading] = useState(true);
 
   // Helper function to handle package selection/deselection
-  const handlePackageToggle = (pkg: Package) => {
+  const handlePackageToggle = async (pkg: Package) => {
     setTempSelectedPackages(prev => {
       const isSelected = prev.some(p => p.packageId === pkg.packageId);
       if (isSelected) {
         return prev.filter(p => p.packageId !== pkg.packageId);
       } else {
-        return [...prev, pkg];
+        // Convert Package to QuotationPackage
+        const quotationPackage: QuotationPackage = {
+          packageId: pkg.packageId,
+          quotationVersionId: '', // Will be set when saving
+          packageName: pkg.name,
+          price: pkg.cost,
+        };
+        return [...prev, quotationPackage];
       }
     });
   };
@@ -71,7 +78,7 @@ const PackageModal: React.FC<PackageModalProps> = ({
   // Reset temp selection whenever modal opens
   useEffect(() => {
     if (visible) {
-      setTempSelectedPackages(selectedPackage ? [selectedPackage] : []);
+      setTempSelectedPackages(selectedPackage || []);
     }
   }, [visible, selectedPackage]);
 
@@ -91,9 +98,9 @@ const PackageModal: React.FC<PackageModalProps> = ({
           className="bg-blue-600"
           onClick={() => {
             if (tempSelectedPackages.length > 0) {
-              // For now, save the first selected package (can be modified for multiple)
-              const selectedPkg = tempSelectedPackages[0];
-              dispatch(setQuotationPackage(selectedPkg));
+              // // For now, save the first selected package (can be modified for multiple)
+              const selectedPkg = tempSelectedPackages[tempSelectedPackages.length - 1];
+              // dispatch(setQuotationPackage(selectedPkg));
               onSave(selectedPkg);
               onCancel();
             }
@@ -121,29 +128,31 @@ const PackageModal: React.FC<PackageModalProps> = ({
                   </div>
                   <div className="divide-y">
                     {packages?.map(pkg => {
-                      const isSelected = tempSelectedPackages.some(p => p.packageId === pkg.packageId);
+                      const isSelected = tempSelectedPackages.some(
+                        p => p.packageId === pkg.packageId
+                      );
                       return (
-                      <div
-                        key={pkg.packageId}
-                        className={`p-4 cursor-pointer transition-colors hover:bg-body-color ${
-                          isSelected ? 'bg-blue-50' : ''
-                        }`}
-                        onClick={() => handlePackageToggle(pkg)}
-                      >
-                        <div className="flex items-center">
-                          <input
-                            type="checkbox"
-                            className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                            checked={isSelected}
-                            readOnly
-                          />
-                          <div className="ml-3">
-                            <div className="font-medium text-font-color">{pkg.name}</div>
-                            <div className="text-sm text-font-color-100">${pkg.cost}</div>
+                        <div
+                          key={pkg.packageId}
+                          className={`p-4 cursor-pointer transition-colors hover:bg-body-color ${
+                            isSelected ? 'bg-blue-50' : ''
+                          }`}
+                          onClick={() => handlePackageToggle(pkg)}
+                        >
+                          <div className="flex items-center">
+                            <input
+                              type="checkbox"
+                              className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                              checked={isSelected}
+                              readOnly
+                            />
+                            <div className="ml-3">
+                              <div className="font-medium text-font-color">{pkg.name}</div>
+                              <div className="text-sm text-font-color-100">${pkg.cost}</div>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    );
+                      );
                     })}
                   </div>
                 </div>
@@ -157,18 +166,23 @@ const PackageModal: React.FC<PackageModalProps> = ({
                       </h2>
                       <div className="space-y-4">
                         {tempSelectedPackages.map((pkg, index) => (
-                          <div key={pkg.packageId} className="border flex justify-between items-center rounded-lg p-4 bg-gray-50">
-                            <h3 className="text-lg font-semibold">{pkg.name}</h3>
-                            <div className="text-xl font-bold text-green-600">
-                              ${pkg.cost}
-                            </div>
+                          <div
+                            key={pkg.packageId}
+                            className="border flex justify-between items-center rounded-lg p-4"
+                          >
+                            <h3 className="text-lg font-semibold">{pkg.packageName}</h3>
+                            <div className="text-xl font-bold text-green-600">${pkg.price}</div>
                           </div>
                         ))}
                       </div>
                       <div className="mt-6 pt-4 border-t">
                         <div className="text-xl font-bold">
-                          Total: <span className="text-green-600">
-                            ${tempSelectedPackages.reduce((sum: number, pkg) => sum + Number(pkg.cost), 0).toLocaleString()}
+                          Total:{' '}
+                          <span className="text-green-600">
+                            $
+                            {tempSelectedPackages
+                              .reduce((sum: number, pkg) => sum + Number(pkg.price), 0)
+                              .toLocaleString()}
                           </span>
                         </div>
                       </div>
@@ -183,9 +197,12 @@ const PackageModal: React.FC<PackageModalProps> = ({
             ) : (
               <div className="flex items-center justify-center w-full h-full p-6">
                 <Empty description="No packages found">
-                  <Button type="primary" onClick={() => router.push(`${SystemRoutes.SETTINGS}?tab=package`)}>
-                        Create Package
-                      </Button>
+                  <Button
+                    type="primary"
+                    onClick={() => router.push(`${SystemRoutes.SETTINGS}?tab=package`)}
+                  >
+                    Create Package
+                  </Button>
                 </Empty>
               </div>
             )}

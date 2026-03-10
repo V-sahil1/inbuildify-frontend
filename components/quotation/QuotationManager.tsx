@@ -16,6 +16,8 @@ import { RootState } from '@redux/feature/store';
 import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import {
   createQuotation,
+  createQuotationPackageThunk,
+  getQuotationPackageThunk,
   getQuotationPricelistThunk,
   getQuotationVersionById,
   updateQuotationVersion,
@@ -39,6 +41,7 @@ import Loading from '../common/Loading';
 import JobDocumentPdf from '../common/pdf/JobDocumentPdf';
 import { IFloorPlanState } from '@redux/feature/floorPlan/IFloorPlanState';
 import { debouncedURL } from '@lib/utils/debounceURL';
+import { QuotationPackage } from '@redux/feature/quotation/IQuotationState';
 
 const QuotationManager = () => {
   const dispatch = useAppDispatch();
@@ -64,7 +67,7 @@ const QuotationManager = () => {
   const lastFetchedFiltersRef = useRef<{ range?: string; dwelling_type?: string } | null>(null);
   const [selectedFacade, setSelectedFacade] = useState<IFacadeState | undefined>(facade);
   const [selectedPlan, setSelectedPlan] = useState<IFloorPlanState | undefined>(plan);
-  const [selectedPackage, setSelectedPackage] = useState<Package | undefined>(undefined);
+  const [selectedPackage, setSelectedPackage] = useState<QuotationPackage[]>([]);
   const [hasChanges, setHasChanges] = useState(false);
   const canContact = !!contact;
   const canProperty = property && Object.keys(property).length > 0 && property?.propertyId;
@@ -82,7 +85,6 @@ const QuotationManager = () => {
       location: quoteDetails?.locationId || null,
     },
   });
-
   const quotationData = quotation?.[0];
   useEffect(() => {
     return debouncedUpdateURL.cancel();
@@ -123,7 +125,7 @@ const QuotationManager = () => {
 
   // Single unified handler for all changes (floorplan, facade, package)
   const handleSelectionChange = useCallback(
-    (type: 'plan' | 'facade' | 'package', value: IFloorPlanState | IFacadeState | Package) => {
+    (type: 'plan' | 'facade', value: IFloorPlanState | IFacadeState | Package) => {
       switch (type) {
         case 'plan':
           setSelectedPlan(value as IFloorPlanState);
@@ -133,16 +135,24 @@ const QuotationManager = () => {
           setSelectedFacade(value as IFacadeState);
           dispatch(setQuotationFacade(value as IFacadeState));
           break;
-        case 'package':
-          setSelectedPackage(value as Package);
-          dispatch(setQuotationPackage(value as Package));
-          break;
       }
       setHasChanges(true);
     },
     [dispatch]
   );
-  console.log('floorplan', selectedPlan);
+
+  const handlePackage = async pkg => {
+    try {
+      await dispatch(
+        createQuotationPackageThunk({
+          quotationVersionId: quoteVersionId,
+          packageId: pkg?.packageId || null,
+        })
+      ).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to save package');
+    }
+  };
 
   const handleSaveChanges = useCallback(async () => {
     try {
@@ -153,7 +163,6 @@ const QuotationManager = () => {
         facadeId: selectedFacade?.facadeId || null,
         locationId: filters?.location || null,
       };
-      console.log('Saving payload:', payload);
       await dispatch(
         updateQuotationVersion({ id: quoteDetails?.quotationVersionId, data: payload })
       ).unwrap();
@@ -297,6 +306,7 @@ const QuotationManager = () => {
   const fetchQuotationPricelistItem = async () => {
     try {
       await dispatch(getQuotationPricelistThunk(quoteVersionId)).unwrap();
+      await dispatch(getQuotationPackageThunk(quoteVersionId)).unwrap();
     } catch (error) {
       message.error(error || 'Faied to fetch quotation items');
     }
@@ -362,7 +372,7 @@ const QuotationManager = () => {
         dwellingType: quotationFilters?.dwelling_type,
         floorPlanId: plan?.floorPlanId,
         facadeId: facade?.facadeId,
-        packageId: selectedPackageFromSlice?.packageId,
+        // packageId: selectedPackageFromSlice?.packageId,
         items: getQuotationItems(),
       },
     };
@@ -530,7 +540,7 @@ const QuotationManager = () => {
         selectedPackage={selectedPackage}
         onPlanSelect={plan => handleSelectionChange('plan', plan)}
         onFacadeSelect={facade => handleSelectionChange('facade', facade)}
-        onPackageSelect={pkg => handleSelectionChange('package', pkg)}
+        onPackageSelect={pkg => handlePackage(pkg)}
         onPropertyUpdate={() => {}}
         isReadOnly={false}
         filters={filters}

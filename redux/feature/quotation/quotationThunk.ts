@@ -5,6 +5,7 @@ import api from '@lib/constants/api';
 import {
   Quotation,
   QuotationItemPayload,
+  QuotationPackage,
   QuotationPriceListItem,
   QuotationResponse,
   QuotationVersionDetails,
@@ -165,6 +166,48 @@ export const deleteQuotationPricelistThunk = createAsyncThunk(
   async (id: string, { rejectWithValue }) => {
     try {
       const res = await api.delete<ApiResponse>(API_ENDPOINTS.QUOTATION_PRICELIST + '/' + id);
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+// quotation package
+
+export const createQuotationPackageThunk = createAsyncThunk(
+  'quotation/createQuotationPackageThunk',
+  async (data: QuotationPackage, { rejectWithValue }) => {
+    try {
+      const res = await api.post<ApiResponse<QuotationPackage>>(API_ENDPOINTS.QUOTATION_PACKAGE, {
+        data,
+      });
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const getQuotationPackageThunk = createAsyncThunk(
+  'quotation/getQuotationPackageThunk',
+  async (quotationVersionId: string, { rejectWithValue }) => {
+    try {
+      const res = await api.get<ApiResponse<QuotationPackage[]>>(
+        API_ENDPOINTS.QUOTATION_PACKAGE + '/' + quotationVersionId
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const deleteQuotationPackageThunk = createAsyncThunk(
+  'quotation/deleteQuotationPackageThunk',
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const res = await api.delete<ApiResponse>(API_ENDPOINTS.QUOTATION_PACKAGE + '/' + id);
       return res.data;
     } catch (error) {
       return rejectWithValue(error.message);

@@ -1,16 +1,12 @@
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import SystemRoutes from '@lib/constants/Routes';
-import { enumToReadable } from '@lib/utils/enumToRedable';
-import {
-  createQuotationThunk,
-  deleteQuotationThunk,
-} from '@redux/feature/quotation/quotationThunk';
-import { IconFileText, IconTemperatureOff, IconTrash } from '@tabler/icons-react';
-import { Card, List, message, Tag } from 'antd';
-import Link from 'next/link';
+import { createQuotationThunk } from '@redux/feature/quotation/quotationThunk';
+import { IconFileText, IconTrash } from '@tabler/icons-react';
+import { Card, List, message } from 'antd';
 import { useRouter } from 'next/router';
 import { Dispatch, SetStateAction } from 'react';
 import TooltipButton from '../common/TooltipButton';
+import { Quotation } from '@redux/feature/quotation/IQuotationState';
 
 interface LeadQuotationsProps {
   leadId: string;
@@ -26,7 +22,7 @@ interface LeadQuotationsProps {
       | 'deposit'
     >
   >;
-  createdQuotations: any[];
+  createdQuotations: Quotation[];
   setSelectedQuotationId: Dispatch<SetStateAction<string | null>>;
   setShowDeleteConfirm: Dispatch<SetStateAction<boolean>>;
 }
@@ -34,7 +30,6 @@ interface LeadQuotationsProps {
 export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
   leadId,
   setModalOpen,
-  createdQuotations,
   setSelectedQuotationId,
   setShowDeleteConfirm,
 }) => {
@@ -45,36 +40,14 @@ export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
 
   const handleCreateQuotation = async () => {
     try {
+      router.push(SystemRoutes.QUOTATION_CREATE(leadId));
       await dispatch(createQuotationThunk(leadId)).unwrap();
-      router.push(SystemRoutes.QUOTATION_CREATE(leadId));
     } catch (error) {
       message.error(error || 'Failed to create quotation');
     }
   };
-
-  const handleDeleteQuotation = async id => {
-    try {
-      await dispatch(deleteQuotationThunk(id)).unwrap();
-      router.push(SystemRoutes.QUOTATION_CREATE(leadId));
-    } catch (error) {
-      message.error(error || 'Failed to create quotation');
-    }
-  };
-
   return (
     <>
-      {/* {leadDetail?.lead?.status === 'New' ? (
-        <Card className="flex flex-col items-center justify-center p-6 rounded-lg">
-          <p
-            // href={SystemRoutes.QUOTATION_CREATE(leadId)}
-            className="text-sm text-gray-500 text-center underline"
-            onClick={handleCreateQuotation}
-          >
-            Create Quotation
-          </p>
-        </Card>
-      ) : (
-        leadDetail?.lead?.status !== 'New' && ( */}
       <Card>
         <div className="flex flex-col justify-between">
           <p className="text-sm cursor-pointer text-blue" onClick={handleCreateQuotation}>
@@ -96,7 +69,7 @@ export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
                     </div>
                   ),
                 }}
-                renderItem={(item: any) => (
+                renderItem={(item: Quotation) => (
                   <List.Item
                     key={item?.quotationId}
                     onClick={() => {
@@ -108,23 +81,15 @@ export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
                   >
                     <div className="flex items-center justify-between w-full overflow-hidden">
                       <div className="flex items-center space-x-4">
-                        {/* <div className="bg-gray-100 p-2 rounded-lg">
-                          {createdQuotations.indexOf(quotation) + 1}
-                        </div> */}
+                        <div className="bg-gray-100 p-2 rounded-lg">
+                          {quotation.indexOf(item) + 1}
+                        </div>
                         <div>
                           <div className="font-medium text-gray-900">
                             <span className=" text-sm text-gray-500">
                               {item?.referenceNumber}...
                             </span>
                           </div>
-                          {/* <div className="flex items-center space-x-2 mt-1">
-                            <Tag
-                              color={quotation?.lead?.status === 'Open' ? 'blue' : 'green'}
-                              className="m-0"
-                            >
-                              {enumToReadable(quotation?.leadStatus)}
-                            </Tag>
-                          </div> */}
                         </div>
                       </div>
 

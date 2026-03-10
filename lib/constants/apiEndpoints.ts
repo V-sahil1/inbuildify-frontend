@@ -55,10 +55,10 @@ class API_ENDPOINTS {
   public static LEAD_BUSINESS_CONTACT = `/business-contact`;
   public static LEAD_BUSINESS_CONTACT_BY_ID = (id: string) =>
     `${this.LEAD_BUSINESS_CONTACT}/lead/${id}`;
-  public static LEAD_CONTACT_MAP = '/leads-contact-map'
-  public static LEAD_JOB = '/job-form'
-  public static LEAD_INVOICE = '/invoice'
-  public static LEAD_INVOICE_BY_ID = `${this.LEAD_INVOICE}/lead`
+  public static LEAD_CONTACT_MAP = '/leads-contact-map';
+  public static LEAD_JOB = '/job-form';
+  public static LEAD_INVOICE = '/invoice';
+  public static LEAD_INVOICE_BY_ID = `${this.LEAD_INVOICE}/lead`;
 
   //  Master PricingList
   public static MASTER_PRICE_LIST_CATEGORY = '/category';
@@ -123,7 +123,8 @@ class API_ENDPOINTS {
   public static QUOTATION_VERSION = '/quotation/version';
   public static GET_QUOTATIONS_BY_LEAD_ID = (leadId: string, page: number, limit: number) =>
     `${this.QUOTATION_BASE}?leadId=${leadId}&page=${page}&limit=${limit}`;
-  public static QUOTATION_PRICELIST = '/quotation-version-pricelist-item-map'
+  public static QUOTATION_PRICELIST = '/quotation-version-pricelist-item-map';
+  public static QUOTATION_PACKAGE = '/quotation-version-package-map';
 
   // location
   public static COUNTRY_BASE = '/country';

@@ -145,3 +145,12 @@ export type QuotationPriceListItem = {
   costType?: string;
   uom?: string;
 };
+
+export type QuotationPackage = {
+  id?: string;
+  quotationVersionId: string;
+  packageId: string;
+  price?: number;
+  createdAt?: string;
+  packageName?: string;
+};
