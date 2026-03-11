@@ -49,17 +49,17 @@ export const updateFloorPlan = createAsyncThunk(
   }
 );
 
-// export const deleteFloorPlan = createAsyncThunk(
-//   'floorPlans/delete',
-//   async (payload: string, { rejectWithValue }) => {
-//     try {
-//       const res = await api.delete<ApiResponse>(`${API_ENDPOINTS.FLOOR_PLAN_BASE}/${payload}`);
-//       return payload;
-//     } catch (error) {
-//       return rejectWithValue(error.message);
-//     }
-//   }
-// );
+export const deleteFloorPlan = createAsyncThunk(
+  'floorPlans/delete',
+  async (payload: string, { rejectWithValue }) => {
+    try {
+      const res = await api.delete<ApiResponse>(`${API_ENDPOINTS.FLOOR_PLAN_BASE}/${payload}`);
+      return payload;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
 
 //floorplan pricelist
 export const fetchFloorPlanPricelist = createAsyncThunk(

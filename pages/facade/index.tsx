@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Image, message, Empty, Spin, Pagination, Space } from 'antd';
+import { Button, Image, message, Empty, Spin, Pagination, Space, Tooltip } from 'antd';
 import { IconPlus, IconRotate, IconEdit, IconTrash, IconDownload } from '@tabler/icons-react';
 import { debouncedURL } from '@lib/utils/debounceURL';
 import { TableDrawer } from '@/components/common/TableDrawer';
@@ -134,40 +134,42 @@ const FacadeMaster = () => {
               >
                 {/* Hover overlay with blur effect */}
                 <div className="absolute inset-0 bg-black-50 bg-opacity-50 backdrop-blur-sm rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4 z-10">
-                  <TooltipButton
-                    title="Edit"
-                    type="text"
-                    size="small"
-                    onClick={e => {
-                      e.stopPropagation();
-                      setIsEditing(facade);
-                      setOpen('facade');
-                    }}
-                    icon={<IconEdit size={20} />}
-                  />
+                  <Tooltip title="Edit">
+                    <button
+                      className="p-2 bg-white bg-opacity-80 text-black rounded-full hover:bg-opacity-100 transition-all duration-200"
+                      onClick={e => {
+                        e.stopPropagation();
+                        setIsEditing(facade);
+                        setOpen('facade');
+                      }}
+                    >
+                      <IconEdit />
+                    </button>
+                  </Tooltip>
 
-                  <TooltipButton
-                    title="Delete"
-                    type="text"
-                    size="small"
-                    onClick={e => {
-                      e.stopPropagation();
-                      setOpen('delete');
-                      setIsEditing(facade);
-                    }}
-                    icon={<IconTrash color="red" size={20} />}
-                  />
-
-                  <TooltipButton
-                    title="Quotation History"
-                    type="text"
-                    size="small"
-                    onClick={e => {
-                      e.stopPropagation();
-                      setOpen('quotation');
-                    }}
-                    icon={<IconRotate size={20} className="text-gray-400" />}
-                  />
+                  <Tooltip title="Delete">
+                    <button
+                      className="p-2 bg-white bg-opacity-80 text-black rounded-full hover:bg-opacity-100 transition-all duration-200"
+                      onClick={e => {
+                        e.stopPropagation();
+                        setOpen('delete');
+                        setIsEditing(facade);
+                      }}
+                    >
+                      <IconTrash color="red" size={20} />
+                    </button>
+                  </Tooltip>
+                  <Tooltip title="Quotation History">
+                    <button
+                      className="p-2 bg-white bg-opacity-80 text-black rounded-full hover:bg-opacity-100 transition-all duration-200"
+                      onClick={e => {
+                        e.stopPropagation();
+                        setOpen('quotation');
+                      }}
+                    >
+                      <IconRotate size={20} />
+                    </button>
+                  </Tooltip>
                 </div>
 
                 <Image
@@ -200,10 +202,10 @@ const FacadeMaster = () => {
                       <span className="font-medium">Cost :</span>
                       <span>{facade?.cost || 'N/A'}</span>
                     </div>
-                    <div className="flex justify-between gap-5">
+                    {/* <div className="flex justify-between gap-5">
                       <span className="font-medium">Created At :</span>
                       <span>{facade?.createdAt?.split('T')[0] || 'N/A'}</span>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>

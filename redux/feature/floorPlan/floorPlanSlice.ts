@@ -3,6 +3,7 @@ import {
   createFloorPlan,
   createFloorPlanFacade,
   createFloorPlanPricelist,
+  deleteFloorPlan,
   deleteFloorPlanFacade,
   deleteFloorPlanPricelist,
   fetchFloorPlanFacade,
@@ -55,7 +56,7 @@ const floorPlanSlice = createSlice({
       .addCase(fetchFloorPlans.rejected, state => {
         state.status.floorPlan.fetch = Status.ERROR;
       })
-      .addCase(createFloorPlan.pending, (state) => {
+      .addCase(createFloorPlan.pending, state => {
         state.status.floorPlan.create = Status.PENDING;
       })
       .addCase(createFloorPlan.fulfilled, (state, action) => {
@@ -72,8 +73,17 @@ const floorPlanSlice = createSlice({
       })
       .addCase(updateFloorPlan.fulfilled, (state, action) => {
         state.floorPlans = state.floorPlans.map(floorPlan =>
-          floorPlan.floorPlanId === action.payload.floorPlanId ? { ...floorPlan, ...action.payload } : floorPlan
+          floorPlan.floorPlanId === action.payload.floorPlanId
+            ? { ...floorPlan, ...action.payload }
+            : floorPlan
         );
+        state.status.floorPlan.create = Status.SUCCESS;
+      })
+      .addCase(deleteFloorPlan.fulfilled, (state, action) => {
+        state.floorPlans = state.floorPlans.filter(
+          floorPlan => floorPlan.floorPlanId !== action.meta.arg
+        );
+        state.pagination.totalRecords--;
         state.status.floorPlan.create = Status.SUCCESS;
       })
 

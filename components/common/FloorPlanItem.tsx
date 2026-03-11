@@ -1,3 +1,5 @@
+import { useAppDispatch } from '@hooks/redux';
+import { deleteFloorPlan } from '@redux/feature/floorPlan/floorPlanThunk';
 import { IFloorPlanState } from '@redux/feature/floorPlan/IFloorPlanState';
 import {
   IconClockHour7,
@@ -6,7 +8,7 @@ import {
   IconPhoto,
   IconTrash,
 } from '@tabler/icons-react';
-import { Divider, Image, Tooltip } from 'antd';
+import { Divider, Image, message, Popconfirm, Tooltip } from 'antd';
 
 export const FloorPlanItem = ({
   floorPlans,
@@ -14,6 +16,16 @@ export const FloorPlanItem = ({
   setSelectedFloorplan,
   setDrawerOpen,
 }) => {
+  const dispatch = useAppDispatch();
+
+  const handleDeleteFloorplan = async (id: string) => {
+    try {
+      await dispatch(deleteFloorPlan(id)).unwrap();
+      message.success('Floorplan deleted successfully');
+    } catch (error) {
+      message.error(error || 'Failed to delete floorplan');
+    }
+  };
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
       {floorPlans?.map((floorPlan: IFloorPlanState) => (
@@ -72,14 +84,22 @@ export const FloorPlanItem = ({
               </button>
             </Tooltip>
             <Tooltip title="Remove">
-              <button
-                className="p-2 bg-white bg-opacity-80 rounded-full hover:bg-opacity-100 transition-all duration-200"
-                onClick={e => {
+              <Popconfirm
+                title="Are you sure you want to delete floorplan?"
+                onConfirm={e => {
                   e.stopPropagation();
+                  handleDeleteFloorplan(floorPlan?.floorPlanId);
                 }}
               >
-                <IconTrash className="text-red-600" />
-              </button>
+                <button
+                  className="p-2 bg-white bg-opacity-80 rounded-full hover:bg-opacity-100 transition-all duration-200"
+                  onClick={e => {
+                    e.stopPropagation();
+                  }}
+                >
+                  <IconTrash className="text-red-600" />
+                </button>
+              </Popconfirm>
             </Tooltip>
           </div>
           <Image
