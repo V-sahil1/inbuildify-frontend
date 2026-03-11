@@ -69,17 +69,17 @@ const InfoCards: React.FC<InfoCardsProps> = ({
     try {
       setLoading(true);
       if (type === 'update') {
-        const response = await dispatch(
-          updateLeadContactThunk({
-            id: leadDetail?.contacts?.contactId,
-            details,
-          })
-        ).unwrap();
-        message.success('Lead updated successfully');
-        dispatch(setQuotationContact(response));
+        // const response = await dispatch(
+        //   updateLeadContactThunk({
+        //     id: leadDetail?.contacts?.contactId,
+        //     details,
+        //   })
+        // ).unwrap();
+        // message.success('Lead updated successfully');
+        // dispatch(setQuotationContact(response));
       } else {
-        await dispatch(createLeadContactThunk({ id: leadDetail?.lead?.leadsId, details })).unwrap();
-        message.success('Lead contact created successfully');
+        // await dispatch(createLeadContactThunk({ id: leadDetail?.lead?.leadsId, details })).unwrap();
+        // message.success('Lead contact created successfully');
       }
     } catch (err) {
       message.error(err || 'Failed to update lead');

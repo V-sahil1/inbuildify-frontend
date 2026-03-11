@@ -175,20 +175,20 @@ const FooterActions: React.FC<FooterActionsProps> = ({
           >
             Approve
           </Button>
+          {hasUnsavedChanges && onSaveChanges && (
+            <Button
+              type="primary"
+              icon={<IconDeviceFloppy size={16} />}
+              onClick={onSaveChanges}
+              loading={loading}
+            >
+              Save Changes
+            </Button>
+          )}
         </Space>
       </div>
 
       <div className="flex items-center gap-4">
-        {hasUnsavedChanges && onSaveChanges && (
-          <Button
-            type="primary"
-            icon={<IconDeviceFloppy size={16} />}
-            onClick={onSaveChanges}
-            loading={loading}
-          >
-            Save Changes
-          </Button>
-        )}
         <div className="text-2xl font-bold">
           Total: <span className="text-green-600">${total.toLocaleString()}</span>
         </div>
