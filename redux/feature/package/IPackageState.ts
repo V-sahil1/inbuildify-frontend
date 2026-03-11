@@ -1,26 +1,26 @@
 import { Entity } from 'types/common.types';
 
 export type Package = {
-  packageId: string;
+  packageId?: string;
   name: string;
-  allowAddItemFromPricelist: boolean;
-  allowRemovePackageItems: boolean;
-  status: boolean;
-  sortOrder: number;
-  builderCost: number;
+  allowAddItemFromPricelist?: boolean;
+  allowRemovePackageItems?: boolean;
+  status?: boolean;
+  sortOrder?: number;
+  builderCost?: number;
   cost: number;
-  categoryItems: {
+  categoryItems?: {
     id: string;
     desc: string;
     price: string;
   }[];
-  amount: string;
-  dwellingTypeId: string[];
-  rangeId: string[];
-  range: Entity[];
-  dwellingType: Entity[];
-  packageGroupId: string[];
-  packageGroup: Entity[];
+  amount?: string;
+  dwellingTypeId?: string[];
+  rangeId?: string[];
+  range?: Entity[];
+  dwellingType?: Entity[];
+  packageGroupId?: string[];
+  packageGroup?: Entity[];
   priceListItem?: PackagePricelist[];
 };
 

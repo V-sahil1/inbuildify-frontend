@@ -28,16 +28,16 @@ import LeadDetailsForm from './forms/LeadDetailsForm';
 import { setQuotationContact } from '@redux/feature/quotation/quotationSlice';
 import { clearStandardFilter, clearUpgradeFilter } from '@redux/feature/facade/facadeSlice';
 import { IFloorPlanState } from '@redux/feature/floorPlan/IFloorPlanState';
-import { QuotationPackage } from '@redux/feature/quotation/IQuotationState';
 import { deleteQuotationPackageThunk } from '@redux/feature/quotation/quotationThunk';
+import { Package } from '@redux/feature/package/IPackageState';
 interface InfoCardsProps {
   propertyDetails: any;
   selectedPlan?: IFloorPlanState;
   selectedFacade?: IFacadeState;
-  selectedPackage?: QuotationPackage[];
+  selectedPackage?: Package[];
   onPlanSelect: (plan: IFloorPlanState) => void;
   onFacadeSelect: (facade: IFacadeState) => void;
-  onPackageSelect: (pkg: QuotationPackage) => void;
+  onPackageSelect: (pkg: Package[]) => void;
   onPropertyUpdate: (property: PropertyDetails) => void;
   isReadOnly?: boolean;
   filters?: Record<string, string>;
@@ -55,6 +55,8 @@ const InfoCards: React.FC<InfoCardsProps> = ({
   isReadOnly,
   filters,
 }) => {
+  const { quoteDetails } = useAppSelector(state => state.quotation);
+
   const [modalOpen, setModalOpen] = useState<
     'property' | 'floorPlan' | 'facade' | 'package' | null
   >(null);
@@ -91,9 +93,13 @@ const InfoCards: React.FC<InfoCardsProps> = ({
     ? 'Please select both Range and Dwelling Type first'
     : '';
 
-  const handleDeletePackage = async (id: string) => {
+  const handleDeletePackage = async (versionId: string, pkgId: string) => {
     try {
-      await dispatch(deleteQuotationPackageThunk(id)).unwrap();
+      if (!versionId) {
+        message.error('Quotation version ID is required to delete package');
+        return;
+      }
+      await dispatch(deleteQuotationPackageThunk({ versionId, pkgId })).unwrap();
       message.success('Package deleted successfully');
     } catch (error) {
       message.error(error || 'Failed to delete package');
@@ -276,11 +282,11 @@ const InfoCards: React.FC<InfoCardsProps> = ({
                 <div className="flex items-center justify-between gap-2 mb-3">
                   <div className="flex items-center gap-2">
                     <IconGift className="text-red-500" />
-                    <span className="font-medium text-font-color">{pkg?.packageName}</span>
+                    <span className="font-medium text-font-color">{pkg?.name}</span>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold text-green-600">${pkg?.price}</span>
+                    <span className="text-lg font-bold text-green-600">${pkg?.cost}</span>
                     {!isReadOnly && (
                       <Popconfirm
                         title="Are you sure you want to remove this package?"
@@ -288,7 +294,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
                         cancelText="No"
                         onConfirm={e => {
                           e.stopPropagation();
-                          handleDeletePackage(pkg.id);
+                          handleDeletePackage(quoteDetails?.quotationVersionId, pkg.packageId);
                         }}
                       >
                         <IconTrash

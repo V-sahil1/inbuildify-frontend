@@ -120,6 +120,7 @@ export type QuotationVersionDetails = {
   leadContacts?: LeadContact[];
   floorPlan?: IFloorPlanState;
   facade?: IFacadeState;
+  packages?: Package[];
 };
 
 export type LeadContact = {

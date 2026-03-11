@@ -124,7 +124,8 @@ class API_ENDPOINTS {
   public static GET_QUOTATIONS_BY_LEAD_ID = (leadId: string, page: number, limit: number) =>
     `${this.QUOTATION_BASE}?leadId=${leadId}&page=${page}&limit=${limit}`;
   public static QUOTATION_PRICELIST = '/quotation-version-pricelist-item-map';
-  public static QUOTATION_PACKAGE = '/quotation-version-package-map';
+  public static QUOTATION_PACKAGE = (versionId: string, pkgId: string) =>
+    `${this.QUOTATION_VERSION}/${versionId}/packages/${pkgId}`;
 
   // location
   public static COUNTRY_BASE = '/country';

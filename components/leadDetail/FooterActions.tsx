@@ -42,7 +42,7 @@ const FooterActions: React.FC<FooterActionsProps> = ({
   hasUnsavedChanges = false,
   onSaveChanges,
 }) => {
-  const [approveOpen, setApproveOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState<'approval' | 'save' | null>(null);
   const [sketchNum, setSketchNum] = useState('');
   const previewMenu = [
     { key: 'quotation', label: 'Quotation', icon: <IconFileTypePdf size={15} color="red" /> },
@@ -68,6 +68,11 @@ const FooterActions: React.FC<FooterActionsProps> = ({
     },
   ];
 
+  const onSaveMenu = [
+    { key: 'newVersion', label: 'New Version' },
+    { key: 'template', label: 'Template' },
+  ];
+
   const approveContent = (
     <div className="space-y-2">
       <div>
@@ -86,6 +91,7 @@ const FooterActions: React.FC<FooterActionsProps> = ({
       <p>Are you sure you want to approve this quatation?</p>
     </div>
   );
+
   const handlePreview = key => {
     if (key === 'quotation') {
       onPreview();
@@ -95,6 +101,17 @@ const FooterActions: React.FC<FooterActionsProps> = ({
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-4">
         <Space>
+          <Dropdown
+            menu={{
+              items: onSaveMenu,
+              onClick: e => {
+                e.key === 'newVersion' && setModalOpen('save');
+              },
+            }}
+            placement="top"
+          >
+            <Button>Save As</Button>
+          </Dropdown>
           {quoteVersionId ? (
             isEditMode ? (
               <>
@@ -152,7 +169,7 @@ const FooterActions: React.FC<FooterActionsProps> = ({
           <Button
             type="primary"
             onClick={() => {
-              setApproveOpen(true);
+              setModalOpen('approval');
             }}
             loading={loading}
           >
@@ -176,17 +193,30 @@ const FooterActions: React.FC<FooterActionsProps> = ({
           Total: <span className="text-green-600">${total.toLocaleString()}</span>
         </div>
       </div>
-      {approveOpen && (
+      {modalOpen === 'approval' && (
         <ConfirmationContentModal
-          open={approveOpen}
-          onClose={() => setApproveOpen(false)}
+          open={modalOpen === 'approval'}
+          onClose={() => setModalOpen(null)}
           onSubmit={() => {
             console.log('sketch num', sketchNum);
-            setApproveOpen(false);
+            setModalOpen(null);
           }}
           content={approveContent}
           okText="Approve"
           title="Confirmation"
+        />
+      )}
+
+      {modalOpen === 'save' && (
+        <ConfirmationContentModal
+          open={modalOpen === 'save'}
+          onClose={() => setModalOpen(null)}
+          onSubmit={() => {
+            setModalOpen(null);
+          }}
+          content="Are you sure you want to create new version?"
+          title="Confirmation"
+          okText="Yes"
         />
       )}
     </div>

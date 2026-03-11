@@ -3,25 +3,19 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Status } from '@lib/constants/enum';
 import {
   createQuotation,
-  createQuotationPackageThunk,
   createQuotationPricellistThunk,
   createQuotationThunk,
   deleteQuotationPackageThunk,
   deleteQuotationPricelistThunk,
   deleteQuotationThunk,
-  getQuotationPackageThunk,
   getQuotationPricelistThunk,
   getQuotationThunk,
   getQuotationVersionById,
   updateQuotationVersion,
 } from './quotationThunk';
 import { ILeadContact, LeadContact } from '../lead/ILeadState';
-import {
-  Quotation,
-  QuotationPackage,
-  QuotationPriceListItem,
-  QuotationVersionDetails,
-} from './IQuotationState';
+import { Quotation, QuotationPriceListItem, QuotationVersionDetails } from './IQuotationState';
+import { Package } from '../package/IPackageState';
 export interface QuotationState {
   status: { create: Status; getById: Status };
   quoteDetails: QuotationVersionDetails | null;
@@ -30,7 +24,7 @@ export interface QuotationState {
   property: PropertyDetails;
   plan: any;
   facade: any;
-  package: QuotationPackage[];
+  package: Package[];
   items: QuotationPriceListItem[];
   extraItems: QuotationPriceListItem[];
   quotation: Quotation[];
@@ -61,14 +55,14 @@ const quotationSlice = createSlice({
       state.property = null;
       state.plan = null;
       state.facade = null;
-      state.package = null;
+      state.package = [];
       state.selectedFilters = { range: '', dwelling_type: '' };
     },
     clearSelectedFloorplanFacadePackageReducer(state) {
       state.plan = null;
       state.facade = null;
       state.items = [];
-      state.package = null;
+      state.package = [];
     },
     setQuotationContact(state, action: PayloadAction<LeadContact | null>) {
       state.contact = action.payload as any;
@@ -97,19 +91,19 @@ const quotationSlice = createSlice({
     },
     setQuotationPackage(state, action: PayloadAction<any>) {
       state.package = action.payload;
-      const uniqueItems = action.payload.categoryItems.filter(
-        item => !state.items.some(i => i.priceListItemId === item.id)
-      );
-      state.items = [
-        ...state.items,
-        ...uniqueItems.map(item => ({
-          categoryItemId: item.id,
-          quantity: 1,
-          price: item.price,
-          description: item.desc,
-          cost: item.price,
-        })),
-      ];
+      // const uniqueItems = action.payload.categoryItems.filter(
+      //   item => !state.items.some(i => i.priceListItemId === item.id)
+      // );
+      // state.items = [
+      //   ...state.items,
+      //   ...uniqueItems.map(item => ({
+      //     categoryItemId: item.id,
+      //     quantity: 1,
+      //     price: item.price,
+      //     description: item.desc,
+      //     cost: item.price,
+      //   })),
+      // ];
     },
     updateQuotationItem: (state, action) => {
       const { itemId, quantity } = action.payload;
@@ -154,10 +148,10 @@ const quotationSlice = createSlice({
         //   builder: data.builder,
         //   leadStatus: data.lead.status,
         // };
-        // // Set contact from lead.leadContact
-        // if (data.lead?.leadContact) {
-        //   state.contact = data.lead.leadContact;
-        // }
+        // Set contact from lead.leadContact
+        if (data?.leadContacts) {
+          // state.contact = data.leadContacts;
+        }
 
         // // Set property
         // if (data.property) {
@@ -174,10 +168,10 @@ const quotationSlice = createSlice({
           state.facade = data.facade;
         }
 
-        // // Set package
-        // if (data.package) {
-        //   state.package = data.package;
-        // }
+        // Set package
+        if (data.packages) {
+          state.package = data.packages;
+        }
 
         // Set selected filters
         state.selectedFilters = {
@@ -242,15 +236,9 @@ const quotationSlice = createSlice({
         state.items = state.items?.filter(i => i.id !== action.meta.arg);
       })
 
-      // quotation pricelist
-      .addCase(createQuotationPackageThunk.fulfilled, (state, action) => {
-        state.package.push(action.payload);
-      })
-      .addCase(getQuotationPackageThunk.fulfilled, (state, action) => {
-        state.package = action.payload;
-      })
+      // quotation package
       .addCase(deleteQuotationPackageThunk.fulfilled, (state, action) => {
-        state.package = state.package?.filter(i => i.id !== action.meta.arg);
+        state.package = state.package?.filter(i => i.packageId !== action.meta.arg.pkgId);
       });
   },
 });

@@ -16,8 +16,6 @@ import { RootState } from '@redux/feature/store';
 import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import {
   createQuotation,
-  createQuotationPackageThunk,
-  getQuotationPackageThunk,
   getQuotationPricelistThunk,
   getQuotationVersionById,
   updateQuotationVersion,
@@ -67,7 +65,7 @@ const QuotationManager = () => {
   const lastFetchedFiltersRef = useRef<{ range?: string; dwelling_type?: string } | null>(null);
   const [selectedFacade, setSelectedFacade] = useState<IFacadeState | undefined>(facade);
   const [selectedPlan, setSelectedPlan] = useState<IFloorPlanState | undefined>(plan);
-  const [selectedPackage, setSelectedPackage] = useState<QuotationPackage[]>([]);
+  const [selectedPackage, setSelectedPackage] = useState<Package[]>([]);
   const [hasChanges, setHasChanges] = useState(false);
   const canContact = !!contact;
   const canProperty = property && Object.keys(property).length > 0 && property?.propertyId;
@@ -85,7 +83,9 @@ const QuotationManager = () => {
       location: quoteDetails?.locationId || null,
     },
   });
-  const quotationData = quotation?.[0];
+  const quotationData = quoteVersionId
+    ? quotation?.find(i => i.versions.find(j => j.quotationVersionId === quoteVersionId))
+    : quotation[quotation?.length - 1];
   useEffect(() => {
     return debouncedUpdateURL.cancel();
   }, [debouncedUpdateURL]);
@@ -125,7 +125,7 @@ const QuotationManager = () => {
 
   // Single unified handler for all changes (floorplan, facade, package)
   const handleSelectionChange = useCallback(
-    (type: 'plan' | 'facade', value: IFloorPlanState | IFacadeState | Package) => {
+    (type: 'plan' | 'facade' | 'package', value: IFloorPlanState | IFacadeState | Package[]) => {
       switch (type) {
         case 'plan':
           setSelectedPlan(value as IFloorPlanState);
@@ -135,24 +135,15 @@ const QuotationManager = () => {
           setSelectedFacade(value as IFacadeState);
           dispatch(setQuotationFacade(value as IFacadeState));
           break;
+        case 'package':
+          setSelectedPackage(value as Package[]);
+          dispatch(setQuotationPackage(value as Package[]));
+          break;
       }
       setHasChanges(true);
     },
     [dispatch]
   );
-
-  const handlePackage = async pkg => {
-    try {
-      await dispatch(
-        createQuotationPackageThunk({
-          quotationVersionId: quoteVersionId,
-          packageId: pkg?.packageId || null,
-        })
-      ).unwrap();
-    } catch (error) {
-      message.error(error || 'Failed to save package');
-    }
-  };
 
   const handleSaveChanges = useCallback(async () => {
     try {
@@ -162,6 +153,7 @@ const QuotationManager = () => {
         floorPlanId: selectedPlan?.floorPlanId || null,
         facadeId: selectedFacade?.facadeId || null,
         locationId: filters?.location || null,
+        packageId: selectedPackageFromSlice?.map(i => i.packageId) || null,
       };
       await dispatch(
         updateQuotationVersion({ id: quoteDetails?.quotationVersionId, data: payload })
@@ -171,7 +163,14 @@ const QuotationManager = () => {
     } catch (error) {
       message.error(error || 'Failed to save changes');
     }
-  }, [dispatch, filters, selectedPlan, selectedFacade, quoteDetails?.quotationVersionId]);
+  }, [
+    dispatch,
+    filters,
+    selectedPlan,
+    selectedFacade,
+    quoteDetails?.quotationVersionId,
+    selectedPackageFromSlice,
+  ]);
 
   // Function to check if a field should be disabled
   // const isFieldDisabled = (fieldName: string) => {
@@ -306,7 +305,6 @@ const QuotationManager = () => {
   const fetchQuotationPricelistItem = async () => {
     try {
       await dispatch(getQuotationPricelistThunk(quoteVersionId)).unwrap();
-      await dispatch(getQuotationPackageThunk(quoteVersionId)).unwrap();
     } catch (error) {
       message.error(error || 'Faied to fetch quotation items');
     }
@@ -540,7 +538,7 @@ const QuotationManager = () => {
         selectedPackage={selectedPackage}
         onPlanSelect={plan => handleSelectionChange('plan', plan)}
         onFacadeSelect={facade => handleSelectionChange('facade', facade)}
-        onPackageSelect={pkg => handlePackage(pkg)}
+        onPackageSelect={pkg => handleSelectionChange('package', pkg)}
         onPropertyUpdate={() => {}}
         isReadOnly={false}
         filters={filters}

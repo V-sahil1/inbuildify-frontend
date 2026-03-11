@@ -174,40 +174,11 @@ export const deleteQuotationPricelistThunk = createAsyncThunk(
 );
 
 // quotation package
-
-export const createQuotationPackageThunk = createAsyncThunk(
-  'quotation/createQuotationPackageThunk',
-  async (data: QuotationPackage, { rejectWithValue }) => {
-    try {
-      const res = await api.post<ApiResponse<QuotationPackage>>(API_ENDPOINTS.QUOTATION_PACKAGE, {
-        data,
-      });
-      return res.data;
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-export const getQuotationPackageThunk = createAsyncThunk(
-  'quotation/getQuotationPackageThunk',
-  async (quotationVersionId: string, { rejectWithValue }) => {
-    try {
-      const res = await api.get<ApiResponse<QuotationPackage[]>>(
-        API_ENDPOINTS.QUOTATION_PACKAGE + '/' + quotationVersionId
-      );
-      return res.data;
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
 export const deleteQuotationPackageThunk = createAsyncThunk(
   'quotation/deleteQuotationPackageThunk',
-  async (id: string, { rejectWithValue }) => {
+  async (payload:{versionId:string,pkgId:string}, { rejectWithValue }) => {
     try {
-      const res = await api.delete<ApiResponse>(API_ENDPOINTS.QUOTATION_PACKAGE + '/' + id);
+      const res = await api.delete<ApiResponse>(API_ENDPOINTS.QUOTATION_PACKAGE(payload.versionId,payload.pkgId));
       return res.data;
     } catch (error) {
       return rejectWithValue(error.message);

@@ -11,9 +11,9 @@ import { QuotationPackage } from '@redux/feature/quotation/IQuotationState';
 interface PackageModalProps {
   visible: boolean;
   onCancel: () => void;
-  onSave: (pkg: QuotationPackage) => void;
-  selectedPackage?: QuotationPackage[];
-  onSelect: (pkg: QuotationPackage) => void;
+  onSave: (pkg: Package[]) => void;
+  selectedPackage?: Package[];
+  onSelect: (pkg: Package[]) => void;
   filters?: Record<string, string>;
 }
 
@@ -29,7 +29,7 @@ const PackageModal: React.FC<PackageModalProps> = ({
   const packages = useAppSelector((state: RootState) => state.package.packages);
   const getAllStatus = useAppSelector((state: RootState) => state.package.status.packages);
   // local temp selection for multiple packages
-  const [tempSelectedPackages, setTempSelectedPackages] = React.useState<QuotationPackage[]>(
+  const [tempSelectedPackages, setTempSelectedPackages] = useState<Package[]>(
     selectedPackage || []
   );
   const { selectedFilters } = useAppSelector(state => state.quotation);
@@ -43,11 +43,10 @@ const PackageModal: React.FC<PackageModalProps> = ({
         return prev.filter(p => p.packageId !== pkg.packageId);
       } else {
         // Convert Package to QuotationPackage
-        const quotationPackage: QuotationPackage = {
+        const quotationPackage: Package = {
           packageId: pkg.packageId,
-          quotationVersionId: '', // Will be set when saving
-          packageName: pkg.name,
-          price: pkg.cost,
+          name: pkg.name,
+          cost: pkg.cost,
         };
         return [...prev, quotationPackage];
       }
@@ -101,7 +100,7 @@ const PackageModal: React.FC<PackageModalProps> = ({
               // // For now, save the first selected package (can be modified for multiple)
               const selectedPkg = tempSelectedPackages[tempSelectedPackages.length - 1];
               // dispatch(setQuotationPackage(selectedPkg));
-              onSave(selectedPkg);
+              onSave(tempSelectedPackages);
               onCancel();
             }
           }}
@@ -170,8 +169,8 @@ const PackageModal: React.FC<PackageModalProps> = ({
                             key={pkg.packageId}
                             className="border flex justify-between items-center rounded-lg p-4"
                           >
-                            <h3 className="text-lg font-semibold">{pkg.packageName}</h3>
-                            <div className="text-xl font-bold text-green-600">${pkg.price}</div>
+                            <h3 className="text-lg font-semibold">{pkg.name}</h3>
+                            <div className="text-xl font-bold text-green-600">${pkg.cost}</div>
                           </div>
                         ))}
                       </div>
@@ -181,7 +180,7 @@ const PackageModal: React.FC<PackageModalProps> = ({
                           <span className="text-green-600">
                             $
                             {tempSelectedPackages
-                              .reduce((sum: number, pkg) => sum + Number(pkg.price), 0)
+                              .reduce((sum: number, pkg) => sum + Number(pkg.cost), 0)
                               .toLocaleString()}
                           </span>
                         </div>
