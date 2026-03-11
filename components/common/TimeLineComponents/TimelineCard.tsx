@@ -98,8 +98,10 @@ const TimelineCard: FC<TimelineCardProps> = ({
         const recipientNames = (Array.isArray(sms?.recipient) ? sms?.recipient : [])
           .map((r: Recipient) => {
             if (typeof r === 'string') {
-              const contact = leadDetail?.contacts?.find(c => c?.leadsContactId === r);
-              return contact?.name;
+              // const contact = leadDetail?.contacts?.find(c => c?.leadsContactId === r);
+              // return contact?.name || '';
+              //todo
+              return ''
             } else if (typeof r === 'object' && r?.name) {
               return r?.name;
             }

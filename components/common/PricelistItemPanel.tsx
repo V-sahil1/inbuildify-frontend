@@ -30,7 +30,7 @@ const PriceListItemPanel: React.FC<PriceListItemsPanelProps> = ({ categories, it
     if (items.some(i => i.priceListItemId === item.priceListItemId)) {
       dispatch(removeQuotationItem(item.priceListItemId));
     } else {
-      dispatch(setQuotationItems({ ...item, quantity: Number(quantity),price: Number(item.cost) }));
+      // dispatch(setQuotationItems({ ...item, quantity: Number(quantity),itemCost: Number(item.cost) })); //todo
     }
   };
   const handleItemQuantityChange = (itemId: string, quantity: number) => {
@@ -56,7 +56,7 @@ const PriceListItemPanel: React.FC<PriceListItemsPanelProps> = ({ categories, it
         {
           responses &&
             responses.forEach(res => {
-              res.items?.priceListItem?.forEach((item: any) => {
+              res.priceListItem?.forEach((item: any) => {
                 if (item?.costType === 'INCLUDED') {
                   // only add if not already in quotation
                   const alreadyAdded = items.some(i => i.priceListItemId === item.categoryItemId);
@@ -113,9 +113,9 @@ const PriceListItemPanel: React.FC<PriceListItemsPanelProps> = ({ categories, it
                     <QuatationItem
                       key={item?.priceListItemId}
                       item={item}
-                      disabled={selectedPackageFromSlice?.categoryItems?.some(
-                        catItem => catItem.id === item.priceListItemId
-                      )}
+                      // disabled={selectedPackageFromSlice?.some(
+                      //   catItem => catItem.id === item.priceListItemId
+                      // )}
                       onQuantityChange={handleItemQuantityChange}
                       quantityRef={el => (quantityRefs.current[item.priceListItemId] = el)}
                       isSelected={items?.some(

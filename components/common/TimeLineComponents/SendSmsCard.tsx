@@ -15,10 +15,10 @@ interface SendSmsCardProps {
 const SendSmsCard: FC<SendSmsCardProps> = ({ onSave, onCancel, loading, initialData }) => {
   const [form] = Form.useForm();
   const { leadDetail } = useAppSelector(state => state.lead);
-  const recipientOptions = leadDetail.contacts.map(contact => ({
-    label: contact.name,
-    value: contact.leadsContactId,
-  }));
+  // const recipientOptions = leadDetail.contacts.map(contact => ({
+  //   label: contact.name,
+  //   value: contact.leadsContactId,
+  // }));
 
   const handleFinish = async values => {
     values.type = 'SMS';
@@ -40,7 +40,7 @@ const SendSmsCard: FC<SendSmsCardProps> = ({ onSave, onCancel, loading, initialD
       >
         <Select
           mode="multiple"
-          options={recipientOptions}
+          options={[]} //recipientOptions
           placeholder="Select Recipient"
           className="w-full"
         />

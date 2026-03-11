@@ -79,6 +79,7 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({
           onChange={value => {
             dispatch(setSelectedFilters({ ...instantFilters, location: value }));
             setParams({ location: value });
+            onFilterChange();
           }}
           options={locationOptions}
           disabled={isReadOnly}
@@ -98,7 +99,9 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({
           onChange={value => {
             dispatch(setSelectedFilters({ ...instantFilters, range: value }));
             setParams({ range: value });
+            onFilterChange();
           }}
+
           options={rangeOptions}
           disabled={isReadOnly}
         />
@@ -118,6 +121,7 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({
           onChange={value => {
             dispatch(setSelectedFilters({ ...instantFilters, dwellingType: value }));
             setParams({ dwellingType: value });
+            onFilterChange();
           }}
           options={dwellingTypeOptions}
           disabled={isReadOnly}

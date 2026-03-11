@@ -94,7 +94,10 @@ export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
                       </div>
 
                       <div className="text-lg font-semibold text-gray-900">
-                        ${Number(item?.totalAmount || 0)}
+                        $
+                        {Number(
+                          item?.versions[item?.versions?.length - 1 || 0]?.grandTotalCost || 0
+                        )}
                       </div>
 
                       <TooltipButton

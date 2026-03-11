@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Checkbox, Button, Table, message } from 'antd';
-import { QuotationResponse } from '@redux/feature/quotation/IQuotationState';
+import { Quotation, QuotationResponse } from '@redux/feature/quotation/IQuotationState';
 import { getQuotationById } from '@redux/feature/quotation/quotationThunk';
 import { useAppDispatch } from '@hooks/redux';
 import { QuotationVersionBasic, QuotationVersions } from 'data/types';
@@ -12,7 +12,7 @@ const { Column } = Table;
 interface Props {
   open: boolean;
   onClose: () => void;
-  quotation: QuotationResponse;
+  quotation: any; // quotation
 }
 
 const LeadQuotationComparison: React.FC<Props> = ({ open, onClose, quotation }) => {
@@ -27,7 +27,7 @@ const LeadQuotationComparison: React.FC<Props> = ({ open, onClose, quotation }) 
     async function fetchQuotation() {
       try {
         const res = await dispatch(getQuotationById(quotation.quotationId)).unwrap();
-        setQuotationVersion(res.versions as QuotationVersions);
+        // setQuotationVersion(res.versions as QuotationVersions);//todo
       } catch (error) {
         message.error(error || 'Failed to fetch quotation Version');
       }
@@ -87,7 +87,7 @@ const LeadQuotationComparison: React.FC<Props> = ({ open, onClose, quotation }) 
         quantity: quantity,
         total: total,
         formattedValue: `$${total?.toFixed(2)}`,
-        details: `(${quantity} × ${cost?.toFixed(2)})`
+        details: `(${quantity} × ${cost?.toFixed(2)})`,
       };
     };
 
@@ -124,9 +124,7 @@ const LeadQuotationComparison: React.FC<Props> = ({ open, onClose, quotation }) 
     return (
       <div className="text-font-color align-middle">
         <div className="font-bold">{item.formattedValue}</div>
-        <div className="text-xs text-gray-500">
-          {item.details}
-        </div>
+        <div className="text-xs text-gray-500">{item.details}</div>
       </div>
     );
   };
@@ -162,12 +160,17 @@ const LeadQuotationComparison: React.FC<Props> = ({ open, onClose, quotation }) 
           <Button type="primary" onClick={() => handleCompareClick(showAll)}>
             Compare
           </Button>
-          <Button type="dashed" onClick={() => previewPdf({
-            comparisonResult,
-            propertyAddress: quotation.propertyAddress,
-            selectedVersions: selectedVersions,
-            slugId: quotation.slugId
-          })}>
+          <Button
+            type="dashed"
+            onClick={() =>
+              previewPdf({
+                comparisonResult,
+                propertyAddress: quotation.propertyAddress,
+                selectedVersions: selectedVersions,
+                slugId: quotation.slugId,
+              })
+            }
+          >
             Print
           </Button>
           <Checkbox

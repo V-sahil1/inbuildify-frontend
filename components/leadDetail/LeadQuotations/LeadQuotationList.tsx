@@ -6,7 +6,7 @@ import { IconChevronDown, IconChevronUp, IconFileTypePdf } from '@tabler/icons-r
 import LeadQuotationComparison from './LeadQuotationComparison';
 import { useAppSelector } from '@hooks/redux';
 import { useRouter } from 'next/router';
-import { QuotationResponse } from '@redux/feature/quotation/IQuotationState';
+import { Quotation, QuotationResponse } from '@redux/feature/quotation/IQuotationState';
 import { timeAgo } from '@lib/utils/timeAgo';
 
 const { Panel } = Collapse;
@@ -22,9 +22,9 @@ const statusTagColor: Record<QuotationStatus, string> = {
 const LeadQuotationList = () => {
   const router = useRouter();
   const [openComparison, setOpenComparison] = useState(false);
-  const [selectedQuotation, setSelectedQuotation] = useState<QuotationResponse | null>(null);
+  const [selectedQuotation, setSelectedQuotation] = useState<Quotation | null>(null);
   const quotations = useAppSelector(state => state.lead.leadDetail.createdQuotations?.quotations);
-  const handleCompareClick = (quotation: QuotationResponse) => {
+  const handleCompareClick = (quotation: Quotation) => {
     setSelectedQuotation(quotation);
     setOpenComparison(true);
   };
@@ -48,11 +48,11 @@ const LeadQuotationList = () => {
             )
           }
         >
-          {quotations?.map((quotation: QuotationResponse) => (
+          {quotations?.map((quotation: Quotation) => (
             <Panel
               header={
                 <div className="flex justify-between items-center text-[var(--font-color)] w-full">
-                  <span>{quotation?.slugId}</span>
+                  <span>{quotation?.referenceNumber}</span>
                   <Button
                     type="primary"
                     disabled={Array.isArray(quotation.versions) && quotation.versions.length < 2}
