@@ -10,6 +10,7 @@ import {
   IconFileTypeXls,
 } from '@tabler/icons-react';
 import { ConfirmationContentModal } from '../common/ConfirmationContentModal';
+import { ActionDialogmodel } from '../common/Models/ActionDialogModel';
 
 interface FooterActionsProps {
   id?: string;
@@ -26,6 +27,7 @@ interface FooterActionsProps {
   hasUnsavedChanges?: boolean;
   onSaveChanges?: () => void;
   onCreateNewVersion?: () => void;
+  handleCustomSection?: (values: any) => void;
 }
 
 const FooterActions: React.FC<FooterActionsProps> = ({
@@ -43,8 +45,9 @@ const FooterActions: React.FC<FooterActionsProps> = ({
   hasUnsavedChanges = false,
   onSaveChanges,
   onCreateNewVersion,
+  handleCustomSection,
 }) => {
-  const [modalOpen, setModalOpen] = useState<'approval' | 'save' | null>(null);
+  const [modalOpen, setModalOpen] = useState<'approval' | 'save' | 'custom' | null>(null);
   const [sketchNum, setSketchNum] = useState('');
   const previewMenu = [
     { key: 'quotation', label: 'Quotation', icon: <IconFileTypePdf size={15} color="red" /> },
@@ -152,6 +155,18 @@ const FooterActions: React.FC<FooterActionsProps> = ({
               Create Quotation
             </Button>
           )}
+          <Button
+            type="primary"
+            onClick={() => {
+              setModalOpen('approval');
+            }}
+            loading={loading}
+          >
+            Approve
+          </Button>
+          <Button type="primary" onClick={() => {}} loading={loading}>
+            Email
+          </Button>
           <Dropdown
             menu={{
               items: previewMenu,
@@ -172,12 +187,22 @@ const FooterActions: React.FC<FooterActionsProps> = ({
           <Button
             type="primary"
             onClick={() => {
+              setModalOpen('custom');
+            }}
+            loading={loading}
+          >
+            Custom Section
+          </Button>
+          <Button
+            type="primary"
+            onClick={() => {
               setModalOpen('approval');
             }}
             loading={loading}
           >
-            Approve
+            View Opprtunity
           </Button>
+
           {hasUnsavedChanges && onSaveChanges && (
             <Button
               type="primary"
@@ -221,6 +246,25 @@ const FooterActions: React.FC<FooterActionsProps> = ({
           content="Are you sure you want to create new version?"
           title="Confirmation"
           okText="Yes"
+        />
+      )}
+
+      {modalOpen === 'custom' && (
+        <ActionDialogmodel
+          title="Custom Section"
+          open={modalOpen === 'custom'}
+          onCancel={() => setModalOpen(null)}
+          onSubmit={values => {
+            handleCustomSection(values);
+          }}
+          fields={[
+            {
+              label: 'attachFiles',
+              name: 'attachFiles',
+              type: 'image',
+              extra: 'Custom Section Attachment will be attached along with quotation Pdf',
+            },
+          ]}
         />
       )}
     </div>

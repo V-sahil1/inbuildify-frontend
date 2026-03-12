@@ -7,17 +7,20 @@ import {
   createLeadContactThunk,
   createLeadInvoiceThunk,
   createLeadJobThunk,
+  createLeadProperty,
   createLeadSourceThunk,
   createLeadThunk,
   deleteBusinessContactThunk,
   deleteLeadContactMapThunk,
   deleteLeadInvoiceThunk,
   deleteLeadJobThunk,
+  deleteLeadProperty,
   deleteLeadSourceThunk,
   getBusinessContactByIdThunk,
   getLeadContactMapThunk,
   getLeadInvoiceThunk,
   getLeadJobThunk,
+  getLeadProperty,
   getLeadSourcesThunk,
   getLeadThunk,
   getQuotationsByLeadIdThunk,
@@ -27,6 +30,7 @@ import {
   updateBusinessContactThunk,
   updateLeadContactThunk,
   updateLeadJobThunk,
+  updateLeadProperty,
   updateLeadSourceThunk,
   updateLeadThunk,
 } from './leadThunk';
@@ -145,7 +149,7 @@ export const leadSlice = createSlice({
         // ...payload,
         lead: payload,
         contacts: null,
-        property: [],
+        property: null,
         job: null,
         invoice: [],
         createdQuotations: { quotations: [] },
@@ -491,6 +495,20 @@ export const leadSlice = createSlice({
       .addCase(getQuotationThunk.fulfilled, (state, action) => {
         state.leadDetail.createdQuotations.quotations = action.payload;
       });
+
+    //lead property
+    builder.addCase(getLeadProperty.fulfilled, (state, action) => {
+      state.leadDetail.property = action.payload;
+    });
+    builder.addCase(updateLeadProperty.fulfilled, (state, action) => {
+      state.leadDetail.property = action.payload;
+    });
+    builder.addCase(deleteLeadProperty.fulfilled, (state, action) => {
+      // state.leadDetail.property = action.payload;
+    });
+    builder.addCase(createLeadProperty.fulfilled, (state, action) => {
+      state.leadDetail.property = action.payload;
+    });
   },
 });
 

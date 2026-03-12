@@ -9,6 +9,7 @@ import {
   deleteQuotationPackageThunk,
   deleteQuotationPricelistThunk,
   deleteQuotationThunk,
+  getQuotationCompareThunk,
   getQuotationPricelistThunk,
   getQuotationThunk,
   getQuotationVersionById,
@@ -68,7 +69,7 @@ const quotationSlice = createSlice({
       state.package = [];
     },
     setQuotationContact(state, action: PayloadAction<LeadContact | null>) {
-      state.contact = state.contact.map(i =>
+      state.contact = state?.contact?.map(i =>
         i.contactId === action.payload.contactId ? action.payload : i
       );
     },
@@ -142,7 +143,9 @@ const quotationSlice = createSlice({
         state.status.getById = Status.PENDING;
       })
       .addCase(getQuotationVersionById.fulfilled, (state, action) => {
-        const data = action.payload.find(i => i.quotationVersionNo === action.payload?.length);
+        const data = action.payload.find(
+          i => i.quotationVersionId === action.meta.arg.quoteVersionId
+        );
         state.quoteDetails = data;
         // state.quoteDetails = {
         //   slugId: data.slugId,
@@ -165,24 +168,24 @@ const quotationSlice = createSlice({
         // }
 
         // Set plan from floorPlan
-        if (data.floorPlan) {
-          state.plan = data.floorPlan;
+        if (data?.floorPlan) {
+          state.plan = data?.floorPlan;
         }
 
         // Set facade
-        if (data.facade) {
-          state.facade = data.facade;
+        if (data?.facade) {
+          state.facade = data?.facade;
         }
 
         // Set package
-        if (data.packages) {
-          state.package = data.packages;
+        if (data?.packages) {
+          state.package = data?.packages;
         }
 
         // Set selected filters
         state.selectedFilters = {
-          range: data.rangeId || '',
-          dwellingType: data.dwellingTypeId || '',
+          range: data?.rangeId || '',
+          dwellingType: data?.dwellingTypeId || '',
         };
 
         // state.items = data.items?.map(item => ({
@@ -267,6 +270,14 @@ const quotationSlice = createSlice({
       // quotation package
       .addCase(deleteQuotationPackageThunk.fulfilled, (state, action) => {
         state.package = state.package?.filter(i => i.packageId !== action.meta.arg.pkgId);
+      })
+
+      //quotation compare
+      .addCase(getQuotationCompareThunk.fulfilled, (state, action) => {
+        const quote = state.quotation.find(i => i.quotationId === action.meta.arg.quoteId);
+        if (quote) {
+          quote.comparison = action.payload;
+        }
       });
   },
 });

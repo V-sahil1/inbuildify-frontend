@@ -9,7 +9,7 @@ export const LeadPropertyPage = ({ setModalOpen, handleDeleteJobDetail }) => {
   return (
     <Card className="relative">
       <div className="flex items-center justify-between mb-3">
-        {leadDetail?.lead?.status === 'New' || propertyFromSlice?.zipPostalCode === null ? (
+        {!leadDetail?.property ? (
           <div className="flex items-center justify-center h-full p-4 w-full">
             <Card className="text-center h-full my-auto">
               <button
@@ -49,25 +49,21 @@ export const LeadPropertyPage = ({ setModalOpen, handleDeleteJobDetail }) => {
           </>
         )}
       </div>
-      {propertyFromSlice?.address1 ||
-      propertyFromSlice?.citySuburb ||
-      propertyFromSlice?.stateRegion ||
-      propertyFromSlice?.zipPostalCode ? (
+      {propertyFromSlice?.addressLine1 ||
+      propertyFromSlice?.city ||
+      propertyFromSlice?.stateName ||
+      propertyFromSlice?.zipCode ? (
         <>
-          <Tooltip title={propertyFromSlice?.address1}>
+          <Tooltip title={propertyFromSlice?.addressLine1}>
             <Typography.Title
               className="font-semibold !text-lg"
               ellipsis={{ rows: 2, symbol: '...' }}
             >
-              {propertyFromSlice?.address1 ?? ''}
+              {propertyFromSlice?.addressLine1 ?? ''}
             </Typography.Title>
           </Tooltip>
           <p className="text-sm text-gray-600">
-            {[
-              propertyFromSlice?.citySuburb,
-              propertyFromSlice?.stateRegion,
-              propertyFromSlice?.zipPostalCode,
-            ]
+            {[propertyFromSlice?.city, propertyFromSlice?.stateName, propertyFromSlice?.zipCode]
               .filter(Boolean)
               .join(', ')}
           </p>

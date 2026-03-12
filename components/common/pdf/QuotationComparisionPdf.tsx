@@ -11,7 +11,7 @@ Font.register({
 
 interface Props {
     comparisonResult: any[];
-    propertyAddress: string;
+    propertyAddress?: string;
     selectedVersions?: any[];
     slugId?: string;
 }

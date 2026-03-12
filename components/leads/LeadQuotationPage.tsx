@@ -69,51 +69,54 @@ export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
                     </div>
                   ),
                 }}
-                renderItem={(item: Quotation) => (
-                  <List.Item
-                    key={item?.quotationId}
-                    onClick={() => {
-                      return router.push(
-                        `${SystemRoutes.QUOTATION}/${item?.versions[item?.versions?.length - 1 || 0]?.quotationVersionId}`
-                      );
-                    }}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <div className="flex items-center justify-between w-full overflow-hidden">
-                      <div className="flex items-center space-x-4">
-                        <div className="bg-gray-100 p-2 rounded-lg">
-                          {quotation.indexOf(item) + 1}
-                        </div>
-                        <div>
-                          <div className="font-medium text-gray-900">
-                            <span className=" text-sm text-gray-500">
-                              {item?.referenceNumber}...
-                            </span>
+                renderItem={(item: Quotation) => {
+                  const latestVersion = item?.versions.find(
+                    i => i.quotationVersionNo === item?.versions?.length
+                  );
+
+                  return (
+                    <List.Item
+                      key={item?.quotationId}
+                      onClick={() => {
+                        return router.push(
+                          `${SystemRoutes.QUOTATION}/${latestVersion?.quotationVersionId}`
+                        );
+                      }}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <div className="flex items-center justify-between w-full overflow-hidden">
+                        <div className="flex items-center space-x-4">
+                          <div className="bg-gray-100 p-2 rounded-lg">
+                            {quotation.indexOf(item) + 1}
+                          </div>
+                          <div>
+                            <div className="font-medium text-gray-900">
+                              <span className=" text-sm text-gray-500">
+                                {item?.referenceNumber}...
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      <div className="text-lg font-semibold text-gray-900">
-                        $
-                        {Number(
-                          item?.versions[item?.versions?.length - 1 || 0]?.grandTotalCost || 0
-                        )}
-                      </div>
+                        <div className="text-lg font-semibold text-gray-900">
+                          ${Number(latestVersion?.grandTotalCost || 0)}
+                        </div>
 
-                      <TooltipButton
-                        title="Delete Quotation"
-                        type="text"
-                        size="small"
-                        icon={<IconTrash color="red" size={15} />}
-                        onClick={e => {
-                          e.stopPropagation();
-                          setSelectedQuotationId(item?.quotationId);
-                          setShowDeleteConfirm(true);
-                        }}
-                      />
-                    </div>
-                  </List.Item>
-                )}
+                        <TooltipButton
+                          title="Delete Quotation"
+                          type="text"
+                          size="small"
+                          icon={<IconTrash color="red" size={15} />}
+                          onClick={e => {
+                            e.stopPropagation();
+                            setSelectedQuotationId(item?.quotationId);
+                            setShowDeleteConfirm(true);
+                          }}
+                        />
+                      </div>
+                    </List.Item>
+                  );
+                }}
               />
             </div>
           )}

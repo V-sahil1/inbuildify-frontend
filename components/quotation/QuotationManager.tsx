@@ -84,6 +84,7 @@ const QuotationManager = () => {
       location: quoteDetails?.locationId || null,
     },
   });
+  console.log('quotation version id', quoteVersionId);
   const quotationData = quoteVersionId
     ? quotation?.find(i => i.versions.find(j => j.quotationVersionId === quoteVersionId))
     : quotation[quotation?.length - 1];
@@ -104,7 +105,9 @@ const QuotationManager = () => {
 
   useEffect(() => {
     const fetchQuotation = async () => {
-      await dispatch(getQuotationVersionById(quotationData?.quotationId)).unwrap();
+      await dispatch(
+        getQuotationVersionById({ quoteId: quotationData?.quotationId, quoteVersionId })
+      ).unwrap();
     };
     if (quotationData?.quotationId) {
       fetchQuotation();
@@ -524,6 +527,13 @@ const QuotationManager = () => {
       message.error(error || 'Failed to craete new version');
     }
   };
+
+  const handleCustomSection = async values => {
+    try {
+    } catch (error) {
+      message.error('Failed to save custom section');
+    }
+  };
   return (
     <>
       <div className="m-3 flex justify-between items-center">
@@ -620,6 +630,7 @@ const QuotationManager = () => {
           hasUnsavedChanges={hasChanges}
           onSaveChanges={handleSaveChanges}
           onCreateNewVersion={handleCreateNewVersion}
+          handleCustomSection={handleCustomSection}
         />
       </div>
     </>

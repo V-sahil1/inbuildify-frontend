@@ -16,6 +16,7 @@ import {
   getLeadContactMapThunk,
   getLeadInvoiceThunk,
   getLeadJobThunk,
+  getLeadProperty,
   updateLeadJobThunk,
 } from '@redux/feature/lead/leadThunk';
 import { setQuotationContact, setQuotationProperty } from '@redux/feature/quotation/quotationSlice';
@@ -142,6 +143,7 @@ function App() {
       await dispatch(getLeadInvoiceThunk(leadId)).unwrap();
       await dispatch(getLeadJobThunk(leadId)).unwrap();
       await dispatch(getQuotationThunk(leadId)).unwrap();
+      await dispatch(getLeadProperty(leadId)).unwrap();
     } catch (err) {
       message.error(err || 'Failed to fetch lead details');
     }
@@ -386,13 +388,15 @@ function App() {
           />
 
           {/* Quotation Card */}
-          <LeadQuotation
-            leadId={leadId}
-            setModalOpen={setModalOpen}
-            createdQuotations={createdQuotations}
-            setSelectedQuotationId={setSelectedQuotationId}
-            setShowDeleteConfirm={setShowDeleteConfirm}
-          />
+          {!!leadDetail?.property && (
+            <LeadQuotation
+              leadId={leadId}
+              setModalOpen={setModalOpen}
+              createdQuotations={createdQuotations}
+              setSelectedQuotationId={setSelectedQuotationId}
+              setShowDeleteConfirm={setShowDeleteConfirm}
+            />
+          )}
         </div>
 
         <div className="m-3">

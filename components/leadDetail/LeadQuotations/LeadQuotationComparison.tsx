@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Checkbox, Button, Table, message } from 'antd';
-import { Quotation, QuotationResponse } from '@redux/feature/quotation/IQuotationState';
-import { getQuotationById } from '@redux/feature/quotation/quotationThunk';
-import { useAppDispatch } from '@hooks/redux';
-import { QuotationVersionBasic, QuotationVersions } from 'data/types';
+import { Modal, Checkbox, Button, Table, message, Tag } from 'antd';
+import { Quotation, QuotationVersionDetails } from '@redux/feature/quotation/IQuotationState';
+import { getQuotationCompareThunk } from '@redux/feature/quotation/quotationThunk';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { usePdf } from '@hooks/usePdf';
 import { QuotationComparisionPdf } from '@/components/common/pdf/QuotationComparisionPdf';
 
@@ -12,36 +11,53 @@ const { Column } = Table;
 interface Props {
   open: boolean;
   onClose: () => void;
-  quotation: any; // quotation
+  quotation: Quotation;
 }
 
 const LeadQuotationComparison: React.FC<Props> = ({ open, onClose, quotation }) => {
-  const [selectedVersions, setSelectedVersions] = useState<QuotationVersionBasic[]>([]);
-  const [quotationVersion, setQuotationVersion] = useState<QuotationVersions>({});
+  const [selectedVersions, setSelectedVersions] = useState<QuotationVersionDetails[]>([]);
   const [comparisonResult, setComparisonResult] = useState<any[]>([]);
   const [showAll, setShowAll] = useState(false);
+  const quotations = useAppSelector(state => state.quotation.quotation);
   const { previewPdf } = usePdf(QuotationComparisionPdf);
   const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    async function fetchQuotation() {
-      try {
-        const res = await dispatch(getQuotationById(quotation.quotationId)).unwrap();
-        // setQuotationVersion(res.versions as QuotationVersions);//todo
-      } catch (error) {
-        message.error(error || 'Failed to fetch quotation Version');
-      }
-    }
-    fetchQuotation();
-  }, [quotation.quotationId, dispatch]);
+  const selectedQuotation = quotations.find(i => i.quotationId === quotation.quotationId);
+  // useEffect(() => {
+  //   async function fetchQuotation() {
+  //     try {
+  //       const res = await dispatch(getQuotationById(quotation.quotationId)).unwrap();
+  //       // setQuotationVersion(res.versions as QuotationVersions);//todo
+  //     } catch (error) {
+  //       message.error(error || 'Failed to fetch quotation Version');
+  //     }
+  //   }
+  //   fetchQuotation();
+  // }, [quotation.quotationId, dispatch]);
 
   useEffect(() => {
     if (selectedVersions.length < 2) {
       setComparisonResult([]);
+    } else {
+      handleFetchComparison();
     }
   }, [selectedVersions]);
 
-  const handleCheckboxChange = (versionId: string) => {
+  const handleFetchComparison = async (showall?: boolean) => {
+    try {
+      await dispatch(
+        getQuotationCompareThunk({
+          version1Id: selectedVersions[0]?.quotationVersionId,
+          version2Id: selectedVersions[1]?.quotationVersionId,
+          quoteId: quotation.quotationId,
+          showAll: showall ?? !showAll,
+        })
+      ).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch compariso');
+    }
+  };
+
+  const handleCheckboxChange = async (versionId: string) => {
     if (!Array.isArray(quotation.versions)) return;
     const version = quotation.versions.find(v => v.quotationVersionId === versionId);
     if (!version) return;
@@ -60,73 +76,64 @@ const LeadQuotationComparison: React.FC<Props> = ({ open, onClose, quotation }) 
     setShowAll(false);
   };
 
-  const handleCompareClick = (shouldShowAll = showAll) => {
-    if (selectedVersions.length !== 2) {
-      message.warning('Please select exactly 2 versions');
-      return;
-    }
+  const handleCompareClick = async (shouldShowAll = showAll) => {
+    handleFetchComparison(false);
+    setShowAll(false);
+    // if (selectedVersions.length !== 2) {
+    //   message.warning('Please select exactly 2 versions');
+    //   return;
+    // }
+    // const [leftVersion, rightVersion] = selectedVersions;
+    // const leftItems = quotationVersion[String(leftVersion.quotationVersionNo)] || [];
+    // const rightItems = quotationVersion[String(rightVersion.quotationVersionNo)] || [];
 
-    const [leftVersion, rightVersion] = selectedVersions;
-    const leftItems = quotationVersion[String(leftVersion.versionNumber)] || [];
-    const rightItems = quotationVersion[String(rightVersion.versionNumber)] || [];
+    // const rows: any[] = [];
+    // const allItemIds = new Set([
+    //   ...leftItems.map(i => i.categoryItemId),
+    //   ...rightItems.map(i => i.categoryItemId),
+    // ]);
 
-    const rows: any[] = [];
-    const allItemIds = new Set([
-      ...leftItems.map(i => i.categoryItemId),
-      ...rightItems.map(i => i.categoryItemId),
-    ]);
+    // const formatItem = (item: any) => {
+    //   if (!item) return { value: '-', cost: 0, quantity: 0, total: 0 };
+    //   const quantity = item?.categoryItemQuantity || 1;
+    //   const cost = parseFloat(item?.categoryItemCost);
+    //   const total = quantity * cost;
+    //   return {
+    //     value: total,
+    //     cost: cost,
+    //     quantity: quantity,
+    //     total: total,
+    //     formattedValue: `$${total?.toFixed(2)}`,
+    //     details: `(${quantity} × ${cost?.toFixed(2)})`,
+    //   };
+    // };
 
-    const formatItem = (item: any) => {
-      if (!item) return { value: '-', cost: 0, quantity: 0, total: 0 };
-      const quantity = item?.categoryItemQuantity || 1;
-      const cost = parseFloat(item?.categoryItemCost);
-      const total = quantity * cost;
-      return {
-        value: total,
-        cost: cost,
-        quantity: quantity,
-        total: total,
-        formattedValue: `$${total?.toFixed(2)}`,
-        details: `(${quantity} × ${cost?.toFixed(2)})`,
-      };
-    };
+    // allItemIds.forEach(itemId => {
+    //   const itemLeft = leftItems.find(i => i?.categoryItemId === itemId);
+    //   const itemRight = rightItems.find(i => i?.categoryItemId === itemId);
 
-    allItemIds.forEach(itemId => {
-      const itemLeft = leftItems.find(i => i?.categoryItemId === itemId);
-      const itemRight = rightItems.find(i => i?.categoryItemId === itemId);
+    //   const rawLeftValue = itemLeft
+    //     ? `${itemLeft?.categoryItemQuantity || 1}x${parseFloat(itemLeft?.categoryItemCost).toFixed(2)}`
+    //     : null;
+    //   const rawRightValue = itemRight
+    //     ? `${itemRight?.categoryItemQuantity || 1}x${parseFloat(itemRight?.categoryItemCost).toFixed(2)}`
+    //     : null;
 
-      const rawLeftValue = itemLeft
-        ? `${itemLeft?.categoryItemQuantity || 1}x${parseFloat(itemLeft?.categoryItemCost).toFixed(2)}`
-        : null;
-      const rawRightValue = itemRight
-        ? `${itemRight?.categoryItemQuantity || 1}x${parseFloat(itemRight?.categoryItemCost).toFixed(2)}`
-        : null;
+    //   const isDifferent = rawLeftValue !== rawRightValue;
 
-      const isDifferent = rawLeftValue !== rawRightValue;
-
-      // if (showAll || isDifferent) {
-      if (shouldShowAll || rawLeftValue !== rawRightValue) {
-        rows.push({
-          key: itemId,
-          categoryName: (itemLeft || itemRight)?.caterogyName,
-          description: (itemLeft || itemRight)?.categoryItemDescription,
-          left: formatItem(itemLeft),
-          right: formatItem(itemRight),
-          isDifferent: isDifferent,
-        });
-      }
-    });
-    setComparisonResult(rows);
-  };
-
-  const renderCell = (item: any) => {
-    if (item.value === '-') return <span>-</span>;
-    return (
-      <div className="text-font-color align-middle">
-        <div className="font-bold">{item.formattedValue}</div>
-        <div className="text-xs text-gray-500">{item.details}</div>
-      </div>
-    );
+    //   // if (showAll || isDifferent) {
+    //   if (shouldShowAll || rawLeftValue !== rawRightValue) {
+    //     rows.push({
+    //       key: itemId,
+    //       categoryName: (itemLeft || itemRight)?.caterogyName,
+    //       description: (itemLeft || itemRight)?.categoryItemDescription,
+    //       left: formatItem(itemLeft),
+    //       right: formatItem(itemRight),
+    //       isDifferent: isDifferent,
+    //     });
+    //   }
+    // });
+    // setComparisonResult(rows);
   };
 
   return (
@@ -135,7 +142,7 @@ const LeadQuotationComparison: React.FC<Props> = ({ open, onClose, quotation }) 
       onCancel={handleCancel}
       footer={null}
       width={900}
-      title={`Quotation Version Comparison - ${quotation.slugId}`}
+      title={`Quotation Version Comparison - ${quotation.referenceNumber}`}
     >
       <div className="flex items-center gap-4 mb-4 justify-between">
         <div className="flex gap-2">
@@ -151,7 +158,7 @@ const LeadQuotationComparison: React.FC<Props> = ({ open, onClose, quotation }) 
                   )}
                   onChange={() => handleCheckboxChange(v.quotationVersionId)}
                 >
-                  {v.versionNumber}
+                  V{v.quotationVersionNo}
                 </Checkbox>
               ))}
           </div>
@@ -165,9 +172,9 @@ const LeadQuotationComparison: React.FC<Props> = ({ open, onClose, quotation }) 
             onClick={() =>
               previewPdf({
                 comparisonResult,
-                propertyAddress: quotation.propertyAddress,
+                // propertyAddress: quotation.propertyAddress,
                 selectedVersions: selectedVersions,
-                slugId: quotation.slugId,
+                slugId: selectedQuotation.referenceNumber,
               })
             }
           >
@@ -176,10 +183,11 @@ const LeadQuotationComparison: React.FC<Props> = ({ open, onClose, quotation }) 
           <Checkbox
             checked={showAll}
             onChange={e => {
-              const newShowAllState = e.target.checked;
-              setShowAll(newShowAllState);
-              if (selectedVersions.length === 2) {
-                handleCompareClick(newShowAllState);
+              setShowAll(e.target.checked);
+              if (e.target.checked) {
+                handleFetchComparison();
+              } else {
+                handleFetchComparison();
               }
             }}
           >
@@ -190,45 +198,74 @@ const LeadQuotationComparison: React.FC<Props> = ({ open, onClose, quotation }) 
 
       <div className="mt-4 flex flex-wrap gap-2 mb-3">
         <span className="font-semibold">Property Address:</span>
-        <span> {quotation.propertyAddress}</span>
+        {/* <span> {quotation.propertyAddress}</span> */}
       </div>
       <Table
-        dataSource={comparisonResult}
-        pagination={comparisonResult.length > 10 ? { pageSize: 10 } : false}
+        dataSource={selectedQuotation?.comparison?.items || []}
+        pagination={selectedQuotation?.comparison?.items?.length > 10 ? { pageSize: 10 } : false}
         bordered
         size="small"
-        rowKey="key"
-        rowClassName={record => (record.isDifferent && showAll ? 'bg-primary-10' : '')}
+        // rowKey="key"
+        // rowClassName={record => (record.isDifferent && showAll ? 'bg-primary-10' : '')}
       >
-        <Column title="Items" dataIndex="description" key="description" width="60%" />
+        <Column
+          title="Items"
+          dataIndex="name"
+          key="name"
+          width="60%"
+          render={(_, record) => (
+            <div>
+              <Tag color="blue">
+                {record.type === 'pricelist_item' ? record.priceListName : record.type}
+              </Tag>
+              <p>{record.name}</p>
+            </div>
+          )}
+        />
         {selectedVersions[0] && (
           <Column
             title={
               <div className="flex flex-col justify-center items-center">
-                <span>{selectedVersions[0].versionNumber}</span>
-                <span>${Number(selectedVersions[0].totalAmount).toFixed(2)}</span>
+                <span>V{selectedVersions[0].quotationVersionNo}</span>
+                <span>${Number(selectedVersions[0].grandTotalCost).toFixed(2)}</span>
               </div>
             }
             dataIndex="left"
             key="left"
             width="20%"
             align="center"
-            render={renderCell}
+            render={(_, record) => (
+              <div className="text-font-color align-middle">
+                <div className="font-bold">
+                  {record.type === 'pricelist_item'
+                    ? record.version1TotalPrice || '-'
+                    : record.version1Value || '-'}
+                </div>
+              </div>
+            )}
           />
         )}
         {selectedVersions[1] && (
           <Column
             title={
               <div className="flex flex-col justify-center items-center">
-                <span>{selectedVersions[1].versionNumber}</span>
-                <span>${Number(selectedVersions[1].totalAmount).toFixed(2)}</span>
+                <span>V{selectedVersions[1].quotationVersionNo}</span>
+                <span>${Number(selectedVersions[1].grandTotalCost).toFixed(2)}</span>
               </div>
             }
             dataIndex="right"
             key="right"
             width="20%"
             align="center"
-            render={renderCell}
+            render={(_, record) => (
+              <div className="text-font-color align-middle">
+                <div className="text-xs text-gray-500">
+                  {record.type === 'pricelist_item'
+                    ? record.version2TotalPrice || '-'
+                    : record.version2Value || '-'}
+                </div>
+              </div>
+            )}
           />
         )}
       </Table>

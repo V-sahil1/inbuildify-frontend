@@ -59,6 +59,7 @@ class API_ENDPOINTS {
   public static LEAD_JOB = '/job-form';
   public static LEAD_INVOICE = '/invoice';
   public static LEAD_INVOICE_BY_ID = `${this.LEAD_INVOICE}/lead`;
+  public static LEAD_PROPERTY = '/property';
 
   //  Master PricingList
   public static MASTER_PRICE_LIST_CATEGORY = '/category';
@@ -128,6 +129,7 @@ class API_ENDPOINTS {
     `${this.QUOTATION_VERSION}/${versionId}/packages/${pkgId}`;
   public static QUOTATION_NEW_VERSION = (versionid: string) =>
     `${this.QUOTATION_VERSION}/${versionid}/duplicate`;
+  public static QUOTATION_COMPARE = `${this.QUOTATION_BASE}/compare`;
   // location
   public static COUNTRY_BASE = '/country';
   public static STATE_BASE = '/state';

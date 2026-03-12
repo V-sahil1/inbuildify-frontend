@@ -8,6 +8,7 @@ import { useAppSelector } from '@hooks/redux';
 import { useRouter } from 'next/router';
 import { Quotation, QuotationResponse } from '@redux/feature/quotation/IQuotationState';
 import { timeAgo } from '@lib/utils/timeAgo';
+import SystemRoutes from '@lib/constants/Routes';
 
 const { Panel } = Collapse;
 const { Column } = Table;
@@ -72,7 +73,8 @@ const LeadQuotationList = () => {
                 bordered
                 scroll={{ x: 'max-content' }}
                 onRow={record => ({
-                  onClick: () => router.push(`/quotation/${record.quotationVersionId}`),
+                  onClick: () =>
+                    router.push(`${SystemRoutes.QUOTATION}/${record.quotationVersionId}`),
                   style: { cursor: 'pointer' },
                 })}
               >

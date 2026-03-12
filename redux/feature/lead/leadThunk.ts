@@ -12,6 +12,7 @@ import {
   LeadContact,
   ILeadJob,
   InvoiceDetails,
+  PropertyDetail,
 } from './ILeadState';
 import { leadDetails } from 'data/sampleData';
 export interface createLeadPayload {
@@ -395,11 +396,9 @@ export const getLeadContactMapThunk = createAsyncThunk(
 
 export const deleteLeadContactMapThunk = createAsyncThunk(
   'leadContactMap/delete',
-  async (id:string, { rejectWithValue }) => {
+  async (id: string, { rejectWithValue }) => {
     try {
-      const response: ApiResponse = await api.delete(
-        `${API_ENDPOINTS.LEAD_CONTACT_MAP}/${id}`
-      );
+      const response: ApiResponse = await api.delete(`${API_ENDPOINTS.LEAD_CONTACT_MAP}/${id}`);
       return;
     } catch (err) {
       return rejectWithValue(err.message);
@@ -454,7 +453,7 @@ export const updateLeadJobThunk = createAsyncThunk(
 
 export const deleteLeadJobThunk = createAsyncThunk(
   'leadJob/delete',
-  async (id:string, { rejectWithValue }) => {
+  async (id: string, { rejectWithValue }) => {
     try {
       const response: ApiResponse = await api.delete(`${API_ENDPOINTS.LEAD_JOB}/${id}`);
       return;
@@ -500,6 +499,68 @@ export const deleteLeadInvoiceThunk = createAsyncThunk(
     try {
       const response: ApiResponse = await api.delete(
         `${API_ENDPOINTS.LEAD_INVOICE_BY_ID}/${leadId}`
+      );
+      return;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+//lead property
+
+export const createLeadProperty = createAsyncThunk(
+  'property/create',
+  async (payload: { data: PropertyDetail; leadId: string }, { rejectWithValue }) => {
+    try {
+      const response: ApiResponse<PropertyDetail> = await api.post(
+        API_ENDPOINTS.LEAD_PROPERTY + '/' + payload.leadId,
+        {
+          data: payload.data,
+        }
+      );
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+export const getLeadProperty = createAsyncThunk(
+  'property/getById',
+  async (leadsId: string, { rejectWithValue }) => {
+    try {
+      const response: ApiResponse<PropertyDetail> = await api.get(
+        API_ENDPOINTS.LEAD_PROPERTY + '/' + leadsId
+      );
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+export const updateLeadProperty = createAsyncThunk(
+  'property/update',
+  async ({ id, payload }: { id: string; payload: any }, { rejectWithValue }) => {
+    try {
+      const response: ApiResponse<PropertyDetail> = await api.put(
+        `${API_ENDPOINTS.LEAD_PROPERTY}/${id}`,
+        { data: payload }
+      );
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+export const deleteLeadProperty = createAsyncThunk(
+  'property/delete',
+  async (payload: { leadsId: string; id: string; contactType: string }, { rejectWithValue }) => {
+    try {
+      const response: ApiResponse = await api.delete(
+        `${API_ENDPOINTS.LEAD_PROPERTY}/${payload.id}`
       );
       return;
     } catch (err) {

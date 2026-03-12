@@ -75,6 +75,7 @@ export type Quotation = {
   totalAmount?: number;
   leadStatus: string;
   versions: QuotationVersionDetails[];
+  comparison?:QuotationComparison
 };
 
 export type QuotationVersion = {
@@ -146,4 +147,59 @@ export type QuotationPackage = {
   price?: number;
   createdAt?: string;
   packageName?: string;
+};
+
+export type QuotationComparison = {
+  referenceNumber: string;
+  propertyAddress: string | null;
+
+  version1: {
+    quotationVersionId: string;
+    quotationVersionNo: number;
+    grandTotalCost: string;
+  };
+
+  version2: {
+    quotationVersionId: string;
+    quotationVersionNo: number;
+    grandTotalCost: string;
+  };
+
+  items: IQuotationItem[];
+};
+
+export type IQuotationItem =
+  | PackageItem
+  | FacadeItem
+  | PriceListItem;
+
+type PackageItem = {
+  type: "package";
+  name: string;
+  packageId: string;
+  version1Value: string | null;
+  version2Value: string | null;
+};
+
+type FacadeItem = {
+  type: "facade";
+  name: string;
+  version1Value: string | null;
+  version2Value: string | null;
+};
+
+type PriceListItem = {
+  type: "pricelist_item";
+  name: string;
+  priceListItemId: string;
+  priceListId: string;
+  priceListName: string;
+
+  version1Quantity: string | null;
+  version1TotalPrice: string | null;
+  version1Note: string | null;
+
+  version2Quantity: string | null;
+  version2TotalPrice: string | null;
+  version2Note: string | null;
 };

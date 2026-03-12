@@ -4,8 +4,8 @@ import API_ENDPOINTS from '@lib/constants/apiEndpoints';
 import api from '@lib/constants/api';
 import {
   Quotation,
+  QuotationComparison,
   QuotationItemPayload,
-  QuotationPackage,
   QuotationPriceListItem,
   QuotationResponse,
   QuotationVersionDetails,
@@ -48,10 +48,13 @@ export const getQuotationById = createAsyncThunk(
 
 export const getQuotationVersionById = createAsyncThunk(
   'quotation/getVersionById',
-  async (id: string, { rejectWithValue }) => {
+  async (
+    { quoteId, quoteVersionId }: { quoteId: string; quoteVersionId: string },
+    { rejectWithValue }
+  ) => {
     try {
       const res = await api.get<ApiResponse<QuotationVersionDetails[]>>(
-        API_ENDPOINTS.QUOTATION_VERSION + '/' + id
+        API_ENDPOINTS.QUOTATION_VERSION + '/' + quoteId
       );
       return res.data;
     } catch (error) {
@@ -195,6 +198,32 @@ export const deleteQuotationPackageThunk = createAsyncThunk(
     try {
       const res = await api.delete<ApiResponse>(
         API_ENDPOINTS.QUOTATION_PACKAGE(payload.versionId, payload.pkgId)
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+//quotation compare
+
+export const getQuotationCompareThunk = createAsyncThunk(
+  'quotation/getQuotationCompareThunk',
+  async (
+    payload: { version1Id: string; version2Id: string; quoteId: string; showAll: boolean },
+    { rejectWithValue }
+  ) => {
+    try {
+      const res = await api.get<ApiResponse<QuotationComparison>>(
+        API_ENDPOINTS.QUOTATION_COMPARE + '/' + payload.quoteId,
+        {
+          params: {
+            version_1: payload.version1Id,
+            version_2: payload.version2Id,
+            show_all: payload.showAll,
+          },
+        }
       );
       return res.data;
     } catch (error) {

@@ -154,44 +154,47 @@ const InfoCards: React.FC<InfoCardsProps> = ({
 
       <Card
         className="shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-        onClick={!isReadOnly ? () => setModalOpen('property') : undefined}
+        // onClick={!isReadOnly ? () => setModalOpen('property') : undefined}
       >
         <div className="flex items-center gap-2 mb-3">
           <IconHome className="text-green-500" />
           <span className="font-medium text-font-color">Property Details</span>
           {!isReadOnly && <IconEdit className="text-gray-400 ml-auto" />}
         </div>
-        {propertyDetails?.address1 &&
-        propertyDetails?.citySuburb &&
-        propertyDetails?.stateRegion &&
-        propertyDetails?.zipPostalCode ? (
+        {leadDetail?.property?.addressLine1 &&
+        leadDetail?.property?.city &&
+        leadDetail?.property?.stateName &&
+        leadDetail?.property?.zipCode ? (
           <div className="space-y-2">
-            <div className="font-semibold text-font-color">{propertyDetails?.address1}</div>
+            <div className="font-semibold text-font-color">
+              {leadDetail?.property?.addressLine1}
+            </div>
             <div className="text-sm text-font-color">
               {[
-                propertyDetails?.citySuburb,
-                propertyDetails?.stateRegion,
-                propertyDetails?.zipPostalCode,
+                leadDetail?.property?.city,
+                leadDetail?.property?.stateName,
+                leadDetail?.property?.zipCode,
               ]
                 .filter(Boolean)
                 .join(', ')}
             </div>
             <div className="text-sm text-font-color-100">
               Title :{' '}
-              {propertyDetails?.titleDate
-                ? dayjs(propertyDetails?.titleDate).format('DD-MM-YYYY')
+              {leadDetail?.property?.titleDate
+                ? dayjs(leadDetail?.property?.titleDate).format('DD-MM-YYYY')
                 : ''}
             </div>
             <div className="text-sm text-font-color-100">
-              Type: {propertyDetails?.landType ?? ''}
+              Type: {leadDetail?.property?.landType ?? ''}
             </div>
-            {propertyDetails?.widthM && propertyDetails?.depthM && (
+            {leadDetail?.property?.widthM && leadDetail?.property?.depthM && (
               <div className="text-sm text-font-color-100">
-                W: {propertyDetails?.widthM || ''}
-                {propertyDetails?.widthM ? 'm' : ''} D: x chr
-                {propertyDetails?.depthM || ''}
-                {propertyDetails?.depthM ? 'm' : ''} Total: {propertyDetails?.totalSizeM2 || ''}
-                {propertyDetails?.totalSizeM2 ? ' m²' : ''}
+                W: {leadDetail?.property?.widthM || ''}
+                {leadDetail?.property?.widthM ? 'm' : ''} D: x chr
+                {leadDetail?.property?.depthM || ''}
+                {leadDetail?.property?.depthM ? 'm' : ''} Total:{' '}
+                {leadDetail?.property?.totalSizeM2 || ''}
+                {leadDetail?.property?.totalSizeM2 ? ' m²' : ''}
               </div>
             )}
           </div>
@@ -336,7 +339,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           visible={modalOpen === 'property'}
           onCancel={() => setModalOpen(null)}
           onSave={onPropertyUpdate}
-          initialValues={propertyDetails}
+          initialValues={leadDetail?.property}
         />
       )}
 

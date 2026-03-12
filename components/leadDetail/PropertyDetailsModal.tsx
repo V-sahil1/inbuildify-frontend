@@ -2,7 +2,11 @@ import React, { useEffect } from 'react';
 import { Modal, Form, Input, Select, DatePicker, Radio, Row, Col, Button, message } from 'antd';
 import dayjs from 'dayjs';
 import { PropertyDetails } from 'data/types';
-import { updatePropertyDetailsThunk } from '@redux/feature/lead/leadThunk';
+import {
+  createLeadProperty,
+  updateLeadProperty,
+  updatePropertyDetailsThunk,
+} from '@redux/feature/lead/leadThunk';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { RootState } from '@redux/feature/store';
 import { useParams, usePathname } from 'next/navigation';
@@ -23,12 +27,15 @@ import {
   optionalNameRules,
   OptionalNumberRules,
 } from '@lib/constants/formInputValidations';
+import { useStateHook } from '@hooks/useStateHook';
+import { useCountryHook } from '@hooks/useCountryHook';
+import { PropertyDetail } from '@redux/feature/lead/ILeadState';
 
 interface PropertyDetailsModalProps {
   visible: boolean;
   onCancel: () => void;
   onSave: (values: PropertyDetails) => void;
-  initialValues?: PropertyDetails;
+  initialValues?: PropertyDetail;
 }
 
 const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
@@ -41,132 +48,149 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
   const dispatch = useAppDispatch();
   const pathname = usePathname();
   const leadid = useParams();
-
   const { leadDetail } = useAppSelector((state: RootState) => state.lead);
-  const quotation = useAppSelector((state: RootState) => (state as any).quotation);
-  const { countries, status, states } = useAppSelector((state: RootState) => state.location);
   const isQuotationRoute = (pathname || '').toLowerCase().includes('quotation');
+  const { stateOptions } = useStateHook();
+  const { countryOptions } = useCountryHook();
+
   const handleSave = async () => {
-    await form.validateFields();
+    const values = await form.validateFields();
     try {
-      const values = await form.validateFields();
-
-      const leadId = isQuotationRoute ? leadid?.id : ((leadDetail as any)?.lead?.leadId ?? '');
-      const titleStatusUpper = String(values?.titleStatus || '').toUpperCase();
-      const mappedTitleStatus =
-        titleStatusUpper === 'ACTUAL' || titleStatusUpper === 'CONFIRMED' ? 'ACTUAL' : 'ESTIMATED';
-
-      const compactionUpper = String(values?.compactionReport || '')
-        .toUpperCase()
-        .replace(/\s+/g, '_');
-      const mappedCompaction = compactionUpper === 'AVAILABLE' ? 'AVAILABLE' : 'NOT_AVAILABLE';
-
-      const mappedBushFire = values?.bushFire === true || values?.bushFire === 'Yes';
-      const mappedCornerBlock = values?.cornerBlock === true || values?.cornerBlock === 'Yes';
-      const payload = {
-        lead_id: leadId,
-        country: values?.country,
-        address1: values?.address1,
-        address2: values?.address2,
-        city_suburb: values?.citySuburb,
-        state_region: values?.stateRegion,
-        zip_postal_code: values?.zipPostalCode,
-        estate_name: values?.estateName,
-        title_status: mappedTitleStatus,
-        title_date: values?.titleDate ? dayjs(values?.titleDate).format('YYYY-MM-DD') : '',
-        compaction_report: mappedCompaction,
-        land_type: values?.landType?.toUpperCase?.() || 'REGULAR',
-        width_m: values?.width ? Number(values?.width) : 0,
-        depth_m: values?.depth ? Number(values?.depth) : 0,
-        total_size_m2: values?.totalSize ? Number(values?.totalSize) : 0,
-        site_fall_mm: values?.siteFall ? Number(values?.siteFall) : 0,
-        land_fill_mm: values?.landFill ? Number(values?.landFill) : 0,
-        bush_fire: mappedBushFire,
-        corner_block: mappedCornerBlock,
-      };
-
-      const response = await dispatch(updatePropertyDetailsThunk(payload)).unwrap();
-      message.success('Property updated successfully');
-
-      // if (isQuotationRoute) {
-      dispatch(setQuotationPropertyFromResponse(response));
-      // } else {
-      dispatch(setLeadProperty(response));
-      // }
-
-      const formattedValues: PropertyDetails = {
-        lot: values?.address1 || '',
-        location: `${values?.citySuburb}, ${values?.stateRegion}, ${values?.zipPostalCode}`,
-        titleDate: values?.titleDate
-          ? dayjs(values?.titleDate).format('DD-MM-YYYY') + ' (Estimated)'
-          : '',
-        type: values?.landType || 'Regular',
-        width: values?.width?.toString() || '',
-        depth: values?.depth?.toString() || '',
-        total: values?.totalSize?.toString() || '',
-      } as any;
-
-      onSave(formattedValues);
+      if (leadDetail?.property) {
+        await dispatch(
+          updateLeadProperty({ id: leadDetail?.property?.propertyDetailId, payload: values })
+        ).unwrap();
+        message.success('Lead Property updated successfully');
+      } else {
+        await dispatch(
+          createLeadProperty({ data: values, leadId: leadDetail?.lead?.leadsId })
+        ).unwrap();
+        message.success('Lead Property created successfully');
+      }
       onCancel();
     } catch (error) {
-      message.error(error || 'Failed to update property');
+      message.error(error || 'Failed to create property');
     }
+
+    //   const leadId = isQuotationRoute ? leadid?.id : ((leadDetail as any)?.lead?.leadId ?? '');
+    //   const titleStatusUpper = String(values?.titleStatus || '').toUpperCase();
+    //   const mappedTitleStatus =
+    //     titleStatusUpper === 'ACTUAL' || titleStatusUpper === 'CONFIRMED' ? 'ACTUAL' : 'ESTIMATED';
+
+    //   const compactionUpper = String(values?.compactionReport || '')
+    //     .toUpperCase()
+    //     .replace(/\s+/g, '_');
+    //   const mappedCompaction = compactionUpper === 'AVAILABLE' ? 'AVAILABLE' : 'NOT_AVAILABLE';
+
+    //   const mappedBushFire = values?.bushFire === true || values?.bushFire === 'Yes';
+    //   const mappedCornerBlock = values?.cornerBlock === true || values?.cornerBlock === 'Yes';
+    //   const payload = {
+    //     lead_id: leadId,
+    //     country: values?.country,
+    //     address1: values?.address1,
+    //     address2: values?.address2,
+    //     city_suburb: values?.citySuburb,
+    //     state_region: values?.stateRegion,
+    //     zip_postal_code: values?.zipPostalCode,
+    //     estate_name: values?.estateName,
+    //     title_status: mappedTitleStatus,
+    //     title_date: values?.titleDate ? dayjs(values?.titleDate).format('YYYY-MM-DD') : '',
+    //     compaction_report: mappedCompaction,
+    //     land_type: values?.landType?.toUpperCase?.() || 'REGULAR',
+    //     width_m: values?.width ? Number(values?.width) : 0,
+    //     depth_m: values?.depth ? Number(values?.depth) : 0,
+    //     total_size_m2: values?.totalSize ? Number(values?.totalSize) : 0,
+    //     site_fall_mm: values?.siteFall ? Number(values?.siteFall) : 0,
+    //     land_fill_mm: values?.landFill ? Number(values?.landFill) : 0,
+    //     bush_fire: mappedBushFire,
+    //     corner_block: mappedCornerBlock,
+    //   };
+
+    //   // const response = await dispatch(updatePropertyDetailsThunk(payload)).unwrap();
+    //   message.success('Property updated successfully');
+
+    //   // if (isQuotationRoute) {
+    //   // dispatch(setQuotationPropertyFromResponse(response));
+    //   // // } else {
+    //   // dispatch(setLeadProperty(response));
+    //   // }
+
+    //   const formattedValues: PropertyDetails = {
+    //     lot: values?.address1 || '',
+    //     location: `${values?.citySuburb}, ${values?.stateRegion}, ${values?.zipPostalCode}`,
+    //     titleDate: values?.titleDate
+    //       ? dayjs(values?.titleDate).format('DD-MM-YYYY') + ' (Estimated)'
+    //       : '',
+    //     type: values?.landType || 'Regular',
+    //     width: values?.width?.toString() || '',
+    //     depth: values?.depth?.toString() || '',
+    //     total: values?.totalSize?.toString() || '',
+    //   } as any;
+
+    //   onSave(formattedValues);
+    //   onCancel();
+    // } catch (error) {
+    //   message.error(error || 'Failed to update property');
+    // }
   };
 
   const handleCancel = () => {
     form.resetFields();
     onCancel();
   };
-  // Set initial values when modal opens
+
   useEffect(() => {
-    const src = isQuotationRoute ? ((quotation as any)?.property ?? initialValues) : initialValues;
-    if (visible && src) {
+    if (initialValues) {
+      const titleDateValue = initialValues.titleDate
+        ? dayjs.isDayjs(initialValues.titleDate)
+          ? initialValues.titleDate
+          : dayjs(initialValues.titleDate)
+        : null;
+
+      // Ensure the date is valid
+      const validTitleDate = titleDateValue && titleDateValue.isValid() ? titleDateValue : null;
+
       form.setFieldsValue({
-        country: src?.country || '',
-        address1: src?.address1 || '',
-        address2: src?.address2 || '',
-        citySuburb: src?.citySuburb || '',
-        stateRegion: src?.stateRegion || '',
-        zipPostalCode: src?.zipPostalCode || '',
-        estateName: src?.estateName || '',
-        titleStatus: src?.titleStatus || '',
-        titleDate: src?.titleDate ? dayjs(src.titleDate) : null,
-        compactionReport: src?.compactionReport || '',
-        landType: enumToReadable(src?.landType) || 'Regular',
-        width: src?.widthM || '',
-        depth: src?.depthM || '',
-        totalSize: src?.totalSizeM2 || '',
-        siteFall: src?.siteFallMm || '',
-        landFill: src?.landFillMm || '',
-        bushFire: src?.bushFire ? 'Yes' : 'No',
-        cornerBlock: src?.cornerBlock ? 'Yes' : 'No',
+        ...initialValues,
+        titleDate: validTitleDate,
       });
     }
-  }, [visible, initialValues, form, isQuotationRoute, quotation]);
-
-  useEffect(() => {
-    const fetchCountries = async () => {
-      try {
-        await dispatch(getCountriesThunk());
-      } catch (error) {
-        message.error(error || 'Failed to fetch countries:');
-      }
-    };
-    if (status === Status.IDLE) {
-      fetchCountries();
-    }
-  }, []);
+  }, [initialValues]);
+  // // Set initial values when modal opens
+  // useEffect(() => {
+  //   const src = isQuotationRoute ? ((quotation as any)?.property ?? initialValues) : initialValues;
+  //   // if (visible && src) {
+  //   //   form.setFieldsValue({
+  //   //     country: src?.country || '',
+  //   //     address1: src?.address1 || '',
+  //   //     address2: src?.address2 || '',
+  //   //     citySuburb: src?.citySuburb || '',
+  //   //     stateRegion: src?.stateRegion || '',
+  //   //     zipPostalCode: src?.zipPostalCode || '',
+  //   //     estateName: src?.estateName || '',
+  //   //     titleStatus: src?.titleStatus || '',
+  //   //     titleDate: src?.titleDate ? dayjs(src.titleDate) : null,
+  //   //     compactionReport: src?.compactionReport || '',
+  //   //     landType: enumToReadable(src?.landType) || 'Regular',
+  //   //     width: src?.widthM || '',
+  //   //     depth: src?.depthM || '',
+  //   //     totalSize: src?.totalSizeM2 || '',
+  //   //     siteFall: src?.siteFallMm || '',
+  //   //     landFill: src?.landFillMm || '',
+  //   //     bushFire: src?.bushFire ? 'Yes' : 'No',
+  //   //     cornerBlock: src?.cornerBlock ? 'Yes' : 'No',
+  //   //   });
+  //   // }
+  // }, [visible, initialValues, form, isQuotationRoute, quotation]);
 
   const titleStatusOptions = [
-    { label: 'Estimated', value: 'Estimated' },
-    { label: 'Confirmed', value: 'Confirmed' },
-    { label: 'Pending', value: 'Pending' },
+    { label: 'Estimated', value: 'ESTIMATED' },
+    { label: 'Actual', value: 'ACTUAL' },
   ];
 
   const compactionReportOptions = [
-    { label: 'Available', value: 'Available' },
-    { label: 'Not Available', value: 'Not Available' },
-    { label: 'Pending', value: 'Pending' },
+    { label: 'Available', value: 'AVAILABLE' },
+    { label: 'Not Available', value: 'NOT_AVAILABLE' },
   ];
 
   return (
@@ -192,73 +216,60 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
         layout="vertical"
         className="mt-4"
         style={{ maxHeight: '70vh', overflowY: 'auto', paddingRight: '8px' }}
+        initialValues={initialValues}
       >
         {/* Address Section */}
         <Row gutter={16}>
           <Col span={8}>
-            <Form.Item
-              label="Country"
-              name="country"
-              rules={[{ required: true, message: 'Please select country' }]}
-            >
-              <Select
-                placeholder="Select country"
-                onChange={(value, option) => {
-                  const opt = option as DefaultOptionType;
-                  form.setFieldsValue({ country: opt?.label as string });
-                  dispatch(getStatesByCountryIdThunk(value as string));
-                }}
-              >
-                {(countries || [])?.map(country => (
-                  <Select.Option
-                    key={country?.countryId}
-                    value={country?.countryId}
-                    label={country?.name}
-                  >
-                    {country?.name}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item label="Address1" name="address1" rules={leadAddressRules}>
+            <Form.Item label="Lot No" name="lotNumber" rules={leadAddressRules}>
               <Input placeholder="Lot 234" />
             </Form.Item>
           </Col>
           <Col span={8}>
+            <Form.Item label="Street No" name="street" rules={leadAddressRules}>
+              <Input placeholder="Lot 234" />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item label="Address1" name="addressLine1" rules={leadAddressRules}>
+              <Input placeholder="Lot 234" />
+            </Form.Item>
+          </Col>
+          {/* <Col span={6}>
             <Form.Item label="Address 2" name="address2" rules={addressLine2Rules}>
               <Input placeholder="Optional" />
             </Form.Item>
-          </Col>
+          </Col> */}
         </Row>
 
         <Row gutter={16}>
-          <Col span={8}>
-            <Form.Item label="City / Suburb" name="citySuburb" rules={CityNameRules}>
+          <Col span={6}>
+            <Form.Item label="City / Suburb" name="city" rules={CityNameRules}>
               <Input placeholder="Tarneit" />
             </Form.Item>
           </Col>
-          <Col span={8}>
+          <Col span={6}>
             <Form.Item
-              label="State / Region"
-              name="stateRegion"
-              rules={[{ required: true, message: 'Please select state/region' }]}
+              label="Country"
+              name="countryId"
+              rules={[{ required: true, message: 'Please select country' }]}
             >
-              <Select placeholder="Select state">
-                {states?.length &&
-                  states?.map(state => (
-                    <Select.Option key={state?.stateId} value={state?.name} label={state?.name}>
-                      {state?.name}
-                    </Select.Option>
-                  ))}
-              </Select>
+              <Select placeholder="Select country" options={countryOptions} />
             </Form.Item>
           </Col>
-          <Col span={8}>
+          <Col span={6}>
+            <Form.Item
+              label="State / Region"
+              name="stateId"
+              rules={[{ required: true, message: 'Please select state/region' }]}
+            >
+              <Select placeholder="Select state" options={stateOptions} />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
             <Form.Item
               label="Zip / Postal Code"
-              name="zipPostalCode"
+              name="zipCode"
               rules={[
                 { required: true, message: 'Please enter postal code' },
                 { max: 4, message: 'Postal code must be at most 4 characters' },
@@ -331,15 +342,15 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
           rules={[{ required: true, message: 'Please select land type' }]}
         >
           <Radio.Group>
-            <Radio value="Regular">Regular</Radio>
-            <Radio value="Irregular">Irregular</Radio>
+            <Radio value="REGULAR">Regular</Radio>
+            <Radio value="IRREGULAR">Irregular</Radio>
           </Radio.Group>
         </Form.Item>
 
         {/* Dimensions Section */}
         <Row gutter={16}>
           <Col span={8}>
-            <Form.Item label="Width (m)" name="width" rules={OptionalNumberRules}>
+            <Form.Item label="Width (m)" name="widthM" rules={OptionalNumberRules}>
               <Input
                 placeholder="Enter width"
                 type="number"
@@ -353,7 +364,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item label="Depth (m)" name="depth" rules={OptionalNumberRules}>
+            <Form.Item label="Depth (m)" name="depthM" rules={OptionalNumberRules}>
               <Input
                 placeholder="Enter depth"
                 type="number"
@@ -367,7 +378,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item label="Total Size (m²)" name="totalSize" rules={OptionalNumberRules}>
+            <Form.Item label="Total Size (m²)" name="totalSizeM2" rules={OptionalNumberRules}>
               <Input
                 placeholder="Enter total size"
                 type="number"
@@ -385,7 +396,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
         {/* Site Details Section */}
         <Row gutter={16}>
           <Col span={12}>
-            <Form.Item label="Site Fall (mm)" name="siteFall" rules={OptionalNumberRules}>
+            <Form.Item label="Site Fall (mm)" name="siteFallMm" rules={OptionalNumberRules}>
               <Input
                 placeholder="300"
                 type="number"
@@ -399,7 +410,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item label="Land Fill (mm)" name="landFill" rules={OptionalNumberRules}>
+            <Form.Item label="Land Fill (mm)" name="landFillMm" rules={OptionalNumberRules}>
               <Input
                 placeholder="500"
                 type="number"
@@ -419,16 +430,16 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
           <Col span={12}>
             <Form.Item label="Bush Fire" name="bushFire">
               <Radio.Group>
-                <Radio value="Yes">Yes</Radio>
-                <Radio value="No">No</Radio>
+                <Radio value={true}>Yes</Radio>
+                <Radio value={false}>No</Radio>
               </Radio.Group>
             </Form.Item>
           </Col>
           <Col span={12}>
             <Form.Item label="Corner Block" name="cornerBlock">
               <Radio.Group>
-                <Radio value="Yes">Yes</Radio>
-                <Radio value="No">No</Radio>
+                <Radio value={true}>Yes</Radio>
+                <Radio value={false}>No</Radio>
               </Radio.Group>
             </Form.Item>
           </Col>

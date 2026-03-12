@@ -20,7 +20,7 @@ export interface InitialState {
   leadDetail: {
     lead: Lead | null;
     contacts: LeadContact | null;
-    property: any | null;
+    property: PropertyDetail | null;
     createdQuotations: { quotations: Quotation[] };
     job: ILeadJob | null;
     invoice: InvoiceDetails[];
@@ -196,7 +196,7 @@ export type LeadContact = {
 };
 
 export type ILeadJob = {
-  jobFormId:string;
+  jobFormId: string;
   leadsId: string;
   streetName: string;
   landDeveloper: string;
@@ -280,4 +280,36 @@ export type InvoiceDetails = {
   paymentMethod?: string;
   transactionNo?: string;
   description: string;
+};
+
+export type PropertyDetail = {
+  propertyDetailId: string;
+  lotId: string | null;
+  lotNumber: string;
+  street: string;
+  addressLine1: string;
+  addressLine2: string | null;
+  city: string;
+  stateId: string;
+  countryId: string;
+  zipCode: string;
+  estateId: string | null;
+  estateStageId: string | null;
+  estateName: string;
+  titleStatus: string;
+  titleDate: string;
+  compactionReport: string;
+  landType: string;
+  widthM: string;
+  depthM: string;
+  totalSizeM2: string;
+  siteFallMm: string;
+  landFillMm: string;
+  price: string | null;
+  bushFire: boolean;
+  cornerBlock: boolean;
+  isHlPackageLot: boolean;
+  createdAt: string;
+  updatedAt: string;
+  stateName?: string;
 };
