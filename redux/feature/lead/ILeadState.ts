@@ -153,6 +153,7 @@ export interface Lead {
     floorPlanId: string | null;
     attachFiles: string[] | null;
   };
+  lotDetails?: ILotDetail;
 }
 
 export interface BusinessContact {
@@ -283,33 +284,53 @@ export type InvoiceDetails = {
 };
 
 export type PropertyDetail = {
-  propertyDetailId: string;
+  propertyDetailId?: string;
   lotId: string | null;
   lotNumber: string;
   street: string;
-  addressLine1: string;
-  addressLine2: string | null;
+  addressLine1?: string;
+  addressLine2?: string | null;
   city: string;
-  stateId: string;
-  countryId: string;
+  stateId?: string;
+  countryId?: string;
   zipCode: string;
   estateId: string | null;
   estateStageId: string | null;
   estateName: string;
   titleStatus: string;
   titleDate: string;
-  compactionReport: string;
+  compactionReport?: string;
   landType: string;
-  widthM: string;
-  depthM: string;
-  totalSizeM2: string;
-  siteFallMm: string;
-  landFillMm: string;
-  price: string | null;
-  bushFire: boolean;
-  cornerBlock: boolean;
-  isHlPackageLot: boolean;
-  createdAt: string;
-  updatedAt: string;
+  widthM: number;
+  depthM: number;
+  totalSizeM2: number;
+  siteFallMm?: number;
+  landFillMm?: number;
+  price?: number;
+  bushFire?: boolean;
+  cornerBlock?: boolean;
+  isHlPackageLot?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
   stateName?: string;
+};
+
+export type ILotDetail = {
+  lotId: string;
+  lotNumber: string;
+  street: string;
+  city: string;
+  zipCode: string;
+  titleStatus: string;
+  titleDate: string;
+  lotType: string;
+  cornerBlock: boolean;
+  widthM: number;
+  depthM: number;
+  price: number;
+  totalSizeM2: number;
+  estateId: string;
+  estateName: string;
+  estateStageId: string;
+  estateStageName: string;
 };

@@ -84,7 +84,6 @@ const QuotationManager = () => {
       location: quoteDetails?.locationId || null,
     },
   });
-  console.log('quotation version id', quoteVersionId);
   const quotationData = quoteVersionId
     ? quotation?.find(i => i.versions.find(j => j.quotationVersionId === quoteVersionId))
     : quotation[quotation?.length - 1];

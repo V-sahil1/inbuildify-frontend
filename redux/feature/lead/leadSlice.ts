@@ -167,6 +167,14 @@ export const leadSlice = createSlice({
     });
     builder.addCase(updateLeadThunk.fulfilled, (state, action) => {
       state.leadDetail.lead = { ...state.leadDetail.lead, ...action.payload };
+      const lotDetails = action.payload.lotDetails;
+      if (!!lotDetails && !!action.payload?.houseLandPackageDetails) {
+        state.leadDetail.property = {
+          ...lotDetails,
+          landType: lotDetails.lotType,
+          propertyDetailId: lotDetails?.lotId,
+        };
+      }
       if (state.leads == null) {
         state.leads = [];
       }

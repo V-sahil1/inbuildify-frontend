@@ -154,15 +154,14 @@ const InfoCards: React.FC<InfoCardsProps> = ({
 
       <Card
         className="shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-        // onClick={!isReadOnly ? () => setModalOpen('property') : undefined}
+        onClick={!isReadOnly ? () => setModalOpen('property') : undefined}
       >
         <div className="flex items-center gap-2 mb-3">
           <IconHome className="text-green-500" />
           <span className="font-medium text-font-color">Property Details</span>
           {!isReadOnly && <IconEdit className="text-gray-400 ml-auto" />}
         </div>
-        {leadDetail?.property?.addressLine1 &&
-        leadDetail?.property?.city &&
+        {leadDetail?.property?.city &&
         leadDetail?.property?.stateName &&
         leadDetail?.property?.zipCode ? (
           <div className="space-y-2">
@@ -338,7 +337,6 @@ const InfoCards: React.FC<InfoCardsProps> = ({
         <PropertyDetailsModal
           visible={modalOpen === 'property'}
           onCancel={() => setModalOpen(null)}
-          onSave={onPropertyUpdate}
           initialValues={leadDetail?.property}
         />
       )}

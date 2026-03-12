@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import {
   createBusinessContactThunk,
   deleteBusinessContactThunk,
+  getLeadProperty,
   updateBusinessContactThunk,
   updateLeadThunk,
 } from '@redux/feature/lead/leadThunk';
@@ -69,13 +70,17 @@ export const LeadSource = () => {
 
   const handleLeadSourceEdit = async (values: Partial<Lead>) => {
     try {
-      await dispatch(
+      const response = await dispatch(
         updateLeadThunk({
           id: leadDetail.lead.leadsId,
           details: values,
         })
       ).unwrap();
+      if (response?.lotDetails && response?.houseLandPackageDetails) {
+        await dispatch(getLeadProperty(leadDetail?.lead?.leadsId)).unwrap();
+      }
       message.success('Lead updated successfully');
+
       setIsLeadEditing(prev => {
         const updated = { ...prev };
         Object.keys(values).forEach(key => (updated[key] = false));
@@ -259,7 +264,9 @@ export const LeadSource = () => {
                 <IconCirclePlus /> House and Land Package
               </button>
             </HouseLandPopover>
-            <p className="text-sm text-font-color">{leadDetail?.lead?.houseLandPackageDetails?.title || ''}</p>
+            <p className="text-sm text-font-color">
+              {leadDetail?.lead?.houseLandPackageDetails?.title || ''}
+            </p>
           </div>
 
           <div>

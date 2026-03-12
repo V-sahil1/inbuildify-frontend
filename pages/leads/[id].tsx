@@ -458,12 +458,13 @@ function App() {
         />
 
         {/* Property Details Modal */}
-        <PropertyDetailsModal
-          visible={modalOpen === 'property'}
-          onCancel={() => setModalOpen(null)}
-          onSave={() => setModalOpen(null)}
-          initialValues={propertyFromSlice}
-        />
+        {modalOpen === 'property' && (
+          <PropertyDetailsModal
+            visible={modalOpen === 'property'}
+            onCancel={() => setModalOpen(null)}
+            initialValues={propertyFromSlice}
+          />
+        )}
         <CloseLeadModal
           isModalOpen={modalOpen === 'closeLead'}
           setIsModalOpen={() => setModalOpen(null)}
