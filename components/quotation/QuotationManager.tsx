@@ -16,6 +16,7 @@ import { RootState } from '@redux/feature/store';
 import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import {
   createQuotation,
+  createQuotationVersionThunk,
   getQuotationPricelistThunk,
   getQuotationVersionById,
   updateQuotationVersion,
@@ -514,6 +515,15 @@ const QuotationManager = () => {
   //     </div>
   //   );
   // }
+
+  const handleCreateNewVersion = async () => {
+    try {
+      await dispatch(createQuotationVersionThunk(quoteVersionId)).unwrap();
+      message.success('New version created successfully');
+    } catch (error) {
+      message.error(error || 'Failed to craete new version');
+    }
+  };
   return (
     <>
       <div className="m-3 flex justify-between items-center">
@@ -524,7 +534,10 @@ const QuotationManager = () => {
         />
         <QuotationFilter
           isReadOnly={false}
-          onFilterChange={() => setSelectedCategory(null)}
+          onFilterChange={() => {
+            setHasChanges(true);
+            setSelectedCategory(null);
+          }}
           setParams={setParams}
           filters={filters}
           instantFilters={instantFilters}
@@ -606,6 +619,7 @@ const QuotationManager = () => {
           loading={quotationStatus.create === Status.PENDING}
           hasUnsavedChanges={hasChanges}
           onSaveChanges={handleSaveChanges}
+          onCreateNewVersion={handleCreateNewVersion}
         />
       </div>
     </>

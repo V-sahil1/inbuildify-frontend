@@ -126,7 +126,8 @@ class API_ENDPOINTS {
   public static QUOTATION_PRICELIST = '/quotation-version-pricelist-item-map';
   public static QUOTATION_PACKAGE = (versionId: string, pkgId: string) =>
     `${this.QUOTATION_VERSION}/${versionId}/packages/${pkgId}`;
-
+  public static QUOTATION_NEW_VERSION = (versionid: string) =>
+    `${this.QUOTATION_VERSION}/${versionid}/duplicate`;
   // location
   public static COUNTRY_BASE = '/country';
   public static STATE_BASE = '/state';

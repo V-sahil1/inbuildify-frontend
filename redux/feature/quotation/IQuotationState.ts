@@ -1,5 +1,5 @@
 import { PropertyDetails } from 'data/types';
-import { ILeadContact } from '../lead/ILeadState';
+import { ILeadContact, LeadContact } from '../lead/ILeadState';
 import { IFloorPlanState } from '../floorPlan/IFloorPlanState';
 import { IFacadeState } from '../facade/IFacadeState';
 import { Package } from '../package/IPackageState';
@@ -121,14 +121,6 @@ export type QuotationVersionDetails = {
   floorPlan?: IFloorPlanState;
   facade?: IFacadeState;
   packages?: Package[];
-};
-
-export type LeadContact = {
-  id: string;
-  contactId: string;
-  name: string;
-  email: string;
-  phone: string;
 };
 
 export type QuotationPriceListItem = {

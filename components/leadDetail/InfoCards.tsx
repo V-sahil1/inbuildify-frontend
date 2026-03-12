@@ -23,13 +23,14 @@ import FacadeModal from './FacadeModal';
 import { IFacadeState } from '@redux/feature/facade/IFacadeState';
 import PackageModal from './PackageModal';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import { createLeadContactThunk, updateLeadContactThunk } from '@redux/feature/lead/leadThunk';
-import LeadDetailsForm from './forms/LeadDetailsForm';
 import { setQuotationContact } from '@redux/feature/quotation/quotationSlice';
 import { clearStandardFilter, clearUpgradeFilter } from '@redux/feature/facade/facadeSlice';
+import { LeadContact } from '@redux/feature/lead/ILeadState';
+import { updateContact } from '@redux/feature/contacts/contactThunk';
 import { IFloorPlanState } from '@redux/feature/floorPlan/IFloorPlanState';
 import { deleteQuotationPackageThunk } from '@redux/feature/quotation/quotationThunk';
 import { Package } from '@redux/feature/package/IPackageState';
+import LeadDetailsForm from './forms/LeadDetailsForm';
 interface InfoCardsProps {
   propertyDetails: any;
   selectedPlan?: IFloorPlanState;
@@ -68,19 +69,27 @@ const InfoCards: React.FC<InfoCardsProps> = ({
     const { type, hideAddressForm, ...details } = values;
     try {
       setLoading(true);
-      if (type === 'update') {
-        // const response = await dispatch(
-        //   updateLeadContactThunk({
-        //     id: leadDetail?.contacts?.contactId,
-        //     details,
-        //   })
-        // ).unwrap();
-        // message.success('Lead updated successfully');
-        // dispatch(setQuotationContact(response));
-      } else {
-        // await dispatch(createLeadContactThunk({ id: leadDetail?.lead?.leadsId, details })).unwrap();
-        // message.success('Lead contact created successfully');
-      }
+      const response = await dispatch(
+        updateContact({ id: leadDetail?.contacts?.contactId, data: values })
+      ).unwrap();
+      message.success('Lead updated successfully');
+
+      // Transform IContact to LeadContact for setQuotationContact
+      const leadContact: LeadContact = {
+        ...leadDetail?.contacts,
+        ...response,
+        id: leadDetail?.contacts?.id || response.usersId,
+        leadsId: leadDetail?.contacts?.leadsId || leadDetail?.lead?.leadsId,
+        contactId: response.usersId,
+        usersId: response.usersId,
+        roleId: leadDetail?.contacts?.roleId || '',
+        addressId: leadDetail?.contacts?.addressId || '',
+        hasLogin: leadDetail?.contacts?.hasLogin || false,
+        createdAt: leadDetail?.contacts?.createdAt || response.createdAt,
+        updatedAt: new Date().toISOString(),
+      };
+
+      dispatch(setQuotationContact(leadContact));
     } catch (err) {
       message.error(err || 'Failed to update lead');
     } finally {
@@ -121,20 +130,22 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           {!isReadOnly && <IconEdit className="text-gray-400 text-sm" />}
         </div>
         <div className="space-y-2">
-          <div className="font-semibold text-font-color">{leadDetail?.contacts?.name}</div>
+          <div className="font-semibold text-font-color">
+            {quoteDetails?.leadContacts?.[0]?.name}
+          </div>
           <div className="flex items-center text-sm text-font-color-100">
             <IconPhone size={14} className="mr-1 text-font-color-100" />
-            {leadDetail?.contacts?.phone || 'N/A'}
+            {quoteDetails?.leadContacts?.[0]?.phone || 'N/A'}
           </div>
           <div className="flex items-center text-sm text-font-color-100">
             <IconMail size={14} className="mr-1 text-font-color-100" />
-            {leadDetail?.contacts?.email || 'N/A'}
+            {quoteDetails?.leadContacts?.[0]?.email || 'N/A'}
           </div>
-          {leadDetail?.contacts?.address?.addressLine1 && (
+          {quoteDetails?.leadContacts?.[0]?.address?.addressLine1 && (
             <div className="flex items-start text-sm text-font-color-100">
               <IconMapPin size={14} className="mr-1 mt-0.5 text-font-color-100 flex-shrink-0" />
               <span className="line-clamp-2">
-                {leadDetail?.contacts?.address?.addressLine1 || 'Not provided'}
+                {quoteDetails?.leadContacts?.[0]?.address?.addressLine1 || 'Not provided'}
               </span>
             </div>
           )}

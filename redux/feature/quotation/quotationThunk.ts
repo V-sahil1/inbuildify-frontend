@@ -130,6 +130,21 @@ export const deleteQuotationThunk = createAsyncThunk(
   }
 );
 
+//quotation version
+export const createQuotationVersionThunk = createAsyncThunk(
+  'quotation/createQuotationVersion',
+  async (versionId: string, { rejectWithValue }) => {
+    try {
+      const res = await api.post<ApiResponse<QuotationVersionDetails>>(
+        API_ENDPOINTS.QUOTATION_NEW_VERSION(versionId)
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 // quotation pricelist
 
 export const createQuotationPricellistThunk = createAsyncThunk(
@@ -176,9 +191,11 @@ export const deleteQuotationPricelistThunk = createAsyncThunk(
 // quotation package
 export const deleteQuotationPackageThunk = createAsyncThunk(
   'quotation/deleteQuotationPackageThunk',
-  async (payload:{versionId:string,pkgId:string}, { rejectWithValue }) => {
+  async (payload: { versionId: string; pkgId: string }, { rejectWithValue }) => {
     try {
-      const res = await api.delete<ApiResponse>(API_ENDPOINTS.QUOTATION_PACKAGE(payload.versionId,payload.pkgId));
+      const res = await api.delete<ApiResponse>(
+        API_ENDPOINTS.QUOTATION_PACKAGE(payload.versionId, payload.pkgId)
+      );
       return res.data;
     } catch (error) {
       return rejectWithValue(error.message);

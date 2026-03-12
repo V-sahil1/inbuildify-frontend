@@ -5,6 +5,7 @@ import {
   createQuotation,
   createQuotationPricellistThunk,
   createQuotationThunk,
+  createQuotationVersionThunk,
   deleteQuotationPackageThunk,
   deleteQuotationPricelistThunk,
   deleteQuotationThunk,
@@ -13,14 +14,16 @@ import {
   getQuotationVersionById,
   updateQuotationVersion,
 } from './quotationThunk';
-import { ILeadContact, LeadContact } from '../lead/ILeadState';
+import { LeadContact } from '../lead/ILeadState';
 import { Quotation, QuotationPriceListItem, QuotationVersionDetails } from './IQuotationState';
 import { Package } from '../package/IPackageState';
+import { updateContact } from '../contacts/contactThunk';
+import { attrEffect } from 'framer-motion';
 export interface QuotationState {
   status: { create: Status; getById: Status };
   quoteDetails: QuotationVersionDetails | null;
   selectedFilters: any;
-  contact: ILeadContact;
+  contact: LeadContact[];
   property: PropertyDetails;
   plan: any;
   facade: any;
@@ -34,7 +37,7 @@ const initialState: QuotationState = {
   status: { create: Status.IDLE, getById: Status.IDLE },
   quoteDetails: null,
   selectedFilters: { range: '', dwelling_type: '' },
-  contact: null,
+  contact: [],
   property: null,
   plan: null,
   facade: null,
@@ -51,7 +54,7 @@ const quotationSlice = createSlice({
     clearQuotation(state) {
       state.items = [];
       state.extraItems = [];
-      state.contact = null;
+      state.contact = [];
       state.property = null;
       state.plan = null;
       state.facade = null;
@@ -65,7 +68,9 @@ const quotationSlice = createSlice({
       state.package = [];
     },
     setQuotationContact(state, action: PayloadAction<LeadContact | null>) {
-      state.contact = action.payload as any;
+      state.contact = state.contact.map(i =>
+        i.contactId === action.payload.contactId ? action.payload : i
+      );
     },
     setQuotationProperty(state, action: PayloadAction<PropertyDetails | null>) {
       state.property = action.payload as any;
@@ -148,9 +153,10 @@ const quotationSlice = createSlice({
         //   builder: data.builder,
         //   leadStatus: data.lead.status,
         // };
+
         // Set contact from lead.leadContact
         if (data?.leadContacts) {
-          // state.contact = data.leadContacts;
+          state.contact = data.leadContacts;
         }
 
         // // Set property
@@ -211,6 +217,7 @@ const quotationSlice = createSlice({
         state.quoteDetails = action.payload;
         state.plan = action.payload.floorPlan;
         state.facade = action.payload.facade;
+        state.package = action.payload.packages;
       })
 
       //new
@@ -223,6 +230,27 @@ const quotationSlice = createSlice({
       })
       .addCase(deleteQuotationThunk.fulfilled, (state, action) => {
         state.quotation = state.quotation.filter(i => i.quotationId !== action.payload.quotationId);
+      })
+
+      //quotation version
+      .addCase(createQuotationVersionThunk.fulfilled, (state, action) => {
+        const quotationData = state.quotation.find(
+          i => i.quotationId === action.payload.quotationId
+        );
+        if (quotationData) {
+          quotationData.versions.push(action.payload);
+          state.quoteDetails = action.payload;
+        }
+      })
+
+      //quotattion contact
+      .addCase(updateContact.fulfilled, (state, action) => {
+        state.quoteDetails.leadContacts = state.quoteDetails.leadContacts.map(i =>
+          i.contactId === action.payload.usersId ? { ...i, ...action.payload } : i
+        );
+        state.contact = state.contact.map(i =>
+          i.contactId === action.payload.usersId ? { ...i, ...action.payload } : i
+        );
       })
 
       // quotation pricelist

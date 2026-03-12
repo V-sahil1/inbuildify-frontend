@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Dropdown, Input, Space } from 'antd';
+import { Button, Dropdown, Input, message, Space } from 'antd';
 import {
   IconCheck,
   IconEye,
@@ -25,6 +25,7 @@ interface FooterActionsProps {
   disableAction: boolean;
   hasUnsavedChanges?: boolean;
   onSaveChanges?: () => void;
+  onCreateNewVersion?: () => void;
 }
 
 const FooterActions: React.FC<FooterActionsProps> = ({
@@ -41,6 +42,7 @@ const FooterActions: React.FC<FooterActionsProps> = ({
   disableAction,
   hasUnsavedChanges = false,
   onSaveChanges,
+  onCreateNewVersion,
 }) => {
   const [modalOpen, setModalOpen] = useState<'approval' | 'save' | null>(null);
   const [sketchNum, setSketchNum] = useState('');
@@ -97,6 +99,7 @@ const FooterActions: React.FC<FooterActionsProps> = ({
       onPreview();
     }
   };
+
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-4">
@@ -212,6 +215,7 @@ const FooterActions: React.FC<FooterActionsProps> = ({
           open={modalOpen === 'save'}
           onClose={() => setModalOpen(null)}
           onSubmit={() => {
+            onCreateNewVersion();
             setModalOpen(null);
           }}
           content="Are you sure you want to create new version?"

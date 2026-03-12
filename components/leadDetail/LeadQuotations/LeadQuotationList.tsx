@@ -23,7 +23,7 @@ const LeadQuotationList = () => {
   const router = useRouter();
   const [openComparison, setOpenComparison] = useState(false);
   const [selectedQuotation, setSelectedQuotation] = useState<Quotation | null>(null);
-  const quotations = useAppSelector(state => state.lead.leadDetail.createdQuotations?.quotations);
+  const { quotation } = useAppSelector(state => state.quotation);
   const handleCompareClick = (quotation: Quotation) => {
     setSelectedQuotation(quotation);
     setOpenComparison(true);
@@ -31,7 +31,7 @@ const LeadQuotationList = () => {
 
   return (
     <>
-      {quotations?.length === 0 ? (
+      {quotation?.length === 0 ? (
         <div className="p-6 text-center bg-card-color rounded-md">
           <Empty description="No quotations found" />
         </div>
@@ -39,7 +39,7 @@ const LeadQuotationList = () => {
         <Collapse
           className="bg-card-color"
           bordered={false}
-          defaultActiveKey={quotations?.[0]?.quotationId}
+          defaultActiveKey={quotation?.[0]?.quotationId}
           expandIcon={({ isActive }) =>
             isActive ? (
               <IconChevronUp color="var(--font-color)" className="mt-2" size={20} />
@@ -48,7 +48,7 @@ const LeadQuotationList = () => {
             )
           }
         >
-          {quotations?.map((quotation: Quotation) => (
+          {quotation?.map((quotation: Quotation) => (
             <Panel
               header={
                 <div className="flex justify-between items-center text-[var(--font-color)] w-full">
@@ -78,9 +78,11 @@ const LeadQuotationList = () => {
               >
                 <Column
                   title="Version"
-                  dataIndex="versionNumber"
-                  key="versionNumber"
-                  render={(versionNumber: string) => (versionNumber ? `v${versionNumber}` : '-')}
+                  dataIndex="quotationVersionNo"
+                  key="quotationVersionNo"
+                  render={(quotationVersionNo: string) =>
+                    quotationVersionNo ? `v${quotationVersionNo}` : '-'
+                  }
                 />
                 {/* <Column
                     title="Status"
