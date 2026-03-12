@@ -106,7 +106,12 @@ const QuotationManager = () => {
   useEffect(() => {
     const fetchQuotation = async () => {
       await dispatch(
-        getQuotationVersionById({ quoteId: quotationData?.quotationId, quoteVersionId })
+        getQuotationVersionById({
+          quoteId: quotationData?.quotationId,
+          quoteVersionId: quoteVersionId
+            ? quoteVersionId
+            : quotationData?.versions?.[0]?.quotationVersionId,
+        })
       ).unwrap();
     };
     if (quotationData?.quotationId) {
