@@ -64,9 +64,6 @@ const QuotationManager = () => {
     quotation,
   } = useAppSelector((state: RootState) => state.quotation);
   const lastFetchedFiltersRef = useRef<{ range?: string; dwellingType?: string } | null>(null);
-  const [selectedFacade, setSelectedFacade] = useState<IFacadeState | undefined>(facade);
-  const [selectedPlan, setSelectedPlan] = useState<IFloorPlanState | undefined>(plan);
-  const [selectedPackage, setSelectedPackage] = useState<Package[]>([]);
   const [hasChanges, setHasChanges] = useState(false);
   const canContact = !!contact;
   const canProperty = property && Object.keys(property).length > 0 && property?.propertyId;
@@ -91,12 +88,6 @@ const QuotationManager = () => {
   useEffect(() => {
     return debouncedUpdateURL.cancel();
   }, [debouncedUpdateURL]);
-  // Sync local state with Redux store
-  useEffect(() => {
-    setSelectedPlan(plan);
-    setSelectedPackage(selectedPackageFromSlice);
-  }, [plan, selectedPackageFromSlice]);
-
   useEffect(() => {
     return () => {
       dispatch(clearFilters());
@@ -127,25 +118,17 @@ const QuotationManager = () => {
     }
   }, [quoteVersionId, quotationData]);
 
-  // Sync local state with Redux store
-  useEffect(() => {
-    setSelectedFacade(facade);
-  }, [facade]);
-
   // Single unified handler for all changes (floorplan, facade, package)
   const handleSelectionChange = useCallback(
     (type: 'plan' | 'facade' | 'package', value: IFloorPlanState | IFacadeState | Package[]) => {
       switch (type) {
         case 'plan':
-          setSelectedPlan(value as IFloorPlanState);
           dispatch(setQuotationPlan(value as IFloorPlanState));
           break;
         case 'facade':
-          setSelectedFacade(value as IFacadeState);
           dispatch(setQuotationFacade(value as IFacadeState));
           break;
         case 'package':
-          setSelectedPackage(value as Package[]);
           dispatch(setQuotationPackage(value as Package[]));
           break;
       }
@@ -157,11 +140,11 @@ const QuotationManager = () => {
   const handleSaveChanges = useCallback(async () => {
     try {
       const payload = {
-        rangeId: filters?.range || null,
-        dwellingTypeId: filters?.dwellingType || null,
-        floorPlanId: selectedPlan?.floorPlanId || null,
-        facadeId: selectedFacade?.facadeId || null,
-        locationId: filters?.location || null,
+        rangeId: quotationFilters?.range || null,
+        dwellingTypeId: quotationFilters?.dwellingType || null,
+        floorPlanId: plan?.floorPlanId || null,
+        facadeId: facade?.facadeId || null,
+        locationId: quotationFilters?.location || null,
         packageId: selectedPackageFromSlice?.map(i => i.packageId) || null,
       };
       await dispatch(
@@ -174,9 +157,9 @@ const QuotationManager = () => {
     }
   }, [
     dispatch,
-    filters,
-    selectedPlan,
-    selectedFacade,
+    quotationFilters,
+    plan,
+    facade,
     quoteDetails?.quotationVersionId,
     selectedPackageFromSlice,
   ]);
@@ -336,8 +319,8 @@ const QuotationManager = () => {
         const response = await dispatch(
           fetchCategoryItems({
             price_list_id: categoryId,
-            range_id: filters.range,
-            dwelling_type_id: filters.dwellingType,
+            range_id: quotationFilters.range,
+            dwelling_type_id: quotationFilters.dwellingType,
           })
         ).unwrap();
         // console.log("🚀 ~ handleFetchCategoryItems ~ response:", response);
@@ -547,6 +530,7 @@ const QuotationManager = () => {
       message.error('Failed to save custom section');
     }
   };
+
   return (
     <>
       <div className="m-3 flex justify-between items-center">
@@ -560,6 +544,9 @@ const QuotationManager = () => {
           onFilterChange={() => {
             setHasChanges(true);
             setSelectedCategory(null);
+            dispatch(setQuotationPackage([]));
+            dispatch(setQuotationFacade(null));
+            dispatch(setQuotationPlan(null));
           }}
           setParams={setParams}
           filters={filters}
@@ -569,19 +556,19 @@ const QuotationManager = () => {
 
       <InfoCards
         propertyDetails={property}
-        selectedPlan={selectedPlan}
-        selectedFacade={selectedFacade}
-        selectedPackage={selectedPackage}
+        selectedPlan={plan}
+        selectedFacade={facade}
+        selectedPackage={selectedPackageFromSlice}
         onPlanSelect={plan => handleSelectionChange('plan', plan)}
         onFacadeSelect={facade => handleSelectionChange('facade', facade)}
         onPackageSelect={pkg => handleSelectionChange('package', pkg)}
         onPropertyUpdate={() => {}}
         isReadOnly={quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0)}
-        filters={filters}
+        filters={quotationFilters}
       />
 
       <div className="flex flex-1 m-3 border rounded-lg h-[365px]">
-        {filters?.range && filters?.dwellingType ? (
+        {quotationFilters?.range && quotationFilters?.dwellingType ? (
           <>
             <div className="w-64">
               {status.priceMaster === Status.IDLE ? (
@@ -634,7 +621,7 @@ const QuotationManager = () => {
           quoteVersionId={quoteVersionId || quotationData?.versions?.[0]?.quotationVersionId}
           isEditMode={isEditMode}
           onEdit={() => setIsEditMode(true)}
-          onCancel={() => setIsEditMode(false)}
+          onCancel={() => setHasChanges(false)}
           onSave={handleCreateQuotation}
           onPreview={() => {}} // todo handle preview
           disableAction={quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0)}

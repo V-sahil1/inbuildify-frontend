@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
 import { Button, Dropdown, Input, Space } from 'antd';
 import {
-  IconCheck,
   IconEye,
-  IconPencil,
-  IconX,
   IconDeviceFloppy,
   IconFileTypePdf,
   IconFileTypeXls,
 } from '@tabler/icons-react';
 import { ConfirmationContentModal } from '../common/ConfirmationContentModal';
 import { ActionDialogmodel } from '../common/Models/ActionDialogModel';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import {
+  setQuotationFacade,
+  setQuotationPackage,
+  setQuotationPlan,
+} from '@redux/feature/quotation/quotationSlice';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 
 interface FooterActionsProps {
   id?: string;
@@ -47,6 +51,13 @@ const FooterActions: React.FC<FooterActionsProps> = ({
   onCreateNewVersion,
   handleCustomSection,
 }) => {
+  const dispatch = useAppDispatch();
+  const {
+    plan,
+    facade,
+    package: packageData,
+    quoteDetails,
+  } = useAppSelector(state => state.quotation);
   const [modalOpen, setModalOpen] = useState<'approval' | 'save' | 'custom' | null>(null);
   const [sketchNum, setSketchNum] = useState('');
   const previewMenu = [
@@ -195,24 +206,41 @@ const FooterActions: React.FC<FooterActionsProps> = ({
           >
             Custom Section
           </Button>
-          <Button
-            type="primary"
-            loading={loading}
-            disabled={disableAction}
-          >
+          <Button type="primary" loading={loading} disabled={disableAction}>
             View Opprtunity
           </Button>
 
           {hasUnsavedChanges && onSaveChanges && (
-            <Button
-              type="primary"
-              icon={<IconDeviceFloppy size={16} />}
-              onClick={onSaveChanges}
-              loading={loading}
-              disabled={disableAction}
-            >
-              Save Changes
-            </Button>
+            <div className="flex gap-4">
+              <Button
+                type="primary"
+                icon={<IconDeviceFloppy size={16} />}
+                onClick={onSaveChanges}
+                loading={loading}
+                disabled={disableAction}
+              >
+                Save Changes
+              </Button>
+              <Button
+                icon={<IconDeviceFloppy size={16} />}
+                onClick={() => {
+                  const { isUpdated } = getUpdatedFields(
+                    { package: quoteDetails?.packages },
+                    { package: packageData }
+                  );
+                  isUpdated && dispatch(setQuotationPackage(quoteDetails?.packages));
+                  quoteDetails?.floorPlan?.floorPlanId !== plan?.floorPlanId &&
+                    dispatch(setQuotationPlan(quoteDetails?.floorPlan));
+                  quoteDetails?.facade?.facadeId !== facade?.facadeId &&
+                    dispatch(setQuotationFacade(quoteDetails?.facade));
+                  onCancel();
+                }}
+                loading={loading}
+                disabled={disableAction}
+              >
+                Cancel
+              </Button>
+            </div>
           )}
         </Space>
       </div>

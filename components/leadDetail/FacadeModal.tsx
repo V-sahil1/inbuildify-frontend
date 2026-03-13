@@ -7,13 +7,14 @@ import CustomFacadeForm from './forms/CustomFacadeForm';
 import { setQuotationFacade } from '@redux/feature/quotation/quotationSlice';
 import { setSelectedFilters } from '@redux/feature/facade/facadeSlice';
 import { IFacadeState } from '@redux/feature/facade/IFacadeState';
+import { formDataGenerator } from '@lib/utils/formDataGenerator';
 
 const { Title } = Typography;
 
 interface FacadeModalProps {
   visible: boolean;
   onCancel: () => void;
-  onSave: (data: IFacadeState | { type: string, facade: IFacadeState }) => void;
+  onSave: (data: IFacadeState | { type: string; facade: IFacadeState }) => void;
   selectedFacade?: IFacadeState;
 }
 
@@ -51,19 +52,16 @@ const FacadeModal: React.FC<FacadeModalProps> = ({ visible, onCancel, onSave, se
         return;
       }
       try {
-        const formData = new FormData();
-        formData.append('name', formValues.name);
-        formData.append('dwelling_type', formValues.dwelling_type);
-        formData.append('image', formValues.image.fileList[0].originFileObj);
-        formData.append('standard', formValues.standard || false);
-        formData.append('upgrade', formValues.upgrade || false);
-        formData.append('cost', formValues.cost);
+        const formData = formDataGenerator({
+          ...formValues,
+          image: formValues.image[0].originFileObj,
+        });
         setLoading(true);
         const response = await dispatch(createFacade(formData)).unwrap();
         dispatch(setQuotationFacade(response));
         setFormValues(null);
         message.success('Facade created successfully');
-        onSave({ type: 'new', facade: formValues });
+        onSave(response);
         onCancel();
       } catch (error) {
         message.error(`${error}` || 'Failed to create facade');

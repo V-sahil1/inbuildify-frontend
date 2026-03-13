@@ -79,7 +79,11 @@ const AvailablePlansTab: React.FC<AvailablePlansTabProps> = ({
             </div>
           </div>
           <div className="bg-gray-50 p-4 rounded-lg">
-            <img src={selectedPlan.image} alt={selectedPlan.name} className="size-full rounded" />
+            <img
+              src={selectedPlan.simpleImage}
+              alt={selectedPlan.name}
+              className="size-full rounded"
+            />
           </div>
         </div>
       )}

@@ -10,18 +10,20 @@ import { createFloorPlan } from '@redux/feature/floorPlan/floorPlanThunk';
 import { setQuotationPlan } from '@redux/feature/quotation/quotationSlice';
 import { acceptOnlyImageRule } from '@lib/constants/formInputValidations';
 import useDwellingAndRangeHook from '@hooks/useDwellingAndRangeHook';
+import { formDataGenerator } from '@lib/utils/formDataGenerator';
 
 const CustomPlanTab: React.FC<{ onCancel: () => void }> = ({ onCancel }) => {
   const [form] = Form.useForm<IFloorPlanState>();
   const dispatch = useAppDispatch();
   const { selectedFilters } = useAppSelector((state: any) => state.quotation);
   const [loading, setLoading] = useState(false);
-   const { rangeOptions, dwellingTypeOptions } = useDwellingAndRangeHook({type : ['range','dwellingType']});
- 
+  const { rangeOptions, dwellingTypeOptions } = useDwellingAndRangeHook({
+    type: ['range', 'dwellingType'],
+  });
 
   useEffect(() => {
     form.setFieldsValue({
-      dwellingTypeId: selectedFilters?.dwelling_type,
+      dwellingTypeId: selectedFilters?.dwellingType,
       rangeId: selectedFilters?.range,
     });
   }, [selectedFilters]);
@@ -29,22 +31,10 @@ const CustomPlanTab: React.FC<{ onCancel: () => void }> = ({ onCancel }) => {
   const handleCreateFloorPlan = async (values: any) => {
     try {
       setLoading(true);
-      const formData = new FormData();
-      formData.append('name', values.name);
-      formData.append('range', values.rangeId);
-      formData.append('dwelling_type', values.dwellingTypeId);
-      formData.append('beds', values.beds);
-      formData.append('bath', values.bath);
-      formData.append('car_park', values.car_park);
-      formData.append('width_meter', values.width_meter);
-      formData.append('depth_meter', values.depth_meter);
-      formData.append('dwelling', values.dwelling);
-      formData.append('garage', values.garage);
-      formData.append('porch', values.porch);
-      formData.append('alfresco', values.alfresco);
-      formData.append('total_sqft', values.total_sqft);
-      formData.append('image', values.image.fileList[0].originFileObj);
-
+      const formData = formDataGenerator({
+        ...values,
+        simpleImage: values.simpleImage[0].originFileObj,
+      });
       const response = await dispatch(createFloorPlan(formData)).unwrap();
       dispatch(setQuotationPlan(response));
       message.success('Floor Plan successfully Created!');
@@ -102,17 +92,23 @@ const CustomPlanTab: React.FC<{ onCancel: () => void }> = ({ onCancel }) => {
               <Select
                 placeholder="Select dwelling type"
                 options={dwellingTypeOptions}
-                value={selectedFilters?.dwelling_type}
+                value={selectedFilters?.dwellingType}
                 disabled
                 // className="white-disabled-select"
               />
             </Form.Item>
             <Form.Item
               key="image"
-              name="image"
+              name="simpleImage"
               label="Upload Image"
               valuePropName="file"
               rules={[{ required: true, message: 'Please upload an image' }]}
+              getValueFromEvent={e => {
+                if (e && e.fileList) {
+                  return e.fileList;
+                }
+                return [];
+              }}
             >
               <Upload
                 name="image"
@@ -152,7 +148,7 @@ const CustomPlanTab: React.FC<{ onCancel: () => void }> = ({ onCancel }) => {
 
               <Form.Item
                 label="Bath"
-                name="bath"
+                name="baths"
                 rules={[{ required: true, message: 'Please input number of baths' }]}
               >
                 <Input
@@ -168,7 +164,7 @@ const CustomPlanTab: React.FC<{ onCancel: () => void }> = ({ onCancel }) => {
 
               <Form.Item
                 label="Car Park"
-                name="car_park"
+                name="carpark"
                 rules={[{ required: true, message: 'Please input number of car parks' }]}
               >
                 <Input
@@ -184,7 +180,7 @@ const CustomPlanTab: React.FC<{ onCancel: () => void }> = ({ onCancel }) => {
 
               <Form.Item
                 label="Garage"
-                name="garage"
+                name="garageArea"
                 rules={[{ required: true, message: 'Please input number of garages' }]}
               >
                 <Input
@@ -200,7 +196,7 @@ const CustomPlanTab: React.FC<{ onCancel: () => void }> = ({ onCancel }) => {
 
               <Form.Item
                 label="Width (m)"
-                name="width_meter"
+                name="minLandWidth"
                 rules={[{ required: true, message: 'Please input width in meters' }]}
               >
                 <Input
@@ -216,7 +212,7 @@ const CustomPlanTab: React.FC<{ onCancel: () => void }> = ({ onCancel }) => {
 
               <Form.Item
                 label="Depth (m)"
-                name="depth_meter"
+                name="minLandDepth"
                 rules={[{ required: true, message: 'Please input depth in meters' }]}
               >
                 <Input
@@ -232,7 +228,7 @@ const CustomPlanTab: React.FC<{ onCancel: () => void }> = ({ onCancel }) => {
 
               <Form.Item
                 label="Dwelling (sqm)"
-                name="dwelling"
+                name="dwellingArea"
                 rules={[{ required: true, message: 'Please input dwelling area' }]}
               >
                 <Input
@@ -248,7 +244,7 @@ const CustomPlanTab: React.FC<{ onCancel: () => void }> = ({ onCancel }) => {
 
               <Form.Item
                 label="Porch (sqm)"
-                name="porch"
+                name="porchArea"
                 rules={[{ required: true, message: 'Please input porch area' }]}
               >
                 <Input
@@ -264,7 +260,7 @@ const CustomPlanTab: React.FC<{ onCancel: () => void }> = ({ onCancel }) => {
 
               <Form.Item
                 label="Alfresco (sqm)"
-                name="alfresco"
+                name="alfrescoArea"
                 rules={[{ required: true, message: 'Please input alfresco area' }]}
               >
                 <Input
@@ -280,7 +276,7 @@ const CustomPlanTab: React.FC<{ onCancel: () => void }> = ({ onCancel }) => {
 
               <Form.Item
                 label="Total Sqft"
-                name="total_sqft"
+                name="totalArea"
                 rules={[{ required: true, message: 'Please input total square footage' }]}
               >
                 <Input

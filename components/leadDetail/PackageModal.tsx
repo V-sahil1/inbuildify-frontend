@@ -57,8 +57,8 @@ const PackageModal: React.FC<PackageModalProps> = ({
       try {
         setLoading(true);
         const params = {
-          range_id: filters.range,
-          dwelling_type_id: filters.dwellingType,
+          range_id: selectedFilters.range,
+          dwelling_type_id: selectedFilters.dwellingType,
         };
         // Make sure to pass the filters when fetching packages
         await dispatch(fetchPackages(params)).unwrap();
@@ -73,7 +73,7 @@ const PackageModal: React.FC<PackageModalProps> = ({
     if (visible) {
       fetchPackagesData();
     }
-  }, [dispatch, visible, filters]);
+  }, [dispatch, visible, selectedFilters]);
   // Reset temp selection whenever modal opens
   useEffect(() => {
     if (visible) {
@@ -196,10 +196,7 @@ const PackageModal: React.FC<PackageModalProps> = ({
             ) : (
               <div className="flex items-center justify-center w-full h-full p-6">
                 <Empty description="No packages found">
-                  <Button
-                    type="primary"
-                    onClick={() => router.push(`${SystemRoutes.SETTINGS}?tab=package`)}
-                  >
+                  <Button type="primary" onClick={() => router.push(SystemRoutes.PACKAGE)}>
                     Create Package
                   </Button>
                 </Empty>

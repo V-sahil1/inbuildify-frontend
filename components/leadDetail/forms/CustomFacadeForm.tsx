@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
-import { Form, Input, Select, Checkbox, Upload, Button, FormInstance } from 'antd';
+import { Form, Input, Select, Checkbox, Upload, Button, FormInstance, Radio } from 'antd';
 import { facadeFields } from '@/components/formFields/facadeFields';
 import { acceptOnlyImageRule } from '@lib/constants/formInputValidations';
+import { useAppSelector } from '@hooks/redux';
 
 interface CustomFacadeFormProps {
   initialValues?: any;
@@ -15,16 +16,15 @@ const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
   form,
 }) => {
   const fields = facadeFields({ isDwellingDisable: true });
-
-  useEffect(() => {
-    form.setFieldsValue(initialValues || {});
-  }, [initialValues, form]);
-
+  const { selectedFilters } = useAppSelector(state => state.quotation);
   useEffect(() => {
     form.setFieldsValue({
-      dwelling_type: fields.find(field => field.name === 'dwelling_type')?.initialValue,
+      ...initialValues,
+      rangeId: selectedFilters?.range,
+      dwellingTypeId: selectedFilters?.dwellingType,
+      locationId: selectedFilters?.location,
     });
-  }, [fields]);
+  }, [initialValues, form]);
 
   const handleValuesChange = () => {
     onFormChange(form.getFieldsValue());
@@ -49,9 +49,9 @@ const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
               <Select
                 options={field.options}
                 placeholder={field.placeholder}
-                disabled
                 value={field.initialValue}
                 // className="white-disabled-select"
+                disabled
               />
             </Form.Item>
           );
@@ -63,6 +63,12 @@ const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
               name={field.name}
               label={field.label}
               rules={field.rules as any}
+              getValueFromEvent={e => {
+                if (e && e.fileList) {
+                  return e.fileList;
+                }
+                return [];
+              }}
             >
               <Upload
                 name="image"
@@ -77,10 +83,10 @@ const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
             </Form.Item>
           );
         }
-        if (field.type === 'checkbox') {
+        if (field.type === 'radio') {
           return (
-            <Form.Item key={field.name} name={field.name} valuePropName="checked">
-              <Checkbox>{field.label}</Checkbox>
+            <Form.Item key={field.name} name={field.name} label={field?.label}>
+              <Radio.Group options={field?.options} />
             </Form.Item>
           );
         }

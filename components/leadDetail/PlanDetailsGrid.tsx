@@ -7,15 +7,15 @@ interface PlanDetailsGridProps {
 
 const fields = [
   { label: 'Beds', key: 'beds', span: 6 },
-  { label: 'Bath', key: 'bath', span: 6 },
-  { label: 'Carpark', key: 'carPark', span: 6 },
-  { label: 'Width (m)', key: 'widthMeter', span: 6 },
-  { label: 'Depth (m)', key: 'depthMeter', span: 6 },
-  { label: 'Dwelling', key: 'dwelling', span: 6 },
-  { label: 'Garage', key: 'garage', span: 6 },
-  { label: 'Porch', key: 'porch', span: 6 },
-  { label: 'Alfresco', key: 'alfresco', span: 6 },
-  { label: 'Total (sq)', key: 'totalSqft', span: 6 },
+  { label: 'Bath', key: 'baths', span: 6 },
+  { label: 'Carpark', key: 'carpark', span: 6 },
+  { label: 'Width (m)', key: 'minLandWidth', span: 6 },
+  { label: 'Depth (m)', key: 'minLandDepth', span: 6 },
+  { label: 'Dwelling', key: 'dwellingArea', span: 6 },
+  { label: 'Garage', key: 'garageArea', span: 6 },
+  { label: 'Porch', key: 'porchArea', span: 6 },
+  { label: 'Alfresco', key: 'alfrescoArea', span: 6 },
+  { label: 'Total (sq)', key: 'totalArea', span: 6 },
 ];
 
 const PlanDetailsGrid: React.FC<PlanDetailsGridProps> = ({ details }) => {
@@ -24,10 +24,10 @@ const PlanDetailsGrid: React.FC<PlanDetailsGridProps> = ({ details }) => {
   // Map raw API fields into consistent format
   const mappedDetails = {
     ...details,
-    carPark: details.carPark ?? 0,
-    widthMeter: details.widthMeter ?? 0,
-    depthMeter: details.depthMeter ?? 0,
-    totalSqft: details.totalSqft ?? 0,
+    carpark: details.carpark ?? 0,
+    minLandWidth: details.minLandWidth ?? 0,
+    minLandDepth: details.minLandDepth ?? 0,
+    totalArea: details.totalArea ?? 0,
   };
 
   return (
