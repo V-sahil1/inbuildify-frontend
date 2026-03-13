@@ -1,10 +1,11 @@
 'use client';
-import { Button, Divider, message } from 'antd';
+import { Button, Divider, message, Popconfirm } from 'antd';
 import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import {
   createBusinessContactThunk,
   deleteBusinessContactThunk,
+  deleteHLPackageThunk,
   getLeadProperty,
   updateBusinessContactThunk,
   updateLeadThunk,
@@ -130,6 +131,19 @@ export const LeadSource = () => {
     }
   };
 
+  const handleDeleteHLPackage = async (remove: boolean) => {
+    try {
+      await dispatch(
+        deleteHLPackageThunk({
+          leadsId: leadDetail?.lead?.leadsId,
+          removeHlPackageLotQuotation: remove,
+        })
+      ).unwrap();
+      message.success('hl packaged deleted successfully');
+    } catch (error) {
+      message.error(error || 'Failed to delete hl package');
+    }
+  };
   return (
     <div className="flex flex-col md:flex-row lg:flex-col m-3 p-1">
       <div className="flex-1">
@@ -260,13 +274,27 @@ export const LeadSource = () => {
         <div className="text-md lg:mt-6 flex flex-col gap-1 text-primary">
           <div>
             <HouseLandPopover onSave={handleLeadSourceEdit}>
-              <button className="flex items-center gap-2 hover:text-blue-800">
+              <button
+                className="flex items-center gap-2 hover:text-blue-800"
+                disabled={!!leadDetail?.lead?.houseLandPackageDetails}
+              >
                 <IconCirclePlus /> House and Land Package
               </button>
             </HouseLandPopover>
-            <p className="text-sm text-font-color">
-              {leadDetail?.lead?.houseLandPackageDetails?.title || ''}
-            </p>
+            {leadDetail?.lead?.houseLandPackageDetails && (
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-font-color">
+                  {leadDetail?.lead?.houseLandPackageDetails?.title || ''}
+                </p>
+                <Popconfirm
+                  title="Do you want to remove property and quotation linked with hlpackage?"
+                  onConfirm={() => handleDeleteHLPackage(true)}
+                  onCancel={() => handleDeleteHLPackage(false)}
+                >
+                  <Button type="text" size="small" icon={<IconTrash size={16} color="red" />} />
+                </Popconfirm>
+              </div>
+            )}
           </div>
 
           <div>

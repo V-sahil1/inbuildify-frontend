@@ -40,6 +40,7 @@ export const LeadLinkContactModel = ({
           (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
         }
         options={contactOptions}
+        value={selectedContact?.usersId}
         onChange={value => {
           const selectedContact = contact.find(c => c.usersId === value);
           if (selectedContact) {

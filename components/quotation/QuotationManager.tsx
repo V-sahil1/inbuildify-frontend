@@ -63,7 +63,7 @@ const QuotationManager = () => {
     quoteDetails,
     quotation,
   } = useAppSelector((state: RootState) => state.quotation);
-  const lastFetchedFiltersRef = useRef<{ range?: string; dwelling_type?: string } | null>(null);
+  const lastFetchedFiltersRef = useRef<{ range?: string; dwellingType?: string } | null>(null);
   const [selectedFacade, setSelectedFacade] = useState<IFacadeState | undefined>(facade);
   const [selectedPlan, setSelectedPlan] = useState<IFloorPlanState | undefined>(plan);
   const [selectedPackage, setSelectedPackage] = useState<Package[]>([]);
@@ -83,6 +83,7 @@ const QuotationManager = () => {
       dwellingType: quoteDetails?.dwellingTypeId || null,
       location: quoteDetails?.locationId || null,
     },
+    shouldSyncURL: false,
   });
   const quotationData = quoteVersionId
     ? quotation?.find(i => i.versions.find(j => j.quotationVersionId === quoteVersionId))
@@ -250,7 +251,7 @@ const QuotationManager = () => {
     }
   }, [
     quotationFilters?.range,
-    quotationFilters?.dwelling_type,
+    quotationFilters?.dwellingType,
     dispatch,
     categoryData.length,
     items, // dependency so INCLUDED sync works correctly
@@ -262,12 +263,12 @@ const QuotationManager = () => {
   );
 
   const fetchAllCategoryItems = async () => {
-    if (!quotationFilters?.range || !quotationFilters?.dwelling_type) return;
+    if (!quotationFilters?.range || !quotationFilters?.dwellingType) return;
 
     // Prevent fetching again if filters didn't change
     if (
       lastFetchedFiltersRef.current?.range === quotationFilters.range &&
-      lastFetchedFiltersRef.current?.dwelling_type === quotationFilters.dwelling_type
+      lastFetchedFiltersRef.current?.dwellingType === quotationFilters.dwellingType
     ) {
       return;
     }
@@ -282,7 +283,7 @@ const QuotationManager = () => {
             fetchCategoryItems({
               price_list_id: cat.priceListId,
               range_id: quotationFilters.range,
-              dwelling_type_id: quotationFilters.dwelling_type,
+              dwelling_type_id: quotationFilters.dwellingType,
             })
           ).unwrap();
         })
@@ -303,7 +304,7 @@ const QuotationManager = () => {
 
       lastFetchedFiltersRef.current = {
         range: quotationFilters.range,
-        dwelling_type: quotationFilters.dwelling_type,
+        dwellingType: quotationFilters.dwellingType,
       };
     } catch (error) {
       message.error(error || 'Failed to fetch category items');
@@ -379,7 +380,7 @@ const QuotationManager = () => {
           propertyId: property?.propertyId,
         }),
         range: quotationFilters?.range,
-        dwellingType: quotationFilters?.dwelling_type,
+        dwellingType: quotationFilters?.dwellingType,
         floorPlanId: plan?.floorPlanId,
         facadeId: facade?.facadeId,
         // packageId: selectedPackageFromSlice?.packageId,
@@ -618,7 +619,7 @@ const QuotationManager = () => {
             <p>
               {quotationFilters?.range
                 ? 'Please select Dwelling Type'
-                : quotationFilters?.dwelling_type
+                : quotationFilters?.dwellingType
                   ? 'Please select Range'
                   : 'Please select Range and Dwelling Type'}
             </p>

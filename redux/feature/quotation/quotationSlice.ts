@@ -59,7 +59,7 @@ const quotationSlice = createSlice({
       state.plan = null;
       state.facade = null;
       state.package = [];
-      state.selectedFilters = { range: '', dwelling_type: '' };
+      state.selectedFilters = { range: '', dwellingType: '', location: '' };
     },
     clearSelectedFloorplanFacadePackageReducer(state) {
       state.plan = null;

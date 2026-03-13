@@ -118,7 +118,7 @@ const FooterActions: React.FC<FooterActionsProps> = ({
           >
             <Button disabled={disableAction}>Save As</Button>
           </Dropdown>
-          {quoteVersionId ? (
+          {/* {quoteVersionId ? (
             isEditMode ? (
               <>
                 <Button
@@ -154,7 +154,7 @@ const FooterActions: React.FC<FooterActionsProps> = ({
             >
               Create Quotation
             </Button>
-          )}
+          )} */}
           <Button
             type="primary"
             onClick={() => {
@@ -197,9 +197,6 @@ const FooterActions: React.FC<FooterActionsProps> = ({
           </Button>
           <Button
             type="primary"
-            onClick={() => {
-              setModalOpen('approval');
-            }}
             loading={loading}
             disabled={disableAction}
           >

@@ -11,6 +11,7 @@ import {
   createLeadSourceThunk,
   createLeadThunk,
   deleteBusinessContactThunk,
+  deleteHLPackageThunk,
   deleteLeadContactMapThunk,
   deleteLeadInvoiceThunk,
   deleteLeadJobThunk,
@@ -39,6 +40,7 @@ import { InitialState } from './ILeadState';
 import { Status } from '@lib/constants/enum';
 import { updateContact } from '../contacts/contactThunk';
 import { getQuotationThunk } from '../quotation/quotationThunk';
+import { actionAsyncStorage } from 'next/dist/client/components/action-async-storage-instance';
 
 const initialState: InitialState = {
   leads: [],
@@ -188,6 +190,20 @@ export const leadSlice = createSlice({
       state.status.updateLeadSource = Status.SUCCESS;
     });
     builder.addCase(updateLeadThunk.rejected, state => {
+      state.status.updateLeadSource = Status.ERROR;
+    });
+
+    builder.addCase(deleteHLPackageThunk.pending, state => {
+      state.status.updateLeadSource = Status.ERROR;
+    });
+    builder.addCase(deleteHLPackageThunk.fulfilled, (state, action) => {
+      state.leadDetail.lead.houseLandPackageDetails = null;
+      if (action.meta.arg.removeHlPackageLotQuotation && state.leadDetail.lead?.lotDetails) {
+        state.leadDetail.property = null;
+      }
+      state.status.updateLeadSource = Status.SUCCESS;
+    });
+    builder.addCase(deleteHLPackageThunk.rejected, state => {
       state.status.updateLeadSource = Status.ERROR;
     });
 

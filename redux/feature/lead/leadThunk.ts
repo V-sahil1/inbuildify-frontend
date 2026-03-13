@@ -120,6 +120,27 @@ export const updateLeadThunk = createAsyncThunk(
     }
   }
 );
+
+export const deleteHLPackageThunk = createAsyncThunk(
+  'lead/deleteHLPackage',
+  async (
+    payload: { leadsId: string; removeHlPackageLotQuotation?: boolean },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response: ApiResponse = await api.delete(
+        API_ENDPOINTS.DELETE_LEAD_HLPACKAGE(payload.leadsId),
+        {
+          data: { removeHlPackageLotQuotation: payload.removeHlPackageLotQuotation },
+        }
+      );
+      return response.data;
+    } catch (err: any) {
+      return rejectWithValue(err?.message);
+    }
+  }
+);
+
 export const leadDeleteThunk = createAsyncThunk(
   'lead/leadDelete',
   async (leadId: string, { rejectWithValue }) => {

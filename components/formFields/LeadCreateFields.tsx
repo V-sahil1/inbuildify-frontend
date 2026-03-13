@@ -1,10 +1,12 @@
 import { Status } from '@lib/constants/enum';
 import {
+  emailRules,
   leadSourceRules,
   nameRules,
   optionalEmailRule,
   optionalNotesRule,
   optionalPhoneRule,
+  phoneRules,
 } from '@lib/constants/formInputValidations';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { useEffect } from 'react';
@@ -63,7 +65,7 @@ export const useLeadCreateFields = (
       name: 'email',
       placeholder: 'john@example.com',
       type: 'email',
-      rules: optionalEmailRule,
+      rules: emailRules,
       disabled: isEmailDisable,
     },
     {
@@ -71,7 +73,7 @@ export const useLeadCreateFields = (
       name: 'phone',
       placeholder: '1234567890',
       type: 'phone',
-      rules: optionalPhoneRule,
+      rules: phoneRules,
     },
     {
       label: 'Lead Source',
@@ -94,6 +96,7 @@ export const useLeadCreateFields = (
       label: 'Send Welcome Letter to Customer',
       name: 'sendLetter',
       type: 'checkbox',
+      initialValue: false,
     },
   ] as const;
 };

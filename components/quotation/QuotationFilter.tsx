@@ -78,7 +78,7 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({
           value={selectedFilters?.location || undefined}
           notFoundContent={<NoDataMessage label="Location type" link={SystemRoutes.PRICELIST} />}
           onChange={value => {
-            dispatch(setSelectedFilters({ ...instantFilters, location: value }));
+            dispatch(setSelectedFilters({ ...selectedFilters, location: value }));
             setParams({ location: value });
             onFilterChange();
           }}
@@ -98,7 +98,7 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({
             <NoDataMessage label="Range type" link={SystemRoutes.DWELLING_AND_RANGE} />
           }
           onChange={value => {
-            dispatch(setSelectedFilters({ ...instantFilters, range: value }));
+            dispatch(setSelectedFilters({ ...selectedFilters, range: value }));
             setParams({ range: value });
             onFilterChange();
           }}
@@ -119,7 +119,7 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({
             <NoDataMessage label="dwelling type" link={SystemRoutes.DWELLING_AND_RANGE} />
           }
           onChange={value => {
-            dispatch(setSelectedFilters({ ...instantFilters, dwellingType: value }));
+            dispatch(setSelectedFilters({ ...selectedFilters, dwellingType: value }));
             setParams({ dwellingType: value });
             onFilterChange();
           }}

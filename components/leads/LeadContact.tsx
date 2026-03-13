@@ -32,14 +32,11 @@ export const LeadContactPage = ({ setModalOpen, handleOpenContactModal, handleDe
                 onClick={() => setModalOpen('contact')}
                 size={15}
               />
-              <Popconfirm title="Are you sure you want to delete lead contact?">
-                <IconTrash
-                  className="text-red-400 text-sm cursor-pointer hover:text-red-600"
-                  onClick={e => {
-                    handleDeleteContact();
-                  }}
-                  size={15}
-                />
+              <Popconfirm
+                title="Are you sure you want to delete lead contact?"
+                onConfirm={() => handleDeleteContact()}
+              >
+                <IconTrash className="text-red-400 text-sm cursor-pointer hover:text-red-600" size={15} />
               </Popconfirm>
             </div>
           </div>

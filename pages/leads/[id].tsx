@@ -120,7 +120,7 @@ function App() {
     if (leadId) {
       fetchData();
     }
-  }, [router.query.id, dispatch, status.leads]);
+  }, [leadId]);
 
   const primaryContact = contacts;
 
@@ -137,13 +137,15 @@ function App() {
 
   async function fetchData() {
     try {
-      await dispatch(getLeadByIdThunk(leadId)).unwrap();
-      await dispatch(getBusinessContactByIdThunk(leadId)).unwrap();
-      await dispatch(getLeadContactMapThunk(leadId)).unwrap();
-      await dispatch(getLeadInvoiceThunk(leadId)).unwrap();
-      await dispatch(getLeadJobThunk(leadId)).unwrap();
-      await dispatch(getQuotationThunk(leadId)).unwrap();
-      await dispatch(getLeadProperty(leadId)).unwrap();
+      await Promise.all([
+        dispatch(getLeadByIdThunk(leadId)).unwrap(),
+        dispatch(getBusinessContactByIdThunk(leadId)).unwrap(),
+        dispatch(getLeadContactMapThunk(leadId)).unwrap(),
+        dispatch(getLeadInvoiceThunk(leadId)).unwrap(),
+        dispatch(getLeadJobThunk(leadId)).unwrap(),
+        dispatch(getQuotationThunk(leadId)).unwrap(),
+        dispatch(getLeadProperty(leadId)).unwrap(),
+      ]);
     } catch (err) {
       message.error(err || 'Failed to fetch lead details');
     }
@@ -209,7 +211,6 @@ function App() {
       message.success('Contact linked successfully');
       setModalOpen(null);
       setSelectedContact(null);
-      fetchData(); // Refresh the data to show the linked contact
     } catch (err) {
       message.error(err || 'Failed to link contact');
     } finally {
