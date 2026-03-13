@@ -45,9 +45,8 @@ export const PricingItem = ({
           <p className="line-clamp-2 font-bold"> {item?.name} </p>
         </div>
         <div className="mb-2 font-medium flex gap-10 text-[16px] break-all">
-          <Tooltip title={item?.shortDescription || item?.description}>
-            {' '}
-            <p className="line-clamp-2"> {item?.shortDescription || item?.description} </p>
+          <Tooltip title={item?.shortDescription || item?.itemDescription}>
+            <p className="line-clamp-2"> {item?.shortDescription || item?.itemDescription} </p>
           </Tooltip>
         </div>
         {item?.timespent && <p>Time spent: {item?.timespent} days</p>}

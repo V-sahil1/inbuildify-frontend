@@ -19,7 +19,6 @@ import { LeadContact } from '../lead/ILeadState';
 import { Quotation, QuotationPriceListItem, QuotationVersionDetails } from './IQuotationState';
 import { Package } from '../package/IPackageState';
 import { updateContact } from '../contacts/contactThunk';
-import { attrEffect } from 'framer-motion';
 export interface QuotationState {
   status: { create: Status; getById: Status };
   quoteDetails: QuotationVersionDetails | null;
@@ -37,7 +36,7 @@ export interface QuotationState {
 const initialState: QuotationState = {
   status: { create: Status.IDLE, getById: Status.IDLE },
   quoteDetails: null,
-  selectedFilters: { range: '', dwelling_type: '' },
+  selectedFilters: { range: '', dwellingType: '', location: '' },
   contact: [],
   property: null,
   plan: null,
@@ -186,6 +185,7 @@ const quotationSlice = createSlice({
         state.selectedFilters = {
           range: data?.rangeId || '',
           dwellingType: data?.dwellingTypeId || '',
+          location: data?.locationId || '',
         };
 
         // state.items = data.items?.map(item => ({

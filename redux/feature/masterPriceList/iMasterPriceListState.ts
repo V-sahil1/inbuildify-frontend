@@ -32,7 +32,7 @@ export interface IPriceListItem {
   dwellingTypeId?: string[];
   priceList?: Entity;
   range?: Entity[];
-  dwelling?: Entity[];
+  dwellingType?: Entity[];
   quantity?: number;
   included?: boolean;
   modify?: boolean;

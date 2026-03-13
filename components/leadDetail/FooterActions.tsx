@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Dropdown, Input, message, Space } from 'antd';
+import { Button, Dropdown, Input, Space } from 'antd';
 import {
   IconCheck,
   IconEye,
@@ -116,7 +116,7 @@ const FooterActions: React.FC<FooterActionsProps> = ({
             }}
             placement="top"
           >
-            <Button>Save As</Button>
+            <Button disabled={disableAction}>Save As</Button>
           </Dropdown>
           {quoteVersionId ? (
             isEditMode ? (
@@ -161,10 +161,11 @@ const FooterActions: React.FC<FooterActionsProps> = ({
               setModalOpen('approval');
             }}
             loading={loading}
+            disabled={disableAction}
           >
             Approve
           </Button>
-          <Button type="primary" onClick={() => {}} loading={loading}>
+          <Button type="primary" onClick={() => {}} loading={loading} disabled={disableAction}>
             Email
           </Button>
           <Dropdown
@@ -178,7 +179,7 @@ const FooterActions: React.FC<FooterActionsProps> = ({
             <Button
               icon={<IconEye size={16} />}
               // onClick={onPreview}
-              disabled={(disableAction && !isEditMode) || previewLoading}
+              disabled={disableAction || previewLoading}
               loading={previewLoading}
             >
               Preview
@@ -190,6 +191,7 @@ const FooterActions: React.FC<FooterActionsProps> = ({
               setModalOpen('custom');
             }}
             loading={loading}
+            disabled={disableAction}
           >
             Custom Section
           </Button>
@@ -199,6 +201,7 @@ const FooterActions: React.FC<FooterActionsProps> = ({
               setModalOpen('approval');
             }}
             loading={loading}
+            disabled={disableAction}
           >
             View Opprtunity
           </Button>
@@ -209,6 +212,7 @@ const FooterActions: React.FC<FooterActionsProps> = ({
               icon={<IconDeviceFloppy size={16} />}
               onClick={onSaveChanges}
               loading={loading}
+              disabled={disableAction}
             >
               Save Changes
             </Button>

@@ -56,13 +56,15 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
             </Tooltip>
             <IconPencil
               size={15}
-              className="text-blue cursor-pointer"
-              onClick={() => setIsEdited(prev => ({ ...prev, item: true }))}
+              className={`text-blue ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+              onClick={() => !disabled && setIsEdited(prev => ({ ...prev, item: true }))}
             />
           </div>
           <div className="flex flex-wrap gap-2 mt-1">
             {item.costType && <Tag color="yellow">{item.costType}</Tag>}
-            {item.dwelling && <Tag color="blue">{enumToReadable(item?.dwelling[0]?.name)}</Tag>}
+            {item.dwellingType && (
+              <Tag color="blue">{enumToReadable(item?.dwellingType[0]?.name)}</Tag>
+            )}
             {item.costOption && item.costOption !== 'NONE' && (
               <Tag color="red">{enumToReadable(item.costOption).toUpperCase()}</Tag>
             )}
@@ -78,8 +80,8 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
           </div>
           <div className="mt-2">
             <div
-              className="flex items-center gap-2 cursor-pointer"
-              onClick={() => setShowNotesInput(!showNotesInput)}
+              className={`flex items-center gap-2  ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+              onClick={() => !disabled && setShowNotesInput(!showNotesInput)}
             >
               <IconPlus size={16} className="border rounded-full border-primary text-primary" />
               Notes
@@ -92,7 +94,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
                   onChange={e => setNotes(e.target.value)}
                   rows={3}
                   className="!resize-none"
-                  disabled={isSelected}
+                  disabled={isSelected || disabled}
                 />
                 {!isSelected && (
                   <div className="flex gap-2 mt-2 justify-end">
@@ -162,8 +164,9 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
             onClose={() => {
               setIsEdited(prev => ({ ...prev, item: false }));
             }}
-            categoryId={item.priceListId}
+            categoryId={item?.priceList?.id}
             categoryItem={item}
+            extraField={true}
           />
         )}
       </div>

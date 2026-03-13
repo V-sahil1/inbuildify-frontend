@@ -236,7 +236,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
           <Button
             type="primary"
             className="btn rounded-md p-1"
-            onClick={() => router.push(`${SystemRoutes.JOB}/${lead?.lead?.leadId}`)}
+            onClick={() => router.push(`${SystemRoutes.JOB}/${lead?.lead?.leadsId}`)}
           >
             view job
           </Button>
@@ -366,7 +366,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
           }}
           onConfirm={() => {
             if (selectedAction === 'delete') {
-              handleDelete(lead?.lead?.leadId);
+              handleDelete(lead?.lead?.leadsId);
             } else if (selectedAction === 'converttolead') {
               handleConvertToLead(lead?.lead?.leadsId);
             }

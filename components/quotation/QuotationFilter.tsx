@@ -1,4 +1,4 @@
-import { useAppDispatch } from '@hooks/redux';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { fetchFloorPlans } from '@redux/feature/floorPlan/floorPlanThunk';
 import { useEffect } from 'react';
 import { getFacades } from '@redux/feature/facade/facadeThunk';
@@ -29,6 +29,7 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({
     type: ['range', 'dwellingType'],
   });
   const { locationOptions } = useLocationAndTimezoneHook({ type: 'location' });
+  const { selectedFilters } = useAppSelector(state => state.quotation);
 
   const newFilters = {
     dwelling_type_id: filters?.dwellingType || undefined,
@@ -74,7 +75,7 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({
           placeholder="Select Location"
           size="small"
           allowClear
-          value={instantFilters?.location || undefined}
+          value={selectedFilters?.location || undefined}
           notFoundContent={<NoDataMessage label="Location type" link={SystemRoutes.PRICELIST} />}
           onChange={value => {
             dispatch(setSelectedFilters({ ...instantFilters, location: value }));
@@ -92,7 +93,7 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({
           placeholder="Select Range"
           size="small"
           allowClear
-          value={instantFilters?.range || undefined}
+          value={selectedFilters?.range || undefined}
           notFoundContent={
             <NoDataMessage label="Range type" link={SystemRoutes.DWELLING_AND_RANGE} />
           }
@@ -101,7 +102,6 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({
             setParams({ range: value });
             onFilterChange();
           }}
-
           options={rangeOptions}
           disabled={isReadOnly}
         />
@@ -114,7 +114,7 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({
           placeholder="Select Dwelling Type"
           size="small"
           allowClear
-          value={instantFilters?.dwellingType || undefined}
+          value={selectedFilters?.dwellingType || undefined}
           notFoundContent={
             <NoDataMessage label="dwelling type" link={SystemRoutes.DWELLING_AND_RANGE} />
           }

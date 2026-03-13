@@ -120,11 +120,11 @@ const QuotationManager = () => {
 
   // Reset edit mode when quoteId changes
   useEffect(() => {
-    if (!!quoteVersionId) {
+    if (!!quoteVersionId || !!quotationData) {
       setIsEditMode(false);
       fetchQuotationPricelistItem();
     }
-  }, [quoteVersionId]);
+  }, [quoteVersionId, quotationData]);
 
   // Sync local state with Redux store
   useEffect(() => {
@@ -312,7 +312,11 @@ const QuotationManager = () => {
 
   const fetchQuotationPricelistItem = async () => {
     try {
-      await dispatch(getQuotationPricelistThunk(quoteVersionId)).unwrap();
+      await dispatch(
+        getQuotationPricelistThunk(
+          quoteVersionId ?? quotationData?.versions?.[0]?.quotationVersionId
+        )
+      ).unwrap();
     } catch (error) {
       message.error(error || 'Faied to fetch quotation items');
     }
@@ -525,7 +529,11 @@ const QuotationManager = () => {
 
   const handleCreateNewVersion = async () => {
     try {
-      await dispatch(createQuotationVersionThunk(quoteVersionId)).unwrap();
+      await dispatch(
+        createQuotationVersionThunk(
+          quoteVersionId ?? quotationData?.versions?.[0]?.quotationVersionId
+        )
+      ).unwrap();
       message.success('New version created successfully');
     } catch (error) {
       message.error(error || 'Failed to craete new version');
@@ -547,7 +555,7 @@ const QuotationManager = () => {
           steps={[]}
         />
         <QuotationFilter
-          isReadOnly={false}
+          isReadOnly={quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0)}
           onFilterChange={() => {
             setHasChanges(true);
             setSelectedCategory(null);
@@ -567,7 +575,7 @@ const QuotationManager = () => {
         onFacadeSelect={facade => handleSelectionChange('facade', facade)}
         onPackageSelect={pkg => handleSelectionChange('package', pkg)}
         onPropertyUpdate={() => {}}
-        isReadOnly={false}
+        isReadOnly={quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0)}
         filters={filters}
       />
 
@@ -594,7 +602,7 @@ const QuotationManager = () => {
               onItemQuantityChange={handleItemQuantityChange}
               extraItem={extraItem}
               onExtraClick={handleExtraClick}
-              isReadOnly={false}
+              isReadOnly={quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0)}
               // itemsLoading={
               //   selectedCategory
               //     ? (getCategoryById(selectedCategory)?.loadingItems ?? false)
@@ -622,13 +630,13 @@ const QuotationManager = () => {
         <FooterActions
           id={quotationData?.referenceNumber || ''}
           total={calculateTotalQuotation(packageFromSlice, itemsFromSlice, Number(facade?.cost))}
-          quoteVersionId={quoteVersionId}
+          quoteVersionId={quoteVersionId || quotationData?.versions?.[0]?.quotationVersionId}
           isEditMode={isEditMode}
           onEdit={() => setIsEditMode(true)}
           onCancel={() => setIsEditMode(false)}
           onSave={handleCreateQuotation}
           onPreview={() => {}} // todo handle preview
-          disableAction={false}
+          disableAction={quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0)}
           previewLoading={previewLoading}
           loading={quotationStatus.create === Status.PENDING}
           hasUnsavedChanges={hasChanges}

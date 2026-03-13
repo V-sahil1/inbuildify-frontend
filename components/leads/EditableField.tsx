@@ -104,7 +104,9 @@ const EditableField: React.FC<EditableFieldProps> = ({
                 {type === 'Date' ? (
                   <p className="truncate">{!!value ? dayjs(value).format('DD-MM-YYYY') : 'N/A'}</p>
                 ) : (
-                  <p className="truncate">{enumToReadable(value) || 'N/A'}</p>
+                  <p className={`truncate ${name === 'leadSourceId' && 'cursor-not-allowed'}`}>
+                    {enumToReadable(value) || 'N/A'}
+                  </p>
                 )}
               </Tooltip>
             </div>
@@ -126,6 +128,7 @@ const EditableField: React.FC<EditableFieldProps> = ({
               type="text"
               onClick={() => setIsLeadEditing(prev => ({ ...prev, [name]: true }))}
               icon={<IconEdit size={20} />}
+              disabled={name === 'leadSourceId'}
             />
           )}
         </div>

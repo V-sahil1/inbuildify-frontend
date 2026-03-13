@@ -72,7 +72,7 @@ export const PackagePricelistColumn = (packagePricelist, selectedPackage, setSel
       key: 'search',
       render: (_, record) => (
         <>
-          <p>{record.shortDescription}</p>
+          <p>{record.shortDescription || record.itemDescription}</p>
           <div className="flex gap-2">
             {record.priceList && <Tag color="purple">{record.priceList.name}</Tag>}
             {record.costType && <Tag color="gray">{record.costType}</Tag>}

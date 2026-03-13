@@ -123,7 +123,7 @@ export const FloorplanPricelistColumns = (
             {record.priceList && <Tag color="blue">{record.priceList.name}</Tag>}
             {record.costType && <Tag color="orange">{record.costType}</Tag>}
           </div>
-          <p>{record.shortDescription}</p>
+          <p>{record.shortDescription || record.itemDescription}</p>
         </div>
       ),
     },

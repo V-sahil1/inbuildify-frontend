@@ -23,10 +23,15 @@ export const useLeadCreateFields = (
 ): readonly FormField[] => {
   const dispatch = useAppDispatch();
   const { leadSource, status } = useAppSelector(state => state.sales.leadSource);
-  const LeadSourceOptions = leadSource && leadSource.length > 0 && leadSource?.map(item => ({
-    label: enumToReadable(item?.name),
-    value: item?.leadSourceId,
-  }));
+  const LeadSourceOptions =
+    leadSource &&
+    leadSource.length > 0 &&
+    leadSource
+      ?.filter(i => i.isActive)
+      ?.map(item => ({
+        label: enumToReadable(item?.name),
+        value: item?.leadSourceId,
+      }));
 
   async function getLeadSources() {
     try {
@@ -89,7 +94,7 @@ export const useLeadCreateFields = (
       label: 'Send Welcome Letter to Customer',
       name: 'sendLetter',
       type: 'checkbox',
-    }
+    },
   ] as const;
 };
 

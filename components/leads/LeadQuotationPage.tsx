@@ -57,7 +57,7 @@ export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
           {quotation && quotation?.length > 0 && (
             <div className="max-h-[200px] my-2 overflow-y-auto">
               <List
-                dataSource={quotation.slice(-2) || []}
+                dataSource={quotation.slice(0, 2) || []}
                 locale={{
                   emptyText: (
                     <div className="flex flex-col items-center justify-center p-6">

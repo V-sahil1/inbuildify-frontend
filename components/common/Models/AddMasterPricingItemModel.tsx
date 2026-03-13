@@ -78,7 +78,7 @@ const AddMasterPricingItemModal = ({
     if (categoryItem) {
       form.setFieldsValue({
         ...categoryItem,
-        dwellingTypeId: categoryItem?.dwelling?.map(i => i.id),
+        dwellingTypeId: categoryItem?.dwellingType?.map(i => i.id),
         rangeId: categoryItem?.range?.map(i => i.id),
         // ...(categoryItem.conditions?.length > 0 && {
         //   conditions: categoryItem.conditions.map((condition: any) => ({
