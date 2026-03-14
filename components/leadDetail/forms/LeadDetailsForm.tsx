@@ -93,9 +93,8 @@ const LeadDetailsForm: React.FC<LeadDetailsFormProps> = ({
   }, [open]);
 
   const handleOk = async () => {
+    const values = await form.validateFields();
     try {
-      const values = await form.validateFields();
-
       let payload: any = {
         ...values,
         type: showContactForm ? 'add' : 'update',
@@ -112,18 +111,12 @@ const LeadDetailsForm: React.FC<LeadDetailsFormProps> = ({
           state: initialValues.stateName || '',
         };
       }
-
       Object.keys(payload).forEach(key => payload[key] === undefined && delete payload[key]);
-
       const { countryId, stateId, ...rest } = payload;
       await onSubmit(showContactForm ? rest : values);
       setShowContactForm(false);
     } catch (err) {
-      if (err.errorFields) {
-        message.error('Please fill all required fields');
-      } else {
-        message.error('An error occurred. Please try again.');
-      }
+      message.error(err || 'Failed to save contact details');
     }
   };
 

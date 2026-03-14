@@ -37,10 +37,9 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
     const values = await form.validateFields();
     try {
       if (leadDetail?.property) {
-         await dispatch(
+        await dispatch(
           updateLeadProperty({ id: leadDetail?.property?.propertyDetailId, payload: values })
         ).unwrap();
-  
 
         message.success('Lead Property updated successfully');
       } else {
@@ -239,10 +238,13 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
           name="landType"
           rules={[{ required: true, message: 'Please select land type' }]}
         >
-          <Radio.Group>
-            <Radio value="regular">Regular</Radio>
-            <Radio value="irregular">Irregular</Radio>
-          </Radio.Group>
+          <Radio.Group
+            options={[
+              { label: 'Regular', value: 'regular' },
+              { label: 'Irregular', value: 'irregular' },
+            ]}
+            defaultValue="regular"
+          />
         </Form.Item>
 
         {/* Dimensions Section */}
@@ -327,18 +329,24 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item label="Bush Fire" name="bushFire">
-              <Radio.Group>
-                <Radio value={true}>Yes</Radio>
-                <Radio value={false}>No</Radio>
-              </Radio.Group>
+              <Radio.Group
+                options={[
+                  { label: 'Yes', value: true },
+                  { label: 'No', value: false },
+                ]}
+                defaultValue={false}
+              />
             </Form.Item>
           </Col>
           <Col span={12}>
             <Form.Item label="Corner Block" name="cornerBlock">
-              <Radio.Group>
-                <Radio value={true}>Yes</Radio>
-                <Radio value={false}>No</Radio>
-              </Radio.Group>
+              <Radio.Group
+                options={[
+                  { label: 'Yes', value: true },
+                  { label: 'No', value: false },
+                ]}
+                defaultValue={false}
+              />
             </Form.Item>
           </Col>
         </Row>

@@ -1,6 +1,6 @@
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { fetchFloorPlans } from '@redux/feature/floorPlan/floorPlanThunk';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { getFacades } from '@redux/feature/facade/facadeThunk';
 import { fetchPackages } from '@redux/feature/package/packageThunk';
 import { message, Select } from 'antd';
@@ -11,18 +11,15 @@ import { setSelectedFilters } from '@redux/feature/quotation/quotationSlice';
 import { useLocationAndTimezoneHook } from '@hooks/useLocationAndTimezoneHook';
 interface QuotationFilterProps {
   isReadOnly?: boolean;
-  onFilterChange?: () => void;
-  setParams?: (value: Record<string, string>) => void;
-  filters?: Record<string, string>;
-  instantFilters?: Record<string, string>;
+  onFilterChange?: (payload: {
+    type: 'plan' | 'facade' | 'package' | 'range' | 'dwellingType' | 'location';
+    value: string;
+  }) => void;
 }
 
 const QuotationFilter: React.FC<QuotationFilterProps> = ({
   isReadOnly = false,
   onFilterChange,
-  setParams,
-  filters,
-  instantFilters,
 }) => {
   const dispatch = useAppDispatch();
   const { rangeOptions, dwellingTypeOptions } = useDwellingAndRangeHook({
@@ -30,17 +27,27 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({
   });
   const { locationOptions } = useLocationAndTimezoneHook({ type: 'location' });
   const { selectedFilters } = useAppSelector(state => state.quotation);
+  const prevFiltersRef = useRef(selectedFilters);
 
   const newFilters = {
-    dwelling_type_id: filters?.dwellingType || undefined,
-    range_id: filters?.range || undefined,
+    dwelling_type_id: selectedFilters?.dwellingType || undefined,
+    range_id: selectedFilters?.range || undefined,
   };
 
   useEffect(() => {
-    handleFetchFloorPlan();
-    handleFetchFacade();
-    handleFetchPackage();
-  }, [filters]);
+    const prevFilters = prevFiltersRef.current;
+
+    // Check if relevant filters changed
+    const rangeChanged = prevFilters?.range !== selectedFilters?.range;
+    const dwellingTypeChanged = prevFilters?.dwellingType !== selectedFilters?.dwellingType;
+
+    if (rangeChanged || dwellingTypeChanged) {
+      handleFetchFloorPlan();
+      handleFetchFacade();
+      handleFetchPackage();
+    }
+    prevFiltersRef.current = selectedFilters;
+  }, [selectedFilters]);
 
   const handleFetchFloorPlan = async () => {
     try {
@@ -78,9 +85,7 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({
           value={selectedFilters?.location || undefined}
           notFoundContent={<NoDataMessage label="Location type" link={SystemRoutes.PRICELIST} />}
           onChange={value => {
-            dispatch(setSelectedFilters({ ...selectedFilters, location: value }));
-            setParams({ location: value });
-            onFilterChange();
+            onFilterChange({ type: 'location', value });
           }}
           options={locationOptions}
           disabled={isReadOnly}
@@ -94,13 +99,9 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({
           size="small"
           allowClear
           value={selectedFilters?.range || undefined}
-          notFoundContent={
-            <NoDataMessage label="Range type" link={SystemRoutes.DWELLING_AND_RANGE} />
-          }
+          notFoundContent={<NoDataMessage label="Range type" link={SystemRoutes.SALES_RANGE} />}
           onChange={value => {
-            dispatch(setSelectedFilters({ ...selectedFilters, range: value }));
-            setParams({ range: value });
-            onFilterChange();
+            onFilterChange({ type: 'range', value });
           }}
           options={rangeOptions}
           disabled={isReadOnly}
@@ -116,12 +117,10 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({
           allowClear
           value={selectedFilters?.dwellingType || undefined}
           notFoundContent={
-            <NoDataMessage label="dwelling type" link={SystemRoutes.DWELLING_AND_RANGE} />
+            <NoDataMessage label="dwelling type" link={SystemRoutes.SALES_DWELLING_TYPE} />
           }
           onChange={value => {
-            dispatch(setSelectedFilters({ ...selectedFilters, dwellingType: value }));
-            setParams({ dwellingType: value });
-            onFilterChange();
+            onFilterChange({ type: 'dwellingType', value });
           }}
           options={dwellingTypeOptions}
           disabled={isReadOnly}

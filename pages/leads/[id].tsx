@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, message, Spin, Tabs } from 'antd';
+import { useEffect, useMemo, useState } from 'react';
+import { Button, Form, Input, message, Spin, Tabs } from 'antd';
 import StageProgress from '@/components/common/StageProgress';
 import ConvertLeadModal from '@/components/leadDetail/ConvertLeadModal';
 import PropertyDetailsModal from '@/components/leadDetail/PropertyDetailsModal';
-import { IconPlus } from '@tabler/icons-react';
+import { IconCheck, IconMail, IconPhone, IconPlus, IconUser, IconX } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import {
@@ -18,24 +18,18 @@ import {
   getLeadJobThunk,
   getLeadProperty,
   updateLeadJobThunk,
+  updateLeadThunk,
 } from '@redux/feature/lead/leadThunk';
-import { setQuotationContact, setQuotationProperty } from '@redux/feature/quotation/quotationSlice';
-import { getQuotationsByLeadIdThunk } from '@redux/feature/lead/leadThunk';
 import { LeadQuotation } from '@/components/leads/LeadQuotationPage';
 import LeadDetailsForm from '@/components/leadDetail/forms/LeadDetailsForm';
 import { enumToReadable } from '@lib/utils/enumToRedable';
-import { LeadContact } from '@redux/feature/lead/ILeadState';
-import { Quotation, QuotationResponse } from '@redux/feature/quotation/IQuotationState';
+import { Quotation } from '@redux/feature/quotation/IQuotationState';
 import LeadActions from '@/components/leadDetail/LeadActions';
 import { Status } from '@lib/constants/enum';
 import { LeadSource } from '@/components/leads/LeadSource';
 import CloseLeadModal from '@/components/leadDetail/LeadQuotations/CloseLeadModal';
 import ConfirmationModal from '@/components/common/ConfirmationModal';
-import {
-  deleteQuotation,
-  deleteQuotationThunk,
-  getQuotationThunk,
-} from '@redux/feature/quotation/quotationThunk';
+import { deleteQuotationThunk, getQuotationThunk } from '@redux/feature/quotation/quotationThunk';
 import { removeQuotation } from '@redux/feature/lead/leadSlice';
 import DepositModel from '@/components/common/Models/DepositModel';
 import ActivityCard from '@/components/common/ActivityCard';
@@ -57,32 +51,16 @@ import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import { LeadContactPage } from '@/components/leads/LeadContact';
 import { LeadPropertyPage } from '@/components/leads/LeadPropertyPage';
 import LeadQuotations from '@/components/leadDetail/LeadQuotations/LeadQuotations';
+import { emailRules, nameRules, phoneRules } from '@lib/constants/formInputValidations';
 
 const { TabPane } = Tabs;
-export interface Plan {
-  id: string;
-  name: string;
-  bedrooms: number;
-  bathrooms: number;
-  garage: number;
-  area: string;
-}
-
-export interface Facade {
-  id: string;
-  name: string;
-  type: string;
-}
-
-export interface Package {
-  id: string;
-  name: string;
-  price: number;
-  description?: string;
-}
 
 function App() {
+  const [form] = Form.useForm();
   const router = useRouter();
+  const dispatch = useAppDispatch();
+  const { leadDetail, status } = useAppSelector(state => state.lead);
+  const { contact } = useAppSelector(state => state.contact);
   const [modalOpen, setModalOpen] = useState<
     | 'closeLead'
     | 'convert'
@@ -99,22 +77,13 @@ function App() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [selectedQuotationId, setSelectedQuotationId] = useState<string | null>(null);
-  const dispatch = useAppDispatch();
-  const { leadDetail, status } = useAppSelector(state => state.lead);
-  const { contact } = useAppSelector(state => state.contact);
-  const isLoggedIn = useAppSelector(state => state.auth.isAuthenticated);
+  const [isEditingLead, setIsEditingLead] = useState(false);
   const isOpportunity = leadDetail?.lead?.status !== 'New';
   const title = isOpportunity ? 'Opportunity' : 'Lead';
-  const contacts: LeadContact = leadDetail?.contacts;
-  const propertyFromSlice = leadDetail?.property;
   const leadId = router.query.id as string | undefined;
   const createdQuotations: Quotation[] = leadDetail?.createdQuotations?.quotations || [];
-  const latestLeadDetailRef = useRef<any>(null);
   const { columns } = LeadDepositColumn();
   // const isJob = useMemo(() => leadDetail?.lead?.status === "JOB", [leadDetail]);
-  useEffect(() => {
-    latestLeadDetailRef.current = leadDetail;
-  }, [leadDetail]);
 
   useEffect(() => {
     if (leadId) {
@@ -122,23 +91,23 @@ function App() {
     }
   }, [leadId]);
 
-  const primaryContact = contacts;
+  // const primaryContact = contacts;
 
-  useEffect(() => {
-    return () => {
-      if (primaryContact && isLoggedIn) {
-        const latest = latestLeadDetailRef.current;
-        const property = (latest as any)?.property ?? null;
-        dispatch(setQuotationContact(primaryContact));
-        dispatch(setQuotationProperty(property));
-      }
-    };
-  }, [dispatch, primaryContact, isLoggedIn]);
+  // useEffect(() => {
+  //   return () => {
+  //     if (primaryContact && isLoggedIn) {
+  //       const latest = latestLeadDetailRef.current;
+  //       const property = (latest as any)?.property ?? null;
+  //       dispatch(setQuotationContact(contacts));
+  //       dispatch(setQuotationProperty(leadDetail?.property));
+  //     }
+  //   };
+  // }, [dispatch, primaryContact, isLoggedIn]);
 
   async function fetchData() {
     try {
+      await dispatch(getLeadByIdThunk(leadId)).unwrap();
       await Promise.all([
-        dispatch(getLeadByIdThunk(leadId)).unwrap(),
         dispatch(getBusinessContactByIdThunk(leadId)).unwrap(),
         dispatch(getLeadContactMapThunk(leadId)).unwrap(),
         dispatch(getLeadInvoiceThunk(leadId)).unwrap(),
@@ -357,6 +326,27 @@ function App() {
     }
   };
 
+  const handleSaveLead = async () => {
+    try {
+      const values = await form.validateFields();
+      const { name, email, phone } = leadDetail?.lead;
+      const { isUpdated, updatedFields } = getUpdatedFields(values, { name, email, phone });
+      if (!isUpdated) {
+        setIsEditingLead(false);
+        return;
+      }
+      await dispatch(
+        updateLeadThunk({
+          id: leadId,
+          details: updatedFields,
+        })
+      ).unwrap();
+      message.success('Lead details updated successfully');
+      setIsEditingLead(false);
+    } catch (error) {
+      message.error(error || 'Failed to update lead details');
+    }
+  };
   return (
     <div className="grid grid-cols-3 lg:grid-cols-4">
       <div className="col-span-3 lg:col-span-3">
@@ -372,6 +362,56 @@ function App() {
             quotations={createdQuotations}
           />
         </div>
+        <Form
+          form={form}
+          onFinish={handleSaveLead}
+          initialValues={{
+            name: leadDetail?.lead?.name,
+            email: leadDetail?.lead?.email,
+            phone: leadDetail?.lead?.phone,
+          }}
+        >
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 m-3">
+            <Form.Item name="name" rules={nameRules}>
+              <Input
+                addonBefore={<IconUser />}
+                onClick={() => !isEditingLead && setIsEditingLead(true)}
+              />
+            </Form.Item>
+            <Form.Item name="email" rules={emailRules}>
+              <Input
+                addonBefore={<IconMail />}
+                onClick={() => !isEditingLead && setIsEditingLead(true)}
+              />
+            </Form.Item>
+            <Form.Item name="phone" rules={phoneRules}>
+              <Input
+                addonBefore={<IconPhone />}
+                onClick={() => !isEditingLead && setIsEditingLead(true)}
+              />
+            </Form.Item>
+          </div>
+          {isEditingLead && (
+            <div className="flex justify-end gap-2">
+              <Button
+                size="small"
+                type="primary"
+                icon={<IconCheck size={14} />}
+                // onClick={handleSaveLead}
+                htmlType="submit"
+              />
+              <Button
+                size="small"
+                danger
+                icon={<IconX size={14} />}
+                onClick={() => {
+                  form.resetFields();
+                  setIsEditingLead(false);
+                }}
+              />
+            </div>
+          )}
+        </Form>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 m-3">
           {/* Contact Card */}
@@ -453,8 +493,8 @@ function App() {
           loading={loading}
           isEditing={!!leadDetail?.contacts}
           initialValues={{
-            ...primaryContact,
-            secondary_phone: primaryContact?.secondaryPhone,
+            ...leadDetail?.contacts,
+            secondaryPhone: leadDetail?.contacts?.secondaryPhone,
           }}
         />
 
@@ -463,7 +503,7 @@ function App() {
           <PropertyDetailsModal
             visible={modalOpen === 'property'}
             onCancel={() => setModalOpen(null)}
-            initialValues={propertyFromSlice}
+            initialValues={leadDetail?.property}
           />
         )}
         <CloseLeadModal

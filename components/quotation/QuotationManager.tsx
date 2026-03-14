@@ -13,7 +13,7 @@ import {
 } from '@redux/feature/masterPriceList/masterPriceListThunk';
 import { Package } from '@redux/feature/package/IPackageState';
 import { RootState } from '@redux/feature/store';
-import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   createQuotation,
   createQuotationVersionThunk,
@@ -25,6 +25,7 @@ import {
   setQuotationPlan,
   setQuotationFacade,
   setQuotationPackage,
+  setSelectedFilters,
 } from '@redux/feature/quotation/quotationSlice';
 import { message } from 'antd';
 import QuotationFilter from '@/components/quotation/QuotationFilter';
@@ -34,24 +35,17 @@ import { usePdf } from '@hooks/usePdf';
 import calculateTotalQuotation from '@lib/utils/calculateTotalQuotation';
 import SystemRoutes from '@lib/constants/Routes';
 import { useRouter } from 'next/router';
-import { getDwellingTypes, getRanges } from '@redux/feature/types/typesThunk';
 import { clearFilters } from '@redux/feature/facade/facadeSlice';
 import Loading from '../common/Loading';
 import JobDocumentPdf from '../common/pdf/JobDocumentPdf';
 import { IFloorPlanState } from '@redux/feature/floorPlan/IFloorPlanState';
-import { debouncedURL } from '@lib/utils/debounceURL';
-import { QuotationPackage } from '@redux/feature/quotation/IQuotationState';
+import { QuotationVersionDetails } from '@redux/feature/quotation/IQuotationState';
 
 const QuotationManager = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { quoteVersionId } = router.query as { quoteVersionId: string };
-  const [onSelect, setSelect] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
-  const isReadOnly = useMemo(() => !!quoteVersionId && !isEditMode, [quoteVersionId, isEditMode]);
-  const { user } = useAppSelector(state => state.auth);
   const {
-    contact,
     property,
     plan,
     facade,
@@ -63,31 +57,23 @@ const QuotationManager = () => {
     quoteDetails,
     quotation,
   } = useAppSelector((state: RootState) => state.quotation);
-  const lastFetchedFiltersRef = useRef<{ range?: string; dwellingType?: string } | null>(null);
+  const { priceMaster: categoryData, status } = useAppSelector(
+    (state: RootState) => state.masterPriceList
+  );
+  const [onSelect, setSelect] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
-  const canContact = !!contact;
-  const canProperty = property && Object.keys(property).length > 0 && property?.propertyId;
-  const canPlan = plan && Object.keys(plan).length > 0;
-  const canFacade = !!facade;
-  const canSelectedPackageFromSlice = !!selectedPackageFromSlice;
-  const canAction =
-    canContact && canProperty && canPlan && canFacade && canSelectedPackageFromSlice;
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [extraItem, setExtraItem] = useState(false);
+  const lastFetchedFiltersRef = useRef<{ range?: string; dwellingType?: string } | null>(null);
+
   // const isJob = useMemo(() => quoteDetails?.leadStatus === 'JOB', [quoteDetails]);
-  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
-    filtersKey: ['range', 'dwellingType', 'location'],
-    initialValue: {
-      range: quoteDetails?.rangeId || null,
-      dwellingType: quoteDetails?.dwellingTypeId || null,
-      location: quoteDetails?.locationId || null,
-    },
-    shouldSyncURL: false,
-  });
+
   const quotationData = quoteVersionId
     ? quotation?.find(i => i.versions.find(j => j.quotationVersionId === quoteVersionId))
     : quotation[quotation?.length - 1];
-  useEffect(() => {
-    return debouncedUpdateURL.cancel();
-  }, [debouncedUpdateURL]);
+
   useEffect(() => {
     return () => {
       dispatch(clearFilters());
@@ -95,7 +81,39 @@ const QuotationManager = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    const fetchQuotation = async () => {
+    if (quotationData?.quotationId) {
+      fetchQuotation();
+    }
+  }, [dispatch, quotationData?.quotationId]);
+
+  useEffect(() => {
+    if (!!quoteVersionId || !!quotationData) {
+      setIsEditMode(false);
+      fetchQuotationPricelistItem();
+    }
+  }, [quoteVersionId, quotationData]);
+
+  useEffect(() => {
+    if (status.priceMaster === Status.IDLE) {
+      fetchCategoriesData();
+    }
+  }, [dispatch, status]);
+
+  useEffect(() => {
+    if (categoryData.length > 0) {
+      fetchAllCategoryItems();
+    }
+  }, [quotationFilters?.range, quotationFilters?.dwellingType, dispatch, categoryData.length]);
+
+  useEffect(() => {
+    router.events.on('routeChangeStart', handleRouteChange);
+    return () => {
+      router.events.off('routeChangeStart', handleRouteChange);
+    };
+  }, [dispatch, router]);
+
+  const fetchQuotation = async () => {
+    try {
       await dispatch(
         getQuotationVersionById({
           quoteId: quotationData?.quotationId,
@@ -104,141 +122,72 @@ const QuotationManager = () => {
             : quotationData?.versions?.[0]?.quotationVersionId,
         })
       ).unwrap();
-    };
-    if (quotationData?.quotationId) {
-      fetchQuotation();
-    }
-  }, [dispatch, quotationData?.quotationId]);
-
-  // Reset edit mode when quoteId changes
-  useEffect(() => {
-    if (!!quoteVersionId || !!quotationData) {
-      setIsEditMode(false);
-      fetchQuotationPricelistItem();
-    }
-  }, [quoteVersionId, quotationData]);
-
-  // Single unified handler for all changes (floorplan, facade, package)
-  const handleSelectionChange = useCallback(
-    (type: 'plan' | 'facade' | 'package', value: IFloorPlanState | IFacadeState | Package[]) => {
-      switch (type) {
-        case 'plan':
-          dispatch(setQuotationPlan(value as IFloorPlanState));
-          break;
-        case 'facade':
-          dispatch(setQuotationFacade(value as IFacadeState));
-          break;
-        case 'package':
-          dispatch(setQuotationPackage(value as Package[]));
-          break;
-      }
-      setHasChanges(true);
-    },
-    [dispatch]
-  );
-
-  const handleSaveChanges = useCallback(async () => {
-    try {
-      const payload = {
-        rangeId: quotationFilters?.range || null,
-        dwellingTypeId: quotationFilters?.dwellingType || null,
-        floorPlanId: plan?.floorPlanId || null,
-        facadeId: facade?.facadeId || null,
-        locationId: quotationFilters?.location || null,
-        packageId: selectedPackageFromSlice?.map(i => i.packageId) || null,
-      };
-      await dispatch(
-        updateQuotationVersion({ id: quoteDetails?.quotationVersionId, data: payload })
-      ).unwrap();
-      setHasChanges(false);
-      message.success('Changes saved successfully');
     } catch (error) {
-      message.error(error || 'Failed to save changes');
+      message.error(error || 'Faailed to fetch quotation version detail');
     }
-  }, [
-    dispatch,
-    quotationFilters,
-    plan,
-    facade,
-    quoteDetails?.quotationVersionId,
-    selectedPackageFromSlice,
-  ]);
-
-  // Function to check if a field should be disabled
-  // const isFieldDisabled = (fieldName: string) => {
-  //   return !!quoteVersionId && !isEditMode;
-  // };
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [previewLoading, setPreviewLoading] = useState(false);
-  const [extraItem, setExtraItem] = useState(false);
-  const { status: typesStatus } = useAppSelector((state: RootState) => state.types);
-  const { priceMaster: categoryData, status } = useAppSelector(
-    (state: RootState) => state.masterPriceList
-  );
-  // const { categories: mplCategories } = useAppSelector(
-  //   (state: RootState) => state.masterPriceList
-  // );
-  // const { selectedFilters: mplFilters } = useAppSelector(
-  //   (state: RootState) => state.masterPriceList
-  // );
-  const { package: packageFromSlice, items: itemsFromSlice } = useAppSelector(
-    state => state.quotation
-  );
-
-  // const BaseCategory = useMemo(() => mplCategories.find((cat) => cat.name === "base price"), [mplCategories]);
-
-  useEffect(() => {
-    const fetchCategoriesData = async () => {
-      try {
-        await dispatch(fetchPricelistMaster({})).unwrap();
-      } catch (e) {
-        message.error(e || 'Failed to fetch categories');
+  };
+  const handleSelectionChange = useCallback(
+    async (
+      type: 'plan' | 'facade' | 'package' | 'range' | 'dwellingType' | 'location',
+      value: IFloorPlanState | IFacadeState | Package[] | string
+    ) => {
+      if (!value) {
+        return;
       }
-    };
-    if (status.priceMaster === Status.IDLE) {
-      fetchCategoriesData();
-    }
-  }, [dispatch, status]);
-
-  useEffect(() => {
-    const fetchTypesData = async () => {
       try {
-        if (typesStatus?.range === Status.IDLE) {
-          await dispatch(getRanges()).unwrap();
+        const payload: Partial<QuotationVersionDetails> = {};
+        switch (type) {
+          case 'plan':
+            dispatch(setQuotationPlan(value as IFloorPlanState));
+            payload.floorPlanId = (value as IFloorPlanState)?.floorPlanId || null;
+            break;
+          case 'facade':
+            dispatch(setQuotationFacade(value as IFacadeState));
+            payload.facadeId = (value as IFacadeState)?.facadeId || null;
+            break;
+          case 'package':
+            dispatch(setQuotationPackage(value as Package[]));
+            payload.packageId = (value as Package[])?.map(i => i.packageId) || null;
+            break;
+          case 'range':
+            dispatch(setSelectedFilters({ ...quotationFilters, range: value }));
+            payload.rangeId = (value as string) || null;
+            break;
+          case 'dwellingType':
+            dispatch(setSelectedFilters({ ...quotationFilters, dwellingType: value }));
+            payload.dwellingTypeId = (value as string) || null;
+            break;
+          case 'location':
+            dispatch(setSelectedFilters({ ...quotationFilters, location: value }));
+            payload.locationId = (value as string) || null;
+            break;
         }
-        if (typesStatus?.dwellingType === Status.IDLE) {
-          await dispatch(getDwellingTypes()).unwrap();
-        }
+        await dispatch(
+          updateQuotationVersion({ id: quoteDetails?.quotationVersionId, data: payload })
+        ).unwrap();
+        setHasChanges(false);
+        message.success('Changes saved successfully');
       } catch (error) {
-        message.error(error);
+        message.error(error || 'Failed to save changes');
       }
-    };
-    fetchTypesData();
-  }, [dispatch]);
+    },
+    [dispatch, quotationFilters]
+  );
 
-  useEffect(() => {
-    const handleRouteChange = (url: string) => {
-      if (!url.startsWith(`/${SystemRoutes.QUOTATION}`)) {
-        dispatch(clearQuotation());
-      }
-    };
-    router.events.on('routeChangeStart', handleRouteChange);
-    return () => {
-      router.events.off('routeChangeStart', handleRouteChange);
-    };
-  }, [dispatch, router]);
-
-  useEffect(() => {
-    if (categoryData.length > 0) {
-      fetchAllCategoryItems();
+  const handleRouteChange = (url: string) => {
+    if (!url.startsWith(`/${SystemRoutes.QUOTATION}`)) {
+      dispatch(clearQuotation());
     }
-  }, [
-    quotationFilters?.range,
-    quotationFilters?.dwellingType,
-    dispatch,
-    categoryData.length,
-    items, // dependency so INCLUDED sync works correctly
-  ]);
+  };
+
+  const fetchCategoriesData = async () => {
+    try {
+      await dispatch(fetchPricelistMaster({})).unwrap();
+    } catch (e) {
+      message.error(e || 'Failed to fetch categories');
+    }
+  };
+
   const { previewPdf } = usePdf(JobDocumentPdf);
   const getCategoryById = useCallback(
     (categoryId: string) => categoryData.find(cat => cat.priceListId === categoryId),
@@ -303,38 +252,6 @@ const QuotationManager = () => {
       ).unwrap();
     } catch (error) {
       message.error(error || 'Faied to fetch quotation items');
-    }
-  };
-
-  const handleFetchCategoryItems = async (categoryId: string) => {
-    setSelectedCategory(categoryId);
-    const currentCategory = getCategoryById(categoryId);
-    if (currentCategory) {
-      setExtraItem(false);
-    }
-
-    if (!currentCategory?.isExpanded) {
-      dispatch(toggleExpand(categoryId));
-      try {
-        const response = await dispatch(
-          fetchCategoryItems({
-            price_list_id: categoryId,
-            range_id: quotationFilters.range,
-            dwelling_type_id: quotationFilters.dwellingType,
-          })
-        ).unwrap();
-        // console.log("🚀 ~ handleFetchCategoryItems ~ response:", response);
-        // if(response.categoryId === BaseCategory?.categoryId){
-        //   const mappedItems = response.items.map((item) => ({
-        //     itemId: item.categoryItemId,
-        //     quantity: 1,
-        //     price: Number(item.cost),
-        //   }));
-        //   dispatch(setQuotationBaseItems(mappedItems));
-        // }
-      } catch (error) {
-        message.error(error || 'Failed to fetch category items');
-      }
     }
   };
 
@@ -437,10 +354,10 @@ const QuotationManager = () => {
   //         : category.items.priceListItem || [];
   //       const matchedItems = categoryItems
   //         .filter(catItem =>
-  //           itemsFromSlice.some(sel => sel.priceListItemId === catItem.priceListItemId)
+  //           items.some(sel => sel.priceListItemId === catItem.priceListItemId)
   //         )
   //         .map(catItem => {
-  //           const selected = itemsFromSlice.find(
+  //           const selected = items.find(
   //             sel => sel.priceListItemId === catItem.priceListItemId
   //           );
 
@@ -469,8 +386,10 @@ const QuotationManager = () => {
   // };
 
   const handleExtraClick = () => {
-    setExtraItem(true);
     setSelectedCategory(null);
+    setTimeout(() => {
+      setExtraItem(true);
+    }, 0);
   };
 
   // if (quoteVersionId && quotationStatus?.getById === Status.ERROR) {
@@ -541,16 +460,14 @@ const QuotationManager = () => {
         />
         <QuotationFilter
           isReadOnly={quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0)}
-          onFilterChange={() => {
+          onFilterChange={({ type, value }) => {
+            handleSelectionChange(type, value);
             setHasChanges(true);
             setSelectedCategory(null);
             dispatch(setQuotationPackage([]));
             dispatch(setQuotationFacade(null));
             dispatch(setQuotationPlan(null));
           }}
-          setParams={setParams}
-          filters={filters}
-          instantFilters={instantFilters}
         />
       </div>
 
@@ -579,7 +496,10 @@ const QuotationManager = () => {
                 <CategorySidebar
                   categories={categoryData}
                   selectedCategory={selectedCategory}
-                  onCategorySelect={handleFetchCategoryItems}
+                  onCategorySelect={categoryId => {
+                    setSelectedCategory(categoryId);
+                    setExtraItem(false);
+                  }}
                   setSelect={setSelect}
                 />
               )}
@@ -617,7 +537,7 @@ const QuotationManager = () => {
       <div className="m-3">
         <FooterActions
           id={quotationData?.referenceNumber || ''}
-          total={calculateTotalQuotation(packageFromSlice, itemsFromSlice, Number(facade?.cost))}
+          total={calculateTotalQuotation(selectedPackageFromSlice, items, Number(facade?.cost))}
           quoteVersionId={quoteVersionId || quotationData?.versions?.[0]?.quotationVersionId}
           isEditMode={isEditMode}
           onEdit={() => setIsEditMode(true)}
@@ -628,7 +548,6 @@ const QuotationManager = () => {
           previewLoading={previewLoading}
           loading={quotationStatus.create === Status.PENDING}
           hasUnsavedChanges={hasChanges}
-          onSaveChanges={handleSaveChanges}
           onCreateNewVersion={handleCreateNewVersion}
           handleCustomSection={handleCustomSection}
         />

@@ -1,20 +1,9 @@
 import React, { useState } from 'react';
 import { Button, Dropdown, Input, Space } from 'antd';
-import {
-  IconEye,
-  IconDeviceFloppy,
-  IconFileTypePdf,
-  IconFileTypeXls,
-} from '@tabler/icons-react';
+import { IconEye, IconFileTypePdf, IconFileTypeXls } from '@tabler/icons-react';
 import { ConfirmationContentModal } from '../common/ConfirmationContentModal';
 import { ActionDialogmodel } from '../common/Models/ActionDialogModel';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import {
-  setQuotationFacade,
-  setQuotationPackage,
-  setQuotationPlan,
-} from '@redux/feature/quotation/quotationSlice';
-import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 
 interface FooterActionsProps {
   id?: string;
@@ -29,7 +18,6 @@ interface FooterActionsProps {
   previewLoading: boolean;
   disableAction: boolean;
   hasUnsavedChanges?: boolean;
-  onSaveChanges?: () => void;
   onCreateNewVersion?: () => void;
   handleCustomSection?: (values: any) => void;
 }
@@ -47,7 +35,6 @@ const FooterActions: React.FC<FooterActionsProps> = ({
   previewLoading,
   disableAction,
   hasUnsavedChanges = false,
-  onSaveChanges,
   onCreateNewVersion,
   handleCustomSection,
 }) => {
@@ -209,39 +196,6 @@ const FooterActions: React.FC<FooterActionsProps> = ({
           <Button type="primary" loading={loading} disabled={disableAction}>
             View Opprtunity
           </Button>
-
-          {hasUnsavedChanges && onSaveChanges && (
-            <div className="flex gap-4">
-              <Button
-                type="primary"
-                icon={<IconDeviceFloppy size={16} />}
-                onClick={onSaveChanges}
-                loading={loading}
-                disabled={disableAction}
-              >
-                Save Changes
-              </Button>
-              <Button
-                icon={<IconDeviceFloppy size={16} />}
-                onClick={() => {
-                  const { isUpdated } = getUpdatedFields(
-                    { package: quoteDetails?.packages },
-                    { package: packageData }
-                  );
-                  isUpdated && dispatch(setQuotationPackage(quoteDetails?.packages));
-                  quoteDetails?.floorPlan?.floorPlanId !== plan?.floorPlanId &&
-                    dispatch(setQuotationPlan(quoteDetails?.floorPlan));
-                  quoteDetails?.facade?.facadeId !== facade?.facadeId &&
-                    dispatch(setQuotationFacade(quoteDetails?.facade));
-                  onCancel();
-                }}
-                loading={loading}
-                disabled={disableAction}
-              >
-                Cancel
-              </Button>
-            </div>
-          )}
         </Space>
       </div>
 

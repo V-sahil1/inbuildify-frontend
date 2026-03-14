@@ -58,7 +58,8 @@ class SystemRoutes {
   public static CONSTRUCTION_STAGE = `${this.ADMIN}/${this.CONSTRUCTION}/?tab=stages`;
   public static CONSTRUCTION_OPTION = `${this.ADMIN}/${this.CONSTRUCTION}/?tab=options`;
   public static CONSTRUCTION_INSPETION_CHECKLIST = `${this.ADMIN}/${this.CONSTRUCTION}/?tab=inspection-checklist`;
-  public static SALES_DWELLING_TYPE = `${this.ADMIN}/sales/?tab=dwelling-type`;
+  public static SALES_DWELLING_TYPE = `${this.ADMIN}/${this.SALES_DASHBOARD}/?tab=dwelling-type`;
+  public static SALES_RANGE = `${this.ADMIN}/${this.SALES_DASHBOARD}/?tab=range`;
 }
 
 export default SystemRoutes;

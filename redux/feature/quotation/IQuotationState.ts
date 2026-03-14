@@ -104,6 +104,7 @@ export type QuotationVersionDetails = {
   dwellingTypeId: string | null;
   floorPlanId: string | null;
   facadeId: string | null;
+  packageId:string[]
   isApprove: boolean;
   sketchNumber: string | null;
   createdAt: string;

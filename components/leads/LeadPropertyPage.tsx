@@ -1,5 +1,5 @@
 import { useAppSelector } from '@hooks/redux';
-import { IconBarrierBlock, IconEdit, IconTrash } from '@tabler/icons-react';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { Button, Card, Popconfirm, Tooltip, Typography } from 'antd';
 import dayjs from 'dayjs';
 
@@ -49,10 +49,10 @@ export const LeadPropertyPage = ({ setModalOpen, handleDeleteJobDetail }) => {
           </>
         )}
       </div>
-      {propertyFromSlice?.addressLine1 ||
-      propertyFromSlice?.city ||
-      propertyFromSlice?.stateName ||
-      propertyFromSlice?.zipCode ? (
+      {(propertyFromSlice?.addressLine1 ||
+        propertyFromSlice?.city ||
+        propertyFromSlice?.stateName ||
+        propertyFromSlice?.zipCode) && (
         <>
           <Tooltip title={propertyFromSlice?.addressLine1}>
             <Typography.Title
@@ -84,14 +84,6 @@ export const LeadPropertyPage = ({ setModalOpen, handleDeleteJobDetail }) => {
             </p>
           </div>
         </>
-      ) : (
-        leadDetail?.lead?.status !== 'New' && (
-          <div className="flex flex-col items-center justify-center p-6 rounded-lg">
-            <IconBarrierBlock />
-            <p className="text-sm text-gray-500 text-center">No property details added yet</p>
-            <p className="text-xs text-gray-400 mt-1">Add property information to get started</p>
-          </div>
-        )
       )}
     </Card>
   );
