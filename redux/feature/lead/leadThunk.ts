@@ -405,7 +405,7 @@ export const getLeadContactMapThunk = createAsyncThunk(
   'leadContactMap/get',
   async (leadsId: string, { rejectWithValue }) => {
     try {
-      const response: ApiResponse<LeadContact> = await api.get(
+      const response: ApiResponse<LeadContact[]> = await api.get(
         API_ENDPOINTS.LEAD_CONTACT_MAP + '/' + leadsId
       );
       return response.data;

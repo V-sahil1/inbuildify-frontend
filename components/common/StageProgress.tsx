@@ -52,18 +52,18 @@ const actions = [
     key: 'delete',
     label: 'Delete',
   },
-  // {
-  //   key: "onhold",
-  //   label: "On Hold",
-  // },
-  // {
-  //   key: "blocklist",
-  //   label: "Blocklist",
-  // },
-  // {
-  //   key: "referanceid",
-  //   label: "Referance ID",
-  // },
+  {
+    key: "onhold",
+    label: "On Hold",
+  },
+  {
+    key: "blocklist",
+    label: "Blocklist",
+  },
+  {
+    key: "referanceid",
+    label: "Referance ID",
+  },
   {
     key: 'converttolead',
     label: 'Convert to Lead',
@@ -241,16 +241,22 @@ const StageProgress: React.FC<StageProgressProps> = ({
             view job
           </Button>
         )}
-        {lead?.lead?.status === 'COMPLETED' && (
-          <>
-            <button className="btn btn-success rounded-md p-1" onClick={handleWinClick}>
-              Won
-            </button>
-            <button className="btn bg-red-500 rounded-md p-1 text-white" onClick={handleLoseClick}>
-              Lost
-            </button>
-          </>
-        )}
+        {
+          // lead?.lead?.status === 'COMPLETED'
+          showOptions && (
+            <>
+              <button className="btn btn-success rounded-md p-1" onClick={handleWinClick}>
+                Won
+              </button>
+              <button
+                className="btn bg-red-500 rounded-md p-1 text-white"
+                onClick={handleLoseClick}
+              >
+                Lost
+              </button>
+            </>
+          )
+        }
         {showOptions && (
           <Dropdown
             open={dropdownVisible}

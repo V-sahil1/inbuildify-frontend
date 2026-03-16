@@ -130,13 +130,14 @@ function App() {
 
   const handleEditLeadSubmit = async values => {
     try {
-      if (leadDetail?.contacts) {
+      const { type, ...rest } = values;
+      if (type === 'update') {
         const res = await dispatch(
-          updateContact({ id: leadDetail?.contacts?.contactId, data: values })
+          updateContact({ id: leadDetail?.contacts?.[0]?.contactId, data: rest })
         ).unwrap();
         message.success('Contact updated successfully');
       } else {
-        const res = await dispatch(createContact(values)).unwrap();
+        const res = await dispatch(createContact(rest)).unwrap();
         await dispatch(
           createLeadContactMapThunk({
             leadsId: leadId!,
@@ -189,7 +190,7 @@ function App() {
 
   const handleDeleteContact = async () => {
     try {
-      await dispatch(deleteLeadContactMapThunk(leadDetail?.contacts?.id));
+      await dispatch(deleteLeadContactMapThunk(leadDetail?.contacts?.[0]?.id));
       message.success('Contact removed successfully');
     } catch (error) {
       message.error('Failed to remove lead contact');
@@ -491,11 +492,8 @@ function App() {
           onCancel={() => setModalOpen(null)}
           onSubmit={handleEditLeadSubmit}
           loading={loading}
-          isEditing={!!leadDetail?.contacts}
-          initialValues={{
-            ...leadDetail?.contacts,
-            secondaryPhone: leadDetail?.contacts?.secondaryPhone,
-          }}
+          isEditing={!!leadDetail?.contacts?.[0]}
+          initialValues={leadDetail?.contacts?.[0]}
         />
 
         {/* Property Details Modal */}

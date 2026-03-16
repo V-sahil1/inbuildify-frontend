@@ -30,29 +30,32 @@ export const LeadContactPage = ({ setModalOpen, handleOpenContactModal, handleDe
               <IconEdit
                 className="text-gray-400 text-sm cursor-pointer hover:text-gray-600"
                 onClick={() => setModalOpen('contact')}
-                size={15}
+              
               />
-              <Popconfirm
+              {/* <Popconfirm
                 title="Are you sure you want to delete lead contact?"
                 onConfirm={() => handleDeleteContact()}
               >
-                <IconTrash className="text-red-400 text-sm cursor-pointer hover:text-red-600" size={15} />
-              </Popconfirm>
+                <IconTrash
+                  className="text-red-400 text-sm cursor-pointer hover:text-red-600"
+                  size={15}
+                />
+              </Popconfirm> */}
             </div>
           </div>
-          <h2 className="font-semibold text-lg">{leadDetail?.contacts?.name ?? '-'}</h2>
+          <h2 className="font-semibold text-lg">{leadDetail?.contacts?.[0]?.name ?? '-'}</h2>
           <p className="text-sm">
             {enumToReadable(leadDetail?.lead?.leadSourceName) || 'Lead Source not provided'}
           </p>
 
           <div className="flex items-center gap-2 mt-2">
             <IconPhoneCall className="w-4 h-4" />
-            <span className="text-sm">{leadDetail?.contacts?.phone ?? 'N/A'}</span>
+            <span className="text-sm">{leadDetail?.contacts?.[0]?.phone ?? 'N/A'}</span>
           </div>
 
           <div className="flex items-center gap-2 mt-1">
             <IconMail className="w-4 h-4" />
-            <span className="text-sm">{leadDetail?.contacts?.email ?? 'N/A'}</span>
+            <span className="text-sm">{leadDetail?.contacts?.[0]?.email ?? 'N/A'}</span>
           </div>
         </Card>
       )}

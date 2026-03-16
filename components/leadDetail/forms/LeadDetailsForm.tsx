@@ -60,12 +60,14 @@ const LeadDetailsForm: React.FC<LeadDetailsFormProps> = ({
   const handleAddressToggle = (checked: boolean) => {
     setHideAddressForm(checked);
     form.setFieldsValue({
-      address1: undefined,
-      address2: undefined,
-      city: undefined,
-      zip: undefined,
-      countryId: undefined,
-      stateId: undefined,
+      address: {
+        addressLine1: undefined,
+        addressLine2: undefined,
+        city: undefined,
+        zipCode: undefined,
+        countryId: undefined,
+        stateId: undefined,
+      },
     });
   };
 
@@ -103,17 +105,15 @@ const LeadDetailsForm: React.FC<LeadDetailsFormProps> = ({
       if (showContactForm && initialValues && hideAddressForm) {
         payload = {
           ...payload,
-          address1: initialValues.address1 || '',
-          address2: initialValues.address2 || '',
-          city: initialValues.city || '',
-          zip: initialValues.zip || '',
-          country: initialValues.countryName || '',
-          state: initialValues.stateName || '',
+          address: initialValues.address || {},
         };
       }
       Object.keys(payload).forEach(key => payload[key] === undefined && delete payload[key]);
       const { countryId, stateId, ...rest } = payload;
-      await onSubmit(showContactForm ? rest : values);
+      delete payload.hideAddressForm;
+
+      console.log('payload', rest, initialValues);
+      await onSubmit(payload);
       setShowContactForm(false);
     } catch (err) {
       message.error(err || 'Failed to save contact details');

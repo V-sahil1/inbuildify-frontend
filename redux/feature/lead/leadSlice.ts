@@ -58,7 +58,7 @@ const initialState: InitialState = {
   addInstSourceModal: false,
   leadDetail: {
     lead: null,
-    contacts: null,
+    contacts: [],
     property: null,
     createdQuotations: { quotations: [] },
     job: null,
@@ -72,7 +72,7 @@ export const leadSlice = createSlice({
     clearLeadDetail: state => {
       state.leadDetail = {
         lead: null,
-        contacts: null,
+        contacts: [],
         property: null,
         createdQuotations: { quotations: [] },
         job: null,
@@ -403,7 +403,7 @@ export const leadSlice = createSlice({
       state.status.leadContact = Status.PENDING;
     });
     builder.addCase(createLeadContactMapThunk.fulfilled, (state, action) => {
-      state.leadDetail.contacts = action.payload || null;
+      state.leadDetail.contacts.push(action.payload);
       state.status.leadContact = Status.SUCCESS;
     });
     builder.addCase(createLeadContactMapThunk.rejected, state => {
@@ -423,7 +423,9 @@ export const leadSlice = createSlice({
       state.status.leadContact = Status.PENDING;
     });
     builder.addCase(updateContact.fulfilled, (state, action) => {
-      state.leadDetail.contacts = { ...state.leadDetail.contacts, ...action.payload };
+      state.leadDetail.contacts = state.leadDetail.contacts.map(i =>
+        i.contactId === action.payload.usersId ? { ...i, ...action.payload } : i
+      );
       state.status.leadContact = Status.SUCCESS;
     });
     builder.addCase(updateContact.rejected, state => {
@@ -432,8 +434,10 @@ export const leadSlice = createSlice({
     builder.addCase(deleteLeadContactMapThunk.pending, state => {
       state.status.leadContact = Status.PENDING;
     });
-    builder.addCase(deleteLeadContactMapThunk.fulfilled, state => {
-      state.leadDetail.contacts = null;
+    builder.addCase(deleteLeadContactMapThunk.fulfilled, (state, action) => {
+      state.leadDetail.contacts = state.leadDetail.contacts.filter(
+        i => i.contactId !== action.meta.arg
+      );
       state.status.leadContact = Status.SUCCESS;
     });
     builder.addCase(deleteLeadContactMapThunk.rejected, state => {

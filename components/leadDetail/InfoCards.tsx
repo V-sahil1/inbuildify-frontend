@@ -70,22 +70,22 @@ const InfoCards: React.FC<InfoCardsProps> = ({
     try {
       setLoading(true);
       const response = await dispatch(
-        updateContact({ id: leadDetail?.contacts?.contactId, data: values })
+        updateContact({ id: leadDetail?.contacts?.[0]?.contactId, data: details })
       ).unwrap();
       message.success('Lead updated successfully');
 
       // Transform IContact to LeadContact for setQuotationContact
       const leadContact: LeadContact = {
-        ...leadDetail?.contacts,
+        ...leadDetail?.contacts?.[0],
         ...response,
-        id: leadDetail?.contacts?.id || response.usersId,
-        leadsId: leadDetail?.contacts?.leadsId || leadDetail?.lead?.leadsId,
+        id: leadDetail?.contacts?.[0]?.id || response.usersId,
+        leadsId: leadDetail?.contacts?.[0]?.leadsId || leadDetail?.lead?.leadsId,
         contactId: response.usersId,
         usersId: response.usersId,
-        roleId: leadDetail?.contacts?.roleId || '',
-        addressId: leadDetail?.contacts?.addressId || '',
-        hasLogin: leadDetail?.contacts?.hasLogin || false,
-        createdAt: leadDetail?.contacts?.createdAt || response.createdAt,
+        roleId: leadDetail?.contacts?.[0]?.roleId || '',
+        addressId: leadDetail?.contacts?.[0]?.addressId || '',
+        hasLogin: leadDetail?.contacts?.[0]?.hasLogin || false,
+        createdAt: leadDetail?.contacts?.[0]?.createdAt || response.createdAt,
         updatedAt: new Date().toISOString(),
       };
 
@@ -130,22 +130,20 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           {!isReadOnly && <IconEdit className="text-gray-400 text-sm" />}
         </div>
         <div className="space-y-2">
-          <div className="font-semibold text-font-color">
-            {quoteDetails?.leadContacts?.[0]?.name}
-          </div>
+          <div className="font-semibold text-font-color">{leadDetail?.contacts?.[0]?.name}</div>
           <div className="flex items-center text-sm text-font-color-100">
             <IconPhone size={14} className="mr-1 text-font-color-100" />
-            {quoteDetails?.leadContacts?.[0]?.phone || 'N/A'}
+            {leadDetail?.contacts?.[0]?.phone || 'N/A'}
           </div>
           <div className="flex items-center text-sm text-font-color-100">
             <IconMail size={14} className="mr-1 text-font-color-100" />
-            {quoteDetails?.leadContacts?.[0]?.email || 'N/A'}
+            {leadDetail?.contacts?.[0]?.email || 'N/A'}
           </div>
-          {quoteDetails?.leadContacts?.[0]?.address?.addressLine1 && (
+          {leadDetail?.contacts?.[0]?.address?.addressLine1 && (
             <div className="flex items-start text-sm text-font-color-100">
               <IconMapPin size={14} className="mr-1 mt-0.5 text-font-color-100 flex-shrink-0" />
               <span className="line-clamp-2">
-                {quoteDetails?.leadContacts?.[0]?.address?.addressLine1 || 'Not provided'}
+                {leadDetail?.contacts?.[0]?.address?.addressLine1 || 'Not provided'}
               </span>
             </div>
           )}
@@ -349,7 +347,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           onSubmit={handleEditLeadSubmit}
           loading={loading}
           isEditing={true}
-          initialValues={leadDetail?.contacts}
+          initialValues={leadDetail?.contacts?.[0]}
         />
       )}
 

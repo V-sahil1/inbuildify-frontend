@@ -19,7 +19,7 @@ export interface InitialState {
   addInstSourceModal: boolean;
   leadDetail: {
     lead: Lead | null;
-    contacts: LeadContact | null;
+    contacts: LeadContact[] | null;
     property: PropertyDetail | null;
     createdQuotations: { quotations: Quotation[] };
     job: ILeadJob | null;
