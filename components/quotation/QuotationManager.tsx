@@ -17,6 +17,7 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   createQuotation,
   createQuotationVersionThunk,
+  getQuotationCustomSection,
   getQuotationPricelistThunk,
   getQuotationVersionById,
   updateQuotationVersion,
@@ -90,6 +91,7 @@ const QuotationManager = () => {
     if (!!quoteVersionId || !!quotationData) {
       setIsEditMode(false);
       fetchQuotationPricelistItem();
+      fetchQuotationCustomSection();
     }
   }, [quoteVersionId, quotationData]);
 
@@ -193,6 +195,18 @@ const QuotationManager = () => {
     (categoryId: string) => categoryData.find(cat => cat.priceListId === categoryId),
     [categoryData]
   );
+
+  const fetchQuotationCustomSection = async () => {
+    try {
+      await dispatch(
+        getQuotationCustomSection(
+          quoteVersionId ?? quotationData?.versions?.[0]?.quotationVersionId
+        )
+      ).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch custom section');
+    }
+  };
 
   const fetchAllCategoryItems = async () => {
     if (!quotationFilters?.range || !quotationFilters?.dwellingType) return;
@@ -443,13 +457,6 @@ const QuotationManager = () => {
     }
   };
 
-  const handleCustomSection = async values => {
-    try {
-    } catch (error) {
-      message.error('Failed to save custom section');
-    }
-  };
-
   return (
     <>
       <div className="m-3 flex justify-between items-center">
@@ -549,7 +556,6 @@ const QuotationManager = () => {
           loading={quotationStatus.create === Status.PENDING}
           hasUnsavedChanges={hasChanges}
           onCreateNewVersion={handleCreateNewVersion}
-          handleCustomSection={handleCustomSection}
         />
       </div>
     </>

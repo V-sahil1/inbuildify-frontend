@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Checkbox, Button, Table, message, Tag } from 'antd';
-import { Quotation, QuotationVersionDetails } from '@redux/feature/quotation/IQuotationState';
+import {
+  IQuotationItem,
+  Quotation,
+  QuotationVersionDetails,
+} from '@redux/feature/quotation/IQuotationState';
 import { getQuotationCompareThunk } from '@redux/feature/quotation/quotationThunk';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { usePdf } from '@hooks/usePdf';
@@ -16,7 +20,7 @@ interface Props {
 
 const LeadQuotationComparison: React.FC<Props> = ({ open, onClose, quotation }) => {
   const [selectedVersions, setSelectedVersions] = useState<QuotationVersionDetails[]>([]);
-  const [comparisonResult, setComparisonResult] = useState<any[]>([]);
+  const [comparisonResult, setComparisonResult] = useState<IQuotationItem[]>([]);
   const [showAll, setShowAll] = useState(true);
   const quotations = useAppSelector(state => state.quotation.quotation);
   const { leadDetail } = useAppSelector(state => state.lead);
@@ -175,11 +179,16 @@ const LeadQuotationComparison: React.FC<Props> = ({ open, onClose, quotation }) 
             align="center"
             render={(_, record) => (
               <div className="text-font-color align-middle">
-                <div className="font-bold">
+                <div className="text-sm">
                   {record.type === 'pricelist_item'
                     ? record.version1TotalPrice || '-'
                     : record.version1Value || '-'}
                 </div>
+                {record.type === 'pricelist_item' && (
+                  <div className="text-xs text-font-color-100">
+                    {Math.floor(record.version1Quantity) + '*' + record.itemCost}
+                  </div>
+                )}
               </div>
             )}
           />
@@ -198,11 +207,16 @@ const LeadQuotationComparison: React.FC<Props> = ({ open, onClose, quotation }) 
             align="center"
             render={(_, record) => (
               <div className="text-font-color align-middle">
-                <div className="text-xs text-gray-500">
+                <div className="text-sm">
                   {record.type === 'pricelist_item'
                     ? record.version2TotalPrice || '-'
                     : record.version2Value || '-'}
                 </div>
+                {record.type === 'pricelist_item' && (
+                  <div className="text-xs  text-font-color-100">
+                    {Math.floor(record.version2Quantity) + '*' + record.itemCost}
+                  </div>
+                )}
               </div>
             )}
           />

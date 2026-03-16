@@ -8,7 +8,7 @@ const calculateTotalQuotation = (
   facadeCost: number
 ) => {
   let total = Number(packageFromSlice?.price) || 0;
-  total += Number(facadeCost) || 0;
+  // total += Number(facadeCost) || 0;
   // const packageItemIds = new Set((packageFromSlice?.categoryItems || []).map(ci => ci.id));
   itemsFromSlice?.forEach(item => {
     // if (!packageItemIds?.has(item.priceListItemId)) {

@@ -1,9 +1,17 @@
 import React, { useState } from 'react';
-import { Button, Dropdown, Input, Space } from 'antd';
+import { Button, Dropdown, Input, Space, message } from 'antd';
 import { IconEye, IconFileTypePdf, IconFileTypeXls } from '@tabler/icons-react';
 import { ConfirmationContentModal } from '../common/ConfirmationContentModal';
 import { ActionDialogmodel } from '../common/Models/ActionDialogModel';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import CustomSectionModal from '../common/CustomSectionModal';
+import { formDataGenerator } from '@lib/utils/formDataGenerator';
+import {
+  createQuotationCustomSection,
+  deleteQuotationCustomSection,
+  updateQuotationCustomSection,
+} from '@redux/feature/quotation/quotationThunk';
+import { Status } from '@lib/constants/enum';
 
 interface FooterActionsProps {
   id?: string;
@@ -19,7 +27,6 @@ interface FooterActionsProps {
   disableAction: boolean;
   hasUnsavedChanges?: boolean;
   onCreateNewVersion?: () => void;
-  handleCustomSection?: (values: any) => void;
 }
 
 const FooterActions: React.FC<FooterActionsProps> = ({
@@ -36,15 +43,9 @@ const FooterActions: React.FC<FooterActionsProps> = ({
   disableAction,
   hasUnsavedChanges = false,
   onCreateNewVersion,
-  handleCustomSection,
 }) => {
   const dispatch = useAppDispatch();
-  const {
-    plan,
-    facade,
-    package: packageData,
-    quoteDetails,
-  } = useAppSelector(state => state.quotation);
+  const { quoteDetails, customSections, status } = useAppSelector(state => state.quotation);
   const [modalOpen, setModalOpen] = useState<'approval' | 'save' | 'custom' | null>(null);
   const [sketchNum, setSketchNum] = useState('');
   const previewMenu = [
@@ -98,6 +99,37 @@ const FooterActions: React.FC<FooterActionsProps> = ({
   const handlePreview = key => {
     if (key === 'quotation') {
       onPreview();
+    }
+  };
+
+  const handleCustomSectionSave = async (values: File, id: string) => {
+    try {
+      if (!!id) {
+        const formData = formDataGenerator({
+          fileUrl: values,
+        });
+        await dispatch(updateQuotationCustomSection({ data: formData, id })).unwrap();
+        message.success('Custom section updated successfully!');
+      } else {
+        const formData = formDataGenerator({
+          quotationVersionId: quoteDetails?.quotationVersionId,
+          fileUrl: values,
+          sortOrder: quoteDetails?.customSections?.length + 1 || 1,
+        });
+        await dispatch(createQuotationCustomSection(formData)).unwrap();
+        message.success('Custom section saved successfully!');
+      }
+    } catch (error) {
+      message.error(error || 'Failed to save custom section');
+    }
+  };
+
+  const handleCustomSectionDelete = async (id: string) => {
+    try {
+      await dispatch(deleteQuotationCustomSection(id)).unwrap();
+      message.success('Custom section deleted successfully!');
+    } catch (error) {
+      message.error(error || 'Failed to delete custom section');
     }
   };
 
@@ -233,21 +265,15 @@ const FooterActions: React.FC<FooterActionsProps> = ({
       )}
 
       {modalOpen === 'custom' && (
-        <ActionDialogmodel
-          title="Custom Section"
+        <CustomSectionModal
           open={modalOpen === 'custom'}
-          onCancel={() => setModalOpen(null)}
-          onSubmit={values => {
-            handleCustomSection(values);
-          }}
-          fields={[
-            {
-              label: 'attachFiles',
-              name: 'attachFiles',
-              type: 'image',
-              extra: 'Custom Section Attachment will be attached along with quotation Pdf',
-            },
-          ]}
+          onClose={() => setModalOpen(null)}
+          onSubmit={handleCustomSectionSave}
+          onDelete={handleCustomSectionDelete}
+          data={customSections || []}
+          title="Property Documents"
+          message="Custom Section Attachment will be attached along with quotation Pdf"
+          loading={status.customSection === Status.PENDING}
         />
       )}
     </div>

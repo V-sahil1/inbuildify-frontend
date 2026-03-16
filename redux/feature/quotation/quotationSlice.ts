@@ -3,24 +3,33 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Status } from '@lib/constants/enum';
 import {
   createQuotation,
+  createQuotationCustomSection,
   createQuotationPricellistThunk,
   createQuotationThunk,
   createQuotationVersionThunk,
+  deleteQuotationCustomSection,
   deleteQuotationPackageThunk,
   deleteQuotationPricelistThunk,
   deleteQuotationThunk,
   getQuotationCompareThunk,
+  getQuotationCustomSection,
   getQuotationPricelistThunk,
   getQuotationThunk,
   getQuotationVersionById,
+  updateQuotationCustomSection,
   updateQuotationVersion,
 } from './quotationThunk';
 import { LeadContact } from '../lead/ILeadState';
-import { Quotation, QuotationPriceListItem, QuotationVersionDetails } from './IQuotationState';
+import {
+  CustomSection,
+  Quotation,
+  QuotationPriceListItem,
+  QuotationVersionDetails,
+} from './IQuotationState';
 import { Package } from '../package/IPackageState';
 import { updateContact } from '../contacts/contactThunk';
 export interface QuotationState {
-  status: { create: Status; getById: Status };
+  status: { create: Status; getById: Status; customSection: Status };
   quoteDetails: QuotationVersionDetails | null;
   selectedFilters: any;
   contact: LeadContact[];
@@ -31,10 +40,11 @@ export interface QuotationState {
   items: QuotationPriceListItem[];
   extraItems: QuotationPriceListItem[];
   quotation: Quotation[];
+  customSections: CustomSection[];
 }
 
 const initialState: QuotationState = {
-  status: { create: Status.IDLE, getById: Status.IDLE },
+  status: { create: Status.IDLE, getById: Status.IDLE, customSection: Status.IDLE },
   quoteDetails: null,
   selectedFilters: { range: '', dwellingType: '', location: '' },
   contact: [],
@@ -45,6 +55,7 @@ const initialState: QuotationState = {
   items: [],
   extraItems: [],
   quotation: [],
+  customSections: [],
 };
 
 const quotationSlice = createSlice({
@@ -60,6 +71,7 @@ const quotationSlice = createSlice({
       state.facade = null;
       state.package = [];
       state.selectedFilters = { range: '', dwellingType: '', location: '' };
+      state.customSections = [];
     },
     clearSelectedFloorplanFacadePackageReducer(state) {
       state.plan = null;
@@ -278,6 +290,48 @@ const quotationSlice = createSlice({
         if (quote) {
           quote.comparison = action.payload;
         }
+      })
+
+      //quotataion custom section
+      .addCase(createQuotationCustomSection.pending, (state, action) => {
+        state.status.customSection = Status.PENDING;
+      })
+      .addCase(createQuotationCustomSection.fulfilled, (state, action) => {
+        state.customSections.unshift(action.payload);
+        state.status.customSection = Status.SUCCESS;
+      })
+      .addCase(createQuotationCustomSection.rejected, (state, action) => {
+        state.status.customSection = Status.ERROR;
+      })
+
+      .addCase(updateQuotationCustomSection.pending, (state, action) => {
+        state.status.customSection = Status.PENDING;
+      })
+      .addCase(updateQuotationCustomSection.fulfilled, (state, action) => {
+        state.customSections = state.customSections?.map(section =>
+          section.customSectionId === action.payload.customSectionId ? action.payload : section
+        );
+        state.status.customSection = Status.SUCCESS;
+      })
+      .addCase(updateQuotationCustomSection.rejected, (state, action) => {
+        state.status.customSection = Status.ERROR;
+      })
+
+      .addCase(getQuotationCustomSection.fulfilled, (state, action) => {
+        state.quoteDetails.customSections = action.payload;
+        state.customSections = action.payload;
+      })
+      .addCase(deleteQuotationCustomSection.pending, (state, action) => {
+        state.status.customSection = Status.PENDING;
+      })
+      .addCase(deleteQuotationCustomSection.fulfilled, (state, action) => {
+        state.customSections = state.customSections?.filter(
+          section => section.customSectionId !== action.meta.arg
+        );
+        state.status.customSection = Status.SUCCESS;
+      })
+      .addCase(deleteQuotationCustomSection.rejected, (state, action) => {
+        state.status.customSection = Status.ERROR;
       });
   },
 });

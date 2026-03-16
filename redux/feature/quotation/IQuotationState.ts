@@ -75,7 +75,7 @@ export type Quotation = {
   totalAmount?: number;
   leadStatus: string;
   versions: QuotationVersionDetails[];
-  comparison?:QuotationComparison
+  comparison?: QuotationComparison;
 };
 
 export type QuotationVersion = {
@@ -104,7 +104,7 @@ export type QuotationVersionDetails = {
   dwellingTypeId: string | null;
   floorPlanId: string | null;
   facadeId: string | null;
-  packageId:string[]
+  packageId: string[];
   isApprove: boolean;
   sketchNumber: string | null;
   createdAt: string;
@@ -123,6 +123,7 @@ export type QuotationVersionDetails = {
   floorPlan?: IFloorPlanState;
   facade?: IFacadeState;
   packages?: Package[];
+  customSections?: CustomSection[];
 };
 
 export type QuotationPriceListItem = {
@@ -169,13 +170,10 @@ export type QuotationComparison = {
   items: IQuotationItem[];
 };
 
-export type IQuotationItem =
-  | PackageItem
-  | FacadeItem
-  | PriceListItem;
+export type IQuotationItem = PackageItem | FacadeItem | PriceListItem;
 
 type PackageItem = {
-  type: "package";
+  type: 'package';
   name: string;
   packageId: string;
   version1Value: string | null;
@@ -183,18 +181,19 @@ type PackageItem = {
 };
 
 type FacadeItem = {
-  type: "facade";
+  type: 'facade';
   name: string;
   version1Value: string | null;
   version2Value: string | null;
 };
 
 type PriceListItem = {
-  type: "pricelist_item";
+  type: 'pricelist_item';
   name: string;
   priceListItemId: string;
   priceListId: string;
   priceListName: string;
+  itemCost: string;
 
   version1Quantity: string | null;
   version1TotalPrice: string | null;
@@ -203,4 +202,14 @@ type PriceListItem = {
   version2Quantity: string | null;
   version2TotalPrice: string | null;
   version2Note: string | null;
+};
+
+export type CustomSection = {
+  customSectionId: string;
+  quotationVersionId: string;
+  fileUrl: File | string;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+  fileName?: string;
 };

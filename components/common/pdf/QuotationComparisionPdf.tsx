@@ -1,5 +1,6 @@
 'use client';
-import { Document, Page, Text, View, StyleSheet, Image, Font } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
+import { IQuotationItem, QuotationVersionDetails } from '@redux/feature/quotation/IQuotationState';
 
 Font.register({
   family: 'Helvetica',
@@ -13,9 +14,9 @@ Font.register({
 });
 
 interface Props {
-  comparisonResult: any[];
+  comparisonResult: IQuotationItem[];
   propertyAddress?: string;
-  selectedVersions?: any[];
+  selectedVersions?: QuotationVersionDetails[];
   slugId?: string;
 }
 
@@ -102,9 +103,11 @@ export const QuotationComparisionPdf = ({
                     ? item.version1TotalPrice || '-'
                     : item.version1Value || '-'}
                 </Text>
-                {/* {item.left?.value !== '-' && item.left?.quantity > 0 && (
-                  <Text style={ItemTable.detailsText}>{item.left?.details}</Text>
-                )} */}
+                {item.type === 'pricelist_item' && (
+                  <Text style={ItemTable.detailsText}>
+                    {Math.floor(Number(item.version1Quantity)) + '*' + item.itemCost}
+                  </Text>
+                )}
               </View>
 
               {/* Version 2 Value */}
@@ -114,9 +117,11 @@ export const QuotationComparisionPdf = ({
                     ? item.version2TotalPrice || '-'
                     : item.version2Value || '-'}
                 </Text>
-                {/* {item.right?.value !== '-' && item.right?.quantity > 0 && (
-                  <Text style={ItemTable.detailsText}>{item.right?.details}</Text>
-                )} */}
+                {item.type === 'pricelist_item' && (
+                  <Text style={ItemTable.detailsText}>
+                    {Math.floor(Number(item.version2Quantity)) + '*' + item.itemCost}
+                  </Text>
+                )}
               </View>
             </View>
           ))}

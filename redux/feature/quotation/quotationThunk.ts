@@ -1,8 +1,9 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { ApiResponse } from '../auth/IAuthState';
 import API_ENDPOINTS from '@lib/constants/apiEndpoints';
-import api from '@lib/constants/api';
+import api, { apiWithFormDataMethods } from '@lib/constants/api';
 import {
+  CustomSection,
   Quotation,
   QuotationComparison,
   QuotationItemPayload,
@@ -225,6 +226,64 @@ export const getQuotationCompareThunk = createAsyncThunk(
           },
         }
       );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+//quotation custom section
+
+export const createQuotationCustomSection = createAsyncThunk(
+  'quotation/createQuotationCustomSection',
+  async (data: FormData, { rejectWithValue }) => {
+    try {
+      const res = await apiWithFormDataMethods.post<ApiResponse<CustomSection>>(
+        API_ENDPOINTS.QUOTATION_CUSTOM_SECTION,
+        data
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const updateQuotationCustomSection = createAsyncThunk(
+  'quotation/updateQuotationCustomSection',
+  async (payload: { data: FormData; id: string }, { rejectWithValue }) => {
+    try {
+      const res = await apiWithFormDataMethods.put<ApiResponse<CustomSection>>(
+        API_ENDPOINTS.QUOTATION_CUSTOM_SECTION + '/' + payload.id,
+        payload.data
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const getQuotationCustomSection = createAsyncThunk(
+  'quotation/getQuotationCustomSection',
+  async (quotationVersionId: string, { rejectWithValue }) => {
+    try {
+      const res = await api.get<ApiResponse<CustomSection[]>>(
+        API_ENDPOINTS.QUOTATION_CUSTOM_SECTION + '/' + quotationVersionId
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const deleteQuotationCustomSection = createAsyncThunk(
+  'quotation/deleteQuotationCustomSection',
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const res = await api.delete<ApiResponse>(API_ENDPOINTS.QUOTATION_CUSTOM_SECTION + '/' + id);
       return res.data;
     } catch (error) {
       return rejectWithValue(error.message);

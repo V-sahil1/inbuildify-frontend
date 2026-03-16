@@ -131,6 +131,7 @@ class API_ENDPOINTS {
   public static QUOTATION_NEW_VERSION = (versionid: string) =>
     `${this.QUOTATION_VERSION}/${versionid}/duplicate`;
   public static QUOTATION_COMPARE = `${this.QUOTATION_BASE}/compare`;
+  public static QUOTATION_CUSTOM_SECTION = '/quotation-version-custom-section';
   // location
   public static COUNTRY_BASE = '/country';
   public static STATE_BASE = '/state';
