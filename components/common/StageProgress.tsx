@@ -53,16 +53,16 @@ const actions = [
     label: 'Delete',
   },
   {
-    key: "onhold",
-    label: "On Hold",
+    key: 'onhold',
+    label: 'On Hold',
   },
   {
-    key: "blocklist",
-    label: "Blocklist",
+    key: 'blocklist',
+    label: 'Blocklist',
   },
   {
-    key: "referanceid",
-    label: "Referance ID",
+    key: 'referanceid',
+    label: 'Referance ID',
   },
   {
     key: 'converttolead',
@@ -205,15 +205,15 @@ const StageProgress: React.FC<StageProgressProps> = ({
           {steps.map((step, index) => {
             const isActive = activeStep === step.key;
             const isLast = index === steps.length - 1;
+            const idx = steps.findIndex(i => i.key === activeStep);
 
             return (
               <div
                 key={step.key}
                 onClick={() => step.onClick?.(step.key)}
                 className={`
-                flex-1 text-center py-2 cursor-pointer select-none text-font-color
-                ${step.color}
-                ${isActive && step.textColor ? step.textColor : 'text-gray-700'}
+                flex-1 text-center py-2 cursor-pointer select-none 
+                ${isActive || index < idx ? `${step.textColor} ${step.color}` : 'text-font-color bg-gray-200'}
                 transition-colors
                 ${index > 0 ? '-ml-3' : ''}
                 relative

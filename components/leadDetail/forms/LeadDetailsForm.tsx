@@ -33,6 +33,7 @@ interface LeadDetailsFormProps {
   isLinkContact?: boolean;
   showStatus?: boolean;
   showContact?: boolean;
+  handleOpenContactModal?: () => void;
 }
 
 const LeadDetailsForm: React.FC<LeadDetailsFormProps> = ({
@@ -45,6 +46,7 @@ const LeadDetailsForm: React.FC<LeadDetailsFormProps> = ({
   isLinkContact = false,
   showStatus = false,
   showContact = true,
+  handleOpenContactModal,
 }) => {
   const [form] = Form.useForm();
   const [showContactForm, setShowContactForm] = useState(false);
@@ -150,17 +152,26 @@ const LeadDetailsForm: React.FC<LeadDetailsFormProps> = ({
                     Back
                   </Button>
                 ) : (
-                  <Button type="primary" icon={<IconPlus size={16} />} onClick={handleContactClick}>
-                    Contact
-                  </Button>
+                  <>
+                    <Button
+                      type="primary"
+                      icon={<IconPlus size={16} />}
+                      onClick={handleContactClick}
+                    >
+                      Contact
+                    </Button>
+                    {isLinkContact && (
+                      <Button
+                        type="primary"
+                        icon={<IconPaperclip size={16} />}
+                        onClick={handleOpenContactModal}
+                      >
+                        Link Contact
+                      </Button>
+                    )}
+                  </>
                 )}
               </>
-            )}
-
-            {isLinkContact && (
-              <Button type="primary" icon={<IconPaperclip size={16} />}>
-                Link Contact
-              </Button>
             )}
           </div>
         </div>

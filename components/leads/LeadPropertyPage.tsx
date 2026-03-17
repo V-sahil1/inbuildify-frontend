@@ -83,6 +83,22 @@ export const LeadPropertyPage = ({ setModalOpen, handleDeleteJobDetail }) => {
               {propertyFromSlice?.totalSizeM2 ? ' m²' : ''}
             </p>
           </div>
+          <div className="flex items-center justify-between gap-2 mt-2">
+            <p
+              className="text-sm text-gray-600 cursor-pointer"
+              onClick={() => setModalOpen('job')}
+            >
+              {!!leadDetail?.job ? 'Job details' : 'Add Job details'}
+            </p>
+            {!!leadDetail?.job && (
+              <Popconfirm
+                title="Are you sure you want to delete job detail?"
+                onConfirm={handleDeleteJobDetail}
+              >
+                <Button size="small" type="text" icon={<IconTrash color="red" size={16} />} />
+              </Popconfirm>
+            )}
+          </div>
         </>
       )}
     </Card>

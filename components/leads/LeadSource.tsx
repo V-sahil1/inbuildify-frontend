@@ -166,7 +166,7 @@ export const LeadSource = () => {
           onSave={handleLeadSourceEdit}
         />
 
-        <EditableField
+        {/* <EditableField
           label="Notes"
           name="notes"
           value={leadDetail.lead?.notes}
@@ -177,7 +177,7 @@ export const LeadSource = () => {
           initialValues={{ notes: leadDetail.lead?.notes || '' }}
           type="TextArea"
           onSave={handleLeadSourceEdit}
-        />
+        /> */}
 
         <EditableField
           label="Rating"

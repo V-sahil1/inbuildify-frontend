@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Form, Input, message, Spin, Tabs } from 'antd';
+import { Button, message, Spin, Tabs } from 'antd';
 import StageProgress from '@/components/common/StageProgress';
 import ConvertLeadModal from '@/components/leadDetail/ConvertLeadModal';
 import PropertyDetailsModal from '@/components/leadDetail/PropertyDetailsModal';
-import { IconCheck, IconMail, IconPhone, IconPlus, IconUser, IconX } from '@tabler/icons-react';
+import { IconMail, IconPhone, IconPlus, IconUser } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import {
@@ -18,7 +18,6 @@ import {
   getLeadJobThunk,
   getLeadProperty,
   updateLeadJobThunk,
-  updateLeadThunk,
 } from '@redux/feature/lead/leadThunk';
 import { LeadQuotation } from '@/components/leads/LeadQuotationPage';
 import LeadDetailsForm from '@/components/leadDetail/forms/LeadDetailsForm';
@@ -51,12 +50,10 @@ import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import { LeadContactPage } from '@/components/leads/LeadContact';
 import { LeadPropertyPage } from '@/components/leads/LeadPropertyPage';
 import LeadQuotations from '@/components/leadDetail/LeadQuotations/LeadQuotations';
-import { emailRules, nameRules, phoneRules } from '@lib/constants/formInputValidations';
 
 const { TabPane } = Tabs;
 
 function App() {
-  const [form] = Form.useForm();
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { leadDetail, status } = useAppSelector(state => state.lead);
@@ -77,8 +74,7 @@ function App() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [selectedQuotationId, setSelectedQuotationId] = useState<string | null>(null);
-  const [isEditingLead, setIsEditingLead] = useState(false);
-  const isOpportunity = leadDetail?.lead?.status !== 'New';
+  const isOpportunity = !['New', 'Working'].includes(leadDetail?.lead?.status || '');
   const title = isOpportunity ? 'Opportunity' : 'Lead';
   const leadId = router.query.id as string | undefined;
   const createdQuotations: Quotation[] = leadDetail?.createdQuotations?.quotations || [];
@@ -132,8 +128,13 @@ function App() {
     try {
       const { type, ...rest } = values;
       if (type === 'update') {
+        const { isUpdated, updatedFields } = getUpdatedFields(rest, leadDetail?.contacts?.[0]);
+        if (!isUpdated) {
+          setModalOpen(null);
+          return;
+        }
         const res = await dispatch(
-          updateContact({ id: leadDetail?.contacts?.[0]?.contactId, data: rest })
+          updateContact({ id: leadDetail?.contacts?.[0]?.contactId || '', data: updatedFields })
         ).unwrap();
         message.success('Contact updated successfully');
       } else {
@@ -193,7 +194,7 @@ function App() {
       await dispatch(deleteLeadContactMapThunk(leadDetail?.contacts?.[0]?.id));
       message.success('Contact removed successfully');
     } catch (error) {
-      message.error('Failed to remove lead contact');
+      message.error(error || 'Failed to remove lead contact');
     }
   };
 
@@ -218,21 +219,21 @@ function App() {
     if (isOpportunity) {
       return [
         {
-          key: 'proposal',
+          key: 'Proposal',
           label: 'Proposal',
           color: 'bg-green-500',
           textColor: 'text-white',
           onClick: () => {},
         },
         {
-          key: 'negotiation',
+          key: 'Negotiation',
           label: 'Negotiation',
           color: 'bg-yellow-300',
           textColor: 'text-black',
           onClick: () => {},
         },
         {
-          key: 'close',
+          key: 'Close',
           label: 'Close',
           color: 'bg-gray-200',
           textColor: 'text-black',
@@ -242,21 +243,21 @@ function App() {
     }
     return [
       {
-        key: 'new',
+        key: 'New',
         label: 'New',
         color: 'bg-green-500',
         textColor: 'text-white',
         onClick: () => {},
       },
       {
-        key: 'working',
+        key: 'Working',
         label: 'Working',
         color: 'bg-yellow-300',
         textColor: 'text-black',
         onClick: handleConvertClick,
       },
       {
-        key: 'convert',
+        key: 'Convert',
         label: 'Convert',
         color: 'bg-gray-200',
         textColor: 'text-black',
@@ -327,27 +328,6 @@ function App() {
     }
   };
 
-  const handleSaveLead = async () => {
-    try {
-      const values = await form.validateFields();
-      const { name, email, phone } = leadDetail?.lead;
-      const { isUpdated, updatedFields } = getUpdatedFields(values, { name, email, phone });
-      if (!isUpdated) {
-        setIsEditingLead(false);
-        return;
-      }
-      await dispatch(
-        updateLeadThunk({
-          id: leadId,
-          details: updatedFields,
-        })
-      ).unwrap();
-      message.success('Lead details updated successfully');
-      setIsEditingLead(false);
-    } catch (error) {
-      message.error(error || 'Failed to update lead details');
-    }
-  };
   return (
     <div className="grid grid-cols-3 lg:grid-cols-4">
       <div className="col-span-3 lg:col-span-3">
@@ -357,62 +337,27 @@ function App() {
             id={leadDetail?.lead?.slugId}
             status={enumToReadable(leadDetail?.lead?.status)}
             steps={steps}
-            activeStep={isOpportunity ? 'proposal' : 'convert'}
+            activeStep={isOpportunity ? 'proposal' : leadDetail?.lead?.status}
             lead={leadDetail}
             showOptions={true}
             quotations={createdQuotations}
           />
         </div>
-        <Form
-          form={form}
-          onFinish={handleSaveLead}
-          initialValues={{
-            name: leadDetail?.lead?.name,
-            email: leadDetail?.lead?.email,
-            phone: leadDetail?.lead?.phone,
-          }}
-        >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 m-3">
-            <Form.Item name="name" rules={nameRules}>
-              <Input
-                addonBefore={<IconUser />}
-                onClick={() => !isEditingLead && setIsEditingLead(true)}
-              />
-            </Form.Item>
-            <Form.Item name="email" rules={emailRules}>
-              <Input
-                addonBefore={<IconMail />}
-                onClick={() => !isEditingLead && setIsEditingLead(true)}
-              />
-            </Form.Item>
-            <Form.Item name="phone" rules={phoneRules}>
-              <Input
-                addonBefore={<IconPhone />}
-                onClick={() => !isEditingLead && setIsEditingLead(true)}
-              />
-            </Form.Item>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 m-3">
+          <div className="flex items-center border border-border-color bg-card-color">
+            <Button icon={<IconUser size={20} />} type="text" />
+            <p className="pl-2 border-border-color border-l-2">{leadDetail?.lead?.name}</p>
           </div>
-          {isEditingLead && (
-            <div className="flex justify-end gap-2">
-              <Button
-                size="small"
-                type="primary"
-                icon={<IconCheck size={14} />}
-                // onClick={handleSaveLead}
-                htmlType="submit"
-              />
-              <Button
-                size="small"
-                danger
-                icon={<IconX size={14} />}
-                onClick={() => {
-                  form.resetFields();
-                  setIsEditingLead(false);
-                }}
-              />
-            </div>
-          )}
-        </Form>
+          <div className="flex items-center border border-border-color bg-card-color">
+            <Button icon={<IconMail size={20} />} type="text" />
+            <p className="pl-2 border-border-color border-l-2">{leadDetail?.lead?.email}</p>
+          </div>
+          <div className="flex items-center border border-border-color bg-card-color">
+            <Button icon={<IconPhone size={20} />} type="text" />
+            <p className="pl-2 border-border-color border-l-2">{leadDetail?.lead?.phone}</p>
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 m-3">
           {/* Contact Card */}
@@ -494,6 +439,9 @@ function App() {
           loading={loading}
           isEditing={!!leadDetail?.contacts?.[0]}
           initialValues={leadDetail?.contacts?.[0]}
+          isLinkContact={true}
+          handleOpenContactModal={handleOpenContactModal}
+
         />
 
         {/* Property Details Modal */}

@@ -237,13 +237,13 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
           label="Land Type"
           name="landType"
           rules={[{ required: true, message: 'Please select land type' }]}
+          initialValue="regular"
         >
           <Radio.Group
             options={[
               { label: 'Regular', value: 'regular' },
               { label: 'Irregular', value: 'irregular' },
             ]}
-            defaultValue="regular"
           />
         </Form.Item>
 
@@ -328,24 +328,22 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
         {/* Additional Options */}
         <Row gutter={16}>
           <Col span={12}>
-            <Form.Item label="Bush Fire" name="bushFire">
+            <Form.Item label="Bush Fire" name="bushFire" initialValue={false}>
               <Radio.Group
                 options={[
                   { label: 'Yes', value: true },
                   { label: 'No', value: false },
                 ]}
-                defaultValue={false}
               />
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item label="Corner Block" name="cornerBlock">
+            <Form.Item label="Corner Block" name="cornerBlock" initialValue={false}>
               <Radio.Group
                 options={[
                   { label: 'Yes', value: true },
                   { label: 'No', value: false },
                 ]}
-                defaultValue={false}
               />
             </Form.Item>
           </Col>

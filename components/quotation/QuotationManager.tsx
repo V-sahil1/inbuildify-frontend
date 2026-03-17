@@ -168,7 +168,6 @@ const QuotationManager = () => {
           updateQuotationVersion({ id: quoteDetails?.quotationVersionId, data: payload })
         ).unwrap();
         setHasChanges(false);
-        message.success('Changes saved successfully');
       } catch (error) {
         message.error(error || 'Failed to save changes');
       }

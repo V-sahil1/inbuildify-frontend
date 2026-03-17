@@ -28,6 +28,7 @@ import {
 } from './IQuotationState';
 import { Package } from '../package/IPackageState';
 import { updateContact } from '../contacts/contactThunk';
+import { updateLeadThunk } from '../lead/leadThunk';
 export interface QuotationState {
   status: { create: Status; getById: Status; customSection: Status };
   quoteDetails: QuotationVersionDetails | null;
@@ -260,9 +261,11 @@ const quotationSlice = createSlice({
 
       //quotattion contact
       .addCase(updateContact.fulfilled, (state, action) => {
-        state.quoteDetails.leadContacts = state.quoteDetails.leadContacts.map(i =>
-          i.contactId === action.payload.usersId ? { ...i, ...action.payload } : i
-        );
+        if (state.quoteDetails) {
+          state.quoteDetails.leadContacts = state.quoteDetails.leadContacts?.map(i =>
+            i.contactId === action.payload.usersId ? { ...i, ...action.payload } : i
+          );
+        }
         state.contact = state.contact.map(i =>
           i.contactId === action.payload.usersId ? { ...i, ...action.payload } : i
         );
@@ -333,6 +336,11 @@ const quotationSlice = createSlice({
       .addCase(deleteQuotationCustomSection.rejected, (state, action) => {
         state.status.customSection = Status.ERROR;
       });
+
+    //update lead
+    builder.addCase(updateLeadThunk.fulfilled, (state, action) => {
+      state.quotation = action.payload.quotations;
+    });
   },
 });
 

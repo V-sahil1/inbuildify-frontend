@@ -8,7 +8,7 @@ export const LeadContactPage = ({ setModalOpen, handleOpenContactModal, handleDe
 
   return (
     <>
-      {!leadDetail.contacts ? (
+      {leadDetail.contacts && leadDetail.contacts?.length === 0 ? (
         <Card className="flex flex-col items-center justify-center p-6 rounded-lg">
           <p onClick={() => setModalOpen('contact')} className="cursor-pointer">
             Create Contact
@@ -30,7 +30,6 @@ export const LeadContactPage = ({ setModalOpen, handleOpenContactModal, handleDe
               <IconEdit
                 className="text-gray-400 text-sm cursor-pointer hover:text-gray-600"
                 onClick={() => setModalOpen('contact')}
-              
               />
               {/* <Popconfirm
                 title="Are you sure you want to delete lead contact?"

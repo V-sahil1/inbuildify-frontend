@@ -120,7 +120,7 @@ export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
               />
             </div>
           )}
-          {leadDetail?.lead?.status !== 'New' && (
+          {leadDetail?.lead?.status === 'Job' && (
             <p
               className="text-sm text-blue text-center mt-2 cursor-pointer"
               onClick={() => setModalOpen('invoice')}

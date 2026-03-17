@@ -187,6 +187,7 @@ export const leadSlice = createSlice({
           item.leadsId === action.payload.leadsId ? { ...item, ...action.payload } : item
         );
       }
+      state.leadDetail.createdQuotations = { quotations: action.payload.quotations };
       state.status.updateLeadSource = Status.SUCCESS;
     });
     builder.addCase(updateLeadThunk.rejected, state => {

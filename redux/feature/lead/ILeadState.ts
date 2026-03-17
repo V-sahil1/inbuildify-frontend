@@ -154,6 +154,7 @@ export interface Lead {
     attachFiles: string[] | null;
   };
   lotDetails?: ILotDetail;
+  quotations?: Quotation[];
 }
 
 export interface BusinessContact {
