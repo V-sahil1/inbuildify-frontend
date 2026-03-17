@@ -302,7 +302,6 @@ const FacadeMaster = () => {
           type="danger"
           confirmText="Delete"
           cancelText="Cancel"
-          loading={!!isEditing}
           maxWidth="sm"
         />
       )}

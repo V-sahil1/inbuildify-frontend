@@ -144,22 +144,7 @@ const LeadDetailsForm: React.FC<LeadDetailsFormProps> = ({
             {showContact && (
               <>
                 {showContactForm ? (
-                  <Button
-                    type="primary"
-                    icon={<IconChevronLeft size={16} />}
-                    onClick={handleContactBackClick}
-                  >
-                    Back
-                  </Button>
-                ) : (
                   <>
-                    <Button
-                      type="primary"
-                      icon={<IconPlus size={16} />}
-                      onClick={handleContactClick}
-                    >
-                      Contact
-                    </Button>
                     {isLinkContact && (
                       <Button
                         type="primary"
@@ -169,7 +154,18 @@ const LeadDetailsForm: React.FC<LeadDetailsFormProps> = ({
                         Link Contact
                       </Button>
                     )}
+                    <Button
+                      type="primary"
+                      icon={<IconChevronLeft size={16} />}
+                      onClick={handleContactBackClick}
+                    >
+                      Back
+                    </Button>
                   </>
+                ) : (
+                  <Button type="primary" icon={<IconPlus size={16} />} onClick={handleContactClick}>
+                    Contact
+                  </Button>
                 )}
               </>
             )}

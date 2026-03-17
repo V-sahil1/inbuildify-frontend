@@ -219,14 +219,14 @@ function App() {
     if (isOpportunity) {
       return [
         {
-          key: 'Proposal',
+          key: 'proposal',
           label: 'Proposal',
           color: 'bg-green-500',
           textColor: 'text-white',
           onClick: () => {},
         },
         {
-          key: 'Negotiation',
+          key: 'negotiation',
           label: 'Negotiation',
           color: 'bg-yellow-300',
           textColor: 'text-black',

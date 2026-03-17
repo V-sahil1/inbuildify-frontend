@@ -57,8 +57,8 @@ const PackageModal: React.FC<PackageModalProps> = ({
       try {
         setLoading(true);
         const params = {
-          range_id: selectedFilters.range,
-          dwelling_type_id: selectedFilters.dwellingType,
+          range_id: selectedFilters?.range || undefined,
+          dwelling_type_id: selectedFilters?.dwellingType || undefined,
         };
         // Make sure to pass the filters when fetching packages
         await dispatch(fetchPackages(params)).unwrap();
