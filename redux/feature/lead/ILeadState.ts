@@ -104,7 +104,7 @@ export interface LeadSource {
 export interface Lead {
   leadsId: string;
   slugId?: string;
-  refrenceNumber: string;
+  referenceNumber: string;
   companyId: string;
   builderId: string;
   name: string;

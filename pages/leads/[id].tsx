@@ -324,7 +324,7 @@ function App() {
       <div className="col-span-3 lg:col-span-3">
         <div className="m-3 ">
           <StageProgress
-            title={title}
+            title={title + ' - ' + leadDetail?.lead?.referenceNumber}
             id={leadDetail?.lead?.slugId}
             status={enumToReadable(leadDetail?.lead?.status)}
             steps={steps}
