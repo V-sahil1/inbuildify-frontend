@@ -109,7 +109,7 @@ const theme = {
     },
     Card: {
       colorBgContainer: 'var(--card-color)',
-      colorBorder: 'var(--primary)',
+      colorBorderSecondary: 'var(--border-color)',
       colorTextHeading: 'var(--font-color)',
       colorText: 'var(--font-color)',
       headerBg: 'var(--card-color)',
@@ -147,6 +147,9 @@ const theme = {
       itemHoverColor: 'var(--primary)',
       itemSelectedColor: 'var(--primary)',
       itemActiveColor: 'var(--primary)',
+      colorBorder: 'var(--border-color)',
+      colorBorderSecondary: 'var(--border-color)',
+      cardBg: 'var(--body-color)',
     },
     Typography: {
       colorTextHeading: 'var(--font-color)',

@@ -206,16 +206,18 @@ const StageProgress: React.FC<StageProgressProps> = ({
             const isActive = activeStep === step.key;
             const isLast = index === steps.length - 1;
             const idx = steps.findIndex(i => i.key === activeStep);
-
             return (
               <div
                 key={step.key}
-                onClick={() => step.onClick?.(step.key)}
+                onClick={() =>
+                  step.key === 'Convert' && idx === steps.length - 2 && step.onClick?.(step.key)
+                }
                 className={`
-                flex-1 text-center py-2 cursor-pointer select-none 
-                ${isActive || index < idx ? `${step.textColor} ${step.color}` : 'text-font-color bg-gray-200'}
+                flex-1 text-center py-2 select-none 
+                ${isActive || index < idx ? `${step.textColor} ${step.color}` : 'text-black bg-gray-200'}
                 transition-colors
                 ${index > 0 ? '-ml-3' : ''}
+                ${step.key === 'Convert' && idx === steps.length - 2 && 'cursor-pointer'}
                 relative
               `}
                 style={{

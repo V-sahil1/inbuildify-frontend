@@ -23,14 +23,20 @@ import FacadeModal from './FacadeModal';
 import { IFacadeState } from '@redux/feature/facade/IFacadeState';
 import PackageModal from './PackageModal';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import { setQuotationContact } from '@redux/feature/quotation/quotationSlice';
 import { clearStandardFilter, clearUpgradeFilter } from '@redux/feature/facade/facadeSlice';
-import { LeadContact } from '@redux/feature/lead/ILeadState';
-import { updateContact } from '@redux/feature/contacts/contactThunk';
+import {
+  createContact,
+  fetchAllContact,
+  updateContact,
+} from '@redux/feature/contacts/contactThunk';
 import { IFloorPlanState } from '@redux/feature/floorPlan/IFloorPlanState';
 import { deleteQuotationPackageThunk } from '@redux/feature/quotation/quotationThunk';
 import { Package } from '@redux/feature/package/IPackageState';
 import LeadDetailsForm from './forms/LeadDetailsForm';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
+import { createLeadContactMapThunk } from '@redux/feature/lead/leadThunk';
+import { LeadLinkContactModel } from '../common/Models/LeadLinkContactModel';
+import { IContact } from '@redux/feature/contacts/contactState';
 interface InfoCardsProps {
   propertyDetails: any;
   selectedPlan?: IFloorPlanState;
@@ -59,48 +65,47 @@ const InfoCards: React.FC<InfoCardsProps> = ({
   const { quoteDetails } = useAppSelector(state => state.quotation);
 
   const [modalOpen, setModalOpen] = useState<
-    'property' | 'floorPlan' | 'facade' | 'package' | null
+    'property' | 'floorPlan' | 'facade' | 'package' | 'linkContact' | 'contact' | null
   >(null);
-  const [editModalVisible, setEditModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [selectedContact, setSelectedContact] = useState<IContact | null>(null);
+  const { contact } = useAppSelector(state => state.contact);
   const dispatch = useAppDispatch();
   const { leadDetail } = useAppSelector(state => state.lead);
-  const handleEditLeadSubmit = async (values: any) => {
-    const { type, hideAddressForm, ...details } = values;
-    try {
-      setLoading(true);
-      const response = await dispatch(
-        updateContact({ id: leadDetail?.contacts?.[0]?.contactId, data: details })
-      ).unwrap();
-      message.success('Lead updated successfully');
-
-      // Transform IContact to LeadContact for setQuotationContact
-      const leadContact: LeadContact = {
-        ...leadDetail?.contacts?.[0],
-        ...response,
-        id: leadDetail?.contacts?.[0]?.id || response.usersId,
-        leadsId: leadDetail?.contacts?.[0]?.leadsId || leadDetail?.lead?.leadsId,
-        contactId: response.usersId,
-        usersId: response.usersId,
-        roleId: leadDetail?.contacts?.[0]?.roleId || '',
-        addressId: leadDetail?.contacts?.[0]?.addressId || '',
-        hasLogin: leadDetail?.contacts?.[0]?.hasLogin || false,
-        createdAt: leadDetail?.contacts?.[0]?.createdAt || response.createdAt,
-        updatedAt: new Date().toISOString(),
-      };
-
-      dispatch(setQuotationContact(leadContact));
-    } catch (err) {
-      message.error(err || 'Failed to update lead');
-    } finally {
-      setEditModalVisible(false);
-      setLoading(false);
-    }
-  };
   const isSelectionDisabled = !filters?.range || !filters?.dwellingType;
   const disabledMessage = isSelectionDisabled
-    ? 'Please select both Range and Dwelling Type first'
+    ? 'Please select both Location and Dwelling Type first'
     : '';
+
+  const handleEditLeadSubmit = async values => {
+    try {
+      const { type, ...rest } = values;
+      if (type === 'update') {
+        const { isUpdated, updatedFields } = getUpdatedFields(rest, leadDetail?.contacts?.[0]);
+        if (!isUpdated) {
+          setModalOpen(null);
+          return;
+        }
+        const res = await dispatch(
+          updateContact({ id: leadDetail?.contacts?.[0]?.contactId || '', data: updatedFields })
+        ).unwrap();
+        message.success('Contact updated successfully');
+      } else {
+        const res = await dispatch(createContact(rest)).unwrap();
+        await dispatch(
+          createLeadContactMapThunk({
+            leadsId: leadDetail?.lead?.leadsId,
+            contactId: res.usersId,
+          })
+        ).unwrap();
+        message.success('Contact saved successfully');
+      }
+      setModalOpen(null);
+      setLoading(false);
+    } catch (error) {
+      message.error(error || 'Failed to save contact');
+    }
+  };
 
   const handleDeletePackage = async (versionId: string, pkgId: string) => {
     try {
@@ -115,12 +120,44 @@ const InfoCards: React.FC<InfoCardsProps> = ({
     }
   };
 
+  const handleOpenContactModal = async () => {
+    setModalOpen('linkContact');
+    if (contact.length === 0) {
+      try {
+        await dispatch(fetchAllContact({})).unwrap();
+      } catch (error) {
+        message.error(error || 'Failed to fetch contacts');
+      }
+    }
+  };
+
+  const saveContactLink = async () => {
+    if (!selectedContact) return;
+
+    try {
+      setLoading(true);
+      await dispatch(
+        createLeadContactMapThunk({
+          leadsId: leadDetail?.lead?.leadsId || '',
+          contactId: selectedContact.usersId,
+        })
+      ).unwrap();
+      message.success('Contact linked successfully');
+      setModalOpen(null);
+      setSelectedContact(null);
+    } catch (err) {
+      message.error(err || 'Failed to link contact');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 p-3">
       {/* Lead Details Card */}
       <Card
         className="shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-        onClick={!isReadOnly ? () => setEditModalVisible(true) : undefined}
+        onClick={!isReadOnly ? () => setModalOpen('contact') : undefined}
       >
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
@@ -340,14 +377,16 @@ const InfoCards: React.FC<InfoCardsProps> = ({
       )}
 
       {/* Edit Lead Details Modal */}
-      {editModalVisible && (
+      {modalOpen === 'contact' && (
         <LeadDetailsForm
-          open={editModalVisible}
-          onCancel={() => setEditModalVisible(false)}
+          open={modalOpen === 'contact'}
+          onCancel={() => setModalOpen(null)}
           onSubmit={handleEditLeadSubmit}
           loading={loading}
           isEditing={true}
           initialValues={leadDetail?.contacts?.[0]}
+          isLinkContact={true}
+          handleOpenContactModal={handleOpenContactModal}
         />
       )}
 
@@ -385,6 +424,19 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           selectedPackage={selectedPackage}
           onSelect={onPackageSelect}
           filters={filters}
+        />
+      )}
+      {modalOpen === 'linkContact' && (
+        <LeadLinkContactModel
+          open={modalOpen === 'linkContact'}
+          onCancel={() => {
+            setModalOpen(null);
+            setSelectedContact(null);
+          }}
+          handleContactSelect={contact => setSelectedContact(contact)}
+          selectedContact={selectedContact}
+          saveContactLink={saveContactLink}
+          loading={loading}
         />
       )}
     </div>

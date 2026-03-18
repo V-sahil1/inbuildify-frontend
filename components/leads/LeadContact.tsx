@@ -1,9 +1,8 @@
 import { useAppSelector } from '@hooks/redux';
-import { enumToReadable } from '@lib/utils/enumToRedable';
-import { IconEdit, IconMail, IconPhoneCall, IconTrash } from '@tabler/icons-react';
-import { Card, Popconfirm } from 'antd';
+import { IconEdit, IconMail, IconPhoneCall } from '@tabler/icons-react';
+import { Card } from 'antd';
 
-export const LeadContactPage = ({ setModalOpen, handleOpenContactModal, handleDeleteContact }) => {
+export const LeadContactPage = ({ setModalOpen, handleOpenContactModal }) => {
   const { leadDetail } = useAppSelector(state => state.lead);
 
   return (
@@ -31,21 +30,9 @@ export const LeadContactPage = ({ setModalOpen, handleOpenContactModal, handleDe
                 className="text-gray-400 text-sm cursor-pointer hover:text-gray-600"
                 onClick={() => setModalOpen('contact')}
               />
-              {/* <Popconfirm
-                title="Are you sure you want to delete lead contact?"
-                onConfirm={() => handleDeleteContact()}
-              >
-                <IconTrash
-                  className="text-red-400 text-sm cursor-pointer hover:text-red-600"
-                  size={15}
-                />
-              </Popconfirm> */}
             </div>
           </div>
           <h2 className="font-semibold text-lg">{leadDetail?.contacts?.[0]?.name ?? '-'}</h2>
-          <p className="text-sm">
-            {enumToReadable(leadDetail?.lead?.leadSourceName) || 'Lead Source not provided'}
-          </p>
 
           <div className="flex items-center gap-2 mt-2">
             <IconPhoneCall className="w-4 h-4" />

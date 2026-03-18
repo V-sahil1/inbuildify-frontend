@@ -189,15 +189,6 @@ function App() {
     }
   };
 
-  const handleDeleteContact = async () => {
-    try {
-      await dispatch(deleteLeadContactMapThunk(leadDetail?.contacts?.[0]?.id));
-      message.success('Contact removed successfully');
-    } catch (error) {
-      message.error(error || 'Failed to remove lead contact');
-    }
-  };
-
   const handleDelete = async () => {
     if (!selectedQuotationId) return;
     try {
@@ -219,14 +210,14 @@ function App() {
     if (isOpportunity) {
       return [
         {
-          key: 'proposal',
+          key: 'Proposal',
           label: 'Proposal',
           color: 'bg-green-500',
           textColor: 'text-white',
           onClick: () => {},
         },
         {
-          key: 'negotiation',
+          key: 'Negotiation',
           label: 'Negotiation',
           color: 'bg-yellow-300',
           textColor: 'text-black',
@@ -246,7 +237,7 @@ function App() {
         key: 'New',
         label: 'New',
         color: 'bg-green-500',
-        textColor: 'text-white',
+        textColor: 'text-black',
         onClick: () => {},
       },
       {
@@ -254,7 +245,7 @@ function App() {
         label: 'Working',
         color: 'bg-yellow-300',
         textColor: 'text-black',
-        onClick: handleConvertClick,
+        onClick: () => {},
       },
       {
         key: 'Convert',
@@ -337,7 +328,9 @@ function App() {
             id={leadDetail?.lead?.slugId}
             status={enumToReadable(leadDetail?.lead?.status)}
             steps={steps}
-            activeStep={isOpportunity ? 'proposal' : leadDetail?.lead?.status}
+            activeStep={
+              isOpportunity ? leadDetail?.lead?.opportunityStatus : leadDetail?.lead?.status
+            }
             lead={leadDetail}
             showOptions={true}
             quotations={createdQuotations}
@@ -365,7 +358,6 @@ function App() {
           <LeadContactPage
             setModalOpen={setModalOpen}
             handleOpenContactModal={handleOpenContactModal}
-            handleDeleteContact={handleDeleteContact}
           />
 
           {/* Property Card */}
@@ -395,7 +387,7 @@ function App() {
             size="large"
           >
             {/* Action Tab */}
-            <TabPane tab="Action" key="action" className="border border-t-0">
+            <TabPane tab="Action" key="action" className="border border-border-color border-t-0">
               <LeadActions leadId={leadId} />
             </TabPane>
             <TabPane tab="Document" key="Document">
@@ -441,7 +433,6 @@ function App() {
           initialValues={leadDetail?.contacts?.[0]}
           isLinkContact={true}
           handleOpenContactModal={handleOpenContactModal}
-
         />
 
         {/* Property Details Modal */}

@@ -270,17 +270,17 @@ const FacadeMaster = () => {
           initialValues={
             isEditing
               ? {
-                  facadeId: isEditing.facadeId,
-                  name: isEditing.name,
-                  locationId: isEditing.location?.id,
-                  dwellingTypeId: isEditing.dwellingtype?.id,
-                  rangeId: isEditing.range?.id,
-                  costType: isEditing.costType,
-                  cost: isEditing.cost,
-                  builderCost: isEditing.builderCost,
-                  status: isEditing.status,
-                  image: isEditing.image,
-                }
+                facadeId: isEditing.facadeId,
+                name: isEditing.name,
+                locationId: isEditing.location?.id,
+                dwellingTypeId: isEditing.dwellingtype?.id,
+                rangeId: isEditing.range?.id,
+                costType: isEditing.costType,
+                cost: isEditing.cost,
+                builderCost: isEditing.builderCost,
+                status: isEditing.status,
+                image: isEditing.image,
+              }
               : {}
           }
           fields={fields}

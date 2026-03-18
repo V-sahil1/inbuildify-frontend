@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import {
-  createLeadPayload,
-  createLeadThunk,
-  getLeadThunk,
-} from '@redux/feature/lead/leadThunk';
+import { createLeadPayload, createLeadThunk, getLeadThunk } from '@redux/feature/lead/leadThunk';
 import { message, Typography, Empty, Spin, Modal } from 'antd';
 import { CreateFormModal } from '@/components/common/Models/CreateFormModel';
 import { Status } from '@lib/constants/enum';
@@ -19,23 +15,24 @@ import { setAddInstSourceModal } from '@redux/feature/lead/leadSlice';
 import rangeAndDwellingTypeFields from '@/components/formFields/rangeAndDwellingTypeFields';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import { createleadSource } from '@redux/feature/admin/sales/leadSource/leadSourceThunk';
+import { fetchSetting } from '@redux/feature/admin/sales/setting/settingThunk';
 const Leads = () => {
   const { leads, status } = useAppSelector(state => state.lead);
   const dispatch = useAppDispatch();
   const router = useRouter();
   const addInstSourceModal = useAppSelector(state => state.lead.addInstSourceModal);
+  const { setting, status: settingStatus } = useAppSelector(state => state.sales.setting);
   const [openLeadCreateModal, setOpenLeadCreateModal] = useState(false);
   const [showConflictModal, setShowConflictModal] = useState(false);
   const [pendingLeadData, setPendingLeadData] = useState<createLeadPayload | null>(null);
   const [loading, setLoading] = useState({ leadLoading: false, leadSourceLoading: false });
-  
+
   const leadCreateFields = useLeadCreateFields({ isEmailDisable: false });
 
   async function fetchData() {
     try {
       await dispatch(getLeadThunk()).unwrap();
-    }
-    catch (error) {
+    } catch (error) {
       message.error(error || 'Failed to fetch leads');
     }
   }
@@ -44,27 +41,41 @@ const Leads = () => {
     fetchData();
   }, []);
 
-  const handleSubmit = async (values) => {
+  useEffect(() => {
+    if (settingStatus.fetch === Status.IDLE) {
+      fetchSalesSetting();
+    }
+  }, [settingStatus.fetch]);
+
+  const fetchSalesSetting = async () => {
+    try {
+      await dispatch(fetchSetting()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch Sales Setting');
+    }
+  };
+
+  const handleSubmit = async values => {
     try {
       setLoading({ ...loading, leadLoading: true });
       setPendingLeadData(values);
-      await dispatch(createLeadThunk(pendingLeadData || values)).unwrap();
+      await dispatch(createLeadThunk(showConflictModal ? pendingLeadData : values)).unwrap();
       message.success('Lead created successfully');
       setOpenLeadCreateModal(false);
       setShowConflictModal(false);
     } catch (error) {
-      if (error?.isConflict) {
+      if (error?.isConflict && setting?.allowDuplicateLeads) {
         setPendingLeadData({ ...values, forceCreate: true });
         setShowConflictModal(true);
       } else {
-        message.error(error || 'Failed to create lead');
+        message.error(error?.message || error || 'Failed to create lead');
       }
     } finally {
       setLoading({ ...loading, leadLoading: false });
     }
   };
 
-  const handleAddLeadSourceSubmit = async (values) => {
+  const handleAddLeadSourceSubmit = async values => {
     try {
       setLoading({ ...loading, leadSourceLoading: true });
       await dispatch(createleadSource({ name: values.name })).unwrap();
@@ -107,24 +118,26 @@ const Leads = () => {
                 else if (lead.status === 'JOB') router.push(`${SystemRoutes.JOB}/${lead.leadsId}`);
                 else router.push(`${SystemRoutes.LEADS}/${lead.leadsId}`);
               }}
-              className={`rounded-2xl border border-border-color shadow-sm p-6 ${lead.status === 'CANCELLED'
-                ? 'opacity-60 cursor-not-allowed'
-                : 'cursor-pointer hover:shadow-xl hover:scale-[1.02]'
-                } 
+              className={`rounded-2xl border border-border-color shadow-sm p-6 ${
+                lead.status === 'CANCELLED'
+                  ? 'opacity-60 cursor-not-allowed'
+                  : 'cursor-pointer hover:shadow-xl hover:scale-[1.02]'
+              } 
                 transition-all duration-200 bg-card-color flex flex-col`}
             >
               {/* Header with Tag on Top Right */}
               <div className="flex justify-between items-start mb-3">
                 <h3 className="text-lg font-semibold">{lead.name}</h3>
                 <span
-                  className={`text-xs px-3 py-1 rounded-full font-medium whitespace-nowrap ${lead.status === 'IN_PROGRESS'
-                    ? 'bg-purple-100 text-purple-700'
-                    : lead.status === 'COMPLETED'
-                      ? 'bg-green-100 text-green-700'
-                      : lead.status === 'JOB'
-                        ? 'bg-fuchsia-300 text-fuchsia-700'
-                        : 'bg-yellow-100 text-yellow-700'
-                    }`}
+                  className={`text-xs px-3 py-1 rounded-full font-medium whitespace-nowrap ${
+                    lead.status === 'IN_PROGRESS'
+                      ? 'bg-purple-100 text-purple-700'
+                      : lead.status === 'COMPLETED'
+                        ? 'bg-green-100 text-green-700'
+                        : lead.status === 'JOB'
+                          ? 'bg-fuchsia-300 text-fuchsia-700'
+                          : 'bg-yellow-100 text-yellow-700'
+                  }`}
                 >
                   {enumToReadable(lead.status)}
                 </span>
@@ -168,44 +181,50 @@ const Leads = () => {
         />
       )}
 
-      {openLeadCreateModal && <ActionDialogmodel
-        title="Lead"
-        open={openLeadCreateModal}
-        loading={loading.leadLoading}
-        onCancel={() => setOpenLeadCreateModal(false)}
-        onSubmit={handleSubmit}
-        fields={leadCreateFields}
-      />}
-      {addInstSourceModal && <ActionDialogmodel
-        title="LeadSource"
-        open={addInstSourceModal}
-        loading={loading.leadSourceLoading}
-        onCancel={() => {
-          dispatch(setAddInstSourceModal(false));
-          setOpenLeadCreateModal(true);
-        }}
-        onSubmit={handleAddLeadSourceSubmit}
-        fields={rangeAndDwellingTypeFields()}
-      />}
+      {openLeadCreateModal && (
+        <ActionDialogmodel
+          title="Lead"
+          open={openLeadCreateModal}
+          loading={loading.leadLoading}
+          onCancel={() => setOpenLeadCreateModal(false)}
+          onSubmit={handleSubmit}
+          fields={leadCreateFields}
+        />
+      )}
+      {addInstSourceModal && (
+        <ActionDialogmodel
+          title="LeadSource"
+          open={addInstSourceModal}
+          loading={loading.leadSourceLoading}
+          onCancel={() => {
+            dispatch(setAddInstSourceModal(false));
+            setOpenLeadCreateModal(true);
+          }}
+          onSubmit={handleAddLeadSourceSubmit}
+          fields={rangeAndDwellingTypeFields()}
+        />
+      )}
 
-      {showConflictModal && <Modal
-        title="Email Already Exists"
-        open={showConflictModal}
-        onOk={handleSubmit}
-        onCancel={() => {
-          setShowConflictModal(false);
-          setPendingLeadData(null)
-        }}
-        confirmLoading={loading.leadLoading}
-        okText="Create Anyway"
-        cancelText="Cancel"
-        centered
-      >
-        <p>
-          A lead with this email already exists.
-          Do you want to create a new lead with the same email anyway?
-        </p>
-      </Modal>}
+      {showConflictModal && (
+        <Modal
+          title="Email Already Exists"
+          open={showConflictModal}
+          onOk={handleSubmit}
+          onCancel={() => {
+            setShowConflictModal(false);
+            setPendingLeadData(null);
+          }}
+          confirmLoading={loading.leadLoading}
+          okText="Create Anyway"
+          cancelText="Cancel"
+          centered
+        >
+          <p>
+            A lead with this email already exists. Do you want to create a new lead with the same
+            email anyway?
+          </p>
+        </Modal>
+      )}
     </div>
   );
 };

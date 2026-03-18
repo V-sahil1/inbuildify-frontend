@@ -40,7 +40,7 @@ const LeadQuotations = () => {
   }, [searchId, status, sortOrder]);
 
   return (
-    <div>
+    <div className='border border-t-0 border-border-color'>
       {/* <LeadQuotationActionBar
                 quotationId={searchId}
                 status={status}

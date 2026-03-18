@@ -155,6 +155,7 @@ export interface Lead {
   };
   lotDetails?: ILotDetail;
   quotations?: Quotation[];
+  opportunityStatus?:string;
 }
 
 export interface BusinessContact {

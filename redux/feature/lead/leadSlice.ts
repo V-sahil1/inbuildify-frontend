@@ -39,7 +39,7 @@ import { getLeadByIdThunk } from './leadThunk';
 import { InitialState } from './ILeadState';
 import { Status } from '@lib/constants/enum';
 import { updateContact } from '../contacts/contactThunk';
-import { getQuotationThunk } from '../quotation/quotationThunk';
+import { createQuotationThunk, getQuotationThunk } from '../quotation/quotationThunk';
 import { actionAsyncStorage } from 'next/dist/client/components/action-async-storage-instance';
 
 const initialState: InitialState = {
@@ -161,9 +161,11 @@ export const leadSlice = createSlice({
     builder.addCase(getLeadByIdThunk.rejected, state => {
       state.status.leadById = Status.ERROR;
     });
+
     builder.addCase(createLeadThunk.fulfilled, (state, action) => {
       state.leads.unshift(action.payload);
     });
+
     builder.addCase(updateLeadThunk.pending, state => {
       state.status.updateLeadSource = Status.PENDING;
     });
@@ -246,12 +248,15 @@ export const leadSlice = createSlice({
       state.status.leadQuotations = Status.ERROR;
     });
     builder.addCase(convertLeadToOpportunityThunk.fulfilled, (state, action) => {
-      state.leadDetail.lead.status = action.payload.status;
+      state.leadDetail.lead.opportunityStatus = action.payload.status;
+      state.leadDetail.lead.status = 'Convert';
+
       state.leads = state.leads.map(lead => {
         if (lead.leadsId === action.payload.leadsId) {
           return {
             ...lead,
-            status: action.payload.status,
+            status: 'Convert',
+            opportunityStatus: action.payload.status,
             updatedAt: action.payload.updatedAt,
           };
         }
@@ -537,6 +542,18 @@ export const leadSlice = createSlice({
     });
     builder.addCase(createLeadProperty.fulfilled, (state, action) => {
       state.leadDetail.property = action.payload;
+      state.leadDetail.lead.status = state.leadDetail.lead.status === 'New' && 'Working';
+    });
+
+    //manage status on quotation create
+    builder.addCase(createQuotationThunk.fulfilled, (state, action) => {
+      state.leadDetail.lead.status = 'Convert';
+      if (state.leadDetail.lead.quotations.length === 0) {
+        state.leadDetail.lead.opportunityStatus = 'Proposal';
+      }
+      //  else {
+      //   state.leadDetail.lead.opportunityStatus = 'Negotiation';
+      // }
     });
   },
 });

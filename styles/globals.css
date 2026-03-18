@@ -1280,6 +1280,10 @@ body .apexcharts-legend-marker {
 .custom-tabs .ant-tabs-content-holder::-webkit-scrollbar {
   display: none;
 }
+.ant-tabs-tab-active {
+  background-color: var(--card-color) !important;
+  border-bottom: var(--body-color) !important;
+}
 
 @media (max-width: 768px) {
   .ag-paging-row-summary-panel,

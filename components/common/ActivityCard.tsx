@@ -53,7 +53,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ data, tabs }) => {
   );
 
   return (
-    <Card className="w-full overflow-hidden">
+    <div className="w-full overflow-hidden p-4 bg-card-color border border-t-0 border-border-color">
       {tabs && (
         <div className="flex sm:flex-row justify-between sm:items-center gap-3 mb-4">
           <TimelineActionsBar
@@ -139,7 +139,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ data, tabs }) => {
           <div className="text-center text-gray-500 py-10">No matching records found.</div>
         )}
       </div>
-    </Card>
+    </div>
   );
 };
 

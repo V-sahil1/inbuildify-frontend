@@ -28,23 +28,23 @@ export type FormField = {
   invite?: boolean;
   initialValue?: any;
   type?:
-  | 'email'
-  | 'phone'
-  | 'text'
-  | 'textarea'
-  | 'select'
-  | 'dynamic-select'
-  | 'url'
-  | 'number'
-  | 'checkbox'
-  | 'image'
-  | 'switch'
-  | 'date'
-  | 'texteditor'
-  | 'textEditor'
-  | 'color'
-  | 'radio'
-  | 'custom';
+    | 'email'
+    | 'phone'
+    | 'text'
+    | 'textarea'
+    | 'select'
+    | 'dynamic-select'
+    | 'url'
+    | 'number'
+    | 'checkbox'
+    | 'image'
+    | 'switch'
+    | 'date'
+    | 'texteditor'
+    | 'textEditor'
+    | 'color'
+    | 'radio'
+    | 'custom';
   mode?: 'tags' | 'multiple';
   options?: { value: string; label: string }[];
   selectAll?: {
@@ -128,7 +128,7 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
     setSwitchValues(initialSwitchValues);
 
     if (isEditing && initialValues) {
-      const values = { ...initialValues };      
+      const values = { ...initialValues };
       if (initialValues.logo) {
         values[fields.find(f => f.type === 'image')?.name || 'logo'] = makeFileFromUrl(
           initialValues.logo
@@ -212,7 +212,7 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
         layout="vertical"
         style={{ maxHeight: '70vh', overflowY: 'auto', scrollbarWidth: 'none' }}
         // onValuesChange={(changedValues, allValues) => {
-          
+
         //   Object.keys(changedValues).forEach(name => {
         //     const field = fields.find(f => f.name === name);
         //     if (field && field.type !== 'custom') {
@@ -228,12 +228,12 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
         //       return field && field.type !== 'custom';
         //     })
         //   );
-          
+
         //   // Only update prevValuesRef if there are actual changes to avoid circular references
         //   const arrayValues = Object.fromEntries(
         //     Object.entries(nonCustomValues).filter(([, v]) => Array.isArray(v))
         //   );
-          
+
         //   if (Object.keys(arrayValues).length > 0) {
         //     prevValuesRef.current = {
         //       ...prevValuesRef.current,
@@ -246,186 +246,205 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
         onValuesChange={(_, allValues) => onValuesChange?.(allValues, form)}
         disabled={loading}
       >
-        {fields.map(field => (
-          <Form.Item
-            key={field.key || field.name}
-            label={
-              <div className="flex items-center justify-between w-full gap-1">
-                <span className="flex-1">{field.label}</span>
-                {field.button && (
-                  <Button
-                    size="small"
-                    type="primary"
-                    disabled={field?.disableButton || false}
-                    onClick={e => {
-                      e.stopPropagation();
-                      field.onClick?.();
-                    }}
-                  >
-                    {field.button}
-                  </Button>
-                )}
-              </div>
-            }
-            name={field.name}
-            rules={field.type === 'custom' ? undefined : field.rules}
-            initialValue={field.initialValue}
-            extra={field.extra}
-          >
-            {field.type === 'select' ? (
-              <Select
-                showSearch
-                placeholder={field?.placeholder}
-                options={field?.options}
-                disabled={field?.disabled}
-                notFoundContent={field?.notFoundContent}
-                {...(field?.mode && { mode: field?.mode })}
-              />
-            ) : field.type === 'dynamic-select' ? (
-              // dynamic-select behaves like select but can also get options updated by parent (via props re-render)
-              <Select
-                showSearch
-                placeholder={field?.placeholder}
-                options={field?.options}
-                disabled={field?.disabled}
-                notFoundContent={field?.notFoundContent}
-                {...(field?.mode && { mode: field?.mode })}
-                onChange={val => field.onChange?.(val)}
-              // onChange={(val) => field.onChange?.(val, form)}
-              />
-            ) : field.type === 'radio' ? (
-              <Radio.Group onChange={field.onChange}>
-                {field.options ? (
-                  field.options.map(option => (
-                    <Radio key={option.value} value={option.value}>
-                      {option.label}
-                    </Radio>
-                  ))
-                ) : (
-                  <>
-                    <Radio value="TRUE">Yes</Radio>
-                    <Radio value="FALSE">No</Radio>
-                  </>
-                )}
-              </Radio.Group>
-            ) : field.type === 'image' ? (
-              <Form.Item
-                name={field.name}
-                getValueFromEvent={({ fileList }) => {
-                  if (fileList && fileList.length > 0) {
-                    return fileList[0].originFileObj;
-                  }
-                  return null;
-                }}
-                rules={[
-                  {
-                    validator: (_, value) => {
-                      if (field.rules?.some(r => 'required' in r && r.required) && !value) {
-                        return Promise.reject(new Error('Image is required'));
-                      }
-                      return Promise.resolve();
+        {fields.map(field => {
+          // Check if field is a checkbox without options
+          const isCheckboxWithoutOptions = field.type === 'checkbox' && !field.options;
+
+          return (
+            <Form.Item
+              key={field.key || field.name}
+              label={
+                // Hide label for checkbox fields without options
+                isCheckboxWithoutOptions ? null : (
+                  <div className="flex items-center justify-between w-full gap-1">
+                    <span className="flex-1">{field.label}</span>
+                    {field.button && (
+                      <Button
+                        size="small"
+                        type="primary"
+                        disabled={field?.disableButton || false}
+                        onClick={e => {
+                          e.stopPropagation();
+                          field.onClick?.();
+                        }}
+                      >
+                        {field.button}
+                      </Button>
+                    )}
+                  </div>
+                )
+              }
+              name={field.name}
+              rules={field.type === 'custom' ? undefined : field.rules}
+              initialValue={field.initialValue}
+              extra={field.extra}
+            >
+              {field.type === 'select' ? (
+                <Select
+                  showSearch
+                  placeholder={field?.placeholder}
+                  options={field?.options}
+                  disabled={field?.disabled}
+                  notFoundContent={field?.notFoundContent}
+                  {...(field?.mode && { mode: field?.mode })}
+                />
+              ) : field.type === 'dynamic-select' ? (
+                // dynamic-select behaves like select but can also get options updated by parent (via props re-render)
+                <Select
+                  showSearch
+                  placeholder={field?.placeholder}
+                  options={field?.options}
+                  disabled={field?.disabled}
+                  notFoundContent={field?.notFoundContent}
+                  {...(field?.mode && { mode: field?.mode })}
+                  onChange={val => field.onChange?.(val)}
+                  // onChange={(val) => field.onChange?.(val, form)}
+                />
+              ) : field.type === 'radio' ? (
+                <Radio.Group onChange={field.onChange}>
+                  {field.options ? (
+                    field.options.map(option => (
+                      <Radio key={option.value} value={option.value}>
+                        {option.label}
+                      </Radio>
+                    ))
+                  ) : (
+                    <>
+                      <Radio value="TRUE">Yes</Radio>
+                      <Radio value="FALSE">No</Radio>
+                    </>
+                  )}
+                </Radio.Group>
+              ) : field.type === 'image' ? (
+                <Form.Item
+                  name={field.name}
+                  getValueFromEvent={({ fileList }) => {
+                    if (fileList && fileList.length > 0) {
+                      return fileList[0].originFileObj;
+                    }
+                    return null;
+                  }}
+                  rules={[
+                    {
+                      validator: (_, value) => {
+                        if (field.rules?.some(r => 'required' in r && r.required) && !value) {
+                          return Promise.reject(new Error('Image is required'));
+                        }
+                        return Promise.resolve();
+                      },
                     },
-                  },
-                ]}
-                noStyle
-              >
-                <Upload
-                  name="image"
-                  listType="picture"
-                  multiple={false}
-                  maxCount={1}
-                  beforeUpload={() => false}
-                  accept={field?.acceptFileType || ''}
+                  ]}
+                  noStyle
                 >
-                  <Button>Click to Upload</Button>
-                </Upload>
-              </Form.Item>
-            ) : field.type === 'textarea' ? (
-              <Input.TextArea
-                placeholder={field.placeholder}
-                disabled={field.disabled}
-                className="!resize-none"
-                rows={4}
-              />
-            ) : field.type === 'phone' ? (
-              <Input
-                placeholder={field.placeholder || 'Enter phone number'}
-                disabled={field.disabled}
-                minLength={10}
-                maxLength={15}
-                onKeyPress={e => {
-                  if (!/[0-9]/.test(e.key)) {
-                    e.preventDefault();
-                  }
-                }}
-              />
-            ) : field.type === 'number' ? (
-              <Input
-                placeholder={field.placeholder}
-                type={field.type}
-                disabled={field.disabled}
-                onKeyPress={e => {
-                  if (!/[0-9]/.test(e.key)) {
-                    e.preventDefault();
-                  }
-                }}
-              />
-            ) : field.type === 'switch' ? (
-              <Switch
-                checked={switchValues[field.name] || false}
-                onChange={checked => {
-                  handleSwitchChange(field.name, checked);
-                }}
-                onClick={field.onClick}
-              />
-            ) : field.type === 'date' ? (
-              <DatePicker
-                className="w-full"
-                placeholder={field.placeholder || 'Select date'}
-                disabled={field.disabled}
-                format="YYYY-MM-DD"
-              />
-            ) : field.type === 'texteditor' ? (
-              <RichTextEditor
-                value={form.getFieldValue(field.name) || ''}
-                onChange={val => form.setFieldValue(field.name, val)}
-                maxHeight="400px"
-              />
-            ) : field.type === 'color' ? (
-              <ColorPicker
-                defaultValue="#d59d35"
-                onChange={color => {
-                  form.setFieldValue(field.name, color.toHexString());
-                }}
-              />
-            ) : field.type === 'custom' ? (
-              typeof field.render === 'function' ? (
-                (field.render as (form: any) => React.ReactNode)(form)
-              ) : (
-                field.render
-              )
-            ) : field.type === 'checkbox' ? (
-              field.options ? (
-                <Checkbox.Group>
-                  {field.options.map(option => (
-                    <Checkbox key={option.value} value={option.value}>
-                      {option.label}
-                    </Checkbox>
-                  ))}
-                </Checkbox.Group>
-              ) : (
-                <Checkbox
-                  checked={switchValues[field.name] || false}
-                  onChange={e => {
-                    handleSwitchChange(field.name, e.target.checked);
+                  <Upload
+                    name="image"
+                    listType="picture"
+                    multiple={false}
+                    maxCount={1}
+                    beforeUpload={() => false}
+                    accept={field?.acceptFileType || ''}
+                  >
+                    <Button>Click to Upload</Button>
+                  </Upload>
+                </Form.Item>
+              ) : field.type === 'textarea' ? (
+                <Input.TextArea
+                  placeholder={field.placeholder}
+                  disabled={field.disabled}
+                  className="!resize-none"
+                  rows={4}
+                />
+              ) : field.type === 'phone' ? (
+                <Input
+                  placeholder={field.placeholder || 'Enter phone number'}
+                  disabled={field.disabled}
+                  minLength={10}
+                  maxLength={15}
+                  onKeyPress={e => {
+                    if (!/[0-9]/.test(e.key)) {
+                      e.preventDefault();
+                    }
                   }}
                 />
-              )
-            ) : (
-              <Input placeholder={field.placeholder} type={field.type} disabled={field.disabled} />
-            )}
-          </Form.Item>
-        ))}
+              ) : field.type === 'number' ? (
+                <Input
+                  placeholder={field.placeholder}
+                  type={field.type}
+                  disabled={field.disabled}
+                  onKeyPress={e => {
+                    if (!/[0-9]/.test(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
+                />
+              ) : field.type === 'switch' ? (
+                <Switch
+                  checked={switchValues[field.name] || false}
+                  onChange={checked => {
+                    handleSwitchChange(field.name, checked);
+                  }}
+                  onClick={field.onClick}
+                />
+              ) : field.type === 'date' ? (
+                <DatePicker
+                  className="w-full"
+                  placeholder={field.placeholder || 'Select date'}
+                  disabled={field.disabled}
+                  format="YYYY-MM-DD"
+                />
+              ) : field.type === 'texteditor' ? (
+                <RichTextEditor
+                  value={form.getFieldValue(field.name) || ''}
+                  onChange={val => form.setFieldValue(field.name, val)}
+                  maxHeight="400px"
+                />
+              ) : field.type === 'color' ? (
+                <ColorPicker
+                  defaultValue="#d59d35"
+                  onChange={color => {
+                    form.setFieldValue(field.name, color.toHexString());
+                  }}
+                />
+              ) : field.type === 'custom' ? (
+                typeof field.render === 'function' ? (
+                  (field.render as (form: any) => React.ReactNode)(form)
+                ) : (
+                  field.render
+                )
+              ) : field.type === 'checkbox' ? (
+                isCheckboxWithoutOptions ? (
+                  // Manual layout for checkbox without options: checkbox on left, label on right
+                  <div className="flex items-center gap-2 text-font-color-100">
+                    <Checkbox
+                      checked={form.getFieldValue(field.name) === true}
+                      onChange={e => {
+                        const isChecked = e.target.checked;
+                        form.setFieldValue(field.name, isChecked);
+                        handleSwitchChange(field.name, isChecked);
+                      }}
+                    />
+                    <span>{field.label}</span>
+                  </div>
+                ) : (
+                  // Default layout for checkbox groups
+                  <Checkbox.Group>
+                    {field.options.map(option => (
+                      <Checkbox key={option.value} value={option.value}>
+                        {option.label}
+                      </Checkbox>
+                    ))}
+                  </Checkbox.Group>
+                )
+              ) : (
+                <Input
+                  placeholder={field.placeholder}
+                  type={field.type}
+                  disabled={field.disabled}
+                />
+              )}
+            </Form.Item>
+          );
+        })}
 
         {typeof footerMessage === 'string' ? (
           <p className="text-sm my-4 font-semibold">{footerMessage}</p>
