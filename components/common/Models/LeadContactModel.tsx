@@ -14,6 +14,7 @@ import {
   IconChevronDown,
   IconChevronUp,
   IconLink,
+  IconLocation,
   IconMail,
   IconPhone,
   IconPlus,
@@ -253,9 +254,25 @@ const LeadContactModel: React.FC<LeadContactModelProps> = ({
   };
 
   const handleCancel = () => {
-    setSelectedContact(null);
-    setShowAddForm(false);
-    form.resetFields();
+    if (contacts.length > 1) {
+      setSelectedContact(null);
+      setShowAddForm(false);
+      form.resetFields();
+    } else {
+      if (showAddForm) {
+        setSelectedContact(contacts[0]);
+        form.setFieldsValue({
+          ...contacts[0],
+          address: contacts[0].address || {},
+        });
+        setShowAddForm(false);
+      } else {
+        form.setFieldsValue({
+          ...contacts[0],
+          address: contacts[0].address || {},
+        });
+      }
+    }
   };
 
   const handleSave = async () => {
@@ -286,23 +303,27 @@ const LeadContactModel: React.FC<LeadContactModelProps> = ({
       centered
       width={800}
       title={
-        <div className="flex w-full justify-between items-center !pr-4">
+        <div className="flex w-full justify-between items-center">
           <span>Lead Contacts</span>
-          {contacts.length < maxContacts && (
-            <div className="flex gap-2">
-              {showAddForm ? (
-                <Button icon={<IconLink size={16} />} onClick={onLinkContact}>
-                  Link Contact
-                </Button>
-              ) : (
-                <Button type="primary" icon={<IconPlus size={16} />} onClick={handleAddContact}>
-                  Add Contact
-                </Button>
-              )}
-            </div>
-          )}
+          <div className="flex gap-2 items-center">
+            {contacts.length < maxContacts && (
+              <div className="flex items-center gap-2">
+                {showAddForm ? (
+                  <Button icon={<IconLink size={16} />} onClick={onLinkContact}>
+                    Link Contact
+                  </Button>
+                ) : (
+                  <Button type="primary" icon={<IconPlus size={16} />} onClick={handleAddContact}>
+                    Add Contact
+                  </Button>
+                )}
+              </div>
+            )}
+            <Button type="text" icon={<IconX />} onClick={onCancel} />
+          </div>
         </div>
       }
+      closable={false}
       footer={false}
     >
       {/* Add Contact Form */}
@@ -346,12 +367,19 @@ const LeadContactModel: React.FC<LeadContactModelProps> = ({
           >
             {/* Contact Card Header */}
             <div
-              className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full items-center justify-between cursor-pointer"
+              className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full items-center justify-between cursor-pointer"
               onClick={() => toggleCard(contact)}
             >
               <div className="col-span-1">
                 <h3 className="font-semibold text-[16px]">{contact.name}</h3>
-                <p className="text-gray-600 text-sm">{contact.address?.addressLine1}</p>
+                {contact.address?.addressLine1 && (
+                  <p className="text-gray-600 text-sm">
+                    {contact.address?.addressLine1 +
+                      ',' +
+                      (contact.address?.addressLine2 && contact.address?.addressLine2 + ',') +
+                      (contact.address?.city && contact.address?.city)}
+                  </p>
+                )}
               </div>
 
               <div className="col-span-1">
@@ -382,13 +410,15 @@ const LeadContactModel: React.FC<LeadContactModelProps> = ({
                     />
                   </div>
                 )}
-                <div className="flex justify-end">
-                  {selectedContact?.id === contact.id ? (
-                    <IconChevronUp size={20} className="text-gray-500" />
-                  ) : (
-                    <IconChevronDown size={20} className="text-gray-500" />
-                  )}
-                </div>
+                {contacts.length > 1 && (
+                  <div className="flex justify-end">
+                    {selectedContact?.id === contact.id ? (
+                      <IconChevronUp size={20} className="text-gray-500" />
+                    ) : (
+                      <IconChevronDown size={20} className="text-gray-500" />
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
