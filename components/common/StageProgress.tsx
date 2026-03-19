@@ -17,6 +17,7 @@ import CloseLeadModal from '../leadDetail/LeadQuotations/CloseLeadModal';
 import { Quotation } from '@redux/feature/quotation/IQuotationState';
 import SystemRoutes from '@lib/constants/Routes';
 import { HeaderContent } from './HeaderContent';
+import ConvertLeadModal from '../leadDetail/ConvertLeadModal';
 
 type Step = {
   key: string;
@@ -41,42 +42,8 @@ type StageProgressProps = {
     leadSource?: string;
     assignedTask?: { label: string; value: string; status: string }[];
   };
+  actions?: { key: string; label: string }[];
 };
-
-const actions = [
-  {
-    key: 'transfer',
-    label: 'Transfer',
-  },
-  {
-    key: 'delete',
-    label: 'Delete',
-  },
-  {
-    key: 'onhold',
-    label: 'On Hold',
-  },
-  {
-    key: 'blocklist',
-    label: 'Blocklist',
-  },
-  {
-    key: 'referanceid',
-    label: 'Referance ID',
-  },
-  {
-    key: 'converttolead',
-    label: 'Convert to Lead',
-  },
-  // {
-  //   key: "sendwelcomelatter",
-  //   label: "Send Welcome Letter",
-  // },
-  // {
-  //   key: "sendwelcomeemail",
-  //   label: "Send Welcome Email",
-  // },
-];
 
 const StageProgress: React.FC<StageProgressProps> = ({
   id,
@@ -89,11 +56,12 @@ const StageProgress: React.FC<StageProgressProps> = ({
   idClassName,
   quotations,
   data,
+  actions,
 }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState<
+    'closeLead' | 'delete' | 'transfer' | 'opportunity' | 'lead' | null
+  >(null);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
-  const [confirmModalVisible, setConfirmModalVisible] = useState(false);
-  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const [modalType, setModalType] = useState<'WON' | 'LOST' | null>(null);
   const [loading, setLoading] = useState(false);
   const [dropdownVisible, setDropdownVisible] = useState(false);
@@ -102,23 +70,23 @@ const StageProgress: React.FC<StageProgressProps> = ({
   const router = useRouter();
   const handleWinClick = () => {
     setModalType('WON');
-    setIsModalOpen(true);
+    setIsModalOpen('closeLead');
   };
 
   const handleLoseClick = () => {
     setModalType('LOST');
-    setIsModalOpen(true);
+    setIsModalOpen('closeLead');
   };
 
   const handleActionSelect = (action: string) => {
     setSelectedAction(action);
     switch (action) {
       case 'transfer':
-        setIsTransferModalOpen(true);
+        setIsModalOpen('transfer');
 
         break;
       case 'delete':
-        setConfirmModalVisible(true);
+        setIsModalOpen('delete');
         break;
       case 'onhold':
         break;
@@ -126,8 +94,11 @@ const StageProgress: React.FC<StageProgressProps> = ({
         break;
       case 'referanceid':
         break;
-      case 'converttolead':
-        setConfirmModalVisible(true);
+      case 'convertToLead':
+        setIsModalOpen('lead');
+        break;
+      case 'convertToOpprtunity':
+        setIsModalOpen('opportunity');
         break;
       case 'sendwelcomelatter':
         break;
@@ -152,7 +123,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
       message.error(err || 'Failed to transfer lead');
     } finally {
       setLoading(false);
-      setIsTransferModalOpen(false);
+      setIsModalOpen(null);
     }
   };
 
@@ -175,7 +146,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
       setLoading(true);
       await dispatch(leadConvertThunk(leadId)).unwrap();
       message.success('Lead converted successfully');
-      setConfirmModalVisible(false);
+      setIsModalOpen(null);
     } catch (err) {
       setLoading(false);
       message.error(err || 'Failed to convert lead');
@@ -210,14 +181,14 @@ const StageProgress: React.FC<StageProgressProps> = ({
               <div
                 key={step.key}
                 onClick={() =>
-                  step.key === 'Convert' && idx === steps.length - 2 && step.onClick?.(step.key)
+                  step.key === 'Convert' && idx === steps.length - 1 && step.onClick?.(step.key)
                 }
                 className={`
                 flex-1 text-center py-2 select-none 
                 ${isActive || index < idx ? `${step.textColor} ${step.color}` : 'text-black bg-gray-200'}
                 transition-colors
                 ${index > 0 ? '-ml-3' : ''}
-                ${step.key === 'Convert' && idx === steps.length - 2 && 'cursor-pointer'}
+                ${step.key === 'Convert' && idx === steps.length - 1 && 'cursor-pointer'}
                 relative
               `}
                 style={{
@@ -301,9 +272,9 @@ const StageProgress: React.FC<StageProgressProps> = ({
       </div>
       {/* <Modal
         title={modalType === "WON" ? "Won" : modalType === "LOST" ? "Lost" : ""}
-        open={isModalOpen}
+        open={isModalOpen === 'closeLead'}
         onCancel={() => {
-          setIsModalOpen(false);
+          setIsModalOpen(null);
           setModalType(null);
         }}
         centered
@@ -332,14 +303,14 @@ const StageProgress: React.FC<StageProgressProps> = ({
         </Form>
       </Modal> */}
 
-      {isTransferModalOpen && (
+      {isModalOpen === 'transfer' && (
         <CreateFormModal
           title="Transfer Lead"
-          open={isTransferModalOpen}
+          open={isModalOpen === 'transfer'}
           loading={loading}
           onCancel={() => {
             setSelectedAction(null);
-            setIsTransferModalOpen(false);
+            setIsModalOpen(null);
           }}
           submitButtonText="Transfer"
           isEditing={!!lead?.lead?.assignee?.id}
@@ -354,23 +325,23 @@ const StageProgress: React.FC<StageProgressProps> = ({
         />
       )}
 
-      {isModalOpen && (
+      {isModalOpen === 'closeLead' && (
         <CloseLeadModal
-          isModalOpen={isModalOpen}
-          setIsModalOpen={() => setIsModalOpen(false)}
+          isModalOpen={isModalOpen === 'closeLead'}
+          setIsModalOpen={() => setIsModalOpen(null)}
           active={modalType}
           leadData={lead?.lead}
           quotations={quotations}
         />
       )}
 
-      {confirmModalVisible && (
+      {['delete', 'lead'].includes(isModalOpen) && (
         <ConfirmationModal
-          open={confirmModalVisible}
+          open={['delete', 'lead'].includes(isModalOpen)}
           type={selectedAction === 'delete' ? 'danger' : 'warning'}
           loading={loading}
           onClose={() => {
-            setConfirmModalVisible(false);
+            setIsModalOpen(null);
           }}
           onConfirm={() => {
             if (selectedAction === 'delete') {
@@ -384,6 +355,13 @@ const StageProgress: React.FC<StageProgressProps> = ({
               ? 'Are you sure you want to delete this lead?'
               : 'Are you sure you want to convert this to a lead?'
           }
+        />
+      )}
+      {isModalOpen === 'opportunity' && (
+        <ConvertLeadModal
+          visible={isModalOpen === 'opportunity'}
+          onCancel={() => setIsModalOpen(null)}
+          leadId={lead?.lead?.leadsId as string}
         />
       )}
     </div>

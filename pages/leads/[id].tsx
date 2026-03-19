@@ -257,6 +257,42 @@ function App() {
     ];
   }, [isOpportunity]);
 
+  const actions = [
+    {
+      key: 'transfer',
+      label: 'Transfer',
+    },
+    {
+      key: 'delete',
+      label: 'Delete',
+    },
+    {
+      key: 'onhold',
+      label: 'On Hold',
+    },
+    {
+      key: 'blocklist',
+      label: 'Blocklist',
+    },
+    {
+      key: 'referanceid',
+      label: 'Referance ID',
+    },
+    isOpportunity && {
+      key: 'convertToLead',
+      label: 'Convert to Lead',
+    },
+    leadDetail?.lead?.status === 'Working' &&
+      leadDetail?.property && {
+        key: 'convertToOpprtunity',
+        label: 'Convert to Opportunity',
+      },
+    {
+      key: 'sendwelcomelatter',
+      label: 'Send Welcome Letter',
+    },
+  ].filter(Boolean);
+
   if (status.leads === Status.PENDING) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -343,6 +379,7 @@ function App() {
             lead={leadDetail}
             showOptions={true}
             quotations={createdQuotations}
+            actions={actions}
           />
         </div>
 

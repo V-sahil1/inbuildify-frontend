@@ -20,7 +20,7 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
     if (categories.length > 0 && !selectedCategory) {
       onCategorySelect(categories[0].priceListId);
     }
-  }, [categories, selectedCategory, onCategorySelect]);
+  }, [categories]);
 
   const menuItems = categories.map(category => ({
     key: category.priceListId,
@@ -36,7 +36,7 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
           onCategorySelect(key);
           setSelect(false);
         }}
-        className="border-0 h-full"
+        className="border-0 h-full rounded-tl-lg rounded-bl-lg"
         items={menuItems}
       />
     </div>

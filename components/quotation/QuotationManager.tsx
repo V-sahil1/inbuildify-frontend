@@ -490,7 +490,7 @@ const QuotationManager = () => {
         filters={quotationFilters}
       />
 
-      <div className="flex flex-1 m-3 border rounded-lg h-[365px]">
+      <div className="flex flex-1 m-3 border border-border-color rounded-lg h-[365px]">
         {quotationFilters?.range && quotationFilters?.dwellingType ? (
           <>
             <div className="w-64">
@@ -523,7 +523,10 @@ const QuotationManager = () => {
               //     : false
               // }
               itemsLoading={false}
-              setSelect={setSelect}
+              setSelect={val => {
+                setSelectedCategory(val ? null : categoryData?.[0].priceListId);
+                setSelect(val);
+              }}
               select={onSelect}
             />
           </>

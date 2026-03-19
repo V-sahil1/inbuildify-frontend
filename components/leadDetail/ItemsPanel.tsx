@@ -24,7 +24,7 @@ interface ItemsPanelProps {
   setSelect?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const ItemsPanel: React.FC<ItemsPanelProps> = ({
+const  ItemsPanel: React.FC<ItemsPanelProps> = ({
   category,
   onExtraClick,
   extraItem,
@@ -69,7 +69,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
     dispatch(updateQuotationItem({ itemId, quantity }));
   };
   return (
-    <div className="w-full bg-card-color flex flex-col">
+    <div className="w-full bg-card-color flex flex-col border-0 rounded-tr-lg rounded-br-lg">
       {/* Header (search + actions) */}
       <div className="p-4 border-b border-gray-200">
         <div className="text-end w-full ">
@@ -82,11 +82,12 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
               size="small"
             />
           </div> */}
-          <Button type="primary" size="small" onClick={() => setSelect(!select)} ghost>
-            Selected Items{' '}
-            <span className="ml-1 bg-blue-500 text-primary rounded-full px-2 py-0 text-xs">
-              {items?.length ?? 0}
-            </span>
+          <Button
+            type={select ? 'primary' : 'default'}
+            size="small"
+            onClick={() => setSelect(!select)}
+          >
+            Selected Items {items?.length ?? 0}
           </Button>
         </div>
       </div>

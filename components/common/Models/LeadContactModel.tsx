@@ -379,12 +379,14 @@ const LeadContactModel: React.FC<LeadContactModelProps> = ({
               <div className="col-span-1">
                 <h3 className="font-semibold text-[16px]">{contact.name}</h3>
                 {contact.address?.addressLine1 && (
-                  <p className="text-gray-600 text-sm">
-                    {contact.address?.addressLine1 +
-                      ',' +
-                      (contact.address?.addressLine2 && contact.address?.addressLine2 + ',') +
-                      (contact.address?.city && contact.address?.city)}
-                  </p>
+                  <div className="flex gap-2 items-start">
+                    <IconLocation size={15} className="text-gray-500" />
+                    <p className="text-gray-600 text-sm flex-wrap">
+                      {contact.address?.addressLine1}
+                      {contact.address?.addressLine2 && `, ${contact.address.addressLine2}`}
+                      {contact.address?.city && `, ${contact.address.city}`}
+                    </p>
+                  </div>
                 )}
               </div>
 
