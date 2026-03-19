@@ -50,6 +50,7 @@ import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import { LeadContactPage } from '@/components/leads/LeadContact';
 import { LeadPropertyPage } from '@/components/leads/LeadPropertyPage';
 import LeadQuotations from '@/components/leadDetail/LeadQuotations/LeadQuotations';
+import LeadContactModel from '@/components/common/Models/LeadContactModel';
 
 const { TabPane } = Tabs;
 
@@ -124,24 +125,23 @@ function App() {
     setModalOpen(null);
   };
 
-  const handleEditLeadSubmit = async values => {
+  const handleEditLeadSubmit = async (selectedContact, values) => {
     try {
-      const { type, ...rest } = values;
-      if (type === 'update') {
-        const { isUpdated, updatedFields } = getUpdatedFields(rest, leadDetail?.contacts?.[0]);
+      if (!!selectedContact) {
+        const { isUpdated, updatedFields } = getUpdatedFields(values, selectedContact);
         if (!isUpdated) {
           setModalOpen(null);
           return;
         }
         const res = await dispatch(
-          updateContact({ id: leadDetail?.contacts?.[0]?.contactId || '', data: updatedFields })
+          updateContact({ id: selectedContact.contactId || '', data: updatedFields })
         ).unwrap();
         message.success('Contact updated successfully');
       } else {
-        const res = await dispatch(createContact(rest)).unwrap();
+        const res = await dispatch(createContact(values)).unwrap();
         await dispatch(
           createLeadContactMapThunk({
-            leadsId: leadId!,
+            leadsId: leadId,
             contactId: res.usersId,
           })
         ).unwrap();
@@ -319,6 +319,15 @@ function App() {
     }
   };
 
+  const handleDeleteContact = async (id: string) => {
+    try {
+      await dispatch(deleteLeadContactMapThunk(id));
+      message.success('Contact removed successfully');
+    } catch (error) {
+      message.error(error || 'Failed to remove lead contact');
+    }
+  };
+
   return (
     <div className="grid grid-cols-3 lg:grid-cols-4">
       <div className="col-span-3 lg:col-span-3">
@@ -423,17 +432,16 @@ function App() {
           onCancel={handleConvertCancel}
           leadId={router.query.id as string}
         />
-
-        <LeadDetailsForm
-          open={modalOpen === 'contact'}
-          onCancel={() => setModalOpen(null)}
-          onSubmit={handleEditLeadSubmit}
-          loading={loading}
-          isEditing={!!leadDetail?.contacts?.[0]}
-          initialValues={leadDetail?.contacts?.[0]}
-          isLinkContact={true}
-          handleOpenContactModal={handleOpenContactModal}
-        />
+        {modalOpen === 'contact' && (
+          <LeadContactModel
+            open={modalOpen === 'contact'}
+            onCancel={() => setModalOpen(null)}
+            contacts={leadDetail?.contacts}
+            onLinkContact={handleOpenContactModal}
+            onDeleteContact={handleDeleteContact}
+            onSaveContact={handleEditLeadSubmit}
+          />
+        )}
 
         {/* Property Details Modal */}
         {modalOpen === 'property' && (

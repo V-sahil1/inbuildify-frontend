@@ -441,9 +441,7 @@ export const leadSlice = createSlice({
       state.status.leadContact = Status.PENDING;
     });
     builder.addCase(deleteLeadContactMapThunk.fulfilled, (state, action) => {
-      state.leadDetail.contacts = state.leadDetail.contacts.filter(
-        i => i.contactId !== action.meta.arg
-      );
+      state.leadDetail.contacts = state.leadDetail.contacts.filter(i => i.id !== action.meta.arg);
       state.status.leadContact = Status.SUCCESS;
     });
     builder.addCase(deleteLeadContactMapThunk.rejected, state => {

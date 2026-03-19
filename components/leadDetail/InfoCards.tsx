@@ -34,9 +34,14 @@ import { deleteQuotationPackageThunk } from '@redux/feature/quotation/quotationT
 import { Package } from '@redux/feature/package/IPackageState';
 import LeadDetailsForm from './forms/LeadDetailsForm';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
-import { createLeadContactMapThunk } from '@redux/feature/lead/leadThunk';
+import {
+  createLeadContactMapThunk,
+  deleteLeadContactMapThunk,
+} from '@redux/feature/lead/leadThunk';
 import { LeadLinkContactModel } from '../common/Models/LeadLinkContactModel';
 import { IContact } from '@redux/feature/contacts/contactState';
+import LeadContactModel from '../common/Models/LeadContactModel';
+import { LeadContact } from '@redux/feature/lead/ILeadState';
 interface InfoCardsProps {
   propertyDetails: any;
   selectedPlan?: IFloorPlanState;
@@ -77,21 +82,21 @@ const InfoCards: React.FC<InfoCardsProps> = ({
     ? 'Please select both Location and Dwelling Type first'
     : '';
 
-  const handleEditLeadSubmit = async values => {
+  const handleEditLeadSubmit = async (selectedContact: LeadContact | null, values: LeadContact) => {
     try {
-      const { type, ...rest } = values;
-      if (type === 'update') {
-        const { isUpdated, updatedFields } = getUpdatedFields(rest, leadDetail?.contacts?.[0]);
+      if (!!selectedContact) {
+        const { isUpdated, updatedFields } = getUpdatedFields(values, selectedContact);
         if (!isUpdated) {
           setModalOpen(null);
+          setLoading(false);
           return;
         }
         const res = await dispatch(
-          updateContact({ id: leadDetail?.contacts?.[0]?.contactId || '', data: updatedFields })
+          updateContact({ id: selectedContact.contactId || '', data: updatedFields })
         ).unwrap();
         message.success('Contact updated successfully');
       } else {
-        const res = await dispatch(createContact(rest)).unwrap();
+        const res = await dispatch(createContact(values)).unwrap();
         await dispatch(
           createLeadContactMapThunk({
             leadsId: leadDetail?.lead?.leadsId,
@@ -149,6 +154,14 @@ const InfoCards: React.FC<InfoCardsProps> = ({
       message.error(err || 'Failed to link contact');
     } finally {
       setLoading(false);
+    }
+  };
+  const handleDeleteContact = async (id: string) => {
+    try {
+      await dispatch(deleteLeadContactMapThunk(id));
+      message.success('Contact removed successfully');
+    } catch (error) {
+      message.error(error || 'Failed to remove lead contact');
     }
   };
 
@@ -378,15 +391,13 @@ const InfoCards: React.FC<InfoCardsProps> = ({
 
       {/* Edit Lead Details Modal */}
       {modalOpen === 'contact' && (
-        <LeadDetailsForm
+        <LeadContactModel
           open={modalOpen === 'contact'}
           onCancel={() => setModalOpen(null)}
-          onSubmit={handleEditLeadSubmit}
-          loading={loading}
-          isEditing={true}
-          initialValues={leadDetail?.contacts?.[0]}
-          isLinkContact={true}
-          handleOpenContactModal={handleOpenContactModal}
+          contacts={leadDetail?.contacts}
+          onLinkContact={handleOpenContactModal}
+          onDeleteContact={handleDeleteContact}
+          onSaveContact={handleEditLeadSubmit}
         />
       )}
 
