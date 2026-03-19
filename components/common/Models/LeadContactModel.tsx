@@ -9,6 +9,7 @@ import {
   optionalPhoneRule,
   phoneRules,
 } from '@lib/constants/formInputValidations';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import { LeadContact } from '@redux/feature/lead/ILeadState';
 import {
   IconChevronDown,
@@ -267,10 +268,15 @@ const LeadContactModel: React.FC<LeadContactModelProps> = ({
         });
         setShowAddForm(false);
       } else {
-        form.setFieldsValue({
-          ...contacts[0],
-          address: contacts[0].address || {},
-        });
+        const { isUpdated } = getUpdatedFields(form.getFieldsValue(), contacts[0]);
+        if (isUpdated) {
+          form.setFieldsValue({
+            ...contacts[0],
+            address: contacts[0].address || {},
+          });
+        } else {
+          onCancel();
+        }
       }
     }
   };
