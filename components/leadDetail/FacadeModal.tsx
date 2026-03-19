@@ -22,19 +22,25 @@ const FacadeModal: React.FC<FacadeModalProps> = ({ visible, onCancel, onSave, se
   const dispatch = useAppDispatch();
   const { facades, selectedFilters } = useAppSelector(state => state.facade);
   const [form] = Form.useForm();
-
+  const { selectedFilters: quoteFilters } = useAppSelector(state => state.quotation);
   const [activeTab, setActiveTab] = useState<'available' | 'custom'>('available');
   const [selected, setSelected] = useState<IFacadeState>(selectedFacade || null);
   const [formValues, setFormValues] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // if (status === Status.IDLE) {
     if (visible) {
-      dispatch(getFacades({})).unwrap().catch(console.error);
+      dispatch(
+        getFacades({
+          status: true,
+          dwelling_type_id: quoteFilters?.dwellingType,
+          range_id: quoteFilters?.range,
+        })
+      )
+        .unwrap()
+        .catch(console.error);
     }
-    // }
-  }, [dispatch, visible, selectedFilters]);
+  }, [dispatch, visible, quoteFilters]);
 
   const handleSave = async () => {
     if (activeTab === 'available') {

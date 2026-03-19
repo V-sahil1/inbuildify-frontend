@@ -1,6 +1,6 @@
 import { useAppSelector } from '@hooks/redux';
 import { IconEdit, IconMail, IconPhoneCall } from '@tabler/icons-react';
-import { Card } from 'antd';
+import { Card, Tooltip } from 'antd';
 
 export const LeadContactPage = ({ setModalOpen, handleOpenContactModal }) => {
   const { leadDetail } = useAppSelector(state => state.lead);
@@ -41,7 +41,9 @@ export const LeadContactPage = ({ setModalOpen, handleOpenContactModal }) => {
 
           <div className="flex items-center gap-2 mt-1">
             <IconMail className="w-4 h-4" />
-            <span className="text-sm">{leadDetail?.contacts?.[0]?.email ?? 'N/A'}</span>
+            <Tooltip title={leadDetail?.contacts?.[0]?.email ?? 'N/A'}>
+              <span className="text-sm truncate">{leadDetail?.contacts?.[0]?.email ?? 'N/A'}</span>
+            </Tooltip>
           </div>
         </Card>
       )}

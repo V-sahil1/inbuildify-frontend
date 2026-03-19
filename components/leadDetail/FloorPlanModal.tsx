@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Tabs, Button, Typography, Spin } from 'antd';
+import { Modal, Tabs, Button, Typography, Spin, message } from 'antd';
 import AvailablePlansTab from './AvailablePlansTab';
 import CustomPlanTab from './CustomPlanTab';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
@@ -27,9 +27,11 @@ const FloorPlanModal: React.FC<FloorPlanModalProps> = ({
 }) => {
   const dispatch = useAppDispatch();
   const { floorPlans, status, filters } = useAppSelector((state: RootState) => state.floorPlan);
-
+  const { selectedFilters } = useAppSelector(state => state.quotation);
   const [activeTab, setActiveTab] = useState<'available' | 'custom'>('available');
-  const [selectedFloorPlan, setSelectedFloorPlan] = useState<IFloorPlanState | null>(selectedPlan || null);
+  const [selectedFloorPlan, setSelectedFloorPlan] = useState<IFloorPlanState | null>(
+    selectedPlan || null
+  );
 
   // Update local state when selectedPlan prop changes
   useEffect(() => {
@@ -37,10 +39,22 @@ const FloorPlanModal: React.FC<FloorPlanModalProps> = ({
   }, [selectedPlan]);
 
   useEffect(() => {
-    if (status.floorPlan.fetch === Status.IDLE) {
-      dispatch(fetchFloorPlans(undefined)).unwrap();
+    fetchFloorPlanData();
+  }, [dispatch, selectedFilters]);
+
+  const fetchFloorPlanData = async () => {
+    try {
+      await dispatch(
+        fetchFloorPlans({
+          dwelling_type_id: selectedFilters?.dwellingType,
+          range_id: selectedFilters?.range,
+          status: true,
+        })
+      ).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch floorplan');
     }
-  }, [dispatch, status, filters]);
+  };
 
   const handleSave = () => {
     if (selectedFloorPlan) {
