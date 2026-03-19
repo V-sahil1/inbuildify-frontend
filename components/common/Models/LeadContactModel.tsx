@@ -216,7 +216,7 @@ const LeadContactModel: React.FC<LeadContactModelProps> = ({
         address: contacts[0].address || {},
       });
     }
-  }, [contacts, form]);
+  }, [contacts]);
 
   const toggleCard = (contact: LeadContact) => {
     if (selectedContact?.id === contact.id) {
@@ -231,10 +231,25 @@ const LeadContactModel: React.FC<LeadContactModelProps> = ({
   };
 
   const handleAddContact = () => {
+    // Force complete form reset
+    form.resetFields();
+    form.setFieldsValue({
+      name: '',
+      email: '',
+      phone: '',
+      secondaryPhone: '',
+      address: {
+        addressLine1: '',
+        addressLine2: '',
+        city: '',
+        zipCode: '',
+        countryId: undefined,
+        stateId: undefined,
+      },
+    });
+    setShowAddressFields(true);
     setShowAddForm(true);
     setSelectedContact(null);
-    setShowAddressFields(true);
-    form.resetFields();
   };
 
   const handleCancel = () => {
@@ -304,11 +319,12 @@ const LeadContactModel: React.FC<LeadContactModelProps> = ({
                     onChange={e => setShowAddressFields(e.target.checked)}
                     className="mr-2"
                   />
-                  <span>{showAddressFields ? 'Hide' : 'Show'} address fields</span>
+                  <span>Show address fields</span>
                 </div>
               )}
             </div>
             <ContactForm
+              key={showAddForm ? 'add-form' : 'edit-form'}
               form={form}
               formFields={formFields}
               submitText="Add Contact"

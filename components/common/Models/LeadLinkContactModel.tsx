@@ -1,3 +1,4 @@
+import { useAppSelector } from '@hooks/redux';
 import { useContactHook } from '@hooks/useContactHook';
 import { Button, Modal, Select } from 'antd';
 
@@ -10,6 +11,10 @@ export const LeadLinkContactModel = ({
   loading,
 }) => {
   const { contactOptions, contact } = useContactHook();
+  const { leadDetail } = useAppSelector(state => state.lead);
+  const options = contactOptions.filter(option =>
+    leadDetail?.contacts?.some(contact => contact.usersId !== option.value)
+  );
   return (
     <Modal
       title="Select Contact"
@@ -39,7 +44,7 @@ export const LeadLinkContactModel = ({
         filterOption={(input, option) =>
           (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
         }
-        options={contactOptions}
+        options={options}
         value={selectedContact?.usersId}
         onChange={value => {
           const selectedContact = contact.find(c => c.usersId === value);
