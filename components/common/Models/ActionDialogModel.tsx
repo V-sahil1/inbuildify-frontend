@@ -78,6 +78,7 @@ interface ActionDialogProps {
   onSubmit: (values: any) => void;
   fields: readonly FormField[];
   onValuesChange?: (values: any, form: any) => void;
+  form?: any;
   variant?: 'default' | 'danger' | 'success';
 }
 
@@ -94,9 +95,11 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
   submitButtonText,
   fields,
   onValuesChange,
+  form: passedForm,
   variant = 'default',
 }) => {
-  const [form] = Form.useForm();
+  const [internalForm] = Form.useForm();
+  const form = passedForm ?? internalForm;
   const prevValuesRef = React.useRef<Record<string, any[]>>({});
   const [switchValues, setSwitchValues] = useState({});
 

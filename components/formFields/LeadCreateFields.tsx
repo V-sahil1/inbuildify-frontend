@@ -21,10 +21,57 @@ export type LeadFormField = Omit<FormField, 'type'> & {
 };
 
 export const useLeadCreateFields = (
-  { isEmailDisable }: { isEmailDisable: boolean } = { isEmailDisable: false }
+  { isEmailDisable }: { isEmailDisable: boolean } = { isEmailDisable: false },
+  form?: any
 ): readonly FormField[] => {
   const dispatch = useAppDispatch();
   const { leadSource, status } = useAppSelector(state => state.sales.leadSource);
+  const { setting } = useAppSelector(state => state.sales.setting);
+  const isOptional = (type: 'email' | 'phone') => {
+    const option = setting?.leadMandatoryOption;
+
+    if (!option) return false;
+
+    if (option === 'email_and_phone') return false;
+
+    if (option === 'email_not_mandatory' && type === 'email') return true;
+    if (option === 'phone_not_mandatory' && type === 'phone') return true;
+
+    if (option === 'email_and_phone_not_mandatory') return true;
+
+    if (option === 'either_email_or_phone') return true;
+
+    return false;
+  };
+
+  const getEmailRules = () => {
+    if (setting?.leadMandatoryOption === 'either_email_or_phone') {
+      return [
+        ...optionalEmailRule,
+        {
+          validator: (_: any, value: string) => {
+            const phoneValue = form?.getFieldValue?.('phone');
+            if (!value && !phoneValue) {
+              return Promise.reject(
+                new Error('Either email or phone is required')
+              );
+            }
+            return Promise.resolve();
+          },
+        },
+      ];
+    }
+
+    return isOptional('email') ? optionalEmailRule : emailRules;
+  };
+
+  const getPhoneRules = () => {
+    return isOptional('phone') ? optionalPhoneRule : phoneRules;
+  };
+
+  const emailFieldRules = getEmailRules();
+  const phoneFieldRules = getPhoneRules();
+
   const LeadSourceOptions =
     leadSource &&
     leadSource.length > 0 &&
@@ -65,7 +112,7 @@ export const useLeadCreateFields = (
       name: 'email',
       placeholder: 'john@example.com',
       type: 'email',
-      rules: emailRules,
+      rules: emailFieldRules,
       disabled: isEmailDisable,
     },
     {
@@ -73,7 +120,7 @@ export const useLeadCreateFields = (
       name: 'phone',
       placeholder: '1234567890',
       type: 'phone',
-      rules: phoneRules,
+      rules: phoneFieldRules,
     },
     {
       label: 'Lead Source',

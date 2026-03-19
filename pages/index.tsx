@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { createLeadPayload, createLeadThunk, getLeadThunk } from '@redux/feature/lead/leadThunk';
-import { message, Typography, Empty, Spin, Modal } from 'antd';
+import { Form, message, Typography, Empty, Spin, Modal } from 'antd';
 import { CreateFormModal } from '@/components/common/Models/CreateFormModel';
 import { Status } from '@lib/constants/enum';
 import { useRouter } from 'next/navigation';
@@ -27,7 +27,8 @@ const Leads = () => {
   const [pendingLeadData, setPendingLeadData] = useState<createLeadPayload | null>(null);
   const [loading, setLoading] = useState({ leadLoading: false, leadSourceLoading: false });
 
-  const leadCreateFields = useLeadCreateFields({ isEmailDisable: false });
+  const [leadForm] = Form.useForm();
+  const leadCreateFields = useLeadCreateFields({ isEmailDisable: false }, leadForm);
 
   async function fetchData() {
     try {
@@ -189,6 +190,7 @@ const Leads = () => {
           onCancel={() => setOpenLeadCreateModal(false)}
           onSubmit={handleSubmit}
           fields={leadCreateFields}
+          form={leadForm}
         />
       )}
       {addInstSourceModal && (
