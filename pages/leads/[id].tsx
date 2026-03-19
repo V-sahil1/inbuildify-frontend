@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Button, message, Spin, Tabs } from 'antd';
+import { Button, message, Spin, Tabs, Tooltip } from 'antd';
 import StageProgress from '@/components/common/StageProgress';
 import ConvertLeadModal from '@/components/leadDetail/ConvertLeadModal';
 import PropertyDetailsModal from '@/components/leadDetail/PropertyDetailsModal';
@@ -353,7 +353,11 @@ function App() {
           </div>
           <div className="flex items-center border border-border-color bg-card-color">
             <Button icon={<IconMail size={20} />} type="text" />
-            <p className="pl-2 border-border-color border-l-2">{leadDetail?.lead?.email}</p>
+            <Tooltip title={leadDetail?.lead?.email}>
+              <p className="pl-2 border-border-color border-l-2 truncate">
+                {leadDetail?.lead?.email}
+              </p>
+            </Tooltip>
           </div>
           <div className="flex items-center border border-border-color bg-card-color">
             <Button icon={<IconPhone size={20} />} type="text" />

@@ -410,15 +410,13 @@ const LeadContactModel: React.FC<LeadContactModelProps> = ({
                     />
                   </div>
                 )}
-                {contacts.length > 1 && (
-                  <div className="flex justify-end">
-                    {selectedContact?.id === contact.id ? (
-                      <IconChevronUp size={20} className="text-gray-500" />
-                    ) : (
-                      <IconChevronDown size={20} className="text-gray-500" />
-                    )}
-                  </div>
-                )}
+                <div className="flex justify-end">
+                  {selectedContact?.id === contact.id ? (
+                    <IconChevronUp size={20} className="text-gray-500" />
+                  ) : (
+                    <IconChevronDown size={20} className="text-gray-500" />
+                  )}
+                </div>
               </div>
             </div>
 
