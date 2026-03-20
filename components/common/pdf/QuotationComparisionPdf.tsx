@@ -1,6 +1,10 @@
 'use client';
 import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
-import { IQuotationItem, QuotationVersionDetails } from '@redux/feature/quotation/IQuotationState';
+import {
+  IQuotationItem,
+  Quotation,
+  QuotationVersionDetails,
+} from '@redux/feature/quotation/IQuotationState';
 
 Font.register({
   family: 'Helvetica',
@@ -16,7 +20,7 @@ Font.register({
 interface Props {
   comparisonResult: IQuotationItem[];
   propertyAddress?: string;
-  selectedVersions?: QuotationVersionDetails[];
+  selectedVersions?: { version: QuotationVersionDetails; quotation: Quotation }[];
   slugId?: string;
 }
 
@@ -26,8 +30,8 @@ export const QuotationComparisionPdf = ({
   selectedVersions,
   slugId,
 }: Props) => {
-  const v1 = selectedVersions?.[0] || { quotationVersionNo: 'Version 1', grandTotalCost: '0.00' };
-  const v2 = selectedVersions?.[1] || { quotationVersionNo: 'Version 2', grandTotalCost: '0.00' };
+  const v1 = selectedVersions?.[0] || null;
+  const v2 = selectedVersions?.[1] || null;
 
   const Footer = () => (
     <View style={styles.footerWrapper} fixed>
@@ -62,14 +66,26 @@ export const QuotationComparisionPdf = ({
 
           {/* Column 2: Version 1 (Matches Value Column Flex 1) */}
           <View style={styles.summaryColVersion}>
-            <Text style={styles.versionLabel}>Version {v1.quotationVersionNo}</Text>
-            <Text style={styles.versionAmount}>${Number(v1.grandTotalCost).toFixed(2)}</Text>
+            <Text style={styles.versionLabel}>
+              {v1.quotation?.referenceNumber} V{v1.version?.quotationVersionNo}
+            </Text>
+            <Text style={styles.versionLabel}>DwellingType : {v1.version?.dwellingTypeName}</Text>
+            <Text style={styles.versionLabel}>Range : {v1.version?.rangeName}</Text>
+            <Text style={styles.versionAmount}>
+              ${Number(v1.version?.grandTotalCost).toFixed(2)}
+            </Text>
           </View>
 
           {/* Column 3: Version 2 (Matches Value Column Flex 1) */}
           <View style={styles.summaryColVersion}>
-            <Text style={styles.versionLabel}>Version {v2.quotationVersionNo}</Text>
-            <Text style={styles.versionAmount}>${Number(v2.grandTotalCost).toFixed(2)}</Text>
+            <Text style={styles.versionLabel}>
+              {v2.quotation?.referenceNumber} V{v2.version?.quotationVersionNo}
+            </Text>
+            <Text style={styles.versionLabel}>DwellingType : {v2.version?.dwellingTypeName}</Text>
+            <Text style={styles.versionLabel}>Range : {v2.version?.rangeName}</Text>
+            <Text style={styles.versionAmount}>
+              ${Number(v2.version?.grandTotalCost).toFixed(2)}
+            </Text>
           </View>
         </View>
       </View>
@@ -103,11 +119,12 @@ export const QuotationComparisionPdf = ({
                     ? item.version1TotalPrice || '-'
                     : item.version1Value || '-'}
                 </Text>
-                {item.type === 'pricelist_item' && (
-                  <Text style={ItemTable.detailsText}>
-                    {Math.floor(Number(item.version1Quantity)) + '*' + item.itemCost}
-                  </Text>
-                )}
+                {item.type === 'pricelist_item' &&
+                  Math.floor(Number(item.version1Quantity)) > 0 && (
+                    <Text style={ItemTable.detailsText}>
+                      {Math.floor(Number(item.version1Quantity)) + '*' + item.itemCost}
+                    </Text>
+                  )}
               </View>
 
               {/* Version 2 Value */}
@@ -117,11 +134,12 @@ export const QuotationComparisionPdf = ({
                     ? item.version2TotalPrice || '-'
                     : item.version2Value || '-'}
                 </Text>
-                {item.type === 'pricelist_item' && (
-                  <Text style={ItemTable.detailsText}>
-                    {Math.floor(Number(item.version2Quantity)) + '*' + item.itemCost}
-                  </Text>
-                )}
+                {item.type === 'pricelist_item' &&
+                  Math.floor(Number(item.version2Quantity)) > 0 && (
+                    <Text style={ItemTable.detailsText}>
+                      {Math.floor(Number(item.version2Quantity)) + '*' + item.itemCost}
+                    </Text>
+                  )}
               </View>
             </View>
           ))}

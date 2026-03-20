@@ -75,7 +75,6 @@ export type Quotation = {
   totalAmount?: number;
   leadStatus: string;
   versions: QuotationVersionDetails[];
-  comparison?: QuotationComparison;
 };
 
 export type QuotationVersion = {

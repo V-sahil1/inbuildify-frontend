@@ -5,7 +5,7 @@ import {
   Quotation,
   QuotationVersionDetails,
 } from '@redux/feature/quotation/IQuotationState';
-import { getQuotationCompareThunk } from '@redux/feature/quotation/quotationThunk';
+import { createQuotationCompareThunk } from '@redux/feature/quotation/quotationThunk';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { usePdf } from '@hooks/usePdf';
 import { QuotationComparisionPdf } from '@/components/common/pdf/QuotationComparisionPdf';
@@ -16,17 +16,39 @@ interface Props {
   open: boolean;
   onClose: () => void;
   quotation: Quotation;
+  selectedVersionsData?: {
+    [quotationId: string]: {
+      version: QuotationVersionDetails;
+      quotation: Quotation;
+    }[];
+  };
 }
 
-const LeadQuotationComparison: React.FC<Props> = ({ open, onClose, quotation }) => {
-  const [selectedVersions, setSelectedVersions] = useState<QuotationVersionDetails[]>([]);
+const LeadQuotationComparison: React.FC<Props> = ({
+  open,
+  onClose,
+  quotation,
+  selectedVersionsData,
+}) => {
+  const [selectedVersions, setSelectedVersions] = useState<
+    { version: QuotationVersionDetails; quotation: Quotation }[]
+  >([]);
   const [comparisonResult, setComparisonResult] = useState<IQuotationItem[]>([]);
   const [showAll, setShowAll] = useState(true);
   const quotations = useAppSelector(state => state.quotation.quotation);
+  const { comparison } = useAppSelector(state => state.quotation);
   const { leadDetail } = useAppSelector(state => state.lead);
   const { previewPdf } = usePdf(QuotationComparisionPdf);
   const dispatch = useAppDispatch();
   const selectedQuotation = quotations.find(i => i.quotationId === quotation.quotationId);
+
+  // Auto-populate selected versions from selectedVersionsData
+  useEffect(() => {
+    if (selectedVersionsData) {
+      const allSelectedItems = Object.values(selectedVersionsData).flat();
+      setSelectedVersions(allSelectedItems);
+    }
+  }, [selectedVersionsData]);
 
   useEffect(() => {
     if (selectedVersions.length < 2) {
@@ -37,34 +59,30 @@ const LeadQuotationComparison: React.FC<Props> = ({ open, onClose, quotation }) 
   }, [selectedVersions]);
 
   useEffect(() => {
-    setComparisonResult(selectedQuotation?.comparison?.items || []);
+    setComparisonResult(comparison?.items || []);
   }, [quotations]);
 
   const handleFetchComparison = async (showall?: boolean) => {
     try {
+      const payload = {
+        versions: [
+          {
+            quotationId: selectedVersions[0]?.quotation?.quotationId,
+            versionId: selectedVersions[0]?.version?.quotationVersionId,
+          },
+          {
+            quotationId: selectedVersions[1]?.quotation?.quotationId,
+            versionId: selectedVersions[1]?.version?.quotationVersionId,
+          },
+        ],
+        showAll: showall ?? showAll,
+      };
       await dispatch(
-        getQuotationCompareThunk({
-          version1Id: selectedVersions[0]?.quotationVersionId,
-          version2Id: selectedVersions[1]?.quotationVersionId,
-          quoteId: quotation.quotationId,
-          showAll: showall ?? showAll,
-        })
+        createQuotationCompareThunk({ data: payload, leadId: leadDetail?.lead?.leadsId })
       ).unwrap();
     } catch (error) {
       message.error(error || 'Failed to fetch compariso');
     }
-  };
-
-  const handleCheckboxChange = async (versionId: string) => {
-    if (!Array.isArray(quotation.versions)) return;
-    const version = quotation.versions.find(v => v.quotationVersionId === versionId);
-    if (!version) return;
-    setSelectedVersions(prev => {
-      if (prev.some(v => v.quotationVersionId === versionId)) {
-        return prev.filter(v => v.quotationVersionId !== versionId);
-      }
-      return prev.length < 2 ? [...prev, version] : prev;
-    });
   };
 
   const handleCancel = () => {
@@ -87,29 +105,11 @@ const LeadQuotationComparison: React.FC<Props> = ({ open, onClose, quotation }) 
       onCancel={handleCancel}
       footer={null}
       width={900}
-      title={`Quotation Version Comparison - ${quotation.referenceNumber}`}
+      title={`Quotation Version Comparison`}
     >
       <div className="flex items-center gap-4 mb-4 justify-between">
-        <div className="flex gap-2">
-          <span>Select two versions:</span>
-          <div className="flex flex-wrap gap-2">
-            {quotation.versions &&
-              Array.isArray(quotation.versions) &&
-              quotation.versions.map(v => (
-                <Checkbox
-                  key={v.quotationVersionId}
-                  checked={selectedVersions?.some(
-                    sv => sv.quotationVersionId === v.quotationVersionId
-                  )}
-                  onChange={() => handleCheckboxChange(v.quotationVersionId)}
-                >
-                  V{v.quotationVersionNo}
-                </Checkbox>
-              ))}
-          </div>
-        </div>
         <div className="flex align-middle items-center gap-2">
-          <Button type="primary" onClick={() => handleCompareClick()}>
+          <Button type={showAll ? 'default' : 'primary'} onClick={() => handleCompareClick()}>
             Compare
           </Button>
           <Button
@@ -146,8 +146,8 @@ const LeadQuotationComparison: React.FC<Props> = ({ open, onClose, quotation }) 
         <span> {leadDetail?.property?.addressLine1 || ''}</span>
       </div>
       <Table
-        dataSource={(selectedVersions?.length === 2 && selectedQuotation?.comparison?.items) || []}
-        pagination={selectedQuotation?.comparison?.items?.length > 10 ? { pageSize: 10 } : false}
+        dataSource={(selectedVersions?.length === 2 && comparison?.items) || []}
+        pagination={comparison?.items?.length > 10 ? { pageSize: 10 } : false}
         bordered
         size="small"
       >
@@ -169,8 +169,17 @@ const LeadQuotationComparison: React.FC<Props> = ({ open, onClose, quotation }) 
           <Column
             title={
               <div className="flex flex-col justify-center items-center">
-                <span>V{selectedVersions[0].quotationVersionNo}</span>
-                <span>${Number(selectedVersions[0].grandTotalCost).toFixed(2)}</span>
+                <span>
+                  {selectedVersions[0]?.quotation?.referenceNumber} V
+                  {selectedVersions[0].version?.quotationVersionNo}
+                </span>
+                <span className="text-xs text-gray-500">
+                  Dwelling Type: {selectedVersions[0].version?.dwellingTypeName || ''}
+                </span>
+                <span className="text-xs text-gray-500">
+                  Range: {selectedVersions[0].version?.rangeName || ''}
+                </span>
+                <span>${Number(selectedVersions[0].version?.grandTotalCost).toFixed(2)}</span>
               </div>
             }
             dataIndex="left"
@@ -184,7 +193,7 @@ const LeadQuotationComparison: React.FC<Props> = ({ open, onClose, quotation }) 
                     ? record.version1TotalPrice || '-'
                     : record.version1Value || '-'}
                 </div>
-                {record.type === 'pricelist_item' && (
+                {record.type === 'pricelist_item' && Math.floor(record.version1Quantity) > 0 && (
                   <div className="text-xs text-font-color-100">
                     {Math.floor(record.version1Quantity) + '*' + record.itemCost}
                   </div>
@@ -197,8 +206,17 @@ const LeadQuotationComparison: React.FC<Props> = ({ open, onClose, quotation }) 
           <Column
             title={
               <div className="flex flex-col justify-center items-center">
-                <span>V{selectedVersions[1].quotationVersionNo}</span>
-                <span>${Number(selectedVersions[1].grandTotalCost).toFixed(2)}</span>
+                <span>
+                  {selectedVersions[1]?.quotation?.referenceNumber} V
+                  {selectedVersions[1].version?.quotationVersionNo}
+                </span>
+                <span className="text-xs text-gray-500">
+                  Dwelling Type: {selectedVersions[1].version?.dwellingTypeName || ''}
+                </span>
+                <span className="text-xs text-gray-500">
+                  Range: {selectedVersions[1].version?.rangeName || ''}
+                </span>
+                <span>${Number(selectedVersions[1].version?.grandTotalCost).toFixed(2)}</span>
               </div>
             }
             dataIndex="right"
@@ -212,8 +230,8 @@ const LeadQuotationComparison: React.FC<Props> = ({ open, onClose, quotation }) 
                     ? record.version2TotalPrice || '-'
                     : record.version2Value || '-'}
                 </div>
-                {record.type === 'pricelist_item' && (
-                  <div className="text-xs  text-font-color-100">
+                {record.type === 'pricelist_item' && Math.floor(record.version2Quantity) > 0 && (
+                  <div className="text-xs text-font-color-100">
                     {Math.floor(record.version2Quantity) + '*' + record.itemCost}
                   </div>
                 )}

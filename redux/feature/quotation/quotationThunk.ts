@@ -209,21 +209,20 @@ export const deleteQuotationPackageThunk = createAsyncThunk(
 
 //quotation compare
 
-export const getQuotationCompareThunk = createAsyncThunk(
-  'quotation/getQuotationCompareThunk',
+export const createQuotationCompareThunk = createAsyncThunk(
+  'quotation/createQuotationCompareThunk',
   async (
-    payload: { version1Id: string; version2Id: string; quoteId: string; showAll: boolean },
+    payload: {
+      data: { versions: { quotationId: string; versionId: string }[]; showAll: boolean };
+      leadId: string;
+    },
     { rejectWithValue }
   ) => {
     try {
-      const res = await api.get<ApiResponse<QuotationComparison>>(
-        API_ENDPOINTS.QUOTATION_COMPARE + '/' + payload.quoteId,
+      const res = await api.post<ApiResponse<QuotationComparison>>(
+        API_ENDPOINTS.QUOTATION_COMPARE + '/' + payload.leadId,
         {
-          params: {
-            version_1: payload.version1Id,
-            version_2: payload.version2Id,
-            show_all: payload.showAll,
-          },
+          data: payload.data,
         }
       );
       return res.data;

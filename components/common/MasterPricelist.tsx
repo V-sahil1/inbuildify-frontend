@@ -182,42 +182,47 @@ export const MasterPricelist = ({
                               onConfirm={() => handlePriceMasterStatus()}
                             >
                               <TooltipButton
-                                title={`${category.isActive ? 'Create Pricelist Item' : ''}`}
+                                title={`${category.isActive ? 'Create Pricelist Item' : 'Active Master Pricelist'}`}
                                 type="text"
                                 icon={<IconPlus size={18} />}
-                                onClick={() => {
+                                onClick={e => {
+                                  e.stopPropagation();
                                   category.isActive
                                     ? setModalOpen('ItemCreate')
                                     : setSelectedPriceMaster(category);
                                 }}
                               />
                             </Popconfirm>
-                            <TooltipButton
-                              type="text"
-                              title="Edit"
-                              icon={<IconEdit size={18} />}
-                              onClick={e => {
-                                e.stopPropagation();
-                                setSelectedPriceMaster(category);
-                                setModalOpen('edit');
-                              }}
-                            />
-                            <Tooltip title="Remove">
-                              <Popconfirm
-                                title="Do you want to inactive price master?"
-                                onConfirm={() => {
-                                  handlePriceMasterStatus();
-                                }}
-                                placement="topRight"
-                              >
-                                <Button
+                            {category.isActive && (
+                              <>
+                                <TooltipButton
                                   type="text"
-                                  className="text-blue"
-                                  icon={<IconTrash size={18} color="red" />}
-                                  onClick={() => setSelectedPriceMaster(category)}
+                                  title="Edit"
+                                  icon={<IconEdit size={18} />}
+                                  onClick={e => {
+                                    e.stopPropagation();
+                                    setSelectedPriceMaster(category);
+                                    setModalOpen('edit');
+                                  }}
                                 />
-                              </Popconfirm>
-                            </Tooltip>
+                                <Tooltip title="Remove">
+                                  <Popconfirm
+                                    title="Do you want to inactive price master?"
+                                    onConfirm={() => {
+                                      handlePriceMasterStatus();
+                                    }}
+                                    placement="topRight"
+                                  >
+                                    <Button
+                                      type="text"
+                                      className="text-blue"
+                                      icon={<IconTrash size={18} color="red" />}
+                                      onClick={() => setSelectedPriceMaster(category)}
+                                    />
+                                  </Popconfirm>
+                                </Tooltip>
+                              </>
+                            )}
                             <Button
                               type="text"
                               className=" text-gray-600 hover:text-blue-500 transition"
@@ -245,7 +250,7 @@ export const MasterPricelist = ({
                                   setModalOpen={setModalOpen}
                                   setDrawerOpen={setDrawerOpen}
                                   handleActivateItem={handleActivateItem}
-                                  isEditable={isEditable}
+                                  isEditable={category.isActive ? isEditable : false}
                                 />
                               ))}
                             </div>

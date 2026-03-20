@@ -333,8 +333,8 @@ const InfoCards: React.FC<InfoCardsProps> = ({
 
       {/* Select Package Card */}
       <Tooltip title={disabledMessage}>
-        <Card
-          className={`shadow-sm transition-shadow ${isSelectionDisabled ? 'opacity-70' : 'hover:shadow-md cursor-pointer'}`}
+        <div
+          className={`shadow-sm transition-shadow bg-card-color rounded-lg border border-border-color ${isSelectionDisabled ? '' : 'hover:shadow-md cursor-pointer'}`}
           onClick={!isSelectionDisabled && !isReadOnly ? () => setModalOpen('package') : undefined}
         >
           {!!selectedPackage && selectedPackage?.length > 0 ? (
@@ -372,13 +372,13 @@ const InfoCards: React.FC<InfoCardsProps> = ({
               </>
             ))
           ) : (
-            <div className="text-center py-4">
+            <div className="flex justify-center items-center h-full">
               <Button type="primary" size="middle" disabled={isSelectionDisabled}>
                 Select Package
               </Button>
             </div>
           )}
-        </Card>
+        </div>
       </Tooltip>
 
       {modalOpen === 'property' && (

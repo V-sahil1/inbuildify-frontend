@@ -373,10 +373,10 @@ const LeadContactModel: React.FC<LeadContactModelProps> = ({
           >
             {/* Contact Card Header */}
             <div
-              className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full items-center justify-between cursor-pointer"
+              className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full items-start justify-between cursor-pointer"
               onClick={() => toggleCard(contact)}
             >
-              <div className="col-span-1">
+              <div className="col-span-1 space-y-2">
                 <h3 className="font-semibold text-[16px]">{contact.name}</h3>
                 {contact.address?.addressLine1 && (
                   <div className="flex gap-2 items-start">

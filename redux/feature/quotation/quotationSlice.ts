@@ -3,6 +3,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Status } from '@lib/constants/enum';
 import {
   createQuotation,
+  createQuotationCompareThunk,
   createQuotationCustomSection,
   createQuotationPricellistThunk,
   createQuotationThunk,
@@ -11,7 +12,6 @@ import {
   deleteQuotationPackageThunk,
   deleteQuotationPricelistThunk,
   deleteQuotationThunk,
-  getQuotationCompareThunk,
   getQuotationCustomSection,
   getQuotationPricelistThunk,
   getQuotationThunk,
@@ -23,6 +23,7 @@ import { LeadContact } from '../lead/ILeadState';
 import {
   CustomSection,
   Quotation,
+  QuotationComparison,
   QuotationPriceListItem,
   QuotationVersionDetails,
 } from './IQuotationState';
@@ -42,6 +43,7 @@ export interface QuotationState {
   extraItems: QuotationPriceListItem[];
   quotation: Quotation[];
   customSections: CustomSection[];
+   comparison?: QuotationComparison;
 }
 
 const initialState: QuotationState = {
@@ -57,6 +59,7 @@ const initialState: QuotationState = {
   extraItems: [],
   quotation: [],
   customSections: [],
+  comparison:null
 };
 
 const quotationSlice = createSlice({
@@ -288,11 +291,8 @@ const quotationSlice = createSlice({
       })
 
       //quotation compare
-      .addCase(getQuotationCompareThunk.fulfilled, (state, action) => {
-        const quote = state.quotation.find(i => i.quotationId === action.meta.arg.quoteId);
-        if (quote) {
-          quote.comparison = action.payload;
-        }
+      .addCase(createQuotationCompareThunk.fulfilled, (state, action) => {
+       state.comparison=action.payload
       })
 
       //quotataion custom section
