@@ -7,11 +7,13 @@ import {
   IconPlus,
   IconTrash,
 } from '@tabler/icons-react';
-import { Button, Popconfirm, Spin, Tooltip } from 'antd';
+import { Button, message, Popconfirm, Spin, Tooltip } from 'antd';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import TooltipButton from './TooltipButton';
 import { PricingItem } from './PricingItem';
-import { useAppSelector } from '@hooks/redux';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { setPriceMaster } from '@redux/feature/masterPriceList/masterPriceListSlice';
+import { updatePricelistMaster } from '@redux/feature/masterPriceList/masterPriceListThunk';
 
 interface MasterPricelistProps {
   localCategories?: IPriceList[];
@@ -54,10 +56,21 @@ export const MasterPricelist = ({
   handleActivateItem,
   isEditable = true,
 }: MasterPricelistProps) => {
+  const dispatch = useAppDispatch();
   const { priceMaster } = useAppSelector(state => state.masterPriceList);
 
   const handleDragEnd = async (result: DropResult) => {
     if (!result.destination) return;
+    try {
+      await dispatch(
+        updatePricelistMaster({
+          id: result.draggableId,
+          payload: { sortOrder: result.destination.index + 1 },
+        })
+      ).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to update pricelist');
+    }
 
     const fromIndex = result.source.index;
     const toIndex = result.destination.index;
@@ -100,6 +113,7 @@ export const MasterPricelist = ({
         newLocalCategories[i] = c;
       }
     }
+    dispatch(setPriceMaster(newLocalCategories));
     setLocalCategories(newLocalCategories);
   };
 

@@ -80,8 +80,9 @@ export const SalesProcess: React.FC = () => {
 
       if (selectedProcess) {
         const stage = process.find(i => i.salesProcessId === selectedProcess.salesProcessId);
-        if (stage) setStages(stage?.Stages);
-        else {
+        if (stage) {
+          setStages(stage?.Stages);
+        } else {
           setSelectedProcess(process[0]);
           fetchStagesData(process[0]);
           setStages(process[0].Stages);
@@ -184,6 +185,8 @@ export const SalesProcess: React.FC = () => {
   const handleCancelProcess = () => {
     if (newProcess) {
       setLocalProcesses(prev => prev.filter(p => p.salesProcessId !== ''));
+    } else {
+      setLocalProcesses([...process]);
     }
     setEditingProcessId(null);
     setNewProcess(false);
@@ -256,8 +259,17 @@ export const SalesProcess: React.FC = () => {
   };
 
   const handleCancelStage = () => {
+    if (newStageRow) {
+      setNewStageRow(null);
+    } else {
+      if (selectedProcess) {
+        const originalProcess = process.find(
+          i => i.salesProcessId === selectedProcess.salesProcessId
+        );
+        setStages(originalProcess?.Stages || []);
+      }
+    }
     setEditingStageId(null);
-    setNewStageRow(null);
   };
 
   // ---- Columns ----

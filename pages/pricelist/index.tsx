@@ -117,9 +117,7 @@ const PriceList = () => {
     if (!isExpanded) {
       try {
         setLoadingItems(prev => ({ ...prev, [categoryId]: true }));
-
         dispatch(toggleExpand(categoryId));
-
         await dispatch(
           fetchCategoryItems({
             price_list_id: categoryId,

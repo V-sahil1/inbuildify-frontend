@@ -123,8 +123,8 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
             </Form.Item>
           </Col>
           <Col span={6}>
-            <Form.Item label="Street No" name="street" rules={leadAddressRules}>
-              <Input placeholder="Lot 234" />
+            <Form.Item label="Street Name" name="street">
+              <Input placeholder="Lot 234" maxLength={255} />
             </Form.Item>
           </Col>
           <Col span={6}>

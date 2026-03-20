@@ -46,6 +46,9 @@ const masterPriceListSlice = createSlice({
     clearFilters(state) {
       state.selectedFilters = { range: '', dwelling_type: '' };
     },
+    setPriceMaster(state, action) {
+      state.priceMaster = action.payload;
+    },
   },
   extraReducers: builder => {
     builder
@@ -170,6 +173,6 @@ const masterPriceListSlice = createSlice({
   },
 });
 
-export const { toggleExpand, setSelectedFilters, clearFilters, resetAllCategoriesIsExpanded } =
+export const { toggleExpand, setSelectedFilters, clearFilters, resetAllCategoriesIsExpanded,setPriceMaster } =
   masterPriceListSlice.actions;
 export default masterPriceListSlice.reducer;
