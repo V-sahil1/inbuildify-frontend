@@ -114,13 +114,14 @@ const StageProgress: React.FC<StageProgressProps> = ({
       setLoading(true);
       const response = await dispatch(
         transferLeadThunk({
-          leadId: lead.lead.leadId,
-          ...values,
+          leadId: lead?.lead?.leadsId,
+          assigneeId: values?.assignee_id || values?.assigneeId,
+          assigneeNote: values?.notes || values?.assigneeNote,
         })
       ).unwrap();
-      message.success('Lead transferred successfully');
+      message.success('Lead assigned successfully');
     } catch (err) {
-      message.error(err || 'Failed to transfer lead');
+      message.error(err || 'Failed to assign lead');
     } finally {
       setLoading(false);
       setIsModalOpen(null);

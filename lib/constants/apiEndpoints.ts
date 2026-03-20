@@ -46,6 +46,7 @@ class API_ENDPOINTS {
   public static CREATE_LEAD = `${this.LEAD_BASE}`;
   public static GET_LEAD_BY_ID = (id: string) => `${this.LEAD_BASE}/${id}`;
   public static LEAD_TRANSFER = `${this.LEAD_BASE}/transfer`;
+  public static LEAD_ASSIGN = (id: string) => `${this.LEAD_BASE}/${id}/assign`;
   public static LEAD_CONVERT = (id: string) => `${this.LEAD_BASE}/${id}/convert`;
   public static CONVERT_LEAD_TO_OPPORTUNITY = (id: string) => `${this.LEAD_BASE}/${id}/convert`;
   public static DELETE_LEAD_HLPACKAGE = (id: string) => `${this.LEAD_BASE}/${id}/hl-package`;

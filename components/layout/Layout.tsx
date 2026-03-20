@@ -10,6 +10,9 @@ export default function Layout({ children }) {
     // Initialize state from localStorage
     return typeof localStorage !== 'undefined' && localStorage.getItem('container') === 'true';
   });
+  const [miniSidebar, setMiniSidebar] = useState(() => {
+    return typeof localStorage !== 'undefined' && localStorage.getItem('miniSidebar') === 'true';
+  });
 
   useEffect(() => {
     // Update the container class based on state
@@ -23,11 +26,19 @@ export default function Layout({ children }) {
         el.classList.remove('container');
       }
     });
+
+    // Update mini sidebar class on the body (and persist)
+    document.body.classList.toggle('mini-sidebar', miniSidebar);
+    localStorage.setItem('miniSidebar', miniSidebar ? 'true' : 'false');
     localStorage.setItem('container', container ? 'true' : 'false');
-  }, [container, router.pathname]); // Update on container state or pageUrl change
+  }, [container, miniSidebar, router.pathname]); // Update on container/mini state or pageUrl change
 
   const containerToggle = () => {
     setContainer(prev => !prev);
+  };
+
+  const toggleMiniSidebar = () => {
+    setMiniSidebar(prev => !prev);
   };
 
   const [mobileNav, setMobileNav] = useState(false);
@@ -40,13 +51,15 @@ export default function Layout({ children }) {
   const toggleChat = () => setChat(prev => !prev);
 
   return (
-    <div className="admin-wrapper overflow-hidden">
+    <div className={`admin-wrapper overflow-hidden ${miniSidebar ? 'mini-sidebar' : ''}`}>
       <div className="flex h-svh relative">
         <div
-          className={`sidebar sm:w-[280px] sm:min-w-[280px] w-full px-2 py-4 overflow-y-scroll flex flex-col custom-scrollbar xl:static fixed xl:h-screen md:h-[calc(100vh-74px)] h-[calc(100vh-64px)] md:top-[74px] top-[64px] z-[51] bg-body-color xl:shadow-none transition-all duration-300 ${mobileNav ? 'shadow-shadow-lg left-0' : '-left-full'}`}
+          className={`sidebar sm:w-[240px] !border-e-[4px] border-solid border-white sm:min-w-[240px] w-full px-2 py-4 overflow-y-scroll flex flex-col custom-scrollbar xl:static fixed xl:h-screen md:h-[calc(100vh-74px)] h-[calc(100vh-64px)] md:top-[74px] top-[64px] z-[51] bg-body-color xl:shadow-none transition-all duration-300 ${mobileNav ? 'shadow-shadow-lg left-0' : '-left-full'}`}
         >
           <Sidebar
             setMobileNav={setMobileNav}
+            toggleMiniSidebar={toggleMiniSidebar}
+            miniSidebar={miniSidebar}
             note={note}
             toggleNote={toggleNote}
             chat={chat}

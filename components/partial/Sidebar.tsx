@@ -1,7 +1,7 @@
 import React, { useContext, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { menuList } from './SidebarData';
-import { IconChevronRight, IconChevronsDown } from '@tabler/icons-react';
+import { IconIndentDecrease, IconIndentIncrease, IconChevronRight, IconChevronsDown } from '@tabler/icons-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { themeContext } from 'contexts/ThemeContext';
@@ -30,8 +30,12 @@ type SidebarMenuItem = MenuDivider | MenuItem;
 
 export default function Sidebar({
   setMobileNav,
+  toggleMiniSidebar,
+  miniSidebar,
 }: {
   setMobileNav: (value: boolean) => void;
+  toggleMiniSidebar?: () => void;
+  miniSidebar?: boolean;
   note: boolean;
   toggleNote: () => void;
   chat: boolean;
@@ -87,8 +91,8 @@ export default function Sidebar({
 
   return (
     <>
-      <div className="sidebar-header px-3 mb-6 flex items-center justify-between gap-2">
-        <h4 className="sidebar-title text-[24px]/[30px] font-medium mb-0">
+      <div className={`sidebar-header px-1 ${!miniSidebar ? 'mb-6' : ''} flex items-end justify-between gap-2`}>
+        {!miniSidebar && <h4 className="sidebar-title text-[24px]/[30px] font-medium mb-0">
           <Image
             src={isDarkMode ? '/company-dark.png' : '/company-light.png'}
             alt="logo"
@@ -99,10 +103,29 @@ export default function Sidebar({
               router.push('/');
             }}
           />
-        </h4>
+        </h4>}
+        <div onClick={toggleMiniSidebar}>
+          {miniSidebar ? (
+            <IconIndentIncrease className="arrow-icon stroke-[1.5] w-[30px] h-[30px] ms-auto rtl:rotate-180" />
+          ) : (
+            <IconIndentDecrease className="arrow-icon stroke-[1.5] w-[35px] h-[35px] ms-auto rtl:rotate-180" />
+          )}
+        </div>
       </div>
       {/* <Search /> */}
       <ul className="sidebar-list px-3 mb-4 main-menu">
+        {miniSidebar && <li className="sidebar-listitem py-10">
+          <Image
+            src={'/logo.webp'}
+            alt="logo"
+            width={30}
+            height={30}
+            className="cursor-pointer transition-all"
+            onClick={() => {
+              router.push('/');
+            }}
+          />
+        </li>}
         {filteredMenuList.map((item: SidebarMenuItem, key: number) =>
           'link' in item && item?.children ? (
             <li key={key} className="sidebar-listitem">

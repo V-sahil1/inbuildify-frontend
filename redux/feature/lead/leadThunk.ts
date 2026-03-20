@@ -166,11 +166,16 @@ export const leadConvertThunk = createAsyncThunk(
 
 export const transferLeadThunk = createAsyncThunk(
   'lead/transferLead',
-  async (payload: { leadId: string; assignee_id: string; notes?: string }, { rejectWithValue }) => {
+  async (payload: { leadId: string; assigneeId: string; assigneeNote: string; notes?: string }, { rejectWithValue }) => {
     try {
       const response: ApiResponse<any> = await api.put(
-        `${API_ENDPOINTS.LEAD_TRANSFER}/${payload.leadId}`,
-        { data: { assignee_id: payload.assignee_id, notes: payload.notes } }
+        API_ENDPOINTS.LEAD_ASSIGN(payload.leadId),
+        {
+          data: {
+            assigneeId: payload.assigneeId,
+            assigneeNote: payload.assigneeNote,
+          },
+        }
       );
       return response.data;
     } catch (err: any) {

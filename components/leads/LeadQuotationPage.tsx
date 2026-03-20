@@ -1,8 +1,9 @@
+import React, { useMemo, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import SystemRoutes from '@lib/constants/Routes';
 import { createQuotationThunk } from '@redux/feature/quotation/quotationThunk';
-import { IconFileText, IconTrash } from '@tabler/icons-react';
-import { Card, List, message } from 'antd';
+import { IconFileText, IconSearch, IconTrash } from '@tabler/icons-react';
+import { Card, Input, List, message } from 'antd';
 import { useRouter } from 'next/router';
 import { Dispatch, SetStateAction } from 'react';
 import TooltipButton from '../common/TooltipButton';
@@ -37,6 +38,24 @@ export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
   const { leadDetail } = useAppSelector(state => state.lead);
   const { quotation } = useAppSelector(state => state.quotation);
   const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredQuotations = useMemo(() => {
+    if (!quotation) return [];
+    const query = searchTerm.trim().toLowerCase();
+    if (!query) return quotation;
+    return quotation.filter(item => {
+      const reference = item?.referenceNumber?.toLowerCase() || '';
+      const total = String(
+        item?.versions?.find(v => v.quotationVersionNo === item?.versions?.length)
+          ?.grandTotalCost || ''
+      );
+      return (
+        reference.includes(query) ||
+        total.includes(query)
+      );
+    });
+  }, [quotation, searchTerm]);
 
   const handleCreateQuotation = async () => {
     try {
@@ -50,22 +69,38 @@ export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
     <>
       <Card>
         <div className="flex flex-col justify-between">
-          <p className="text-sm cursor-pointer text-blue" onClick={handleCreateQuotation}>
-            Create Quotation
-          </p>
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-sm cursor-pointer text-blue text-nowrap" onClick={handleCreateQuotation}>
+              Create Quotation
+            </p>
+            {quotation && quotation.length > 0 && (
+              <Input
+                type="text"
+                prefix={<IconSearch size={15} />}
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                placeholder="Search"
+                className="border border-border-color rounded-md px-2 py-1 text-sm w-32"
+              />
+            )}
+          </div>
 
-          {quotation && quotation?.length > 0 && (
+          {quotation && quotation.length > 0 && (
             <div className="max-h-[200px] my-2 overflow-y-auto">
               <List
-                dataSource={quotation.slice(0, 2) || []}
+                dataSource={filteredQuotations}
                 locale={{
                   emptyText: (
                     <div className="flex flex-col items-center justify-center p-6">
                       <IconFileText />
-                      <p className=" text-sm text-gray-500 text-center">No quotations found</p>
-                      <p className="text-xs text-gray-400 mt-1">
-                        Create a quotation to get started
+                      <p className=" text-sm text-gray-500 text-center">
+                        {searchTerm ? 'No matching quotations' : 'No quotations found'}
                       </p>
+                      {!searchTerm ? (
+                        <p className="text-xs text-gray-400 mt-1">
+                          Create a quotation to get started
+                        </p>
+                      ) : null}
                     </div>
                   ),
                 }}
@@ -92,7 +127,7 @@ export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
                           <div>
                             <div className="font-medium text-gray-900">
                               <span className=" text-sm text-gray-500">
-                                {item?.referenceNumber}...
+                                {item?.referenceNumber}
                               </span>
                             </div>
                           </div>

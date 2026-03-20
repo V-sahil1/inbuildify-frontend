@@ -235,7 +235,12 @@ export const leadSlice = createSlice({
       });
     });
     builder.addCase(transferLeadThunk.fulfilled, (state, action) => {
-      state.leadDetail.lead.assigneeId = action.payload?.assigneeId;
+      if (state.leadDetail.lead) {
+        state.leadDetail.lead.assigneeId = action.payload?.assigneeId;
+        if (action.payload?.name) {
+          state.leadDetail.lead.assigneeName = action.payload.name;
+        }
+      }
     });
     builder.addCase(getQuotationsByLeadIdThunk.pending, state => {
       state.status.leadQuotations = Status.PENDING;
