@@ -33,7 +33,6 @@ const LeadQuotationComparison: React.FC<Props> = ({
   const [selectedVersions, setSelectedVersions] = useState<
     { version: QuotationVersionDetails; quotation: Quotation }[]
   >([]);
-  const [comparisonResult, setComparisonResult] = useState<IQuotationItem[]>([]);
   const [showAll, setShowAll] = useState(true);
   const quotations = useAppSelector(state => state.quotation.quotation);
   const { comparison } = useAppSelector(state => state.quotation);
@@ -51,16 +50,10 @@ const LeadQuotationComparison: React.FC<Props> = ({
   }, [selectedVersionsData]);
 
   useEffect(() => {
-    if (selectedVersions.length < 2) {
-      setComparisonResult([]);
-    } else {
+    if (selectedVersions.length === 2) {
       handleFetchComparison();
     }
   }, [selectedVersions]);
-
-  useEffect(() => {
-    setComparisonResult(comparison?.items || []);
-  }, [quotations]);
 
   const handleFetchComparison = async (showall?: boolean) => {
     try {
@@ -87,7 +80,6 @@ const LeadQuotationComparison: React.FC<Props> = ({
 
   const handleCancel = () => {
     onClose();
-    setComparisonResult([]);
     setSelectedVersions([]);
     setShowAll(false);
   };
@@ -107,7 +99,7 @@ const LeadQuotationComparison: React.FC<Props> = ({
       width={900}
       title={`Quotation Version Comparison`}
     >
-      <div className="flex items-center gap-4 mb-4 justify-between">
+      <div className="flex items-center gap-4 mb-4 justify-end">
         <div className="flex align-middle items-center gap-2">
           <Button type={showAll ? 'default' : 'primary'} onClick={() => handleCompareClick()}>
             Compare
@@ -116,7 +108,7 @@ const LeadQuotationComparison: React.FC<Props> = ({
             type="dashed"
             onClick={() =>
               previewPdf({
-                comparisonResult,
+                comparisonResult: comparison?.items,
                 propertyAddress: leadDetail?.property?.addressLine1 || '',
                 selectedVersions: selectedVersions,
                 slugId: selectedQuotation.referenceNumber,
@@ -170,7 +162,7 @@ const LeadQuotationComparison: React.FC<Props> = ({
             title={
               <div className="flex flex-col justify-center items-center">
                 <span>
-                  {selectedVersions[0]?.quotation?.referenceNumber} V
+                  {selectedVersions[0]?.quotation?.referenceNumber} - V
                   {selectedVersions[0].version?.quotationVersionNo}
                 </span>
                 <span className="text-xs text-gray-500">
@@ -207,7 +199,7 @@ const LeadQuotationComparison: React.FC<Props> = ({
             title={
               <div className="flex flex-col justify-center items-center">
                 <span>
-                  {selectedVersions[1]?.quotation?.referenceNumber} V
+                  {selectedVersions[1]?.quotation?.referenceNumber} - V
                   {selectedVersions[1].version?.quotationVersionNo}
                 </span>
                 <span className="text-xs text-gray-500">

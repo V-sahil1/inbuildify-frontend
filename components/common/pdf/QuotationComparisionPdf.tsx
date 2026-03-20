@@ -67,7 +67,7 @@ export const QuotationComparisionPdf = ({
           {/* Column 2: Version 1 (Matches Value Column Flex 1) */}
           <View style={styles.summaryColVersion}>
             <Text style={styles.versionLabel}>
-              {v1.quotation?.referenceNumber} V{v1.version?.quotationVersionNo}
+              {v1.quotation?.referenceNumber} - V{v1.version?.quotationVersionNo}
             </Text>
             <Text style={styles.versionLabel}>DwellingType : {v1.version?.dwellingTypeName}</Text>
             <Text style={styles.versionLabel}>Range : {v1.version?.rangeName}</Text>
@@ -79,7 +79,7 @@ export const QuotationComparisionPdf = ({
           {/* Column 3: Version 2 (Matches Value Column Flex 1) */}
           <View style={styles.summaryColVersion}>
             <Text style={styles.versionLabel}>
-              {v2.quotation?.referenceNumber} V{v2.version?.quotationVersionNo}
+              {v2.quotation?.referenceNumber} - V{v2.version?.quotationVersionNo}
             </Text>
             <Text style={styles.versionLabel}>DwellingType : {v2.version?.dwellingTypeName}</Text>
             <Text style={styles.versionLabel}>Range : {v2.version?.rangeName}</Text>
