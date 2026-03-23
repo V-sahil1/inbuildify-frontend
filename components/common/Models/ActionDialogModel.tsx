@@ -281,6 +281,17 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
               rules={field.type === 'custom' ? undefined : field.rules}
               initialValue={field.initialValue}
               extra={field.extra}
+              valuePropName={field.type === 'checkbox' ? 'checked' : undefined}
+              getValueFromEvent={
+                field.type === 'checkbox'
+                  ? e => {
+                      // Handle both direct boolean and event object cases
+                      if (typeof e === 'boolean') return Boolean(e);
+                      if (e && typeof e.target === 'object') return Boolean(e.target.checked);
+                      return Boolean(e);
+                    }
+                  : undefined
+              }
             >
               {field.type === 'select' ? (
                 <Select
@@ -419,11 +430,8 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
                   // Manual layout for checkbox without options: checkbox on left, label on right
                   <div className="flex items-center gap-2 text-font-color-100">
                     <Checkbox
-                      checked={form.getFieldValue(field.name) === true}
-                      onChange={e => {
-                        const isChecked = e.target.checked;
-                        form.setFieldValue(field.name, isChecked);
-                        handleSwitchChange(field.name, isChecked);
+                      onChange={checked => {
+                        handleSwitchChange(field.name, Boolean(checked));
                       }}
                     />
                     <span>{field.label}</span>

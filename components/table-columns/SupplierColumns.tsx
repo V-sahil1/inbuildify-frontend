@@ -26,7 +26,7 @@ export const useSupplierColumns = (selectedSupplier, setSelectedSupplier, setDra
   const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
     delay: 500,
     filtersKey: ['name', 'email', 'phone', 'website', 'type', 'induction', 'isActive'],
-    initialValue: { induction: '', isActive: '' },
+    initialValue: { induction: '', isActive: '', type: 'all' },
   });
   useEffect(() => {
     fetchSuppliers();
@@ -125,7 +125,7 @@ export const useSupplierColumns = (selectedSupplier, setSelectedSupplier, setDra
       setSelectedSupplier(null);
       setDrawerOpen(null);
     } catch (error) {
-      message.error('Failed to create supplier');
+      message.error(error || 'Failed to create supplier');
     }
   };
 
@@ -134,7 +134,10 @@ export const useSupplierColumns = (selectedSupplier, setSelectedSupplier, setDra
       title: (
         <div className="flex flex-col">
           <span>Supplier Name</span>
-          <Input value={instantFilters.name} onChange={e => setParams({ name: e.target.value ?? '' })} />
+          <Input
+            value={instantFilters.name}
+            onChange={e => setParams({ name: e.target.value ?? '' })}
+          />
         </div>
       ),
       dataIndex: 'companyName',
@@ -144,18 +147,24 @@ export const useSupplierColumns = (selectedSupplier, setSelectedSupplier, setDra
       title: (
         <div className="flex flex-col">
           <span>Email</span>
-          <Input value={instantFilters.email} onChange={e => setParams({ email: e.target.value ?? '' })} />
+          <Input
+            value={instantFilters.email}
+            onChange={e => setParams({ email: e.target.value ?? '' })}
+          />
         </div>
       ),
       dataIndex: 'emails',
       width: '20%',
-      render: (value: string[]) => value.join(', '),
+      render: (value: string[]) => value?.join(', '),
     },
     {
       title: (
         <div className="flex flex-col">
           <span>Phone</span>
-          <Input value={instantFilters?.phone} onChange={e => setParams({ phone: e.target.value ?? '' })} />
+          <Input
+            value={instantFilters?.phone}
+            onChange={e => setParams({ phone: e.target.value ?? '' })}
+          />
         </div>
       ),
       dataIndex: 'primaryPhone',
@@ -249,7 +258,7 @@ export const useSupplierColumns = (selectedSupplier, setSelectedSupplier, setDra
             e.stopPropagation();
             handleDelete(record.supplierId);
           }}
-          onCancel={(e) => e.stopPropagation()}
+          onCancel={e => e.stopPropagation()}
         >
           <TooltipButton
             title="Delete"

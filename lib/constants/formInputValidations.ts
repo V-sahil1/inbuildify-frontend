@@ -531,3 +531,24 @@ export const surveyorRegistrationRules = [
   { min: 5, message: 'Registration number must be at least 5 characters long' },
   { max: 100, message: 'Registration number cannot exceed 100 characters.' },
 ];
+
+export const websiteRules = [
+  {
+    validator: (_: any, value: string) => {
+      if (!value) return Promise.resolve(); // empty is ok
+
+      const trimmed = value.trim();
+      if (!trimmed) return Promise.resolve();
+
+      // Website URL validation regex
+      const websiteRegex =
+        /^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
+
+      if (!websiteRegex.test(trimmed)) {
+        return Promise.reject('Please enter a valid website URL (e.g., https://www.example.com)');
+      }
+
+      return Promise.resolve();
+    },
+  },
+];

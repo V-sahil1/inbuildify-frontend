@@ -29,6 +29,17 @@ import {
 } from '@redux/feature/supplier/supplierThunk';
 import { Status } from '@lib/constants/enum';
 import { useStateHook } from '@hooks/useStateHook';
+import {
+  abnRules,
+  builderNameRules,
+  CityNameRules,
+  leadAddressRules,
+  optionalNameRule,
+  optionalPhoneRule,
+  phoneRules,
+  websiteRules,
+  zipCodeRules,
+} from '@lib/constants/formInputValidations';
 
 interface SupplierInfoDrawerProps {
   open: boolean;
@@ -120,8 +131,8 @@ const SupplierInfoDrawer: React.FC<SupplierInfoDrawerProps> = ({
     onClose();
   };
 
-  const handleSave = () => {
-    const values = form.getFieldsValue();
+  const handleSave = async () => {
+    const values = await form.validateFields();
     if (isEditing) {
       onSubmit?.({ ...values, emails: emailTags });
     } else {
@@ -175,13 +186,13 @@ const SupplierInfoDrawer: React.FC<SupplierInfoDrawerProps> = ({
             <Form.Item
               label="Company Name"
               name="companyName"
-              rules={[{ required: true, message: 'Please enter company name' }]}
+              rules={[{ required: true, message: 'Company name is required' }, ...builderNameRules]}
             >
               <Input />
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item label="ABN" name="abn">
+            <Form.Item label="ABN" name="abn" rules={abnRules}>
               <Input />
             </Form.Item>
           </Col>
@@ -194,40 +205,44 @@ const SupplierInfoDrawer: React.FC<SupplierInfoDrawerProps> = ({
 
         <Row gutter={16}>
           <Col span={8}>
-            <Form.Item label="Contact Name" name="contactName">
+            <Form.Item label="Contact Name" name="contactName" rules={optionalNameRule}>
               <Input />
             </Form.Item>
           </Col>
           <Col span={4}>
-            <Form.Item label="Primary Phone" name="primaryPhone">
+            <Form.Item label="Primary Phone" name="primaryPhone" rules={phoneRules}>
               <Input />
             </Form.Item>
           </Col>
           <Col span={4}>
-            <Form.Item label="Secondary Phone" name="secondaryPhone">
+            <Form.Item label="Secondary Phone" name="secondaryPhone" rules={optionalPhoneRule}>
               <Input />
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item label="Website" name="website">
-              <Input />
+            <Form.Item label="Website" name="website" rules={websiteRules}>
+              <Input placeholder="https://www.example.com" />
             </Form.Item>
           </Col>
         </Row>
 
         <Row gutter={16}>
           <Col span={8}>
-            <Form.Item label="Address 1" name="addressLine1">
+            <Form.Item label="Address 1" name="addressLine1" rules={leadAddressRules}>
               <Input />
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item label="City / Suburb" name="city">
+            <Form.Item label="City / Suburb" name="city" rules={CityNameRules}>
               <Input />
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item label="State / Region" name="stateId">
+            <Form.Item
+              label="State / Region"
+              name="stateId"
+              rules={[{ required: true, message: 'State is required' }]}
+            >
               <Select allowClear placeholder="Select State" options={stateOptions} />
             </Form.Item>
           </Col>
@@ -235,7 +250,7 @@ const SupplierInfoDrawer: React.FC<SupplierInfoDrawerProps> = ({
 
         <Row gutter={16}>
           <Col span={8}>
-            <Form.Item label="Zip / Postal Code" name="zipCode">
+            <Form.Item label="Zip / Postal Code" name="zipCode" rules={zipCodeRules}>
               <Input />
             </Form.Item>
           </Col>
