@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { Button, Dropdown, Form } from 'antd';
+import React, { useRef, useState } from 'react';
+import { Button, Dropdown, Form, Input } from 'antd';
 import { IPriceList } from '@redux/feature/masterPriceList/iMasterPriceListState';
 import { QuatationItem } from '../quotation/QuatationItem';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
@@ -12,6 +12,7 @@ import {
   deleteQuotationPricelistThunk,
 } from '@redux/feature/quotation/quotationThunk';
 import { useRouter } from 'next/router';
+import { IconSearch } from '@tabler/icons-react';
 
 interface ItemsPanelProps {
   category?: IPriceList;
@@ -24,7 +25,7 @@ interface ItemsPanelProps {
   setSelect?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const  ItemsPanel: React.FC<ItemsPanelProps> = ({
+const ItemsPanel: React.FC<ItemsPanelProps> = ({
   category,
   onExtraClick,
   extraItem,
@@ -34,7 +35,7 @@ const  ItemsPanel: React.FC<ItemsPanelProps> = ({
   setSelect,
 }) => {
   const router = useRouter();
-  const { quoteVersionId } = router.query as { quoteVersionId: string };
+  const [search, setSearch] = useState('');
   const dispatch = useAppDispatch();
   const {
     extraItems,
@@ -44,6 +45,44 @@ const  ItemsPanel: React.FC<ItemsPanelProps> = ({
   } = useAppSelector((state: RootState) => state.quotation);
   const [form] = Form.useForm();
   const quantityRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+
+  // Filter items based on search term
+  const filterItems = (itemsToFilter: any[]) => {
+    if (!search.trim()) return itemsToFilter;
+
+    const searchTerm = search.toLowerCase();
+
+    return itemsToFilter.filter(item => {
+      // Check shortDescription or itemDescription
+      const description = (item.shortDescription || item.itemDescription || '').toLowerCase();
+      if (description.includes(searchTerm)) return true;
+
+      // Check costType
+      if (item.costType && item.costType.toLowerCase().includes(searchTerm)) return true;
+
+      // Check cost (as string)
+      if (item.cost && item.cost.toString().includes(searchTerm)) return true;
+
+      // Check costOption
+      if (item.costOption && item.costOption.toLowerCase().includes(searchTerm)) return true;
+
+      // Check range
+      if (item.range && item.range.length > 0) {
+        const rangeNames = item.range.map((r: any) => r.name?.toLowerCase() || '').join(' ');
+        if (rangeNames.includes(searchTerm)) return true;
+      }
+
+      // Check dwellingType
+      if (item.dwellingType && item.dwellingType.length > 0) {
+        const dwellingNames = item.dwellingType
+          .map((d: any) => d.name?.toLowerCase() || '')
+          .join(' ');
+        if (dwellingNames.includes(searchTerm)) return true;
+      }
+
+      return false;
+    });
+  };
   const menuItems = [
     { key: 'additionalItem', label: 'Additional Items' },
     { key: 'complimentary', label: 'Complimentary' },
@@ -71,17 +110,8 @@ const  ItemsPanel: React.FC<ItemsPanelProps> = ({
   return (
     <div className="w-full bg-card-color flex flex-col border-0 rounded-tr-lg rounded-br-lg">
       {/* Header (search + actions) */}
-      <div className="p-4 border-b border-gray-200">
-        <div className="text-end w-full ">
-          {/* <div className="flex items-center gap-4">
-            <span className="text-xs">All</span>
-            <Input
-              placeholder="Search Items..."
-              prefix={<IconSearch className="text-gray-400" />}
-              className="w-64"
-              size="small"
-            />
-          </div> */}
+      <div className="p-3 border-b border-gray-200">
+        <div className="text-end">
           <Button
             type={select ? 'primary' : 'default'}
             size="small"
@@ -99,22 +129,31 @@ const  ItemsPanel: React.FC<ItemsPanelProps> = ({
         }}
       >
         {/* Table */}
-        <div className="w-full overflow-y-auto max-h-[300px] custom-scrollbar">
-          <div className="table w-full border-collapse ">
+        <div className="w-full">
+          <div className="table w-full border-collapse">
             {/* Table Head */}
-            <div className="table-header-group bg-card-color text-sm font-medium text-font-color border-b border-gray-200 sticky">
+            <div className="table-header-group bg-card-color text-sm font-medium text-font-color border-b border-gray-200">
               <div className="table-row">
-                <div className="table-cell text-left p-3">Item</div>
+                <div className="table-cell text-left p-3  w-[475px]">
+                  Item{' '}
+                  <Input
+                    placeholder="Search Items..."
+                    prefix={<IconSearch size={15} className="text-gray-400" />}
+                    className="w-64 mx-2"
+                    size="small"
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                  />
+                </div>
                 <div className="table-cell text-center p-3 w-[100px]">Quantity</div>
                 <div className="table-cell text-center p-3 w-[100px]">Price</div>
-                <div className="table-cell text-center p-3 w-[100px]">Total ($)</div>
+                <div className="table-cell text-center p-3 w-[100px]">Total</div>
                 <div className="table-cell text-center p-3 w-[60px]">
                   <Dropdown
                     menu={{
                       items: menuItems,
-                      onClick: e => {
-                        if (e.key === 'additionalItem') {
-                          setSelect(false);
+                      onClick: ({ key }) => {
+                        if (key === 'additionalItem') {
                           onExtraClick();
                         }
                       },
@@ -127,63 +166,72 @@ const  ItemsPanel: React.FC<ItemsPanelProps> = ({
                 </div>
               </div>
             </div>
-            {extraItem && !select && (
-              <div className="table-row-group">
-                <QuatationExtraItem
-                  key={'extra-item'}
-                  onToggleAdd={handleItemAdd}
-                  onItemQuantityChange={handleItemQuantityChange}
-                  form={form}
-                  isReadOnly={isReadOnly}
-                  quantityRef={quantityRefs}
-                />
-              </div>
-            )}
-            {!category && !extraItem && (items.length <= 0 || !select) && (
-              <div className="table-row">
-                <div className="table-cell p-6 text-center col-span-7 text-font-color">
-                  No items found
-                </div>
-              </div>
-            )}
+          </div>
 
-            {/* Table Body */}
-            {itemsLoading ? (
-              <div className="table-cell p-6 text-center col-span-7 text-font-color">
-                <Loading type="primary" />
-              </div>
-            ) : (
-              <div className="table-row-group overflow-y-auto ">
-                {(select ? items : category?.items)?.length > 0 ? (
-                  (select ? items : category.items).map(item => (
-                    <QuatationItem
-                      key={item?.priceListItemId}
-                      item={item}
-                      disabled={
-                        isReadOnly
-                        // || selectedPackageFromSlice?.some(
-                        //   catItem => catItem.id === item.priceListItemId
-                        // )
-                      }
-                      onQuantityChange={handleItemQuantityChange}
-                      quantityRef={el => (quantityRefs.current[item.priceListItemId] = el)}
-                      isSelected={items?.some(
-                        itemData => itemData.priceListItemId === item.priceListItemId
-                      )}
-                      onToggleAdd={handleItemAdd}
-                    />
-                  ))
-                ) : (
+          {/* Scrollable Table Body */}
+          <div className="overflow-y-auto max-h-[250px] custom-scrollbar w-full">
+            <div className="table border-collapse w-full">
+              <div className="table-row-group">
+                {extraItem && !select && (
+                  <QuatationExtraItem
+                    key={'extra-item'}
+                    onToggleAdd={handleItemAdd}
+                    onItemQuantityChange={handleItemQuantityChange}
+                    form={form}
+                    isReadOnly={isReadOnly}
+                    quantityRef={quantityRefs}
+                  />
+                )}
+                {!category && !extraItem && (items.length <= 0 || !select) && (
                   <div className="table-row">
-                    {category && (
-                      <div className="table-cell p-6 text-center col-span-7 text-font-color">
-                        No items found
-                      </div>
-                    )}
+                    <div className="table-cell p-6 text-center col-span-7 text-font-color">
+                      No items found
+                    </div>
                   </div>
                 )}
+
+                {/* Table Body */}
+                {itemsLoading ? (
+                  <div className="table-cell p-6 text-center col-span-7 text-font-color">
+                    <Loading type="primary" />
+                  </div>
+                ) : (
+                  <>
+                    {(select ? filterItems(items) : filterItems(category?.items || []))?.length >
+                    0 ? (
+                      (select ? filterItems(items) : filterItems(category?.items || [])).map(
+                        item => (
+                          <QuatationItem
+                            key={item?.priceListItemId}
+                            item={item}
+                            disabled={
+                              isReadOnly
+                              // || selectedPackageFromSlice?.some(
+                              //   catItem => catItem.id === item.priceListItemId
+                              // )
+                            }
+                            onQuantityChange={handleItemQuantityChange}
+                            quantityRef={el => (quantityRefs.current[item.priceListItemId] = el)}
+                            isSelected={items?.some(
+                              itemData => itemData.priceListItemId === item.priceListItemId
+                            )}
+                            onToggleAdd={handleItemAdd}
+                          />
+                        )
+                      )
+                    ) : (
+                      <div className="table-row">
+                        {category && (
+                          <div className="table-cell p-6 text-center col-span-7 text-font-color">
+                            No items found
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
-            )}
+            </div>
           </div>
         </div>
       </Form>

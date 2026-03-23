@@ -99,15 +99,12 @@ export const updateSuggestedPricelistMaster = createAsyncThunk(
 // Fetch items of a category
 export const fetchCategoryItems = createAsyncThunk(
   'masterPriceList/fetchItems',
-  async (
-    params: PricelistItemFtechParams,
-    { rejectWithValue }
-  ) => {
+  async (params: PricelistItemFtechParams, { rejectWithValue }) => {
     try {
       const res = await api.get<
         ApiResponse<{ priceListItem: IPriceListItem[]; pagination: CommonPagination }>
       >(API_ENDPOINTS.PRICELIST_ITEM, {
-        params
+        params,
       });
       return res.data;
     } catch (error) {

@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
-import { Menu } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Input, Menu } from 'antd';
 import { IPriceList } from '@redux/feature/masterPriceList/iMasterPriceListState';
+import { IconSearch } from '@tabler/icons-react';
 
 interface CategorySidebarProps {
   categories: IPriceList[];
@@ -16,19 +17,31 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
   onCategorySelect,
   setSelect,
 }) => {
+  const [search, setSearch] = useState('');
   useEffect(() => {
     if (categories.length > 0 && !selectedCategory) {
       onCategorySelect(categories[0].priceListId);
     }
   }, [categories]);
 
-  const menuItems = categories.map(category => ({
+  const filteredPriceMaster = categories.filter(category =>
+    category.name.toLowerCase().includes(search?.toLowerCase() || '')
+  );
+
+  const menuItems = filteredPriceMaster.map(category => ({
     key: category.priceListId,
     label: category.name,
   }));
 
   return (
-    <div className="h-full">
+    <div className="h-full flex flex-col">
+      <Input
+        placeholder="Search Items..."
+        prefix={<IconSearch size={15} className="text-gray-400" />}
+        className="w-full rounded-none rounded-tl-lg border-t-0 border-l-0 hover:border-border-color"
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+      />
       <Menu
         mode="vertical"
         selectedKeys={[selectedCategory]}
@@ -36,7 +49,7 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
           onCategorySelect(key);
           setSelect(false);
         }}
-        className="border-0 h-full rounded-tl-lg rounded-bl-lg"
+        className="border-0 rounded-bl-lg flex-1"
         items={menuItems}
       />
     </div>

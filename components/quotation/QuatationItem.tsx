@@ -2,10 +2,11 @@ import { useAppSelector } from '@hooks/redux';
 import { enumToReadable } from '@lib/utils/enumToRedable';
 import { RootState } from '@redux/feature/store';
 import { IconCheck, IconPencil, IconPlus, IconX } from '@tabler/icons-react';
-import { Tag, InputNumber, Button, Tooltip, Input } from 'antd';
+import { Tag, InputNumber, Button, Tooltip, Input, Modal } from 'antd';
 import React, { useState, useEffect } from 'react';
 import AddMasterPricingItemModal from '../common/Models/AddMasterPricingItemModel';
 import { IPriceListItem } from '@redux/feature/masterPriceList/iMasterPriceListState';
+import ChecklistNotesModal from '../construction/ChecklisrNotesModal';
 const { TextArea } = Input;
 interface QuatationItemProps {
   item: IPriceListItem;
@@ -22,12 +23,12 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
     const priceItem = items.find(i => i.priceListItemId === item.priceListItemId);
     const [quantity, setQuantity] = useState<number>();
     const [isEdited, setIsEdited] = useState({ item: false, extraitem: false });
-    const [showNotesInput, setShowNotesInput] = useState(false);
-    const [notes, setNotes] = useState('');
+    const [notesModalVisible, setNotesModalVisible] = useState(false);
+    const [tempNotes, setTempNotes] = useState('');
 
     useEffect(() => {
       setQuantity(priceItem?.quantity ?? 1);
-      setNotes(priceItem?.note || '');
+      setTempNotes(priceItem?.note || '');
     }, [priceItem]);
 
     useEffect(() => {
@@ -35,18 +36,19 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
     }, [quantity, item.cost, item.priceListItemId, onQuantityChange]);
 
     const handleToggle = item => {
-      onToggleAdd({ ...item, notes: notes });
+      onToggleAdd({ ...item, notes: tempNotes });
     };
 
     const handleQuantityChange = (value: number | null) => {
       setQuantity(value ?? 1);
     };
-
     const isIncluded = item.costType === 'Included';
     return (
-      <div className={isSelected ? 'table-row bg-primary-10' : 'table-row hover:bg-card-color'}>
+      <div
+        className={`${isSelected ? 'table-row bg-primary-10' : 'table-row hover:bg-card-color'} w-full`}
+      >
         {/* Item Info */}
-        <div className="table-cell p-3 align-top">
+        <div className="table-cell p-3 align-top w-[475px]">
           <div className="flex gap-2 items-center font-medium text-[16px] break-all">
             <Tooltip title={item.shortDescription ? item.shortDescription : item.itemDescription}>
               {' '}
@@ -56,9 +58,18 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
             </Tooltip>
             <IconPencil
               size={15}
-              className={`text-blue ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-              onClick={() => !disabled && setIsEdited(prev => ({ ...prev, item: true }))}
+              className={`text-blue ${isSelected ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+              onClick={() => !isSelected && setIsEdited(prev => ({ ...prev, item: true }))}
             />
+            <div>
+              <div
+                className="flex items-center gap-2 cursor-pointer"
+                onClick={() => setNotesModalVisible(true)}
+              >
+                <IconPlus size={16} className="border rounded-full border-primary text-primary" />
+                Notes
+              </div>
+            </div>
           </div>
           <div className="flex flex-wrap gap-2 mt-1">
             {item.costType && <Tag color="yellow">{item.costType}</Tag>}
@@ -78,53 +89,10 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
             {/* the extraItemType is need to add in backednd there are 4 types  'Additional' | 'Complimentary' | 'Discount' | 'Note' is opening in the click of the extra */}
             {/* {item.extraItemType && <Tag color="yellow">{item.extraItemType}Additional Item</Tag>} */}
           </div>
-          <div className="mt-2">
-            <div
-              className={`flex items-center gap-2  ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-              onClick={() => !disabled && setShowNotesInput(!showNotesInput)}
-            >
-              <IconPlus size={16} className="border rounded-full border-primary text-primary" />
-              Notes
-            </div>
-            {showNotesInput && (
-              <div className="mt-2">
-                <TextArea
-                  placeholder="Enter notes..."
-                  value={notes}
-                  onChange={e => setNotes(e.target.value)}
-                  rows={3}
-                  className="!resize-none"
-                  disabled={isSelected || disabled}
-                />
-                {!isSelected && (
-                  <div className="flex gap-2 mt-2 justify-end">
-                    <Button
-                      size="small"
-                      type="text"
-                      onClick={() => {
-                        setShowNotesInput(false);
-                      }}
-                      icon={<IconCheck size={15} />}
-                    />
-
-                    <Button
-                      type="text"
-                      size="small"
-                      onClick={() => {
-                        setNotes('');
-                        setShowNotesInput(false);
-                      }}
-                      icon={<IconX size={15} />}
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
         </div>
 
         {/* Quantity */}
-        <div className="table-cell text-center p-3 align-middle">
+        <div className="table-cell text-center p-3 align-middle w-[100px]">
           <InputNumber
             min={1}
             value={quantity}
@@ -138,17 +106,17 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
         </div>
 
         {/* Price */}
-        <div className="table-cell text-center p-3 align-middle">
+        <div className="table-cell text-center p-3 align-middle w-[100px]">
           {!isIncluded ? `$${item.cost || priceItem?.itemCost || 0}` : ' '}
         </div>
 
         {/* Total */}
-        <div className="table-cell text-center p-3 align-middle">
+        <div className="table-cell text-center p-3 align-middle w-[100px]">
           {!isIncluded ? `$${(item.cost || priceItem?.itemCost || 0) * quantity}` : ' '}
         </div>
 
         {/* Action */}
-        <div className="table-cell text-center p-3 align-middle">
+        <div className="table-cell text-center p-3 align-middle w-[60px]">
           <Button
             disabled={isIncluded || disabled}
             type={isSelected ? 'primary' : 'dashed'}
@@ -167,6 +135,20 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
             categoryId={item?.priceList?.id}
             categoryItem={item}
             extraField={true}
+          />
+        )}
+
+        {/* Notes Modal */}
+        {notesModalVisible && (
+          <ChecklistNotesModal
+            open={notesModalVisible}
+            onCancel={() => setNotesModalVisible(false)}
+            onSubmit={value => {
+              setTempNotes(value);
+              setNotesModalVisible(false);
+            }}
+            initialValue={tempNotes}
+            isEditable={!isSelected}
           />
         )}
       </div>

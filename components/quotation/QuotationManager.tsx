@@ -183,7 +183,7 @@ const QuotationManager = () => {
 
   const fetchCategoriesData = async () => {
     try {
-      await dispatch(fetchPricelistMaster({})).unwrap();
+      await dispatch(fetchPricelistMaster({ is_active: true })).unwrap();
     } catch (e) {
       message.error(e || 'Failed to fetch categories');
     }
@@ -209,14 +209,6 @@ const QuotationManager = () => {
 
   const fetchAllCategoryItems = async () => {
     if (!quotationFilters?.range || !quotationFilters?.dwellingType) return;
-
-    // Prevent fetching again if filters didn't change
-    if (
-      lastFetchedFiltersRef.current?.range === quotationFilters.range &&
-      lastFetchedFiltersRef.current?.dwellingType === quotationFilters.dwellingType
-    ) {
-      return;
-    }
 
     try {
       const responses = await Promise.all(
@@ -490,11 +482,11 @@ const QuotationManager = () => {
         filters={quotationFilters}
       />
 
-      <div className="flex flex-1 m-3 border border-border-color rounded-lg h-[365px]">
+      <div className="flex flex-1 m-3 border border-border-color rounded-lg h-[360px]">
         {quotationFilters?.range && quotationFilters?.dwellingType ? (
           <>
             <div className="w-64">
-              {status.priceMaster === Status.IDLE ? (
+              {status.priceMaster === Status.PENDING ? (
                 <div className="flex items-center justify-center flex-1">
                   <Loading type="primary" />
                 </div>
