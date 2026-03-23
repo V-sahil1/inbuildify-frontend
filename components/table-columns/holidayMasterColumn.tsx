@@ -26,7 +26,7 @@ export const useHolidayMasterColumns = ({
           <span className="font-medium text-gray-700">Holiday Start Date</span>
           <DatePicker
             value={instantFilters?.startDate ? dayjs(instantFilters.startDate) : null}
-            onChange={(date) => setParams({ startDate: date })}
+            onChange={date => setParams({ startDate: date })}
           />
         </div>
       ),
@@ -40,7 +40,26 @@ export const useHolidayMasterColumns = ({
           <span className="font-medium text-gray-700">Holiday End Date</span>
           <DatePicker
             value={instantFilters?.endDate ? dayjs(instantFilters.endDate) : null}
-            onChange={(date) => setParams({ endDate: date })}
+            onChange={date => {
+              if (date && instantFilters?.startDate) {
+                const startDate = dayjs(instantFilters.startDate);
+                const endDate = dayjs(date);
+
+                if (endDate.isBefore(startDate, 'day')) {
+                  message.error(
+                    'End date filter must be greater than or equal to start date filter'
+                  );
+                  return;
+                }
+              }
+              setParams({ endDate: date });
+            }}
+            disabledDate={current => {
+              if (current && instantFilters?.startDate) {
+                return current.isBefore(dayjs(instantFilters.startDate), 'day');
+              }
+              return false;
+            }}
           />
         </div>
       ),
@@ -80,7 +99,7 @@ export const useHolidayMasterColumns = ({
       dataIndex: 'state',
       key: 'state',
       render: state => state.map(i => <Tag>{i.name}</Tag>),
-      width: 150
+      width: 150,
     },
     {
       title: (
@@ -153,6 +172,17 @@ export const useHolidayMasterColumns = ({
   };
 
   const handleSubmit = async values => {
+    // Validate that end date is greater than start date
+    if (values.holidayStartDate && values.holidayEndDate) {
+      const startDate = dayjs(values.holidayStartDate);
+      const endDate = dayjs(values.holidayEndDate);
+
+      if (endDate.isBefore(startDate, 'day')) {
+        message.error('End date must be greater than or equal to start date');
+        return;
+      }
+    }
+
     const payload = {
       ...values,
       holidayStartDate: dayjs(values.holidayStartDate).format('YYYY-MM-DD'),
