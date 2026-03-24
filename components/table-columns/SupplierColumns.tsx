@@ -196,7 +196,6 @@ export const useSupplierColumns = (selectedSupplier, setSelectedSupplier, setDra
         <div className="flex flex-col">
           <span>Type</span>
           <Select
-            allowClear
             value={instantFilters.type}
             onChange={val => setParams({ type: val ?? '' })}
             options={[{ label: 'All', value: 'all' }, ...activeOptions]}
@@ -215,7 +214,6 @@ export const useSupplierColumns = (selectedSupplier, setSelectedSupplier, setDra
         <div className="flex flex-col">
           <span>Induction</span>
           <Select
-            allowClear
             value={instantFilters.induction}
             onChange={val => setParams({ induction: val ?? '' })}
             options={[

@@ -124,7 +124,7 @@ const ContactListing = () => {
           <Dropdown
             dropdownRender={() => filterMenu}
             open={modalOpen === 'filter'}
-            onOpenChange={() => setModalOpen('filter')}
+            onOpenChange={() => setModalOpen(prev => prev === 'filter' ? null : 'filter')}
             trigger={['click']}
           >
             <Button icon={<IconFilter size={16} />} />
