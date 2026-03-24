@@ -26,7 +26,24 @@ export const useHolidayMasterColumns = ({
           <span className="font-medium text-gray-700">Holiday Start Date</span>
           <DatePicker
             value={instantFilters?.startDate ? dayjs(instantFilters.startDate) : null}
-            onChange={date => setParams({ startDate: date })}
+            onChange={date => {
+              if (date && instantFilters?.endDate) {
+                const startDate = dayjs(date);
+                const endDate = dayjs(instantFilters.endDate);
+
+                if (startDate.isAfter(endDate, 'day')) {
+                  message.error('Start date filter must be less than or equal to end date filter');
+                  return;
+                }
+              }
+              setParams({ startDate: date });
+            }}
+            disabledDate={current => {
+              if (current && instantFilters?.endDate) {
+                return current.isAfter(dayjs(instantFilters.endDate), 'day');
+              }
+              return false;
+            }}
           />
         </div>
       ),

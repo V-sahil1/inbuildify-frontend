@@ -32,7 +32,6 @@ import {
 import { IFloorPlanState } from '@redux/feature/floorPlan/IFloorPlanState';
 import { deleteQuotationPackageThunk } from '@redux/feature/quotation/quotationThunk';
 import { Package } from '@redux/feature/package/IPackageState';
-import LeadDetailsForm from './forms/LeadDetailsForm';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import {
   createLeadContactMapThunk,

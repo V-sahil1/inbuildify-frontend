@@ -20,7 +20,6 @@ import {
   updateLeadJobThunk,
 } from '@redux/feature/lead/leadThunk';
 import { LeadQuotation } from '@/components/leads/LeadQuotationPage';
-import LeadDetailsForm from '@/components/leadDetail/forms/LeadDetailsForm';
 import { enumToReadable } from '@lib/utils/enumToRedable';
 import { Quotation } from '@redux/feature/quotation/IQuotationState';
 import LeadActions from '@/components/leadDetail/LeadActions';

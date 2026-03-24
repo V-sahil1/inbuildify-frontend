@@ -15,13 +15,14 @@ import { IContact } from '@redux/feature/contacts/contactState';
 export const ContactColumn = ({ setSelectedContact, setModalOpen, selectedContact }) => {
   const dispatch = useAppDispatch();
 
-  const handleContactSubmit = async (values: IContact) => {
+  const handleContactSubmit = async values => {
     try {
+      const { type, ...rest } = values;
       if (selectedContact) {
-        await dispatch(updateContact({ data: values, id: selectedContact.usersId })).unwrap();
+        await dispatch(updateContact({ data: rest, id: selectedContact.usersId })).unwrap();
         message.success('Contact created successfully');
       } else {
-        await dispatch(createContact(values)).unwrap();
+        await dispatch(createContact(rest)).unwrap();
         message.success('Contact created successfully');
       }
       setModalOpen(null);

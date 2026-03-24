@@ -28,7 +28,7 @@ export const formDataGenerator = (
         }
       } else if (typeof value === 'object' && value !== null) {
         formDataGenerator(value, form, formKey);
-      } else if (value) {
+      } else if (value !== undefined && value !== null) {
         form.append(formKey, String(value));
       }
     }

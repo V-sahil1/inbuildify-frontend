@@ -32,7 +32,6 @@ const TaskTable: React.FC = () => {
         name: filters?.name || undefined,
         status: filters?.status || undefined,
         priority: filters?.priority || undefined,
-        assignedTo: filters?.assignedTo || undefined,
         due_date: filters?.dueDate || undefined,
         assignee_id: filters?.assignedTo || undefined,
       };

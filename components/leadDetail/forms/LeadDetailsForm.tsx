@@ -113,8 +113,6 @@ const LeadDetailsForm: React.FC<LeadDetailsFormProps> = ({
       Object.keys(payload).forEach(key => payload[key] === undefined && delete payload[key]);
       const { countryId, stateId, ...rest } = payload;
       delete payload.hideAddressForm;
-
-      console.log('payload', rest, initialValues);
       await onSubmit(payload);
       setShowContactForm(false);
     } catch (err) {
@@ -305,8 +303,8 @@ const LeadDetailsForm: React.FC<LeadDetailsFormProps> = ({
                 >
                   <Radio.Group
                     options={[
-                      { label: 'Active', value: 'active' },
-                      { label: 'Inactive', value: 'inactive' },
+                      { label: 'Active', value: true },
+                      { label: 'Inactive', value: false },
                     ]}
                   />
                 </Form.Item>
