@@ -369,9 +369,9 @@ const InfoCards: React.FC<InfoCardsProps> = ({
                   )}
                 </div>
               </div>
-              <span className="text-xl font-extrabold text-green-600">
+              <p className="text-xl font-extrabold text-green-600 text-end">
                 ${selectedPackage?.cost}
-              </span>
+              </p>
             </>
           ) : (
             <div className="flex justify-center items-center h-full">

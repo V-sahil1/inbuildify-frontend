@@ -237,8 +237,8 @@ export const leadSlice = createSlice({
     builder.addCase(transferLeadThunk.fulfilled, (state, action) => {
       if (state.leadDetail.lead) {
         state.leadDetail.lead.assigneeId = action.payload?.assigneeId;
-        if (action.payload?.name) {
-          state.leadDetail.lead.assigneeName = action.payload.name;
+        if (action.payload?.assigneeName) {
+          state.leadDetail.lead.assigneeName = action.payload.assigneeName;
         }
       }
     });

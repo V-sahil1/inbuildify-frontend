@@ -47,7 +47,7 @@ const LeadPage: React.FC = () => {
   useEffect(() => {
     async function fetchData() {
       if (leadLoading === Status.IDLE) {
-        await dispatch(getLeadThunk()).unwrap();
+        await dispatch(getLeadThunk({})).unwrap();
       }
     }
     if (leadLoading === Status.IDLE || leadLoading === Status.ERROR) {

@@ -43,22 +43,22 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
     { type: 'TASK', label: 'Task' },
   ];
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true);
-        const res = await dispatch(
-          getActionsThunk({ leadId, type: activeTab.toLowerCase() })
-        ).unwrap();
-        setCardsData(res);
-      } catch (error) {
-        message.error(error || 'Failed to fetch actions');
-      } finally {
-        setLoading(false);
-      }
-    }
-    if (leadId) fetchData();
-  }, [dispatch, leadId, activeTab]);
+  // useEffect(() => {
+  //   async function fetchData() {
+  //     try {
+  //       setLoading(true);
+  //       const res = await dispatch(
+  //         getActionsThunk({ leadId, type: activeTab.toLowerCase() })
+  //       ).unwrap();
+  //       setCardsData(res);
+  //     } catch (error) {
+  //       message.error(error || 'Failed to fetch actions');
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   }
+  //   if (leadId) fetchData();
+  // }, [dispatch, leadId, activeTab]);
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);

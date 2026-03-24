@@ -25,14 +25,20 @@ export interface createLeadPayload {
   forceCreate?: boolean;
 }
 
-export const getLeadThunk = createAsyncThunk('lead/getLead', async (_, { rejectWithValue }) => {
-  try {
-    const response: ApiResponse<{ leads: Lead[] }> = await api.get(API_ENDPOINTS.LEAD_BASE);
-    return response.data;
-  } catch (err) {
-    return rejectWithValue(err.message);
+export const getLeadThunk = createAsyncThunk(
+  'lead/getLead',
+  async (
+    params: { search?: string; lead_source_id?: string; status?: string; created_at?: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response: ApiResponse<{ leads: Lead[] }> = await api.get(API_ENDPOINTS.LEAD_BASE,{params});
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
   }
-});
+);
 
 export const createLeadThunk = createAsyncThunk(
   'lead/createLead',
@@ -166,17 +172,17 @@ export const leadConvertThunk = createAsyncThunk(
 
 export const transferLeadThunk = createAsyncThunk(
   'lead/transferLead',
-  async (payload: { leadId: string; assigneeId: string; assigneeNote: string; notes?: string }, { rejectWithValue }) => {
+  async (
+    payload: { leadId: string; assigneeId: string; assigneeNote: string; notes?: string },
+    { rejectWithValue }
+  ) => {
     try {
-      const response: ApiResponse<any> = await api.put(
-        API_ENDPOINTS.LEAD_ASSIGN(payload.leadId),
-        {
-          data: {
-            assigneeId: payload.assigneeId,
-            assigneeNote: payload.assigneeNote,
-          },
-        }
-      );
+      const response: ApiResponse<any> = await api.put(API_ENDPOINTS.LEAD_ASSIGN(payload.leadId), {
+        data: {
+          assigneeId: payload.assigneeId,
+          assigneeNote: payload.assigneeNote,
+        },
+      });
       return response.data;
     } catch (err: any) {
       return rejectWithValue(err?.message);

@@ -160,23 +160,11 @@ const PackageModal: React.FC<PackageModalProps> = ({
                                     </div>
                                     <Tag color="blue">{item.costType}</Tag>
                                   </div>
-                                  <div className="text-lg font-bold text-green-600">
-                                    {item.costType === 'Included' ? '' : `$${item.cost || 0}`}
-                                  </div>
                                 </div>
                               ))}
                             </div>
                           </div>
                         )}
-
-                      <div className="mt-6 pt-4 border-t">
-                        <div className="text-xl font-bold">
-                          Total:{' '}
-                          <span className="text-green-600">
-                            ${Number(tempSelectedPackage.cost).toLocaleString()}
-                          </span>
-                        </div>
-                      </div>
                     </div>
                   ) : (
                     <div className="flex items-center justify-center h-full text-font-color-100">

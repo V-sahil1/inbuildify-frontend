@@ -1,12 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { createLeadPayload, createLeadThunk, getLeadThunk } from '@redux/feature/lead/leadThunk';
-import { Form, message, Typography, Empty, Spin, Modal } from 'antd';
-import { CreateFormModal } from '@/components/common/Models/CreateFormModel';
+import {
+  Form,
+  message,
+  Typography,
+  Empty,
+  Spin,
+  Modal,
+  Button,
+  Input,
+  Select,
+  Dropdown,
+} from 'antd';
 import { Status } from '@lib/constants/enum';
 import { useRouter } from 'next/navigation';
 import { Lead } from '@redux/feature/lead/ILeadState';
-import { IconMail, IconPhone } from '@tabler/icons-react';
+import { IconFilter, IconMail, IconPhone, IconSearch, IconX } from '@tabler/icons-react';
 import { timeAgo } from '@lib/utils/timeAgo';
 import { enumToReadable } from '@lib/utils/enumToRedable';
 import useLeadCreateFields from '@/components/formFields/LeadCreateFields';
@@ -14,39 +24,101 @@ import SystemRoutes from '@lib/constants/Routes';
 import { setAddInstSourceModal } from '@redux/feature/lead/leadSlice';
 import rangeAndDwellingTypeFields from '@/components/formFields/rangeAndDwellingTypeFields';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
-import { createleadSource } from '@redux/feature/admin/sales/leadSource/leadSourceThunk';
+import {
+  createleadSource,
+  fetchAllleadSource,
+} from '@redux/feature/admin/sales/leadSource/leadSourceThunk';
 import { fetchSetting } from '@redux/feature/admin/sales/setting/settingThunk';
+import { debouncedURL } from '@lib/utils/debounceURL';
+
+const statusOptions = [
+  // Default flow
+  { label: 'New', value: 'New' },
+  { label: 'Working', value: 'Working' },
+  { label: 'Convert', value: 'Convert' },
+
+  // Opportunity flow
+  { label: 'Proposal', value: 'Proposal' },
+  { label: 'Negotiation', value: 'Negotiation' },
+  { label: 'Close', value: 'Close' },
+];
+
+const relativeDateOptions = [
+  { label: 'Last 15 Minutes', value: 'last_15_minutes' },
+  { label: 'Last 1 Hour', value: 'last_1_hour' },
+  { label: 'Last 2 Hours', value: 'last_2_hours' },
+  { label: 'Last 24 Hours', value: 'last_24_hours' },
+  { label: 'Today', value: 'today' },
+  { label: 'Yesterday', value: 'yesterday' },
+  { label: 'Last 7 Days', value: 'last_7_days' },
+  { label: 'Last 15 Days', value: 'last_15_days' },
+  { label: 'Last 30 Days', value: 'last_30_days' },
+];
 const Leads = () => {
   const { leads, status } = useAppSelector(state => state.lead);
   const dispatch = useAppDispatch();
   const router = useRouter();
   const addInstSourceModal = useAppSelector(state => state.lead.addInstSourceModal);
   const { setting, status: settingStatus } = useAppSelector(state => state.sales.setting);
+  const { leadSource, status: leadSourceStatus } = useAppSelector(state => state.sales.leadSource);
   const [openLeadCreateModal, setOpenLeadCreateModal] = useState(false);
   const [showConflictModal, setShowConflictModal] = useState(false);
   const [pendingLeadData, setPendingLeadData] = useState<createLeadPayload | null>(null);
   const [loading, setLoading] = useState({ leadLoading: false, leadSourceLoading: false });
+  const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
+  const [applyFilter, setApplyFilter] = useState(false);
+  const { debouncedUpdateURL, setParams, filters, instantFilters, resetParams } = debouncedURL({
+    filtersKey: ['search', 'status', 'createdAt', 'leadSource'],
+    shouldSyncURL: false,
+  });
 
   const [leadForm] = Form.useForm();
   const leadCreateFields = useLeadCreateFields({ isEmailDisable: false }, leadForm);
 
-  async function fetchData() {
+  async function fetchData(isParam: boolean = true) {
     try {
-      await dispatch(getLeadThunk()).unwrap();
+      const params = {
+        search: filters.search || undefined,
+        lead_source_id: filters.leadSource || undefined,
+        created_at: filters.createdAt || undefined,
+        status: filters.status || undefined,
+      };
+      await dispatch(
+        getLeadThunk(isParam ? params : { search: filters.search || undefined })
+      ).unwrap();
     } catch (error) {
       message.error(error || 'Failed to fetch leads');
     }
   }
+  useEffect(() => {
+    return () => {
+      debouncedUpdateURL.cancel();
+    };
+  }, [debouncedUpdateURL]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [filters?.search]);
 
   useEffect(() => {
     if (settingStatus.fetch === Status.IDLE) {
       fetchSalesSetting();
     }
   }, [settingStatus.fetch]);
+
+  async function getLeadSources() {
+    try {
+      await dispatch(fetchAllleadSource({})).unwrap();
+    } catch (error) {
+      message.error(error || 'failed to fetch the Lead sources');
+    }
+  }
+
+  useEffect(() => {
+    if (leadSourceStatus.fetch === Status.IDLE) {
+      getLeadSources();
+    }
+  }, [leadSourceStatus.fetch]);
 
   const fetchSalesSetting = async () => {
     try {
@@ -92,18 +164,108 @@ const Leads = () => {
   const handleOpenModal = () => {
     setOpenLeadCreateModal(true);
   };
+
+  const leadFilterMenu = () => (
+    <div className="min-w-[300px] p-4 bg-white rounded-lg shadow-lg border">
+      <h3 className="text-sm mb-4 font-semibold text-gray-700">Filter Leads</h3>
+
+      {/* Status Filter */}
+      <div className="mb-4 grid grid-cols-6 gap-2 items-center">
+        <p className="col-span-2 text-sm font-medium">Status</p>
+        <Select
+          value={instantFilters?.status}
+          onChange={value => setParams({ status: value })}
+          placeholder="Select status"
+          className="w-full col-span-4"
+          options={statusOptions}
+        />
+      </div>
+      {/* Lead Source Filter */}
+      <div className="mb-4 grid grid-cols-6 gap-2  items-center">
+        <p className=" col-span-2 text-sm font-medium">Lead Source</p>
+        <Select
+          value={instantFilters?.leadSource}
+          onChange={value => setParams({ leadSource: value })}
+          placeholder="Select lead source"
+          className="w-full col-span-4"
+        >
+          {leadSource?.map((source: any) => (
+            <Select.Option key={source.leadSourceId} value={source.leadSourceId}>
+              {source.name}
+            </Select.Option>
+          ))}
+        </Select>
+      </div>
+      {/* Created At Filter */}
+      <div className="mb-4 grid grid-cols-6 gap-2  items-center">
+        <p className="col-span-2 text-sm font-medium">Created At</p>
+        <Select
+          value={instantFilters?.createdAt}
+          onChange={value => setParams({ createdAt: value })}
+          placeholder="Select date"
+          className="w-full col-span-4"
+          options={relativeDateOptions}
+        />
+      </div>
+
+      {/* Filter Actions */}
+      <div className="flex gap-2 pt-2 justify-end">
+        <Button
+          size="small"
+          onClick={() => {
+            setFilterDropdownOpen(false);
+            setParams({ status: null });
+            setParams({ createdAt: null });
+            setParams({ leadSource: null });
+            fetchData(false);
+          }}
+        >
+          Clear All
+        </Button>
+        <Button
+          type="primary"
+          size="small"
+          onClick={() => {
+            setFilterDropdownOpen(false);
+            fetchData();
+          }}
+        >
+          Apply Filters
+        </Button>
+      </div>
+    </div>
+  );
   return (
     <div className="p-4">
       <div className="flex items-center justify-between mb-4">
         <Typography.Title level={4} style={{ margin: 0, color: 'var(--font-color)' }}>
           Leads
         </Typography.Title>
-        <button
-          className="btn large bg-[var(--primary)] cursor-pointer text-white"
-          onClick={handleOpenModal}
-        >
-          Create
-        </button>
+        <div className="flex items-center gap-2">
+          <Input
+            prefix={<IconSearch size={15} className="text-gray-400" />}
+            placeholder="Search..."
+            value={instantFilters?.search}
+            onChange={e => setParams({ search: e.target.value })}
+          />
+          <Dropdown
+            open={filterDropdownOpen}
+            onOpenChange={setFilterDropdownOpen}
+            trigger={['click']}
+            dropdownRender={leadFilterMenu}
+          >
+            <Button
+              type="text"
+              icon={<IconFilter />}
+              className={
+                filters.status || filters.createdAt || filters.leadSource ? 'text-blue-600' : ''
+              }
+            />
+          </Dropdown>
+          <Button type="primary" className="cursor-pointer" onClick={handleOpenModal}>
+            Create
+          </Button>
+        </div>
       </div>
       {status.leads === Status.PENDING ? (
         <div className="flex justify-center items-center pt-[20vh]">
