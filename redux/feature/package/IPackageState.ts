@@ -21,9 +21,8 @@ export type Package = {
   dwellingType?: Entity[];
   packageGroupId?: string[];
   packageGroup?: Entity[];
-  priceListItem?: PackagePricelist[];
+  pricelistItems?: PackagePricelist[];
 };
-
 export type GroupType = {
   packageGroupId: string;
   packageId: string;
@@ -32,9 +31,14 @@ export type GroupType = {
 };
 
 export type PackagePricelist = {
-  id: string;
-  packageId: string;
+  id?: string;
+  packageId?: string;
   priceListItemId: string;
+  uom?: string;
+  cost?: number | null;
+  costType?: 'Variable' | 'Included' | 'Fixed' | string;
+  itemDescription?: string;
+  shortDescription?: string;
 };
 
 export type PackageFetchParams = {

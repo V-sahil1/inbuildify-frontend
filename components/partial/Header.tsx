@@ -298,14 +298,19 @@ export default function Header({
                       </h3>
                       <div className="grid grid-cols-3 gap-2">
                         {gridMenuItems.map(item => (
-                          <Link
+                          <p
                             key={item.id}
-                            href={item.href}
                             className="flex items-center px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                            onClick={() => {
+                              router.push(item.href);
+                              setTimeout(() => {
+                                setIsGridDropdownOpen(false);
+                              }, 2000);
+                            }}
                           >
                             {item.icon}
                             <span className="ml-2">{item.label}</span>
-                          </Link>
+                          </p>
                         ))}
                       </div>
                     </div>
@@ -320,14 +325,19 @@ export default function Header({
                         </h3>
                         <div className="grid grid-cols-3 gap-2">
                           {gridMenuItems2.map(item => (
-                            <Link
+                            <p
                               key={item.id}
-                              href={item.href}
                               className="flex items-center px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                              onClick={() => {
+                                router.push(item.href);
+                                setTimeout(() => {
+                                  setIsGridDropdownOpen(false);
+                                }, 2000);
+                              }}
                             >
                               {item.icon}
                               <span className="ml-2">{item.label}</span>
-                            </Link>
+                            </p>
                           ))}
                         </div>
                       </div>

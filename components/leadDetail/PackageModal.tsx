@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Button, message, Empty } from 'antd';
+import { Modal, Button, message, Empty, Tag } from 'antd';
 import { fetchPackages } from '@redux/feature/package/packageThunk';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { RootState } from '@redux/feature/store';
@@ -7,13 +7,12 @@ import { Package } from '@redux/feature/package/IPackageState';
 import { useRouter } from 'next/navigation';
 import SystemRoutes from '@lib/constants/Routes';
 import Loading from '../common/Loading';
-import { QuotationPackage } from '@redux/feature/quotation/IQuotationState';
 interface PackageModalProps {
   visible: boolean;
   onCancel: () => void;
-  onSave: (pkg: Package[]) => void;
-  selectedPackage?: Package[];
-  onSelect: (pkg: Package[]) => void;
+  onSave: (pkg: Package) => void;
+  selectedPackage?: Package;
+  onSelect: (pkg: Package) => void;
   filters?: Record<string, string>;
 }
 
@@ -27,31 +26,12 @@ const PackageModal: React.FC<PackageModalProps> = ({
   const dispatch = useAppDispatch();
   const router = useRouter();
   const packages = useAppSelector((state: RootState) => state.package.packages);
-  const getAllStatus = useAppSelector((state: RootState) => state.package.status.packages);
-  // local temp selection for multiple packages
-  const [tempSelectedPackages, setTempSelectedPackages] = useState<Package[]>(
-    selectedPackage || []
+  const [tempSelectedPackage, setTempSelectedPackage] = useState<Package | null>(
+    selectedPackage || null
   );
   const { selectedFilters } = useAppSelector(state => state.quotation);
   const [loading, setLoading] = useState(true);
 
-  // Helper function to handle package selection/deselection
-  const handlePackageToggle = async (pkg: Package) => {
-    setTempSelectedPackages(prev => {
-      const isSelected = prev.some(p => p.packageId === pkg.packageId);
-      if (isSelected) {
-        return prev.filter(p => p.packageId !== pkg.packageId);
-      } else {
-        // Convert Package to QuotationPackage
-        const quotationPackage: Package = {
-          packageId: pkg.packageId,
-          name: pkg.name,
-          cost: pkg.cost,
-        };
-        return [...prev, quotationPackage];
-      }
-    });
-  };
   useEffect(() => {
     const fetchPackagesData = async () => {
       try {
@@ -60,7 +40,6 @@ const PackageModal: React.FC<PackageModalProps> = ({
           range_id: selectedFilters?.range || undefined,
           dwelling_type_id: selectedFilters?.dwellingType || undefined,
         };
-        // Make sure to pass the filters when fetching packages
         await dispatch(fetchPackages(params)).unwrap();
       } catch (e) {
         message.error(e || 'Failed to fetch packages');
@@ -68,18 +47,15 @@ const PackageModal: React.FC<PackageModalProps> = ({
         setLoading(false);
       }
     };
-
-    // Always fetch packages when modal opens or filters change
     if (visible) {
       fetchPackagesData();
     }
   }, [dispatch, visible, selectedFilters]);
-  // Reset temp selection whenever modal opens
   useEffect(() => {
-    if (visible) {
-      setTempSelectedPackages(selectedPackage || []);
+    if (visible && packages && selectedPackage) {
+      setTempSelectedPackage(packages.find(i => selectedPackage.packageId === i.packageId) || null);
     }
-  }, [visible, selectedPackage]);
+  }, [visible, selectedPackage, packages]);
 
   return (
     <Modal
@@ -96,17 +72,14 @@ const PackageModal: React.FC<PackageModalProps> = ({
           type="primary"
           className="bg-blue-600"
           onClick={() => {
-            if (tempSelectedPackages.length > 0) {
-              // // For now, save the first selected package (can be modified for multiple)
-              const selectedPkg = tempSelectedPackages[tempSelectedPackages.length - 1];
-              // dispatch(setQuotationPackage(selectedPkg));
-              onSave(tempSelectedPackages);
+            if (tempSelectedPackage) {
+              onSave(tempSelectedPackage);
               onCancel();
             }
           }}
-          disabled={tempSelectedPackages.length === 0}
+          disabled={!tempSelectedPackage}
         >
-          Save {tempSelectedPackages.length > 0 ? `(${tempSelectedPackages.length})` : ''}
+          Save
         </Button>,
       ]}
       width={800}
@@ -127,20 +100,18 @@ const PackageModal: React.FC<PackageModalProps> = ({
                   </div>
                   <div className="divide-y">
                     {packages?.map(pkg => {
-                      const isSelected = tempSelectedPackages.some(
-                        p => p.packageId === pkg.packageId
-                      );
+                      const isSelected = tempSelectedPackage?.packageId === pkg.packageId;
                       return (
                         <div
                           key={pkg.packageId}
                           className={`p-4 cursor-pointer transition-colors hover:bg-body-color ${
                             isSelected ? 'bg-blue-50' : ''
                           }`}
-                          onClick={() => handlePackageToggle(pkg)}
+                          onClick={() => setTempSelectedPackage(pkg)}
                         >
                           <div className="flex items-center">
                             <input
-                              type="checkbox"
+                              type="radio"
                               className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
                               checked={isSelected}
                               readOnly
@@ -158,37 +129,58 @@ const PackageModal: React.FC<PackageModalProps> = ({
 
                 {/* Right side - Package Details */}
                 <div className="w-2/3 overflow-y-auto p-6">
-                  {tempSelectedPackages.length > 0 ? (
+                  {tempSelectedPackage ? (
                     <div>
-                      <h2 className="text-xl font-bold mb-3">
-                        Selected Packages ({tempSelectedPackages.length})
-                      </h2>
                       <div className="space-y-4">
-                        {tempSelectedPackages.map((pkg, index) => (
-                          <div
-                            key={pkg.packageId}
-                            className="border flex justify-between items-center rounded-lg p-4"
-                          >
-                            <h3 className="text-lg font-semibold">{pkg.name}</h3>
-                            <div className="text-xl font-bold text-green-600">${pkg.cost}</div>
+                        <div
+                          key={tempSelectedPackage.packageId}
+                          className="flex justify-between items-center"
+                        >
+                          <h3 className="text-xl font-semibold">{tempSelectedPackage.name}</h3>
+                          <div className="text-xl font-bold text-green-600">
+                            ${tempSelectedPackage.cost}
                           </div>
-                        ))}
+                        </div>
                       </div>
+
+                      {/* Package Items */}
+                      {tempSelectedPackage.pricelistItems &&
+                        tempSelectedPackage.pricelistItems.length > 0 && (
+                          <div className="mt-6">
+                            <h3 className="text-base font-semibold mb-4">Included Items</h3>
+                            <div className="space-y-2">
+                              {tempSelectedPackage.pricelistItems.map((item, index) => (
+                                <div
+                                  key={item.priceListItemId || index}
+                                  className="flex justify-between items-center p-3 border rounded"
+                                >
+                                  <div className="flex-1">
+                                    <div className="font-medium text-font-color">
+                                      {item.shortDescription || item.itemDescription}
+                                    </div>
+                                    <Tag color="blue">{item.costType}</Tag>
+                                  </div>
+                                  <div className="text-lg font-bold text-green-600">
+                                    {item.costType === 'Included' ? '' : `$${item.cost || 0}`}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
                       <div className="mt-6 pt-4 border-t">
                         <div className="text-xl font-bold">
                           Total:{' '}
                           <span className="text-green-600">
-                            $
-                            {tempSelectedPackages
-                              .reduce((sum: number, pkg) => sum + Number(pkg.cost), 0)
-                              .toLocaleString()}
+                            ${Number(tempSelectedPackage.cost).toLocaleString()}
                           </span>
                         </div>
                       </div>
                     </div>
                   ) : (
                     <div className="flex items-center justify-center h-full text-font-color-100">
-                      <p>Select packages to view details</p>
+                      <p>Select a package to view details</p>
                     </div>
                   )}
                 </div>

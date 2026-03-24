@@ -103,7 +103,7 @@ export type QuotationVersionDetails = {
   dwellingTypeId: string | null;
   floorPlanId: string | null;
   facadeId: string | null;
-  packageId: string[];
+  packageId: string;
   isApprove: boolean;
   sketchNumber: string | null;
   createdAt: string;
@@ -121,7 +121,7 @@ export type QuotationVersionDetails = {
   leadContacts?: LeadContact[];
   floorPlan?: IFloorPlanState;
   facade?: IFacadeState;
-  packages?: Package[];
+  package?: Package;
   customSections?: CustomSection[];
 };
 
@@ -139,6 +139,8 @@ export type QuotationPriceListItem = {
   itemCost?: number;
   costType?: 'Fixed' | 'Variable' | 'Included';
   uom?: string;
+  rangeId?:string[];
+  dwellingTypeId?:string[];
 };
 
 export type QuotationPackage = {

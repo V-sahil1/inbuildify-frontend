@@ -34,6 +34,7 @@ import {
   builderNameRules,
   CityNameRules,
   leadAddressRules,
+  optionalEmailRule,
   optionalNameRule,
   optionalPhoneRule,
   phoneRules,
@@ -65,6 +66,7 @@ const SupplierInfoDrawer: React.FC<SupplierInfoDrawerProps> = ({
   );
   const [emailInput, setEmailInput] = useState('');
   const [emailTags, setEmailTags] = useState<string[]>([]);
+  const [emailError, setEmailError] = useState('');
   const inductionPackReceived = Form.useWatch('inductionPackReceived', form);
   const { stateOptions } = useStateHook();
   const documentFields = [
@@ -113,13 +115,29 @@ const SupplierInfoDrawer: React.FC<SupplierInfoDrawerProps> = ({
     }
   };
 
-  const handleAddEmail = () => {
+  const handleAddEmail = async () => {
     const email = emailInput.trim();
-    if (email && !emailTags.includes(email) && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      const newEmails = [...emailTags, email];
-      setEmailTags(newEmails);
-      setEmailInput('');
+    if (!email) {
+      setEmailError('Please enter an email address');
+      return;
     }
+    // Use the optionalEmailRule validator
+    try {
+      const emailValidator = optionalEmailRule[0].validator;
+      await emailValidator(null, email);
+    } catch (error: any) {
+      setEmailError(error.message);
+      return;
+    }
+
+    if (emailTags.includes(email)) {
+      setEmailError('This email already exists');
+      return;
+    }
+    const newEmails = [...emailTags, email];
+    setEmailTags(newEmails);
+    setEmailInput('');
+    setEmailError('');
   };
 
   const handleRemoveEmail = (emailToRemove: string) => {
@@ -164,7 +182,11 @@ const SupplierInfoDrawer: React.FC<SupplierInfoDrawerProps> = ({
       >
         <Row gutter={16} className="mb-2">
           <Col span={24}>
-            <Form.Item name="supplierTypeId" label="Supplier Type">
+            <Form.Item
+              name="supplierTypeId"
+              label="Supplier Type"
+              rules={[{ required: true, message: 'Please Select Supplier Type' }]}
+            >
               <PackageGroupField
                 form={form}
                 formName="supplierTypeId"
@@ -277,13 +299,18 @@ const SupplierInfoDrawer: React.FC<SupplierInfoDrawerProps> = ({
             <Input
               placeholder="Enter email address"
               value={emailInput}
-              onChange={e => setEmailInput(e.target.value)}
+              onChange={e => {
+                setEmailInput(e.target.value);
+                setEmailError('');
+              }}
               onPressEnter={handleAddEmail}
               className="w-[40%]"
+              status={emailError ? 'error' : ''}
             />
 
             <Button type="primary" onClick={handleAddEmail} icon={<IconPlus />} />
           </div>
+          {emailError && <div className="text-red-500 text-sm mt-1">{emailError}</div>}
           {emailTags.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-2">
               {emailTags.map(email => (

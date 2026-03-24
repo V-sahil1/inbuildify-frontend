@@ -45,10 +45,10 @@ interface InfoCardsProps {
   propertyDetails: any;
   selectedPlan?: IFloorPlanState;
   selectedFacade?: IFacadeState;
-  selectedPackage?: Package[];
+  selectedPackage?: Package;
   onPlanSelect: (plan: IFloorPlanState) => void;
   onFacadeSelect: (facade: IFacadeState) => void;
-  onPackageSelect: (pkg: Package[]) => void;
+  onPackageSelect: (pkg: Package) => void;
   onPropertyUpdate: (property: PropertyDetails) => void;
   isReadOnly?: boolean;
   filters?: Record<string, string>;
@@ -336,40 +336,43 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           className={`shadow-sm transition-shadow bg-card-color rounded-lg border border-border-color p-6 ${isSelectionDisabled ? '' : 'hover:shadow-md cursor-pointer'}`}
           onClick={!isSelectionDisabled && !isReadOnly ? () => setModalOpen('package') : undefined}
         >
-          {!!selectedPackage && selectedPackage?.length > 0 ? (
-            selectedPackage.map(pkg => (
-              <>
-                <div className="flex items-center justify-between gap-2 mb-3">
-                  <div className="flex items-center gap-2">
-                    <IconGift className="text-red-500" />
-                    <span className="font-medium text-font-color">{pkg?.name}</span>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold text-green-600">${pkg?.cost}</span>
-                    {!isReadOnly && (
-                      <Popconfirm
-                        title="Are you sure you want to remove this package?"
-                        okText="Yes"
-                        cancelText="No"
-                        onConfirm={e => {
-                          e.stopPropagation();
-                          handleDeletePackage(quoteDetails?.quotationVersionId, pkg.packageId);
-                        }}
-                      >
-                        <IconTrash
-                          className="text-red-500 ml-auto"
-                          size={15}
-                          onClick={e => {
-                            e.stopPropagation();
-                          }}
-                        />
-                      </Popconfirm>
-                    )}
-                  </div>
+          {!!selectedPackage ? (
+            <>
+              <div className="flex items-center justify-between gap-2 mb-3">
+                <div className="flex items-center gap-2">
+                  <IconGift className="text-red-500" />
+                  <span className="font-medium text-font-color">{selectedPackage?.name}</span>
                 </div>
-              </>
-            ))
+
+                <div className="flex items-center gap-2">
+                  {!isReadOnly && (
+                    <Popconfirm
+                      title="Are you sure you want to remove this package?"
+                      okText="Yes"
+                      cancelText="No"
+                      onConfirm={e => {
+                        e.stopPropagation();
+                        handleDeletePackage(
+                          quoteDetails?.quotationVersionId,
+                          selectedPackage.packageId
+                        );
+                      }}
+                    >
+                      <IconTrash
+                        className="text-red-500 ml-auto"
+                        size={15}
+                        onClick={e => {
+                          e.stopPropagation();
+                        }}
+                      />
+                    </Popconfirm>
+                  )}
+                </div>
+              </div>
+              <span className="text-xl font-extrabold text-green-600">
+                ${selectedPackage?.cost}
+              </span>
+            </>
           ) : (
             <div className="flex justify-center items-center h-full">
               <Button type="primary" size="middle" disabled={isSelectionDisabled}>

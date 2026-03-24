@@ -163,7 +163,16 @@ export const useSupplierColumns = (selectedSupplier, setSelectedSupplier, setDra
           <span>Phone</span>
           <Input
             value={instantFilters?.phone}
-            onChange={e => setParams({ phone: e.target.value ?? '' })}
+            onChange={e => {
+              const numericValue = e.target.value.replace(/[^0-9]/g, '');
+              setParams({ phone: numericValue });
+            }}
+            onKeyPress={e => {
+              const char = String.fromCharCode(e.which);
+              if (!/[0-9]/.test(char)) {
+                e.preventDefault();
+              }
+            }}
           />
         </div>
       ),

@@ -95,7 +95,7 @@ const packageSlice = createSlice({
     });
     builder.addCase(createPackage.fulfilled, (state, action) => {
       state.status.item = Status.SUCCESS;
-      state.packages.unshift({ ...action.payload, priceListItem: [] });
+      state.packages.unshift({ ...action.payload, pricelistItems: [] });
       state.pagination.totalRecords++;
     });
     builder.addCase(createPackage.rejected, state => {
@@ -183,7 +183,7 @@ const packageSlice = createSlice({
       state.status.pricelist = Status.SUCCESS;
       const parent = state.packages?.find(pkg => pkg.packageId === action.meta.arg);
       if (parent) {
-        parent.priceListItem = action.payload;
+        parent.pricelistItems = action.payload;
       }
     });
     builder.addCase(fetchPackagePricelist.rejected, state => {
@@ -197,7 +197,7 @@ const packageSlice = createSlice({
       state.status.pricelist = Status.SUCCESS;
       const parent = state.packages?.find(pkg => pkg.packageId === action.payload.packageId);
       if (parent) {
-        parent.priceListItem.push(action.payload);
+        parent.pricelistItems.push(action.payload);
       }
     });
     builder.addCase(createPackagePricelist.rejected, state => {
@@ -211,7 +211,7 @@ const packageSlice = createSlice({
       state.status.pricelist = Status.SUCCESS;
       const parent = state.packages?.find(pkg => pkg.packageId === action.payload.packageId);
       if (parent) {
-        parent.priceListItem = parent.priceListItem.filter(item => item.id !== action.payload.id);
+        parent.pricelistItems = parent.pricelistItems.filter(item => item.id !== action.payload.id);
       }
     });
     builder.addCase(deletePackagePricelist.rejected, state => {

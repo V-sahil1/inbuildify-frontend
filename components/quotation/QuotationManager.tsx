@@ -131,7 +131,7 @@ const QuotationManager = () => {
   const handleSelectionChange = useCallback(
     async (
       type: 'plan' | 'facade' | 'package' | 'range' | 'dwellingType' | 'location',
-      value: IFloorPlanState | IFacadeState | Package[] | string
+      value: IFloorPlanState | IFacadeState | Package | string
     ) => {
       if (!value) {
         return;
@@ -148,8 +148,8 @@ const QuotationManager = () => {
             payload.facadeId = (value as IFacadeState)?.facadeId || null;
             break;
           case 'package':
-            dispatch(setQuotationPackage(value as Package[]));
-            payload.packageId = (value as Package[])?.map(i => i.packageId) || null;
+            dispatch(setQuotationPackage(value as Package));
+            payload.packageId = (value as Package)?.packageId || null;
             break;
           case 'range':
             dispatch(setSelectedFilters({ ...quotationFilters, range: value }));

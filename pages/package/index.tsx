@@ -29,7 +29,7 @@ const Package = () => {
     selectedPackage,
   });
   const { column: pricelistColumn, priceListItems } = PackagePricelistColumn(
-    packages?.find(pkg => pkg.packageId === selectedPackage?.packageId)?.priceListItem || [],
+    packages?.find(pkg => pkg.packageId === selectedPackage?.packageId)?.pricelistItems || [],
     selectedPackage,
     setSelectedPackage
   );
@@ -185,7 +185,7 @@ const Package = () => {
                     ? priceListItems
                     : packages
                         .find(i => i.packageId === selectedPackage.packageId)
-                        ?.priceListItem.map(i =>
+                        ?.pricelistItems.map(i =>
                           priceListItems.find(p => p.priceListItemId === i.priceListItemId)
                         )
                   : quotationHistoryData,
@@ -205,7 +205,7 @@ const Package = () => {
               </Button>
               <Button onClick={() => setShowAll(false)}>
                 Selected Items (
-                {packages.find(i => i.packageId === selectedPackage.packageId)?.priceListItem
+                {packages.find(i => i.packageId === selectedPackage.packageId)?.pricelistItems
                   ?.length || 0}
                 )
               </Button>

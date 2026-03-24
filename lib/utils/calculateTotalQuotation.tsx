@@ -1,6 +1,4 @@
-import { IPriceListItem } from '@redux/feature/masterPriceList/iMasterPriceListState';
-import { Package } from '@redux/feature/package/IPackageState';
-import { QuotationPackage, QuotationPriceListItem } from '@redux/feature/quotation/IQuotationState';
+import { QuotationPriceListItem } from '@redux/feature/quotation/IQuotationState';
 
 const calculateTotalQuotation = (
   packageFromSlice: any, // todo
@@ -17,9 +15,8 @@ const calculateTotalQuotation = (
     total += qty * price;
     // }
   });
-  packageFromSlice?.forEach(i => {
-    total += Number(i.cost) || 0;
-  });
+
+  total += Number(packageFromSlice?.cost) || 0;
 
   return Number(total.toFixed(2));
 };

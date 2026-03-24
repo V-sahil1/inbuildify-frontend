@@ -45,6 +45,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
   } = useAppSelector((state: RootState) => state.quotation);
   const [form] = Form.useForm();
   const quantityRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+  const { selectedFilters } = useAppSelector(state => state.quotation);
 
   // Filter items based on search term
   const filterItems = (itemsToFilter: any[]) => {
@@ -53,6 +54,12 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
     const searchTerm = search.toLowerCase();
 
     return itemsToFilter.filter(item => {
+      if (item.rangeId && item.rangeId.length > 0 && selectedFilters?.range) {
+        if (item.rangeId.includes(selectedFilters.range)) return true;
+      }
+      if (item.dwellingTypeId && item.dwellingTypeId.length > 0 && selectedFilters?.dwellingType) {
+        if (item.dwellingTypeId.includes(selectedFilters.dwellingType)) return true;
+      }
       // Check shortDescription or itemDescription
       const description = (item.shortDescription || item.itemDescription || '').toLowerCase();
       if (description.includes(searchTerm)) return true;

@@ -38,7 +38,7 @@ export interface QuotationState {
   property: PropertyDetails;
   plan: any;
   facade: any;
-  package: Package[];
+  package: Package;
   items: QuotationPriceListItem[];
   extraItems: QuotationPriceListItem[];
   quotation: Quotation[];
@@ -54,7 +54,7 @@ const initialState: QuotationState = {
   property: null,
   plan: null,
   facade: null,
-  package: [],
+  package: null,
   items: [],
   extraItems: [],
   quotation: [],
@@ -73,7 +73,7 @@ const quotationSlice = createSlice({
       state.property = null;
       state.plan = null;
       state.facade = null;
-      state.package = [];
+      state.package = null;
       state.selectedFilters = { range: '', dwellingType: '', location: '' };
       state.customSections = [];
     },
@@ -81,7 +81,7 @@ const quotationSlice = createSlice({
       state.plan = null;
       state.facade = null;
       state.items = [];
-      state.package = [];
+      state.package = null;
     },
     setQuotationContact(state, action: PayloadAction<LeadContact | null>) {
       state.contact = state?.contact?.map(i =>
@@ -193,8 +193,8 @@ const quotationSlice = createSlice({
         }
 
         // Set package
-        if (data?.packages) {
-          state.package = data?.packages;
+        if (data?.package) {
+          state.package = data?.package;
         }
 
         // Set selected filters
@@ -236,7 +236,7 @@ const quotationSlice = createSlice({
         state.quoteDetails = action.payload;
         state.plan = action.payload.floorPlan;
         state.facade = action.payload.facade;
-        state.package = action.payload.packages;
+        state.package = action.payload.package;
       })
 
       //new
@@ -287,7 +287,7 @@ const quotationSlice = createSlice({
 
       // quotation package
       .addCase(deleteQuotationPackageThunk.fulfilled, (state, action) => {
-        state.package = state.package?.filter(i => i.packageId !== action.meta.arg.pkgId);
+        state.package = null;
       })
 
       //quotation compare
