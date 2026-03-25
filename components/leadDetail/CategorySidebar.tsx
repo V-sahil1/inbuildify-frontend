@@ -36,9 +36,9 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
   return (
     <div className="h-full flex flex-col">
       <Input
-        placeholder="Search Items..."
+        placeholder="Search Price List..."
         prefix={<IconSearch size={15} className="text-gray-400" />}
-        className="w-full rounded-none rounded-tl-lg border-t-0 border-l-0 hover:border-border-color"
+        className="w-full rounded-none rounded-tl-lg border-t-0 border-r-2  border-l-0 h-[50px] !border-[#e6e7eb] hover:!border-[#e6e7eb] focus-within:!border-[#e6e7eb] active:!border-[#e6e7eb] !shadow-none hover:!shadow-none focus-within:!shadow-none"
         value={search}
         onChange={e => setSearch(e.target.value)}
       />

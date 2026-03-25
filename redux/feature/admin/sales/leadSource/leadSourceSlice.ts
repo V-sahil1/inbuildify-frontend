@@ -27,7 +27,9 @@ const leadSoucerSlice = createSlice({
     });
     builder.addCase(createleadSource.fulfilled, (state, action) => {
       state.leadSource.unshift(action.payload);
-      state.pagination.totalRecords++;
+      if (state.pagination) {
+        state.pagination.totalRecords += 1;
+      }
       state.status.create = Status.SUCCESS;
     });
     builder.addCase(createleadSource.rejected, state => {

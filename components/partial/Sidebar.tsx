@@ -105,11 +105,7 @@ export default function Sidebar({
           />
         </h4>}
         <div onClick={toggleMiniSidebar}>
-          {miniSidebar ? (
-            <IconIndentIncrease className="arrow-icon stroke-[1.5] w-[30px] h-[30px] ms-auto rtl:rotate-180" />
-          ) : (
-            <IconIndentDecrease className="arrow-icon stroke-[1.5] w-[35px] h-[35px] ms-auto rtl:rotate-180" />
-          )}
+        <IconIndentIncrease className={`arrow-icon stroke-[1.5] w-[28px] h-[28px] ms-auto rtl:rotate-180`} />
         </div>
       </div>
       {/* <Search /> */}

@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import SystemRoutes from '@lib/constants/Routes';
 import { createQuotationThunk } from '@redux/feature/quotation/quotationThunk';
-import { IconFileText, IconSearch, IconTrash } from '@tabler/icons-react';
+import { IconFileText, IconSearch, IconTrash, IconX } from '@tabler/icons-react';
 import { Card, Input, List, message } from 'antd';
 import { useRouter } from 'next/router';
 import { Dispatch, SetStateAction } from 'react';
@@ -39,6 +39,8 @@ export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
   const { quotation } = useAppSelector(state => state.quotation);
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
+  const [showSearchInput, setShowSearchInput] = useState(false);
+  const hasQuotations = Boolean(quotation && quotation.length > 0);
 
   const filteredQuotations = useMemo(() => {
     if (!quotation) return [];
@@ -68,24 +70,70 @@ export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
   return (
     <>
       <Card>
-        <div className="flex flex-col justify-between">
-          <div className="flex items-center justify-between gap-2">
-            <p className="text-sm cursor-pointer text-blue text-nowrap" onClick={handleCreateQuotation}>
+        <div
+          className={`flex flex-col justify-between ${hasQuotations ? '' : 'min-h-[220px] items-center justify-center'}`}
+        >
+          <div
+            className={`flex items-center gap-2 overflow-hidden ${hasQuotations ? 'justify-between w-full' : 'justify-center'}`}
+          >
+            <p className="text-sm cursor-pointer text-blue text-nowrap text-center" onClick={handleCreateQuotation}>
               Create Quotation
             </p>
-            {quotation && quotation.length > 0 && (
-              <Input
-                type="text"
-                prefix={<IconSearch size={15} />}
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                placeholder="Search"
-                className="border border-border-color rounded-md px-2 py-1 text-sm w-32"
-              />
+            {hasQuotations && (
+              <div className={`flex items-center min-w-0  ${showSearchInput && 'max-w-[45%]'} flex-shrink-0`}>
+                <button
+                  type="button"
+                  aria-label="Open quotation search"
+                  onClick={() => setShowSearchInput(prev => !prev)}
+                  className={`inline-flex items-center justify-center p-1 text-gray-600 hover:text-black transition-all duration-200 ${
+                    showSearchInput ? 'hidden' : 'opacity-100 w-auto'
+                  }`}
+                >
+                  <IconSearch size={15} />
+                </button>
+
+                <div
+                  className={`transition-all duration-200 ease-in-out overflow-hidden ${
+                    showSearchInput ? 'opacity-100 ' : 'opacity-0'
+                  }`}
+                  style={{
+                    width: showSearchInput ? 'clamp(110px, 40vw, 160px)' : '0px',
+                    maxWidth: '100%',
+                  }}
+                >
+                  <Input
+                    autoFocus
+                    type="text"
+                    prefix={<IconSearch size={15} />}
+                    suffix={
+                      <button
+                        type="button"
+                        aria-label="Close quotation search"
+                        onClick={() => {
+                          setSearchTerm('');
+                          setShowSearchInput(false);
+                        }}
+                        className="inline-flex items-center justify-center text-gray-500 hover:text-black"
+                      >
+                        <IconX size={14} />
+                      </button>
+                    }
+                    value={searchTerm}
+                    onChange={e => setSearchTerm(e.target.value)}
+                    onBlur={() => {
+                      if (!searchTerm.trim()) {
+                        setShowSearchInput(false);
+                      }
+                    }}
+                    placeholder="Search"
+                    className="w-full border border-border-color rounded-md px-2 py-1 text-sm"
+                  />
+                </div>
+              </div>
             )}
           </div>
 
-          {quotation && quotation.length > 0 && (
+          {hasQuotations && (
             <div className="max-h-[200px] my-2 overflow-y-auto">
               <List
                 dataSource={filteredQuotations}
