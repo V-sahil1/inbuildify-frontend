@@ -56,11 +56,13 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
                 {item.shortDescription ? item.shortDescription : item.itemDescription}
               </p>
             </Tooltip>
-            <IconPencil
-              size={15}
-              className={`text-blue ${isSelected ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-              onClick={() => !isSelected && setIsEdited(prev => ({ ...prev, item: true }))}
-            />
+            <Tooltip title="Edit">
+              <IconPencil
+                size={15}
+                className={`text-blue ${isSelected ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                onClick={() => !isSelected && setIsEdited(prev => ({ ...prev, item: true }))}
+              />
+            </Tooltip>
             <div>
               <div
                 className="flex items-center gap-2 cursor-pointer"

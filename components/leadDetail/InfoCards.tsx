@@ -176,7 +176,9 @@ const InfoCards: React.FC<InfoCardsProps> = ({
             <IconUser className="text-blue-500" />
             <span className="font-medium text-font-color">Lead Details</span>
           </div>
-          {!isReadOnly && <IconEdit className="text-gray-400 text-sm" />}
+          <Tooltip title="Edit">
+            {!isReadOnly && <IconEdit className="text-gray-400 text-sm" />}
+          </Tooltip>
         </div>
         <div className="space-y-2">
           <div className="font-semibold text-font-color">{leadDetail?.contacts?.[0]?.name}</div>
@@ -206,7 +208,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
         <div className="flex items-center gap-2 mb-3">
           <IconHome className="text-green-500" />
           <span className="font-medium text-font-color">Property Details</span>
-          {!isReadOnly && <IconEdit className="text-gray-400 ml-auto" />}
+          <Tooltip>{!isReadOnly && <IconEdit className="text-gray-400 ml-auto" />}</Tooltip>
         </div>
         {leadDetail?.property?.city &&
         leadDetail?.property?.stateName &&
@@ -266,34 +268,45 @@ const InfoCards: React.FC<InfoCardsProps> = ({
                 <div className="flex items-center gap-2 mb-6">
                   <IconFileText className="text-purple-500" />
                   <span className="font-medium text-font-color">{selectedPlan.name}</span>
-                  {!isReadOnly && <IconEdit className="text-gray-400 ml-auto" />}
+                  <Tooltip title="Edit">
+                    {!isReadOnly && <IconEdit className="text-gray-400 ml-auto" />}
+                  </Tooltip>
                 </div>
 
                 <div className="flex justify-between w-full gap-2">
-                  <div className="flex flex-col items-center text-gray-400 w-full">
-                    <div className="w-6 h-6 flex items-center justify-center">
-                      <IconBedFlat size={20} />
+                  <Tooltip title="Bedrooms">
+                    <div className="flex flex-col items-center text-gray-400 w-full">
+                      <div className="w-6 h-6 flex items-center justify-center">
+                        <IconBedFlat size={20} />
+                      </div>
+                      <span className="text-sm">{selectedPlan?.beds || 0}</span>
                     </div>
-                    <span className="text-sm">{selectedPlan?.beds || 0}</span>
-                  </div>
-                  <div className="flex flex-col items-center text-gray-400 w-full">
-                    <div className="w-6 h-6 flex items-center justify-center">
-                      <IconBath size={20} />
+                  </Tooltip>
+                  <Tooltip title="Bathrooms">
+                    <div className="flex flex-col items-center text-gray-400 w-full">
+                      <div className="w-6 h-6 flex items-center justify-center">
+                        <IconBath size={20} />
+                      </div>
+                      <span className="text-sm">{selectedPlan?.baths || 0}</span>
                     </div>
-                    <span className="text-sm">{selectedPlan?.baths || 0}</span>
-                  </div>
-                  <div className="flex flex-col items-center text-gray-400 w-full">
-                    <div className="w-6 h-6 flex items-center justify-center">
-                      <IconCar size={20} />
+                  </Tooltip>
+
+                  <Tooltip title="Car Park">
+                    <div className="flex flex-col items-center text-gray-400 w-full">
+                      <div className="w-6 h-6 flex items-center justify-center">
+                        <IconCar size={20} />
+                      </div>
+                      <span className="text-sm">{selectedPlan?.carpark || 0}</span>
                     </div>
-                    <span className="text-sm">{selectedPlan?.carpark || 0}</span>
-                  </div>
-                  <div className="flex flex-col items-center text-gray-400 w-full">
-                    <div className="w-6 h-6 flex items-center justify-center">
-                      <IconForklift size={20} />
+                  </Tooltip>
+                  <Tooltip title="Garage Area">
+                    <div className="flex flex-col items-center text-gray-400 w-full">
+                      <div className="w-6 h-6 flex items-center justify-center">
+                        <IconForklift size={20} />
+                      </div>
+                      <span className="text-sm">{selectedPlan?.garageArea || 0}</span>
                     </div>
-                    <span className="text-sm">{selectedPlan?.garageArea || 0}</span>
-                  </div>
+                  </Tooltip>
                 </div>
               </>
             ) : (
@@ -315,7 +328,9 @@ const InfoCards: React.FC<InfoCardsProps> = ({
                 <div className="flex items-center gap-2 mb-3">
                   <IconFileText className="text-purple-500" />
                   <span className="font-medium text-font-color">{selectedFacade?.name}</span>
-                  {!isReadOnly && <IconEdit className="text-gray-400 ml-auto" />}
+                  <Tooltip title="Edit">
+                    {!isReadOnly && <IconEdit className="text-gray-400 ml-auto" />}
+                  </Tooltip>
                 </div>
                 <div className="space-y-2"></div>
               </>
