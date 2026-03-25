@@ -1,5 +1,5 @@
 import { Checkbox, Form, Input, message, Modal, Radio } from 'antd';
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { PackageGroupField } from './PackageGroupField';
 import useDwellingAndRangeHook from '@hooks/useDwellingAndRangeHook';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
@@ -18,12 +18,45 @@ import {
 export const PackageFormModal = ({ title, open, onClose, onSubmit, initialValues, isEditing }) => {
   const [form] = Form.useForm();
   const dispatch = useAppDispatch();
-  const { group, status } = useAppSelector(state => state.package);
+  const { group, status, pagination } = useAppSelector(state => state.package);
+
+  const nextSortOrder = useMemo(() => {
+    const total = pagination?.totalRecords ?? 0;
+    return total + 1;
+  }, [pagination?.totalRecords]);
   const { rangeOptions } = useDwellingAndRangeHook({ type: 'range' });
   const { dwellingTypeOptions } = useDwellingAndRangeHook({ type: 'dwellingType' });
+  const hydrateKey = useMemo(() => {
+    if (isEditing) {
+      const packageId = (initialValues as any)?.packageId ?? (initialValues as any)?.id;
+      return `edit:${packageId ?? 'unknown'}`;
+    }
+    return 'create';
+  }, [isEditing, (initialValues as any)?.packageId, (initialValues as any)?.id]);
+
+  const hydratedKeyRef = useRef<string | null>(null);
   useEffect(() => {
-    isEditing && form.setFieldsValue(initialValues);
-  }, []);
+    // Reset hydrate guard when modal closes so next open re-hydrates.
+    if (!open) {
+      hydratedKeyRef.current = null;
+      return;
+    }
+
+    // Avoid re-setting form values while the modal is open (prevents UI flicker).
+    // Keyed by the edit target (packageId) or create mode.
+    if (hydratedKeyRef.current === hydrateKey) return;
+    hydratedKeyRef.current = hydrateKey;
+
+    if (isEditing) {
+      // When editing, hydrate the form with provided initial values.
+      form.setFieldsValue(initialValues);
+      return;
+    }
+
+    // When creating, set defaults for required fields.
+    form.setFieldValue('sortOrder', nextSortOrder);
+    form.setFieldValue('status', true);
+  }, [open, hydrateKey, isEditing, initialValues, nextSortOrder, form]);
   async function fetchGroup() {
     try {
       await dispatch(fetchPackageGroup()).unwrap();
