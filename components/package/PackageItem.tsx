@@ -6,7 +6,7 @@ import {
   IconRotate,
   IconTrash,
 } from '@tabler/icons-react';
-import { Badge } from 'antd';
+import { Badge, Tag } from 'antd';
 
 import TooltipButton from '../common/TooltipButton';
 
@@ -20,7 +20,14 @@ export const PackageItem = ({ pkg, setSelectedPackage, setDrawerOpen }: PackageI
   return (
     <div className="border border-border-color rounded-lg overflow-hidden mb-4">
       <div className="p-4 bg-card-color hover:bg-primary-5 transition-colors flex justify-between items-center">
-        <h3 className="text-lg font-medium">{pkg.name}</h3>
+        <div>
+          <h3 className="text-lg font-medium">{pkg.name}</h3>
+          <div className="flex gap-3 items-center text-sm">
+            <Tag color="blue">Cost : {pkg?.cost}$</Tag>
+            <Tag color="purple">Builder Cost : {pkg?.builderCost}$</Tag>
+          </div>
+        </div>
+
         <div className="flex items-center space-x-2">
           {pkg.status ? (
             <TooltipButton
@@ -57,7 +64,7 @@ export const PackageItem = ({ pkg, setSelectedPackage, setDrawerOpen }: PackageI
             icon={<IconEdit size={18} />}
           />
 
-          <Badge size="small" count={pkg.priceListItem?.length || 0}>
+          <Badge size="small" count={pkg.pricelistItems?.length || 0}>
             <TooltipButton
               title="Map Priceist"
               type="text"

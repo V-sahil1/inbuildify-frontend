@@ -10,8 +10,25 @@ import { Status } from '@lib/constants/enum';
 import { QuotationHistory } from '@lib/utils/Reports/quotation/QuotationHistory';
 import type { Package, PackageFetchParams } from '@redux/feature/package/IPackageState';
 import { fetchPackagePricelist, fetchPackages } from '@redux/feature/package/packageThunk';
-import { IconDownload, IconPlus } from '@tabler/icons-react';
-import { Button, Empty, message, Pagination, Space, Spin, Table } from 'antd';
+import {
+  IconDownload,
+  IconFilter,
+  IconPlus,
+  IconSearch,
+  IconSortAscending,
+} from '@tabler/icons-react';
+import {
+  Badge,
+  Button,
+  Dropdown,
+  Empty,
+  Input,
+  message,
+  Pagination,
+  Space,
+  Spin,
+  Tooltip,
+} from 'antd';
 import { useEffect, useState } from 'react';
 
 const Package = () => {
@@ -19,47 +36,66 @@ const Package = () => {
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
   const [showAll, setShowAll] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState<
     'pricelist' | 'quotation' | 'delete' | 'edit' | 'create' | null
   >(null);
-  const { packages, status, pagination } = useAppSelector(state => state.package);
-  const { handlePackageSubmit, handlePackageStatus, debouncedUpdateURL, filters } = PackageColumn({
-    setDrawerOpen,
-    setSelectedPackage,
-    selectedPackage,
-  });
+  const { packages, status, pagination, group } = useAppSelector(state => state.package);
+
   const { column: pricelistColumn, priceListItems } = PackagePricelistColumn(
     packages?.find(pkg => pkg.packageId === selectedPackage?.packageId)?.pricelistItems || [],
     selectedPackage,
     setSelectedPackage
   );
   const { columns: quotationColumns, data: quotationHistoryData } = QuotationHistoryColumn();
+
   const PAGE_SIZE = 10;
 
-  const fetchPackageData = async (page: number = currentPage, limit: number = PAGE_SIZE) => {
+  const fetchPackageData = async (
+    page: number = currentPage,
+    limit: number = PAGE_SIZE,
+    isParam: boolean = true
+  ) => {
     try {
       const params: PackageFetchParams = {
         page,
         limit,
       };
+      params.search = filters?.search || undefined;
+      if (isParam) {
+        params.status = filters?.status === 'true' || undefined;
+        params.dwelling_type_id = filters?.dwellingType || undefined;
+        params.range_id = filters?.label || undefined;
+        params.package_group_id = filters?.group || undefined;
+      }
       params.name = filters?.name || undefined;
-      params.cost = filters?.cost ? Number(filters?.cost) : undefined;
-      params.sort_order = filters?.sort || undefined;
-      params.status = filters?.status !== '' ? filters?.status === 'true' : undefined;
-      params.add = filters?.add !== 'all' ? filters?.add === 'yes' : undefined;
-      params.remove = filters?.remove !== 'all' ? filters?.remove === 'yes' : undefined;
-      params.dwelling_type_id = filters?.dwellingType !== 'all' ? filters?.dwellingType : undefined;
-      params.range_id = filters?.label !== 'all' ? filters?.label : undefined;
+      params.cost = filters?.cost || undefined;
+      params.builder_cost = filters?.builderCost || undefined;
 
       await dispatch(fetchPackages(params)).unwrap();
     } catch (error) {
       message.error(error || 'Failed to fetch Packages');
     }
   };
-
+  const {
+    handlePackageSubmit,
+    handlePackageStatus,
+    filters,
+    debouncedUpdateURL,
+    sortMenu,
+    packageFilterMenu,
+    instantFilters,
+    setParams,
+  } = PackageColumn({
+    setDrawerOpen,
+    setSelectedPackage,
+    selectedPackage,
+    setFilterDropdownOpen,
+    fetchPackageData,
+  });
   useEffect(() => {
     fetchPackageData();
-  }, [currentPage, filters]);
+  }, [currentPage, filters?.search, filters?.name, filters?.cost, filters?.builder_cost]);
 
   useEffect(() => {
     return () => {
@@ -83,10 +119,46 @@ const Package = () => {
     <div className="p-4">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold">Package Master</h1>
-        <div className="flex items-center gap-2">
-          <Button type="primary" ghost>
+        <div className="flex items-center gap-3">
+          {/* <Button type="primary" ghost>
             Total Records {pagination?.totalRecords || 0}
-          </Button>
+          </Button> */}
+
+          <Input
+            prefix={<IconSearch size={15} className="text-gray-400" />}
+            placeholder="Search..."
+            value={instantFilters?.search}
+            onChange={e => setParams({ search: e.target.value })}
+          />
+          <Dropdown
+            open={filterDropdownOpen}
+            onOpenChange={setFilterDropdownOpen}
+            trigger={['click']}
+            dropdownRender={packageFilterMenu}
+          >
+            <Tooltip title="Filter">
+              <Badge
+                dot={!!(filters.status || filters.label || filters.dwellingType || filters.group)}
+              >
+                <IconFilter className="text-primary" />
+              </Badge>
+            </Tooltip>
+          </Dropdown>
+          <Dropdown
+            menu={{
+              items: sortMenu,
+              onClick: (e: any) => {
+                sortMenu.find(i => i.key === e.key)?.onClick?.();
+              },
+            }}
+            trigger={['click']}
+          >
+            <Tooltip title="Sort">
+              <Badge dot={!!(filters?.name || filters?.cost || filters?.builderCost)}>
+                <IconSortAscending className="text-primary" />{' '}
+              </Badge>
+            </Tooltip>
+          </Dropdown>
           <Button
             type="primary"
             icon={<IconPlus size={16} />}

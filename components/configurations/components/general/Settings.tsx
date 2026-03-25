@@ -62,6 +62,7 @@ const SettingsPage = () => {
     const hex = e.target.value.toUpperCase();
     setNegativeColor(hex);
     form.setFieldsValue({ negativeValueColor: hex });
+     setIsChange(hex !== settings?.negativeValueColor);
   };
 
   const renderDescription = (mainText: string, noteText?: string) => (

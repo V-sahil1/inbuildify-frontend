@@ -42,14 +42,14 @@ export type PackagePricelist = {
 };
 
 export type PackageFetchParams = {
+  search?: string;
   page?: number;
   limit?: number;
-  name?: string;
   status?: boolean;
-  sort_order?: string;
-  cost?: number;
-  add?: boolean;
-  remove?: boolean;
   dwelling_type_id?: string;
   range_id?: string;
+  package_group_id?: string;
+  name?: 'asc' | 'desc' | string;
+  cost?: 'asc' | 'desc' | string;
+  builder_cost?: 'asc' | 'desc' | string;
 };
