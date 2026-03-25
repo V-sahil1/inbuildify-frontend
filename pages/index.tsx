@@ -6,7 +6,6 @@ import {
   message,
   Typography,
   Empty,
-  Spin,
   Modal,
   Button,
   Input,
@@ -25,6 +24,7 @@ import SystemRoutes from '@lib/constants/Routes';
 import { setAddInstSourceModal } from '@redux/feature/lead/leadSlice';
 import rangeAndDwellingTypeFields from '@/components/formFields/rangeAndDwellingTypeFields';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
+import Loading from '@/components/common/Loading';
 import {
   createleadSource,
   fetchAllleadSource,
@@ -263,7 +263,7 @@ const Leads = () => {
       </div>
       {status.leads === Status.PENDING ? (
         <div className="flex justify-center items-center pt-[20vh]">
-          <Spin size="large" />
+          <Loading type="primary" />
         </div>
       ) : leads.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

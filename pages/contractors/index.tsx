@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Form, Table, Typography, message, Spin, Tooltip } from 'antd';
+import { Button, Form, Table, Typography, message, Tooltip } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import {
@@ -18,6 +18,7 @@ import { CreateFormModal } from '@/components/common/Models/CreateFormModel';
 import contractorFields from '@/components/formFields/contractorFields';
 import rangeAndDwellingTypeFields from '@/components/formFields/rangeAndDwellingTypeFields';
 import { setAddServiceModal } from '@redux/feature/contractor/contractorSlice';
+import Loading from '@/components/common/Loading';
 
 type Contractor = {
   contractorId: string;
@@ -343,7 +344,11 @@ const ContractorPage = () => {
           </button>
         </div>
 
-        <Spin spinning={loading.contractors}>
+        {loading.contractors ? (
+          <div className="flex justify-center items-center py-20">
+            <Loading type="primary" />
+          </div>
+        ) : (
           <Table
             rowKey="contractorId"
             columns={columns}
@@ -356,7 +361,7 @@ const ContractorPage = () => {
               onClick: () => handleRowClick(record),
             })}
           />
-        </Spin>
+        )}
 
         <CreateFormModal
           title="Contractor"

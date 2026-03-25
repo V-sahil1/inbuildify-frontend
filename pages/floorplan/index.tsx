@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Button, Empty, message, Pagination, Space, Spin } from 'antd';
+import { Button, Empty, message, Pagination, Space } from 'antd';
 import { TableDrawer } from '@/components/common/TableDrawer';
 import FloorPlanFormModal from '@/components/floorplan/FloorplanFormModal';
 import { FacadeColumns } from '@/components/table-columns/FacadeColumns';
 import { FloorplanPricelistColumns } from '@/components/table-columns/FloorplanPricelistColumns';
 import { QuotationHistoryColumn } from '@/components/table-columns/QuotationHistoryColumn';
+import Loading from '@/components/common/Loading';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { Status } from '@lib/constants/enum';
 import { debouncedURL } from '@lib/utils/debounceURL';
@@ -140,7 +141,7 @@ const FloorPlanMaster = () => {
       <div className="flex-1 overflow-auto custom-scrollbar">
         {status.floorPlan.fetch === Status.PENDING ? (
           <div className="flex justify-center items-center h-full">
-            <Spin size="large" />
+            <Loading type="primary" />
           </div>
         ) : floorPlans?.length > 0 ? (
           <FloorPlanItem
