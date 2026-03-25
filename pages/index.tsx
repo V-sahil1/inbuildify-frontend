@@ -12,6 +12,7 @@ import {
   Input,
   Select,
   Dropdown,
+  Badge,
 } from 'antd';
 import { Status } from '@lib/constants/enum';
 import { useRouter } from 'next/navigation';
@@ -66,7 +67,6 @@ const Leads = () => {
   const [pendingLeadData, setPendingLeadData] = useState<createLeadPayload | null>(null);
   const [loading, setLoading] = useState({ leadLoading: false, leadSourceLoading: false });
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
-  const [applyFilter, setApplyFilter] = useState(false);
   const { debouncedUpdateURL, setParams, filters, instantFilters, resetParams } = debouncedURL({
     filtersKey: ['search', 'status', 'createdAt', 'leadSource'],
     shouldSyncURL: false,
@@ -214,9 +214,7 @@ const Leads = () => {
           size="small"
           onClick={() => {
             setFilterDropdownOpen(false);
-            setParams({ status: null });
-            setParams({ createdAt: null });
-            setParams({ leadSource: null });
+            setParams({ status: '', createdAt: '', leadSource: '' });
             fetchData(false);
           }}
         >
@@ -254,13 +252,9 @@ const Leads = () => {
             trigger={['click']}
             dropdownRender={leadFilterMenu}
           >
-            <Button
-              type="text"
-              icon={<IconFilter />}
-              className={
-                filters.status || filters.createdAt || filters.leadSource ? 'text-blue-600' : ''
-              }
-            />
+            <Badge dot={filters.status || filters.createdAt || filters.leadSource ? true : false}>
+              <IconFilter className="text-primary" />
+            </Badge>
           </Dropdown>
           <Button type="primary" className="cursor-pointer" onClick={handleOpenModal}>
             Create

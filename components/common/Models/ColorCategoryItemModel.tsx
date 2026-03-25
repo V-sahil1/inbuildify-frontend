@@ -98,7 +98,7 @@ const ColorCategoryItemModel = ({
   const handleRangeSubmit = async (values, selectedRange) => {
     try {
       if (!!selectedRange) {
-        await dispatch(updateRange({ data: values, id: selectedRange.rangeId })).unwrap();
+        await dispatch(updateRange({ data: values, id: selectedRange.id })).unwrap();
         message.success('Range updated successfully');
       } else {
         await dispatch(createRange(values)).unwrap();
@@ -112,9 +112,7 @@ const ColorCategoryItemModel = ({
   const handleColorTypeSubmit = async (values, selectedColorType) => {
     try {
       if (!!selectedColorType) {
-        await dispatch(
-          updateColourType({ data: values, id: selectedColorType.colorTypeId })
-        ).unwrap();
+        await dispatch(updateColourType({ data: values, id: selectedColorType.id })).unwrap();
         message.success('Color type updated successfully');
       } else {
         await dispatch(createColourType(values)).unwrap();

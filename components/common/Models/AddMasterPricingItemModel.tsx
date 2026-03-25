@@ -168,7 +168,7 @@ const AddMasterPricingItemModal = ({
   const handleRangeSubmit = async (values, selectedRange) => {
     try {
       if (!!selectedRange) {
-        await dispatch(updateRange({ data: values, id: selectedRange.rangeId })).unwrap();
+        await dispatch(updateRange({ data: values, id: selectedRange.id })).unwrap();
         message.success('Range updated successfully');
       } else {
         await dispatch(createRange(values)).unwrap();
@@ -181,9 +181,7 @@ const AddMasterPricingItemModal = ({
   const handleDwellingTypeSubmit = async (values, selectedDwellingType) => {
     try {
       if (!!selectedDwellingType) {
-        await dispatch(
-          updateDwellingType({ data: values, id: selectedDwellingType.dwellingTypeId })
-        ).unwrap();
+        await dispatch(updateDwellingType({ data: values, id: selectedDwellingType.id })).unwrap();
         message.success('DwellingType updated successfully');
       } else {
         await dispatch(createDwellingType(values)).unwrap();

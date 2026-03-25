@@ -78,9 +78,7 @@ export const PackageFormModal = ({ title, open, onClose, onSubmit, initialValues
   const handleGroupSubmit = async (values, selectedPackage) => {
     try {
       if (!!selectedPackage) {
-        await dispatch(
-          updatePackageGroup({ data: values, id: selectedPackage.packageGroupId })
-        ).unwrap();
+        await dispatch(updatePackageGroup({ data: values, id: selectedPackage.id })).unwrap();
         message.success('Package group updated successfully');
       } else {
         await dispatch(createPackageGroup(values)).unwrap();
@@ -94,7 +92,7 @@ export const PackageFormModal = ({ title, open, onClose, onSubmit, initialValues
   const handleRangeSubmit = async (values, selectedRange) => {
     try {
       if (!!selectedRange) {
-        await dispatch(updateRange({ data: values, id: selectedRange.rangeId })).unwrap();
+        await dispatch(updateRange({ data: values, id: selectedRange.id })).unwrap();
         message.success('Range updated successfully');
       } else {
         await dispatch(createRange(values)).unwrap();
@@ -107,9 +105,7 @@ export const PackageFormModal = ({ title, open, onClose, onSubmit, initialValues
   const handleDwellingTypeSubmit = async (values, selectedDwellingType) => {
     try {
       if (!!selectedDwellingType) {
-        await dispatch(
-          updateDwellingType({ data: values, id: selectedDwellingType.dwellingTypeId })
-        ).unwrap();
+        await dispatch(updateDwellingType({ data: values, id: selectedDwellingType.id })).unwrap();
         message.success('DwellingType updated successfully');
       } else {
         await dispatch(createDwellingType(values)).unwrap();
@@ -175,8 +171,8 @@ export const PackageFormModal = ({ title, open, onClose, onSubmit, initialValues
               formName="packageGroupId"
               label="Group"
               fields={[
-                { label: 'Group Namw', name: 'name', type: 'text' },
-                { label: 'noOfPackages', name: 'noOfPackages', type: 'number' },
+                { label: 'Group Name', name: 'name', type: 'text' },
+                { label: 'No Of Packages', name: 'noOfPackages', type: 'number' },
               ]}
               onSubmit={handleGroupSubmit}
               data={group?.map(item => ({

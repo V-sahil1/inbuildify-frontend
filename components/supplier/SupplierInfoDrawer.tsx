@@ -103,7 +103,7 @@ const SupplierInfoDrawer: React.FC<SupplierInfoDrawerProps> = ({
     try {
       if (!!selectedType) {
         await dispatch(
-          updateSupplierType({ data: values, supplierTypeId: selectedType.supplierTypeId })
+          updateSupplierType({ data: values, supplierTypeId: selectedType.id })
         ).unwrap();
         message.success('Supplier type updated successfully');
       } else {
