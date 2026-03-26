@@ -223,6 +223,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
                               itemData => itemData.priceListItemId === item.priceListItemId
                             )}
                             onToggleAdd={handleItemAdd}
+                            category={category}
                           />
                         )
                       )

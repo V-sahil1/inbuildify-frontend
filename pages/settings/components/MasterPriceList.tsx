@@ -487,7 +487,7 @@ export const MasterPriceList = () => {
             setSelectedItem(null);
             setAddItemModal(false);
           }}
-          categoryId={categoryId}
+          category={priceMaster?.find(i => i.priceListId === categoryId)}
           categoryItem={selectedItem}
         />
       )}

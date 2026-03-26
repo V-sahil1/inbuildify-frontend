@@ -5,7 +5,7 @@ import { IconCheck, IconPencil, IconPlus, IconX } from '@tabler/icons-react';
 import { Tag, InputNumber, Button, Tooltip, Input, Modal } from 'antd';
 import React, { useState, useEffect } from 'react';
 import AddMasterPricingItemModal from '../common/Models/AddMasterPricingItemModel';
-import { IPriceListItem } from '@redux/feature/masterPriceList/iMasterPriceListState';
+import { IPriceList, IPriceListItem } from '@redux/feature/masterPriceList/iMasterPriceListState';
 import ChecklistNotesModal from '../construction/ChecklisrNotesModal';
 const { TextArea } = Input;
 interface QuatationItemProps {
@@ -15,10 +15,11 @@ interface QuatationItemProps {
   isSelected: boolean;
   quantityRef?: any;
   disabled?: boolean;
+  category?: IPriceList;
 }
 
 export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
-  ({ item, onToggleAdd, isSelected, onQuantityChange, quantityRef, disabled }) => {
+  ({ item, onToggleAdd, isSelected, onQuantityChange, quantityRef, disabled, category }) => {
     const { items } = useAppSelector((state: RootState) => state.quotation);
     const priceItem = items.find(i => i.priceListItemId === item.priceListItemId);
     const [quantity, setQuantity] = useState<number>();
@@ -134,7 +135,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
             onClose={() => {
               setIsEdited(prev => ({ ...prev, item: false }));
             }}
-            categoryId={item?.priceList?.id}
+            category={category}
             categoryItem={item}
             extraField={true}
           />

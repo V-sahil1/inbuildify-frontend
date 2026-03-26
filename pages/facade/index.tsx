@@ -60,7 +60,7 @@ const FacadeMaster = () => {
       };
       params.status = filters?.status !== '' ? filters?.status === 'active' : undefined;
       params.name = filters?.name || undefined;
-      params.cost_type = filters?.costType || undefined;
+      params.cost_type = filters?.costType as 'standard' | 'upgrade' || undefined;
       params.dwelling_type_id = filters.dwellingType || undefined;
       params.range_id = filters.range || undefined;
       params.location_id = filters.location || undefined;
