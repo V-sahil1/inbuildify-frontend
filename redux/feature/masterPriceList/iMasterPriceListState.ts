@@ -61,4 +61,5 @@ export interface PricelistFetchParams {
   is_active?: boolean;
   search?: string;
   is_suggested?: boolean;
+  location_id?:string;
 }

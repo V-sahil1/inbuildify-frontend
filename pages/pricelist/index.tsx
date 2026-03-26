@@ -96,6 +96,7 @@ const PriceList = () => {
       };
       if (isParam) {
         params.is_active = filters?.status !== '' ? filters?.status === 'active' : undefined;
+        params.location_id = filters?.location || undefined;
       }
       await dispatch(fetchPricelistMaster(params)).unwrap();
     } catch (e) {
