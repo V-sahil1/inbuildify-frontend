@@ -52,7 +52,7 @@ export interface PricelistItemFtechParams {
   sort_order?: string;
   price?: string;
   status?: 'active' | 'inactive';
-  cost_type?: string,
-  uom?: string
+  cost_type?: string;
+  uom?: string;
+  search?: string;
 }
-

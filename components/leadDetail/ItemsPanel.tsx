@@ -137,7 +137,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
       >
         {/* Table */}
         <div className="w-full">
-          <div className="table w-full border-collapse">
+          <div className="table w-full border-collapse" style={{ tableLayout: 'fixed' }}>
             {/* Table Head */}
             <div className="table-header-group bg-card-color text-sm font-medium text-font-color border-b border-gray-200">
               <div className="table-row">
@@ -154,8 +154,8 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
                 </div>
                 <div className="table-cell text-center p-3 w-[100px]">Quantity</div>
                 <div className="table-cell text-center p-3 w-[100px]">Price</div>
-                <div className="table-cell text-center p-3 w-[100px]">Total</div>
-                <div className="table-cell text-center p-3 w-[60px]">
+                <div className="table-cell text-center p-3 w-[60px]">Total</div>
+                <div className="table-cell text-center p-3 w-[100px]">
                   <Dropdown
                     menu={{
                       items: menuItems,
@@ -177,7 +177,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
 
           {/* Scrollable Table Body */}
           <div className="overflow-y-auto max-h-[250px] custom-scrollbar w-full">
-            <div className="table border-collapse w-full">
+            <div className="table border-collapse w-full" style={{ tableLayout: 'fixed' }}>
               <div className="table-row-group">
                 {extraItem && !select && (
                   <QuatationExtraItem

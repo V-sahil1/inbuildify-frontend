@@ -51,7 +51,7 @@ export const TableDrawer: React.FC<TableDrawerProps> = ({
             pagination={false}
             scroll={{ x: true }}
             loading={loading}
-            rowKey={record => record.key || record.id}
+            rowKey={record => record?.key || record?.id}
             tableLayout="fixed"
           />
         ))}

@@ -45,7 +45,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
     const isIncluded = item.costType === 'Included';
     return (
       <div
-        className={`${isSelected ? 'table-row bg-primary-10' : 'table-row hover:bg-card-color'} w-full`}
+        className={`${isSelected ? 'table-row bg-primary-10' : 'table-row hover:bg-card-color'}`}
       >
         {/* Item Info */}
         <div className="table-cell p-3 align-top w-[475px]">
@@ -113,12 +113,12 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
         </div>
 
         {/* Total */}
-        <div className="table-cell text-center p-3 align-middle w-[100px]">
+        <div className="table-cell text-center p-3 align-middle w-[60px]">
           {!isIncluded ? `$${(item.cost || priceItem?.itemCost || 0) * quantity}` : ' '}
         </div>
 
         {/* Action */}
-        <div className="table-cell text-center p-3 align-middle w-[60px]">
+        <div className="table-cell text-center p-3 align-middle w-[100px]">
           <Button
             disabled={isIncluded || disabled}
             type={isSelected ? 'primary' : 'dashed'}
