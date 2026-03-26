@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Button, message, Spin, Tabs, Tooltip } from 'antd';
+import { Button, message, Tabs, Tooltip } from 'antd';
 import StageProgress from '@/components/common/StageProgress';
+import Loading from '@/components/common/Loading';
 import ConvertLeadModal from '@/components/leadDetail/ConvertLeadModal';
 import PropertyDetailsModal from '@/components/leadDetail/PropertyDetailsModal';
 import { IconMail, IconPhone, IconPlus, IconUser } from '@tabler/icons-react';
@@ -301,7 +302,7 @@ function App() {
   if (status.leads === Status.PENDING) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <Spin />
+        <Loading type="secondary" />
       </div>
     );
   }

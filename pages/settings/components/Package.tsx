@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import { Empty, Spin } from 'antd';
+import { Empty } from 'antd';
 import {
   createPackage,
   fetchPackages,
@@ -16,6 +16,7 @@ import { Package as IPackage } from '@redux/feature/package/IPackageState';
 import { message } from 'antd';
 import AddMasterPricingItemModal from '@/components/common/Models/AddMasterPricingItemModel';
 import { setAddInstItemModal } from '@redux/feature/package/packageSlice';
+import Loading from '@/components/common/Loading';
 
 const Package = () => {
   const dispatch = useAppDispatch();
@@ -96,7 +97,7 @@ const Package = () => {
     if (getAllStatus === Status.PENDING || getAllStatus === Status.IDLE) {
       return (
         <div className="flex justify-center items-center h-64">
-          <Spin size="large" />
+          <Loading type="primary" />
         </div>
       );
     }

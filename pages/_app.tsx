@@ -2,7 +2,7 @@ import Head from 'next/head';
 import '../styles/globals.css';
 import '../styles/contacts-form.css';
 import '../styles/ag-theme-custom.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import Layout from '../components/layout/Layout';
 import AuthLayout from '../components/layout/AuthLayout';
@@ -18,6 +18,9 @@ export default function App({ Component, pageProps }) {
   const { isAuthRoute } = pageProps;
   const router = useRouter();
   const [isAppReady, setIsAppReady] = useState(false);
+  const [isRouteLoading, setIsRouteLoading] = useState(false);
+  const [routeLoaderKey, setRouteLoaderKey] = useState(0);
+  const routeLoaderTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const pageUrl = router.pathname;
 
@@ -42,6 +45,42 @@ export default function App({ Component, pageProps }) {
     };
   }, [pageUrl, isAppReady]);
 
+  useEffect(() => {
+    if (!isAppReady) return;
+
+    const handleRouteChangeStart = () => {
+      if (routeLoaderTimeoutRef.current) {
+        clearTimeout(routeLoaderTimeoutRef.current);
+      }
+
+      // Delay a bit to avoid flashing the loader on ultra-fast navigations.
+      routeLoaderTimeoutRef.current = setTimeout(() => {
+        setRouteLoaderKey(prev => prev + 1);
+        setIsRouteLoading(true);
+      }, 150);
+    };
+
+    const handleRouteDone = () => {
+      if (routeLoaderTimeoutRef.current) {
+        clearTimeout(routeLoaderTimeoutRef.current);
+      }
+      setIsRouteLoading(false);
+    };
+
+    router.events.on('routeChangeStart', handleRouteChangeStart);
+    router.events.on('routeChangeComplete', handleRouteDone);
+    router.events.on('routeChangeError', handleRouteDone);
+
+    return () => {
+      if (routeLoaderTimeoutRef.current) {
+        clearTimeout(routeLoaderTimeoutRef.current);
+      }
+      router.events.off('routeChangeStart', handleRouteChangeStart);
+      router.events.off('routeChangeComplete', handleRouteDone);
+      router.events.off('routeChangeError', handleRouteDone);
+    };
+  }, [isAppReady, router.events]);
+
   if (!isAppReady) {
     return (
       <>
@@ -49,7 +88,9 @@ export default function App({ Component, pageProps }) {
           <link rel="icon" href="/favicon.ico" />
           <title>InBuildify</title>
         </Head>
-        <Loading />
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-transparent backdrop-blur-md">
+          <Loading />
+        </div>
       </>
     );
   }
@@ -63,6 +104,11 @@ export default function App({ Component, pageProps }) {
             <title>InBuildify</title>
           </Head>
           <AuthValidator>
+            {isRouteLoading && (
+              <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-transparent backdrop-blur-md">
+                <Loading key={routeLoaderKey} type="primary" />
+              </div>
+            )}
             {isAuthRoute ? (
               <AuthLayout>
                 <Component {...pageProps} />

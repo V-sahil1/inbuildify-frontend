@@ -23,7 +23,7 @@ import {
   IconUpload,
 } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
-import { message, Spin, Empty, Tooltip, Button, Select } from 'antd';
+import { message, Empty, Tooltip, Button, Select } from 'antd';
 import ConfirmationModal from '@/components/common/ConfirmationModal';
 import { CreateFormModal } from '@/components/common/Models/CreateFormModel';
 import { MasterPricingCategoryFields } from '@/components/formFields/MasterPricingCategoryFields';
@@ -32,6 +32,7 @@ import RangeSelect from '@/components/common/custom-selects/RangeSelect';
 import DwellingTypeSelect from '@/components/common/custom-selects/DwellingTypeSelect';
 import { IPriceList, IPriceListItem } from '@redux/feature/masterPriceList/iMasterPriceListState';
 import TooltipButton from '@/components/common/TooltipButton';
+import Loading from '@/components/common/Loading';
 
 export const MasterPriceList = () => {
   const dispatch = useAppDispatch();
@@ -307,7 +308,7 @@ export const MasterPriceList = () => {
 
       {status.Category == Status.PENDING || orderLoading.save ? (
         <div className="flex justify-center items-center pt-[20vh]">
-          <Spin size="large" />
+          <Loading type="primary" />
         </div>
       ) : priceMaster?.length > 0 ? (
         <DragDropContext onDragEnd={handleDragEnd}>
@@ -408,7 +409,7 @@ export const MasterPriceList = () => {
                             <div className="px-4 pb-4">
                               {isLoading ? (
                                 <div className="flex justify-center items-center py-10 gap-4 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 h-[85px]">
-                                  <Spin size="large" />
+                                  <Loading type="secondary" />
                                 </div>
                               ) : category?.items?.length > 0 ? (
                                 <div className="mt-2 max-h-[300px] overflow-y-auto space-y-2 pr-2">

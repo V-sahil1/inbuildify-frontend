@@ -10,26 +10,10 @@ import { Status } from '@lib/constants/enum';
 import { QuotationHistory } from '@lib/utils/Reports/quotation/QuotationHistory';
 import type { Package, PackageFetchParams } from '@redux/feature/package/IPackageState';
 import { fetchPackagePricelist, fetchPackages } from '@redux/feature/package/packageThunk';
-import {
-  IconDownload,
-  IconFilter,
-  IconPlus,
-  IconSearch,
-  IconSortAscending,
-} from '@tabler/icons-react';
-import {
-  Badge,
-  Button,
-  Dropdown,
-  Empty,
-  Input,
-  message,
-  Pagination,
-  Space,
-  Spin,
-  Tooltip,
-} from 'antd';
+import { IconDownload, IconPlus } from '@tabler/icons-react';
+import { Button, Empty, message, Pagination, Space, Table } from 'antd';
 import { useEffect, useState } from 'react';
+import Loading from '@/components/common/Loading';
 
 const Package = () => {
   const dispatch = useAppDispatch();
@@ -172,7 +156,7 @@ const Package = () => {
       </div>
       {status.packages === Status.PENDING ? (
         <div className="flex justify-center items-center h-64">
-          <Spin size="large" />
+          <Loading type="primary" />
         </div>
       ) : packages && packages?.length > 0 ? (
         <div className="space-y-4">

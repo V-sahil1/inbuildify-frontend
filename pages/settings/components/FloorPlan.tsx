@@ -7,13 +7,14 @@ import {
 } from '@redux/feature/floorPlan/floorPlanThunk';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import Image from 'next/image';
-import { Divider, Empty, Spin, message } from 'antd';
+import { Divider, Empty, message } from 'antd';
 import { CreateFormModal } from '@/components/common/Models/CreateFormModel';
 import { floorPlanFields } from '@/components/formFields/floorPlanFields';
 import { Status } from '@lib/constants/enum';
 import { RootState } from '@redux/feature/store';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import ConfirmationModal from '@/components/common/ConfirmationModal';
+import Loading from '@/components/common/Loading';
 
 const FloorPlan = () => {
   const dispatch = useAppDispatch();
@@ -137,7 +138,7 @@ const FloorPlan = () => {
       </div>
       {status.floorPlan.fetch === Status.PENDING ? (
         <div className="flex justify-center items-center pt-[20vh]">
-          <Spin size="large" />
+            <Loading type="primary" />
         </div>
       ) : floorPlans?.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2  gap-4 ">

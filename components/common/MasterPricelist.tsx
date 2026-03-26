@@ -7,10 +7,11 @@ import {
   IconPlus,
   IconTrash,
 } from '@tabler/icons-react';
-import { Button, message, Popconfirm, Spin, Tooltip } from 'antd';
+import { Button, message, Popconfirm, Tooltip } from 'antd';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import TooltipButton from './TooltipButton';
 import { PricingItem } from './PricingItem';
+import Loading from './Loading';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { setPriceMaster } from '@redux/feature/masterPriceList/masterPriceListSlice';
 import { updatePricelistMaster } from '@redux/feature/masterPriceList/masterPriceListThunk';
@@ -238,7 +239,7 @@ export const MasterPricelist = ({
                         <div className="px-4 pb-4">
                           {isLoading ? (
                             <div className="flex justify-center items-center py-10 gap-4 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 h-[85px]">
-                              <Spin size="large" />
+                              <Loading type="secondary" />
                             </div>
                           ) : category?.items?.length > 0 ? (
                             <div className="mt-2 max-h-[300px] overflow-y-auto space-y-2 pr-2">
