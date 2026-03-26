@@ -1,6 +1,6 @@
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { createFacade, getFacades } from '@redux/feature/facade/facadeThunk';
-import { Button, Checkbox, Form, Modal, Tabs, Typography, message } from 'antd';
+import { Button, Checkbox, Form, Modal, Radio, Tabs, Typography, message } from 'antd';
 import { useEffect, useState } from 'react';
 import AvailableFacadesTab from './AvailableFacadesTab';
 import CustomFacadeForm from './forms/CustomFacadeForm';
@@ -35,12 +35,17 @@ const FacadeModal: React.FC<FacadeModalProps> = ({ visible, onCancel, onSave, se
           status: true,
           dwelling_type_id: quoteFilters?.dwellingType,
           range_id: quoteFilters?.range,
+          cost_type: selectedFilters?.standard
+            ? 'standard'
+            : selectedFilters?.upgrade
+              ? 'upgrade'
+              : undefined,
         })
       )
         .unwrap()
         .catch(console.error);
     }
-  }, [dispatch, visible, quoteFilters]);
+  }, [dispatch, visible, quoteFilters, selectedFilters]);
 
   const handleSave = async () => {
     if (activeTab === 'available') {
@@ -104,25 +109,24 @@ const FacadeModal: React.FC<FacadeModalProps> = ({ visible, onCancel, onSave, se
         tabBarExtraContent={
           activeTab === 'available' && (
             <div className="flex gap-4">
-              <Checkbox
-                checked={!!selectedFilters.standard}
+              <Radio.Group
+                value={
+                  selectedFilters.standard ? 'standard' : selectedFilters.upgrade ? 'upgrade' : ''
+                }
+                options={[
+                  { label: 'Standard', value: 'standard' },
+                  { label: 'Upgrade', value: 'upgrade' },
+                ]}
                 onChange={e => {
-                  dispatch(setSelectedFilters({ standard: e.target.checked }));
+                  dispatch(
+                    setSelectedFilters({
+                      standard: e.target.value === 'standard',
+                      upgrade: e.target.value === 'upgrade',
+                    })
+                  );
                   setSelected(null);
                 }}
-              >
-                Standard
-              </Checkbox>
-
-              <Checkbox
-                checked={!!selectedFilters.upgrade}
-                onChange={e => {
-                  dispatch(setSelectedFilters({ upgrade: e.target.checked }));
-                  setSelected(null);
-                }}
-              >
-                Upgrade
-              </Checkbox>
+              />
               {/* Second Variation */}
               {/* {
                             activeTab === "available" && (

@@ -17,7 +17,7 @@ export interface IFacadeState {
 }
 export interface GetFacadesParams {
   status?: boolean;
-  cost_type?: string;
+  cost_type?: 'standard' | 'upgrade';
   name?: string;
   dwelling_type_id?: string;
   range_id?: string;

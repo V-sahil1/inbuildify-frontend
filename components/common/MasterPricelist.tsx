@@ -188,9 +188,12 @@ export const MasterPricelist = ({
                                 icon={<IconPlus size={18} />}
                                 onClick={e => {
                                   e.stopPropagation();
-                                  category.isActive
-                                    ? setModalOpen('ItemCreate')
-                                    : setSelectedPriceMaster(category);
+                                  if (category.isActive) {
+                                    setSelectedPriceMaster(category);
+                                    setModalOpen('ItemCreate');
+                                  } else {
+                                    setSelectedPriceMaster(category);
+                                  }
                                 }}
                               />
                             </Popconfirm>

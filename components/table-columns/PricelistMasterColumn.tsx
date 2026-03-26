@@ -11,6 +11,7 @@ import {
   updateSuggestedPricelistMaster,
 } from '@redux/feature/masterPriceList/masterPriceListThunk';
 import { useLocationAndTimezoneHook } from '@hooks/useLocationAndTimezoneHook';
+import { Status } from '@lib/constants/enum';
 
 export const PricelistMasterColumn = (
   setModalOpen,
@@ -32,17 +33,17 @@ export const PricelistMasterColumn = (
 
   const fetchPriceMaster = async () => {
     try {
-      const res = await dispatch(
-        fetchPricelistMaster({ is_active: filters.isActive === 'active' })
-      ).unwrap();
+      const res = await dispatch(fetchPricelistMaster({})).unwrap();
       await dispatch(fetchPricelistMaster({ is_suggested: true })).unwrap();
     } catch (error) {
       message.error(error || 'Failed to fetch price master');
     }
   };
   useEffect(() => {
-    fetchPriceMaster();
-  }, [filters]);
+    if (status.priceMaster === Status.IDLE) {
+      fetchPriceMaster();
+    }
+  }, [status.priceMaster]);
 
   useEffect(() => {
     return () => {
@@ -273,7 +274,11 @@ export const PricelistMasterColumn = (
     Mastercolumn,
     suggestedMasterColumn,
     suggestedData: suggestedPriceMaster,
-    categoryData: priceMaster,
+    categoryData: priceMaster.filter(
+      i =>
+        i.isActive === (filters?.isActive === 'active') &&
+        i.name.toLowerCase().includes(instantFilters.search?.toLowerCase() || '')
+    ),
     masterFields: masterFields?.filter(Boolean) as FormField[],
     priceMasterSubmit: handleSubmit,
     handlePriceMasterStatus,

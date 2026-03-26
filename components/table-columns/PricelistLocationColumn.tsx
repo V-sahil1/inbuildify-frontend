@@ -25,11 +25,13 @@ export const PricelistLocationColumn = (setModalOpen, setSelectedLocation, selec
   useEffect(() => {
     fetchLocations();
   }, [filters]);
+
   useEffect(() => {
     return () => {
       debouncedUpdateURL.cancel();
     };
   }, [debouncedUpdateURL]);
+
   const column = [
     {
       title: (

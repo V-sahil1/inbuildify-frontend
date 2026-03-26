@@ -56,3 +56,9 @@ export interface PricelistItemFtechParams {
   uom?: string;
   search?: string;
 }
+
+export interface PricelistFetchParams {
+  is_active?: boolean;
+  search?: string;
+  is_suggested?: boolean;
+}

@@ -13,7 +13,11 @@ import { debouncedURL } from '@lib/utils/debounceURL';
 import { BulkPricelist } from '@lib/utils/Reports/pricelist/BulkPricelist';
 import { QuotationHistory } from '@lib/utils/Reports/quotation/QuotationHistory';
 import { LocationType } from '@redux/feature/common/ICommonState';
-import { IPriceList, IPriceListItem } from '@redux/feature/masterPriceList/iMasterPriceListState';
+import {
+  IPriceList,
+  IPriceListItem,
+  PricelistFetchParams,
+} from '@redux/feature/masterPriceList/iMasterPriceListState';
 import { toggleExpand } from '@redux/feature/masterPriceList/masterPriceListSlice';
 import {
   fetchCategoryItems,
@@ -49,19 +53,10 @@ const PriceList = () => {
   const { priceMaster, status } = useAppSelector(state => state.masterPriceList);
   const dispatch = useAppDispatch();
 
-  const { debouncedUpdateURL, setParams, filters } = debouncedURL({
-    filtersKey: [
-      'location',
-      'range',
-      'dwellingType',
-      'description',
-      'price',
-      'costOption',
-      'sort',
-      'status',
-      'category',
-    ],
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
+    filtersKey: ['location', 'range', 'dwellingType', 'search', 'status'],
     initialValue: { status: '' },
+    shouldSyncURL: false,
   });
 
   const { handlePricelistSubmit, handleActivateItem } = PricelistColumn(
@@ -91,17 +86,22 @@ const PriceList = () => {
   }, [priceMaster]);
 
   useEffect(() => {
-    const fetchCategoriesData = async () => {
-      try {
-        await dispatch(fetchPricelistMaster({})).unwrap();
-      } catch (e) {
-        message.error(e || 'Failed to fetch categories');
+    fetchCategoriesData();
+  }, [filters?.search]);
+
+  const fetchCategoriesData = async (isParam: boolean = true) => {
+    try {
+      const params: PricelistFetchParams = {
+        search: filters?.search || undefined,
+      };
+      if (isParam) {
+        params.is_active = filters?.status !== '' ? filters?.status === 'active' : undefined;
       }
-    };
-    if (status.priceMaster === Status.IDLE) {
-      fetchCategoriesData();
+      await dispatch(fetchPricelistMaster(params)).unwrap();
+    } catch (e) {
+      message.error(e || 'Failed to fetch categories');
     }
-  }, [dispatch, status.priceMaster]);
+  };
 
   useEffect(() => {
     return () => {
@@ -124,6 +124,8 @@ const PriceList = () => {
             price_list_id: categoryId,
             range_id: filters?.range || undefined,
             dwelling_type_id: filters?.dwellingType || undefined,
+            search: filters?.search || undefined,
+            status: filters?.status !== '' ? (filters.status as 'active' | 'inactive') : undefined,
           })
         ).unwrap();
       } catch (error: any) {
@@ -138,10 +140,11 @@ const PriceList = () => {
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold">Price List</h1>
         <PricelistHeader
-          filters={filters}
+          filters={instantFilters}
           setParams={setParams}
           setDrawerOpen={setDrawerOpen}
           setModalOpen={setModalOpen}
+          fetchCategoriesData={fetchCategoriesData}
         />
       </div>
 
@@ -178,7 +181,7 @@ const PriceList = () => {
             setModalOpen(null);
             setSelectedPricelist(null);
           }}
-          categoryId={selectedPricelist?.priceList.id}
+          category={selectedPriceMaster}
           categoryItem={selectedPricelist}
         />
       )}

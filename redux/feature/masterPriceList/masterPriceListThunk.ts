@@ -2,15 +2,17 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import api from '@lib/constants/api';
 import { ApiResponse } from '../auth/IAuthState';
 import API_ENDPOINTS from '@lib/constants/apiEndpoints';
-import { IPriceList, IPriceListItem, PricelistItemFtechParams } from './iMasterPriceListState';
+import {
+  IPriceList,
+  IPriceListItem,
+  PricelistFetchParams,
+  PricelistItemFtechParams,
+} from './iMasterPriceListState';
 import { CommonPagination } from '../common/ICommonState';
 
 export const fetchPricelistMaster = createAsyncThunk(
   'masterPriceList/fetchAll',
-  async (
-    args: { is_active?: boolean; search?: string; is_suggested?: boolean },
-    { rejectWithValue }
-  ) => {
+  async (args: PricelistFetchParams, { rejectWithValue }) => {
     try {
       const res = await api.get<
         ApiResponse<{ priceList: IPriceList[]; pagination: CommonPagination }>

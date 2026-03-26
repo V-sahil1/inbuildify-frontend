@@ -34,7 +34,7 @@ const ContactListing = () => {
   const { contact } = useAppSelector(state => state.contact);
   const [showCustomers, setShowCustomers] = useState(true);
   const [portalAccess, setPortalAccess] = useState('noLogin');
-  const { setParams, filters,instantFilters } = debouncedURL({
+  const { setParams, filters, instantFilters } = debouncedURL({
     delay: 500,
     filtersKey: ['search', 'status'],
     initialValue: { status: '' },
@@ -88,47 +88,49 @@ const ContactListing = () => {
     </div>
   );
   return (
-    <div className="p-6  min-h-screen">
-      <h1 className="text-2xl font-semibold mb-4">Contact Listing</h1>
+    <div className="p-6 max-h-[100vh] overflow-y-hidden ">
+      <div>
+        <h1 className="text-2xl font-semibold mb-4">Contact Listing</h1>
 
-      {/* Top Bar */}
-      <div className="flex flex-wrap items-center gap-3 mb-6">
-        <Input.Search
-          placeholder="Search contacts by name, email, or phone number"
-          allowClear
-          value={instantFilters?.search}
-          onChange={e => setParams({ search: e.target.value })}
-          className="w-full md:w-1/2"
-        />
+        {/* Top Bar */}
+        <div className="flex flex-wrap items-center gap-2 mb-6">
+          <Input.Search
+            placeholder="Search contacts by name, email, or phone number"
+            allowClear
+            value={instantFilters?.search}
+            onChange={e => setParams({ search: e.target.value })}
+            className="w-full md:w-1/2"
+          />
 
-        <CustomFilterButtons
-          filterButtons={['Active', 'InActive']}
-          activeTab={instantFilters.status}
-          setActiveTab={value => setParams({ status: value })}
-        />
+          <CustomFilterButtons
+            filterButtons={['Active', 'InActive']}
+            activeTab={instantFilters.status}
+            setActiveTab={value => setParams({ status: value })}
+          />
 
-        <div className="flex items-center gap-2">
-          <p className="text-gray-500 text-sm">Total Contacts: {contact?.length}</p>
-        </div>
+          <div className="flex items-center gap-2">
+            <p className="text-gray-500 text-sm">Total Contacts: {contact?.length}</p>
+          </div>
 
-        <div className="ml-auto flex items-center gap-2">
-          <Button
-            type="primary"
-            icon={<IconPlus size={16} />}
-            onClick={() => setModalOpen('create')}
-          >
-            New Contact
-          </Button>
+          <div className="ml-auto flex items-center gap-2">
+            <Button
+              type="primary"
+              icon={<IconPlus size={16} />}
+              onClick={() => setModalOpen('create')}
+            >
+              New Contact
+            </Button>
 
-          {/* Filter Dropdown */}
-          <Dropdown
-            dropdownRender={() => filterMenu}
-            open={modalOpen === 'filter'}
-            onOpenChange={() => setModalOpen(prev => prev === 'filter' ? null : 'filter')}
-            trigger={['click']}
-          >
-            <Button icon={<IconFilter size={16} />} />
-          </Dropdown>
+            {/* Filter Dropdown */}
+            <Dropdown
+              dropdownRender={() => filterMenu}
+              open={modalOpen === 'filter'}
+              onOpenChange={() => setModalOpen(prev => (prev === 'filter' ? null : 'filter'))}
+              trigger={['click']}
+            >
+              <Button icon={<IconFilter size={16} />} />
+            </Dropdown>
+          </div>
 
           {/* Grid / Table Toggle */}
           {viewMode === 'grid' ? (
@@ -171,7 +173,7 @@ const ContactListing = () => {
 
       {/* Grid or Table View */}
       {viewMode === 'grid' ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 max-h-[calc(100vh-300px)] overflow-y-auto custom-scrollbar">
           {contact &&
             contact?.map(contact => (
               <div

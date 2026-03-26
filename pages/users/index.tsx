@@ -125,7 +125,7 @@ const Users = () => {
               <Loading type="secondary" />
           </div>
         ) : (
-          <div className="grid grid-cols-3 gap-2 ">
+          <div className="grid grid-cols-3 gap-2 max-h-[calc(100vh-300px)] overflow-y-auto custom-scrollbar">
             {users &&
               users.length > 0 &&
               users.map((user, index) => (

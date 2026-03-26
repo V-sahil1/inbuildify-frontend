@@ -30,7 +30,7 @@ const { Option } = Select;
 interface AddMasterPricingItemModalProps {
   open: boolean;
   onClose: () => void;
-  categoryId?: string;
+  category?: IPriceList;
   categoryItem?: IPriceListItem;
   // preselectedRange?: string;
   // preselectedDwelling?: string;
@@ -40,7 +40,7 @@ interface AddMasterPricingItemModalProps {
 const AddMasterPricingItemModal = ({
   open,
   onClose,
-  categoryId,
+  category,
   categoryItem,
   // preselectedRange,
   // preselectedDwelling,
@@ -217,7 +217,7 @@ const AddMasterPricingItemModal = ({
         className="responsive-form"
       >
         {/* New Item Category */}
-        {!categoryId && (
+        {!category && (
           <Form.Item
             label="Item Category"
             name="priceListId"
@@ -361,7 +361,12 @@ const AddMasterPricingItemModal = ({
         </div>
         {extraField && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <Form.Item label="Sort Order" name="sortOrder" className="form-item-responsive">
+            <Form.Item
+              label="Sort Order"
+              name="sortOrder"
+              className="form-item-responsive"
+              initialValue={category?.items?.length + 1}
+            >
               <Input type="number" />
             </Form.Item>
             <Form.Item label="UOM" name="uom" className="form-item-responsive">
@@ -556,7 +561,7 @@ const AddMasterPricingItemModal = ({
         <Form.Item
           label="Status"
           name="status"
-          initialValue="ACTIVE"
+          initialValue="active"
           className="form-item-responsive"
         >
           <Radio.Group
@@ -595,9 +600,9 @@ const AddMasterPricingItemModal = ({
                 name="showOnlyInPackage"
                 valuePropName="checked"
                 className="form-item-responsive"
-                initialValue={!categoryId}
+                initialValue={false}
               >
-                <Checkbox disabled={!categoryId}> Package Only </Checkbox>
+                <Checkbox> Package Only </Checkbox>
               </Form.Item>
             )}
             {/* Show in HL Package */}
