@@ -28,7 +28,7 @@ import { LeadSource } from '@/components/leads/LeadSource';
 import CloseLeadModal from '@/components/leadDetail/LeadQuotations/CloseLeadModal';
 import ConfirmationModal from '@/components/common/ConfirmationModal';
 import { deleteQuotationThunk, getQuotationThunk } from '@redux/feature/quotation/quotationThunk';
-import { removeQuotation } from '@redux/feature/lead/leadSlice';
+import { clearLeadDetail, removeQuotation } from '@redux/feature/lead/leadSlice';
 import DepositModel from '@/components/common/Models/DepositModel';
 import ActivityCard from '@/components/common/ActivityCard';
 import { EmailData, filterTabs } from 'data/activityData';
@@ -86,6 +86,12 @@ function App() {
       fetchData();
     }
   }, [leadId]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(clearLeadDetail());
+    };
+  }, [dispatch]);
 
   // const primaryContact = contacts;
 
