@@ -8,7 +8,7 @@ import {
   IconPhoto,
   IconTrash,
 } from '@tabler/icons-react';
-import { Divider, Image, message, Popconfirm, Tooltip } from 'antd';
+import { Badge, Divider, Image, message, Popconfirm, Tooltip } from 'antd';
 
 export const FloorPlanItem = ({
   floorPlans,
@@ -48,40 +48,46 @@ export const FloorPlanItem = ({
               </button>
             </Tooltip>
             <Tooltip title="Map Pricelist">
-              <button
-                className="p-2 bg-white bg-opacity-80 rounded-full hover:bg-opacity-100 transition-all duration-200"
-                onClick={e => {
-                  e.stopPropagation();
-                  setSelectedFloorplan(floorPlan);
-                  setDrawerOpen('floorplan');
-                }}
-              >
-                <IconDeviceIpadDollar />
-              </button>
+              <Badge count={floorPlan?.pricelistItems?.length}>
+                <button
+                  className="p-2 bg-white bg-opacity-80 rounded-full hover:bg-opacity-100 transition-all duration-200"
+                  onClick={e => {
+                    e.stopPropagation();
+                    setSelectedFloorplan(floorPlan);
+                    setDrawerOpen('floorplan');
+                  }}
+                >
+                  <IconDeviceIpadDollar />
+                </button>
+              </Badge>
             </Tooltip>
             <Tooltip title="Map Facade">
-              <button
-                className="p-2 bg-white bg-opacity-80 rounded-full hover:bg-opacity-100 transition-all duration-200"
-                onClick={e => {
-                  e.stopPropagation();
-                  setSelectedFloorplan(floorPlan);
-                  setDrawerOpen('facade');
-                }}
-              >
-                <IconPhoto />
-              </button>
+              <Badge count={floorPlan?.facade?.length}>
+                <button
+                  className="p-2 bg-white bg-opacity-80 rounded-full hover:bg-opacity-100 transition-all duration-200"
+                  onClick={e => {
+                    e.stopPropagation();
+                    setSelectedFloorplan(floorPlan);
+                    setDrawerOpen('facade');
+                  }}
+                >
+                  <IconPhoto />
+                </button>
+              </Badge>
             </Tooltip>
             <Tooltip title="Quotation History">
-              <button
-                className="p-2 bg-white bg-opacity-80 rounded-full hover:bg-opacity-100 transition-all duration-200"
-                onClick={e => {
-                  e.stopPropagation();
-                  setSelectedFloorplan(floorPlan);
-                  setDrawerOpen('quotation');
-                }}
-              >
-                <IconClockHour7 />
-              </button>
+              <Badge>
+                <button
+                  className="p-2 bg-white bg-opacity-80 rounded-full hover:bg-opacity-100 transition-all duration-200"
+                  onClick={e => {
+                    e.stopPropagation();
+                    setSelectedFloorplan(floorPlan);
+                    setDrawerOpen('quotation');
+                  }}
+                >
+                  <IconClockHour7 />
+                </button>
+              </Badge>
             </Tooltip>
             <Tooltip title="Remove">
               <Popconfirm

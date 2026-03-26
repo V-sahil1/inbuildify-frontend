@@ -279,7 +279,7 @@ const FacadeMaster = () => {
                 costType: isEditing.costType,
                 cost: isEditing.cost,
                 builderCost: isEditing.builderCost,
-                status: isEditing.status,
+                status: isEditing.status ? 'true' : 'false',
                 image: isEditing.image,
               }
               : {}

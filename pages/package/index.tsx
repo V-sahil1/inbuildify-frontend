@@ -9,8 +9,14 @@ import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { Status } from '@lib/constants/enum';
 import { QuotationHistory } from '@lib/utils/Reports/quotation/QuotationHistory';
 import type { Package, PackageFetchParams } from '@redux/feature/package/IPackageState';
-import { fetchPackagePricelist, fetchPackages } from '@redux/feature/package/packageThunk';
-import { IconDownload, IconFilter, IconPlus, IconSearch, IconSortAscending } from '@tabler/icons-react';
+import { fetchPackages } from '@redux/feature/package/packageThunk';
+import {
+  IconDownload,
+  IconFilter,
+  IconPlus,
+  IconSearch,
+  IconSortAscending,
+} from '@tabler/icons-react';
 import { Badge, Button, Dropdown, Empty, Input, message, Pagination, Space, Tooltip } from 'antd';
 import { useEffect, useState } from 'react';
 import Loading from '@/components/common/Loading';
@@ -24,12 +30,10 @@ const Package = () => {
   const [drawerOpen, setDrawerOpen] = useState<
     'pricelist' | 'quotation' | 'delete' | 'edit' | 'create' | null
   >(null);
-  const { packages, status, pagination, group } = useAppSelector(state => state.package);
-
+  const { packages, status, pagination } = useAppSelector(state => state.package);
   const { column: pricelistColumn, priceListItems } = PackagePricelistColumn(
     packages?.find(pkg => pkg.packageId === selectedPackage?.packageId)?.pricelistItems || [],
-    selectedPackage,
-    setSelectedPackage
+    selectedPackage
   );
   const { columns: quotationColumns, data: quotationHistoryData } = QuotationHistoryColumn();
 
@@ -87,27 +91,11 @@ const Package = () => {
     };
   }, [debouncedUpdateURL]);
 
-  const fetchPricelistItems = () => {
-    try {
-      packages?.map(async i => await dispatch(fetchPackagePricelist(i?.packageId)).unwrap());
-    } catch (error) {
-      message.error(error || 'Failed to fetch pricelist items');
-    }
-  };
-
-  useEffect(() => {
-    fetchPricelistItems();
-  }, [status.packages]);
-
   return (
     <div className="p-4">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold">Package Master</h1>
         <div className="flex items-center gap-3">
-          {/* <Button type="primary" ghost>
-            Total Records {pagination?.totalRecords || 0}
-          </Button> */}
-
           <Input
             prefix={<IconSearch size={15} className="text-gray-400" />}
             placeholder="Search..."

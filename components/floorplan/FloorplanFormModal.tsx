@@ -128,7 +128,7 @@ const FloorPlanFormModal = ({
             >
               <Select options={rangeOptions} placeholder="Select Label" />
             </Form.Item>
-            {isEditing && (
+            {isEditing && locationOptions?.length > 0 && (
               <Form.Item label="Location" name="locationId">
                 <Select options={locationOptions} placeholder="Select Location" />
               </Form.Item>
@@ -139,9 +139,9 @@ const FloorPlanFormModal = ({
           label="Status"
           name="status"
           rules={[{ required: true, message: 'Please select a status' }]}
+          initialValue="true"
         >
           <Radio.Group
-            defaultValue="Active"
             options={[
               { label: 'Active', value: 'true' },
               { label: 'InActive', value: 'false' },

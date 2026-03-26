@@ -17,14 +17,20 @@ import { getDwellingTypes, getRanges } from '@redux/feature/types/typesThunk';
 import { Status } from '@lib/constants/enum';
 
 const RangeAndDwelling = dynamic(() => import('./components/RangeAndDwelling'), { ssr: false });
-const MasterPriceList = dynamic(() => import('./components/MasterPriceList'), { ssr: false });
-const FloorPlan = dynamic(() => import('./components/FloorPlan'), { ssr: false });
-const Facade = dynamic(() => import('./components/Facade'), { ssr: false });
-const Package = dynamic(() => import('./components/Package'), { ssr: false });
+const MasterPriceList = dynamic(() => import('../pricelist'), { ssr: false });
+const FloorPlan = dynamic(() => import('../floorplan'), { ssr: false });
+const Facade = dynamic(() => import('../facade'), { ssr: false });
+const Package = dynamic(() => import('../package'), { ssr: false });
 const Service = dynamic(() => import('./components/Service'), { ssr: false });
-const LeadSource = dynamic(() => import('./components/LeadSource'), { ssr: false });
+const LeadSource = dynamic(
+  () =>
+    import('@/components/configurations/components/sales/LeadSource').then(mod => ({
+      default: mod.LeadSource,
+    })),
+  { ssr: false }
+);
 const WorkflowProcessPage = dynamic(() => import('./components/WorkflowProcess'), { ssr: false });
-const ColourCategoryPage = dynamic(() => import('./components/Colour'), { ssr: false });
+const ColourCategoryPage = dynamic(() => import('../color'), { ssr: false });
 
 const TABS = [
   {

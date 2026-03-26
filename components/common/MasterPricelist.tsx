@@ -143,7 +143,7 @@ export const MasterPricelist = ({
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
-                      className="bg-white shadow-md rounded-xl border border-gray-200 transition hover:shadow-lg"
+                      className="bg-card-color shadow-md rounded-xl border border-border-color transition hover:shadow-lg"
                     >
                       {/* Header */}
                       <div
@@ -154,11 +154,11 @@ export const MasterPricelist = ({
                         }
                       >
                         <div className="flex items-center gap-2 w-full min-w-0">
-                          <button className="mt-1 flex-shrink-0 text-gray-600 hover:text-blue-500 transition cursor-grab">
+                          <button className="mt-1 flex-shrink-0 text-font-color-100 hover:text-blue-500 transition cursor-grab">
                             <IconGripVertical size={24} />
                           </button>
                           <div className="min-w-0">
-                            <h3 className="text-lg font-semibold text-gray-800 break-words">
+                            <h3 className="text-lg font-semibold text-font-color break-words">
                               {category?.name}
                             </h3>
                           </div>
@@ -241,7 +241,7 @@ export const MasterPricelist = ({
                       {isDropdownOpen && (
                         <div className="px-4 pb-4">
                           {isLoading ? (
-                            <div className="flex justify-center items-center py-10 gap-4 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 h-[85px]">
+                            <div className="flex justify-center items-center py-10 gap-4 border border-border-color rounded-lg bg-card-color text-font-color-100 h-[85px]">
                               <Loading type="secondary" />
                             </div>
                           ) : category?.items?.length > 0 ? (

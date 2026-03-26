@@ -5,7 +5,10 @@ import {
   createFloorPlanPricelist,
   deleteFloorPlanPricelist,
 } from '@redux/feature/floorPlan/floorPlanThunk';
-import { fetchCategoryItems } from '@redux/feature/masterPriceList/masterPriceListThunk';
+import {
+  fetchCategoryItems,
+  fetchPricelistMaster,
+} from '@redux/feature/masterPriceList/masterPriceListThunk';
 import { IconPlus, IconX } from '@tabler/icons-react';
 import { Input, message, Popconfirm, Select, Switch, Tag } from 'antd';
 import { useEffect, useState } from 'react';
@@ -20,12 +23,26 @@ export const FloorplanPricelistColumns = (
   const [itemStates, setItemStates] = useState<{
     [key: string]: { quantity: number; included: boolean; modify: boolean };
   }>({});
-  const { priceListItems, status } = useAppSelector(state => state.masterPriceList);
+  const { priceListItems, status, priceMaster } = useAppSelector(state => state.masterPriceList);
 
   const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
-    filtersKey: ['search'],
+    filtersKey: ['search', 'priceMaster'],
+    initialValue: { priceMaster: 'all' },
     shouldSyncURL: false,
   });
+  useEffect(() => {
+    if (status.priceMaster === Status.IDLE) {
+      fetchPricelistMasterData();
+    }
+  }, [status.priceMaster]);
+
+  async function fetchPricelistMasterData() {
+    try {
+      await dispatch(fetchPricelistMaster({})).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch prieclist data');
+    }
+  }
 
   useEffect(() => {
     floorPlanPricelist?.map(item => {
@@ -41,10 +58,11 @@ export const FloorplanPricelistColumns = (
   }, [floorPlanPricelist]);
 
   useEffect(() => {
-    if (status.priceListItem.fetch === Status.IDLE) {
+    if (priceMaster && priceMaster?.length > 0) {
       fetchPricelistData();
     }
-  }, [status.priceListItem.fetch]);
+  }, [filters, status?.priceMaster]);
+
   useEffect(() => {
     return () => {
       debouncedUpdateURL.cancel();
@@ -53,7 +71,11 @@ export const FloorplanPricelistColumns = (
 
   async function fetchPricelistData() {
     try {
-      await dispatch(fetchCategoryItems({})).unwrap();
+      const params = {
+        price_list_id: filters?.priceMaster !== 'all' ? filters?.priceMaster : undefined,
+        search: filters?.search || undefined,
+      };
+      await dispatch(fetchCategoryItems(params)).unwrap();
     } catch (error) {
       message.error(error || 'Failed to fetch prieclist data');
     }
@@ -110,7 +132,17 @@ export const FloorplanPricelistColumns = (
       title: (
         <div>
           <Input
-            addonBefore={<Select defaultValue="All" options={[{ label: 'All', value: 'All' }]} />}
+            addonBefore={
+              <Select
+                options={[
+                  { label: 'All', value: 'all' },
+                  ...priceMaster?.map(i => ({ label: i.name, value: i.priceListId })),
+                ]}
+                value={instantFilters?.priceMaster}
+                onChange={value => setParams({ priceMaster: value })}
+                className="min-w-[100px]"
+              />
+            }
             placeholder="Search Items"
             value={instantFilters?.search}
             onChange={e => setParams({ search: e.target.value })}

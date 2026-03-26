@@ -1,7 +1,10 @@
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { Status } from '@lib/constants/enum';
 import { debouncedURL } from '@lib/utils/debounceURL';
-import { fetchCategoryItems } from '@redux/feature/masterPriceList/masterPriceListThunk';
+import {
+  fetchCategoryItems,
+  fetchPricelistMaster,
+} from '@redux/feature/masterPriceList/masterPriceListThunk';
 import {
   createPackagePricelist,
   deletePackagePricelist,
@@ -11,18 +14,20 @@ import { Input, message, Popconfirm, Select, Tag } from 'antd';
 import { useEffect } from 'react';
 import TooltipButton from '../common/TooltipButton';
 
-export const PackagePricelistColumn = (packagePricelist, selectedPackage, setSelectedPackage) => {
+export const PackagePricelistColumn = (packagePricelist, selectedPackage) => {
   const dispatch = useAppDispatch();
   const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
-    filtersKey: ['search'],
+    filtersKey: ['search', 'priceMaster'],
+    initialValue: { priceMaster: 'all' },
     shouldSyncURL: false,
   });
-  const { priceListItems, status } = useAppSelector(state => state.masterPriceList);
+  const { priceListItems, status, priceMaster } = useAppSelector(state => state.masterPriceList);
   useEffect(() => {
-    if (status.priceListItem.fetch === Status.IDLE) {
-      fetchPricelistData();
+    fetchPricelistData();
+    if (status.priceMaster === Status.IDLE) {
+      fetchPricelistMasterData();
     }
-  }, [status.priceListItem.fetch]);
+  }, [filters, status.priceMaster]);
   useEffect(() => {
     return () => {
       debouncedUpdateURL.cancel();
@@ -31,12 +36,22 @@ export const PackagePricelistColumn = (packagePricelist, selectedPackage, setSel
 
   async function fetchPricelistData() {
     try {
-      await dispatch(fetchCategoryItems({})).unwrap();
+      const params = {
+        price_list_id: filters?.priceMaster !== 'all' ? filters?.priceMaster : undefined,
+        search: filters?.search || undefined,
+      };
+      await dispatch(fetchCategoryItems(params)).unwrap();
     } catch (error) {
       message.error(error || 'Failed to fetch prieclist data');
     }
   }
-
+  async function fetchPricelistMasterData() {
+    try {
+      await dispatch(fetchPricelistMaster({})).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch prieclist data');
+    }
+  }
   async function addItem(data) {
     try {
       await dispatch(createPackagePricelist(data)).unwrap();
@@ -55,14 +70,24 @@ export const PackagePricelistColumn = (packagePricelist, selectedPackage, setSel
     }
   }
   function isPriceListAdded(record) {
-    return packagePricelist?.map(i => i.priceListItemId).includes(record.priceListItemId);
+    return packagePricelist?.map(i => i.priceListItemId).includes(record?.priceListItemId);
   }
 
   const column = [
     {
       title: (
         <Input
-          addonBefore={<Select options={[{ label: 'All', value: 'All' }]} defaultValue="All" />}
+          addonBefore={
+            <Select
+              options={[
+                { label: 'All', value: 'all' },
+                ...priceMaster?.map(i => ({ label: i.name, value: i.priceListId })),
+              ]}
+              value={instantFilters?.priceMaster}
+              onChange={value => setParams({ priceMaster: value })}
+              className="min-w-[100px]"
+            />
+          }
           placeholder="Search Items"
           value={instantFilters?.search}
           onChange={e => setParams({ search: e.target.value })}
@@ -72,10 +97,10 @@ export const PackagePricelistColumn = (packagePricelist, selectedPackage, setSel
       key: 'search',
       render: (_, record) => (
         <>
-          <p>{record.shortDescription || record.itemDescription}</p>
+          <p>{record?.shortDescription || record?.itemDescription}</p>
           <div className="flex gap-2">
-            {record.priceList && <Tag color="purple">{record.priceList.name}</Tag>}
-            {record.costType && <Tag color="gray">{record.costType}</Tag>}
+            {record?.priceList && <Tag color="purple">{record?.priceList.name}</Tag>}
+            {record?.costType && <Tag color="gray">{record?.costType}</Tag>}
           </div>
         </>
       ),
@@ -83,11 +108,11 @@ export const PackagePricelistColumn = (packagePricelist, selectedPackage, setSel
     {
       title: '',
       render: (_, record) => {
-        const item = packagePricelist?.find(i => i.priceListItemId === record.priceListItemId);
+        const item = packagePricelist?.find(i => i.priceListItemId === record?.priceListItemId);
         return isPriceListAdded(record) ? (
           <Popconfirm
             title="Are you sure you want to remove this item?"
-            onConfirm={() => removeItem(item.packageId, item.id)}
+            onConfirm={() => removeItem(selectedPackage?.packageId, item.id)}
           >
             <TooltipButton
               title="Remove"
@@ -102,7 +127,7 @@ export const PackagePricelistColumn = (packagePricelist, selectedPackage, setSel
             onConfirm={() =>
               addItem({
                 packageId: selectedPackage?.packageId || '',
-                priceListItemId: record.priceListItemId,
+                priceListItemId: record?.priceListItemId,
               })
             }
           >

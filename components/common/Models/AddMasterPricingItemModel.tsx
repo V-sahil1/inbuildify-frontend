@@ -382,7 +382,7 @@ const AddMasterPricingItemModal = ({
               label="Range"
               name="rangeId"
               className="form-item-responsive"
-              // rules={[{ required: true, message: 'Please select range' }]}
+              rules={[{ required: true, message: 'Please select range' }]}
             >
               {extraField ? (
                 <PackageGroupField
@@ -408,7 +408,7 @@ const AddMasterPricingItemModal = ({
             label="Dwelling Type"
             name="dwellingTypeId"
             className="form-item-responsive"
-            // rules={[{ required: true, message: 'Please select dwelling type' }]}
+            rules={[{ required: true, message: 'Please select dwelling type' }]}
           >
             {extraField ? (
               <PackageGroupField

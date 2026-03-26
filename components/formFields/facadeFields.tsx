@@ -30,13 +30,13 @@ export const facadeFields = ({
 
   const fields = useMemo((): FormField[] => {
     return [
-      {
+      locationOptions?.length > 0 && ({
         label: 'Location',
         name: 'locationId',
         type: 'select',
         options: locationOptions,
         placeholder: 'Location',
-      },
+      }),
       {
         label: 'Name',
         name: 'name',
@@ -112,10 +112,10 @@ export const facadeFields = ({
           { label: 'Inactive', value: 'false' },
         ],
         placeholder: 'Select status',
-        initialValue: true,
+        initialValue: 'true',
         rules: [{ required: true, message: 'Please select a status' }],
       },
-    ];
+    ].filter(Boolean) as FormField[];
 
    
   }, [costType, dwellingTypeOptions, isDwellingDisable, selectedFilters, locationOptions, rangeOptions]);
