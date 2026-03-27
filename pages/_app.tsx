@@ -11,7 +11,7 @@ import { store } from '../redux/feature/store';
 import { ConfigProvider } from 'antd';
 import theme from '../antd.config';
 import AuthValidator from '@/components/common/AuthValidator';
-import Loading from '@/components/common/Loading';
+import PageLoading from '@/components/common/PageLoading';
 import { ThemeContextProvider } from 'contexts/ThemeContext';
 
 export default function App({ Component, pageProps }) {
@@ -89,7 +89,7 @@ export default function App({ Component, pageProps }) {
           <title>InBuildify</title>
         </Head>
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-transparent backdrop-blur-md">
-          <Loading />
+          <PageLoading />
         </div>
       </>
     );
@@ -106,7 +106,7 @@ export default function App({ Component, pageProps }) {
           <AuthValidator>
             {isRouteLoading && (
               <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-transparent backdrop-blur-md">
-                <Loading key={routeLoaderKey} type="primary" />
+                <PageLoading key={routeLoaderKey} type="primary" />
               </div>
             )}
             {isAuthRoute ? (

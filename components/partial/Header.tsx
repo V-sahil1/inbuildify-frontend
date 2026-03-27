@@ -300,7 +300,7 @@ export default function Header({
                         {gridMenuItems.map(item => (
                           <p
                             key={item.id}
-                            className="flex items-center px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                            className="flex cursor-pointer items-center px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                             onClick={() => {
                               router.push(item.href);
                               setTimeout(() => {
@@ -327,7 +327,7 @@ export default function Header({
                           {gridMenuItems2.map(item => (
                             <p
                               key={item.id}
-                              className="flex items-center px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                              className="flex cursor-pointer items-center px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                               onClick={() => {
                                 router.push(item.href);
                                 setTimeout(() => {

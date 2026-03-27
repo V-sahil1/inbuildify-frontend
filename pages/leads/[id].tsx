@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Button, message, Spin, Tabs, Tooltip } from 'antd';
+import { Button, message, Tabs, Tooltip } from 'antd';
 import StageProgress from '@/components/common/StageProgress';
 import ConvertLeadModal from '@/components/leadDetail/ConvertLeadModal';
 import PropertyDetailsModal from '@/components/leadDetail/PropertyDetailsModal';
@@ -28,7 +28,7 @@ import { LeadSource } from '@/components/leads/LeadSource';
 import CloseLeadModal from '@/components/leadDetail/LeadQuotations/CloseLeadModal';
 import ConfirmationModal from '@/components/common/ConfirmationModal';
 import { deleteQuotationThunk, getQuotationThunk } from '@redux/feature/quotation/quotationThunk';
-import { clearLeadDetail, removeQuotation } from '@redux/feature/lead/leadSlice';
+import { removeQuotation } from '@redux/feature/lead/leadSlice';
 import DepositModel from '@/components/common/Models/DepositModel';
 import ActivityCard from '@/components/common/ActivityCard';
 import { EmailData, filterTabs } from 'data/activityData';
@@ -50,6 +50,7 @@ import { LeadContactPage } from '@/components/leads/LeadContact';
 import { LeadPropertyPage } from '@/components/leads/LeadPropertyPage';
 import LeadQuotations from '@/components/leadDetail/LeadQuotations/LeadQuotations';
 import LeadContactModel from '@/components/common/Models/LeadContactModel';
+import Loading from '@/components/common/Loading';
 
 const { TabPane } = Tabs;
 
@@ -86,12 +87,6 @@ function App() {
       fetchData();
     }
   }, [leadId]);
-
-  useEffect(() => {
-    return () => {
-      dispatch(clearLeadDetail());
-    };
-  }, [dispatch]);
 
   // const primaryContact = contacts;
 
@@ -301,7 +296,7 @@ function App() {
   if (status.leads === Status.PENDING) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <Spin />
+        <Loading type="primary" />
       </div>
     );
   }

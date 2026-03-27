@@ -114,7 +114,7 @@ export default function Sidebar({
       </div>
       {/* <Search /> */}
       <ul className="sidebar-list px-3 mb-4 main-menu">
-        {miniSidebar && <li className="sidebar-listitem py-10">
+        {miniSidebar && <li className="flex justify-center sidebar-listitem py-10">
           <Image
             src={'/logo.webp'}
             alt="logo"

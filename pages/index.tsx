@@ -22,7 +22,7 @@ import { timeAgo } from '@lib/utils/timeAgo';
 import { enumToReadable } from '@lib/utils/enumToRedable';
 import useLeadCreateFields from '@/components/formFields/LeadCreateFields';
 import SystemRoutes from '@lib/constants/Routes';
-import { setAddInstSourceModal } from '@redux/feature/lead/leadSlice';
+import { clearLeadDetail, setAddInstSourceModal } from '@redux/feature/lead/leadSlice';
 import rangeAndDwellingTypeFields from '@/components/formFields/rangeAndDwellingTypeFields';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import {
@@ -95,6 +95,10 @@ const Leads = () => {
       debouncedUpdateURL.cancel();
     };
   }, [debouncedUpdateURL]);
+  
+  useEffect(() => {
+    dispatch(clearLeadDetail());
+  }, [dispatch]);
 
   useEffect(() => {
     fetchData();
