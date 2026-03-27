@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button, Input, Table, Dropdown, message } from 'antd';
+import { Button, Input, Table, Dropdown, message, Spin } from 'antd';
 import {
   IconDownload,
   IconFileSpreadsheet,
@@ -21,7 +21,6 @@ import { getUsersThunk } from '@redux/feature/user/userThunk';
 import { IUser } from '@redux/feature/user/UserState';
 import { Status } from '@lib/constants/enum';
 import { UserFormDrawer } from '@/components/user/UserFormDrawer';
-import Loading from '@/components/common/Loading';
 import dayjs from 'dayjs';
 
 const Users = () => {
@@ -122,7 +121,7 @@ const Users = () => {
       {viewMode === 'grid' ? (
         status.users.fetch === Status.PENDING ? (
           <div className="flex justify-center items-center h-full">
-              <Loading type="secondary" />
+            <Spin />
           </div>
         ) : (
           <div className="grid grid-cols-3 gap-2 max-h-[calc(100vh-300px)] overflow-y-auto custom-scrollbar">

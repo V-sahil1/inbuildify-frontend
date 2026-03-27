@@ -12,10 +12,9 @@ import Image from 'next/image';
 import { facadeFields } from '@/components/formFields/facadeFields';
 import { Status } from '@lib/constants/enum';
 import { enumToReadable } from '@lib/utils/enumToRedable';
-import { Checkbox, Empty, message } from 'antd';
+import { Checkbox, Empty, message, Spin } from 'antd';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import ConfirmationModal from '@/components/common/ConfirmationModal';
-import Loading from '@/components/common/Loading';
 import {
   clearStandardFilter,
   clearUpgradeFilter,
@@ -148,7 +147,7 @@ const Facade = () => {
 
       {status == Status.PENDING ? (
         <div className="flex justify-center items-center pt-[20vh]">
-          <Loading type="primary" />
+          <Spin size="large" />
         </div>
       ) : facades.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

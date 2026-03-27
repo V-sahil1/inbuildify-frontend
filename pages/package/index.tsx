@@ -9,7 +9,7 @@ import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { Status } from '@lib/constants/enum';
 import { QuotationHistory } from '@lib/utils/Reports/quotation/QuotationHistory';
 import type { Package, PackageFetchParams } from '@redux/feature/package/IPackageState';
-import { fetchPackages } from '@redux/feature/package/packageThunk';
+import { fetchPackagePricelist, fetchPackages } from '@redux/feature/package/packageThunk';
 import {
   IconDownload,
   IconFilter,
@@ -17,9 +17,19 @@ import {
   IconSearch,
   IconSortAscending,
 } from '@tabler/icons-react';
-import { Badge, Button, Dropdown, Empty, Input, message, Pagination, Space, Tooltip } from 'antd';
+import {
+  Badge,
+  Button,
+  Dropdown,
+  Empty,
+  Input,
+  message,
+  Pagination,
+  Space,
+  Spin,
+  Tooltip,
+} from 'antd';
 import { useEffect, useState } from 'react';
-import Loading from '@/components/common/Loading';
 
 const Package = () => {
   const dispatch = useAppDispatch();
@@ -144,7 +154,7 @@ const Package = () => {
       </div>
       {status.packages === Status.PENDING ? (
         <div className="flex justify-center items-center h-64">
-          <Loading type="primary" />
+          <Spin size="large" />
         </div>
       ) : packages && packages?.length > 0 ? (
         <div className="space-y-4">

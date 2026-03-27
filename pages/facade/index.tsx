@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Image, message, Empty, Pagination, Space, Tooltip } from 'antd';
+import { Button, Image, message, Empty, Spin, Pagination, Space, Tooltip } from 'antd';
 import { IconPlus, IconRotate, IconEdit, IconTrash, IconDownload } from '@tabler/icons-react';
 import { debouncedURL } from '@lib/utils/debounceURL';
 import { TableDrawer } from '@/components/common/TableDrawer';
@@ -20,7 +20,6 @@ import ConfirmationModal from '@/components/common/ConfirmationModal';
 import { QuotationHistoryColumn } from '@/components/table-columns/QuotationHistoryColumn';
 import { QuotationHistory } from '@lib/utils/Reports/quotation/QuotationHistory';
 import TooltipButton from '@/components/common/TooltipButton';
-import Loading from '@/components/common/Loading';
 
 const FacadeMaster = () => {
   const [open, setOpen] = useState<'quotation' | 'facade' | 'delete' | null>(null);
@@ -124,7 +123,7 @@ const FacadeMaster = () => {
       <div className="flex-1 overflow-auto custom-scrollbar">
         {status == Status.PENDING ? (
           <div className="flex justify-center items-center h-full">
-            <Loading type="primary" />
+            <Spin size="large" />
           </div>
         ) : facades.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

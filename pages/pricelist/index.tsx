@@ -24,10 +24,9 @@ import {
   fetchPricelistMaster,
 } from '@redux/feature/masterPriceList/masterPriceListThunk';
 import { IconDownload } from '@tabler/icons-react';
-import { Button, Empty, message, Space, Upload } from 'antd';
+import { Button, Empty, message, Space, Spin, Upload } from 'antd';
 import { useEffect, useState } from 'react';
 import { MasterPricelist } from '@/components/common/MasterPricelist';
-import Loading from '@/components/common/Loading';
 
 const PriceList = () => {
   const [drawerOpen, setDrawerOpen] = useState<
@@ -151,7 +150,7 @@ const PriceList = () => {
 
       {status.priceMaster == Status.PENDING ? (
         <div className="flex justify-center items-center pt-[20vh]">
-          <Loading type="primary" />
+          <Spin size="large" />
         </div>
       ) : priceMaster?.length > 0 ? (
         <MasterPricelist

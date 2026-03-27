@@ -10,7 +10,7 @@ import {
   IconTrash,
 } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
-import { message, Empty, Tooltip, Button } from 'antd';
+import { message, Spin, Empty, Tooltip, Button } from 'antd';
 import ConfirmationModal from '@/components/common/ConfirmationModal';
 import { CreateFormModal } from '@/components/common/Models/CreateFormModel';
 import { MasterPricingCategoryFields } from '@/components/formFields/MasterPricingCategoryFields';
@@ -30,7 +30,6 @@ import {
 import { Task, WorkflowProcess } from '@redux/feature/workflow/iWorkflowState';
 import { toggleExpandWorkflowProcess } from '@redux/feature/workflow/workflowSlice';
 import { formDataGenerator } from '@lib/utils/formDataGenerator';
-import Loading from '@/components/common/Loading';
 
 export const WorkflowProcessPage = () => {
   const dispatch = useAppDispatch();
@@ -315,7 +314,7 @@ export const WorkflowProcessPage = () => {
 
       {status == Status.PENDING || orderLoading.save ? (
         <div className="flex justify-center items-center pt-[20vh]">
-          <Loading type="primary" />
+          <Spin size="large" />
         </div>
       ) : localWorkflowProcess.length > 0 ? (
         <DragDropContext onDragEnd={handleDragEnd}>
@@ -421,7 +420,7 @@ export const WorkflowProcessPage = () => {
                             <div className="px-4 pb-4">
                               {isLoading ? (
                                 <div className="flex justify-center items-center py-10 gap-4 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 h-[85px]">
-                                  <Loading type="secondary" />
+                                  <Spin size="large" />
                                 </div>
                               ) : workflowProcess?.tasks?.length > 0 ? (
                                 <div className="mt-2 max-h-[300px] overflow-y-auto space-y-2 pr-2">
