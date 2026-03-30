@@ -135,7 +135,7 @@ const AddMasterPricingItemModal = ({
           })
         ).unwrap();
       } else {
-        const response = await dispatch(createCategoryItem(values)).unwrap();
+        const response = await dispatch(createCategoryItem({ ...values, priceListId: !!category ? category?.priceListId : values?.priceListId})).unwrap();
         if (values.showOnlyInPackage) {
           dispatch(addPackageItems(response));
         }
@@ -365,7 +365,7 @@ const AddMasterPricingItemModal = ({
               label="Sort Order"
               name="sortOrder"
               className="form-item-responsive"
-              initialValue={category?.items?.length + 1}
+              initialValue={category?.items?.length + 1 || 1}
             >
               <Input type="number" />
             </Form.Item>
