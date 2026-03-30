@@ -224,6 +224,7 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
               <Input
                 placeholder={field.placeholder}
                 type={field.type}
+                onWheel={e => e.preventDefault()}
                 disabled={field.disabled}
                 onKeyPress={e => {
                   if (!/[0-9]/.test(e.key)) {

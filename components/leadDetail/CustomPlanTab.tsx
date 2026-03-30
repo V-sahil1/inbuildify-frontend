@@ -8,7 +8,7 @@ import { useAppDispatch, useAppSelector } from '@hooks/redux';
 // import { Status } from "@lib/constants/enum";
 import { createFloorPlan } from '@redux/feature/floorPlan/floorPlanThunk';
 import { setQuotationPlan } from '@redux/feature/quotation/quotationSlice';
-import { acceptOnlyImageRule } from '@lib/constants/formInputValidations';
+import { acceptOnlyImageRule, OptionalNumberRules } from '@lib/constants/formInputValidations';
 import useDwellingAndRangeHook from '@hooks/useDwellingAndRangeHook';
 import { formDataGenerator } from '@lib/utils/formDataGenerator';
 
@@ -277,7 +277,7 @@ const CustomPlanTab: React.FC<{ onCancel: () => void }> = ({ onCancel }) => {
               <Form.Item
                 label="Total Sqft"
                 name="totalArea"
-                rules={[{ required: true, message: 'Please input total square footage' }]}
+                rules={OptionalNumberRules}
               >
                 <Input
                   type="number"
