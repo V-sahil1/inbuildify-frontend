@@ -212,6 +212,7 @@ const CompanyDetails = () => {
                 multiple={false}
                 maxCount={1}
                 beforeUpload={() => false}
+                accept=".png,.jpg,.jpeg"
               >
                 <Button icon={<IconUpload />}>Upload</Button>
               </Upload>
@@ -236,6 +237,7 @@ const CompanyDetails = () => {
                 multiple={false}
                 maxCount={1}
                 beforeUpload={() => false}
+                accept=".png,.jpg,.jpeg"
               >
                 <Button icon={<IconUpload />}>Upload</Button>
               </Upload>
