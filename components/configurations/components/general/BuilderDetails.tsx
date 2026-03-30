@@ -262,6 +262,7 @@ const BuilderDetails = () => {
                 onChange={({ fileList: newFileList }) => {
                   setfileList(newFileList);
                 }}
+                accept='.png,.jpg,.jpeg'
               >
                 <Button icon={<IconUpload />}>Upload</Button>
               </Upload>

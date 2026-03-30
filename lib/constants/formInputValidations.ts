@@ -477,8 +477,10 @@ export const zipCodeRules = [
 ];
 
 export const builderPhoneRules = [
-  { min: 10, message: 'Phone number must be at least 10 characters long' },
-  { max: 14, message: 'Phone number must not exceed 14 characters' },
+  {
+    pattern: /^\d{10,14}$/,
+    message: 'Phone number must be number and between 10 to 15 digits',
+  },
 ];
 
 export const acnNumberRules = [
