@@ -1,19 +1,18 @@
-import { Entity } from "types/common.types";
-
+import { Entity } from 'types/common.types';
 export interface IFacadeState {
-  facadeId?: string,
-  name: string,
-  costType: string,
-  cost: string,
-  builderCost: string,
-  image: string,
-  status: true,
-  location: Entity,
-  dwellingtype: Entity,
-  range: Entity,
-  standard?: boolean,
-  upgrade?: boolean,
-  createdAt?:string
+  facadeId?: string;
+  name: string;
+  costType: string;
+  cost: string;
+  builderCost: string;
+  image: string;
+  status: true;
+  location: Entity;
+  dwellingtype: Entity;
+  range: Entity;
+  standard?: boolean;
+  upgrade?: boolean;
+  createdAt?: string;
 }
 export interface GetFacadesParams {
   status?: boolean;
@@ -26,5 +25,5 @@ export interface GetFacadesParams {
   standard?: boolean;
   upgrade?: boolean;
   location_id?: string;
+  search?: string;
 }
-

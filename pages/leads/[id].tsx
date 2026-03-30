@@ -88,6 +88,12 @@ function App() {
     }
   }, [leadId]);
 
+  // useEffect(() => {
+  //   return () => {
+  //     dispatch(clearLeadDetail());
+  //   };
+  // }, [dispatch]);
+
   // const primaryContact = contacts;
 
   // useEffect(() => {

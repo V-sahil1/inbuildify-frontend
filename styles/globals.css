@@ -1004,8 +1004,16 @@ body .apexcharts-legend-marker {
     display: none;
   }
   .mini-sidebar .sidebar {
-    width: 80px;
-    min-width: 80px;
+    width: 80px !important;
+    min-width: 80px !important;
+  }
+
+  /* Mobile navigation with mini-sidebar */
+  @media (max-width: 640px) {
+    .mini-sidebar .sidebar {
+      width: 80px !important;
+      min-width: 80px !important;
+    }
   }
 
   .mini-sidebar .sidebar .sidebar-header {

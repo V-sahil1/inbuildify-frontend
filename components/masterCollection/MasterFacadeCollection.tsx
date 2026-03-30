@@ -1,33 +1,11 @@
-import { useEffect } from 'react';
-import { FacadeCard } from './FacadeCard';
-import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import { message } from 'antd';
-import { getFacades } from '@redux/feature/facade/facadeThunk';
 import { Status } from '@lib/constants/enum';
+import { FacadeCard } from './FacadeCard';
+import { useAppSelector } from '@hooks/redux';
 import Loading from '../common/Loading';
 
 export const MasterFacadeCollection = ({ filters }) => {
-  const dispatch = useAppDispatch();
-  const { facades, status } = useAppSelector(state => state.facade);
+  const { facades,status } = useAppSelector(state => state.facade);
 
-  const fetchFacadeData = async () => {
-    if (status === Status.PENDING) {
-      return;
-    }
-    try {
-      const params = {
-        range_id: filters?.range || undefined,
-        dwelling_type_id: filters?.dwellingType || undefined,
-        name: filters?.search || undefined,
-      };
-      await dispatch(getFacades(params)).unwrap();
-    } catch (error) {
-      message.error(error || 'Failed to fetch Facades');
-    }
-  };
-  useEffect(() => {
-    fetchFacadeData();
-  }, [filters]);
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
       {status === Status.PENDING ? (

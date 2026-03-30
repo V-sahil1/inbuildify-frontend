@@ -22,7 +22,7 @@ const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
       ...initialValues,
       rangeId: selectedFilters?.range,
       dwellingTypeId: selectedFilters?.dwellingType,
-      locationId: selectedFilters?.location,
+      locationId: selectedFilters?.location || undefined,
     });
   }, [initialValues, form]);
 
@@ -50,8 +50,6 @@ const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
                 options={field.options}
                 placeholder={field.placeholder}
                 value={field.initialValue}
-                // className="white-disabled-select"
-                disabled
               />
             </Form.Item>
           );

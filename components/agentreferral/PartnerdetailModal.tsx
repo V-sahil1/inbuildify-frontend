@@ -5,6 +5,20 @@ import { useCountryHook } from '@hooks/useCountryHook';
 import { useStateHook } from '@hooks/useStateHook';
 import { useUsersHook } from '@hooks/useUserHook';
 import { IAgentReferralPartner } from '@redux/feature/agentReferral/IAgentReferralState';
+import {
+  abnRules,
+  accountBsbRules,
+  accountNumberRules,
+  addressLine1Rules,
+  addressLine2Rules,
+  builderNameRules,
+  cityRules,
+  emailRules,
+  nameRules,
+  passwordRules,
+  phoneRules,
+  zipCodeRules,
+} from '@lib/constants/formInputValidations';
 
 const { Title, Text } = Typography;
 
@@ -87,24 +101,28 @@ const PartnerDetailModal = ({
             <Row gutter={16}>
               {/* Personal Info */}
               <Col span={8}>
-                <Form.Item name={['user', 'name']} label="Name" rules={[{ required: true }]}>
+                <Form.Item name={['user', 'name']} label="Name" rules={nameRules}>
                   <Input />
                 </Form.Item>
               </Col>
               <Col span={8}>
-                <Form.Item name={['user', 'email']} label="Email" rules={[{ required: true }]}>
+                <Form.Item name={['user', 'email']} label="Email" rules={emailRules}>
                   <Input />
                 </Form.Item>
               </Col>
               <Col span={8}>
-                <Form.Item name={['user', 'phone']} label="Phone" rules={[{ required: true }]}>
+                <Form.Item name={['user', 'phone']} label="Phone" rules={phoneRules}>
                   <Input />
                 </Form.Item>
               </Col>
 
               {/* Address */}
               <Col span={8}>
-                <Form.Item name={['address', 'countryId']} label="Country">
+                <Form.Item
+                  name={['address', 'countryId']}
+                  label="Country"
+                  rules={[{ required: true, message: 'Please Select Country' }]}
+                >
                   <Select options={countryOptions} />
                 </Form.Item>
               </Col>
@@ -112,24 +130,35 @@ const PartnerDetailModal = ({
                 <Form.Item
                   name={['address', 'addressLine1']}
                   label="Address1"
-                  rules={[{ required: true }]}
+                  rules={[
+                    { required: true, message: 'Address line 1 is required' },
+                    ...addressLine1Rules,
+                  ]}
                 >
                   <Input />
                 </Form.Item>
               </Col>
               <Col span={8}>
-                <Form.Item name={['address', 'addressLine2']} label="Address2">
+                <Form.Item
+                  name={['address', 'addressLine2']}
+                  label="Address2"
+                  rules={addressLine2Rules}
+                >
                   <Input />
                 </Form.Item>
               </Col>
 
               <Col span={8}>
-                <Form.Item name={['address', 'city']} label="City/Suburb">
+                <Form.Item name={['address', 'city']} label="City/Suburb" rules={cityRules}>
                   <Input />
                 </Form.Item>
               </Col>
               <Col span={8}>
-                <Form.Item name={['address', 'stateId']} label="State/Region">
+                <Form.Item
+                  name={['address', 'stateId']}
+                  label="State/Region"
+                  rules={[{ required: true, message: 'Please Select State' }]}
+                >
                   <Select options={stateOptions} />
                 </Form.Item>
               </Col>
@@ -137,7 +166,7 @@ const PartnerDetailModal = ({
                 <Form.Item
                   name={['address', 'zipCode']}
                   label="Zip / Postal Code"
-                  rules={[{ required: true }]}
+                  rules={zipCodeRules}
                 >
                   <Input />
                 </Form.Item>
@@ -145,23 +174,23 @@ const PartnerDetailModal = ({
 
               {/* Bank */}
               <Col span={8}>
-                <Form.Item name="accountName" label="Account Name">
+                <Form.Item name="accountName" label="Account Name" rules={builderNameRules}>
                   <Input />
                 </Form.Item>
               </Col>
               <Col span={8}>
-                <Form.Item name="accountBsb" label="Account BSB">
+                <Form.Item name="accountBsb" label="Account BSB" rules={accountBsbRules}>
                   <Input />
                 </Form.Item>
               </Col>
               <Col span={8}>
-                <Form.Item name="accountNumber" label="Account Number">
+                <Form.Item name="accountNumber" label="Account Number" rules={accountNumberRules}>
                   <Input />
                 </Form.Item>
               </Col>
 
               <Col span={8}>
-                <Form.Item name="abn" label="ABN">
+                <Form.Item name="abn" label="ABN" rules={abnRules}>
                   <Input />
                 </Form.Item>
               </Col>
@@ -245,7 +274,7 @@ const PartnerDetailModal = ({
                               <Form.Item
                                 name={['user', 'manualPassword']}
                                 label="Password"
-                                rules={[{ required: true }]}
+                                rules={passwordRules}
                               >
                                 <Input.Password />
                               </Form.Item>
