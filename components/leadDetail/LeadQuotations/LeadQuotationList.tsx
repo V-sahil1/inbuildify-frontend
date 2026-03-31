@@ -140,9 +140,9 @@ const LeadQuotationList = () => {
           {quotation?.map((quotation: Quotation) => (
             <Panel
               header={
-                <div className="flex gap-2 items-center text-[var(--font-color)] w-full">
+                <div className="flex gap-2  text-[var(--font-color)] w-full">
                   <span>{quotation?.referenceNumber}</span>
-                  <div className="flex gap-3 items-center" onClick={e => e.stopPropagation()}>
+                  <div className="gap-3 items-center" onClick={e => e.stopPropagation()}>
                     {Array.isArray(quotation.versions) &&
                       quotation.versions.map((version: any) => (
                         <Checkbox
@@ -156,7 +156,7 @@ const LeadQuotationList = () => {
                             handleVersionSelect(quotation.quotationId, version, e.target.checked);
                           }}
                         >
-                          v{version.quotationVersionNo}
+                          V{version.quotationVersionNo}
                         </Checkbox>
                       ))}
                   </div>
@@ -183,7 +183,7 @@ const LeadQuotationList = () => {
                   dataIndex="quotationVersionNo"
                   key="quotationVersionNo"
                   render={(quotationVersionNo: string) =>
-                    quotationVersionNo ? `v${quotationVersionNo}` : '-'
+                    quotationVersionNo ? `V${quotationVersionNo}` : '-'
                   }
                 />
                 {/* <Column

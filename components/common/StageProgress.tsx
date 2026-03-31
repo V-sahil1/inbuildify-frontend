@@ -157,8 +157,8 @@ const StageProgress: React.FC<StageProgressProps> = ({
   };
 
   return (
-    <div className="flex items-center justify-between flex-wrap gap-2 min-w-[300px] ">
-      <div className="flex flex-col gap-2">
+    <div className="flex items-center justify-between flex-wrap gap-2 ">
+      <div className="flex justify-center flex-col gap-2">
         {/* Info */}
         <Popover content={data ? <HeaderContent id={id} data={data} /> : null}>
           <div className="flex items-center gap-2 cursor-pointer">
@@ -173,7 +173,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
           </div>
         </Popover>
         {/* Step Progress */}
-        <div className="flex w-full">
+        {steps.length > 0 && <div className="flex w-full">
           {steps.map((step, index) => {
             const isActive = activeStep === step.key;
             const isLast = index === steps.length - 1;
@@ -203,7 +203,7 @@ const StageProgress: React.FC<StageProgressProps> = ({
               </div>
             );
           })}
-        </div>
+        </div>}
       </div>
       <div className="flex items-center gap-2">
         {lead?.lead?.status === 'JOB' && (

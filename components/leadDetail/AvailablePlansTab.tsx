@@ -32,7 +32,7 @@ const AvailablePlansTab: React.FC<AvailablePlansTabProps> = ({
   return (
     <div className="flex h-96">
       {/* Left side - Floor plan grid */}
-      <div className="flex-1 pr-4">
+      <div className="flex-1 pr-4">w
         <div className="grid grid-cols-4 gap-3 mb-4">
           {currentPlans.map(plan => (
             <FloorPlanCard

@@ -28,7 +28,7 @@ import {
   setQuotationPackage,
   setSelectedFilters,
 } from '@redux/feature/quotation/quotationSlice';
-import { message } from 'antd';
+import { message, Button, Tooltip } from 'antd';
 import QuotationFilter from '@/components/quotation/QuotationFilter';
 import { updateLeadStatus } from '@redux/feature/lead/leadSlice';
 import { clearQuotation, setQuotationItems } from '@redux/feature/quotation/quotationSlice';
@@ -41,6 +41,7 @@ import Loading from '../common/Loading';
 import JobDocumentPdf from '../common/pdf/JobDocumentPdf';
 import { IFloorPlanState } from '@redux/feature/floorPlan/IFloorPlanState';
 import { QuotationVersionDetails } from '@redux/feature/quotation/IQuotationState';
+import { IconNewSection } from '@tabler/icons-react';
 
 const QuotationManager = () => {
   const dispatch = useAppDispatch();
@@ -437,25 +438,64 @@ const QuotationManager = () => {
 
   const handleCreateNewVersion = async () => {
     try {
-      await dispatch(
+      const response = await dispatch(
         createQuotationVersionThunk(
           quoteVersionId ?? quotationData?.versions?.[0]?.quotationVersionId
         )
       ).unwrap();
       message.success('New version created successfully');
+      
+      // Update relevant states with the duplicated quotation data
+      if (response) {
+        // Update filters
+        dispatch(setSelectedFilters({
+          range: response.rangeId,
+          dwellingType: response.dwellingTypeId,
+          location: response.locationId,
+        }));
+        
+        // Update floor plan if available
+        if (response.floorPlan) {
+          dispatch(setQuotationPlan(response.floorPlan));
+        }
+        
+        // Update facade if available
+        if (response.facade) {
+          dispatch(setQuotationFacade(response.facade));
+        }
+        
+        // Update package if available
+        if (response.package) {
+          dispatch(setQuotationPackage(response.package));
+        }
+        
+        // Redirect to the new version
+        router.push(`${SystemRoutes.QUOTATION}/${response.quotationVersionId}`);
+      }
     } catch (error) {
-      message.error(error || 'Failed to craete new version');
+      message.error(error || 'Failed to create new version');
     }
   };
 
   return (
     <>
       <div className="m-3 flex justify-between items-center">
-        <StageProgress
-          id={quotationData?.referenceNumber + ' V' + quoteDetails?.quotationVersionNo || ''}
-          title="Quotation"
-          steps={[]}
-        />
+        <div className="flex items-center justify-center gap-4">
+          <StageProgress
+            id={quotationData?.referenceNumber + ' V' + quoteDetails?.quotationVersionNo || ''}
+            title="Quotation"
+            steps={[]}
+          />
+          <Tooltip title="Create new quotation version" placement="top">
+            <Button 
+              type="primary" 
+              onClick={handleCreateNewVersion}
+              loading={quotationStatus?.create === Status.PENDING}
+            >
+              <IconNewSection />New Version
+            </Button>
+          </Tooltip>
+        </div>
         <QuotationFilter
           isReadOnly={quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0)}
           onFilterChange={({ type, value }) => {
