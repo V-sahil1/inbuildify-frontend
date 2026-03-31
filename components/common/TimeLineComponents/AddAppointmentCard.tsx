@@ -35,13 +35,8 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
   const { locationOptions } = useLocationAndTimezoneHook({ type: 'location' });
 
   const [form] = Form.useForm();
-  const handleFinish = (values: any) => {
+  const handleFinish = values => {
     form.validateFields();
-    // values.type = 'APPOINTMENT';
-    // if (initialData) {
-    //   values.actionId = initialData.actionId;
-    //   values.action_type_id = initialData?.appointmentId;
-    // }
     values.startTime = values.startTime.format('HH:mm');
     values.date = values.date?.format('YYYY-MM-DD');
     values.endTime = values.endTime.format('HH:mm');
@@ -73,14 +68,16 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
           />
         </Form.Item>
 
-        <Form.Item
-          label="Location"
-          name="locationId"
-          rules={locationRules}
-          initialValue={initialData?.locationId}
-        >
-          <Select placeholder="Select Location" options={locationOptions} />
-        </Form.Item>
+        {locationOptions?.length > 0 && (
+          <Form.Item
+            label="Location"
+            name="locationId"
+            rules={locationRules}
+            initialValue={initialData?.location?.[0]?.id}
+          >
+            <Select placeholder="Select Location" options={locationOptions} />
+          </Form.Item>
+        )}
 
         {/* Start Time */}
         <Form.Item shouldUpdate={(prev, curr) => prev.date !== curr.date}>
@@ -189,11 +186,14 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
 
       {/* Send to Customer + Actions */}
       <div className="flex items-center justify-between mt-2">
-        {!initialData && (
-          <Form.Item name="sendToCustomer" valuePropName="checked" className="mb-0">
-            <Switch className="mr-2" /> Send this appointment to customer
-          </Form.Item>
-        )}
+        <Form.Item
+          name="sendAppointmentCustomer"
+          valuePropName="checked"
+          className="mb-0"
+          initialValue={initialData?.sendAppointmentCustomer}
+        >
+          <Switch className="mr-2" /> Send this appointment to customer
+        </Form.Item>
 
         <div className="flex gap-3">
           <Button onClick={onCancel}>Cancel</Button>

@@ -18,6 +18,9 @@ export interface IAppointment {
   updatedBy: string;
   createdAt: string;
   updatedAt: string;
+  leadId?: string;
+  location?: Entity[];
+  sendAppointmentCustomer?: boolean;
 }
 
 export interface IAppointmentState {

@@ -1,6 +1,7 @@
 import { FilterOption } from '@/components/common/FilterTabs';
 import TimelineActionFormRenderer from '@/components/common/TimelineActionFormRenderer';
 import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineActionsBar';
+import { IAppointment } from '@redux/feature/appointment/IAppointmentState';
 import { ITask } from '@redux/feature/task/ITaskStates';
 // import TimelineCard from '@/components/common/TimeLineComponents/TimelineCard';
 // import { handleSaveTimelineCard } from '@lib/utils/timelineCardUtils';
@@ -88,10 +89,7 @@ const JobAction = () => {
   const [cardsData, setCardsData] = useState<TimelineCardProps[]>([]);
   const [activeTab, setActiveTab] = useState('All');
   const [activeAction, setActiveAction] = useState<ActionType>(null);
-  const [editingItem, setEditingItem] = useState<{
-    item: TimelineCardProps;
-    index: number;
-  } | null>(null);
+  const [editingItem, setEditingItem] = useState<ITask | IAppointment | SmsDetails | NoteDetails | null>(null);
 
   const tabs: FilterOption[] = [
     { type: 'All', label: 'All', count: cardsData.length },
@@ -121,8 +119,8 @@ const JobAction = () => {
     setActiveTab(tab);
   };
 
-  const handleEdit = (item: TimelineCardProps, index: number) => {
-    setEditingItem({ item, index });
+  const handleEdit = (item: ITask | IAppointment | SmsDetails | NoteDetails | null, index: number) => {
+    setEditingItem(item);
     setActiveAction(null);
   };
 
@@ -133,7 +131,7 @@ const JobAction = () => {
 
   // Save handlers (integrate logic later)
   const handleSaveNote = (note: NoteDetails) => {};
-  const handleSaveAppointment = (appointment: AppointmentDetails) => {};
+  const handleSaveAppointment = (appointment: IAppointment) => {};
   const handleSaveTask = (task: ITask) => {};
   const handleSaveSms = (sms: SmsDetails) => {};
 

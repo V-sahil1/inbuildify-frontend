@@ -3,20 +3,16 @@ import React, { useEffect, useState } from 'react';
 import TimelineCard from '../common/TimeLineComponents/TimelineCard';
 import TimelineActionsBar, { FilterOption } from '../common/TimeLineComponents/TimelineActionsBar';
 import { Empty, MenuProps, message } from 'antd';
-import {
-  ActionType,
-  TimelineCardProps,
-  NoteDetails,
-  AppointmentDetails,
-  TaskDetails,
-  SmsDetails,
-} from 'data/types';
+import { ActionType, TimelineCardProps, NoteDetails, SmsDetails } from 'data/types';
 import { handleSaveTimelineCard } from '../../lib/utils/timelineCardUtils';
 import TimelineActionFormRenderer from '../common/TimelineActionFormRenderer';
-import { useAppDispatch } from '@hooks/redux';
-import { getActionsThunk } from '@redux/feature/action/actionThunk';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import Loading from '../common/Loading';
 import { ITask } from '@redux/feature/task/ITaskStates';
+import { fetchAllTask } from '@redux/feature/task/taskThunk';
+import { Status } from '@lib/constants/enum';
+import { fetchAllAppointment } from '@redux/feature/appointment/appointmentThunk';
+import { IAppointment } from '@redux/feature/appointment/IAppointmentState';
 
 const actionItems: MenuProps['items'] = [
   { key: 'addNotes', label: 'Add Notes' },
@@ -27,14 +23,20 @@ const actionItems: MenuProps['items'] = [
 
 const LeadActions = ({ leadId }: { leadId: string }) => {
   const dispatch = useAppDispatch();
-  const [cardsData, setCardsData] = useState<TimelineCardProps[]>([]);
+  const [cardsData, setCardsData] = useState<
+    {
+      type: 'All' | 'NOTES' | 'SMS' | 'APPOINTMENT' | 'TASK';
+      item: ITask | IAppointment | NoteDetails | SmsDetails | null;
+    }[]
+  >([]);
   const [activeTab, setActiveTab] = useState('All');
   const [activeAction, setActiveAction] = useState<ActionType>(null);
   const [loading, setLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
-  const [editingItem, setEditingItem] = useState<{ item: TimelineCardProps; index: number } | null>(
-    null
-  );
+  const [editingItem, setEditingItem] = useState(null);
+  const { tasks, status } = useAppSelector(state => state.task);
+  const { appointment, status: appointmentStatus } = useAppSelector(state => state.appointment);
+
   const tabs: FilterOption[] = [
     { type: 'All', label: 'All' },
     { type: 'NOTES', label: 'Notes' },
@@ -43,30 +45,80 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
     { type: 'TASK', label: 'Task' },
   ];
 
-  // useEffect(() => {
-  //   async function fetchData() {
-  //     try {
-  //       setLoading(true);
-  //       const res = await dispatch(
-  //         getActionsThunk({ leadId, type: activeTab.toLowerCase() })
-  //       ).unwrap();
-  //       setCardsData(res);
-  //     } catch (error) {
-  //       message.error(error || 'Failed to fetch actions');
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   }
-  //   if (leadId) fetchData();
-  // }, [dispatch, leadId, activeTab]);
+  const fetchTaskData = async () => {
+    try {
+      let taskData;
+      if (status.fetch === Status.IDLE) {
+        taskData = await dispatch(fetchAllTask({ lead_id: leadId })).unwrap();
+      } else {
+        taskData = { tasks };
+      }
+
+      const transformedTasks = taskData?.tasks?.map((task: ITask) => ({
+        type: 'TASK',
+        item: { ...task, createdBy: { id: task.assigneeId, name: task.assigneeName || 'Unknown' } },
+      }));
+
+      if (activeTab === 'TASK' || activeTab === 'All') {
+        setCardsData(transformedTasks || []);
+      }
+    } catch (error) {
+      message.error(error || 'Failed to fetch taskdata');
+    }
+  };
+
+  const fetchAppointmentData = async () => {
+    try {
+      let appointmentData;
+      if (appointmentStatus.fetch === Status.IDLE) {
+        appointmentData = await dispatch(fetchAllAppointment({ lead_id: leadId })).unwrap();
+      } else {
+        appointmentData = { appointment };
+      }
+
+      const transformedAppointments = appointmentData?.appointment?.map(i => ({
+        type: 'APPOINTMENT',
+        item: { ...i, createdBy: i.createdBy },
+      }));
+
+      if (activeTab === 'APPOINTMENT' || activeTab === 'All') {
+        setCardsData(transformedAppointments || []);
+      }
+    } catch (error) {
+      message.error(error || 'Failed to fetch appointment');
+    }
+  };
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setLoading(true);
+        if (activeTab === 'TASK') {
+          fetchTaskData();
+        } else if (activeTab === 'APPOINTMENT') {
+          fetchAppointmentData();
+        } else {
+          setCardsData([]);
+        }
+      } catch (error) {
+        message.error(error || 'Failed to fetch actions');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (leadId && activeTab) {
+      fetchData();
+    }
+  }, [dispatch, leadId, activeTab, status.fetch, appointmentStatus.fetch, tasks, appointment]);
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
   };
 
   // Edit existing timeline cards
-  const handleEdit = (item: TimelineCardProps, index: number) => {
-    setEditingItem({ item, index });
+  const handleEdit = (item: TimelineCardProps) => {
+    setEditingItem(item);
     setActiveAction(null); // Close any active creation form
   };
 
@@ -95,7 +147,7 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
   };
 
   // Save from AddAppointmentCard
-  const handleSaveAppointment = async (appointment: AppointmentDetails) => {
+  const handleSaveAppointment = async (appointment: IAppointment) => {
     setFormLoading(true);
     try {
       await handleSaveTimelineCard(
@@ -183,6 +235,7 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
               handleSaveTask={handleSaveTask}
               handleSaveSms={handleSaveSms}
               handleClose={handleClose}
+              type={activeTab}
             />
           )}
 
@@ -195,10 +248,9 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
             cardsData.map((item, idx) => (
               <TimelineCard
                 key={idx}
-                {...item}
-                createdBy={item?.createdBy}
-                item={item}
-                onEdit={data => handleEdit(data, idx)}
+                type={item.type}
+                item={item.item}
+                onEdit={data => handleEdit(data)}
               />
             ))
           ) : (

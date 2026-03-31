@@ -1,34 +1,33 @@
 import { createActionsThunk, updateActionsThunk } from '@redux/feature/action/actionThunk';
 import { AppDispatch } from '@redux/feature/store';
 import { message } from 'antd';
-import {
-  AppointmentDetails,
-  NoteDetails,
-  SmsDetails,
-  TaskDetails,
-  TimelineCardProps,
-} from 'data/types';
+import { NoteDetails, SmsDetails, TimelineCardProps } from 'data/types';
 import { formDataGenerator } from './formDataGenerator';
 import { ITask } from '@redux/feature/task/ITaskStates';
-
-interface EditingItem {
-  item: TimelineCardProps;
-  index: number;
-}
+import { createTask, updateTask } from '@redux/feature/task/taskThunk';
+import { createAppointment, updateAppointment } from '@redux/feature/appointment/appointmentThunk';
+import { IAppointment } from '@redux/feature/appointment/IAppointmentState';
 
 export const handleSaveTimelineCard = async <
   T extends 'Notes' | 'Appointments' | 'Tasks' | 'Sms',
   D extends T extends 'Notes'
     ? NoteDetails
     : T extends 'Appointments'
-      ? AppointmentDetails
+      ? IAppointment
       : T extends 'Tasks'
         ? ITask
         : SmsDetails,
 >(
   leadId: string,
-  editingItem: EditingItem | null,
-  setCardsData: React.Dispatch<React.SetStateAction<TimelineCardProps[]>>,
+  editingItem: ITask | IAppointment | NoteDetails | SmsDetails | null,
+  setCardsData: React.Dispatch<
+    React.SetStateAction<
+      {
+        type: 'All' | 'NOTES' | 'SMS' | 'APPOINTMENT' | 'TASK';
+        item: ITask | IAppointment | NoteDetails | SmsDetails | null;
+      }[]
+    >
+  >,
   handleClose: () => void,
   activeTab: string,
   type: 'SMS' | 'NOTES' | 'APPOINTMENT' | 'TASK',
@@ -36,33 +35,41 @@ export const handleSaveTimelineCard = async <
   dispatch: AppDispatch
 ): Promise<void> => {
   if (editingItem) {
-    const { actionId, ...rest } = data;
     try {
-      const response = await dispatch(
-        updateActionsThunk({
-          actionId: actionId,
-          data: formDataGenerator(rest),
-        })
-      ).unwrap();
+      let response;
+      if (type === 'TASK') {
+        response = await dispatch(
+          updateTask({
+            id: (editingItem as ITask)?.taskId,
+            data: formDataGenerator(data),
+          })
+        ).unwrap();
+      } else if (type === 'APPOINTMENT') {
+        response = await dispatch(
+          updateAppointment({
+            id: (editingItem as IAppointment)?.appointmentId,
+            data: data as Partial<IAppointment>,
+          })
+        ).unwrap();
+      } else {
+        // response = await dispatch(
+        //   updateActionsThunk({
+        //     actionId: editingItem?.item?.item?.task?.[0].taskId,
+        //     data: formDataGenerator(data),
+        //   })
+        // ).unwrap();
+      }
 
       setCardsData(prev =>
-        prev.map(card => {
-          if (card?.actionId === response.actionId) {
-            const updatedTasks = response.task ? [response.task] : [];
-            const updatedNotes = response.notes ? [response.notes] : [];
-            const updatedAppointments = response.appointment ? [response.appointment] : [];
-            const updatedSms = response.sms ? [response.sms] : [];
-            return {
-              ...card,
-              ...response,
-              task: updatedTasks,
-              notes: updatedNotes,
-              appointment: updatedAppointments,
-              sms: updatedSms,
-            };
-          }
-          return card;
-        })
+        type === 'TASK'
+          ? prev.map(i =>
+              (i.item as ITask).taskId === response?.taskId ? { type: 'TASK', item: response } : i
+            )
+          : prev.map(i =>
+              (i.item as IAppointment).appointmentId === response?.appointmentId
+                ? { type: 'APPOINTMENT', item: response }
+                : i
+            )
       );
       message.success(`${type} updated successfully`);
       handleClose();
@@ -71,10 +78,20 @@ export const handleSaveTimelineCard = async <
     }
   } else {
     try {
-      const response = await dispatch(
-        createActionsThunk({ leadId: leadId, data: formDataGenerator(data) })
-      ).unwrap();
-
+      let response;
+      if (type === 'TASK') {
+        response = await dispatch(
+          createTask(formDataGenerator({ ...data, leadId: leadId }))
+        ).unwrap();
+      } else if (type === 'APPOINTMENT') {
+        response = await dispatch(
+          createAppointment({ ...data, leadId: leadId } as IAppointment)
+        ).unwrap();
+      } else {
+        response = await dispatch(
+          createActionsThunk({ leadId: leadId, data: formDataGenerator(data) })
+        ).unwrap();
+      }
       const baseCard = { ...response };
       let newCard;
 
@@ -86,7 +103,7 @@ export const handleSaveTimelineCard = async <
           sms: response?.sms ? [response.sms] : [],
           notes: response?.notes ? [response.notes] : [],
         };
-        setCardsData(prev => [newCard, ...(Array.isArray(prev) ? prev : [])]);
+        setCardsData(prev => [...prev, { type: type, item: response }]);
         message.success(`${type} created successfully`);
         handleClose();
         return;
@@ -112,7 +129,7 @@ export const handleSaveTimelineCard = async <
         }
 
         if (newCard) {
-          setCardsData(prev => [newCard, ...(Array.isArray(prev) ? prev : [])]);
+          setCardsData(prev => [...prev, { type: type, item: response }]);
           message.success(`${type} created successfully`);
         }
       }

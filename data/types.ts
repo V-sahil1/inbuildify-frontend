@@ -143,13 +143,13 @@ export interface TimelineItem {
 }
 
 export interface BaseTimelineCardProps {
-  date: string;
+  date?: string;
   createdBy?: {
     id: string;
     name: string;
   };
-  createdAt: string;
-  item?: TimelineItem; // optional to allow rendering empty form state
+  createdAt?: string;
+  item?: any; // optional to allow rendering empty form state
   status?: 'completed' | 'pending' | 'working' | '';
   onEdit?: (updated: TimelineCardProps) => void; // send updated values to parent
   onReschedule?: () => void;
@@ -157,7 +157,7 @@ export interface BaseTimelineCardProps {
 }
 
 export interface TimelineCardProps extends BaseTimelineCardProps {
-  type: 'NOTES' | 'APPOINTMENT' | 'TASK' | 'SMS';
+  type: 'NOTES' | 'APPOINTMENT' | 'TASK' | 'SMS' | 'All';
   actionId?: string;
 }
 

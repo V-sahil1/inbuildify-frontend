@@ -44,7 +44,7 @@ export default function Appointments() {
         category: filters?.category,
         status: filters?.status,
       };
-      await dispatch(fetchAllAppointment()).unwrap();
+      await dispatch(fetchAllAppointment({})).unwrap();
     } catch (error) {
       message.error(error || 'Failed to fetch appointment');
     }

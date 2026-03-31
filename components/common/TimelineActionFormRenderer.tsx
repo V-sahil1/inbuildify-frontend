@@ -4,25 +4,20 @@ import AddNotesCard from './TimeLineComponents/AddNotesCard';
 import AddAppointmentCard from './TimeLineComponents/AddAppointmentCard';
 import CreateTaskCard from './TimeLineComponents/CreateTaskCard';
 import SendSmsCard from './TimeLineComponents/SendSmsCard';
-import {
-  ActionType,
-  TimelineCardProps,
-  NoteDetails,
-  AppointmentDetails,
-  TaskDetails,
-  SmsDetails,
-} from 'data/types';
+import { ActionType, NoteDetails, SmsDetails } from 'data/types';
 import { ITask } from '@redux/feature/task/ITaskStates';
+import { IAppointment } from '@redux/feature/appointment/IAppointmentState';
 
 interface TimelineActionFormRendererProps {
   activeAction: ActionType;
-  editingItem: { item: TimelineCardProps; index: number } | null;
+  editingItem: ITask | IAppointment | NoteDetails | SmsDetails | null;
   loading: boolean;
   handleSaveNote: (note: NoteDetails) => void;
-  handleSaveAppointment: (appointment: any) => void;//appointmentDetails
+  handleSaveAppointment: (appointment: IAppointment) => void; //appointmentDetails
   handleSaveTask: (task: ITask) => void;
   handleSaveSms: (sms: SmsDetails) => void;
   handleClose: () => void;
+  type?: string;
 }
 
 const TimelineActionFormRenderer: React.FC<TimelineActionFormRendererProps> = ({
@@ -34,10 +29,11 @@ const TimelineActionFormRenderer: React.FC<TimelineActionFormRendererProps> = ({
   handleSaveTask,
   handleSaveSms,
   handleClose,
+  type,
 }) => {
-  const currentData = editingItem ? editingItem.item : undefined;
+  const currentData = editingItem ?? undefined;
 
-  switch (activeAction || (editingItem && editingItem.item.type)) {
+  switch (activeAction || (editingItem && type)) {
     case 'addNotes':
     case 'NOTES':
       return (
@@ -52,7 +48,7 @@ const TimelineActionFormRenderer: React.FC<TimelineActionFormRendererProps> = ({
             onSave={handleSaveNote}
             onCancel={handleClose}
             loading={loading}
-            initialData={currentData?.type === 'NOTES' ? currentData?.item?.notes[0] : undefined}
+            initialData={type === 'NOTES' ? (currentData as NoteDetails) : undefined}
           />
         </TimelineCard>
       );
@@ -62,27 +58,14 @@ const TimelineActionFormRenderer: React.FC<TimelineActionFormRendererProps> = ({
         <TimelineCard
           type="APPOINTMENT"
           date={new Date().toLocaleString()}
-          // createdByName="Current User"
           createdAt={new Date().toLocaleString()}
           status="pending"
-          // appointment={currentData as AppointmentDetails || {
-          //     title: "New Appointment",
-          //     date: new Date().toISOString().split('T')[0],
-          //     startTime: "09:00",
-          //     endTime: "10:00",
-          //     location: "",
-          //     user: "",
-          //     notes: "",
-          //     sendToCustomer: false,
-          // }}
         >
           <AddAppointmentCard
             onSave={handleSaveAppointment}
             onCancel={handleClose}
             loading={loading}
-            // initialData={
-            //   currentData?.type === 'APPOINTMENT' ? currentData?.item?.appointment[0] : undefined
-            // }
+            initialData={type === 'APPOINTMENT' ? (currentData as IAppointment) : undefined}
           />
         </TimelineCard>
       );
@@ -92,26 +75,14 @@ const TimelineActionFormRenderer: React.FC<TimelineActionFormRendererProps> = ({
         <TimelineCard
           type="TASK"
           date={new Date().toLocaleString()}
-          // createdByName="Current User"
           createdAt={new Date().toLocaleString()}
           status="pending"
-          // task={currentData as TaskDetails || {
-          //     task:{
-          //     name: "New Task",
-          //     dueDate: new Date().toISOString().split('T')[0],
-          //     time: "09:00",
-          //     priority: "MEDIUM",
-          //     description: "",
-          //     assignee: "",
-          //     },
-          //     attachment: [],
-          // }}
         >
           <CreateTaskCard
-            onSave={handleSaveTask}
+            onSave={values => handleSaveTask(values.task)}
             onCancel={handleClose}
             loading={loading}
-            initialData={currentData?.type === 'TASK' ? currentData?.item?.task[0] : undefined}
+            initialData={type === 'TASK' ? (currentData as ITask) : undefined}
           />
         </TimelineCard>
       );
@@ -133,7 +104,7 @@ const TimelineActionFormRenderer: React.FC<TimelineActionFormRendererProps> = ({
             onSave={handleSaveSms}
             onCancel={handleClose}
             loading={loading}
-            initialData={currentData?.type === 'SMS' ? currentData?.item?.sms[0] : undefined}
+            initialData={type === 'SMS' ? (currentData as SmsDetails) : undefined}
           />
         </TimelineCard>
       );

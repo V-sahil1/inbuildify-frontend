@@ -20,10 +20,10 @@ import { useUsersHook } from '@hooks/useUserHook';
 import { ITask } from '@redux/feature/task/ITaskStates';
 
 interface CreateTaskCardProps {
-  onSave: (task: ITask) => void;
+  onSave: (values) => void;
   onCancel: () => void;
   loading: boolean;
-  initialData?: TaskDetails;
+  initialData?: ITask;
   isStatusShow?: boolean;
   attachment?: boolean;
 }
@@ -118,7 +118,7 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
           label="Time"
           name={['task', 'dueTime']}
           rules={timeRules}
-          initialValue={initialData?.time ? dayjs(initialData.time, 'HH:mm') : null}
+          initialValue={initialData?.dueTime ? dayjs(initialData.dueTime, 'HH:mm') : null}
         >
           <TimePicker
             disabled={isStatusShow}
@@ -153,15 +153,15 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
         label="Assignee"
         name={['task', 'assigneeId']}
         initialValue={
-          initialData?.assignee?.id
+          initialData?.assigneeId
             ? {
-                key: initialData?.assignee?.id,
-                label: initialData?.assignee?.name,
-                value: initialData?.assignee?.id,
+                key: initialData?.assigneeId,
+                label: initialData?.assigneeName,
+                value: initialData?.assigneeId,
               }
             : {
-                key: initialData?.assignee,
-                value: initialData?.assignee,
+                key: initialData?.assigneeId,
+                value: initialData?.assigneeId,
               }
         }
         rules={[{ required: true, message: 'Please select assignee' }]}
@@ -199,7 +199,7 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
         {/* )} */}
       </div>
 
-      <Form.Item label="Link To" name={['task', 'linkTo']} initialValue={initialData?.linkTo}>
+      <Form.Item label="Link To" name={['task', 'linkTo']}>
         <Select disabled={isStatusShow} options={linkToOption} />
       </Form.Item>
       <Form.Item

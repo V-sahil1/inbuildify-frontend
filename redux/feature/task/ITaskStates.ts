@@ -12,8 +12,12 @@ export interface ITask {
   assigneeId: string;
   linkType: string;
   attachFiles: string;
-  assigneeName?:string
-  actionId?:string
+  assigneeName?: string;
+  actionId?: string;
+  createdBy?: string;
+  updatedBy?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 export interface TaskQueryParams {
   page?: number;
@@ -22,7 +26,8 @@ export interface TaskQueryParams {
   status?: string;
   priority?: string;
   assignedTo?: string;
-  due_date?: string; 
+  due_date?: string;
+  lead_id?:string;
 }
 
 export interface ITaskState {
@@ -31,7 +36,5 @@ export interface ITaskState {
     fetch: Status;
     create: Status;
   };
-  pagination:CommonPagination
+  pagination: CommonPagination;
 }
-
-``

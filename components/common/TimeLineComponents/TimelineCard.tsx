@@ -18,18 +18,11 @@ import dayjs from 'dayjs';
 import { useAppSelector } from '@hooks/redux';
 import { formatApiDate, timeAgo } from '@lib/utils/timeAgo';
 import { Button, Tooltip, Input, Switch, Upload, Popconfirm, Dropdown, Menu } from 'antd';
+import { ITask } from '@redux/feature/task/ITaskStates';
 
 const { TextArea } = Input;
 
-const TimelineCard: FC<TimelineCardProps> = ({
-  type,
-  createdBy,
-  createdAt,
-  onEdit,
-  onReschedule,
-  children,
-  item,
-}) => {
+const TimelineCard: FC<TimelineCardProps> = ({ type, onEdit, onReschedule, children, item }) => {
   const { leadDetail } = useAppSelector(state => state.lead);
   const { users } = useAppSelector(state => state.user);
 
@@ -72,13 +65,13 @@ const TimelineCard: FC<TimelineCardProps> = ({
   };
 
   const getTitle = () => {
-    switch (item?.type) {
+    switch (type) {
       case 'NOTES':
         return (item?.notes[0] as NoteDetails)?.message;
       case 'APPOINTMENT':
-        return (item?.appointment[0] as AppointmentDetails)?.title;
+        return item?.title;
       case 'TASK':
-        return (item?.task[0] as TaskDetails)?.name;
+        return item?.name;
       case 'SMS':
         return `${(item?.sms[0] as SmsDetails)?.message}`;
       default:
@@ -87,11 +80,11 @@ const TimelineCard: FC<TimelineCardProps> = ({
   };
 
   const getDescription = () => {
-    switch (item?.type) {
+    switch (type) {
       case 'APPOINTMENT':
-        return (item?.appointment[0] as AppointmentDetails)?.notes;
+        return item?.notes;
       case 'TASK':
-        return (item?.task[0] as TaskDetails)?.description;
+        return item?.description;
       case 'SMS': {
         const sms = item?.sms?.[0] as SmsDetails;
         type Recipient = string | { id: string; name: string };
@@ -101,7 +94,7 @@ const TimelineCard: FC<TimelineCardProps> = ({
               // const contact = leadDetail?.contacts?.find(c => c?.leadsContactId === r);
               // return contact?.name || '';
               //todo
-              return ''
+              return '';
             } else if (typeof r === 'object' && r?.name) {
               return r?.name;
             }
@@ -120,8 +113,8 @@ const TimelineCard: FC<TimelineCardProps> = ({
     if (item?.type === 'NOTES' && (item?.notes?.[0] as NoteDetails)?.tags) {
       return (item.notes[0] as NoteDetails).tags.map(tag => tag.name);
     }
-    if (item?.type === 'TASK' && (item?.task?.[0] as TaskDetails)?.priority) {
-      return [`Priority: ${(item.task[0] as TaskDetails).priority}`];
+    if (type === 'TASK' && item?.priority) {
+      return [`Priority: ${item.priority}`];
     }
     return [];
   };
@@ -140,7 +133,6 @@ const TimelineCard: FC<TimelineCardProps> = ({
         return <IconMessage size={18} />;
     }
   };
-
   const statusMenu = (
     <Menu onClick={({ key }) => setTaskStatus(key)}>
       <Menu.Item key="Yet to start">Yet to start</Menu.Item>
@@ -154,7 +146,7 @@ const TimelineCard: FC<TimelineCardProps> = ({
   };
 
   const renderButtons = () => {
-    if ((item?.type === 'APPOINTMENT' || item?.type === 'TASK') && isCanceled) {
+    if ((type === 'APPOINTMENT' || type === 'TASK') && isCanceled) {
       return (
         <span className="px-2 py-1 bg-gray-200 text-gray-600 text-xs rounded-md">Canceled</span>
       );
@@ -163,11 +155,11 @@ const TimelineCard: FC<TimelineCardProps> = ({
     return (
       <>
         {onEdit && (
-          <button onClick={() => onEdit({ item, type: item.type } as TimelineCardProps)}>
+          <button onClick={() => onEdit(item)}>
             <IconEdit size={18} />
           </button>
         )}
-        {(item?.type === 'APPOINTMENT' || item?.type === 'TASK') && (
+        {(type === 'APPOINTMENT' || type === 'TASK') && (
           <Popconfirm
             title="Do you want to cancel?"
             okText="Yes"
@@ -228,7 +220,7 @@ const TimelineCard: FC<TimelineCardProps> = ({
             )}
           </div>
           <div className="flex items-center gap-2 ml-auto">
-            {item?.type && (
+            {type && (
               <span
                 className={`px-2 py-1 text-xs rounded-md ${
                   {
@@ -236,15 +228,15 @@ const TimelineCard: FC<TimelineCardProps> = ({
                     TASK: 'bg-green-100 text-green-700',
                     SMS: 'bg-yellow-100 text-yellow-700',
                     APPOINTMENT: 'bg-red-100 text-red-700',
-                  }[item?.type] || 'bg-gray-100 text-gray-700'
+                  }[type] || 'bg-gray-100 text-gray-700'
                 }`}
               >
-                {item?.type}
+                {type}
               </span>
             )}
-            {createdBy?.name && (
+            {item?.createdBy?.name && (
               <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs text-gray-500">
-                <p>{createdBy?.name?.charAt(0)}</p>
+                <p>{item?.createdBy?.name?.charAt(0)}</p>
               </div>
             )}
           </div>
@@ -265,7 +257,7 @@ const TimelineCard: FC<TimelineCardProps> = ({
               }
             </p>
           )}
-          {item?.type === 'NOTES' && item?.notes?.length > 0 && (
+          {type === 'NOTES' && item?.notes?.length > 0 && (
             <div className="text-xs text-font-color-100 space-y-1 mt-2">
               {/* {(item?.notes?.[0] as NoteDetails)?.attachment &&
                 (item?.notes?.[0] as NoteDetails)?.attachment!.length > 0 && (
@@ -304,29 +296,22 @@ const TimelineCard: FC<TimelineCardProps> = ({
               )}
             </div>
           )}
-          {item?.type === 'APPOINTMENT' && (item?.appointment?.[0] as AppointmentDetails) && (
+          {type === 'APPOINTMENT' && item && (
             <div className="text-xs text-font-color-100 space-y-1 mt-2">
               <p>
                 <strong>Date:</strong>{' '}
-                {renderCanceledText(
-                  formatApiDate((item?.appointment?.[0] as AppointmentDetails)?.date) || ' '
-                )}
+                {renderCanceledText(item.date ? dayjs(item.date).format('YYYY-MM-DD') : '-')}
               </p>
               <p>
-                <strong>Time:</strong>{' '}
-                {renderCanceledText(
-                  `${(item?.appointment?.[0] as AppointmentDetails)?.startTime || '-'} - ${(item?.appointment?.[0] as AppointmentDetails)?.endTime || '-'}`
-                )}
+                <strong>Time:</strong> {renderCanceledText(item?.startTime + '-' + item?.endTime)}
               </p>
               <p>
-                <strong>Location:</strong>{' '}
-                {(item?.appointment[0] as AppointmentDetails)?.location || '-'}
+                <strong>Location:</strong> {item?.location?.[0]?.name || '-'}
               </p>
               <p>
                 <strong>User:</strong>{' '}
                 {(() => {
-                  const selectedIds =
-                    (item?.appointment?.[0] as AppointmentDetails)?.selectUsers || [];
+                  const selectedIds = item?.selectUsers || [];
                   const userNames = Array.isArray(selectedIds)
                     ? selectedIds
                         .map(id => {
@@ -340,41 +325,37 @@ const TimelineCard: FC<TimelineCardProps> = ({
                 })()}
               </p>
               <p>
-                <strong>Send to Customer:</strong>{' '}
-                {(item?.appointment[0] as AppointmentDetails)?.sendToCustomer ? 'Yes' : 'No'}
+                <strong>Send to Customer:</strong> {item?.sendAppointmentCustomer ? 'Yes' : 'No'}
               </p>
             </div>
           )}
-          {item?.type === 'TASK' && (item.task[0] as TaskDetails) && (
+          {type === 'TASK' && item && (
             <div className="text-xs text-font-color-100 space-y-1 mt-2">
               <p>
                 <strong>Due Date:</strong>{' '}
-                {renderCanceledText(
-                  item.task[0]?.dueDate ? dayjs(item.task[0].dueDate).format('YYYY-MM-DD') : '-'
-                )}
+                {renderCanceledText(item.dueDate ? dayjs(item.dueDate).format('YYYY-MM-DD') : '-')}
               </p>
               <p>
-                <strong>Time:</strong>{' '}
-                {renderCanceledText((item.task[0] as TaskDetails)?.time || '-')}
+                <strong>Time:</strong> {renderCanceledText(item?.dueTime || '-')}
               </p>
               <p>
-                <strong>Priority:</strong> {(item?.task[0] as TaskDetails)?.priority || '-'}
+                <strong>Priority:</strong> {item?.priority || '-'}
               </p>
               <p>
                 <strong>Assignee:</strong>{' '}
                 {(() => {
-                  const assigneeId = (item?.task?.[0] as TaskDetails)?.assignee;
+                  const assigneeId = item?.assigneeId;
                   if (!assigneeId) return '-';
-                  const assigneeUser = users.find(u => u.usersId === assigneeId.id);
+                  const assigneeUser = users.find(u => u.usersId === assigneeId);
                   return assigneeUser?.name || '-';
                 })()}
               </p>
-              {item?.task[0]?.attachment && (
+              {item?.attachFiles && (
                 <p>
                   <strong>Attachments:</strong>{' '}
                   <Button
                     type="link"
-                    href={String((item?.task[0] as TaskDetails)?.attachment)}
+                    href={String(item?.attachFiles)}
                     target="_blank"
                     className="p-0 m-0"
                     rel="noopener noreferrer"
@@ -424,9 +405,9 @@ const TimelineCard: FC<TimelineCardProps> = ({
                     )}
                   </div>
                 </div>
-                {(createdAt || item?.createdAt) && createdBy?.name && (
+                {(item?.createdAt || item?.createdAt) && item?.createdBy?.name && (
                   <p className="text-xs text-font-color-100">
-                    {createdBy?.name} created {timeAgo(createdAt || item?.createdAt)}
+                    {item?.createdBy?.name} created {timeAgo(item?.createdAt || item?.createdAt)}
                   </p>
                 )}
               </div>
@@ -434,9 +415,9 @@ const TimelineCard: FC<TimelineCardProps> = ({
         </>
 
         <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          {(createdAt || item?.createdAt) && createdBy?.name && (
+          {(item?.createdAt || item?.createdAt) && item?.createdBy?.name && (
             <p className="text-xs text-font-color-100">
-              {createdBy?.name} created {timeAgo(createdAt || item?.createdAt)}
+              {item?.createdBy?.name} created {timeAgo(item?.createdAt || item?.createdAt)}
             </p>
           )}
 

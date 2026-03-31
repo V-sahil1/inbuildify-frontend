@@ -20,9 +20,12 @@ export const createAppointment = createAsyncThunk(
 
 export const fetchAllAppointment = createAsyncThunk(
   'appointment/fetchAll',
-  async (_, { rejectWithValue }) => {
+  async (params: { lead_id?: string }, { rejectWithValue }) => {
     try {
-      const response = await api.get<ApiResponse<{appointment:IAppointment[]}>>(API_ENDPOINTS.APPOINTMENT);
+      const response = await api.get<ApiResponse<{ appointment: IAppointment[] }>>(
+        API_ENDPOINTS.APPOINTMENT,
+        { params }
+      );
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);
