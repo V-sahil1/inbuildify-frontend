@@ -1,13 +1,23 @@
 import { Button, DatePicker, Drawer, Form, Input, message, Select, Switch, Upload } from 'antd';
 import { useEffect, useState } from 'react';
 import { useRoleHook } from '@hooks/useRoleHook';
-import { useUsersHook } from '@hooks/useUserHook';
 import { useCountryHook } from '@hooks/useCountryHook';
 import { useStateHook } from '@hooks/useStateHook';
-import { emailRules, nameRules, passwordRules } from '@lib/constants/formInputValidations';
+import {
+  addressLine1Rules,
+  addressLine2Rules,
+  cityRules,
+  emailRules,
+  nameRules,
+  optionalPhoneRule,
+  passwordRules,
+  phoneRules,
+  zipCodeRules,
+} from '@lib/constants/formInputValidations';
 import dayjs from 'dayjs';
 import { useAppSelector } from '@hooks/redux';
 import { Status } from '@lib/constants/enum';
+import { IconEye, IconEyeOff } from '@tabler/icons-react';
 export const UserFormDrawer = ({
   open,
   onCancel,
@@ -20,6 +30,7 @@ export const UserFormDrawer = ({
   type,
 }) => {
   const { users, status } = useAppSelector(state => state.user);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showAdvancedDetails, setShowAdvancedDetails] = useState(false);
   const [showform, setShowForm] = useState(type === 'create');
   const [form] = Form.useForm();
@@ -89,7 +100,7 @@ export const UserFormDrawer = ({
               </Form.Item>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <Form.Item label="Phone" name="phone">
+              <Form.Item label="Phone" name="phone" rules={optionalPhoneRule}>
                 <Input />
               </Form.Item>
               <Form.Item label="Login ID" name="loginId">
@@ -138,26 +149,46 @@ export const UserFormDrawer = ({
             {!companyAddress && (
               <>
                 <div className="grid grid-cols-2 gap-3">
-                  <Form.Item label="Country" name={['address', 'countryId']}>
+                  <Form.Item
+                    label="Country"
+                    name={['address', 'countryId']}
+                    rules={[{ required: true, message: 'Please Select Country' }]}
+                  >
                     <Select options={countryOptions} />
                   </Form.Item>
-                  <Form.Item label="State/Region" name={['address', 'stateId']}>
+                  <Form.Item
+                    label="State/Region"
+                    name={['address', 'stateId']}
+                    rules={[{ required: true, message: 'Please Select State/Region' }]}
+                  >
                     <Select options={stateOptions} />
                   </Form.Item>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <Form.Item label="Address1" name={['address', 'addressLine1']}>
+                  <Form.Item
+                    label="Address1"
+                    name={['address', 'addressLine1']}
+                    rules={addressLine1Rules}
+                  >
                     <Input />
                   </Form.Item>
-                  <Form.Item label="Address2" name={['address', 'addressLine2']}>
+                  <Form.Item
+                    label="Address2"
+                    name={['address', 'addressLine2']}
+                    rules={addressLine2Rules}
+                  >
                     <Input />
                   </Form.Item>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <Form.Item label="City/Suburb" name={['address', 'city']}>
+                  <Form.Item label="City/Suburb" name={['address', 'city']} rules={cityRules}>
                     <Input />
                   </Form.Item>
-                  <Form.Item label="Zip/Postal Code" name={['address', 'zipCode']}>
+                  <Form.Item
+                    label="Zip/Postal Code"
+                    name={['address', 'zipCode']}
+                    rules={zipCodeRules}
+                  >
                     <Input />
                   </Form.Item>
                 </div>
@@ -171,6 +202,7 @@ export const UserFormDrawer = ({
                     name="dateOfJoining"
                     getValueProps={value => ({ value: value ? dayjs(value) : null })}
                     getValueFromEvent={date => (date ? date.format('YYYY-MM-DD') : null)}
+                    rules={[{ required: true, message: 'Please Select Joining Date' }]}
                   >
                     <DatePicker />
                   </Form.Item>
@@ -179,6 +211,7 @@ export const UserFormDrawer = ({
                     name="dateOfBirth"
                     getValueProps={value => ({ value: value ? dayjs(value) : null })}
                     getValueFromEvent={date => (date ? date.format('YYYY-MM-DD') : null)}
+                    rules={[{ required: true, message: 'Please Select Date of Birth' }]}
                   >
                     <DatePicker />
                   </Form.Item>
@@ -187,7 +220,7 @@ export const UserFormDrawer = ({
                   <Form.Item label="Designation" name="designation">
                     <Input />
                   </Form.Item>
-                  <Form.Item label="Secondary Phone" name="secondaryPhone">
+                  <Form.Item label="Secondary Phone" name="secondaryPhone" rules={phoneRules}>
                     <Input />
                   </Form.Item>
                 </div>
@@ -208,7 +241,7 @@ export const UserFormDrawer = ({
                       return [];
                     }}
                   >
-                    <Upload>
+                    <Upload accept=".png,.jpg,.jpeg">
                       <Button>Click To Upload</Button>
                     </Upload>
                   </Form.Item>
@@ -222,7 +255,7 @@ export const UserFormDrawer = ({
                       return [];
                     }}
                   >
-                    <Upload>
+                    <Upload accept=".png,.jpg,.jpeg">
                       <Button>Click To Upload</Button>
                     </Upload>
                   </Form.Item>
@@ -245,7 +278,17 @@ export const UserFormDrawer = ({
                 {!passwordGenerate && (
                   <>
                     <Form.Item name="manualPassword" rules={passwordRules}>
-                      <Input type="password" />
+                      <Input
+                        type={showPassword ? 'text' : 'password'}
+                        suffix={
+                          <span
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="cursor-pointer text-font-color-100"
+                          >
+                            {showPassword ? <IconEyeOff /> : <IconEye />}
+                          </span>
+                        }
+                      />
                     </Form.Item>
                     <p className="text-sm text-font-color-100">Your password must have : </p>
                     <div className=" text-font-color-400">

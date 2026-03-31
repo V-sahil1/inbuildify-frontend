@@ -182,6 +182,7 @@ const Leads = () => {
           placeholder="Select status"
           className="w-full col-span-4"
           options={statusOptions}
+          allowClear
         />
       </div>
       {/* Lead Source Filter */}
@@ -192,6 +193,7 @@ const Leads = () => {
           onChange={value => setParams({ leadSource: value })}
           placeholder="Select lead source"
           className="w-full col-span-4"
+          allowClear
         >
           {leadSource?.map((source: any) => (
             <Select.Option key={source.leadSourceId} value={source.leadSourceId}>
@@ -209,6 +211,7 @@ const Leads = () => {
           placeholder="Select date"
           className="w-full col-span-4"
           options={relativeDateOptions}
+          allowClear
         />
       </div>
 

@@ -59,7 +59,7 @@ const Users = () => {
     try {
       const params = {
         is_active: filters?.status !== '' ? filters?.status === 'Active' : undefined,
-        search: filters?.search,
+        search: filters?.search || undefined,
       };
       await dispatch(getUsersThunk(params)).unwrap();
     } catch (error) {

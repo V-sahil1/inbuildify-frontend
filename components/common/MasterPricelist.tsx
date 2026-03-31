@@ -7,7 +7,7 @@ import {
   IconPlus,
   IconTrash,
 } from '@tabler/icons-react';
-import { Button, message, Popconfirm, Spin, Tooltip } from 'antd';
+import { Button, message, Popconfirm, Tooltip } from 'antd';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import TooltipButton from './TooltipButton';
 import { PricingItem } from './PricingItem';
@@ -180,7 +180,11 @@ export const MasterPricelist = ({
                                   </p>
                                 </>
                               }
-                              onConfirm={() => handlePriceMasterStatus()}
+                              onConfirm={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                handlePriceMasterStatus();
+                              }}
                             >
                               <TooltipButton
                                 title={`${category.isActive ? 'Create Pricelist Item' : 'Active Master Pricelist'}`}
@@ -212,7 +216,9 @@ export const MasterPricelist = ({
                                 <Tooltip title="Remove">
                                   <Popconfirm
                                     title="Do you want to inactive price master?"
-                                    onConfirm={() => {
+                                    onConfirm={e => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
                                       handlePriceMasterStatus();
                                     }}
                                     placement="topRight"
@@ -221,7 +227,10 @@ export const MasterPricelist = ({
                                       type="text"
                                       className="text-blue"
                                       icon={<IconTrash size={18} color="red" />}
-                                      onClick={() => setSelectedPriceMaster(category)}
+                                      onClick={e => {
+                                        e.stopPropagation();
+                                        setSelectedPriceMaster(category);
+                                      }}
                                     />
                                   </Popconfirm>
                                 </Tooltip>

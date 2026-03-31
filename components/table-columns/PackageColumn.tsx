@@ -125,6 +125,7 @@ export const PackageColumn = ({
           placeholder="Select status"
           className="w-full col-span-4"
           options={group?.map(i => ({ label: i.name, value: i.packageGroupId }))}
+          allowClear
         />
       </div>
       {/* Range Filter */}
@@ -136,6 +137,7 @@ export const PackageColumn = ({
           placeholder="Select status"
           className="w-full col-span-4"
           options={rangeOptions}
+          allowClear
         />
       </div>
       {/* Dwelling Type Filter */}
@@ -147,6 +149,7 @@ export const PackageColumn = ({
           placeholder="Select status"
           className="w-full col-span-4"
           options={dwellingTypeOptions}
+          allowClear
         />
       </div>
 
@@ -162,6 +165,7 @@ export const PackageColumn = ({
             { label: 'Active', value: true },
             { label: 'Inactive', value: false },
           ]}
+          allowClear
         />
       </div>
 

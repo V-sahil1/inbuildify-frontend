@@ -59,6 +59,7 @@ export const PricelistHeader = ({
             placeholder="Select status"
             className="w-full col-span-4"
             options={locationOptions}
+            allowClear
           />
         </div>
       )}
@@ -71,6 +72,7 @@ export const PricelistHeader = ({
           placeholder="Select status"
           className="w-full col-span-4"
           options={rangeOptions}
+          allowClear
         />
       </div>
       {/* Dwelling Type Filter */}
@@ -82,6 +84,7 @@ export const PricelistHeader = ({
           placeholder="Select status"
           className="w-full col-span-4"
           options={dwellingTypeOptions}
+          allowClear
         />
       </div>
 
@@ -97,6 +100,7 @@ export const PricelistHeader = ({
             { label: 'Active', value: 'active' },
             { label: 'Inactive', value: 'inactive' },
           ]}
+          allowClear
         />
       </div>
 

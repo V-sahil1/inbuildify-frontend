@@ -303,9 +303,7 @@ export default function Header({
                             className="flex cursor-pointer items-center px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                             onClick={() => {
                               router.push(item.href);
-                              setTimeout(() => {
-                                setIsGridDropdownOpen(false);
-                              }, 2000);
+                              setIsGridDropdownOpen(false);
                             }}
                           >
                             {item.icon}
@@ -330,9 +328,7 @@ export default function Header({
                               className="flex cursor-pointer items-center px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                               onClick={() => {
                                 router.push(item.href);
-                                setTimeout(() => {
-                                  setIsGridDropdownOpen(false);
-                                }, 2000);
+                                setIsGridDropdownOpen(false);
                               }}
                             >
                               {item.icon}

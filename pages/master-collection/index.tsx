@@ -116,6 +116,7 @@ const MasterCollection = () => {
             placeholder="Select status"
             className="w-full col-span-4"
             options={locationOptions}
+            allowClear
           />
         </div>
       )}
@@ -128,6 +129,7 @@ const MasterCollection = () => {
           placeholder="Select status"
           className="w-full col-span-4"
           options={rangeOptions}
+          allowClear
         />
       </div>
       {/* Dwelling Type Filter */}
@@ -139,6 +141,7 @@ const MasterCollection = () => {
           placeholder="Select status"
           className="w-full col-span-4"
           options={dwellingTypeOptions}
+          allowClear
         />
       </div>
 
@@ -154,6 +157,7 @@ const MasterCollection = () => {
             { label: 'Active', value: 'active' },
             { label: 'Inactive', value: 'inactive' },
           ]}
+          allowClear
         />
       </div>
 

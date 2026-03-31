@@ -49,8 +49,8 @@ export const UserColumn = (setModalOpen, setSelectedUser, setDrawerOpen, selecte
     },
     {
       title: 'Role',
-      dataIndex: 'role',
-      key: 'role',
+      dataIndex: 'roleName',
+      key: 'roleName',
     },
     {
       render: (_, record) => {

@@ -27,7 +27,7 @@ export const useUserGroupField = () => {
         { label: 'Active', value: true },
         { label: 'InActive', value: false },
       ],
-      initialValue: 'true',
+      initialValue: true,
       rules: [{ required: true, message: 'Please select status' }],
     },
   ] as FormField[];

@@ -342,20 +342,22 @@ const ColorCategoryItemModel = ({
                     </Form.Item>
                   </Col>
                   <Col xs={12} md={12}>
-                    <Form.Item
-                      name="upgradeOption"
-                      label="Upgrade Option"
-                      rules={[{ required: false, message: 'Please select upgrade option' }]}
-                    >
-                      <Radio.Group
-                        disabled={isStandard === 'standard'}
-                        options={[
-                          { label: 'Fixed', value: 'fixed' },
-                          { label: 'Start From', value: 'start_from' },
-                          { label: 'TBA', value: 'tba' },
-                        ]}
-                      />
-                    </Form.Item>
+                    {isStandard !== 'standard' && (
+                      <Form.Item
+                        name="upgradeOption"
+                        label="Upgrade Option"
+                        rules={[{ required: false, message: 'Please select upgrade option' }]}
+                      >
+                        <Radio.Group
+                          disabled={isStandard === 'standard'}
+                          options={[
+                            { label: 'Fixed', value: 'fixed' },
+                            { label: 'Start From', value: 'start_from' },
+                            { label: 'TBA', value: 'tba' },
+                          ]}
+                        />
+                      </Form.Item>
+                    )}
                   </Col>
                 </Row>
 
@@ -376,25 +378,27 @@ const ColorCategoryItemModel = ({
                     </Form.Item>
                   </Col>
                   <Col xs={12} md={12}>
-                    <Form.Item
-                      name="cost"
-                      label="Price"
-                      rules={[
-                        {
-                          required: false,
-                          message: 'Please enter price',
-                        },
-                      ]}
-                    >
-                      <InputNumber
-                        disabled={isStandard === 'standard' || isTBA === 'tba'}
-                        style={{ width: '100%' }}
-                        min={0}
-                        step={0.01}
-                        formatter={value => `$${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                        placeholder="Enter price"
-                      />
-                    </Form.Item>
+                    {isStandard !== 'standard' && (
+                      <Form.Item
+                        name="cost"
+                        label="Price"
+                        rules={[
+                          {
+                            required: false,
+                            message: 'Please enter price',
+                          },
+                        ]}
+                      >
+                        <InputNumber
+                          disabled={isStandard === 'standard'}
+                          style={{ width: '100%' }}
+                          min={0}
+                          step={0.01}
+                          formatter={value => `$${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                          placeholder="Enter price"
+                        />
+                      </Form.Item>
+                    )}
                   </Col>
                 </Row>
 
