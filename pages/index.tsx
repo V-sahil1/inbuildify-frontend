@@ -95,7 +95,7 @@ const Leads = () => {
       debouncedUpdateURL.cancel();
     };
   }, [debouncedUpdateURL]);
-  
+
   useEffect(() => {
     dispatch(clearLeadDetail());
   }, [dispatch]);
@@ -157,7 +157,7 @@ const Leads = () => {
       setLoading({ ...loading, leadSourceLoading: true });
       await dispatch(createleadSource({ name: values.name })).unwrap();
       message.success('Lead source created successfully');
-      setOpenLeadCreateModal(true);
+      openLeadCreateModal && setOpenLeadCreateModal(true);
     } catch (error) {
       message.error(error || 'Failed to create lead source');
     } finally {
@@ -356,7 +356,7 @@ const Leads = () => {
           form={leadForm}
         />
       )}
-      {addInstSourceModal && (
+      {addInstSourceModal && openLeadCreateModal && (
         <ActionDialogmodel
           title="LeadSource"
           open={addInstSourceModal}

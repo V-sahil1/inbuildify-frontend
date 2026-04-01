@@ -12,7 +12,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { logoutThunk } from '@redux/feature/auth/authThunk';
-import { message } from 'antd';
+import { Form, message, Modal } from 'antd';
 import { useRouter } from 'next/navigation';
 import SystemRoutes from '@lib/constants/Routes';
 import ConfirmationModal from '../common/ConfirmationModal';
@@ -21,13 +21,17 @@ import { logout } from '@redux/feature/auth/authSlice';
 import { themeContext } from 'contexts/ThemeContext';
 import { createMenuGridItems, gridMenuItems, gridMenuItems2 } from 'data/headerMenuConstants';
 import { CreateFormModal } from '../common/Models/CreateFormModel';
-import leadCreateFields from '../formFields/LeadCreateFields';
+import leadCreateFields, { useLeadCreateFields } from '../formFields/LeadCreateFields';
 import { JobCreationModal } from '../common/Models/JobModal';
 import { CreateTaskModal } from '../common/Models/CreatetaskModel';
 import { CreateAppointmentModal } from '../common/Models/createAppointementModel';
 import { createTask } from '@redux/feature/task/taskThunk';
 import { createAppointment } from '@redux/feature/appointment/appointmentThunk';
 import { ActionDialogmodel } from '../common/Models/ActionDialogModel';
+import { createLeadPayload, createLeadThunk } from '@redux/feature/lead/leadThunk';
+import { createleadSource } from '@redux/feature/admin/sales/leadSource/leadSourceThunk';
+import { setAddInstSourceModal } from '@redux/feature/lead/leadSlice';
+import rangeAndDwellingTypeFields from '../formFields/rangeAndDwellingTypeFields';
 
 export default function Header({
   toggleMobileNav,
@@ -54,11 +58,15 @@ export default function Header({
   const createDropdownRef = useRef<HTMLDivElement>(null);
   const [isLogoutLoading, setIsLogoutLoading] = useState<boolean>(false);
   const [createMenuOpen, setCreateMenuOpen] = useState<string>('');
-  const leadfields = leadCreateFields({
-    isEmailDisable: false,
-  });
+  const [showConflictModal, setShowConflictModal] = useState(false);
+  const [pendingLeadData, setPendingLeadData] = useState<createLeadPayload | null>(null);
+  const [loading, setLoading] = useState({ leadLoading: false, leadSourceLoading: false });
+  const [leadForm] = Form.useForm();
+  const leadCreateFields = useLeadCreateFields({ isEmailDisable: false }, leadForm);
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const { setting, status: settingStatus } = useAppSelector(state => state.sales.setting);
+  const addInstSourceModal = useAppSelector(state => state.lead.addInstSourceModal);
 
   useEffect(() => {
     const sidebarElement = document.querySelector('.admin-wrapper');
@@ -160,6 +168,41 @@ export default function Header({
     }
     setCreateMenuOpen('');
   };
+
+  const handleLeadSubmit = async values => {
+    try {
+      setLoading({ ...loading, leadLoading: true });
+      setPendingLeadData(values);
+      await dispatch(createLeadThunk(showConflictModal ? pendingLeadData : values)).unwrap();
+      message.success('Lead created successfully');
+      setCreateMenuOpen('');
+      setShowConflictModal(false);
+    } catch (error) {
+      if (error?.isConflict && setting?.allowDuplicateLeads) {
+        setPendingLeadData({ ...values, forceCreate: true });
+        setShowConflictModal(true);
+      } else {
+        message.error(error?.message || error || 'Failed to create lead');
+      }
+    } finally {
+      setLoading({ ...loading, leadLoading: false });
+    }
+  };
+
+  const handleAddLeadSourceSubmit = async values => {
+    try {
+      setLoading({ ...loading, leadSourceLoading: true });
+      await dispatch(createleadSource({ name: values.name })).unwrap();
+      message.success('Lead source created successfully');
+      setCreateMenuOpen('lead');
+    } catch (error) {
+      message.error(error || 'Failed to create lead source');
+    } finally {
+      dispatch(setAddInstSourceModal(false));
+      setLoading({ ...loading, leadSourceLoading: false });
+    }
+  };
+
   const renderCreateModal = () => {
     switch (createMenuOpen) {
       case 'lead':
@@ -167,12 +210,11 @@ export default function Header({
           <ActionDialogmodel
             title="Lead"
             open={true}
-            loading={false}
+            loading={loading.leadLoading}
             onCancel={() => setCreateMenuOpen('')}
-            onSubmit={() => {
-              setCreateMenuOpen('');
-            }}
-            fields={leadfields}
+            onSubmit={handleLeadSubmit}
+            fields={leadCreateFields}
+            form={leadForm}
           />
         );
       case 'job':
@@ -424,6 +466,39 @@ export default function Header({
           loading={isLogoutLoading}
           maxWidth="sm"
         />
+      )}
+      {addInstSourceModal && (
+        <ActionDialogmodel
+          title="LeadSource"
+          open={addInstSourceModal}
+          loading={loading.leadSourceLoading}
+          onCancel={() => {
+            dispatch(setAddInstSourceModal(false));
+            setCreateMenuOpen('lead');
+          }}
+          onSubmit={handleAddLeadSourceSubmit}
+          fields={rangeAndDwellingTypeFields()}
+        />
+      )}
+      {showConflictModal && (
+        <Modal
+          title="Email Already Exists"
+          open={showConflictModal}
+          onOk={handleLeadSubmit}
+          onCancel={() => {
+            setShowConflictModal(false);
+            setPendingLeadData(null);
+          }}
+          confirmLoading={loading.leadLoading}
+          okText="Create Anyway"
+          cancelText="Cancel"
+          centered
+        >
+          <p>
+            A lead with this email already exists. Do you want to create a new lead with the same
+            email anyway?
+          </p>
+        </Modal>
       )}
     </>
   );
