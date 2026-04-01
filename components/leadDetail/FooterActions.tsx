@@ -7,11 +7,13 @@ import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import CustomSectionModal from '../common/CustomSectionModal';
 import { formDataGenerator } from '@lib/utils/formDataGenerator';
 import {
+  approveQuotation,
   createQuotationCustomSection,
   deleteQuotationCustomSection,
   updateQuotationCustomSection,
 } from '@redux/feature/quotation/quotationThunk';
 import { Status } from '@lib/constants/enum';
+import { useRouter } from 'next/navigation';
 
 interface FooterActionsProps {
   id?: string;
@@ -42,11 +44,13 @@ const FooterActions: React.FC<FooterActionsProps> = ({
   previewLoading,
   disableAction,
   hasUnsavedChanges = false,
-  onCreateNewVersion,
+  onCreateNewVersion
 }) => {
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const { quoteDetails, customSections, status } = useAppSelector(state => state.quotation);
   const [modalOpen, setModalOpen] = useState<'approval' | 'save' | 'custom' | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [sketchNum, setSketchNum] = useState('');
   const previewMenu = [
     { key: 'quotation', label: 'Quotation', icon: <IconFileTypePdf size={15} color="red" /> },
@@ -133,6 +137,26 @@ const FooterActions: React.FC<FooterActionsProps> = ({
     }
   };
 
+  const handleQuotationApproval = async () => {
+    try {
+      setIsLoading(true);
+      const payload = {
+        isApprove: true,
+        sketchNumber: Number(sketchNum),
+      }
+      const res = await dispatch(approveQuotation({ versionId: quoteVersionId, payload })).unwrap();
+      if (res) {
+        message.success('Quotation approved successfully!');
+        setModalOpen(null);
+        router.back()
+      }
+    } catch (error) {
+      message.error(error || 'Failed to approve quotation');
+    }
+    setIsLoading(false);
+
+  };
+
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-4">
@@ -195,7 +219,7 @@ const FooterActions: React.FC<FooterActionsProps> = ({
           >
             Approve
           </Button>
-          <Button type="primary" onClick={() => {}} loading={loading} disabled={disableAction}>
+          <Button type="primary" onClick={() => { }} loading={loading} disabled={disableAction}>
             Email
           </Button>
           <Dropdown
@@ -240,12 +264,10 @@ const FooterActions: React.FC<FooterActionsProps> = ({
         <ConfirmationContentModal
           open={modalOpen === 'approval'}
           onClose={() => setModalOpen(null)}
-          onSubmit={() => {
-            console.log('sketch num', sketchNum);
-            setModalOpen(null);
-          }}
+          onSubmit={handleQuotationApproval}
           content={approveContent}
           okText="Approve"
+          loading={isLoading}
           title="Confirmation"
         />
       )}

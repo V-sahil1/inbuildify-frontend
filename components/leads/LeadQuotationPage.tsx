@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import SystemRoutes from '@lib/constants/Routes';
 import { createQuotationThunk } from '@redux/feature/quotation/quotationThunk';
 import { IconFileText, IconSearch, IconTrash, IconX } from '@tabler/icons-react';
-import { Card, Input, List, message } from 'antd';
+import { Card, Input, List, message, Tag } from 'antd';
 import { useRouter } from 'next/router';
 import { Dispatch, SetStateAction } from 'react';
 import TooltipButton from '../common/TooltipButton';
@@ -85,17 +85,15 @@ export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
                   type="button"
                   aria-label="Open quotation search"
                   onClick={() => setShowSearchInput(prev => !prev)}
-                  className={`inline-flex items-center justify-center p-1 text-gray-600 hover:text-black transition-all duration-200 ${
-                    showSearchInput ? 'hidden' : 'opacity-100 w-auto'
-                  }`}
+                  className={`inline-flex items-center justify-center p-1 text-gray-600 hover:text-black transition-all duration-200 ${showSearchInput ? 'hidden' : 'opacity-100 w-auto'
+                    }`}
                 >
                   <IconSearch size={15} />
                 </button>
 
                 <div
-                  className={`transition-all duration-200 ease-in-out overflow-hidden ${
-                    showSearchInput ? 'opacity-100 ' : 'opacity-0'
-                  }`}
+                  className={`transition-all duration-200 ease-in-out overflow-hidden ${showSearchInput ? 'opacity-100 ' : 'opacity-0'
+                    }`}
                   style={{
                     width: showSearchInput ? 'clamp(110px, 40vw, 160px)' : '0px',
                     maxWidth: '100%',
@@ -166,6 +164,7 @@ export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
                         );
                       }}
                       style={{ cursor: 'pointer' }}
+                      className='flex flex-col gap-1 items-start'
                     >
                       <div className="flex items-center justify-between w-full overflow-hidden">
                         <div className="flex items-center space-x-4">
@@ -173,10 +172,15 @@ export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
                             {quotation.indexOf(item) + 1}
                           </div>
                           <div>
-                            <div className="font-medium text-gray-900">
+                            <div className="flex flex-col gap-2 font-medium text-gray-900">
                               <span className=" text-sm text-gray-500">
                                 {item?.referenceNumber}
                               </span>
+                              {item?.versions[0]?.isApprove && (
+                                <Tag color="green-inverse" className="text-xs mr-auto">
+                                  Approved
+                                </Tag>
+                              )}
                             </div>
                           </div>
                         </div>

@@ -336,3 +336,13 @@ export type ILotDetail = {
   estateStageId: string;
   estateStageName: string;
 };
+
+export type WonLostPayload= {
+  outCome:string;
+  quotationVersionId?:string;
+  jobNote?:string;
+  sendEmail?:boolean,
+  leadLostComment?:string,
+  leadLostReasonId?:string;
+
+}

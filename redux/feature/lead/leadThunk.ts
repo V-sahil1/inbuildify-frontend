@@ -13,6 +13,7 @@ import {
   ILeadJob,
   InvoiceDetails,
   PropertyDetail,
+  WonLostPayload,
 } from './ILeadState';
 import { leadDetails } from 'data/sampleData';
 export interface createLeadPayload {
@@ -222,18 +223,14 @@ export const convertLeadToOpportunityThunk = createAsyncThunk(
 export const convertLeadToJobThunk = createAsyncThunk(
   'lead/convertLeadToJob',
   async (
-    payload: { leadId: string; message: string; status: string; quotation_version_id?: string },
+    {Id,payload}: {Id:string; payload:WonLostPayload },
     { rejectWithValue }
   ) => {
     try {
       const response: ApiResponse<any> = await api.post(
-        `${API_ENDPOINTS.CONVERT_LEAD_TO_JOB}/${payload.leadId}`,
+        `${API_ENDPOINTS.CONVERT_TO_JOB}/${Id}/convert`,
         {
-          data: {
-            message: payload.message,
-            status: payload.status,
-            quotation_version_id: payload?.quotation_version_id,
-          },
+          data: payload,
         }
       );
       return { response, payload };

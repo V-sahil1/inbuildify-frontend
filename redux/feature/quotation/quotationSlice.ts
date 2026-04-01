@@ -2,6 +2,7 @@ import { PropertyDetails } from 'data/types';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Status } from '@lib/constants/enum';
 import {
+  approveQuotation,
   createQuotation,
   createQuotationCompareThunk,
   createQuotationCustomSection,
@@ -340,6 +341,11 @@ const quotationSlice = createSlice({
     //update lead
     builder.addCase(updateLeadThunk.fulfilled, (state, action) => {
       state.quotation = action.payload.quotations;
+    });
+
+    //approve quotation
+    builder.addCase(approveQuotation.fulfilled, (state, action) => {
+      state.quoteDetails = action.payload;
     });
   },
 });

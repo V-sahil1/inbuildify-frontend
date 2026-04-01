@@ -28,7 +28,7 @@ import {
   setQuotationPackage,
   setSelectedFilters,
 } from '@redux/feature/quotation/quotationSlice';
-import { message, Button, Tooltip } from 'antd';
+import { message, Button, Tooltip, Tag } from 'antd';
 import QuotationFilter from '@/components/quotation/QuotationFilter';
 import { updateLeadStatus } from '@redux/feature/lead/leadSlice';
 import { clearQuotation, setQuotationItems } from '@redux/feature/quotation/quotationSlice';
@@ -261,7 +261,7 @@ const QuotationManager = () => {
     }
   };
 
-  const handleItemQuantityChange = (itemId: string, quantity: number) => {};
+  const handleItemQuantityChange = (itemId: string, quantity: number) => { };
 
   const getQuotationItems = () => {
     const normalize = (item: any, isExtra = false) => ({
@@ -444,7 +444,7 @@ const QuotationManager = () => {
         )
       ).unwrap();
       message.success('New version created successfully');
-      
+
       // Update relevant states with the duplicated quotation data
       if (response) {
         // Update filters
@@ -453,22 +453,22 @@ const QuotationManager = () => {
           dwellingType: response.dwellingTypeId,
           location: response.locationId,
         }));
-        
+
         // Update floor plan if available
         if (response.floorPlan) {
           dispatch(setQuotationPlan(response.floorPlan));
         }
-        
+
         // Update facade if available
         if (response.facade) {
           dispatch(setQuotationFacade(response.facade));
         }
-        
+
         // Update package if available
         if (response.package) {
           dispatch(setQuotationPackage(response.package));
         }
-        
+
         // Redirect to the new version
         router.push(`${SystemRoutes.QUOTATION}/${response.quotationVersionId}`);
       }
@@ -486,10 +486,12 @@ const QuotationManager = () => {
             title="Quotation"
             steps={[]}
           />
+          {quoteDetails?.isApprove && <Tag color="green-inverse">Approved</Tag>}
           <Tooltip title="Create new quotation version" placement="top">
-            <Button 
-              type="primary" 
+            <Button
+              type="primary"
               onClick={handleCreateNewVersion}
+              disabled={quoteDetails?.isApprove}
               loading={quotationStatus?.create === Status.PENDING}
             >
               <IconNewSection />New Version
@@ -497,7 +499,7 @@ const QuotationManager = () => {
           </Tooltip>
         </div>
         <QuotationFilter
-          isReadOnly={quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0)}
+          isReadOnly={quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0) || quoteDetails?.isApprove}
           onFilterChange={({ type, value }) => {
             handleSelectionChange(type, value);
             setHasChanges(true);
@@ -517,8 +519,8 @@ const QuotationManager = () => {
         onPlanSelect={plan => handleSelectionChange('plan', plan)}
         onFacadeSelect={facade => handleSelectionChange('facade', facade)}
         onPackageSelect={pkg => handleSelectionChange('package', pkg)}
-        onPropertyUpdate={() => {}}
-        isReadOnly={quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0)}
+        onPropertyUpdate={() => { }}
+        isReadOnly={(quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0)) || quoteDetails?.isApprove}
         filters={quotationFilters}
       />
 
@@ -548,7 +550,7 @@ const QuotationManager = () => {
               onItemQuantityChange={handleItemQuantityChange}
               extraItem={extraItem}
               onExtraClick={handleExtraClick}
-              isReadOnly={quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0)}
+              isReadOnly={quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0) || quoteDetails?.isApprove}
               // itemsLoading={
               //   selectedCategory
               //     ? (getCategoryById(selectedCategory)?.loadingItems ?? false)
@@ -584,8 +586,8 @@ const QuotationManager = () => {
           onEdit={() => setIsEditMode(true)}
           onCancel={() => setHasChanges(false)}
           onSave={handleCreateQuotation}
-          onPreview={() => {}} // todo handle preview
-          disableAction={quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0)}
+          onPreview={() => { }} // todo handle preview
+          disableAction={quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0) || quoteDetails?.isApprove}
           previewLoading={previewLoading}
           loading={quotationStatus.create === Status.PENDING}
           hasUnsavedChanges={hasChanges}

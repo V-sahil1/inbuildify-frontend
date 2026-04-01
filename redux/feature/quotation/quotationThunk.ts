@@ -289,3 +289,17 @@ export const deleteQuotationCustomSection = createAsyncThunk(
     }
   }
 );
+
+export const approveQuotation = createAsyncThunk(
+  'quotation/approveQuotation',
+  async ({versionId, payload}: { versionId: string; payload: { sketchNumber: number; isApprove: boolean } }, { rejectWithValue }) => {
+    try {
+      const res = await api.put<ApiResponse>(API_ENDPOINTS.QUOTATION_VERSION + '/' + versionId,
+        {data:payload}
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);

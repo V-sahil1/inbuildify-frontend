@@ -74,6 +74,7 @@ export type Quotation = {
   updatedBy: string | null;
   totalAmount?: number;
   leadStatus: string;
+  opportunityId?: string;
   versions: QuotationVersionDetails[];
 };
 

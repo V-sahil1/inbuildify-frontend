@@ -267,19 +267,19 @@ export const leadSlice = createSlice({
         return lead;
       });
     });
-    builder.addCase(convertLeadToJobThunk.fulfilled, (state, action) => {
-      state.leadDetail.lead.status = action.payload.payload.status;
-      state.leads = state.leads.map(lead => {
-        if (lead.leadsId === action.payload.payload.leadId) {
-          return {
-            ...lead,
-            status: action.payload.payload.status === 'WON' ? 'JOB' : 'CANCELLED',
-            updatedAt: new Date().toISOString(),
-          };
-        }
-        return lead;
-      });
-    });
+    // builder.addCase(convertLeadToJobThunk.fulfilled, (state, action) => {
+    //   state.leadDetail.lead.status = action.payload.payload.status;
+    //   state.leads = state.leads.map(lead => {
+    //     if (lead.leadsId === action.payload.payload.leadId) {
+    //       return {
+    //         ...lead,
+    //         status: action.payload.payload.status === 'WON' ? 'JOB' : 'CANCELLED',
+    //         updatedAt: new Date().toISOString(),
+    //       };
+    //     }
+    //     return lead;
+    //   });
+    // });
     builder.addCase(updateLeadContactThunk.fulfilled, (state, action) => {
       const { payload } = action;
       if (!state.leadDetail.contacts) {

@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
-import { Modal, Tabs, Form, Input, Radio, Select, Alert, message } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Modal, Tabs, Form, Input, Radio, Select, Alert, message, Tag } from 'antd';
 import type { TabsProps } from 'antd';
 import { Quotation, QuotationResponse } from '@redux/feature/quotation/IQuotationState';
 import { IconFileText } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
 import { convertLeadToJobThunk } from '@redux/feature/lead/leadThunk';
-import { useAppDispatch } from '@hooks/redux';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { enumToReadable } from '@lib/utils/enumToRedable';
 import SystemRoutes from '@lib/constants/Routes';
+import { fetchAllLeadLostReason } from '@redux/feature/admin/sales/leadLostReason/leadLostReasonThunk';
+import { RootState } from '@redux/feature/store';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -33,6 +35,8 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
   const dispatch = useAppDispatch();
+  // Get lead lost reasons from Redux state
+  const leadLostReasons = useAppSelector((state: RootState) => state.sales.leadLostReason.leadLostReason);
   // const [sendEmailNotification, setSendEmailNotification] =
   //   useState<boolean>(true);
 
@@ -41,6 +45,13 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
     form.resetFields();
   };
 
+  // Fetch lead lost reasons when component mounts
+  useEffect(() => {
+    if (leadLostReasons.length === 0) {
+      dispatch(fetchAllLeadLostReason({}));
+    }
+  }, [dispatch, leadLostReasons.length]);
+
   const handleSave = async values => {
     await form.validateFields();
     if (activeTab === 'WON') {
@@ -48,10 +59,13 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
         setLoading(true);
         const response = await dispatch(
           convertLeadToJobThunk({
-            leadId: leadData?.leadId,
-            message: values.message,
-            quotation_version_id: selectedQuotation,
-            status: 'WON',
+            Id: leadData?.opportunityId,
+            payload: {
+              outCome: 'won',
+              quotationVersionId: selectedQuotation,
+              jobNote: values.message,
+              sendEmail: true,
+            },
           })
         ).unwrap();
         message.success(response?.response?.message);
@@ -68,9 +82,12 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
         setLoading(true);
         const response = await dispatch(
           convertLeadToJobThunk({
-            leadId: leadData?.leadId,
-            message: values.message,
-            status: 'LOST',
+            Id: leadData?.opportunityId,
+            payload: {
+              outCome: 'lost',
+              leadLostComment: values.message,
+              leadLostReasonId: values.lostReason,
+            },
           })
         ).unwrap();
         form.resetFields();
@@ -123,35 +140,40 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
                   >
                     {quotations?.map((quotation, index) => {
                       return (
-                        <Radio
-                          key={index}
-                          className="flex items-center ml-10 p-2  font-medium"
-                          value={(quotation?.versions[0] as any)?.quotationVersionId}
-                        >
-                          <div
-                            key={quotation?.referenceNumber}
-                            className={`py-2 items-center ${index < quotations.length - 1 ? 'border-b border-gray-100 ' : ''}`}
+                        quotation?.versions[0].isApprove && (
+                          <Radio
+                            key={index}
+                            className="flex items-center ml-10 p-2  font-medium"
+                            value={(quotation?.versions[0] as any)?.quotationVersionId}
                           >
-                            <div className="flex items-center justify-between lg:gap-48 max-[1024px]:gap-36 max-[620px]:gap-16 gap-7  ">
-                              <div className="ml-2">
-                                {quotation.referenceNumber} (V
-                                {(quotation?.versions[0] as any)?.versionNumber})
-                              </div>
-                              <div
+                            <div
+                              key={quotation?.referenceNumber}
+                              className={`py-2 items-center ${index < quotations.length - 1 ? 'border-b border-gray-100 ' : ''}`}
+                            >
+                              <div className="flex items-center justify-between lg:gap-48 max-[1024px]:gap-36 max-[620px]:gap-16 gap-7  ">
+                                <div className="ml-2">
+                                  {quotation.referenceNumber} (V
+                                  {(quotation?.versions[0] as any)?.versionNumber})
+                                </div>
+                                <div
                                 // className={`px-2 py-0.5 rounded text-xs font-medium ${quotation?. === 'COMPLETED' ? 'bg-green-50 text-green-600 border border-green-200' : 'bg-blue-50 text-blue-600 border border-blue-200'}`}
-                              >
-                                {/* {quotation?.leadStatus} */}
-                              </div>
-                              <div>
-                                $
-                                {quotation?.totalAmount?.toLocaleString('en-US', {
-                                  minimumFractionDigits: 2,
-                                })}
+                                >
+                                  {/* {quotation?.leadStatus} */}
+                                  {(quotation?.versions[0] as any)?.isApprove && (
+                                    <Tag color="green-inverse" className="text-xs mr-auto">
+                                      Approved
+                                    </Tag>
+                                  )}
+                                </div>
+                                <div>
+                                  $
+                                  {quotation?.versions[0]?.grandTotalCost}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </Radio>
-                      );
+                          </Radio>
+                        )
+                      )
                     })}
                   </Radio.Group>
                 </Form.Item>
@@ -188,12 +210,11 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
           className="m-0"
         >
           <Select placeholder="None" className="w-full">
-            <Option value="lostToCompetitor">Lost to Competitor</Option>
-            <Option value="noBudget">No Budget / Lost Funding</Option>
-            <Option value="noDecision">No Decision / Non-Response</Option>
-            <Option value="price">Price</Option>
-            <Option value="other">Other</Option>
-            <Option value="outsideOfBuildingZone">Outside of building zone</Option>
+            {leadLostReasons.map((reason) => (
+              <Option key={reason.leadLostReasonId} value={reason.leadLostReasonId}>
+                {reason.lostReason}
+              </Option>
+            ))}
           </Select>
         </Form.Item>
       </div>

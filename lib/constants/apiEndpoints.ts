@@ -66,6 +66,9 @@ class API_ENDPOINTS {
   public static LEAD_NOTES = '/notes';
   public static LEAD_SMS = '/sms';
 
+  //convertleadtojob
+  public static CONVERT_TO_JOB = `${this.CONVERT_LEAD_TO_JOB}/opportunity`;
+
   //  Master PricingList
   public static MASTER_PRICE_LIST_CATEGORY = '/category';
   public static CREATE_MASTER_PRICE_LIST_ITEM = '/category-item';

@@ -219,11 +219,16 @@ const StageProgress: React.FC<StageProgressProps> = ({
           // lead?.lead?.status === 'COMPLETED'
           showOptions && (
             <>
-              <button className="btn btn-success rounded-md p-1" onClick={handleWinClick}>
+              <button
+                className="btn btn-success rounded-md p-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={lead?.lead?.opportunityStatus === 'Close'}
+                onClick={handleWinClick}
+              >
                 Won
               </button>
               <button
-                className="btn bg-red-500 rounded-md p-1 text-white"
+                className="btn bg-red-500 rounded-md p-1 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={lead?.lead?.opportunityStatus === 'Close'}
                 onClick={handleLoseClick}
               >
                 Lost
@@ -236,6 +241,8 @@ const StageProgress: React.FC<StageProgressProps> = ({
             open={dropdownVisible}
             onOpenChange={open => setDropdownVisible(open)}
             placement="bottomRight"
+            disabled={lead?.lead?.opportunityStatus === 'Close'}
+            className="disabled:opacity-50 disabled:cursor-not-allowed"
             trigger={['click']}
             dropdownRender={() => (
               <div className="bg-white shadow-lg rounded-md border border-gray-200 w-56">
@@ -261,9 +268,8 @@ const StageProgress: React.FC<StageProgressProps> = ({
             )}
           >
             <button
-              className={`btn border ${
-                dropdownVisible ? 'border-red-500 bg-red-50' : 'border-red-500'
-              } rounded-md p-1`}
+              className={`btn border ${dropdownVisible ? 'border-red-500 bg-red-50' : 'border-red-500'
+                } rounded-md p-1`}
               onClick={() => setDropdownVisible(!dropdownVisible)}
             >
               <IconDots stroke={2} className="text-red-500" />
