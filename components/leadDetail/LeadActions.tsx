@@ -13,6 +13,7 @@ import { fetchAllTask } from '@redux/feature/task/taskThunk';
 import { Status } from '@lib/constants/enum';
 import { fetchAllAppointment } from '@redux/feature/appointment/appointmentThunk';
 import { IAppointment } from '@redux/feature/appointment/IAppointmentState';
+import { getAllNotes, getAllSms, getLeadActions } from '@redux/feature/action/actionThunk';
 
 const actionItems: MenuProps['items'] = [
   { key: 'addNotes', label: 'Add Notes' },
@@ -36,6 +37,14 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
   const [editingItem, setEditingItem] = useState(null);
   const { tasks, status } = useAppSelector(state => state.task);
   const { appointment, status: appointmentStatus } = useAppSelector(state => state.appointment);
+  const {
+    sms,
+    notes,
+    tagStatus,
+    smsStatus,
+    actions,
+    status: actionStatus,
+  } = useAppSelector(state => state.action);
 
   const tabs: FilterOption[] = [
     { type: 'All', label: 'All' },
@@ -89,16 +98,84 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
     }
   };
 
+  const fetchSMSData = async () => {
+    try {
+      let smsData;
+      if (smsStatus === Status.IDLE) {
+        smsData = await dispatch(getAllSms({ leads_id: leadId })).unwrap();
+      } else {
+        smsData = { sms };
+      }
+      const transformedAppointments = smsData?.sms?.map(i => ({
+        type: 'SMS',
+        item: i,
+      }));
+      if (activeTab === 'SMS') {
+        setCardsData(transformedAppointments || []);
+      }
+    } catch (error) {
+      message.error(error || 'Failed to fetch SMS');
+    }
+  };
+
+  const fetchNotesData = async () => {
+    try {
+      let notesData;
+      if (tagStatus === Status.IDLE) {
+        notesData = await dispatch(getAllNotes({ leads_id: leadId })).unwrap();
+      } else {
+        notesData = { notes };
+      }
+      const transformedAppointments = notesData?.notes?.map(i => ({
+        type: 'NOTES',
+        item: i,
+      }));
+      if (activeTab === 'NOTES') {
+        setCardsData(transformedAppointments || []);
+      }
+    } catch (error) {
+      message.error(error || 'Failed to fetch Notes');
+    }
+  };
+
+  const fetchAllActionsData = async () => {
+    try {
+      let actionData;
+      if (actionStatus === Status.IDLE) {
+        actionData = await dispatch(getLeadActions(leadId)).unwrap();
+      } else {
+        actionData = actions;
+      }
+      const appointments =
+        actionData?.appointments?.map(i => ({ type: 'APPOINTMENT', item: i })) || [];
+      const tasks = actionData?.tasks?.map(i => ({ type: 'TASK', item: i })) || [];
+      const sms = actionData?.sms?.map(i => ({ type: 'SMS', item: i })) || [];
+      const notes = actionData?.notes?.map(i => ({ type: 'NOTES', item: i })) || [];
+
+      const transformedAppointments = [...appointments, ...tasks, ...sms, ...notes];
+
+      if (activeTab === 'All') {
+        setCardsData(transformedAppointments || []);
+      }
+    } catch (error) {
+      message.error(error || 'Failed to fetch appointment');
+    }
+  };
+
   useEffect(() => {
     async function fetchData() {
       try {
         setLoading(true);
-        if (activeTab === 'TASK') {
+        if (activeTab === 'All') {
+          fetchAllActionsData();
+        } else if (activeTab === 'TASK') {
           fetchTaskData();
         } else if (activeTab === 'APPOINTMENT') {
           fetchAppointmentData();
-        } else {
-          setCardsData([]);
+        } else if (activeTab === 'SMS') {
+          fetchSMSData();
+        } else if (activeTab === 'NOTES') {
+          fetchNotesData();
         }
       } catch (error) {
         message.error(error || 'Failed to fetch actions');
@@ -110,7 +187,21 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
     if (leadId && activeTab) {
       fetchData();
     }
-  }, [dispatch, leadId, activeTab, status.fetch, appointmentStatus.fetch, tasks, appointment]);
+  }, [
+    dispatch,
+    leadId,
+    activeTab,
+    status.fetch,
+    appointmentStatus.fetch,
+    tasks,
+    appointment,
+    actions,
+    sms,
+    notes,
+    actionStatus,
+    tagStatus,
+    smsStatus,
+  ]);
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
@@ -235,7 +326,15 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
               handleSaveTask={handleSaveTask}
               handleSaveSms={handleSaveSms}
               handleClose={handleClose}
-              type={activeTab}
+              type={
+                (editingItem as ITask)?.taskId && (editingItem as ITask)?.priority
+                  ? 'TASK'
+                  : (editingItem as IAppointment)?.appointmentId
+                    ? 'APPOINTMENT'
+                    : (editingItem as NoteDetails)?.notesId
+                      ? 'NOTES'
+                      : 'SMS'
+              }
             />
           )}
 

@@ -73,7 +73,7 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
             label="Location"
             name="locationId"
             rules={locationRules}
-            initialValue={initialData?.location?.[0]?.id}
+            initialValue={initialData?.location?.id}
           >
             <Select placeholder="Select Location" options={locationOptions} />
           </Form.Item>

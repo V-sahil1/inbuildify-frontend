@@ -62,6 +62,9 @@ class API_ENDPOINTS {
   public static LEAD_INVOICE = '/invoice';
   public static LEAD_INVOICE_BY_ID = `${this.LEAD_INVOICE}/lead`;
   public static LEAD_PROPERTY = '/property';
+  public static LEAD_ACTION = (id: string) => `${this.LEAD_BASE}/${id}/actions`;
+  public static LEAD_NOTES = '/notes';
+  public static LEAD_SMS = '/sms';
 
   //  Master PricingList
   public static MASTER_PRICE_LIST_CATEGORY = '/category';

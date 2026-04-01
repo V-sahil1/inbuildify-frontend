@@ -199,9 +199,9 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
         {/* )} */}
       </div>
 
-      <Form.Item label="Link To" name={['task', 'linkTo']}>
+      {/* <Form.Item label="Link To" name={['task', 'linkTo']}>
         <Select disabled={isStatusShow} options={linkToOption} />
-      </Form.Item>
+      </Form.Item> */}
       <Form.Item
         label="Description"
         name={['task', 'description']}

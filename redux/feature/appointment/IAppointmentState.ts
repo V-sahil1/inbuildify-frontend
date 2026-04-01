@@ -19,7 +19,7 @@ export interface IAppointment {
   createdAt: string;
   updatedAt: string;
   leadId?: string;
-  location?: Entity[];
+  location?: Entity;
   sendAppointmentCustomer?: boolean;
 }
 

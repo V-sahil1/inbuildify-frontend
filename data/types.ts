@@ -1,3 +1,5 @@
+import { Entity } from 'types/common.types';
+
 export interface LeadDetails {
   lead_id?: string;
   name: string;
@@ -75,16 +77,18 @@ export interface NoteTask {
   priority?: string;
 }
 export interface NoteDetails {
-  actionId?: string;
   notesId?: string;
-  type?: string;
-  message: string;
-  tags: NoteTag[];
+  leadsId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  noteTagId?: string[];
+  description?: string[];
   sendToCustomer?: boolean;
-  sendToReferralPartner?: boolean;
+  // sendToReferralPartner?: boolean;
   createFollowUpTask?: boolean;
   task?: NoteTask;
-  attachment?: NoteAttachment[];
+  attachFile?: string;
+  noteTags?: Entity[];
 }
 
 export interface AppointmentDetails {
@@ -121,11 +125,15 @@ export interface TaskDetails {
 }
 
 export interface SmsDetails {
-  actionId?: string;
+  // actionId?: string;
   smsId?: string;
-  type?: string;
+  // type?: string;
   message: string;
-  recipient?: { id: string; name: string }[];
+  recipientId?: string;
+  recipientName?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  leadsId?: string;
 }
 
 // New: normalized item shape used by TimelineCard for display

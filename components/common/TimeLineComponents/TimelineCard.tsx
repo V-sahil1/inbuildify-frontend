@@ -13,19 +13,16 @@ import {
   IconCaretDown,
 } from '@tabler/icons-react';
 import { TimelineCardProps } from 'data/types';
-import { AppointmentDetails, TaskDetails, NoteDetails, SmsDetails } from 'data/types';
+import { NoteDetails, SmsDetails } from 'data/types';
 import dayjs from 'dayjs';
 import { useAppSelector } from '@hooks/redux';
-import { formatApiDate, timeAgo } from '@lib/utils/timeAgo';
+import { timeAgo } from '@lib/utils/timeAgo';
 import { Button, Tooltip, Input, Switch, Upload, Popconfirm, Dropdown, Menu } from 'antd';
-import { ITask } from '@redux/feature/task/ITaskStates';
 
 const { TextArea } = Input;
 
 const TimelineCard: FC<TimelineCardProps> = ({ type, onEdit, onReschedule, children, item }) => {
-  const { leadDetail } = useAppSelector(state => state.lead);
   const { users } = useAppSelector(state => state.user);
-
   const [showReply, setShowReply] = useState(false);
   const [replyText, setReplyText] = useState('');
   const [replies, setReplies] = useState<string[]>([]);
@@ -67,13 +64,13 @@ const TimelineCard: FC<TimelineCardProps> = ({ type, onEdit, onReschedule, child
   const getTitle = () => {
     switch (type) {
       case 'NOTES':
-        return (item?.notes[0] as NoteDetails)?.message;
+        return (item as NoteDetails)?.description;
       case 'APPOINTMENT':
         return item?.title;
       case 'TASK':
         return item?.name;
       case 'SMS':
-        return `${(item?.sms[0] as SmsDetails)?.message}`;
+        return `${(item as SmsDetails)?.message || ''}`;
       default:
         return '';
     }
@@ -86,23 +83,24 @@ const TimelineCard: FC<TimelineCardProps> = ({ type, onEdit, onReschedule, child
       case 'TASK':
         return item?.description;
       case 'SMS': {
-        const sms = item?.sms?.[0] as SmsDetails;
-        type Recipient = string | { id: string; name: string };
-        const recipientNames = (Array.isArray(sms?.recipient) ? sms?.recipient : [])
-          .map((r: Recipient) => {
-            if (typeof r === 'string') {
-              // const contact = leadDetail?.contacts?.find(c => c?.leadsContactId === r);
-              // return contact?.name || '';
-              //todo
-              return '';
-            } else if (typeof r === 'object' && r?.name) {
-              return r?.name;
-            }
-            return null;
-          })
-          .filter(Boolean)
-          .join(', ');
-        return `${recipientNames ? ` (To: ${recipientNames})` : ''}`;
+        // const sms = item as SmsDetails;
+        // type Recipient = string | { id: string; name: string };
+        // const recipientNames = (Array.isArray(sms?.recipient) ? sms?.recipient : [])
+        //   .map((r: Recipient) => {
+        //     if (typeof r === 'string') {
+        //       // const contact = leadDetail?.contacts?.find(c => c?.leadsContactId === r);
+        //       // return contact?.name || '';
+        //       //todo
+        //       return '';
+        //     } else if (typeof r === 'object' && r?.name) {
+        //       return r?.name;
+        //     }
+        //     return null;
+        //   })
+        //   .filter(Boolean)
+        //   .join(', ');
+        // return `${recipientNames ? ` (To: ${recipientNames})` : ''}`;
+        return '(To: ' + (!!item?.recipientName ? item?.recipientName : 'N/A') + ')';
       }
       default:
         return '';
@@ -110,8 +108,8 @@ const TimelineCard: FC<TimelineCardProps> = ({ type, onEdit, onReschedule, child
   };
 
   const getTags = () => {
-    if (item?.type === 'NOTES' && (item?.notes?.[0] as NoteDetails)?.tags) {
-      return (item.notes[0] as NoteDetails).tags.map(tag => tag.name);
+    if (type === 'NOTES' && (item as NoteDetails)?.noteTags) {
+      return (item as NoteDetails).noteTags?.map(i => i.name);
     }
     if (type === 'TASK' && item?.priority) {
       return [`Priority: ${item.priority}`];
@@ -247,45 +245,27 @@ const TimelineCard: FC<TimelineCardProps> = ({ type, onEdit, onReschedule, child
         </div>
 
         <>
-          {children ?? (
-            <p className="text-sm text-font-color-100 mb-3">
-              {getDescription()}
-              {
-                // <div className="font-medium text-font-color text-base sm:text-lg">
-                //   {item?.type === "NOTES" && item?.notes?.length > 0 ? (item?.notes[0] as NoteDetails)?.message : ""}
-                // </div>
-              }
-            </p>
-          )}
-          {type === 'NOTES' && item?.notes?.length > 0 && (
+          {children ?? <p className="text-sm text-font-color-100 mb-3">{getDescription()}</p>}
+          {type === 'NOTES' && item && (
             <div className="text-xs text-font-color-100 space-y-1 mt-2">
-              {/* {(item?.notes?.[0] as NoteDetails)?.attachment &&
-                (item?.notes?.[0] as NoteDetails)?.attachment!.length > 0 && (
-                  <p>
-                    <strong>Files:</strong>{" "}
-                    {(item?.notes?.[0] as NoteDetails)
-                      ?.attachment!?.map((f) => f?.name)
-                      .join(", ")}
-                  </p>
-                )} */}
-              {(item?.notes?.[0] as NoteDetails)?.sendToCustomer && (
+              {(item as NoteDetails)?.sendToCustomer && (
                 <p>
                   <strong>Send to Customer:</strong> Yes
                 </p>
               )}
-              {(item?.notes?.[0] as NoteDetails)?.createFollowUpTask && (
+              {(item as NoteDetails)?.createFollowUpTask && (
                 <p>
                   <strong>Create Follow-up:</strong> Yes{' '}
-                  {formatApiDate((item?.notes?.[0] as NoteDetails)?.task?.dueDate) &&
-                    `(Due: ${(item?.notes?.[0] as NoteDetails)?.task?.dueDate})`}
+                  {/* {formatApiDate((item?.notes?.[0] as NoteDetails)?.task?.dueDate) &&
+                    `(Due: ${(item?.notes?.[0] as NoteDetails)?.task?.dueDate})`} */}
                 </p>
               )}
-              {typeof (item?.notes?.[0] as NoteDetails)?.attachment === 'string' && (
+              {typeof (item as NoteDetails)?.attachFile === 'string' && (
                 <p className="p-0">
                   <strong>Attachments:</strong>{' '}
                   <Button
                     type="link"
-                    href={String((item?.notes?.[0] as NoteDetails)?.attachment)}
+                    href={String((item as NoteDetails)?.attachFile)}
                     target="_blank"
                     className="p-0 m-0"
                     rel="noopener noreferrer"
@@ -306,7 +286,7 @@ const TimelineCard: FC<TimelineCardProps> = ({ type, onEdit, onReschedule, child
                 <strong>Time:</strong> {renderCanceledText(item?.startTime + '-' + item?.endTime)}
               </p>
               <p>
-                <strong>Location:</strong> {item?.location?.[0]?.name || '-'}
+                <strong>Location:</strong> {item?.location?.name || '-'}
               </p>
               <p>
                 <strong>User:</strong>{' '}
@@ -415,25 +395,25 @@ const TimelineCard: FC<TimelineCardProps> = ({ type, onEdit, onReschedule, child
         </>
 
         <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          {(item?.createdAt || item?.createdAt) && item?.createdBy?.name && (
+          {item?.createdAt && item?.createdBy && (
             <p className="text-xs text-font-color-100">
-              {item?.createdBy?.name} created {timeAgo(item?.createdAt || item?.createdAt)}
+              {item?.createdBy} created {timeAgo(item?.createdAt || item?.createdAt)}
             </p>
           )}
 
           <div className="flex gap-3">
-            {item?.type === 'TASK' && !isCanceled && (
+            {/* {type === 'TASK' && !isCanceled && (
               <Dropdown overlay={statusMenu} trigger={['click']}>
                 <a className="flex items-center gap-1">
                   <div>{taskStatus}</div> <IconCaretDown size={16} />
                 </a>
               </Dropdown>
-            )}
+            )} */}
             {renderButtons()}
           </div>
         </div>
 
-        {item?.type === 'NOTES' && (
+        {/* {type === 'NOTES' && item?.notesId && (
           <div className="mt-2 border-t pt-2">
             {!showReply && (
               <Button
@@ -442,7 +422,7 @@ const TimelineCard: FC<TimelineCardProps> = ({ type, onEdit, onReschedule, child
                 onClick={() => setShowReply(true)}
                 size="small"
               >
-                Reply
+                Reply {item?.notesId}
               </Button>
             )}
             {showReply && (
@@ -479,7 +459,7 @@ const TimelineCard: FC<TimelineCardProps> = ({ type, onEdit, onReschedule, child
               </div>
             )}
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );

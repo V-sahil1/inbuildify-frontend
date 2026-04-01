@@ -1,7 +1,7 @@
-import { createActionsThunk, updateActionsThunk } from '@redux/feature/action/actionThunk';
+import { createNote, createSms, updateNote, updateSms } from '@redux/feature/action/actionThunk';
 import { AppDispatch } from '@redux/feature/store';
 import { message } from 'antd';
-import { NoteDetails, SmsDetails, TimelineCardProps } from 'data/types';
+import { NoteDetails, SmsDetails } from 'data/types';
 import { formDataGenerator } from './formDataGenerator';
 import { ITask } from '@redux/feature/task/ITaskStates';
 import { createTask, updateTask } from '@redux/feature/task/taskThunk';
@@ -51,13 +51,20 @@ export const handleSaveTimelineCard = async <
             data: data as Partial<IAppointment>,
           })
         ).unwrap();
+      } else if (type === 'SMS') {
+        response = await dispatch(
+          updateSms({
+            id: (editingItem as SmsDetails)?.smsId,
+            data: data as Partial<SmsDetails>,
+          })
+        ).unwrap();
       } else {
-        // response = await dispatch(
-        //   updateActionsThunk({
-        //     actionId: editingItem?.item?.item?.task?.[0].taskId,
-        //     data: formDataGenerator(data),
-        //   })
-        // ).unwrap();
+        response = await dispatch(
+          updateNote({
+            id: (editingItem as NoteDetails)?.notesId,
+            data: formDataGenerator(data as Partial<NoteDetails>),
+          })
+        ).unwrap();
       }
 
       setCardsData(prev =>
@@ -65,11 +72,23 @@ export const handleSaveTimelineCard = async <
           ? prev.map(i =>
               (i.item as ITask).taskId === response?.taskId ? { type: 'TASK', item: response } : i
             )
-          : prev.map(i =>
-              (i.item as IAppointment).appointmentId === response?.appointmentId
-                ? { type: 'APPOINTMENT', item: response }
-                : i
-            )
+          : type === 'APPOINTMENT'
+            ? prev.map(i =>
+                (i.item as IAppointment).appointmentId === response?.appointmentId
+                  ? { type: 'APPOINTMENT', item: response }
+                  : i
+              )
+            : type === 'SMS'
+              ? prev.map(i =>
+                  (i.item as SmsDetails).smsId === response?.smsId
+                    ? { type: 'SMS', item: response }
+                    : i
+                )
+              : prev.map(i =>
+                  (i.item as NoteDetails).notesId === response?.notesId
+                    ? { type: 'NOTES', item: response }
+                    : i
+                )
       );
       message.success(`${type} updated successfully`);
       handleClose();
@@ -87,9 +106,11 @@ export const handleSaveTimelineCard = async <
         response = await dispatch(
           createAppointment({ ...data, leadId: leadId } as IAppointment)
         ).unwrap();
-      } else {
+      } else if (type === 'SMS') {
+        response = await dispatch(createSms({ ...data, leadsId: leadId } as SmsDetails)).unwrap();
+      } else if (type === 'NOTES') {
         response = await dispatch(
-          createActionsThunk({ leadId: leadId, data: formDataGenerator(data) })
+          createNote(formDataGenerator({ ...data, leadsId: leadId }))
         ).unwrap();
       }
       const baseCard = { ...response };
