@@ -22,7 +22,9 @@ const taskSlice = createSlice({
     });
     builder.addCase(createTask.fulfilled, (state, action) => {
       state.tasks.unshift(action.payload);
-      state.pagination.totalRecords++;
+      if(state.pagination){
+        state.pagination.totalRecords++;
+      }
       state.status.create = Status.SUCCESS;
     });
     builder.addCase(createTask.rejected, state => {
