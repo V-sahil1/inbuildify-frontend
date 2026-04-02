@@ -72,6 +72,8 @@ export const LeadSource: React.FC = () => {
       form.resetFields();
     } catch (error) {
       message.error(error || 'Failed to save leadsource');
+    }finally{
+      await dispatch(fetchAllleadSource({ page: currentPage, limit: PAGE_SIZE })).unwrap();
     }
   };
 

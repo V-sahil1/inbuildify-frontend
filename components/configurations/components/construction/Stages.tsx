@@ -137,6 +137,8 @@ export function Stages() {
       setLocal(null);
     } catch (error) {
       message.error(error || 'Failed to save stage');
+    }finally{
+      await dispatch(fetchAllConstructionStage({})).unwrap();
     }
   };
 

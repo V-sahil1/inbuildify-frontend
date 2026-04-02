@@ -123,6 +123,8 @@ export const LeadLostReasons: React.FC = () => {
       setEditingRow(null);
     } catch (error) {
       message.error(error || 'Failed to save lead lost reason');
+    }finally{
+      await dispatch(fetchAllLeadLostReason({ page: currentPage, limit: PAGE_SIZE })).unwrap();
     }
   };
 

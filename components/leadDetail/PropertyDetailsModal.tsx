@@ -411,12 +411,13 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
               label="Title Date"
               name="titleDate"
               rules={[{ required: true, message: 'Please select title date' }]}
-            >
+              >
               <DatePicker
                 className="w-full"
                 format="DD-MM-YYYY"
                 placeholder="13-07-2023"
                 disabledDate={disablePastDates}
+                disabled={titleStatus == 'pending'}
               />
             </Form.Item>
           </Col>
@@ -489,6 +490,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
                       ]
                     : []
                 }
+                disabled
               >
                 <Button>Upload PDF</Button>
               </Upload>

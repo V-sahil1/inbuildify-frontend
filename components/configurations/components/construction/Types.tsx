@@ -54,7 +54,7 @@ export const Types: React.FC = () => {
     setModalOpen('create');
   };
 
-  const handleSave = async values => {
+  const handleSave = async (values) => {
     try {
       if (currentItem?.constructionTypeId) {
         await dispatch(updateType({ data: values, id: currentItem?.constructionTypeId })).unwrap();
@@ -67,6 +67,8 @@ export const Types: React.FC = () => {
       setCurrentItem(null);
     } catch (error) {
       message.error(error || 'Failed to save construction type');
+    }finally{
+      await dispatch(fetchAllType()).unwrap();
     }
   };
 

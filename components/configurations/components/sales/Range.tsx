@@ -114,6 +114,8 @@ export const Range: React.FC = () => {
       setEditingRow(null);
     } catch (error) {
       message.error(error || 'Failed to save range');
+    }finally{
+      await dispatch(fetchRange()).unwrap();
     }
   };
 

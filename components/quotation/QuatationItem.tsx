@@ -21,11 +21,39 @@ interface QuatationItemProps {
 export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
   ({ item, onToggleAdd, isSelected, onQuantityChange, quantityRef, disabled, category }) => {
     const { items } = useAppSelector((state: RootState) => state.quotation);
+    const { leadDetail } = useAppSelector((state: RootState) => state.lead);
     const priceItem = items.find(i => i.priceListItemId === item.priceListItemId);
     const [quantity, setQuantity] = useState<number>();
     const [isEdited, setIsEdited] = useState({ item: false, extraitem: false });
     const [notesModalVisible, setNotesModalVisible] = useState(false);
     const [tempNotes, setTempNotes] = useState('');
+
+    // Don't render item if status is not active
+    if (item.status !== 'active') {
+      return null; // Don't render inactive items
+    }
+
+    // Check if this is the Compaction Report Charge item
+    const isCompactionReportItem = item.itemDescription?.toLowerCase().includes('compaction report') || 
+                                  item.shortDescription?.toLowerCase().includes('compaction report');
+    
+    // Check if compaction report is NOT available
+    const isCompactionReportNotAvailable = leadDetail?.property?.compactionReport === 'not_available';
+    
+    // Check if compaction report is available
+    const isCompactionReportAvailable = leadDetail?.property?.compactionReport === 'available';
+    
+    // Don't render compaction report item if compaction report is available (it's already included)
+    if (isCompactionReportItem && isCompactionReportAvailable) {
+      return null; // Don't render the item at all
+    }
+    
+    // Auto-select compaction report item when NOT available
+    useEffect(() => {
+      if (isCompactionReportItem && isCompactionReportNotAvailable && !isSelected) {
+        handleToggle(item);
+      }
+    }, [isCompactionReportItem, isCompactionReportNotAvailable, isSelected]);
 
     useEffect(() => {
       setQuantity(priceItem?.quantity ?? 1);
@@ -44,6 +72,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
       setQuantity(value ?? 1);
     };
     const isIncluded = item.costType === 'Included';
+
     return (
       <div
         className={`${isSelected ? 'table-row bg-primary-10' : 'table-row hover:bg-card-color'}`}
