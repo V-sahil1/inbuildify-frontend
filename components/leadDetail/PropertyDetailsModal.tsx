@@ -1,5 +1,17 @@
-import React, { useEffect } from 'react';
-import { Modal, Form, Input, Select, DatePicker, Radio, Row, Col, Button, message } from 'antd';
+import React, { useEffect, useState } from 'react';
+import {
+  Modal,
+  Form,
+  Input,
+  Select,
+  DatePicker,
+  Radio,
+  Row,
+  Col,
+  Button,
+  message,
+  Upload,
+} from 'antd';
 import dayjs from 'dayjs';
 import { createLeadProperty, updateLeadProperty } from '@redux/feature/lead/leadThunk';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
@@ -14,7 +26,12 @@ import {
 } from '@lib/constants/formInputValidations';
 import { useStateHook } from '@hooks/useStateHook';
 import { useCountryHook } from '@hooks/useCountryHook';
-import { PropertyDetail } from '@redux/feature/lead/ILeadState';
+import { CompactionReport, PropertyDetail } from '@redux/feature/lead/ILeadState';
+import { ActionDialogmodel, FormField } from '../common/Models/ActionDialogModel';
+import { usePdf } from '@hooks/usePdf';
+import { CompactionReportPdf } from '@/components/common/pdf/PropertyComactionReportPdf';
+import { formDataGenerator } from '@lib/utils/formDataGenerator';
+import { IconEdit } from '@tabler/icons-react';
 
 interface PropertyDetailsModalProps {
   visible: boolean;
@@ -30,21 +47,62 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
   const [form] = Form.useForm();
   const dispatch = useAppDispatch();
   const { leadDetail } = useAppSelector((state: RootState) => state.lead);
+  const [compactionOpen, setCompactionOpen] = useState(false);
+  const [uploadedPdf, setUploadedPdf] = useState<File | null | string>(
+    initialValues?.compactionReportUrl
+  );
+  const [compactionInfo, setCompactionInfo] = useState<CompactionReport | null>(
+    initialValues?.compactionReportContent
+  );
   const { stateOptions } = useStateHook();
   const { countryOptions } = useCountryHook();
+  const { generatePdfUrl } = usePdf(CompactionReportPdf);
+  const compaction = Form.useWatch('compactionReport', form);
+  const titleStatus = Form.useWatch('titleStatus', form);
+
+  useEffect(() => {
+    if (compaction === 'available' && !initialValues) {
+      setCompactionOpen(true);
+      setUploadedPdf(null);
+    } else if (initialValues?.compactionReport === 'not_available' && compaction === 'available') {
+      setCompactionOpen(true);
+      setUploadedPdf(null);
+    }
+  }, [compaction]);
 
   const handleSave = async () => {
     const values = await form.validateFields();
+    const payload =
+      values?.compactionReport === 'available'
+        ? {
+            ...values,
+            compactionReportContent: compactionInfo,
+            compactionReportUrl: uploadedPdf,
+            titleDate: values.titleDate?.format('YYYY-MM-DD'),
+            clearingDate: values.clearingDate?.format('YYYY-MM-DD'),
+          }
+        : {
+            ...values,
+            titleDate: values.titleDate?.format('YYYY-MM-DD'),
+            clearingDate: values.clearingDate?.format('YYYY-MM-DD'),
+          };
+
     try {
       if (leadDetail?.property) {
         await dispatch(
-          updateLeadProperty({ id: leadDetail?.property?.propertyDetailId, payload: values })
+          updateLeadProperty({
+            id: leadDetail?.property?.propertyDetailId,
+            payload: formDataGenerator(payload),
+          })
         ).unwrap();
 
         message.success('Lead Property updated successfully');
       } else {
         await dispatch(
-          createLeadProperty({ data: values, leadId: leadDetail?.lead?.leadsId })
+          createLeadProperty({
+            data: formDataGenerator(payload),
+            leadId: leadDetail?.lead?.leadsId,
+          })
         ).unwrap();
         message.success('Lead Property created successfully');
       }
@@ -67,15 +125,137 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
           : dayjs(initialValues.titleDate)
         : null;
 
-      // Ensure the date is valid
+      const clearingDateValue = initialValues.clearingDate
+        ? dayjs.isDayjs(initialValues.clearingDate)
+          ? initialValues.clearingDate
+          : dayjs(initialValues.clearingDate)
+        : null;
+
+      // Ensure the dates are valid
       const validTitleDate = titleDateValue && titleDateValue.isValid() ? titleDateValue : null;
+      const validClearingDate = clearingDateValue && clearingDateValue.isValid() ? clearingDateValue : null;
 
       form.setFieldsValue({
         ...initialValues,
         titleDate: validTitleDate,
+        clearingDate: validClearingDate,
       });
+      setUploadedPdf(initialValues?.compactionReportUrl);
     }
-  }, []);
+  }, [initialValues]);
+
+  const compactionReport: FormField[] = [
+    {
+      label: 'Land Type',
+      name: 'landType',
+      type: 'radio',
+      options: [
+        { label: 'Rocky', value: 'Rocky' },
+        { label: 'Sloping', value: 'Sloping' },
+        { label: 'Plain', value: 'Plain' },
+        { label: 'Uneven', value: 'Uneven' },
+        { label: 'Filled Land', value: 'Filled Land' },
+      ],
+    },
+    {
+      label: 'Ground Level',
+      name: 'groundLevel',
+      type: 'radio',
+      options: [
+        { label: 'Above Road Level', value: 'Above Road Level' },
+        { label: 'At Road Level', value: 'At Road Level' },
+        { label: 'Below Road Level', value: 'Below Road Level' },
+      ],
+    },
+    {
+      label: 'Slope Condition',
+      name: 'slopeCondition',
+      type: 'radio',
+      options: [
+        { label: 'Flat', value: 'Flat' },
+        { label: 'Gentle Slope', value: 'Gentle Slope' },
+        { label: 'Steep Slope', value: 'Steep Slope' },
+      ],
+    },
+    {
+      label: 'Soil Type',
+      name: 'soilType',
+      type: 'radio',
+      options: [
+        { label: 'Clay', value: 'Clay' },
+        { label: 'Sand', value: 'Sand' },
+        { label: 'Silt', value: 'Silt' },
+        { label: 'Gravel', value: 'Gravel' },
+        { label: 'Mixed', value: 'Mixed' },
+      ],
+    },
+    {
+      label: 'Soil Classification (AS 2870)',
+      name: 'soilClass',
+      type: 'radio',
+      options: [
+        { label: 'A', value: 'A' },
+        { label: 'S', value: 'S' },
+        { label: 'M', value: 'M' },
+        { label: 'H1', value: 'H1' },
+        { label: 'H2', value: 'H2' },
+        { label: 'E', value: 'E' },
+        { label: 'P', value: 'P' },
+      ],
+    },
+    {
+      label: 'Moisture Content (%)',
+      name: 'moistureContent',
+      type: 'number',
+    },
+    {
+      label: 'Dry Density (kg/m³)',
+      name: 'dryDensity',
+      type: 'number',
+    },
+    {
+      label: 'Max Dry Density (kg/m³)',
+      name: 'maxDryDensity',
+      type: 'number',
+    },
+    {
+      label: '% Compaction',
+      name: 'compaction',
+      type: 'number',
+    },
+    {
+      label: 'Result',
+      name: 'result',
+      type: 'select',
+      options: [
+        { label: 'PASS', value: 'pass' },
+        { label: 'FAIL', value: 'fail' },
+      ],
+    },
+    {
+      label: 'Engineer Name',
+      name: 'engineerName',
+      type: 'text',
+    },
+    {
+      label: 'Remarks',
+      name: 'remarks',
+      type: 'textarea',
+    },
+  ];
+
+  const handleCompactionReport = async values => {
+    setCompactionInfo(values);
+    try {
+      let pdfUrl = null;
+      // Generate PDF from form data
+      pdfUrl = await generatePdfUrl(values);
+      setUploadedPdf(pdfUrl as any);
+      setCompactionOpen(false);
+    } catch (error) {
+      message.error('Error processing compaction report');
+    }
+  };
 
   const titleStatusOptions = [
     { label: 'Available', value: 'available' },
@@ -114,6 +294,11 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
         layout="vertical"
         className="mt-4"
         style={{ maxHeight: '70vh', overflowY: 'auto', paddingRight: '8px' }}
+        onValuesChange={(_, values) => {
+          const width = values.widthM;
+          const depth = values.depthM;
+          form.setFieldValue('totalSizeM2', width * depth);
+        }}
       >
         {/* Address Section */}
         <Row gutter={16}>
@@ -190,12 +375,12 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
         </div>
 
         <Row gutter={16}>
-          <Col span={8}>
+          <Col span={titleStatus === 'pending' ? 6 : 8}>
             <Form.Item label="Estate Name" name="estateName" rules={optionalNameRules}>
               <Input placeholder="Enter estate name" />
             </Form.Item>
           </Col>
-          <Col span={8}>
+          <Col span={titleStatus === 'pending' ? 6 : 8}>
             <Form.Item
               label="Title Status"
               name="titleStatus"
@@ -204,7 +389,24 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
               <Select placeholder="Select status" options={titleStatusOptions} />
             </Form.Item>
           </Col>
-          <Col span={8}>
+          {titleStatus === 'pending' && (
+            <Col span={6}>
+              <Form.Item
+                label="Clearing Date"
+                name="clearingDate"
+                rules={[{ required: true, message: 'Please select clearing date' }]}
+              >
+                <DatePicker
+                  className="w-full"
+                  format="DD-MM-YYYY"
+                  placeholder="13-07-2023"
+                  disabledDate={disablePastDates}
+                />
+              </Form.Item>
+            </Col>
+          )}
+
+          <Col span={titleStatus === 'pending' ? 6 : 8}>
             <Form.Item
               label="Title Date"
               name="titleDate"
@@ -221,14 +423,76 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
         </Row>
 
         <Row gutter={16}>
-          <Col span={24}>
-            <Form.Item
-              label="Compaction Report"
-              name="compactionReport"
-              rules={[{ required: true, message: 'Please select Compaction Report' }]}
-            >
-              <Select placeholder="Select availability" options={compactionReportOptions} />
-            </Form.Item>
+          <Col span={18}>
+            <Row gutter={16} className="items-center">
+              <Col span={22}>
+                <Form.Item
+                  label="Compaction Report"
+                  name="compactionReport"
+                  rules={[{ required: true, message: 'Please select Compaction Report' }]}
+                >
+                  <Select
+                    placeholder="Select availability"
+                    options={compactionReportOptions}
+                    className="w-full"
+                  />
+                </Form.Item>
+              </Col>
+
+              {compaction === 'available' && compactionInfo && (
+                <Col span={2}>
+                  <IconEdit
+                    className="text-primary cursor-pointer"
+                    onClick={() => setCompactionOpen(true)}
+                  />
+                </Col>
+              )}
+            </Row>
+          </Col>
+
+          <Col span={6}>
+            {compaction === 'available' && uploadedPdf && (
+              <Upload
+                accept=".pdf"
+                maxCount={1}
+                beforeUpload={() => false}
+                onChange={info => {
+                  if (info.fileList.length > 0) {
+                    const file = info.fileList[0].originFileObj;
+                    setUploadedPdf(file);
+                    console.log('PDF file uploaded:', file);
+                  } else {
+                    setUploadedPdf(null);
+                  }
+                }}
+                showUploadList={{
+                  showRemoveIcon: true,
+                  showPreviewIcon: true,
+                }}
+                onPreview={file => {
+                  if (uploadedPdf instanceof File) {
+                    const url = URL.createObjectURL(uploadedPdf);
+                    window.open(url, '_blank');
+                  } else if (typeof uploadedPdf === 'string') {
+                    window.open(uploadedPdf, '_blank');
+                  }
+                }}
+                fileList={
+                  uploadedPdf
+                    ? [
+                        {
+                          uid: '-1',
+                          name: 'Compaction Report',
+                          status: 'done',
+                          originFileObj: uploadedPdf as any,
+                        },
+                      ]
+                    : []
+                }
+              >
+                <Button>Upload PDF</Button>
+              </Upload>
+            )}
           </Col>
         </Row>
 
@@ -278,9 +542,13 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item label="Total Size (m²)" name="totalSizeM2" rules={OptionalNumberRules}>
+            <Form.Item
+              label="Total Size (m²)"
+              name="totalSizeM2"
+              rules={OptionalNumberRules}
+              initialValue={0}
+            >
               <Input
-                placeholder="Enter total size"
                 type="number"
                 min={0}
                 onKeyPress={e => {
@@ -288,6 +556,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
                     e.preventDefault();
                   }
                 }}
+                disabled
               />
             </Form.Item>
           </Col>
@@ -349,6 +618,17 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
           </Col>
         </Row>
       </Form>
+      {compactionOpen && (
+        <ActionDialogmodel
+          title="Compaction Report Info"
+          open={compactionOpen}
+          onCancel={() => setCompactionOpen(false)}
+          onSubmit={handleCompactionReport}
+          fields={compactionReport}
+          isEditing={!!initialValues?.compactionReportContent || !!compactionInfo}
+          initialValues={initialValues?.compactionReportContent || compactionInfo}
+        />
+      )}
     </Modal>
   );
 };

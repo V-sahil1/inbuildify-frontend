@@ -12,5 +12,14 @@ export const usePdf = <T>(PdfComponent: (props: T) => ReactElement<DocumentProps
     [PdfComponent]
   );
 
-  return { previewPdf };
+  const generatePdfUrl = useCallback(
+    async (props: T): Promise<string> => {
+      const blob = await pdf(PdfComponent(props)).toBlob();
+      const url = URL.createObjectURL(blob);
+      return url;
+    },
+    [PdfComponent]
+  );
+
+  return { previewPdf, generatePdfUrl };
 };

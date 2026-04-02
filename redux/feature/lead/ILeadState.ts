@@ -155,7 +155,7 @@ export interface Lead {
   };
   lotDetails?: ILotDetail;
   quotations?: Quotation[];
-  opportunityStatus?:string;
+  opportunityStatus?: string;
 }
 
 export interface BusinessContact {
@@ -301,6 +301,7 @@ export type PropertyDetail = {
   estateName: string;
   titleStatus: string;
   titleDate: string;
+  clearingDate?: string;
   compactionReport?: string;
   landType: string;
   widthM: number;
@@ -315,6 +316,8 @@ export type PropertyDetail = {
   createdAt?: string;
   updatedAt?: string;
   stateName?: string;
+  compactionReportContent?: CompactionReport;
+  compactionReportUrl?: string;
 };
 
 export type ILotDetail = {
@@ -336,6 +339,31 @@ export type ILotDetail = {
   estateStageId: string;
   estateStageName: string;
 };
+
+export type SoilClass = 'A' | 'S' | 'M' | 'H' | 'E' | 'P';
+
+export type SoilType = 'Clay' | 'Sand' | 'Gravel' | 'Silt' | 'Rocky' | 'Mixed';
+
+export type GroundLevel = 'Below Road Level' | 'At Road Level' | 'Above Road Level';
+
+export type SlopeCondition = 'Flat' | 'Gentle' | 'Moderate' | 'Steep';
+
+export type TestResult = 'pass' | 'fail';
+
+export interface CompactionReport {
+  compaction: number; 
+  dryDensity: number; 
+  maxDryDensity: number; 
+  moistureContent: number; 
+  soilClass: SoilClass;
+  soilType: SoilType;
+  groundLevel: GroundLevel;
+  slopeCondition: SlopeCondition;
+  landType: string;
+  engineerName: string;
+  remarks?: string;
+  result: TestResult; 
+}
 
 export type WonLostPayload= {
   outCome:string;

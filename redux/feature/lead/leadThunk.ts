@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import api from '@lib/constants/api';
+import api, { apiWithFormDataMethods } from '@lib/constants/api';
 import API_ENDPOINTS from '@lib/constants/apiEndpoints';
 import { ApiResponse } from '../auth/IAuthState';
 // import { PropertyDetails } from "data/types";
@@ -33,7 +33,9 @@ export const getLeadThunk = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response: ApiResponse<{ leads: Lead[] }> = await api.get(API_ENDPOINTS.LEAD_BASE,{params});
+      const response: ApiResponse<{ leads: Lead[] }> = await api.get(API_ENDPOINTS.LEAD_BASE, {
+        params,
+      });
       return response.data;
     } catch (err) {
       return rejectWithValue(err.message);
@@ -540,13 +542,11 @@ export const deleteLeadInvoiceThunk = createAsyncThunk(
 
 export const createLeadProperty = createAsyncThunk(
   'property/create',
-  async (payload: { data: PropertyDetail; leadId: string }, { rejectWithValue }) => {
+  async (payload: { data: FormData; leadId: string }, { rejectWithValue }) => {
     try {
-      const response: ApiResponse<PropertyDetail> = await api.post(
+      const response: ApiResponse<PropertyDetail> = await apiWithFormDataMethods.post(
         API_ENDPOINTS.LEAD_PROPERTY + '/' + payload.leadId,
-        {
-          data: payload.data,
-        }
+        payload.data
       );
       return response.data;
     } catch (err) {
@@ -571,11 +571,11 @@ export const getLeadProperty = createAsyncThunk(
 
 export const updateLeadProperty = createAsyncThunk(
   'property/update',
-  async ({ id, payload }: { id: string; payload: any }, { rejectWithValue }) => {
+  async ({ id, payload }: { id: string; payload: FormData }, { rejectWithValue }) => {
     try {
-      const response: ApiResponse<PropertyDetail> = await api.put(
+      const response: ApiResponse<PropertyDetail> = await apiWithFormDataMethods.put(
         `${API_ENDPOINTS.LEAD_PROPERTY}/${id}`,
-        { data: payload }
+        payload
       );
       return response.data;
     } catch (err) {
