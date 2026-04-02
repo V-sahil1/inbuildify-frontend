@@ -128,7 +128,7 @@ export function Checklist() {
                 supplierTypeId: editing.supplierType.id,
                 costCenterId: editing.costCenter?.map(i => i.id),
                 constructionOptionId: editing.constructionOption?.map(i => i.id),
-                complianceTypeId: editing.complianceType.id,
+                complianceTypeId: editing.complianceType?.id,
                 poFolderId: editing?.poFolderId,
                 jobDocumentsFolderId: editing?.jobDocumentsFolderId,
               }
