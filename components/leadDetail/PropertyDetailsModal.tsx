@@ -133,7 +133,8 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
 
       // Ensure the dates are valid
       const validTitleDate = titleDateValue && titleDateValue.isValid() ? titleDateValue : null;
-      const validClearingDate = clearingDateValue && clearingDateValue.isValid() ? clearingDateValue : null;
+      const validClearingDate =
+        clearingDateValue && clearingDateValue.isValid() ? clearingDateValue : null;
 
       form.setFieldsValue({
         ...initialValues,
@@ -156,6 +157,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
         { label: 'Uneven', value: 'Uneven' },
         { label: 'Filled Land', value: 'Filled Land' },
       ],
+      rules: [{ required: true, message: 'Please select land type' }],
     },
     {
       label: 'Ground Level',
@@ -166,6 +168,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
         { label: 'At Road Level', value: 'At Road Level' },
         { label: 'Below Road Level', value: 'Below Road Level' },
       ],
+      rules: [{ required: true, message: 'Please select ground level' }],
     },
     {
       label: 'Slope Condition',
@@ -176,6 +179,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
         { label: 'Gentle Slope', value: 'Gentle Slope' },
         { label: 'Steep Slope', value: 'Steep Slope' },
       ],
+      rules: [{ required: true, message: 'Please select Slope Condition' }],
     },
     {
       label: 'Soil Type',
@@ -188,6 +192,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
         { label: 'Gravel', value: 'Gravel' },
         { label: 'Mixed', value: 'Mixed' },
       ],
+      rules: [{ required: true, message: 'Please select Soil Type' }],
     },
     {
       label: 'Soil Classification (AS 2870)',
@@ -202,26 +207,75 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
         { label: 'E', value: 'E' },
         { label: 'P', value: 'P' },
       ],
+      rules: [{ required: true, message: 'Please select Soil Classification' }],
     },
     {
       label: 'Moisture Content (%)',
       name: 'moistureContent',
       type: 'number',
+      rules: [
+        { required: true, message: 'Please enter moisture content' },
+        {
+          validator: (_: any, value: number) => {
+            if (value === undefined || value === null) return Promise.resolve();
+            if (value <= 0) {
+              return Promise.reject('Value must be greater than 0');
+            }
+            return Promise.resolve();
+          },
+        },
+      ],
     },
     {
       label: 'Dry Density (kg/m³)',
       name: 'dryDensity',
       type: 'number',
+      rules: [
+        { required: true, message: 'Please enter dry density' },
+        {
+          validator: (_: any, value: number) => {
+            if (value === undefined || value === null) return Promise.resolve();
+            if (value <= 0) {
+              return Promise.reject('Value must be greater than 0');
+            }
+            return Promise.resolve();
+          },
+        },
+      ],
     },
     {
       label: 'Max Dry Density (kg/m³)',
       name: 'maxDryDensity',
       type: 'number',
+      rules: [
+        { required: true, message: 'Please enter max dry density' },
+        {
+          validator: (_: any, value: number) => {
+            if (value === undefined || value === null) return Promise.resolve();
+            if (value <= 0) {
+              return Promise.reject('Value must be greater than 0');
+            }
+            return Promise.resolve();
+          },
+        },
+      ],
     },
     {
       label: '% Compaction',
       name: 'compaction',
       type: 'number',
+      rules: [
+        { required: true, message: 'Please enter compaction percentage' },
+        {
+          validator: (_: any, value: number) => {
+            if (value === undefined || value === null) return Promise.resolve();
+            if (value <= 0) {
+              return Promise.reject('Value must be greater than 0');
+            }
+            return Promise.resolve();
+          },
+        },
+      ],
     },
     {
       label: 'Result',
@@ -231,16 +285,20 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
         { label: 'PASS', value: 'pass' },
         { label: 'FAIL', value: 'fail' },
       ],
+      placeholder: 'Please Select Result',
+      rules: [{ required: true, message: 'Please select Result' }],
     },
     {
       label: 'Engineer Name',
       name: 'engineerName',
       type: 'text',
+      rules: [{ required: true, message: 'Please Enter Engineer Name' }],
     },
     {
       label: 'Remarks',
       name: 'remarks',
       type: 'textarea',
+      rules: [{ required: true, message: 'Please Enter remark' }],
     },
   ];
 
@@ -436,6 +494,11 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
                     placeholder="Select availability"
                     options={compactionReportOptions}
                     className="w-full"
+                    onSelect={value => {
+                      if (value === 'available') {
+                        setCompactionOpen(true);
+                      }
+                    }}
                   />
                 </Form.Item>
               </Col>
