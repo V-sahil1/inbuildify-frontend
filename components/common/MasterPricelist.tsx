@@ -143,7 +143,7 @@ export const MasterPricelist = ({
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
-                      className="bg-card-color shadow-md rounded-xl border border-border-color transition hover:shadow-lg"
+                      className={`${isDropdownOpen ? "bg-orange-50" : "bg-card-color"} shadow-md rounded-xl border border-border-color transition hover:shadow-lg`}
                     >
                       {/* Header */}
                       <div

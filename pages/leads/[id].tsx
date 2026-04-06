@@ -48,6 +48,7 @@ import { LeadDepositColumn } from '@/components/table-columns/LeadDepositColumn'
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import { LeadContactPage } from '@/components/leads/LeadContact';
 import { LeadPropertyPage } from '@/components/leads/LeadPropertyPage';
+import StructuralEngineerAssignment from '@/components/leadDetail/StructuralEngineerAssignment';
 import LeadQuotations from '@/components/leadDetail/LeadQuotations/LeadQuotations';
 import LeadContactModel from '@/components/common/Models/LeadContactModel';
 import Loading from '@/components/common/Loading';
@@ -220,21 +221,21 @@ function App() {
           label: 'Proposal',
           color: 'bg-green-500',
           textColor: 'text-white',
-          onClick: () => {},
+          onClick: () => { },
         },
         {
           key: 'Negotiation',
           label: 'Negotiation',
           color: 'bg-yellow-300',
           textColor: 'text-black',
-          onClick: () => {},
+          onClick: () => { },
         },
         {
           key: 'Close',
           label: 'Close',
           color: 'bg-gray-200',
           textColor: 'text-black',
-          onClick: () => {},
+          onClick: () => { },
         },
       ];
     }
@@ -244,14 +245,14 @@ function App() {
         label: 'New',
         color: 'bg-green-500',
         textColor: 'text-black',
-        onClick: () => {},
+        onClick: () => { },
       },
       {
         key: 'Working',
         label: 'Working',
         color: 'bg-yellow-300',
         textColor: 'text-black',
-        onClick: () => {},
+        onClick: () => { },
       },
       {
         key: 'Convert',
@@ -289,10 +290,10 @@ function App() {
       label: 'Convert to Lead',
     },
     leadDetail?.lead?.status === 'Working' &&
-      leadDetail?.property && {
-        key: 'convertToOpprtunity',
-        label: 'Convert to Opportunity',
-      },
+    leadDetail?.property && {
+      key: 'convertToOpprtunity',
+      label: 'Convert to Opportunity',
+    },
     {
       key: 'sendwelcomelatter',
       label: 'Send Welcome Letter',
@@ -470,6 +471,12 @@ function App() {
             </TabPane>
             <TabPane tab="Activity" key="Activity">
               <ActivityCard data={EmailData} tabs={filterTabs} />
+            </TabPane>
+            <TabPane tab="Structural Engineer" key="structural-engineer">
+              <StructuralEngineerAssignment
+                leadId={leadId}
+                hasReport={leadDetail?.property?.compactionReportUrl !== null && leadDetail?.property?.compactionReportUrl !== undefined}
+              />
             </TabPane>
           </Tabs>
         </div>

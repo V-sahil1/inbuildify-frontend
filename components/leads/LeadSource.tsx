@@ -71,10 +71,16 @@ export const LeadSource = () => {
 
   const handleLeadSourceEdit = async (values: Partial<Lead>) => {
     try {
+      const formData = new FormData();
+      Object.entries(values).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          formData.append(key, String(value));
+        }
+      });
       const response = await dispatch(
         updateLeadThunk({
           id: leadDetail.lead.leadsId,
-          details: values,
+          details: formData,
         })
       ).unwrap();
       if (response?.lotDetails && response?.houseLandPackageDetails) {

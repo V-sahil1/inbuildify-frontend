@@ -51,6 +51,9 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
   const [uploadedPdf, setUploadedPdf] = useState<File | null | string>(
     initialValues?.compactionReportUrl
   );
+  const [selfUploadedFile, setSelfUploadedFile] = useState<File | null | string>(
+    initialValues?.compactionReportUrl || null
+  );
   const [compactionInfo, setCompactionInfo] = useState<CompactionReport | null>(
     initialValues?.compactionReportContent
   );
@@ -59,6 +62,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
   const { generatePdfUrl } = usePdf(CompactionReportPdf);
   const compaction = Form.useWatch('compactionReport', form);
   const titleStatus = Form.useWatch('titleStatus', form);
+  const compactionReportProvider = Form.useWatch('compactionReportProvider', form);
 
   useEffect(() => {
     if (compaction === 'available' && !initialValues) {
@@ -72,27 +76,40 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
 
   const handleSave = async () => {
     const values = await form.validateFields();
+    const selfCompactionReportFile = selfUploadedFile || form.getFieldValue('selfCompactionReportFile');
+
+    // Determine compactionReportUrl based on scenario
+    let finalCompactionReportUrl = uploadedPdf;
+
+    // If compaction is not available and provider is self, use uploaded file
+    if (values?.compactionReport === 'not_available' && values?.compactionReportProvider === 'self' && selfCompactionReportFile) {
+      finalCompactionReportUrl = selfCompactionReportFile;
+    }
+
     const payload =
       values?.compactionReport === 'available'
         ? {
-            ...values,
-            compactionReportContent: compactionInfo,
-            compactionReportUrl: uploadedPdf,
-            titleDate: values.titleDate?.format('YYYY-MM-DD'),
-            clearingDate: values.clearingDate?.format('YYYY-MM-DD'),
-          }
+          ...values,
+          compactionReportContent: compactionInfo,
+          compactionReportUrl: uploadedPdf,
+          titleDate: values.titleDate?.format('YYYY-MM-DD'),
+          clearingDate: values.clearingDate?.format('YYYY-MM-DD'),
+        }
         : {
-            ...values,
-            titleDate: values.titleDate?.format('YYYY-MM-DD'),
-            clearingDate: values.clearingDate?.format('YYYY-MM-DD'),
-          };
+          ...values,
+          titleDate: values.titleDate?.format('YYYY-MM-DD'),
+          clearingDate: values.clearingDate?.format('YYYY-MM-DD'),
+          ...(finalCompactionReportUrl && { compactionReportUrl: finalCompactionReportUrl }),
+        };
 
+    const { selfCompactionReport, ...rest } = payload;
     try {
       if (leadDetail?.property) {
+
         await dispatch(
           updateLeadProperty({
             id: leadDetail?.property?.propertyDetailId,
-            payload: formDataGenerator(payload),
+            payload: formDataGenerator(rest),
           })
         ).unwrap();
 
@@ -100,7 +117,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
       } else {
         await dispatch(
           createLeadProperty({
-            data: formDataGenerator(payload),
+            data: formDataGenerator(rest),
             leadId: leadDetail?.lead?.leadsId,
           })
         ).unwrap();
@@ -345,7 +362,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
           Save
         </Button>,
       ]}
-      // destroyOnClose
+    // destroyOnClose
     >
       <Form
         form={form}
@@ -469,7 +486,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
               label="Title Date"
               name="titleDate"
               rules={[{ required: true, message: 'Please select title date' }]}
-              >
+            >
               <DatePicker
                 className="w-full"
                 format="DD-MM-YYYY"
@@ -482,7 +499,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
         </Row>
 
         <Row gutter={16}>
-          <Col span={18}>
+          <Col span={12}>
             <Row gutter={16} className="items-center">
               <Col span={22}>
                 <Form.Item
@@ -514,7 +531,73 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
             </Row>
           </Col>
 
-          <Col span={6}>
+          <Col span={12}>
+            {compaction === 'not_available' && (
+              <>
+                <Form.Item
+                  label="How will provide the compaction report"
+                  name="compactionReportProvider"
+                  rules={[{ required: true, message: 'Please select provider' }]}
+                >
+                  <Radio.Group
+                    options={[
+                      { label: 'Builder', value: 'builder' },
+                      { label: 'Self', value: 'self' },
+                    ]}
+                  />
+                </Form.Item>
+
+                {compactionReportProvider === 'self' && (
+                  <Form.Item
+                    label="Upload Compaction Report"
+                    name="selfCompactionReport"
+                  >
+                    <Upload
+                      accept=".pdf"
+                      maxCount={1}
+                      beforeUpload={() => false}
+                      onChange={info => {
+                        if (info.fileList.length > 0) {
+                          const file = info.fileList[0].originFileObj;
+                          form.setFieldValue('selfCompactionReportFile', file);
+                          setSelfUploadedFile(file);
+                        } else {
+                          // File was removed
+                          form.setFieldValue('selfCompactionReportFile', null);
+                          setSelfUploadedFile(null);
+                        }
+                      }}
+                      showUploadList={{
+                        showRemoveIcon: true,
+                        showPreviewIcon: true,
+                      }}
+                      onPreview={file => {
+                        const uploadedFile = form.getFieldValue('selfCompactionReportFile');
+                        if (uploadedFile instanceof File) {
+                          const url = URL.createObjectURL(uploadedFile);
+                          window.open(url, '_blank');
+                        }
+                      }}
+                      fileList={
+                        selfUploadedFile
+                          ? [
+                            {
+                              uid: '-1',
+                              name: selfUploadedFile instanceof File ? selfUploadedFile.name : 'Self Compaction Report',
+                              status: 'done',
+                              originFileObj: selfUploadedFile instanceof File ? selfUploadedFile as any : undefined,
+                            },
+                          ]
+                          : []
+                      }
+                    >
+                      <Button>Upload PDF</Button>
+                    </Upload>
+                  </Form.Item>
+                )}
+              </>
+            )}
+
             {compaction === 'available' && uploadedPdf && (
               <Upload
                 accept=".pdf"
@@ -524,7 +607,6 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
                   if (info.fileList.length > 0) {
                     const file = info.fileList[0].originFileObj;
                     setUploadedPdf(file);
-                    console.log('PDF file uploaded:', file);
                   } else {
                     setUploadedPdf(null);
                   }
@@ -544,13 +626,13 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
                 fileList={
                   uploadedPdf
                     ? [
-                        {
-                          uid: '-1',
-                          name: 'Compaction Report',
-                          status: 'done',
-                          originFileObj: uploadedPdf as any,
-                        },
-                      ]
+                      {
+                        uid: '-1',
+                        name: 'Compaction Report',
+                        status: 'done',
+                        originFileObj: uploadedPdf as any,
+                      },
+                    ]
                     : []
                 }
                 disabled

@@ -156,6 +156,8 @@ export interface Lead {
   lotDetails?: ILotDetail;
   quotations?: Quotation[];
   opportunityStatus?: string;
+  structureEngineerId?: string;
+  structureReportFile?: string;
 }
 
 export interface BusinessContact {

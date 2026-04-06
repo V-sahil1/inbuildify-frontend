@@ -8,6 +8,7 @@ import {
   IconLabelImportant,
   IconAdjustmentsCog,
   IconPaint,
+  IconEngine,
 } from '@tabler/icons-react';
 import TabLayout from '@/components/common/TabLayout';
 import { useEffect } from 'react';
@@ -15,6 +16,7 @@ import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { message } from 'antd';
 import { getDwellingTypes, getRanges } from '@redux/feature/types/typesThunk';
 import { Status } from '@lib/constants/enum';
+import { MdEngineering } from "react-icons/md";
 
 const RangeAndDwelling = dynamic(() => import('./components/RangeAndDwelling'), { ssr: false });
 const MasterPriceList = dynamic(() => import('../pricelist'), { ssr: false });
@@ -31,6 +33,7 @@ const LeadSource = dynamic(
 );
 const WorkflowProcessPage = dynamic(() => import('./components/WorkflowProcess'), { ssr: false });
 const ColourCategoryPage = dynamic(() => import('../color'), { ssr: false });
+const StructuralEngineerPage = dynamic(() => import('./components/StructuralEngineer'), { ssr: false });
 
 const TABS = [
   {
@@ -89,6 +92,13 @@ const TABS = [
     icon: IconPaint,
     breadcrumb: 'Colour',
     component: ColourCategoryPage,
+  },
+  {
+    id: 'structural-engineer',
+    label: 'Structural Engineer',
+    icon: MdEngineering,
+    breadcrumb: 'Structural Engineer',
+    component: StructuralEngineerPage,
   },
 ];
 

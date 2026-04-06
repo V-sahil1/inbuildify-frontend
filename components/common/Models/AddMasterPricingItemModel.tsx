@@ -24,6 +24,28 @@ import {
   updateDwellingType,
 } from '@redux/feature/admin/sales/dwellingType/dwellingTypeThunk';
 
+export const UOM_OPTIONS = [
+  { label: "Square Feet (sq ft)", value: "SQ_FT", category: "AREA" },
+  { label: "Square Meter (sq m)", value: "SQ_M", category: "AREA" },
+  { label: "Square Yard (sq yd)", value: "SQ_YD", category: "AREA" },
+  { label: "Acre", value: "ACRE", category: "AREA" },
+  { label: "Hectare", value: "HECTARE", category: "AREA" },
+
+  { label: "Cubic Meter (m³)", value: "CUBIC_METER", category: "VOLUME" },
+  { label: "Cubic Feet (ft³)", value: "CUBIC_FEET", category: "VOLUME" },
+
+  { label: "Kilogram (kg)", value: "KG", category: "WEIGHT" },
+  { label: "Ton", value: "TON", category: "WEIGHT" },
+
+  { label: "Meter (m)", value: "METER", category: "LENGTH" },
+  { label: "Feet (ft)", value: "FEET", category: "LENGTH" },
+
+  { label: "Number (Nos)", value: "NOS", category: "COUNT" },
+  { label: "Units", value: "UNITS", category: "COUNT" },
+
+  { label: "Liter (L)", value: "LITER", category: "LIQUID" }
+];
+
 const { TextArea } = Input;
 const { Option } = Select;
 
@@ -78,6 +100,7 @@ const AddMasterPricingItemModal = ({
     if (categoryItem) {
       form.setFieldsValue({
         ...categoryItem,
+        priceListId: categoryItem?.priceList?.id,
         dwellingTypeId: categoryItem?.dwellingType?.map(i => i.id),
         rangeId: categoryItem?.range?.map(i => i.id),
         // ...(categoryItem.conditions?.length > 0 && {
@@ -128,14 +151,15 @@ const AddMasterPricingItemModal = ({
       setIsAddingItem(true);
 
       if (categoryItem) {
+        const { priceListId, ...newPayload } = values;
         const res = await dispatch(
           updateCategoryItem({
-            payload: values,
+            payload: newPayload,
             id: categoryItem.priceListItemId,
           })
         ).unwrap();
       } else {
-        const response = await dispatch(createCategoryItem({ ...values, priceListId: !!category ? category?.priceListId : values?.priceListId})).unwrap();
+        const response = await dispatch(createCategoryItem({ ...values, priceListId: !!category ? category?.priceListId : values?.priceListId })).unwrap();
         if (values.showOnlyInPackage) {
           dispatch(addPackageItems(response));
         }
@@ -217,20 +241,22 @@ const AddMasterPricingItemModal = ({
         className="responsive-form"
       >
         {/* New Item Category */}
-        {!category && (
-          <Form.Item
-            label="Item Category"
-            name="priceListId"
-            className="form-item-responsive flex-1"
-            rules={[{ required: true, message: 'Please Select Category' }]}
-          >
-            <Select
-              placeholder="Please select"
-              style={{ width: '100%' }}
-              options={masterPriceOptions}
-            />
-          </Form.Item>
-        )}
+        {/* {!category && ( */}
+        <Form.Item
+          label="Item Category"
+          name="priceListId"
+          className="form-item-responsive flex-1"
+          rules={[{ required: true, message: 'Please Select Category' }]}
+        >
+          <Select
+            placeholder="Please select"
+            style={{ width: '100%' }}
+            options={masterPriceOptions}
+            disabled={!!categoryItem}
+
+          />
+        </Form.Item>
+        {/* )} */}
 
         {/* Item Description */}
         <Form.Item
@@ -370,7 +396,15 @@ const AddMasterPricingItemModal = ({
               <Input type="number" />
             </Form.Item>
             <Form.Item label="UOM" name="uom" className="form-item-responsive">
-              <Input />
+              <Select
+                placeholder="Select Unit of Measurement"
+                options={UOM_OPTIONS}
+                showSearch
+                filterOption={(input, option) =>
+                  (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                }
+                allowClear
+              />
             </Form.Item>
           </div>
         )}
@@ -620,9 +654,8 @@ const AddMasterPricingItemModal = ({
         <Form.Item className="mb-0">
           <button
             type="submit"
-            className={`btn btn-primary w-full md:w-auto px-8 py-2 text-base ${
-              isAddingItem ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
+            className={`btn btn-primary w-full md:w-auto px-8 py-2 text-base ${isAddingItem ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             disabled={isAddingItem}
           >
             {isAddingItem ? (

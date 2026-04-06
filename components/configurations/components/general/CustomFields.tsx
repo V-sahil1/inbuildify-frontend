@@ -113,6 +113,8 @@ const CustomFields: React.FC = () => {
       form.resetFields();
     } catch (err) {
       message.error(err || 'Failed to save customfield');
+    }finally{
+      await dispatch(fetchAllCustomField({ module_id: selectedSection, page: 1, limit: 10 }));
     }
   };
 
@@ -286,7 +288,8 @@ const CustomFields: React.FC = () => {
               showQuickJumper: false,
               showTotal: (total, range) => (
                 <p className="text-font-color">
-                  {range[0]}-{range[1]} of ${total} items
+                  {/* {range[0]}-{range[1]} of {total} items */}
+                  {range[0]} of {total} items
                 </p>
               ),
               onChange: page => {

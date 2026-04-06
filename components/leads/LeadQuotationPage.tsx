@@ -60,6 +60,18 @@ export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
   }, [quotation, searchTerm]);
 
   const handleCreateQuotation = async () => {
+    // Check if structural engineer is assigned
+    if (!leadDetail?.lead?.structureEngineerId) {
+      message.warning('Please assign a structural engineer first before creating a quotation.');
+      return;
+    }
+    
+    // Check if structural report is uploaded
+    if (!leadDetail?.lead?.structureReportFile) {
+      message.warning('Please upload structural report first before creating a quotation.');
+      return;
+    }
+    
     try {
       router.push(SystemRoutes.QUOTATION_CREATE(leadId));
       await dispatch(createQuotationThunk(leadId)).unwrap();
@@ -67,6 +79,11 @@ export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
       message.error(error || 'Failed to create quotation');
     }
   };
+
+  // Check validation status for display
+  const hasStructuralEngineer = Boolean(leadDetail?.lead?.structureEngineerId);
+  const hasStructuralReport = Boolean(leadDetail?.lead?.structureReportFile);
+  const canCreateQuotation = hasStructuralEngineer && hasStructuralReport;
   return (
     <>
       <Card>
@@ -76,9 +93,54 @@ export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
           <div
             className={`flex items-center gap-2 overflow-hidden ${hasQuotations ? 'justify-between w-full' : 'justify-center'}`}
           >
-            <p className="text-sm cursor-pointer text-blue text-nowrap text-center" onClick={handleCreateQuotation}>
-              Create Quotation
-            </p>
+            <div className="text-center">
+              {canCreateQuotation && (
+                <p className="text-sm cursor-pointer text-blue text-nowrap text-center" onClick={handleCreateQuotation}>
+                  Create Quotation
+                </p>
+              )}
+              {!canCreateQuotation && (
+                <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                  <div className="space-y-2">
+                    {!hasStructuralEngineer && (
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0">
+                          <span className="text-white text-xs font-bold">1</span>
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-orange-800">Assign Structural Engineer</p>
+                          <p className="text-xs text-orange-600">Go to Structural Engineer tab to assign</p>
+                        </div>
+                      </div>
+                    )}
+                    {hasStructuralEngineer && !hasStructuralReport && (
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0">
+                          <span className="text-white text-xs font-bold">2</span>
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-orange-800">Upload Structural Report</p>
+                          <p className="text-xs text-orange-600">Upload PDF report from assigned engineer</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+              {canCreateQuotation && (
+                <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                      <span className="text-white text-sm">✓</span>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-green-800">Ready to Create Quotation</p>
+                      <p className="text-xs text-green-600">All requirements completed</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
             {hasQuotations && (
               <div className={`flex items-center min-w-0  ${showSearchInput && 'max-w-[45%]'} flex-shrink-0`}>
                 <button

@@ -214,9 +214,9 @@ const PriceList = () => {
               ? [{ columns: quotationColumns, data: quotationData }]
               : drawerOpen === 'master'
                 ? [
-                    { columns: Mastercolumn, data: categoryData },
-                    { columns: suggestedMasterColumn, data: suggestedData },
-                  ]
+                  { columns: Mastercolumn, data: categoryData },
+                  { columns: suggestedMasterColumn, data: suggestedData },
+                ]
                 : [{ columns: locationColumn, data }]
           }
         />
@@ -245,13 +245,17 @@ const PriceList = () => {
           isEditing={!!selectedPricelist || !!selectedPriceMaster || !!selectedLocation}
           initialValues={
             (!!selectedPricelist || !!selectedPriceMaster) && modalOpen === 'Itemcopy'
-              ? { name: selectedPricelist?.itemDescription }
+              ? {
+                name: `${(selectedPricelist as any)?.name || (selectedPricelist as any)?.itemDescription || ''} (copy)`,
+                category: selectedPricelist?.priceListId,
+                sortOrder: selectedPricelist?.sortOrder,
+              }
               : modalOpen === 'createLocation'
                 ? { ...selectedLocation, status: selectedLocation?.status ? 'active' : 'inactive' }
                 : {
-                    ...selectedPriceMaster,
-                    isActive: selectedPriceMaster?.isActive ? 'active' : 'inactive',
-                  }
+                  ...selectedPriceMaster,
+                  isActive: selectedPriceMaster?.isActive ? 'active' : 'inactive',
+                }
           }
           onSubmit={values => {
             modalOpen === 'Itemcopy'

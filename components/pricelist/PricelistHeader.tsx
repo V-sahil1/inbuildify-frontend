@@ -137,14 +137,14 @@ export const PricelistHeader = ({
         value={filters?.search}
         onChange={e => setParams({ search: e.target.value })}
       />
-      <Button
+      {/* <Button
         type="primary"
         onClick={() => {
           setDrawerOpen('location');
         }}
       >
         Location
-      </Button>
+      </Button> */}
       <Button
         type="primary"
         onClick={() => {

@@ -143,6 +143,8 @@ class API_ENDPOINTS {
   public static COUNTRY_BASE = '/country';
   public static STATE_BASE = '/state';
 
+  public static STRUCTURAL_ENGG_BASE = '/structure-engineer';
+
   // action
   public static ACTION_BASE = '/actions';
 
