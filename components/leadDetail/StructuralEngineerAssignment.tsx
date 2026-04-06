@@ -220,6 +220,7 @@ const StructuralEngineerAssignment: React.FC<StructuralEngineerAssignmentProps> 
             {!currentFile && (
               <Upload {...uploadProps} accept='.pdf'>
                 <Button
+                disabled={!hasReport || leadDetail?.lead?.structureReportFile}  
                   type="default"
                   size="small"
                   icon={<IconUpload size={14} />}

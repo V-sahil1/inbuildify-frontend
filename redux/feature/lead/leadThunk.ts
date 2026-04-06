@@ -595,3 +595,17 @@ export const deleteLeadProperty = createAsyncThunk(
     }
   }
 );
+
+export const getLeadActiviesThunk = createAsyncThunk(
+  'lead/activies/get',
+  async (leadId: string, { rejectWithValue }) => {
+    try {
+      const response: ApiResponse = await api.get(
+        `${API_ENDPOINTS.LEAD_ACTIVITY_LOG}/${leadId}`
+      );
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);

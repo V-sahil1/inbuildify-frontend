@@ -18,6 +18,7 @@ import {
   deleteLeadProperty,
   deleteLeadSourceThunk,
   getBusinessContactByIdThunk,
+  getLeadActiviesThunk,
   getLeadContactMapThunk,
   getLeadInvoiceThunk,
   getLeadJobThunk,
@@ -52,6 +53,7 @@ const initialState: InitialState = {
     leadContact: Status.IDLE,
     leadJob: Status.IDLE,
     leadDeposit: Status.IDLE,
+    activities: Status.IDLE,
   },
   leadSources: [],
   addInstSourceModal: false,
@@ -62,6 +64,7 @@ const initialState: InitialState = {
     createdQuotations: { quotations: [] },
     job: null,
     invoice: [],
+    activities: [],
   },
 };
 export const leadSlice = createSlice({
@@ -76,6 +79,7 @@ export const leadSlice = createSlice({
         createdQuotations: { quotations: [] },
         job: null,
         invoice: [],
+        activities: [],
       };
     },
     setAddInstSourceModal: (state, action) => {
@@ -154,6 +158,7 @@ export const leadSlice = createSlice({
         job: null,
         invoice: [],
         createdQuotations: { quotations: [] },
+        activities: [],
       };
       state.status.leadById = Status.SUCCESS;
     });
@@ -218,6 +223,7 @@ export const leadSlice = createSlice({
         job: null,
         invoice: [],
         createdQuotations: { quotations: [] },
+        activities: [],
       };
     });
     builder.addCase(leadConvertThunk.fulfilled, (state, action) => {
@@ -553,10 +559,21 @@ export const leadSlice = createSlice({
       if (state.leadDetail.lead.quotations.length === 0) {
         state.leadDetail.lead.opportunityStatus = 'Proposal';
       }
-      //  else {
-      //   state.leadDetail.lead.opportunityStatus = 'Negotiation';
-      // }
     });
+
+    //activities
+    builder.addCase(getLeadActiviesThunk.pending, state => {
+      state.status.activities = Status.PENDING;
+    });
+    builder.addCase(getLeadActiviesThunk.fulfilled, (state, action) => {
+      state.status.activities = Status.SUCCESS;
+
+      state.leadDetail.activities = action.payload?.activityLogs || [];
+    });
+    builder.addCase(getLeadActiviesThunk.rejected, state => {
+      state.status.activities = Status.ERROR;
+    });
+
   },
 });
 

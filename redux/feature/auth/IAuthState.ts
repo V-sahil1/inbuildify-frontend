@@ -12,6 +12,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  usersId?: string;
   // phone: string;
   role: Role;
   builderId: string;

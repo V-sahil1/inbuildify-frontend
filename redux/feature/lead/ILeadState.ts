@@ -3,6 +3,22 @@ import { Quotation, QuotationResponse } from '../quotation/IQuotationState';
 import { Status } from '@lib/constants/enum';
 import { IAddress } from '../contacts/contactState';
 
+export interface ActivityItem {
+  activityId: string;
+  activityType: string;
+  description: string;
+  createdAt: string;
+  leadId: string;
+  userId?: string;
+  metadata?: Record<string, any>;
+  // Additional fields from API response
+  userName?: string;
+  userEmail?: string;
+  userPhone?: string;
+  propertyName?: string;
+  propertyAddress?: string;
+}
+
 export interface InitialState {
   leads: Lead[];
   status: {
@@ -14,6 +30,7 @@ export interface InitialState {
     leadContact: Status;
     leadJob: Status;
     leadDeposit: Status;
+    activities: Status;
   };
   leadSources: LeadSource[];
   addInstSourceModal: boolean;
@@ -24,8 +41,10 @@ export interface InitialState {
     createdQuotations: { quotations: Quotation[] };
     job: ILeadJob | null;
     invoice: InvoiceDetails[];
+    activities: ActivityItem[];
   };
 }
+
 export interface ILead {
   //old
   slugId?: string;

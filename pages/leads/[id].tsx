@@ -6,12 +6,14 @@ import PropertyDetailsModal from '@/components/leadDetail/PropertyDetailsModal';
 import { IconMail, IconPhone, IconPlus, IconUser } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { RootState } from '@redux/feature/store';
 import {
   createLeadInvoiceThunk,
   createLeadJobThunk,
   deleteLeadContactMapThunk,
   deleteLeadJobThunk,
   getBusinessContactByIdThunk,
+  getLeadActiviesThunk,
   getLeadByIdThunk,
   getLeadContactMapThunk,
   getLeadInvoiceThunk,
@@ -55,11 +57,10 @@ import Loading from '@/components/common/Loading';
 
 const { TabPane } = Tabs;
 
-function App() {
-  const router = useRouter();
+const LeadDetailPage = () => {
+  const { leadDetail, status } = useAppSelector((state: RootState) => state.lead);
+  const { user } = useAppSelector((state: RootState) => state.auth);
   const dispatch = useAppDispatch();
-  const { leadDetail, status } = useAppSelector(state => state.lead);
-  const { contact } = useAppSelector(state => state.contact);
   const [modalOpen, setModalOpen] = useState<
     | 'closeLead'
     | 'convert'
@@ -78,6 +79,7 @@ function App() {
   const [selectedQuotationId, setSelectedQuotationId] = useState<string | null>(null);
   const isOpportunity = !['New', 'Working'].includes(leadDetail?.lead?.status || '');
   const title = isOpportunity ? 'Opportunity' : 'Lead';
+  const router = useRouter();
   const leadId = router.query.id as string | undefined;
   const createdQuotations: Quotation[] = leadDetail?.createdQuotations?.quotations || [];
   const { columns } = LeadDepositColumn();
@@ -162,7 +164,7 @@ function App() {
 
   const handleOpenContactModal = async () => {
     setModalOpen('linkContact');
-    if (contact.length === 0) {
+    if (leadDetail?.contacts?.length === 0) {
       try {
         await dispatch(fetchAllContact({})).unwrap();
       } catch (error) {
@@ -442,6 +444,16 @@ function App() {
             tabBarStyle={{ margin: '0px', marginRight: '10px' }}
             tabBarGutter={10}
             size="large"
+            onChange={async (activeKey) => {
+              try {
+                if (activeKey === 'Activity') {
+                const res = await dispatch(getLeadActiviesThunk(leadId)).unwrap();
+                }
+              } catch (error) {
+                console.error('Error fetching activities:', error);
+                message.error(error?.message || 'Failed to load activities');
+              }
+            }}
           >
             {/* Action Tab */}
             <TabPane tab="Action" key="action" className="border border-border-color border-t-0">
@@ -470,7 +482,14 @@ function App() {
               <LeadQuotations />
             </TabPane>
             <TabPane tab="Activity" key="Activity">
-              <ActivityCard data={EmailData} tabs={filterTabs} />
+              <ActivityCard 
+                data={leadDetail?.activities || []} 
+                tabs={[
+                  { type: 'own', label: 'Own', count: leadDetail?.activities?.filter(a => a.userId === user?.usersId).length || 0 },
+                  { type: 'all', label: 'All', count: leadDetail?.activities?.length || 0 }
+                ]} 
+                loading={status?.activities === 'PENDING'}
+              />
             </TabPane>
             <TabPane tab="Structural Engineer" key="structural-engineer">
               <StructuralEngineerAssignment
@@ -573,4 +592,4 @@ function App() {
   );
 }
 
-export default App;
+export default LeadDetailPage;

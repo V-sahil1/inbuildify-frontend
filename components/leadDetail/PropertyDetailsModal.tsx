@@ -82,7 +82,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
     let finalCompactionReportUrl = uploadedPdf;
 
     // If compaction is not available and provider is self, use uploaded file
-    if (values?.compactionReport === 'not_available' && values?.compactionReportProvider === 'self' && selfCompactionReportFile) {
+    if (values?.compactionReport === 'not_available' && selfCompactionReportFile) {
       finalCompactionReportUrl = selfCompactionReportFile;
     }
 
@@ -547,7 +547,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
                   />
                 </Form.Item>
 
-                {compactionReportProvider === 'self' && (
+                {/* {compactionReportProvider === 'self' && ( */}
                   <Form.Item
                     label="Upload Compaction Report"
                     name="selfCompactionReport"
@@ -594,7 +594,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
                       <Button>Upload PDF</Button>
                     </Upload>
                   </Form.Item>
-                )}
+                {/* )} */}
               </>
             )}
 

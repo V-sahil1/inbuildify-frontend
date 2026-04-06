@@ -398,7 +398,7 @@ const AddMasterPricingItemModal = ({
               className="form-item-responsive"
               initialValue={category?.items?.length + 1 || 1}
             >
-              <Input type="number" />
+              <Input type="number" min={1}/>
             </Form.Item>
             <Form.Item label="UOM" name="uom" className="form-item-responsive">
               <Select

@@ -65,6 +65,7 @@ class API_ENDPOINTS {
   public static LEAD_ACTION = (id: string) => `${this.LEAD_BASE}/${id}/actions`;
   public static LEAD_NOTES = '/notes';
   public static LEAD_SMS = '/sms';
+  public static LEAD_ACTIVITY_LOG = `${this.LEAD_BASE}/activity-log`;
 
   //convertleadtojob
   public static CONVERT_TO_JOB = `${this.CONVERT_LEAD_TO_JOB}/opportunity`;

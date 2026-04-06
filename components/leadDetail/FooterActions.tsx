@@ -77,7 +77,7 @@ const FooterActions: React.FC<FooterActionsProps> = ({
   ];
 
   const onSaveMenu = [
-    { key: 'newVersion', label: 'New Version' },
+    // { key: 'newVersion', label: 'New Version' },
     { key: 'template', label: 'Template' },
   ];
 

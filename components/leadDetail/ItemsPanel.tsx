@@ -166,6 +166,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
                     onChange={e => setSearch(e.target.value)}
                   />
                 </div>
+                <div className="table-cell text-center p-3 w-[100px]">UOM</div>
                 <div className="table-cell text-center p-3 w-[100px]">Quantity</div>
                 <div className="table-cell text-center p-3 w-[100px]">Price</div>
                 <div className="table-cell text-center p-3 w-[60px]">Total</div>
