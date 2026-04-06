@@ -1,7 +1,7 @@
-import { EmailItem } from '@/components/common/ActivityCard';
+
 import { FilterOption } from '@/components/common/FilterTabs';
 
-export const EmailData: EmailItem[] = [
+export const EmailData: any[] = [
   {
     id: 'e1',
     date: '2025/10/17',
