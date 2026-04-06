@@ -54,6 +54,9 @@ const processSlice = createSlice({
       state.process.push({ ...action.payload, isExpanded: false, Stages: [] });
       state.status.create = Status.SUCCESS;
     });
+    builder.addCase(createProcess.rejected, state => {
+      state.status.create = Status.ERROR;
+    });
 
     builder.addCase(fetchAllProcess.pending, state => {
       state.status.fetch = Status.PENDING;
@@ -65,6 +68,9 @@ const processSlice = createSlice({
         Stages: [],
       }));
       state.status.fetch = Status.SUCCESS;
+    });
+    builder.addCase(fetchAllProcess.rejected, state => {
+      state.status.fetch = Status.ERROR;
     });
 
     builder.addCase(updateProcess.pending, state => {
@@ -84,6 +90,9 @@ const processSlice = createSlice({
       }
       state.status.create = Status.SUCCESS;
     });
+    builder.addCase(updateProcess.rejected, state => {
+      state.status.create = Status.ERROR;
+    });
 
     builder.addCase(deleteProcess.pending, state => {
       state.status.create = Status.PENDING;
@@ -91,6 +100,9 @@ const processSlice = createSlice({
     builder.addCase(deleteProcess.fulfilled, (state, action) => {
       state.process = state.process.filter(i => i.salesProcessId !== action.payload);
       state.status.create = Status.SUCCESS;
+    });
+    builder.addCase(deleteProcess.rejected, state => {
+      state.status.create = Status.ERROR;
     });
 
     //stages

@@ -1352,3 +1352,7 @@ body .apexcharts-legend-marker {
   right: 0;
   top: 0;
 }
+
+.ant-table-tbody > tr > td {
+  vertical-align: top;
+}

@@ -24,6 +24,7 @@ import {
 import { Status } from '@lib/constants/enum';
 import { toggleExpand } from '@redux/feature/admin/sales/process/processSlice';
 import TooltipButton from '@/components/common/TooltipButton';
+import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 
 export const SalesProcess: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -152,13 +153,23 @@ export const SalesProcess: React.FC = () => {
       name: record.name,
       isDefault: record.isDefault,
     };
+
     try {
       if (newProcess) {
         await dispatch(createProcess(payload)).unwrap();
         message.success('Process created successfully');
       } else {
+        const { isUpdated, updatedFields } = getUpdatedFields(
+          payload,
+          process.find(i => i.salesProcessId === record.salesProcessId)
+        );
+        if (!isUpdated) {
+          setEditingProcessId(null);
+          setNewProcess(false);
+          return;
+        }
         const res = await dispatch(
-          updateProcess({ data: payload, id: record.salesProcessId })
+          updateProcess({ data: updatedFields, id: record.salesProcessId })
         ).unwrap();
         if (selectedProcess.salesProcessId === record.salesProcessId) {
           setSelectedProcess(prev => ({ ...prev, ...res }));
@@ -190,6 +201,7 @@ export const SalesProcess: React.FC = () => {
     }
     setEditingProcessId(null);
     setNewProcess(false);
+    setErrors(prev => ({ ...prev, process: null }));
   };
 
   // ---- Stage Logic ----
@@ -269,6 +281,7 @@ export const SalesProcess: React.FC = () => {
         setStages(originalProcess?.Stages || []);
       }
     }
+    setErrors(prev => ({ ...prev, stage: null }));
     setEditingStageId(null);
   };
 
@@ -372,8 +385,13 @@ export const SalesProcess: React.FC = () => {
                   icon={<IconPencil size={18} />}
                   onClick={e => {
                     e.stopPropagation();
+                    if (newProcess) {
+                      setLocalProcesses(prev => prev.filter(p => p.salesProcessId !== ''));
+                      setNewProcess(false);
+                    }
                     setEditingProcessId(record.salesProcessId);
                   }}
+                  disabled={newProcess && record.salesProcessId === ''}
                 />
                 {!record.isDefault && (
                   <Popconfirm
@@ -389,7 +407,15 @@ export const SalesProcess: React.FC = () => {
                       title="Delete"
                       type="text"
                       icon={<IconTrash size={16} color="red" />}
-                      onClick={e => e.stopPropagation()}
+                      onClick={e => {
+                        e.stopPropagation();
+                        if (newProcess) {
+                          setLocalProcesses(prev => prev.filter(p => p.salesProcessId !== ''));
+                          setNewProcess(false);
+                          setEditingProcessId(null);
+                        }
+                        handleDeleteProcess(record);
+                      }}
                     />
                   </Popconfirm>
                 )}
@@ -574,11 +600,22 @@ export const SalesProcess: React.FC = () => {
                   title="Edit"
                   type="text"
                   icon={<IconPencil size={16} />}
-                  onClick={() => setEditingStageId(record.salesStageId)}
+                  onClick={() => {
+                    if (newStageRow) {
+                      setNewStageRow(null);
+                    }
+                    setEditingStageId(record.salesStageId);
+                  }}
+                  disabled={newStageRow && record.salesStageId === ''}
                 />
                 <Popconfirm
                   title="Are you sure to delete this stage?"
-                  onConfirm={() => handleDeleteStage(record)}
+                  onConfirm={() => {
+                    if (newStageRow) {
+                      setNewStageRow(null);
+                    }
+                    handleDeleteStage(record);
+                  }}
                   okText="Yes"
                   cancelText="No"
                 >
@@ -617,7 +654,12 @@ export const SalesProcess: React.FC = () => {
       <div>
         <div className="flex justify-between items-center mb-2">
           <h3 className="text-lg font-semibold">Sales Process</h3>
-          <Button type="primary" icon={<IconPlus size={16} />} onClick={handleAddProcess}>
+          <Button
+            type="primary"
+            icon={<IconPlus size={16} />}
+            onClick={handleAddProcess}
+            disabled={newProcess}
+          >
             New
           </Button>
         </div>
@@ -629,9 +671,20 @@ export const SalesProcess: React.FC = () => {
           pagination={false}
           onRow={record => ({
             onClick: () => {
-              setSelectedProcess(record);
-              fetchStagesData(record);
-              setStages(record.Stages || []);
+              if (newProcess && record.salesProcessId !== '') {
+                setLocalProcesses(prev => prev.filter(p => p.salesProcessId !== ''));
+                setNewProcess(false);
+                setEditingProcessId(null);
+              }
+              if (record.salesProcessId !== '') {
+                setSelectedProcess(record);
+                fetchStagesData(record);
+                setStages(record.Stages || []);
+                if (newStageRow) {
+                  setNewStageRow(null);
+                  setEditingStageId(null);
+                }
+              }
             },
           })}
           rowClassName={record =>
@@ -647,7 +700,12 @@ export const SalesProcess: React.FC = () => {
           <h3 className="text-lg font-semibold">
             Stages — {selectedProcess ? selectedProcess.name : '—'}
           </h3>
-          <Button type="primary" icon={<IconPlus size={16} />} onClick={handleAddStage}>
+          <Button
+            type="primary"
+            icon={<IconPlus size={16} />}
+            onClick={handleAddStage}
+            disabled={!!newStageRow}
+          >
             New
           </Button>
         </div>
