@@ -44,6 +44,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
     quoteDetails,
   } = useAppSelector((state: RootState) => state.quotation);
   const [form] = Form.useForm();
+  const { leadDetail } = useAppSelector((state: RootState) => state.lead);
   const quantityRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const { selectedFilters } = useAppSelector(state => state.quotation);
 
@@ -85,6 +86,19 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
           .map((d: any) => d.name?.toLowerCase() || '')
           .join(' ');
         if (dwellingNames.includes(searchTerm)) return true;
+      }
+
+      // Check if this is the Compaction Report Charge item
+      const isCompactionReportItem =
+        item.itemDescription?.toLowerCase().includes('compaction report') ||
+        item.shortDescription?.toLowerCase().includes('compaction report');
+
+      // Check if compaction report is available
+      const isCompactionReportAvailable = leadDetail?.property?.compactionReport === 'available';
+
+      // // Don't render compaction report item if compaction report is available (it's already included)
+      if (isCompactionReportItem && !isCompactionReportAvailable) {
+        return true; // Include the item
       }
 
       return false;
@@ -206,27 +220,28 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
                   <>
                     {(select ? filterItems(items) : filterItems(category?.items || []))?.length >
                     0 ? (
-                      (select ? filterItems(items) : filterItems(category?.items || [])).map(
-                        item => (
-                          <QuatationItem
-                            key={item?.priceListItemId}
-                            item={item}
-                            disabled={
-                              isReadOnly
-                              // || selectedPackageFromSlice?.some(
-                              //   catItem => catItem.id === item.priceListItemId
-                              // )
-                            }
-                            onQuantityChange={handleItemQuantityChange}
-                            quantityRef={el => (quantityRefs.current[item.priceListItemId] = el)}
-                            isSelected={items?.some(
-                              itemData => itemData.priceListItemId === item.priceListItemId
-                            )}
-                            onToggleAdd={handleItemAdd}
-                            category={category}
-                          />
-                        )
-                      )
+                      (select
+                        ? filterItems(items)
+                        : filterItems(category?.items || [])?.filter(i => i.status === 'active')
+                      ).map(item => (
+                        <QuatationItem
+                          key={item?.priceListItemId}
+                          item={item}
+                          disabled={
+                            isReadOnly
+                            // || selectedPackageFromSlice?.some(
+                            //   catItem => catItem.id === item.priceListItemId
+                            // )
+                          }
+                          onQuantityChange={handleItemQuantityChange}
+                          quantityRef={el => (quantityRefs.current[item.priceListItemId] = el)}
+                          isSelected={items?.some(
+                            itemData => itemData.priceListItemId === item.priceListItemId
+                          )}
+                          onToggleAdd={handleItemAdd}
+                          category={category}
+                        />
+                      ))
                     ) : (
                       <div className="table-row">
                         {category && (
