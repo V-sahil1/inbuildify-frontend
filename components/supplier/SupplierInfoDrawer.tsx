@@ -350,7 +350,7 @@ const SupplierInfoDrawer: React.FC<SupplierInfoDrawerProps> = ({
                     return [];
                   }}
                 >
-                  <Upload beforeUpload={() => false} maxCount={1}>
+                  <Upload beforeUpload={() => false} maxCount={1} accept=".pdf">
                     <Button type="primary" size="small">
                       Upload
                     </Button>
@@ -374,7 +374,7 @@ const SupplierInfoDrawer: React.FC<SupplierInfoDrawerProps> = ({
                     return [];
                   }}
                 >
-                  <Upload beforeUpload={() => false} maxCount={1}>
+                  <Upload beforeUpload={() => false} maxCount={1} accept=".pdf">
                     <Button type="primary" size="small">
                       Upload
                     </Button>

@@ -17,7 +17,7 @@ export default function EstatePage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { estate, status } = useAppSelector(state => state.estate);
-  const { debouncedUpdateURL, setParams, filters ,instantFilters} = debouncedURL({
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
     delay: 500,
     filtersKey: ['name', 'location', 'zip', 'status'],
     initialValue: { status: '' },
@@ -27,15 +27,15 @@ export default function EstatePage() {
   const [featuredOpen, setFeaturedOpen] = useState(false);
 
   useEffect(() => {
-    if (status.estate.fetch === Status.IDLE) fetchEStateData();
-  }, [status.estate]);
+    fetchEStateData();
+  }, [filters]);
 
   const fetchEStateData = async () => {
     try {
       const params = {
         name: filters?.name || undefined,
         status: filters?.status !== '' ? filters.status === 'active' : undefined,
-        zip: filters?.zip || undefined,
+        // zip: filters?.zip || undefined,
         location: filters?.location || undefined,
       };
       await dispatch(fetchAllEState(params)).unwrap();

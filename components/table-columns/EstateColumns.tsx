@@ -45,6 +45,7 @@ export const getEstateColumns = ({ instantFilters, setParams }: EstateColumnsPar
           />
         </div>
       ),
+      render: (_, record) => record?.streetName + ', ' + record?.city + ', ' + record?.stateName,
     },
     {
       title: (
