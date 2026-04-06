@@ -68,7 +68,7 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
           />
         </Form.Item>
 
-        {locationOptions?.length > 0 && (
+        {/* {locationOptions?.length > 0 && (
           <Form.Item
             label="Location"
             name="locationId"
@@ -77,7 +77,7 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
           >
             <Select placeholder="Select Location" options={locationOptions} />
           </Form.Item>
-        )}
+        )} */}
 
         {/* Start Time */}
         <Form.Item shouldUpdate={(prev, curr) => prev.date !== curr.date}>

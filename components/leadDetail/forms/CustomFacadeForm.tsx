@@ -22,7 +22,7 @@ const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
       ...initialValues,
       rangeId: selectedFilters?.range,
       dwellingTypeId: selectedFilters?.dwellingType,
-      locationId: selectedFilters?.location || undefined,
+      // locationId: selectedFilters?.location || undefined,
     });
   }, [initialValues, form]);
 

@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import {
+  copyCategoryItem,
   createCategoryItem,
   createPricelistMaster,
   deleteCategoryItem,
@@ -169,10 +170,33 @@ const masterPriceListSlice = createSlice({
           );
         }
         state.status.priceListItem.create = Status.SUCCESS;
+      })
+
+      //copy item
+      .addCase(copyCategoryItem.fulfilled, (state, action) => {
+        const { priceListId, priceListItemId, itemDescription, sortOrder } = action.payload;
+        const category = state.priceMaster.find(c => c.priceListId === action.meta.arg.priceListId);
+        if (category) {
+          const item = category.items?.find(item => item.priceListItemId === action.meta.arg.id);
+          const newCategory = state.priceMaster.find(c => c.priceListId === priceListId);
+          newCategory.items.push({
+            ...item,
+            priceListItemId,
+            itemDescription,
+            sortOrder,
+            priceListId,
+          });
+        }
+        state.status.priceListItem.create = Status.SUCCESS;
       });
   },
 });
 
-export const { toggleExpand, setSelectedFilters, clearFilters, resetAllCategoriesIsExpanded,setPriceMaster } =
-  masterPriceListSlice.actions;
+export const {
+  toggleExpand,
+  setSelectedFilters,
+  clearFilters,
+  resetAllCategoriesIsExpanded,
+  setPriceMaster,
+} = masterPriceListSlice.actions;
 export default masterPriceListSlice.reducer;

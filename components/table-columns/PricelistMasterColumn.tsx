@@ -197,12 +197,16 @@ export const PricelistMasterColumn = (
     modalOpen === 'Itemcopy'
       ? {
           label: 'Pricelist Master',
-          name: 'category',
+          name: 'priceListId',
           type: 'select',
           options: priceMaster.map(i => ({ label: i.name, value: i.priceListId })),
         }
       : { label: 'Pricelist Master', name: 'name', type: 'text' },
-    modalOpen === 'Itemcopy' && { label: 'Pricelist Item Name', name: 'name', type: 'text' },
+    modalOpen === 'Itemcopy' && {
+      label: 'Pricelist Item Name',
+      name: 'itemDescription',
+      type: 'text',
+    },
     { label: 'Sort Order', name: 'sortOrder', type: 'number' },
     modalOpen === 'edit' && {
       label: 'Status',
@@ -218,13 +222,13 @@ export const PricelistMasterColumn = (
       name: 'showInViewList',
       type: 'switch',
     },
-    ['create', 'edit'].includes(modalOpen) &&
-      locationOptions.length > 0 && {
-        label: 'Location',
-        name: 'location',
-        type: 'select',
-        options: locationOptions,
-      },
+    // ['create', 'edit'].includes(modalOpen) &&
+    //   locationOptions.length > 0 && {
+    //     label: 'Location',
+    //     name: 'location',
+    //     type: 'select',
+    //     options: locationOptions,
+    //   },
   ];
 
   async function handleAddSuggestedPriceMaster(id) {

@@ -50,7 +50,7 @@ export const PricelistHeader = ({
     <div className="min-w-[300px] p-4 bg-white rounded-lg shadow-lg border">
       <h3 className="text-sm mb-4 font-semibold text-gray-700">Filter Pricelist</h3>
       {/* Location Filter */}
-      {locationOptions?.length > 0 && (
+      {/* {locationOptions?.length > 0 && (
         <div className="mb-4 grid grid-cols-6 gap-2 items-center">
           <p className="col-span-2 text-sm font-medium">Location</p>
           <Select
@@ -62,7 +62,7 @@ export const PricelistHeader = ({
             allowClear
           />
         </div>
-      )}
+      )} */}
       {/* Range Filter */}
       <div className="mb-4 grid grid-cols-6 gap-2 items-center">
         <p className="col-span-2 text-sm font-medium">Label</p>

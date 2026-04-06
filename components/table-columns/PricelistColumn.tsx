@@ -1,6 +1,6 @@
 import { message } from 'antd';
 import { useAppDispatch } from '@hooks/redux';
-import { updateCategoryItem } from '@redux/feature/masterPriceList/masterPriceListThunk';
+import { copyCategoryItem, updateCategoryItem } from '@redux/feature/masterPriceList/masterPriceListThunk';
 
 export const PricelistColumn = (setDrawerOpen, setSelectedPricelist, selectedPricelist) => {
   const dispatch = useAppDispatch();
@@ -20,8 +20,22 @@ export const PricelistColumn = (setDrawerOpen, setSelectedPricelist, selectedPri
     }
   }
   //copy pricelist item
-  function handlePricelistSubmit(values) {
-    setDrawerOpen(null);
+  async function handlePricelistSubmit(values) {
+      try {
+      await dispatch(
+        copyCategoryItem({
+          data: values,
+          id: selectedPricelist?.priceListItemId,
+          priceListId:selectedPricelist?.priceList?.id
+        })
+      ).unwrap();
+      message.success('Pricelist copied successfully');
+      setSelectedPricelist(null);
+      setDrawerOpen(null);
+    } catch (error) {
+      message.error(error || 'Failed to copy pricelist ');
+    }
+    
   }
   return {
     handlePricelistSubmit,

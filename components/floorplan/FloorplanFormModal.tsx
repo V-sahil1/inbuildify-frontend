@@ -128,11 +128,11 @@ const FloorPlanFormModal = ({
             >
               <Select options={rangeOptions} placeholder="Select Label" />
             </Form.Item>
-            {isEditing && locationOptions?.length > 0 && (
+            {/* {isEditing && locationOptions?.length > 0 && (
               <Form.Item label="Location" name="locationId">
                 <Select options={locationOptions} placeholder="Select Location" />
               </Form.Item>
-            )}
+            )} */}
           </div>
         </div>
         <Form.Item

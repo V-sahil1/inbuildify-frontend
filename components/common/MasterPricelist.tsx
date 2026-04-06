@@ -22,6 +22,7 @@ interface MasterPricelistProps {
   dropDowns?: Record<string, boolean>;
   loadingItems?: Record<string, boolean>;
   handleExpand?: (categoryId: string, isExpanded: boolean) => void;
+  handleExpandWithoutApi?: (categoryId: string, isExpanded: boolean) => void;
   handlePriceMasterStatus?: () => void;
   setModalOpen?: (
     modal:
@@ -49,6 +50,7 @@ export const MasterPricelist = ({
   dropDowns,
   loadingItems,
   handleExpand,
+  handleExpandWithoutApi,
   handlePriceMasterStatus,
   setModalOpen,
   setDrawerOpen,
@@ -59,6 +61,27 @@ export const MasterPricelist = ({
 }: MasterPricelistProps) => {
   const dispatch = useAppDispatch();
   const { priceMaster } = useAppSelector(state => state.masterPriceList);
+
+  const handleExpandClick = (categoryId: string, isExpanded: boolean) => {
+    if (!handleExpand || isOrderChanged()) return;
+    const isCurrentlyExpanded = dropDowns?.[categoryId] || false;
+
+    // Close all other expanded items using handleExpandWithoutApi to avoid API calls
+    if (dropDowns) {
+      const expandedIds = Object.keys(dropDowns).filter(id => dropDowns[id] && id !== categoryId);
+      expandedIds.forEach(id => {
+        if (handleExpandWithoutApi) {
+          handleExpandWithoutApi(id, false);
+        } else {
+          // Fallback: use regular handleExpand but this will make API calls
+          handleExpand(id, false);
+        }
+      });
+    }
+    // Toggle the clicked item based on its current state
+    const shouldOpen = !isCurrentlyExpanded;
+    handleExpand(categoryId, shouldOpen);
+  };
 
   const handleDragEnd = async (result: DropResult) => {
     if (!result.destination) return;
@@ -132,6 +155,10 @@ export const MasterPricelist = ({
               const isDropdownOpen = dropDowns[category?.priceListId] || false;
               const isLoading = loadingItems[category?.priceListId] || false;
 
+              // Get the category from Redux state to access cached items
+              const reduxCategory = priceMaster?.find(c => c.priceListId === category?.priceListId);
+              const categoryItems = reduxCategory?.items || category?.items;
+
               return (
                 <Draggable
                   key={category?.priceListId}
@@ -143,15 +170,22 @@ export const MasterPricelist = ({
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
-                      className={`${isDropdownOpen ? "bg-orange-50" : "bg-card-color"} shadow-md rounded-xl border border-border-color transition hover:shadow-lg`}
+                      className={`shadow-md rounded-xl border border-border-color transition hover:shadow-lg`}
+                      style={{
+                        backgroundColor: isDropdownOpen
+                          ? 'var(--primary-light)'
+                          : 'var(--card-color)',
+                      }}
                     >
                       {/* Header */}
                       <div
                         className="flex items-center justify-between px-4 py-3 cursor-pointer rounded-t-xl"
-                        onClick={() =>
-                          !isOrderChanged() &&
-                          handleExpand(category?.priceListId, category?.isExpanded)
-                        }
+                        onClick={() => {
+                          !isDropdownOpen
+                            ? setSelectedPriceMaster(category)
+                            : setSelectedPriceMaster(null);
+                          handleExpandClick(category?.priceListId, isDropdownOpen);
+                        }}
                       >
                         <div className="flex items-center gap-2 w-full min-w-0">
                           <button className="mt-1 flex-shrink-0 text-font-color-100 hover:text-blue-500 transition cursor-grab">
@@ -253,9 +287,9 @@ export const MasterPricelist = ({
                             <div className="flex justify-center items-center py-10 gap-4 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 h-[85px]">
                               <Loading type="primary" />
                             </div>
-                          ) : category?.items?.length > 0 ? (
+                          ) : categoryItems?.length > 0 ? (
                             <div className="mt-2 max-h-[300px] overflow-y-auto space-y-2 pr-2">
-                              {category?.items?.map((item: IPriceListItem) => (
+                              {categoryItems?.map((item: IPriceListItem) => (
                                 <PricingItem
                                   key={item?.priceListItemId}
                                   item={item}

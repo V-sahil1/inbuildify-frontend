@@ -30,13 +30,13 @@ export const facadeFields = ({
 
   const fields = useMemo((): FormField[] => {
     return [
-      locationOptions?.length > 0 && ({
-        label: 'Location',
-        name: 'locationId',
-        type: 'select',
-        options: locationOptions,
-        placeholder: 'Location',
-      }),
+      // locationOptions?.length > 0 && ({
+      //   label: 'Location',
+      //   name: 'locationId',
+      //   type: 'select',
+      //   options: locationOptions,
+      //   placeholder: 'Location',
+      // }),
       {
         label: 'Name',
         name: 'name',

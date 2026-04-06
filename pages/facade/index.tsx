@@ -272,7 +272,7 @@ const FacadeMaster = () => {
               ? {
                 facadeId: isEditing.facadeId,
                 name: isEditing.name,
-                locationId: isEditing.location?.id,
+                // locationId: isEditing.location?.id,
                 dwellingTypeId: isEditing.dwellingtype?.id,
                 rangeId: isEditing.range?.id,
                 costType: isEditing.costType,

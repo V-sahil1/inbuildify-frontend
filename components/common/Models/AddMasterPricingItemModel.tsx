@@ -25,25 +25,25 @@ import {
 } from '@redux/feature/admin/sales/dwellingType/dwellingTypeThunk';
 
 export const UOM_OPTIONS = [
-  { label: "Square Feet (sq ft)", value: "SQ_FT", category: "AREA" },
-  { label: "Square Meter (sq m)", value: "SQ_M", category: "AREA" },
-  { label: "Square Yard (sq yd)", value: "SQ_YD", category: "AREA" },
-  { label: "Acre", value: "ACRE", category: "AREA" },
-  { label: "Hectare", value: "HECTARE", category: "AREA" },
+  { label: 'Square Feet (sq ft)', value: 'SQ_FT', category: 'AREA' },
+  { label: 'Square Meter (sq m)', value: 'SQ_M', category: 'AREA' },
+  { label: 'Square Yard (sq yd)', value: 'SQ_YD', category: 'AREA' },
+  { label: 'Acre', value: 'ACRE', category: 'AREA' },
+  { label: 'Hectare', value: 'HECTARE', category: 'AREA' },
 
-  { label: "Cubic Meter (m³)", value: "CUBIC_METER", category: "VOLUME" },
-  { label: "Cubic Feet (ft³)", value: "CUBIC_FEET", category: "VOLUME" },
+  { label: 'Cubic Meter (m³)', value: 'CUBIC_METER', category: 'VOLUME' },
+  { label: 'Cubic Feet (ft³)', value: 'CUBIC_FEET', category: 'VOLUME' },
 
-  { label: "Kilogram (kg)", value: "KG", category: "WEIGHT" },
-  { label: "Ton", value: "TON", category: "WEIGHT" },
+  { label: 'Kilogram (kg)', value: 'KG', category: 'WEIGHT' },
+  { label: 'Ton', value: 'TON', category: 'WEIGHT' },
 
-  { label: "Meter (m)", value: "METER", category: "LENGTH" },
-  { label: "Feet (ft)", value: "FEET", category: "LENGTH" },
+  { label: 'Meter (m)', value: 'METER', category: 'LENGTH' },
+  { label: 'Feet (ft)', value: 'FEET', category: 'LENGTH' },
 
-  { label: "Number (Nos)", value: "NOS", category: "COUNT" },
-  { label: "Units", value: "UNITS", category: "COUNT" },
+  { label: 'Number (Nos)', value: 'NOS', category: 'COUNT' },
+  { label: 'Units', value: 'UNITS', category: 'COUNT' },
 
-  { label: "Liter (L)", value: "LITER", category: "LIQUID" }
+  { label: 'Liter (L)', value: 'LITER', category: 'LIQUID' },
 ];
 
 const { TextArea } = Input;
@@ -159,7 +159,12 @@ const AddMasterPricingItemModal = ({
           })
         ).unwrap();
       } else {
-        const response = await dispatch(createCategoryItem({ ...values, priceListId: !!category ? category?.priceListId : values?.priceListId })).unwrap();
+        const response = await dispatch(
+          createCategoryItem({
+            ...values,
+            priceListId: !!category ? category?.priceListId : values?.priceListId,
+          })
+        ).unwrap();
         if (values.showOnlyInPackage) {
           dispatch(addPackageItems(response));
         }
@@ -247,13 +252,13 @@ const AddMasterPricingItemModal = ({
           name="priceListId"
           className="form-item-responsive flex-1"
           rules={[{ required: true, message: 'Please Select Category' }]}
+          initialValue={category?.priceListId}
         >
           <Select
             placeholder="Please select"
             style={{ width: '100%' }}
             options={masterPriceOptions}
-            disabled={!!categoryItem}
-
+            disabled={!!category}
           />
         </Form.Item>
         {/* )} */}
@@ -654,8 +659,9 @@ const AddMasterPricingItemModal = ({
         <Form.Item className="mb-0">
           <button
             type="submit"
-            className={`btn btn-primary w-full md:w-auto px-8 py-2 text-base ${isAddingItem ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
+            className={`btn btn-primary w-full md:w-auto px-8 py-2 text-base ${
+              isAddingItem ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
             disabled={isAddingItem}
           >
             {isAddingItem ? (

@@ -81,6 +81,7 @@ class API_ENDPOINTS {
   public static PRICELIST_MASTER = '/price-list';
   public static SUGGESTED_PRICELIST_MASTER = `${this.PRICELIST_MASTER}/suggested`;
   public static PRICELIST_ITEM = '/price-list-item';
+  public static COPY_PRICELISTITEM = (id: string) => `${this.PRICELIST_ITEM}/copy/${id}`;
 
   // floor plans
   public static FLOOR_PLAN_BASE = '/floor-plan';

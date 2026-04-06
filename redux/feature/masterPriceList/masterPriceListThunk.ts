@@ -160,3 +160,27 @@ export const deleteCategoryItem = createAsyncThunk(
     }
   }
 );
+
+export const copyCategoryItem = createAsyncThunk(
+  'masterPriceList/copyItem',
+  async (
+    payload: {
+      id: string;
+      data: { priceListId?: string; itemDescription?: string; sortOrder?: number };
+      priceListId: string;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const res = await api.post<ApiResponse<IPriceListItem>>(
+        API_ENDPOINTS.COPY_PRICELISTITEM(payload?.id),
+        {
+          data: payload.data,
+        }
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);

@@ -285,9 +285,9 @@ const TimelineCard: FC<TimelineCardProps> = ({ type, onEdit, onReschedule, child
               <p>
                 <strong>Time:</strong> {renderCanceledText(item?.startTime + '-' + item?.endTime)}
               </p>
-              <p>
+              {/* <p>
                 <strong>Location:</strong> {item?.location?.name || '-'}
-              </p>
+              </p> */}
               <p>
                 <strong>User:</strong>{' '}
                 {(() => {

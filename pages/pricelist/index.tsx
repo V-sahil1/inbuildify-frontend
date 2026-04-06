@@ -112,28 +112,45 @@ const PriceList = () => {
   const handleExpand = async (categoryId: string, isExpanded: boolean) => {
     setDropDowns(prev => ({
       ...prev,
-      [categoryId]: !prev[categoryId],
+      [categoryId]: isExpanded,
     }));
 
-    if (!isExpanded) {
-      try {
-        setLoadingItems(prev => ({ ...prev, [categoryId]: true }));
+    // Only fetch items if expanding and items haven't been fetched yet
+    if (isExpanded) {
+      // Check if items are already cached in Redux state
+      const category = priceMaster?.find(c => c.priceListId === categoryId);
+
+      if (!category?.items || category.items.length === 0) {
+        try {
+          setLoadingItems(prev => ({ ...prev, [categoryId]: true }));
+          dispatch(toggleExpand(categoryId));
+          await dispatch(
+            fetchCategoryItems({
+              price_list_id: categoryId,
+              range_id: filters?.range || undefined,
+              dwelling_type_id: filters?.dwellingType || undefined,
+              search: filters?.search || undefined,
+              status:
+                filters?.status !== '' ? (filters.status as 'active' | 'inactive') : undefined,
+            })
+          ).unwrap();
+        } catch (error: any) {
+          message.error(error || 'Failed to fetch category items');
+        } finally {
+          setLoadingItems(prev => ({ ...prev, [categoryId]: false }));
+        }
+      } else {
+        // Items are already cached, just toggle the expand state
         dispatch(toggleExpand(categoryId));
-        await dispatch(
-          fetchCategoryItems({
-            price_list_id: categoryId,
-            range_id: filters?.range || undefined,
-            dwelling_type_id: filters?.dwellingType || undefined,
-            search: filters?.search || undefined,
-            status: filters?.status !== '' ? (filters.status as 'active' | 'inactive') : undefined,
-          })
-        ).unwrap();
-      } catch (error: any) {
-        message.error(error || 'Failed to fetch category items');
-      } finally {
-        setLoadingItems(prev => ({ ...prev, [categoryId]: false }));
       }
     }
+  };
+
+  const handleExpandWithoutApi = (categoryId: string, isExpanded: boolean) => {
+    setDropDowns(prev => ({
+      ...prev,
+      [categoryId]: isExpanded,
+    }));
   };
   return (
     <div className="p-4">
@@ -159,6 +176,7 @@ const PriceList = () => {
           dropDowns={dropDowns}
           loadingItems={loadingItems}
           handleExpand={handleExpand}
+          handleExpandWithoutApi={handleExpandWithoutApi}
           handlePriceMasterStatus={handlePriceMasterStatus}
           setModalOpen={setModalOpen}
           setDrawerOpen={setDrawerOpen}
@@ -214,9 +232,9 @@ const PriceList = () => {
               ? [{ columns: quotationColumns, data: quotationData }]
               : drawerOpen === 'master'
                 ? [
-                  { columns: Mastercolumn, data: categoryData },
-                  { columns: suggestedMasterColumn, data: suggestedData },
-                ]
+                    { columns: Mastercolumn, data: categoryData },
+                    { columns: suggestedMasterColumn, data: suggestedData },
+                  ]
                 : [{ columns: locationColumn, data }]
           }
         />
@@ -246,16 +264,16 @@ const PriceList = () => {
           initialValues={
             (!!selectedPricelist || !!selectedPriceMaster) && modalOpen === 'Itemcopy'
               ? {
-                name: `${(selectedPricelist as any)?.name || (selectedPricelist as any)?.itemDescription || ''} (copy)`,
-                category: selectedPricelist?.priceListId,
-                sortOrder: selectedPricelist?.sortOrder,
-              }
+                  name: `${(selectedPricelist as any)?.name || (selectedPricelist as any)?.itemDescription || ''} (copy)`,
+                  category: selectedPricelist?.priceListId,
+                  sortOrder: selectedPricelist?.sortOrder,
+                }
               : modalOpen === 'createLocation'
                 ? { ...selectedLocation, status: selectedLocation?.status ? 'active' : 'inactive' }
                 : {
-                  ...selectedPriceMaster,
-                  isActive: selectedPriceMaster?.isActive ? 'active' : 'inactive',
-                }
+                    ...selectedPriceMaster,
+                    isActive: selectedPriceMaster?.isActive ? 'active' : 'inactive',
+                  }
           }
           onSubmit={values => {
             modalOpen === 'Itemcopy'
