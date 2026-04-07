@@ -51,8 +51,21 @@ export const CustomBulkSelect = ({
       }
       tagRender={props => {
         if (props.value === ALL_VALUE) return null;
+        const isTruncatedTag = props.label?.toString().includes('+');
+
         return (
-          <Tag closable onClose={props.onClose}>
+          <Tag
+            closable
+            onClose={() => {
+              if (isTruncatedTag) {
+                const maxTagCount = 2;
+                const visibleItems = value.slice(0, maxTagCount);
+                onChange(visibleItems);
+              } else {
+                props.onClose();
+              }
+            }}
+          >
             {props.label}
           </Tag>
         );
