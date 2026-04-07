@@ -27,11 +27,6 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
     const [isEdited, setIsEdited] = useState({ item: false, extraitem: false });
     const [notesModalVisible, setNotesModalVisible] = useState(false);
     const [tempNotes, setTempNotes] = useState('');
-    console.log("leadDetail", leadDetail);
-    // Don't render item if status is not active
-    if (item.status !== 'active') {
-      return null; // Don't render inactive items
-    }
 
     // Check if this is the Compaction Report Charge item
     const isCompactionReportItem = item.itemDescription?.toLowerCase().includes('compaction report') ||
