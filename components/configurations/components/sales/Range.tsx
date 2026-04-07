@@ -114,7 +114,7 @@ export const Range: React.FC = () => {
       setEditingRow(null);
     } catch (error) {
       message.error(error || 'Failed to save range');
-    }finally{
+    } finally {
       await dispatch(fetchRange()).unwrap();
     }
   };
@@ -252,21 +252,34 @@ export const Range: React.FC = () => {
             listType="picture"
             beforeUpload={() => false}
             onChange={info =>
-              setEditingRow(prev => ({ ...prev, logoUrl: info.fileList[0].originFileObj }))
+              setEditingRow(prev => ({ ...prev, logoUrl: info?.fileList?.[0]?.originFileObj }))
             }
             className="custom-upload"
             maxCount={1}
+            accept=".png,.jpeg,.jpg"
             fileList={
-              record.logoUrl && typeof record.logoUrl === 'string'
+              editingRow?.logoUrl
                 ? [
                     {
                       uid: '-1',
-                      name: 'Logo',
+                      name: editingRow.logoUrl instanceof File ? editingRow.logoUrl.name : 'Logo',
                       status: 'done',
-                      url: record.logoUrl,
+                      url:
+                        editingRow.logoUrl instanceof File
+                          ? URL.createObjectURL(editingRow.logoUrl)
+                          : editingRow.logoUrl,
                     },
                   ]
-                : []
+                : record.logoUrl && typeof record.logoUrl === 'string'
+                  ? [
+                      {
+                        uid: '-1',
+                        name: 'Logo',
+                        status: 'done',
+                        url: record.logoUrl,
+                      },
+                    ]
+                  : []
             }
           >
             <Button icon={<IconUpload />} disabled={isDisabled}>
@@ -297,21 +310,35 @@ export const Range: React.FC = () => {
             listType="picture"
             beforeUpload={() => false}
             onChange={info =>
-              setEditingRow(prev => ({ ...prev, headerUrl: info.fileList[0].originFileObj }))
+              setEditingRow(prev => ({ ...prev, headerUrl: info?.fileList?.[0]?.originFileObj }))
             }
             className="custom-upload"
             maxCount={1}
+            accept=".png,.jpeg,.jpg"
             fileList={
-              record.headerUrl && typeof record.headerUrl === 'string'
+              editingRow?.headerUrl
                 ? [
                     {
                       uid: '-1',
-                      name: 'Header',
+                      name:
+                        editingRow.headerUrl instanceof File ? editingRow.headerUrl.name : 'Header',
                       status: 'done',
-                      url: record.headerUrl,
+                      url:
+                        editingRow.headerUrl instanceof File
+                          ? URL.createObjectURL(editingRow.headerUrl)
+                          : editingRow.headerUrl,
                     },
                   ]
-                : []
+                : record.headerUrl && typeof record.headerUrl === 'string'
+                  ? [
+                      {
+                        uid: '-1',
+                        name: 'Header',
+                        status: 'done',
+                        url: record.headerUrl,
+                      },
+                    ]
+                  : []
             }
           >
             <Button icon={<IconUpload />} disabled={isDisabled}>
