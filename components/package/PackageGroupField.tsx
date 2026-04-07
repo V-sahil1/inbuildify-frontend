@@ -110,7 +110,7 @@ export const PackageGroupField = ({
           {fields?.map((field, index) => (
             <Form.Item key={index} name={field.name} label={field.label}>
               {field.type === 'text' && <Input />}
-              {field.type === 'number' && <Input type="number" />}
+              {field.type === 'number' && <Input type="number" onWheel={(e) => e.currentTarget.blur()}/>}
             </Form.Item>
           ))}
           <Button type="primary" size="small" htmlType="submit">

@@ -88,7 +88,7 @@ const DepositModel = ({
           name={isInvoice ? 'invoiceAmount' : 'depositeAmount'}
           rules={[{ required: true, message: 'Please enter deposit amount' }]}
         >
-          <Input prefix={'$'} type="number" placeholder="Enter amount" />
+          <Input prefix={'$'} type="number" placeholder="Enter amount" onWheel={(e) => e.currentTarget.blur()} />
         </Form.Item>
 
         <Form.Item

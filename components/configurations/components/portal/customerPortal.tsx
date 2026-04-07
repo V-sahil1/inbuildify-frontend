@@ -182,6 +182,7 @@ export const CustomerPortal = () => {
                     setIsChanged(true);
                   }
                 }}
+                onWheel={(e) => e.currentTarget.blur()}
               />
               <Text className="text-font-color-100"> days</Text>
             </Form.Item>

@@ -109,7 +109,7 @@ export const QuatationExtraItem: React.FC<QuatationItemProps> = React.memo(
 
                 {/* buildercost */}
                 <Form.Item name="builderCost">
-                  <Input type="number" placeholder="Enter Builder Cost" />
+                  <Input type="number" onWheel={(e) => e.currentTarget.blur()} placeholder="Enter Builder Cost" />
                 </Form.Item>
               </div>
 
@@ -132,7 +132,7 @@ export const QuatationExtraItem: React.FC<QuatationItemProps> = React.memo(
           <div className="table-cell text-center p-3 align-middle">
             {costType !== 'INCLUDED' && (
               <Form.Item name="quantity">
-                <Input type="number" min={1} size="small" className="w-full text-center" />
+                <Input type="number" onWheel={(e) => e.currentTarget.blur()} min={1} size="small" className="w-full text-center" />
               </Form.Item>
             )}
           </div>
@@ -141,7 +141,7 @@ export const QuatationExtraItem: React.FC<QuatationItemProps> = React.memo(
           <div className="table-cell text-center p-3 align-middle">
             {costType !== 'INCLUDED' && (
               <Form.Item name="cost">
-                <Input type="number" min={1} prefix="$" style={{ width: '100%' }} />
+                <Input type="number" onWheel={(e) => e.currentTarget.blur()} min={1} prefix="$" style={{ width: '100%' }} />
               </Form.Item>
             )}
           </div>

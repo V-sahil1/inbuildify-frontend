@@ -89,6 +89,7 @@ const EditableField: React.FC<EditableFieldProps> = ({
                   defaultValue={value}
                   onChange={e => setEditedValue(e.target.value)}
                   type="number"
+                  onWheel={(e) => e.currentTarget.blur()}
                 />
               )}
             </Form.Item>

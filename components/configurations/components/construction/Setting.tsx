@@ -238,7 +238,7 @@ export const SettingPage = () => {
         {defaultLeadTimeForSupplierTrade && (
           <>
             <Form.Item label="No. of reminder days" name="noOfReminderDays">
-              <Input type="number" />
+              <Input type="number" onWheel={(e) => e.currentTarget.blur()} />
             </Form.Item>
             <Divider />
           </>

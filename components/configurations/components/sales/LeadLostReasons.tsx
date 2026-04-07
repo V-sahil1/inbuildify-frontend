@@ -236,6 +236,7 @@ export const LeadLostReasons: React.FC = () => {
               value={isEditing ? (editingRow.sortOrder ?? '') : sortOrder}
               onChange={e => isEditing && handleSortChange(e.target.value)}
               disabled={status.create === Status.PENDING}
+              onWheel={(e) => e.currentTarget.blur()}
             />
             {error?.sortOrder && <span className="text-red-500">{error.sortOrder}</span>}
           </>

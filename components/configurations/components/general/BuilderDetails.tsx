@@ -224,10 +224,10 @@ const BuilderDetails = () => {
             <Select options={stateOptions} />
           </Form.Item>
           <Form.Item label="Zip / Postal Code" name={['insurer', 'zipCode']} rules={zipCodeRules}>
-            <Input type="number" />
+            <Input type="number" onWheel={(e) => e.currentTarget.blur()} />
           </Form.Item>
           <Form.Item label="Phone" name={['insurer', 'phoneNumber']} rules={phoneRules}>
-            <Input type="number" />
+            <Input type="number" onWheel={(e) => e.currentTarget.blur()} />
           </Form.Item>
           <Form.Item
             label="Name of Insured"

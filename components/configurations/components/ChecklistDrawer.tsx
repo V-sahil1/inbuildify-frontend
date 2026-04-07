@@ -288,6 +288,7 @@ const ChecklistDrawer: React.FC<ChecklistDrawerProps> = ({ open, onClose, record
               value={record.sort}
               onChange={e => handleChange(record.checklistItemId, 'sort', e.target.value)}
               disabled={checklistItemStatus.create === Status.PENDING}
+              onWheel={(e) => e.currentTarget.blur()}
             />
             {error?.sortOrder && <span className="text-red-500">{error?.sortOrder}</span>}
           </>

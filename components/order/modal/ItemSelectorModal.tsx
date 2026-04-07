@@ -85,6 +85,7 @@ const ItemSelectorModal = ({
               className="w-full form-input"
               value={row.authQty}
               onChange={e => handleInputChange(index, 'authQty', e.target.value)}
+              onWheel={(e) => e.currentTarget.blur()}
             />
           </div>
         ),
@@ -99,6 +100,7 @@ const ItemSelectorModal = ({
               className="w-full form-input"
               value={row.unitPrice}
               onChange={e => handleInputChange(index, 'unitPrice', e.target.value)}
+              onWheel={(e) => e.currentTarget.blur()}
             />
           </div>
         ),

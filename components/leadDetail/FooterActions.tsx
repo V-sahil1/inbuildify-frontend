@@ -91,6 +91,7 @@ const FooterActions: React.FC<FooterActionsProps> = ({
         <p>Sketch Number</p>
         <Input
           type="number"
+          onWheel={(e) => e.currentTarget.blur()}
           className="max-w-[200px]"
           value={sketchNum}
           onChange={e => setSketchNum(e.target.value)}

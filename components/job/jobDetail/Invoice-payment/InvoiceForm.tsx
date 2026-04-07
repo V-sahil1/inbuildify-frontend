@@ -78,6 +78,7 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
                 placeholder={'Enter Amount'}
                 addonBefore={'$'}
                 type="number"
+                onWheel={(e) => e.currentTarget.blur()}
               />
             </Form.Item>
           </div>

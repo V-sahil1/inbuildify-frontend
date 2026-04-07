@@ -396,6 +396,7 @@ export const Range: React.FC = () => {
               onChange={e => handleSortChange(e.target.value)}
               style={{ width: 72 }}
               disabled={isDisabled}
+              onWheel={(e) => e.currentTarget.blur()}
             />
             {error?.sortOrder && <div className="text-red-500">{error.sortOrder}</div>}
           </>

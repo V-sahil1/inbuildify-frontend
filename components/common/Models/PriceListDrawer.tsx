@@ -100,6 +100,7 @@ const PriceListDrawer = ({ title, open, onClose, addPricelist, removePricelist, 
             value={itemStates[record.priceListItemId]?.quantity || '1'}
             onChange={(e) => updateItemState(record.priceListItemId, 'quantity', e.target.value)}
             disabled={isSelected}
+            onWheel={(e) => e.currentTarget.blur()}
           />
         ) : null;
       },

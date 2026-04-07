@@ -560,6 +560,7 @@ export const SalesProcess: React.FC = () => {
                 }
               }}
               disabled={stageStatus.create === Status.PENDING}
+              onWheel={(e) => e.currentTarget.blur()}
             />
             {errors?.stage?.sortOrder && (
               <span className="text-red-500">{errors?.stage?.sortOrder}</span>

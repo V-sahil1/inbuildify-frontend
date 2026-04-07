@@ -111,6 +111,7 @@ export const ESign = () => {
               type="number"
               defaultValue="50"
               className="w-60 p-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500"
+              onWheel={(e) => e.currentTarget.blur()}
             />
           </div>
         </div>

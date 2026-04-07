@@ -75,7 +75,7 @@ const FloorPlanFormModal = ({
           <div className="col-span-4">
             <div className="flex justify-between gap-2">
               <Form.Item label="Min Land Width(m)" name="minLandWidth" rules={numberRules}>
-                <Input type="number" />
+                <Input type="number" onWheel={(e) => e.currentTarget.blur()} />
               </Form.Item>
               <Form.Item label="Min Land Depth(m)" name="minLandDepth" rules={numberRules}>
                 <Input />

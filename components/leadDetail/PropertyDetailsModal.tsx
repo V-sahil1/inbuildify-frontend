@@ -665,6 +665,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
               <Input
                 placeholder="Enter width"
                 type="number"
+                onWheel={(e) => e.currentTarget.blur()}
                 min={0}
                 onKeyPress={e => {
                   if (!/[0-9]/.test(e.key)) {
@@ -679,6 +680,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
               <Input
                 placeholder="Enter depth"
                 type="number"
+                onWheel={(e) => e.currentTarget.blur()}
                 min={0}
                 onKeyPress={e => {
                   if (!/[0-9]/.test(e.key)) {
@@ -697,6 +699,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
             >
               <Input
                 type="number"
+                onWheel={(e) => e.currentTarget.blur()}
                 min={0}
                 onKeyPress={e => {
                   if (!/[0-9]/.test(e.key)) {
@@ -716,6 +719,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
               <Input
                 placeholder="300"
                 type="number"
+                onWheel={(e) => e.currentTarget.blur()}
                 min={0}
                 onKeyPress={e => {
                   if (!/[0-9]/.test(e.key)) {
@@ -730,6 +734,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
               <Input
                 placeholder="500"
                 type="number"
+                onWheel={(e) => e.currentTarget.blur()}
                 min={0}
                 onKeyPress={e => {
                   if (!/[0-9]/.test(e.key)) {

@@ -206,6 +206,7 @@ export const FloorplanPricelistColumns = (
             type="number"
             min="1"
             disabled={!!floorPlanPricelist?.find(i => i.priceListItemId === record.priceListItemId)}
+            onWheel={(e) => e.currentTarget.blur()}
           />
         ) : null;
       },

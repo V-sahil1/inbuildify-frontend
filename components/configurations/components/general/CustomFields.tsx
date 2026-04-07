@@ -195,7 +195,7 @@ const CustomFields: React.FC = () => {
             rules={[{ required: true, message: 'Please enter sort order' }]}
             style={{ margin: 0 }}
           >
-            <Input type="number" disabled={status.create === Status.PENDING} />
+            <Input type="number" onWheel={(e) => e.currentTarget.blur()} disabled={status.create === Status.PENDING} />
           </Form.Item>
         ) : (
           record.sortOrder

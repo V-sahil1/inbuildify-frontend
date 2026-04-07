@@ -198,6 +198,7 @@ const LeadDetailsForm: React.FC<LeadDetailsFormProps> = ({
                   e.preventDefault();
                 }
               }}
+              onWheel={(e) => e.currentTarget.blur()}
             />
           </Form.Item>
 
@@ -212,6 +213,7 @@ const LeadDetailsForm: React.FC<LeadDetailsFormProps> = ({
                   e.preventDefault();
                 }
               }}
+              onWheel={(e) => e.currentTarget.blur()}
             />
           </Form.Item>
 
@@ -269,6 +271,7 @@ const LeadDetailsForm: React.FC<LeadDetailsFormProps> = ({
                       e.preventDefault();
                     }
                   }}
+                  onWheel={(e) => e.currentTarget.blur()}
                 />
               </Form.Item>
 

@@ -26,6 +26,7 @@ const AmountsEditor = () => {
               defaultValue="0.00"
               disabled={isDisabled as boolean}
               className="w-1/2 text-right px-2 py-1 form-input"
+              onWheel={(e) => e.currentTarget.blur()}
             />
           </div>
         ))}

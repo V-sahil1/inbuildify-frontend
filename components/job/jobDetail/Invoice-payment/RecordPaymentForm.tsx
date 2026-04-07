@@ -91,7 +91,7 @@ export const RecordPaymentForm: React.FC<RecordPaymentFormProps> = ({
           name="transactionNumber"
           rules={[{ required: true, message: 'Enter transaction number' }]}
         >
-          <Input type="number" placeholder="Enter transaction or check number" />
+          <Input type="number" onWheel={(e) => e.currentTarget.blur()} placeholder="Enter transaction or check number" />
         </Form.Item>
 
         <Form.Item
@@ -99,7 +99,7 @@ export const RecordPaymentForm: React.FC<RecordPaymentFormProps> = ({
           name="amount"
           rules={[{ required: true, message: 'Enter payment amount' }]}
         >
-          <Input type="number" prefix="$" placeholder="0.00" min={0} max={invoiceAmount} />
+          <Input type="number" onWheel={(e) => e.currentTarget.blur()} prefix="$" placeholder="0.00" min={0} max={invoiceAmount} />
         </Form.Item>
 
         <Form.Item label="Notes" name="notes">

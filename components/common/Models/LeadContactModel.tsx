@@ -158,6 +158,7 @@ const LeadContactModel: React.FC<LeadContactModelProps> = ({
               }
               minLength={10}
               maxLength={fieldKey === 'zipCode' ? 4 : 15}
+              onWheel={(e) => e.currentTarget.blur()}
               onKeyPress={e => {
                 if (!/[0-9]/.test(e.key)) {
                   e.preventDefault();

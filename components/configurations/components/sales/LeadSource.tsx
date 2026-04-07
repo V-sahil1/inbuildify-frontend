@@ -160,6 +160,7 @@ export const LeadSource: React.FC = () => {
                 value={record.sortOrder}
                 min={1}
                 disabled={status.create === Status.PENDING}
+                onWheel={(e) => e.currentTarget.blur()}
               />
             </Form.Item>
           </div>

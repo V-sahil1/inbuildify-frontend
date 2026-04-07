@@ -127,6 +127,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
             size="small"
             className="w-full text-center"
             disabled={isIncluded || disabled || isSelected}
+            onWheel={(e) => e.currentTarget.blur()}
           />
         </div>
 

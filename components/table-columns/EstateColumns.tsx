@@ -55,6 +55,7 @@ export const getEstateColumns = ({ instantFilters, setParams }: EstateColumnsPar
             type="number"
             value={instantFilters?.postcode}
             onChange={e => setParams({ zip: e.target.value ?? '' })}
+            onWheel={(e) => e.currentTarget.blur()}
           />
         </div>
       ),

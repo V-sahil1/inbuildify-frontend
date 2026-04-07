@@ -74,6 +74,7 @@ const JobVariationActionBar = ({
           min={0}
           value={delayedDays}
           type="number"
+          onWheel={(e) => e.currentTarget.blur()}
           onChange={onDelayedDaysChange}
           style={{ width: '100%' }}
         />
@@ -110,6 +111,7 @@ const JobVariationActionBar = ({
             min={0}
             value={delayedDays}
             type="number"
+            onWheel={(e) => e.currentTarget.blur()}
             onChange={onDelayedDaysChange}
             style={{ width: '100%' }}
           />

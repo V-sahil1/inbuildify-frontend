@@ -156,7 +156,7 @@ const CompanyDetails = () => {
             <Input />
           </Form.Item>
           <Form.Item label="Zip / Postal Code" name={['address', 'zipCode']} rules={zipCodeRules}>
-            <Input type="number" />
+            <Input type="number" onWheel={(e) => e.currentTarget.blur()}/>
           </Form.Item>
           <Form.Item
             label="Country"

@@ -221,6 +221,7 @@ export const Invoice: React.FC = () => {
               }
               suffix="days"
               style={{ width: '200px' }}
+              onWheel={(e) => e.currentTarget.blur()}
             />
             <p className="text-sm text-font-color-100">
               Enter the number of days from the invoice date to the payment due date.

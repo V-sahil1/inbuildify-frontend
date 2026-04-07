@@ -201,6 +201,7 @@ const CustomPlanTab: React.FC<{ onCancel: () => void }> = ({ onCancel }) => {
               >
                 <Input
                   type="number"
+                  onWheel={(e) => e.currentTarget.blur()}
                   step="0.01"
                   onKeyPress={e => {
                     if (!/[0-9]/.test(e.key)) {
@@ -217,6 +218,7 @@ const CustomPlanTab: React.FC<{ onCancel: () => void }> = ({ onCancel }) => {
               >
                 <Input
                   type="number"
+                  onWheel={(e) => e.currentTarget.blur()}
                   step="0.01"
                   onKeyPress={e => {
                     if (!/[0-9]/.test(e.key)) {
@@ -281,6 +283,7 @@ const CustomPlanTab: React.FC<{ onCancel: () => void }> = ({ onCancel }) => {
               >
                 <Input
                   type="number"
+                  onWheel={(e) => e.currentTarget.blur()}
                   step="0.01"
                   onKeyPress={e => {
                     if (!/[0-9]/.test(e.key)) {

@@ -369,6 +369,7 @@ const AddMasterPricingItemModal = ({
               prefix="$"
               type="number"
               style={{ width: '100%' }}
+              onWheel={(e) => e.currentTarget.blur()}
               disabled={costType === 'Included'}
             />
           </Form.Item>
@@ -385,6 +386,7 @@ const AddMasterPricingItemModal = ({
                 prefix="$"
                 type="number"
                 style={{ width: '100%' }}
+                onWheel={(e) => e.currentTarget.blur()}
                 disabled={costType === 'Included'}
               />
             </Form.Item>
@@ -398,7 +400,7 @@ const AddMasterPricingItemModal = ({
               className="form-item-responsive"
               initialValue={category?.items?.length + 1 || 1}
             >
-              <Input type="number" min={1}/>
+              <Input type="number" min={1} onWheel={(e) => e.currentTarget.blur()} />
             </Form.Item>
             <Form.Item label="UOM" name="uom" className="form-item-responsive">
               <Select
@@ -524,7 +526,7 @@ const AddMasterPricingItemModal = ({
                           },
                         ]}
                       >
-                        <Input type="number" min={0} className="w-full" />
+                        <Input type="number" min={0} className="w-full" onWheel={(e) => e.currentTarget.blur()}/>
                       </Form.Item>
                     )}
 
@@ -556,7 +558,7 @@ const AddMasterPricingItemModal = ({
                           },
                         ]}
                       >
-                        <Input type="number" min={0} className="w-full" />
+                        <Input type="number" min={0} className="w-full" onWheel={(e) => e.currentTarget.blur()}/>
                       </Form.Item>
                     )}
                     {/* status */}
@@ -659,9 +661,8 @@ const AddMasterPricingItemModal = ({
         <Form.Item className="mb-0">
           <button
             type="submit"
-            className={`btn btn-primary w-full md:w-auto px-8 py-2 text-base ${
-              isAddingItem ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
+            className={`btn btn-primary w-full md:w-auto px-8 py-2 text-base ${isAddingItem ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             disabled={isAddingItem}
           >
             {isAddingItem ? (

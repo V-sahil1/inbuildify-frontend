@@ -415,6 +415,7 @@ const ColorCategoryItemModel = ({
                           min={0}
                           step={1}
                           type="number"
+                          onWheel={(e) => e.currentTarget.blur()}
                           placeholder="Enter sort order"
                         />
                       </Form.Item>
@@ -544,7 +545,7 @@ const ColorCategoryItemModel = ({
                         </Col>
                         <Col xs={10} md={5}>
                           <Form.Item name="customFieldSortOrder" label="Sort Order">
-                            <Input type="number" placeholder="Enter sort order" />
+                            <Input type="number" placeholder="Enter sort order" onWheel={(e) => e.currentTarget.blur()} />
                           </Form.Item>
                         </Col>
                         <Col xs={8} md={4} className="flex justify-end items-center">

@@ -174,7 +174,7 @@ const SurveyorsDetails = () => {
               name="registrationNumber"
               rules={surveyorRegistrationRules}
             >
-              <Input placeholder="9793" maxLength={100} type="number" />
+              <Input placeholder="9793" maxLength={100} type="number" onWheel={(e) => e.currentTarget.blur()} />
             </Form.Item>
             <div></div> {/* spacer */}
             <Form.Item label="Address1" name="address1" rules={addressLine1Rules}>

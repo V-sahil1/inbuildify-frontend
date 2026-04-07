@@ -384,6 +384,7 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
                 <Input
                   placeholder={field.placeholder}
                   type={field.type}
+                  onWheel={(e) => e.currentTarget.blur()}
                   disabled={field.disabled}
                   onKeyPress={e => {
                     if (!/[0-9]/.test(e.key)) {

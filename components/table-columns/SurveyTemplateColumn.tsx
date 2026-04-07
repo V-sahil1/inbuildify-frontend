@@ -44,6 +44,7 @@ export const SurveyTemplateColumn = (
             type="number"
             value={filters.sort}
             onChange={e => setParams({ sort: e.target.value })}
+            onWheel={(e) => e.currentTarget.blur()}
           />
         </div>
       ),
