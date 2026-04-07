@@ -5,6 +5,7 @@ export interface StructuralEngineer {
   name: string;
   email: string;
   phone: string;
+  price?: number;
   address?: string | null;
   isActive?: boolean;
   createdAt?: string;

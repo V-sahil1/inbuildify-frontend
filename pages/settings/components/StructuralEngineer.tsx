@@ -8,12 +8,14 @@ import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { RootState } from '@redux/feature/store';
 import { Status } from '@lib/constants/enum';
 import { createStructuralThunk, getStructuralThunk, updateStructuralThunk } from '@redux/feature/structuralengg/structuralEnggThunk';
+import { phoneRules } from '@lib/constants/formInputValidations';
 
 interface StructuralEngineerType {
   structureEngineerId: string;
   name: string;
   email: string;
   phone: string;
+  price?: number;
   isActive: boolean;
   isNew?: boolean;
 }
@@ -74,6 +76,7 @@ const StructuralEngineerPage: React.FC = () => {
           name: isModalOpen.row.name,
           email: isModalOpen.row.email,
           phone: isModalOpen.row.phone,
+          price: isModalOpen.row.price || 0,
           isActive: true
         }
       })).unwrap();
@@ -103,14 +106,15 @@ const StructuralEngineerPage: React.FC = () => {
     if (!editingRow) return;
     try {
       const values = await form.validateFields();
+      const payload = {...values, price: values.price ? Number(values.price) : 0}
       if (editingRow.isNew) {
-        await dispatch(createStructuralThunk(values)).unwrap();
+        await dispatch(createStructuralThunk(payload)).unwrap();
         message.success('Structural engineer created successfully!');
       } else {
         // For updates, send all values directly
         await dispatch(updateStructuralThunk({
           id: editingRow.structureEngineerId,
-          payload: values
+          payload: payload
         })).unwrap();
         message.success('Structural engineer updated successfully!');
       }
@@ -177,7 +181,7 @@ const StructuralEngineerPage: React.FC = () => {
                 <Input
                   value={row.email}
                   placeholder="Enter email"
-                  disabled={status === Status.PENDING}
+                  disabled={status === Status.PENDING || !!row.email}
                 />
               </Form.Item>
             ) : (
@@ -196,7 +200,7 @@ const StructuralEngineerPage: React.FC = () => {
         return (
           <div className={inactive ? 'opacity-45' : ''}>
             {editable ? (
-              <Form.Item name="phone" rules={[{ required: true, message: 'Enter Phone' }]}>
+              <Form.Item name="phone" rules={[...phoneRules]}>
                 <Input
                   value={row.phone}
                   placeholder="Enter phone"
@@ -205,6 +209,33 @@ const StructuralEngineerPage: React.FC = () => {
               </Form.Item>
             ) : (
               <span>{row.phone}</span>
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      title: 'Price ($)',
+      dataIndex: 'price',
+      render: (_, row: StructuralEngineerType) => {
+        const inactive = row.isActive === false;
+        const editable = editingRow?.structureEngineerId === row.structureEngineerId;
+        return (
+          <div className={inactive ? 'opacity-45' : ''}>
+            {editable ? (
+              <Form.Item name="price" rules={[{ required: false, message: 'Enter Price' }]}>
+                <Input
+                  type="number"
+                  value={row.price}
+                  placeholder="Enter price"
+                  prefix="$"
+                  min={0}
+                  onWheel={(e) => e.currentTarget.blur()}
+                  disabled={status === Status.PENDING}
+                />
+              </Form.Item>
+            ) : (
+              <span>{row.price ? `$${row.price}` : '-'}</span>
             )}
           </div>
         );
