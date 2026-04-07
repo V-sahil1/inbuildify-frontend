@@ -22,7 +22,7 @@ import {
 } from '@redux/feature/admin/document/area/IDocumentAreaState';
 
 import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
-import { Button, message, Popconfirm, Space, Switch, Table, Tag } from 'antd';
+import { Button, message, Popconfirm, Space, Switch, Table, Tag, Tooltip } from 'antd';
 
 import { useEffect, useState } from 'react';
 import TooltipButton from '@/components/common/TooltipButton';
@@ -157,17 +157,37 @@ export const CommonFolder = () => {
           {record.roles && (
             <>
               <p>Roles</p>
-              {record.roles?.map((role, index) => {
+              {record.roles?.slice(0, 3).map((role, index) => {
                 return <Tag key={index}>{role.name}</Tag>;
               })}
+              {record.roles?.length > 3 && (
+                <Tooltip
+                  title={record.roles
+                    ?.slice(3)
+                    ?.map(i => i.name)
+                    ?.join(' , ')}
+                >
+                  <Tag>...</Tag>
+                </Tooltip>
+              )}
             </>
           )}
           {record.users && (
             <>
               <p>Users</p>
-              {record.users?.map((user, index) => {
+              {record.users?.slice(0, 3).map((user, index) => {
                 return <Tag key={index}>{user.name}</Tag>;
               })}
+              {record.users?.length > 3 && (
+                <Tooltip
+                  title={record.users
+                    ?.slice(3)
+                    ?.map(i => i.name)
+                    ?.join(' , ')}
+                >
+                  <Tag>...</Tag>
+                </Tooltip>
+              )}
             </>
           )}
         </div>
@@ -192,9 +212,9 @@ export const CommonFolder = () => {
     },
     {
       title: 'Lock',
-      dataIndex: 'lock',
-      key: 'lock',
-      render: lock => <Switch checked={lock} disabled={true} />,
+      dataIndex: 'isLocked',
+      key: 'isLocked',
+      render: isLocked => <Switch checked={isLocked} disabled={true} />,
     },
     {
       title: 'Action',

@@ -304,7 +304,7 @@ export const InspectionChecklist: React.FC = () => {
         <Dropdown
           menu={{
             items: [
-              {
+              inspectionSection?.length > 0 && {
                 key: 'checklist',
                 label: 'New checklist',
                 onClick: () => setModalopen('checklist'),

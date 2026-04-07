@@ -41,9 +41,10 @@ export const inspectionChecklistSettingFields = (
         name: 'sortOrder',
         type: 'number',
         rules: [{ required: true, message: 'Please enter sort' }],
+        initialValue:1
       },
       {
-        label: 'Add the insoection into all the existing jobs',
+        label: 'Add the inspection into all the existing jobs',
         name: 'addAllExistingJobs',
         type: 'switch',
         initialValue: onExistingJob?.checklist || null,
@@ -66,9 +67,10 @@ export const inspectionChecklistSettingFields = (
       name: 'sortOrder',
       type: 'number',
       rules: [{ required: true, message: 'Please enter sort' }],
+      initialValue:1
     },
     {
-      label: 'Add the insoection into all the existing jobs',
+      label: 'Add the inspection into all the existing jobs',
       name: 'addAllExistingJobs',
       type: 'switch',
       initialValue: onExistingJob.section,

@@ -1,6 +1,8 @@
+import NoDataMessage from '@/components/common/NoDataMessage';
 import { useBuildersHook } from '@hooks/useBuildersHook';
 import { useConstructionTypeHook } from '@hooks/useConstructionTypeHook';
 import { useConstructionStageHook } from '@hooks/useConstrutcionStageHook';
+import SystemRoutes from '@lib/constants/Routes';
 import { Col, Form, Row, Select } from 'antd';
 import { useEffect } from 'react';
 
@@ -55,6 +57,9 @@ export const ChecklistHeader = ({ onChange, data }) => {
               placeholder="Select Construction Type"
               options={typeOptions}
               onChange={val => onChange(prev => ({ ...prev, constructionType: val }))}
+              notFoundContent={
+                <NoDataMessage label="Constrution Type" link={SystemRoutes.CONSTRUCTION_TYPE} />
+              }
             />
           </div>
         </Col>
@@ -66,6 +71,9 @@ export const ChecklistHeader = ({ onChange, data }) => {
               placeholder="Select Stage"
               options={stageOptions}
               onChange={val => onChange(prev => ({ ...prev, constructionStage: val }))}
+              notFoundContent={
+                <NoDataMessage label="Constrution Type" link={SystemRoutes.CONSTRUCTION_STAGE} />
+              }
             />
           </div>
         </Col>
