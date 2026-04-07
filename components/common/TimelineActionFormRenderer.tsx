@@ -42,6 +42,7 @@ const TimelineActionFormRenderer: React.FC<TimelineActionFormRendererProps> = ({
           date={new Date().toLocaleString()}
           // createdByName="Current User"
           createdAt={new Date().toLocaleString()}
+          onSave={handleSaveNote}
           // notes={currentData?.item?.notes[0] as NoteDetails || { message: "", tags: [{name:"Draft"}], sendToCustomer: false, createFollowUpTask: false, attachment: [],task:{dueDate:""} }}
         >
           <AddNotesCard

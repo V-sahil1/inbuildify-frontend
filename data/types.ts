@@ -89,6 +89,9 @@ export interface NoteDetails {
   task?: NoteTask;
   attachFile?: string;
   noteTags?: Entity[];
+  parentNoteId?:string;
+  reply?:string;
+  replyId?:string
 }
 
 export interface AppointmentDetails {
@@ -159,9 +162,11 @@ export interface BaseTimelineCardProps {
   createdAt?: string;
   item?: any; // optional to allow rendering empty form state
   status?: 'completed' | 'pending' | 'working' | '';
-  onEdit?: (updated: TimelineCardProps) => void; // send updated values to parent
+  onEdit?: (updated: any) => void; // send updated values to parent
   onReschedule?: () => void;
   children?: React.ReactNode;
+  onSave?:(values)=>void
+  handleEdit?:(values)=>void
 }
 
 export interface TimelineCardProps extends BaseTimelineCardProps {

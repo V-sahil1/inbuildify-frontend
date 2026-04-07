@@ -59,7 +59,7 @@ export const Setting: React.FC = () => {
       return;
     }
     try {
-      if(!updatedFields?.autoArchiveAfterCompletion){
+      if(!settings?.autoArchiveAfterDays){
         delete updatedFields?.autoArchiveAfterDays;
       }
       await dispatch(updateJobSetting(updatedFields)).unwrap();

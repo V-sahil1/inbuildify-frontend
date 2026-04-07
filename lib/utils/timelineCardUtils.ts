@@ -59,10 +59,11 @@ export const handleSaveTimelineCard = async <
           })
         ).unwrap();
       } else {
+        const { notesId, ...rest } = data as NoteDetails;
         response = await dispatch(
           updateNote({
             id: (editingItem as NoteDetails)?.notesId,
-            data: formDataGenerator(data as Partial<NoteDetails>),
+            data: formDataGenerator(rest as Partial<NoteDetails>),
           })
         ).unwrap();
       }
@@ -86,7 +87,7 @@ export const handleSaveTimelineCard = async <
                 )
               : prev.map(i =>
                   (i.item as NoteDetails).notesId === response?.notesId
-                    ? { type: 'NOTES', item: response }
+                    ? { type: 'NOTES', item: { ...i.item, ...response } }
                     : i
                 )
       );
@@ -109,9 +110,11 @@ export const handleSaveTimelineCard = async <
       } else if (type === 'SMS') {
         response = await dispatch(createSms({ ...data, leadsId: leadId } as SmsDetails)).unwrap();
       } else if (type === 'NOTES') {
-        response = await dispatch(
-          createNote(formDataGenerator({ ...data, leadsId: leadId }))
-        ).unwrap();
+        const payload = data;
+        if (!(payload as NoteDetails)?.parentNoteId) {
+          (payload as NoteDetails).leadsId = leadId;
+        }
+        response = await dispatch(createNote(formDataGenerator(payload))).unwrap();
       }
       const baseCard = { ...response };
       let newCard;

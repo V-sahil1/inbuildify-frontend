@@ -122,43 +122,65 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
     try {
       let notesData;
       if (tagStatus === Status.IDLE) {
-        notesData = await dispatch(getAllNotes({ leads_id: leadId })).unwrap();
+        const response = await dispatch(getAllNotes({ leads_id: leadId })).unwrap();
+        const data = response.notes;
+        const filteredNote = data.filter(i => !i.parentNoteId);
+        notesData = filteredNote?.map(i => ({
+          ...i,
+          reply: data.find(j => j.parentNoteId === i.notesId)?.description,
+          replyId: data.find(j => j.parentNoteId === i.notesId)?.notesId,
+        }));
       } else {
-        notesData = { notes };
+        notesData = notes;
       }
-      const transformedAppointments = notesData?.notes?.map(i => ({
-        type: 'NOTES',
+      const transformedNotes = notesData?.map(i => ({
+        type: 'NOTES' as const,
         item: i,
       }));
       if (activeTab === 'NOTES') {
-        setCardsData(transformedAppointments || []);
+        setCardsData(transformedNotes || []);
       }
     } catch (error) {
-      message.error(error || 'Failed to fetch Notes');
+      message.error(error?.message || 'Failed to fetch Notes');
     }
   };
 
   const fetchAllActionsData = async () => {
     try {
-      let actionData;
+      let actionData = {
+        notes: [],
+        tasks: [],
+        appointments: [],
+        sms: [],
+      };
       if (actionStatus === Status.IDLE) {
-        actionData = await dispatch(getLeadActions(leadId)).unwrap();
+        const response = await dispatch(getLeadActions(leadId)).unwrap();
+        const data = response?.notes;
+        const filteredNote = data?.filter(i => !i.parentNoteId) || [];
+        actionData.notes =
+          filteredNote?.map(i => ({
+            ...i,
+            reply: data.find(j => j.parentNoteId === i.notesId)?.description,
+            replyId: data.find(j => j.parentNoteId === i.notesId)?.notesId,
+          })) || [];
+        actionData.appointments = response.appointments;
+        actionData.sms = response.sms;
+        actionData.tasks = response.tasks;
       } else {
         actionData = actions;
       }
       const appointments =
-        actionData?.appointments?.map(i => ({ type: 'APPOINTMENT', item: i })) || [];
-      const tasks = actionData?.tasks?.map(i => ({ type: 'TASK', item: i })) || [];
-      const sms = actionData?.sms?.map(i => ({ type: 'SMS', item: i })) || [];
-      const notes = actionData?.notes?.map(i => ({ type: 'NOTES', item: i })) || [];
+        actionData?.appointments?.map(i => ({ type: 'APPOINTMENT' as const, item: i })) || [];
+      const tasks = actionData?.tasks?.map(i => ({ type: 'TASK' as const, item: i })) || [];
+      const sms = actionData?.sms?.map(i => ({ type: 'SMS' as const, item: i })) || [];
+      const notes = actionData?.notes?.map(i => ({ type: 'NOTES' as const, item: i })) || [];
 
       const transformedAppointments = [...appointments, ...tasks, ...sms, ...notes];
-
       if (activeTab === 'All') {
         setCardsData(transformedAppointments || []);
       }
     } catch (error) {
-      message.error(error || 'Failed to fetch appointment');
+      message.error(error?.message || error || 'Failed to fetch appointment');
     }
   };
 
@@ -219,12 +241,12 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
   };
 
   // Save from AddNotesCard
-  const handleSaveNote = async (note: NoteDetails) => {
+  const handleSaveNote = async (note: NoteDetails, editing?: NoteDetails) => {
     setFormLoading(true);
     try {
       await handleSaveTimelineCard(
         leadId,
-        editingItem,
+        editingItem ?? editing,
         setCardsData,
         handleClose,
         activeTab,
@@ -350,6 +372,10 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
                 type={item.type}
                 item={item.item}
                 onEdit={data => handleEdit(data)}
+                onSave={handleSaveNote}
+                handleEdit={value => {
+                  handleSaveNote(value, value);
+                }}
               />
             ))
           ) : (

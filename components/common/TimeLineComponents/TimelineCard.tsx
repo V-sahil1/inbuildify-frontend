@@ -17,34 +17,60 @@ import { NoteDetails, SmsDetails } from 'data/types';
 import dayjs from 'dayjs';
 import { useAppSelector } from '@hooks/redux';
 import { timeAgo } from '@lib/utils/timeAgo';
-import { Button, Tooltip, Input, Switch, Upload, Popconfirm, Dropdown, Menu } from 'antd';
+import {
+  Button,
+  Tooltip,
+  Input,
+  Switch,
+  Upload,
+  Popconfirm,
+  Dropdown,
+  Menu,
+  Descriptions,
+} from 'antd';
 
 const { TextArea } = Input;
 
-const TimelineCard: FC<TimelineCardProps> = ({ type, onEdit, onReschedule, children, item }) => {
+const TimelineCard: FC<TimelineCardProps> = ({
+  type,
+  onEdit,
+  onReschedule,
+  children,
+  item,
+  onSave,
+  handleEdit,
+}) => {
   const { users } = useAppSelector(state => state.user);
   const [showReply, setShowReply] = useState(false);
-  const [replyText, setReplyText] = useState('');
-  const [replies, setReplies] = useState<string[]>([]);
+  const [replyText, setReplyText] = useState(item?.reply || '');
   const [sendToCustomer, setSendToCustomer] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [isCanceled, setIsCanceled] = useState(false);
   const [taskStatus, setTaskStatus] = useState<string>('In Progress');
+  const [attachedFiles, setAttachedFiles] = useState<any[]>([]);
+
+  const handleFileChange = (info: any) => {
+    const { fileList } = info;
+    // Keep only the latest file to enforce single file upload
+    const latestFile = fileList.slice(-1);
+    setAttachedFiles(latestFile);
+  };
 
   const handleSaveReply = () => {
-    if (replyText.trim()) {
-      if (editingIndex !== null) {
-        const updatedReplies = [...replies];
-        updatedReplies[editingIndex] = replyText.trim();
-        setReplies(updatedReplies);
-        setEditingIndex(null);
-      } else {
-        setReplies([...replies, replyText.trim()]);
-      }
+    if (!item?.reply) {
+      onSave({
+        parentNoteId: item?.notesId,
+        sendToCustomer: sendToCustomer,
+        noteType: 'reply',
+        attachFile: attachedFiles.length > 0 ? attachedFiles[0].originFileObj : null,
+        description: replyText,
+      });
+    } else {
+      handleEdit({ description: replyText, notesId: item?.replyId });
     }
-    setReplyText('');
+    setEditingIndex(null);
+
     setShowReply(false);
-    setSendToCustomer(false);
   };
 
   const handleCancelReply = () => {
@@ -52,6 +78,7 @@ const TimelineCard: FC<TimelineCardProps> = ({ type, onEdit, onReschedule, child
     setShowReply(false);
     setSendToCustomer(false);
     setEditingIndex(null);
+    setAttachedFiles([]);
   };
 
   const handleCancelAction = () => {
@@ -149,7 +176,6 @@ const TimelineCard: FC<TimelineCardProps> = ({ type, onEdit, onReschedule, child
         <span className="px-2 py-1 bg-gray-200 text-gray-600 text-xs rounded-md">Canceled</span>
       );
     }
-
     return (
       <>
         {onEdit && (
@@ -347,51 +373,47 @@ const TimelineCard: FC<TimelineCardProps> = ({ type, onEdit, onReschedule, child
             </div>
           )}
 
-          {replies.length > 0 &&
-            replies.map((r, i) => (
-              <div
-                key={i}
-                className="mt-2 p-2 bg-gray-50 border-l-4 border-primary rounded text-sm flex flex-col ml-3"
-              >
-                <div className="w-full flex justify-between items-center mb-1">
-                  <div className="mr-[1%] flex-grow">
-                    {editingIndex === i ? (
-                      <Input
-                        value={replyText}
-                        onChange={e => setReplyText(e.target.value)}
-                        size="small"
-                        className="h-9"
-                      />
-                    ) : (
-                      r
-                    )}
-                  </div>
-                  <div>
-                    {editingIndex === i ? (
-                      <Button type="link" onClick={handleSaveReply} className="p-0 !text-primary">
-                        Save
-                      </Button>
-                    ) : (
-                      <Button
-                        type="link"
-                        onClick={() => {
-                          setEditingIndex(i);
-                          setReplyText(r);
-                        }}
-                        className="p-0"
-                      >
-                        <IconPencil size={18} className="text-primary" />
-                      </Button>
-                    )}
-                  </div>
+          {item?.reply && (
+            <div className="mt-2 p-2 bg-gray-50 border-l-4 border-primary rounded text-sm flex flex-col ml-3">
+              <div className="w-full flex justify-between items-center mb-1">
+                <div className="mr-[1%] flex-grow">
+                  {editingIndex === 0 ? (
+                    <Input
+                      value={replyText}
+                      onChange={e => setReplyText(e.target.value)}
+                      size="small"
+                      className="h-9"
+                    />
+                  ) : (
+                    item.reply
+                  )}
                 </div>
-                {(item?.createdAt || item?.createdAt) && item?.createdBy?.name && (
-                  <p className="text-xs text-font-color-100">
-                    {item?.createdBy?.name} created {timeAgo(item?.createdAt || item?.createdAt)}
-                  </p>
-                )}
+                <div>
+                  {editingIndex === 0 ? (
+                    <Button type="link" onClick={handleSaveReply} className="p-0 !text-primary">
+                      Save
+                    </Button>
+                  ) : (
+                    <Button
+                      type="link"
+                      onClick={() => {
+                        setEditingIndex(0);
+                        setReplyText(item.reply);
+                      }}
+                      className="p-0"
+                    >
+                      <IconPencil size={18} className="text-primary" />
+                    </Button>
+                  )}
+                </div>
               </div>
-            ))}
+              {(item?.createdAt || item?.createdAt) && item?.createdBy?.name && (
+                <p className="text-xs text-font-color-100">
+                  {item?.createdBy?.name} created {timeAgo(item?.createdAt || item?.createdAt)}
+                </p>
+              )}
+            </div>
+          )}
         </>
 
         <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -413,16 +435,21 @@ const TimelineCard: FC<TimelineCardProps> = ({ type, onEdit, onReschedule, child
           </div>
         </div>
 
-        {/* {type === 'NOTES' && item?.notesId && (
-          <div className="mt-2 border-t pt-2">
-            {!showReply && (
+        {type === 'NOTES' && item?.notesId && (
+          <div className={`mt-2 ${!item?.reply ? 'border-t' : ''} pt-2`}>
+            {!showReply && !item?.reply && (
               <Button
                 type="primary"
                 icon={<IconArrowBackUp size={16} />}
-                onClick={() => setShowReply(true)}
+                onClick={() => {
+                  setShowReply(true);
+                  setReplyText('');
+                  setSendToCustomer(false);
+                  setAttachedFiles([]);
+                }}
                 size="small"
               >
-                Reply {item?.notesId}
+                Reply
               </Button>
             )}
             {showReply && (
@@ -440,6 +467,8 @@ const TimelineCard: FC<TimelineCardProps> = ({ type, onEdit, onReschedule, child
                       maxCount={1}
                       accept=".jpg,.jpeg,.png,.gif,.webp"
                       listType="picture"
+                      onChange={handleFileChange}
+                      fileList={attachedFiles}
                     >
                       <Button icon={<IconUpload />}>Attach Files</Button>
                     </Upload>
@@ -459,7 +488,7 @@ const TimelineCard: FC<TimelineCardProps> = ({ type, onEdit, onReschedule, child
               </div>
             )}
           </div>
-        )} */}
+        )}
       </div>
     </div>
   );

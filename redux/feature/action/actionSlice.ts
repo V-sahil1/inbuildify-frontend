@@ -11,6 +11,8 @@ import {
   updateNote,
   updateSms,
 } from './actionThunk';
+import { createAppointment, updateAppointment } from '../appointment/appointmentThunk';
+import { createTask, updateTask } from '../task/taskThunk';
 
 export const actionSlice = createSlice({
   name: 'action',
@@ -63,6 +65,7 @@ export const actionSlice = createSlice({
     });
     builder.addCase(createSms.fulfilled, (state, action) => {
       state.sms.unshift(action.payload);
+      state.actions.sms.unshift(action.payload);
       state.smsStatus = Status.SUCCESS;
     });
     builder.addCase(createSms.rejected, state => {
@@ -74,6 +77,9 @@ export const actionSlice = createSlice({
     });
     builder.addCase(updateSms.fulfilled, (state, action) => {
       state.sms = state.sms.map(i => (i.smsId === action.payload.smsId ? action.payload : i));
+      state.actions.sms = state.actions.sms.map(i =>
+        i.smsId === action.payload.smsId ? action.payload : i
+      );
       state.smsStatus = Status.SUCCESS;
     });
     builder.addCase(updateSms.rejected, state => {
@@ -85,7 +91,13 @@ export const actionSlice = createSlice({
       state.tagStatus = Status.PENDING;
     });
     builder.addCase(getAllNotes.fulfilled, (state, action) => {
-      state.notes = action.payload.notes;
+      const data = action.payload.notes;
+      const filterdNote = action.payload.notes.filter(i => !i.parentNoteId);
+      state.notes = filterdNote?.map(i => ({
+        ...i,
+        reply: data.find(j => j.parentNoteId === i.notesId)?.description,
+        replyId: data.find(j => j.parentNoteId === i.notesId)?.notesId,
+      }));
       state.tagStatus = Status.SUCCESS;
     });
     builder.addCase(getAllNotes.rejected, state => {
@@ -96,7 +108,21 @@ export const actionSlice = createSlice({
       state.tagStatus = Status.PENDING;
     });
     builder.addCase(createNote.fulfilled, (state, action) => {
-      state.notes.unshift(action.payload);
+      if (action.payload?.parentNoteId) {
+        state.notes = state.notes.map(i =>
+          i.notesId === action.payload?.parentNoteId
+            ? { ...i, reply: action.payload?.description, replyId: action.payload?.notesId }
+            : i
+        );
+        state.actions.notes = state.actions.notes.map(i =>
+          i.notesId === action.payload?.parentNoteId
+            ? { ...i, reply: action.payload?.description, replyId: action.payload?.notesId }
+            : i
+        );
+      } else {
+        state.notes.unshift(action.payload);
+        state.actions.notes.unshift(action.payload);
+      }
       state.tagStatus = Status.SUCCESS;
     });
     builder.addCase(createNote.rejected, state => {
@@ -107,9 +133,25 @@ export const actionSlice = createSlice({
       state.tagStatus = Status.PENDING;
     });
     builder.addCase(updateNote.fulfilled, (state, action) => {
-      state.notes = state.notes.map(i =>
-        i.notesId === action.payload.notesId ? action.payload : i
-      );
+      if (!!action.payload?.parentNoteId) {
+        state.notes = state.notes.map(i =>
+          i.notesId === action.payload?.parentNoteId
+            ? { ...i, reply: action.payload?.description }
+            : i
+        );
+        state.actions.notes = state.actions.notes.map(i =>
+          i.notesId === action.payload?.parentNoteId
+            ? { ...i, reply: action.payload?.description }
+            : i
+        );
+      } else {
+        state.notes = state.notes.map(i =>
+          i.notesId === action.payload.notesId ? { ...i, ...action.payload } : i
+        );
+        state.actions.notes = state.actions.notes.map(i =>
+          i.notesId === action.payload.notesId ? { ...i, ...action.payload } : i
+        );
+      }
       state.tagStatus = Status.SUCCESS;
     });
     builder.addCase(updateNote.rejected, state => {
@@ -121,11 +163,40 @@ export const actionSlice = createSlice({
       state.status = Status.PENDING;
     });
     builder.addCase(getLeadActions.fulfilled, (state, action) => {
-      state.actions = action.payload;
+      const data = action.payload?.notes || [];
+      const filtered = data.filter(i => !i.parentNoteId);
+      state.actions = {
+        ...action.payload,
+        notes: filtered.map(i => ({
+          ...i,
+          reply: data.find(j => j.parentNoteId === i.notesId)?.description,
+          replyId: data.find(j => j.parentNoteId === i.notesId)?.notesId,
+        })),
+      };
+
       state.status = Status.SUCCESS;
     });
     builder.addCase(getLeadActions.rejected, (state, action) => {
       state.status = Status.ERROR;
+    });
+
+    builder.addCase(createAppointment.fulfilled, (state, action) => {
+      state.actions.appointments.unshift(action.payload);
+    });
+
+    builder.addCase(updateAppointment.fulfilled, (state, action) => {
+      state.actions.appointments = state.actions.appointments.map(i =>
+        i.appointmentId === action.payload.appointmentId ? action.payload : i
+      );
+    });
+
+    builder.addCase(createTask.fulfilled, (state, action) => {
+      state.actions.tasks.unshift(action.payload);
+    });
+    builder.addCase(updateTask.fulfilled, (state, action) => {
+      state.actions.tasks = state.actions.tasks.map(i =>
+        i.taskId === action.payload.taskId ? action.payload : i
+      );
     });
   },
 });
