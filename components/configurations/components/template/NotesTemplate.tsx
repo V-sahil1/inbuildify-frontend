@@ -44,6 +44,10 @@ export const TemplateNotes = () => {
     }
   }, [dispatch, status.fetch]);
 
+  useEffect(() => {
+    fetchNotesData();
+  }, [currentPage]);
+
   const insertToken = (token: string) =>
     setTemplateForm(prev => ({ ...prev, content: prev.content + ` [${token}]` }));
 

@@ -56,6 +56,7 @@ const StructuralEngineerPage: React.FC = () => {
           name: isModalOpen.row.name,
           email: isModalOpen.row.email,
           phone: isModalOpen.row.phone,
+          price: isModalOpen.row.price,
           isActive: false
         }
       })).unwrap();
@@ -120,7 +121,6 @@ const StructuralEngineerPage: React.FC = () => {
       }
       setEditingRow(null);
       form.resetFields();
-      fetchStructuralEngineers();
     } catch (error) {
       console.error('Save error:', error);
       message.error(error || 'Failed to save structural engineer');

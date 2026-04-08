@@ -124,6 +124,13 @@ export type QuotationVersionDetails = {
   facade?: IFacadeState;
   package?: Package;
   customSections?: CustomSection[];
+  structureEngineerId?: string | null;
+  structuralEngineer?: {
+    structuralEngineerId: string;
+    name: string;
+    email:string;
+    price?: number;
+  };
 };
 
 export type QuotationPriceListItem = {

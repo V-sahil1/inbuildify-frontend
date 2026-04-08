@@ -3,7 +3,8 @@ import { QuotationPriceListItem } from '@redux/feature/quotation/IQuotationState
 const calculateTotalQuotation = (
   packageFromSlice: any, // todo
   itemsFromSlice: QuotationPriceListItem[],
-  facadeCost: number
+  facadeCost: number,
+  structuralEngineerPrice: number
 ) => {
   let total = Number(packageFromSlice?.price) || 0;
   // total += Number(facadeCost) || 0;
@@ -12,11 +13,12 @@ const calculateTotalQuotation = (
     // if (!packageItemIds?.has(item.priceListItemId)) {
     const qty = Number(item.quantity) || 0;
     const price = Number(item.itemCost) || 0;
-    total += qty * price;
+    total += qty * price ;
     // }
   });
 
   total += Number(packageFromSlice?.cost) || 0;
+  total += structuralEngineerPrice || 0;
 
   return Number(total.toFixed(2));
 };

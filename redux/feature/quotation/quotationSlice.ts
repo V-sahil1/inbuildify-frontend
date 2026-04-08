@@ -45,6 +45,7 @@ export interface QuotationState {
   quotation: Quotation[];
   customSections: CustomSection[];
    comparison?: QuotationComparison;
+   structureEngineer?: any;
 }
 
 const initialState: QuotationState = {
@@ -60,7 +61,8 @@ const initialState: QuotationState = {
   extraItems: [],
   quotation: [],
   customSections: [],
-  comparison:null
+  comparison:null,
+  structureEngineer:null
 };
 
 const quotationSlice = createSlice({
@@ -126,6 +128,9 @@ const quotationSlice = createSlice({
       //     cost: item.price,
       //   })),
       // ];
+    },
+    setQuotationStructuralEngineer(state, action: PayloadAction<any>) {
+      state.structureEngineer = action.payload;
     },
     updateQuotationItem: (state, action) => {
       const { itemId, quantity } = action.payload;
@@ -363,6 +368,7 @@ export const {
   setQuotationFacade,
   removeQuotationItem,
   setQuotationPackage,
+  setQuotationStructuralEngineer,
   //   setQuotationBaseItems,
   clearQuotation,
   updateQuotationItem,

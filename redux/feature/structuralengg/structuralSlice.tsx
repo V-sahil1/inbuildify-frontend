@@ -28,7 +28,7 @@ const structuralSlice = createSlice({
             state.status = Status.SUCCESS;
         });
         builder.addCase(updateStructuralThunk.fulfilled, (state, action) => {
-            const index = state.structuralengg.findIndex((item: any) => item.key === action.payload.key);
+            const index = state.structuralengg.findIndex((item: any) => item.structureEngineerId === action.payload.structureEngineerId);
             if (index !== -1) {
                 state.structuralengg[index] = action.payload;
             }

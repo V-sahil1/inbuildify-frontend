@@ -27,6 +27,7 @@ import {
   setQuotationFacade,
   setQuotationPackage,
   setSelectedFilters,
+  setQuotationStructuralEngineer,
 } from '@redux/feature/quotation/quotationSlice';
 import { message, Button, Tooltip, Tag } from 'antd';
 import QuotationFilter from '@/components/quotation/QuotationFilter';
@@ -58,6 +59,7 @@ const QuotationManager = () => {
     status: quotationStatus,
     quoteDetails,
     quotation,
+    structureEngineer: selectedStructuralEngineer,
   } = useAppSelector((state: RootState) => state.quotation);
   const { priceMaster: categoryData, status } = useAppSelector(
     (state: RootState) => state.masterPriceList
@@ -131,7 +133,7 @@ const QuotationManager = () => {
   };
   const handleSelectionChange = useCallback(
     async (
-      type: 'plan' | 'facade' | 'package' | 'range' | 'dwellingType' | 'location',
+      type: 'plan' | 'facade' | 'package' | 'range' | 'dwellingType' | 'location' | 'structuralEngineer',
       value: IFloorPlanState | IFacadeState | Package | string
     ) => {
       if (!value) {
@@ -163,6 +165,10 @@ const QuotationManager = () => {
           case 'location':
             dispatch(setSelectedFilters({ ...quotationFilters, location: value }));
             payload.locationId = (value as string) || null;
+            break;
+          case 'structuralEngineer':
+            dispatch(setQuotationStructuralEngineer(value as any));
+            payload.structureEngineerId = (value as any)?.structureEngineerId || null;
             break;
         }
         await dispatch(
@@ -516,9 +522,11 @@ const QuotationManager = () => {
         selectedPlan={plan}
         selectedFacade={facade}
         selectedPackage={selectedPackageFromSlice}
+        selectedStructuralEngineer={selectedStructuralEngineer}
         onPlanSelect={plan => handleSelectionChange('plan', plan)}
         onFacadeSelect={facade => handleSelectionChange('facade', facade)}
         onPackageSelect={pkg => handleSelectionChange('package', pkg)}
+        onStructuralEngineerSelect={engineer => handleSelectionChange('structuralEngineer', engineer)}
         onPropertyUpdate={() => { }}
         isReadOnly={(quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0)) || quoteDetails?.isApprove}
         filters={quotationFilters}
@@ -550,7 +558,7 @@ const QuotationManager = () => {
               onItemQuantityChange={handleItemQuantityChange}
               extraItem={extraItem}
               onExtraClick={handleExtraClick}
-              isReadOnly={quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0) || quoteDetails?.isApprove}
+              isReadOnly={quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0) || quoteDetails?.isApprove || !quoteDetails?.structuralEngineer}
               // itemsLoading={
               //   selectedCategory
               //     ? (getCategoryById(selectedCategory)?.loadingItems ?? false)
@@ -580,14 +588,14 @@ const QuotationManager = () => {
       <div className="m-3">
         <FooterActions
           id={quotationData?.referenceNumber || ''}
-          total={calculateTotalQuotation(selectedPackageFromSlice, items, Number(facade?.cost))}
+          total={calculateTotalQuotation(selectedPackageFromSlice, items, Number(facade?.cost), Number(quoteDetails?.structuralEngineer?.price) )}
           quoteVersionId={quoteVersionId || quotationData?.versions?.[0]?.quotationVersionId}
           isEditMode={isEditMode}
           onEdit={() => setIsEditMode(true)}
           onCancel={() => setHasChanges(false)}
           onSave={handleCreateQuotation}
           onPreview={() => { }} // todo handle preview
-          disableAction={quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0) || quoteDetails?.isApprove}
+          disableAction={quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0) || quoteDetails?.isApprove || !quoteDetails?.structuralEngineer}
           previewLoading={previewLoading}
           loading={quotationStatus.create === Status.PENDING}
           hasUnsavedChanges={hasChanges}

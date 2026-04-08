@@ -41,14 +41,18 @@ import { LeadLinkContactModel } from '../common/Models/LeadLinkContactModel';
 import { IContact } from '@redux/feature/contacts/contactState';
 import LeadContactModel from '../common/Models/LeadContactModel';
 import { LeadContact } from '@redux/feature/lead/ILeadState';
+import StructuralEngineerListModal from '../common/Models/StructuralEngineerListModal';
+import { MdEngineering } from 'react-icons/md';
 interface InfoCardsProps {
   propertyDetails: any;
   selectedPlan?: IFloorPlanState;
   selectedFacade?: IFacadeState;
   selectedPackage?: Package;
+  selectedStructuralEngineer?: any;
   onPlanSelect: (plan: IFloorPlanState) => void;
   onFacadeSelect: (facade: IFacadeState) => void;
   onPackageSelect: (pkg: Package) => void;
+  onStructuralEngineerSelect: (engineer: any) => void;
   onPropertyUpdate: (property: PropertyDetails) => void;
   isReadOnly?: boolean;
   filters?: Record<string, string>;
@@ -59,9 +63,11 @@ const InfoCards: React.FC<InfoCardsProps> = ({
   selectedPlan,
   selectedFacade,
   selectedPackage,
+  selectedStructuralEngineer,
   onPlanSelect,
   onFacadeSelect,
   onPackageSelect,
+  onStructuralEngineerSelect,
   onPropertyUpdate,
   isReadOnly,
   filters,
@@ -69,7 +75,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
   const { quoteDetails } = useAppSelector(state => state.quotation);
 
   const [modalOpen, setModalOpen] = useState<
-    'property' | 'floorPlan' | 'facade' | 'package' | 'linkContact' | 'contact' | null
+    'property' | 'floorPlan' | 'facade' | 'package' | 'linkContact' | 'contact' | 'structuralEngineer' | null
   >(null);
   const [loading, setLoading] = useState(false);
   const [selectedContact, setSelectedContact] = useState<IContact | null>(null);
@@ -77,10 +83,15 @@ const InfoCards: React.FC<InfoCardsProps> = ({
   const dispatch = useAppDispatch();
   const { leadDetail } = useAppSelector(state => state.lead);
   const isSelectionDisabled = !filters?.range || !filters?.dwellingType;
+  const isPackageSelectionDisabled = !quoteDetails?.structuralEngineer || isSelectionDisabled;
+  const isStructuralEngineerDisabled = !selectedPlan || !selectedFacade || isSelectionDisabled;
   const disabledMessage = isSelectionDisabled
     ? 'Please select both Location and Dwelling Type first'
+    : !quoteDetails?.structuralEngineer
+    ? 'Please select a Structural Engineer first'
+    : !selectedPlan || !selectedFacade
+    ? 'Please select both Plan and Facade first'
     : '';
-
   const handleEditLeadSubmit = async (selectedContact: LeadContact | null, values: LeadContact) => {
     try {
       if (!!selectedContact) {
@@ -121,6 +132,19 @@ const InfoCards: React.FC<InfoCardsProps> = ({
       message.success('Package deleted successfully');
     } catch (error) {
       message.error(error || 'Failed to delete package');
+    }
+  };
+
+  const handleDeleteStructuralEngineer = async (versionId: string, engineerId: string) => {
+    try {
+      if (!versionId) {
+        message.error('Quotation version ID is required to delete structural engineer');
+        return;
+      }
+      // await dispatch(deleteQuotationStructuralEngineerThunk({ versionId, engineerId })).unwrap();
+      message.success('Structural engineer deleted successfully');
+    } catch (error) {
+      message.error(error || 'Failed to delete structural engineer');
     }
   };
 
@@ -211,8 +235,8 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           <Tooltip>{!isReadOnly && <IconEdit className="text-gray-400 ml-auto" />}</Tooltip>
         </div>
         {leadDetail?.property?.city &&
-        leadDetail?.property?.stateName &&
-        leadDetail?.property?.zipCode ? (
+          leadDetail?.property?.stateName &&
+          leadDetail?.property?.zipCode ? (
           <div className="space-y-2">
             <div className="font-semibold text-font-color">
               {leadDetail?.property?.addressLine1}
@@ -345,58 +369,107 @@ const InfoCards: React.FC<InfoCardsProps> = ({
         </Tooltip>
       </div>
 
-      {/* Select Package Card */}
-      <Tooltip title={disabledMessage}>
-        <div
-          className={`shadow-sm transition-shadow bg-card-color rounded-lg border border-border-color p-6 ${isSelectionDisabled ? '' : 'hover:shadow-md cursor-pointer'}`}
-          onClick={!isSelectionDisabled && !isReadOnly ? () => setModalOpen('package') : undefined}
-        >
-          {!!selectedPackage ? (
-            <>
-              <div className="flex items-center justify-between gap-2 mb-3">
-                <div className="flex items-center gap-2">
-                  <IconGift className="text-red-500" />
-                  <span className="font-medium text-font-color">{selectedPackage?.name}</span>
-                </div>
+      <div className="flex gap-4 flex-col">
 
-                <div className="flex items-center gap-2">
-                  {!isReadOnly && (
-                    <Popconfirm
-                      title="Are you sure you want to remove this package?"
-                      okText="Yes"
-                      cancelText="No"
-                      onConfirm={e => {
-                        e.stopPropagation();
-                        handleDeletePackage(
-                          quoteDetails?.quotationVersionId,
-                          selectedPackage.packageId
-                        );
-                      }}
-                    >
-                      <IconTrash
-                        className="text-red-500 ml-auto"
-                        size={15}
-                        onClick={e => {
-                          e.stopPropagation();
-                        }}
-                      />
-                    </Popconfirm>
-                  )}
+        {/* Select Structural Engineer */}
+        <Tooltip title={isStructuralEngineerDisabled ? disabledMessage : undefined}>
+          <div
+            className={`shadow-sm transition-shadow bg-card-color rounded-lg border border-border-color p-6 ${isStructuralEngineerDisabled ? 'opacity-70' : 'hover:shadow-md cursor-pointer'}`}
+            onClick={!isStructuralEngineerDisabled && !isReadOnly ? () => setModalOpen('structuralEngineer') : undefined}
+          >
+            {!!quoteDetails?.structuralEngineer ? (
+              <>
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <div className="flex items-center gap-2">
+                    <MdEngineering className="text-blue-500 shrink-0" />
+                    <span className="font-medium text-font-color">{quoteDetails?.structuralEngineer?.name}</span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {!isReadOnly && (
+                      <>
+                        <Tooltip title="Change Structural Engineer">
+                          <IconEdit
+                            className="text-gray-500 cursor-pointer hover:text-blue-500"
+                            size={15}
+                            onClick={e => {
+                              e.stopPropagation();
+                              setModalOpen('structuralEngineer');
+                            }}
+                          />
+                        </Tooltip>
+                      </>
+                    )}
+                  </div>
                 </div>
+                <p className="text-xl font-extrabold text-green-600 text-end">
+                  {quoteDetails?.structuralEngineer?.price ? `$${quoteDetails?.structuralEngineer?.price}` : 'Price not set'}
+                </p>
+              </>
+            ) : (
+              <div className="flex justify-center items-center h-full py-4">
+                <Button type="primary" size="middle" disabled={isStructuralEngineerDisabled} onClick={() => setModalOpen('structuralEngineer')}>
+                  Select Structural Engineer
+                </Button>
               </div>
-              <p className="text-xl font-extrabold text-green-600 text-end">
-                ${selectedPackage?.cost}
-              </p>
-            </>
-          ) : (
-            <div className="flex justify-center items-center h-full">
-              <Button type="primary" size="middle" disabled={isSelectionDisabled}>
-                Select Package
-              </Button>
-            </div>
-          )}
-        </div>
-      </Tooltip>
+            )}
+          </div>
+        </Tooltip>
+
+        {/* Select Package Card */}
+        <Tooltip title={isPackageSelectionDisabled ? disabledMessage : undefined}>
+          <div
+            className={`shadow-sm transition-shadow bg-card-color rounded-lg border border-border-color p-6 ${isPackageSelectionDisabled ? 'opacity-70' : 'hover:shadow-md cursor-pointer'}`}
+            onClick={!isPackageSelectionDisabled && !isReadOnly ? () => setModalOpen('package') : undefined}
+          >
+            {!!selectedPackage ? (
+              <>
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <div className="flex items-center gap-2">
+                    <IconGift className="text-red-500" />
+                    <span className="font-medium text-font-color">{selectedPackage?.name}</span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {!isReadOnly && (
+                      <Popconfirm
+                        title="Are you sure you want to remove this package?"
+                        okText="Yes"
+                        cancelText="No"
+                        onConfirm={e => {
+                          e.stopPropagation();
+                          handleDeletePackage(
+                            quoteDetails?.quotationVersionId,
+                            selectedPackage.packageId
+                          );
+                        }}
+                      >
+                        <IconTrash
+                          className="text-red-500 ml-auto"
+                          size={15}
+                          onClick={e => {
+                            e.stopPropagation();
+                          }}
+                        />
+                      </Popconfirm>
+                    )}
+                  </div>
+                </div>
+                <p className="text-xl font-extrabold text-green-600 text-end">
+                  ${selectedPackage?.cost}
+                </p>
+              </>
+            ) : (
+              <div className="flex justify-center items-center h-full py-4">
+                <Button type="primary" size="middle" disabled={isPackageSelectionDisabled}>
+                  Select Package
+                </Button>
+              </div>
+            )}
+          </div>
+        </Tooltip>
+
+      </div>
 
       {modalOpen === 'property' && (
         <PropertyDetailsModal
@@ -443,6 +516,16 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           selectedFacade={selectedFacade}
         />
       )}
+      {/* Structural Engineer List Modal */}
+      {modalOpen === 'structuralEngineer' && (
+        <StructuralEngineerListModal
+          visible={modalOpen === 'structuralEngineer'}
+          onCancel={() => setModalOpen(null)}
+          onAssign={onStructuralEngineerSelect}
+          selectedStructuralEngineer={selectedStructuralEngineer}
+        />
+      )}
+
       {/* Package Selection Modal */}
       {modalOpen === 'package' && (
         <PackageModal

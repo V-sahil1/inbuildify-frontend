@@ -193,7 +193,7 @@ export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
                   </div>
                 </div>
               )}
-              {canCreateQuotation && (
+              {canCreateQuotation && !hasQuotations && (
                 <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
                   <div className="flex items-center gap-2">
                     <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
