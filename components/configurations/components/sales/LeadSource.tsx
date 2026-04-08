@@ -16,6 +16,8 @@ import { Status } from '@lib/constants/enum';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import { LeadSourceType } from '@redux/feature/admin/sales/leadSource/ILeadSourceState';
 import { getPaginationConfig } from '@lib/utils/getPaginationConfig';
+import { updateLeadSourceList } from '@redux/feature/admin/sales/leadSource/leadSourceSlice';
+import { handleReorder } from '@lib/utils/reorderBySort';
 
 export const LeadSource: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -50,9 +52,10 @@ export const LeadSource: React.FC = () => {
 
   const saveEdit = async () => {
     const values = await form.validateFields();
+    let response;
     try {
       if (editingRow?.isNew) {
-        await dispatch(createleadSource({ ...values, isActive: true })).unwrap();
+        response = await dispatch(createleadSource({ ...values, isActive: true })).unwrap();
         message.success('leadsource created successfully');
       } else {
         const { isUpdated, updatedFields } = getUpdatedFields(
@@ -63,16 +66,23 @@ export const LeadSource: React.FC = () => {
           setEditingRow(null);
           return;
         }
-        await dispatch(
+        response = await dispatch(
           updateleadSource({ data: updatedFields, id: editingRow.leadSourceId })
         ).unwrap();
         message.success('leadsource updated successfully');
       }
-      setEditingRow(null);
       form.resetFields();
+      setEditingRow(null);
+      if (response) {
+        const updatedList = handleReorder(leadSource, response, {
+          idKey: 'leadSourceId',
+          sortKey: 'sortOrder',
+        });
+        dispatch(updateLeadSourceList(updatedList));
+      }
     } catch (error) {
       message.error(error || 'Failed to save leadsource');
-    }finally{
+    } finally {
       await dispatch(fetchAllleadSource({ page: currentPage, limit: PAGE_SIZE })).unwrap();
     }
   };
@@ -107,7 +117,7 @@ export const LeadSource: React.FC = () => {
 
   const handleAddNew = () => {
     const tempId = Date.now().toString();
-    const nextSort = (leadSource.reduce((max, it) => Math.max(max, it.sortOrder || 0), 0) || 0) + 1;
+    const nextSort = leadSource?.length + 1;
     const newRow: LeadSourceType = {
       leadSourceId: tempId,
       name: '',
@@ -154,13 +164,25 @@ export const LeadSource: React.FC = () => {
         const editable = editingRow?.leadSourceId === record.leadSourceId;
         return editable ? (
           <div className={`w-full ${inactive ? 'opacity-50' : ''}`}>
-            <Form.Item name="sortOrder" rules={[{ required: true, message: 'Enter Sort Order' }]}>
+            <Form.Item
+              name="sortOrder"
+              rules={[
+                { required: true, message: 'Enter Sort Order' },
+                {
+                  type: 'number',
+                  min: 1,
+                  max: leadSource?.length + 1,
+                  message: `Sort order must be between 1 and ${leadSource?.length + 1}`,
+                },
+              ]}
+            >
               <Input
                 type="number"
                 value={record.sortOrder}
                 min={1}
+                max={leadSource?.length + 1}
                 disabled={status.create === Status.PENDING}
-                onWheel={(e) => e.currentTarget.blur()}
+                onWheel={e => e.currentTarget.blur()}
               />
             </Form.Item>
           </div>

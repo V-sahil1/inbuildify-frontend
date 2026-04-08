@@ -36,6 +36,8 @@ import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import { formDataGenerator } from '@lib/utils/formDataGenerator';
 import TooltipButton from '@/components/common/TooltipButton';
 import { RangeType } from '@redux/feature/admin/sales/range/IRangeState';
+import { handleReorder } from '@lib/utils/reorderBySort';
+import { updateRangeList } from '@redux/feature/admin/sales/range/rangeSlice';
 
 export const Range: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -71,12 +73,16 @@ export const Range: React.FC = () => {
       sortOrder: '',
     };
     let isValid = true;
-    if (!editingRow.name?.trim()) {
+    if (!editingRow?.name?.trim()) {
       errors.name = 'name is required';
       isValid = false;
     }
-    if (!editingRow.sortOrder || editingRow.sortOrder < 1) {
-      errors.sortOrder = 'Sort order must be greater than 0';
+    if (
+      !editingRow?.sortOrder ||
+      editingRow?.sortOrder < 1 ||
+      editingRow?.sortOrder > range?.length + 1
+    ) {
+      errors.sortOrder = 'Sort order must be between 1 and ' + (range?.length + 1);
       isValid = false;
     }
     setError(errors);
@@ -91,12 +97,13 @@ export const Range: React.FC = () => {
     if (!validateForm()) {
       return;
     }
+    let response;
     try {
       if (editingRow?.isNew) {
         delete editingRow.rangeId;
         delete editingRow.isNew;
         const formData = formDataGenerator(editingRow);
-        await dispatch(createRange(formData)).unwrap();
+        response = await dispatch(createRange(formData)).unwrap();
         message.success('Range created successfully');
       } else {
         const { isUpdated, updatedFields } = getUpdatedFields<RangeType>(
@@ -108,14 +115,21 @@ export const Range: React.FC = () => {
           return;
         }
         (delete updatedFields.rangeId, updatedFields.isNew);
-        await dispatch(updateRange({ data: formDataGenerator(updatedFields), id })).unwrap();
+        response = await dispatch(
+          updateRange({ data: formDataGenerator(updatedFields), id })
+        ).unwrap();
         message.success('Range updated successfully');
       }
       setEditingRow(null);
+      if (response) {
+        const updatedList = handleReorder(range, response, {
+          idKey: 'rangeId',
+          sortKey: 'sortOrder',
+        });
+        dispatch(updateRangeList(updatedList));
+      }
     } catch (error) {
       message.error(error || 'Failed to save range');
-    } finally {
-      await dispatch(fetchRange()).unwrap();
     }
   };
 
@@ -128,7 +142,7 @@ export const Range: React.FC = () => {
     const newRow: RangeType = {
       rangeId: '',
       name: '',
-      sortOrder: 1,
+      sortOrder: range?.length + 1,
       bgColor: '#7c3aed',
       fontColor: '#ffffff',
       logoUrl: '',
@@ -194,7 +208,7 @@ export const Range: React.FC = () => {
         return isEditing ? (
           <div className="flex flex-col gap-2">
             <Input
-              value={editingRow.name}
+              value={editingRow?.name}
               placeholder="Enter name"
               onChange={e => setEditingRow(p => ({ ...p, name: e.target.value }))}
               disabled={isDisabled}
@@ -204,7 +218,7 @@ export const Range: React.FC = () => {
                 <div className="text-xs text-gray-500">BG color</div>
                 <Input
                   type="color"
-                  value={editingRow.bgColor ?? '#7c3aed'}
+                  value={editingRow?.bgColor ?? '#7c3aed'}
                   onChange={e => setEditingRow(p => ({ ...p, bgColor: e.target.value }))}
                   style={{ width: 56, height: 32, padding: 0, borderRadius: 4 }}
                   disabled={isDisabled}
@@ -214,7 +228,7 @@ export const Range: React.FC = () => {
                 <div className="text-xs text-gray-500">Font color</div>
                 <Input
                   type="color"
-                  value={editingRow.fontColor ?? '#ffffff'}
+                  value={editingRow?.fontColor ?? '#ffffff'}
                   onChange={e => setEditingRow(p => ({ ...p, fontColor: e.target.value }))}
                   style={{ width: 56, height: 32, padding: 0, borderRadius: 4 }}
                   disabled={isDisabled}
@@ -262,21 +276,22 @@ export const Range: React.FC = () => {
                 ? [
                     {
                       uid: '-1',
-                      name: editingRow.logoUrl instanceof File ? editingRow.logoUrl.name : 'Logo',
+                      name:
+                        editingRow?.logoUrl instanceof File ? editingRow?.logoUrl?.name : 'Logo',
                       status: 'done',
                       url:
-                        editingRow.logoUrl instanceof File
-                          ? URL.createObjectURL(editingRow.logoUrl)
-                          : editingRow.logoUrl,
+                        editingRow?.logoUrl instanceof File
+                          ? URL.createObjectURL(editingRow?.logoUrl)
+                          : editingRow?.logoUrl,
                     },
                   ]
-                : record.logoUrl && typeof record.logoUrl === 'string'
+                : record?.logoUrl && typeof record?.logoUrl === 'string'
                   ? [
                       {
                         uid: '-1',
                         name: 'Logo',
                         status: 'done',
-                        url: record.logoUrl,
+                        url: record?.logoUrl,
                       },
                     ]
                   : []
@@ -288,8 +303,8 @@ export const Range: React.FC = () => {
           </Upload>
         ) : (
           <div className="w-12 h-12 bg-gray-100 rounded border flex items-center justify-center">
-            {record.logoUrl && typeof record.logoUrl === 'string' ? (
-              <Image src={record.logoUrl} alt="Header" preview={false} />
+            {record?.logoUrl && typeof record?.logoUrl === 'string' ? (
+              <Image src={record?.logoUrl} alt="Header" preview={false} />
             ) : (
               <span className="text-xs text-gray-400">NO IMAGE</span>
             )}
@@ -303,7 +318,7 @@ export const Range: React.FC = () => {
       key: 'header',
       width: 120,
       render: (_, record: RangeType) => {
-        const isEditing = editingRow?.rangeId === record.rangeId;
+        const isEditing = editingRow?.rangeId === record?.rangeId;
         if (!record.isActive) return <div className="text-gray-400">-</div>;
         return isEditing ? (
           <Upload
@@ -367,7 +382,7 @@ export const Range: React.FC = () => {
           <Select
             mode="multiple"
             placeholder="Select Users"
-            value={(editingRow.userId as string[]) ?? []}
+            value={(editingRow?.userId as string[]) ?? []}
             options={userOptions}
             onChange={vals => setEditingRow(p => ({ ...p, userId: vals }))}
             style={{ minWidth: 220 }}
@@ -392,11 +407,13 @@ export const Range: React.FC = () => {
           <>
             <Input
               type="number"
-              value={editingRow.sortOrder ?? ''}
+              value={editingRow?.sortOrder ?? ''}
               onChange={e => handleSortChange(e.target.value)}
               style={{ width: 72 }}
               disabled={isDisabled}
-              onWheel={(e) => e.currentTarget.blur()}
+              onWheel={e => e.currentTarget.blur()}
+              min={1}
+              max={range?.length + 1}
             />
             {error?.sortOrder && <div className="text-red-500">{error.sortOrder}</div>}
           </>
@@ -478,7 +495,7 @@ export const Range: React.FC = () => {
       },
     },
   ];
-  const dataSource = !!editingRow && editingRow.isNew ? [editingRow, ...range] : range;
+  const dataSource = !!editingRow && editingRow?.isNew ? [editingRow, ...range] : range;
   return (
     <div className="p-4 rounded-lg shadow-sm">
       <div className="flex justify-between items-center mb-4">

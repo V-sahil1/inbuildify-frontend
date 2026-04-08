@@ -14,7 +14,11 @@ const initialState: IRangeState = {
 const rangeSlice = createSlice({
   name: 'range',
   initialState,
-  reducers: {},
+  reducers: {
+    updateRangeList: (state, action) => {
+      state.range = action.payload;
+    },
+  },
   extraReducers: builder => {
     builder.addCase(createRange.pending, state => {
       state.status.create = Status.PENDING;
@@ -63,4 +67,5 @@ const rangeSlice = createSlice({
     });
   },
 });
+export const { updateRangeList } = rangeSlice.actions;
 export default rangeSlice.reducer;

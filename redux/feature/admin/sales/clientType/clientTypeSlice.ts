@@ -20,7 +20,11 @@ const initialState: IClientTypeState = {
 const clientTypeSlice = createSlice({
   name: 'clientType',
   initialState,
-  reducers: {},
+  reducers: {
+    updateClientTypeList: (state, action) => {
+      state.clientType = action.payload;
+    },
+  },
   extraReducers: builder => {
     builder.addCase(createClientType.pending, state => {
       state.status.create = Status.PENDING;
@@ -71,4 +75,5 @@ const clientTypeSlice = createSlice({
     });
   },
 });
+export const { updateClientTypeList } = clientTypeSlice.actions;
 export default clientTypeSlice.reducer;

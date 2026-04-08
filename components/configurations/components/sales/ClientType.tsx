@@ -23,6 +23,8 @@ import { Status } from '@lib/constants/enum';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import { IClientType } from '@redux/feature/admin/sales/clientType/IClientTypeState';
 import { getPaginationConfig } from '@lib/utils/getPaginationConfig';
+import { handleReorder } from '@lib/utils/reorderBySort';
+import { updateClientTypeList } from '@redux/feature/admin/sales/clientType/clientTypeSlice';
 
 export const ClientType: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -64,8 +66,12 @@ export const ClientType: React.FC = () => {
       errors.clientType = 'Client Type is required';
       isValid = false;
     }
-    if (!editingRow.sortOrder || editingRow.sortOrder < 1) {
-      errors.sortOrder = 'Sort order must be greater than 0';
+    if (
+      !editingRow.sortOrder ||
+      editingRow.sortOrder < 1 ||
+      editingRow?.sortOrder > clientType?.length + 1
+    ) {
+      errors.sortOrder = 'Sort order must be between 1 and ' + (clientType?.length + 1);
       isValid = false;
     }
     setError(errors);
@@ -83,9 +89,10 @@ export const ClientType: React.FC = () => {
     if (!validateForm()) {
       return;
     }
+    let response;
     try {
       if (editingRow?.isNew) {
-        await dispatch(
+        response = await dispatch(
           createClientType({ clientType: editingRow.clientType, sortOrder: editingRow.sortOrder })
         ).unwrap();
         message.success('Client Type created successfully');
@@ -98,7 +105,7 @@ export const ClientType: React.FC = () => {
           setEditingRow(null);
           return;
         }
-        await dispatch(
+        response = await dispatch(
           updateClientType({
             data: updatedFields,
             id: clientTypeId,
@@ -107,6 +114,13 @@ export const ClientType: React.FC = () => {
         message.success('Client Type updated successfully');
       }
       setEditingRow(null);
+      if (response) {
+        const updatedList = handleReorder(clientType, response, {
+          idKey: 'clientTypeId',
+          sortKey: 'sortOrder',
+        });
+        dispatch(updateClientTypeList(updatedList));
+      }
     } catch (error) {
       message.error(error || 'Failed to save client type');
     }
@@ -229,7 +243,9 @@ export const ClientType: React.FC = () => {
               value={isEditing ? (editingRow.sortOrder ?? '') : sortOrder}
               onChange={e => isEditing && handleSortChange(e.target.value)}
               disabled={status.create === Status.PENDING}
-              onWheel={(e) => e.currentTarget.blur()}
+              onWheel={e => e.currentTarget.blur()}
+              min={1}
+              max={clientType?.length + 1}
             />
             {error?.sortOrder && <span className="text-red-500">{error.sortOrder}</span>}
           </>
