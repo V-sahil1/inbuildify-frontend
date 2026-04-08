@@ -2,6 +2,7 @@ import { Button, message, Select } from 'antd';
 import {
   createPackage,
   fetchPackageGroup,
+  fetchPackages,
   updatePackage,
 } from '@redux/feature/package/packageThunk';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
@@ -11,6 +12,7 @@ import { IconSortAscending, IconSortDescending } from '@tabler/icons-react';
 import useDwellingAndRangeHook from '@hooks/useDwellingAndRangeHook';
 import { useEffect } from 'react';
 import { Status } from '@lib/constants/enum';
+import { PackageFetchParams } from '@redux/feature/package/IPackageState';
 
 export const PackageColumn = ({
   setDrawerOpen,
@@ -20,7 +22,7 @@ export const PackageColumn = ({
   fetchPackageData,
 }) => {
   const dispatch = useAppDispatch();
-  const { status, group } = useAppSelector(state => state.package);
+  const { status, group, pagination } = useAppSelector(state => state.package);
 
   const { rangeOptions, dwellingTypeOptions } = useDwellingAndRangeHook({
     type: ['range', 'dwellingType'],
@@ -210,6 +212,19 @@ export const PackageColumn = ({
 
   const handlePackageSubmit = async values => {
     try {
+      const params: PackageFetchParams = {
+        page: pagination?.currentPage ?? 1,
+        limit: pagination?.limit ?? 10,
+      };
+      params.search = filters?.search || undefined;
+      params.status = filters?.status === 'true' || undefined;
+      params.dwelling_type_id = filters?.dwellingType || undefined;
+      params.range_id = filters?.label || undefined;
+      params.package_group_id = filters?.group || undefined;
+      params.name = filters?.name || undefined;
+      params.cost = filters?.cost || undefined;
+      params.builder_cost = filters?.builderCost || undefined;
+
       if (selectedPackage) {
         const { isUpdated, updatedFields } = getUpdatedFields(values, selectedPackage);
         if (!isUpdated) {
@@ -227,6 +242,7 @@ export const PackageColumn = ({
       }
       setSelectedPackage(null);
       setDrawerOpen(null);
+      await dispatch(fetchPackages(params)).unwrap();
     } catch (error) {
       message.error(error || 'Failed to save package');
     }

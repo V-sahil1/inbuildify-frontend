@@ -18,6 +18,7 @@ import { LeadSourceType } from '@redux/feature/admin/sales/leadSource/ILeadSourc
 import { getPaginationConfig } from '@lib/utils/getPaginationConfig';
 import { updateLeadSourceList } from '@redux/feature/admin/sales/leadSource/leadSourceSlice';
 import { handleReorder } from '@lib/utils/reorderBySort';
+import { createSortOrderValidation } from '@lib/constants/formInputValidations';
 
 export const LeadSource: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -166,21 +167,13 @@ export const LeadSource: React.FC = () => {
           <div className={`w-full ${inactive ? 'opacity-50' : ''}`}>
             <Form.Item
               name="sortOrder"
-              rules={[
-                { required: true, message: 'Enter Sort Order' },
-                {
-                  type: 'number',
-                  min: 1,
-                  max: leadSource?.length + 1,
-                  message: `Sort order must be between 1 and ${leadSource?.length + 1}`,
-                },
-              ]}
+              rules={createSortOrderValidation(leadSource?.length ?? 0, !editingRow?.isNew)}
             >
               <Input
                 type="number"
                 value={record.sortOrder}
                 min={1}
-                max={leadSource?.length + 1}
+                max={leadSource?.length + (editingRow?.isNew ? 1 : 0)}
                 disabled={status.create === Status.PENDING}
                 onWheel={e => e.currentTarget.blur()}
               />

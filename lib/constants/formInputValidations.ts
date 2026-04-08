@@ -554,3 +554,28 @@ export const websiteRules = [
     },
   },
 ];
+
+/**
+ * Creates sort order validation rules with dynamic max value and editing state
+ */
+export const createSortOrderValidation = (maxValue: number, isEditing: boolean = false) => [
+  {
+    required: true,
+    message: 'Enter Sort Order',
+  },
+  () => ({
+    validator(_: any, value: string | number) {
+      const num = Number(value);
+      const maxVal = maxValue + (isEditing ? 0 : 1);
+
+      if (isNaN(num) || num < 1) {
+        return Promise.reject('Sort order must be at least 1');
+      }
+      if (num > maxVal) {
+        return Promise.reject(`Sort order must be between 1 and ${maxVal}`);
+      }
+      return Promise.resolve();
+    },
+  }),
+];
+

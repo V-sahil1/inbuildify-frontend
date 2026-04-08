@@ -14,6 +14,7 @@ import {
   createDwellingType,
   updateDwellingType,
 } from '@redux/feature/admin/sales/dwellingType/dwellingTypeThunk';
+import { createSortOrderValidation } from '@lib/constants/formInputValidations';
 
 export const PackageFormModal = ({ title, open, onClose, onSubmit, initialValues, isEditing }) => {
   const [form] = Form.useForm();
@@ -130,14 +131,14 @@ export const PackageFormModal = ({ title, open, onClose, onSubmit, initialValues
           <div>
             <span>Cost</span>
             <Form.Item name="cost">
-              <Input addonBefore="$" type="number" onWheel={(e) => e.currentTarget.blur()} />
+              <Input addonBefore="$" type="number" onWheel={e => e.currentTarget.blur()} />
             </Form.Item>
           </div>
 
           <div>
             <span>Builder Cost</span>
             <Form.Item name="builderCost">
-              <Input addonBefore="$" type="number" onWheel={(e) => e.currentTarget.blur()} />
+              <Input addonBefore="$" type="number" onWheel={e => e.currentTarget.blur()} />
             </Form.Item>
           </div>
         </div>
@@ -145,8 +146,16 @@ export const PackageFormModal = ({ title, open, onClose, onSubmit, initialValues
         <div className="grid grid-cols-2 gap-2">
           <div>
             <span>Sort Order</span>
-            <Form.Item name="sortOrder">
-              <Input type="number" onWheel={(e) => e.currentTarget.blur()} />
+            <Form.Item
+              name="sortOrder"
+              rules={createSortOrderValidation(pagination?.totalRecords ?? 0, !!isEditing)}
+            >
+              <Input
+                type="number"
+                min={1}
+                max={(pagination?.totalRecords ?? 0) + (isEditing ? 1 : 0)}
+                onWheel={e => e.currentTarget.blur()}
+              />
             </Form.Item>
           </div>
 

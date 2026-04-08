@@ -69,9 +69,10 @@ export const ClientType: React.FC = () => {
     if (
       !editingRow.sortOrder ||
       editingRow.sortOrder < 1 ||
-      editingRow?.sortOrder > clientType?.length + 1
+      editingRow?.sortOrder > clientType?.length + (editingRow?.isNew ? 1 : 0)
     ) {
-      errors.sortOrder = 'Sort order must be between 1 and ' + (clientType?.length + 1);
+      errors.sortOrder =
+        'Sort order must be between 1 and ' + (clientType?.length + (editingRow?.isNew ? 1 : 0));
       isValid = false;
     }
     setError(errors);
@@ -136,7 +137,7 @@ export const ClientType: React.FC = () => {
     const newRow: IClientType = {
       clientTypeId: '',
       clientType: '',
-      sortOrder: null,
+      sortOrder: clientType?.length ? clientType.length + 1 : 1,
       isActive: true,
       isNew: true,
     };
@@ -245,7 +246,7 @@ export const ClientType: React.FC = () => {
               disabled={status.create === Status.PENDING}
               onWheel={e => e.currentTarget.blur()}
               min={1}
-              max={clientType?.length + 1}
+              max={clientType?.length + (editingRow?.isNew ? 1 : 0)}
             />
             {error?.sortOrder && <span className="text-red-500">{error.sortOrder}</span>}
           </>

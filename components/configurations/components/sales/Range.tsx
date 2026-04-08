@@ -80,9 +80,10 @@ export const Range: React.FC = () => {
     if (
       !editingRow?.sortOrder ||
       editingRow?.sortOrder < 1 ||
-      editingRow?.sortOrder > range?.length + 1
+      editingRow?.sortOrder > range?.length + (editingRow?.isNew ? 1 : 0)
     ) {
-      errors.sortOrder = 'Sort order must be between 1 and ' + (range?.length + 1);
+      errors.sortOrder =
+        'Sort order must be between 1 and ' + (range?.length + (editingRow?.isNew ? 1 : 0));
       isValid = false;
     }
     setError(errors);
@@ -142,7 +143,7 @@ export const Range: React.FC = () => {
     const newRow: RangeType = {
       rangeId: '',
       name: '',
-      sortOrder: range?.length + 1,
+      sortOrder: (range?.length ?? 0) + 1,
       bgColor: '#7c3aed',
       fontColor: '#ffffff',
       logoUrl: '',
@@ -413,7 +414,7 @@ export const Range: React.FC = () => {
               disabled={isDisabled}
               onWheel={e => e.currentTarget.blur()}
               min={1}
-              max={range?.length + 1}
+              max={range?.length + (editingRow?.isNew ? 1 : 0)}
             />
             {error?.sortOrder && <div className="text-red-500">{error.sortOrder}</div>}
           </>

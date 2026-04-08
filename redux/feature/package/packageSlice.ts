@@ -29,8 +29,8 @@ interface PackageState {
 }
 
 const initialState: PackageState = {
-  packages: null,
-  items: null,
+  packages: [],
+  items: [],
   group: [],
   status: {
     packages: Status.IDLE,
