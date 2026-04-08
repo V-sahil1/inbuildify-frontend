@@ -74,7 +74,7 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({
   };
 
   return (
-    <div className="flex items-center gap-6 justify-end text-font-color w-[1000px]">
+    <div className="flex items-center gap-6 justify-end text-font-color ml-4">
       {/* <div className="flex items-center gap-4">
         <span className="text-sm">Location</span>
         <Select

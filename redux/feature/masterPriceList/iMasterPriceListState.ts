@@ -55,6 +55,7 @@ export interface PricelistItemFtechParams {
   cost_type?: string;
   uom?: string;
   search?: string;
+  package_id?: string;
 }
 
 export interface PricelistFetchParams {

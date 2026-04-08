@@ -58,16 +58,16 @@ export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
 
   const handleCreateQuotation = async () => {
     // Check if structural engineer is assigned
-    if (!leadDetail?.lead?.structureEngineerId) {
-      message.warning('Please assign a structural engineer first before creating a quotation.');
-      return;
-    }
+    // if (!leadDetail?.lead?.structureEngineerId) {
+    //   message.warning('Please assign a structural engineer first before creating a quotation.');
+    //   return;
+    // }
 
     // Check if structural report is uploaded
-    if (!leadDetail?.lead?.structureReportFile) {
-      message.warning('Please upload structural report first before creating a quotation.');
-      return;
-    }
+    // if (!leadDetail?.lead?.structureReportFile) {
+    //   message.warning('Please upload structural report first before creating a quotation.');
+    //   return;
+    // }
 
     try {
       router.push(SystemRoutes.QUOTATION_CREATE(leadId));
@@ -78,26 +78,21 @@ export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
   };
 
   // Check validation status for display
-  const hasStructuralEngineer = Boolean(leadDetail?.lead?.structureEngineerId);
-  const hasStructuralReport = Boolean(leadDetail?.lead?.structureReportFile);
-  const canCreateQuotation = hasStructuralEngineer && hasStructuralReport;
+  // const hasStructuralEngineer = Boolean(leadDetail?.lead?.structureEngineerId);
+  // const hasStructuralReport = Boolean(leadDetail?.lead?.structureReportFile);
+  // const canCreateQuotation = hasStructuralEngineer && hasStructuralReport;
   return (
     <>
       <Card>
         <div
-          className={`${canCreateQuotation ? 'justify-between' : 'justify-start'} flex flex-col ${hasQuotations ? '' : 'min-h-[220px] items-center justify-center'}`}
+          className={`justify-between flex flex-col ${hasQuotations ? '' : 'min-h-[220px] items-center justify-center'}`}
         >
           <div
-            className={`${canCreateQuotation ? 'justify-between' : 'justify-end'} flex gap-2 items-center w-full`}
+            className={`justify-between flex gap-2 items-center w-full`}
           >
-            {canCreateQuotation && (
-              <p
-                className="text-sm cursor-pointer text-blue text-nowrap text-center"
-                onClick={handleCreateQuotation}
-              >
+              <p className="text-sm cursor-pointer text-blue text-nowrap text-center" onClick={handleCreateQuotation} >
                 Create Quotation
               </p>
-            )}
             {hasQuotations && (
               <div
                 className={`flex items-center min-w-0 ${showSearchInput && 'max-w-[45%]'} flex-shrink-0`}
@@ -153,7 +148,7 @@ export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
               </div>
             )}
           </div>
-          <div
+          {/* <div
             className={`flex items-center gap-2 overflow-hidden ${hasQuotations ? 'justify-between w-full' : 'justify-center'}`}
           >
             <div className="text-center">
@@ -209,7 +204,7 @@ export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
                 </div>
               )}
             </div>
-          </div>
+          </div> */}
 
           {hasQuotations && (
             <div className="max-h-[200px] my-2 overflow-y-auto">

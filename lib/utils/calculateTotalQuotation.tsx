@@ -11,8 +11,8 @@ const calculateTotalQuotation = (
   // const packageItemIds = new Set((packageFromSlice?.categoryItems || []).map(ci => ci.id));
   itemsFromSlice?.forEach(item => {
     // if (!packageItemIds?.has(item.priceListItemId)) {
-    const qty = Number(item.quantity) || 0;
-    const price = Number(item.itemCost) || 0;
+    const qty = Number(item?.quantity) || 0;
+    const price = Number(item?.priceListItemCost) || 0;
     total += qty * price ;
     // }
   });

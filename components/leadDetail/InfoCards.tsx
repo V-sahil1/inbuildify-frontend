@@ -14,6 +14,7 @@ import {
   IconCar,
   IconForklift,
   IconTrash,
+  IconAlertTriangle,
 } from '@tabler/icons-react';
 import { PropertyDetails } from 'data/types';
 import PropertyDetailsModal from './PropertyDetailsModal';
@@ -72,8 +73,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
   isReadOnly,
   filters,
 }) => {
-  const { quoteDetails } = useAppSelector(state => state.quotation);
-
+  const { quoteDetails, items } = useAppSelector(state => state.quotation);
   const [modalOpen, setModalOpen] = useState<
     'property' | 'floorPlan' | 'facade' | 'package' | 'linkContact' | 'contact' | 'structuralEngineer' | null
   >(null);
@@ -455,9 +455,22 @@ const InfoCards: React.FC<InfoCardsProps> = ({
                     )}
                   </div>
                 </div>
-                <p className="text-xl font-extrabold text-green-600 text-end">
-                  ${selectedPackage?.cost}
-                </p>
+                <div className="flex items-center justify-end gap-2">
+                  {/* Warning icon for package cost mismatch */}
+                  {selectedPackage && quoteDetails?.package?.packageId === selectedPackage.packageId && items.some(
+                    item => item.isPackageCostMismatch
+                  ) && (
+                    <Tooltip title="Warning: Package cost or item mismatch from current">
+                      <IconAlertTriangle 
+                        size={16} 
+                        className="text-yellow-500 cursor-help" 
+                      />
+                    </Tooltip>
+                  )}
+                  <p className="text-xl font-extrabold text-green-600 text-end">
+                    ${selectedPackage?.cost}
+                  </p>
+                </div>
               </>
             ) : (
               <div className="flex justify-center items-center h-full py-4">

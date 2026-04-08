@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Button, Dropdown, Form, Input } from 'antd';
+import { Button, Dropdown, Form, Input, message } from 'antd';
 import { IPriceList } from '@redux/feature/masterPriceList/iMasterPriceListState';
 import { QuatationItem } from '../quotation/QuatationItem';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
@@ -10,13 +10,14 @@ import { QuatationExtraItem } from '../quotation/QuatationExtraItem';
 import {
   createQuotationPricellistThunk,
   deleteQuotationPricelistThunk,
+  updateQuotationItemThunk,
 } from '@redux/feature/quotation/quotationThunk';
-import { useRouter } from 'next/router';
 import { IconSearch } from '@tabler/icons-react';
 
 interface ItemsPanelProps {
   category?: IPriceList;
   onItemQuantityChange: (itemId: string, quantity: number) => void;
+  onItemQuantityUpdate: (itemId: string, quantity: number) => Promise<void>;
   onExtraClick: () => void;
   extraItem: boolean;
   isReadOnly: boolean;
@@ -27,6 +28,8 @@ interface ItemsPanelProps {
 
 const ItemsPanel: React.FC<ItemsPanelProps> = ({
   category,
+  onItemQuantityChange,
+  onItemQuantityUpdate,
   onExtraClick,
   extraItem,
   isReadOnly,
@@ -34,7 +37,6 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
   select,
   setSelect,
 }) => {
-  const router = useRouter();
   const [search, setSearch] = useState('');
   const dispatch = useAppDispatch();
   const {
@@ -110,21 +112,53 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
     { key: 'discount', label: 'Discount' },
     { key: 'note', label: 'Note' },
   ];
-  const handleItemAdd = async item => {
-    const quantity = quantityRefs.current[item.priceListItemId]?.value || '1';
-    const pricelist = items.find(i => i.priceListItemId === item.priceListItemId);
-    if (!!pricelist) {
-      await dispatch(deleteQuotationPricelistThunk(pricelist?.id)).unwrap();
-    } else {
-      const payload = {
-        quotationVersionId: quoteDetails?.quotationVersionId,
-        priceListItemId: item?.priceListItemId,
-        quantity: Number(quantity),
-        note: item?.notes || '',
-      };
-      await dispatch(createQuotationPricellistThunk(payload)).unwrap();
+
+  const handleItemAdd = async (item: any) => {
+    try {
+      const quantity = quantityRefs.current[item.priceListItemId]?.value || '1';
+      const pricelist = items.find(i => i.priceListItemId === item.priceListItemId);
+      
+      if (!!pricelist) {
+        await dispatch(deleteQuotationPricelistThunk(pricelist?.quotationVersionItemId)).unwrap();
+        message.success('Item removed successfully');
+      } else {
+        const payload = {
+          quotationVersionId: quoteDetails?.quotationVersionId,
+          priceListItemId: item?.priceListItemId,
+          quantity: Number(quantity),
+          note: item?.notes || '',
+        };
+        await dispatch(createQuotationPricellistThunk(payload)).unwrap();
+        message.success('Item added successfully');
+      }
+    } catch (error) {
+      message.error(error as string || 'Failed to update item. Please try again.');
     }
   };
+
+  const handleItemQuantityUpdate = async (itemId: string, quantity: number) => {
+    try {
+      const priceItem = items.find(i => i.priceListItemId === itemId);
+      if (!priceItem?.quotationVersionItemId) return;
+      
+      // Only update if quantity has changed
+      if (Number(priceItem.quantity) !== quantity) {
+        await dispatch(
+          updateQuotationItemThunk({
+            quotationVersionItemId: priceItem.quotationVersionItemId,
+            quantity,
+            note: priceItem.note || '',
+            priceListItemDescription: priceItem.itemDescription || ''
+          })
+        ).unwrap();
+        message.success('Quantity updated successfully');
+      }
+    } catch (error) {
+      message.error(error as string || 'Failed to update quantity');
+      throw error; // Re-throw to let child component handle revert
+    }
+  };
+
   const handleItemQuantityChange = (itemId: string, quantity: number) => {
     dispatch(updateQuotationItem({ itemId, quantity }));
   };
@@ -235,10 +269,14 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
                             // )
                           }
                           onQuantityChange={handleItemQuantityChange}
+                          onQuantityUpdate={onItemQuantityUpdate}
                           quantityRef={el => (quantityRefs.current[item.priceListItemId] = el)}
                           isSelected={items?.some(
                             itemData => itemData.priceListItemId === item.priceListItemId
                           )}
+                          isDiffPrice={items?.find(
+                            itemData => itemData.priceListItemId === item.priceListItemId
+                          )?.isPriceListItemCostMismatch}
                           onToggleAdd={handleItemAdd}
                           category={category}
                         />

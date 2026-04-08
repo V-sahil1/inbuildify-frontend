@@ -129,14 +129,20 @@ class API_ENDPOINTS {
   // builder
   public static BUILDER_BASE = '/builder';
 
+
+  // item
+  public static ITEM_BASE = '/item';
+
   //quotation
   public static QUOTATION_BASE = '/quotation';
   public static QUOTATION_VERSION = '/quotation/version';
   public static GET_QUOTATIONS_BY_LEAD_ID = (leadId: string, page: number, limit: number) =>
     `${this.QUOTATION_BASE}?leadId=${leadId}&page=${page}&limit=${limit}`;
   public static QUOTATION_PRICELIST = '/quotation-version-pricelist-item-map';
+  public static QUOTATION_VERSION_ITEM = '/quotation-version-items';
+  public static QUOTATION_PACKAGE_CREATE = '/quotation-version-items/package';
   public static QUOTATION_PACKAGE = (versionId: string, pkgId: string) =>
-    `${this.QUOTATION_VERSION}/${versionId}/packages/${pkgId}`;
+    `${this.QUOTATION_PACKAGE_CREATE}/${versionId}/${pkgId}`;
   public static QUOTATION_NEW_VERSION = (versionid: string) =>
     `${this.QUOTATION_VERSION}/${versionid}/duplicate`;
   public static QUOTATION_COMPARE = `${this.QUOTATION_BASE}/compare`;

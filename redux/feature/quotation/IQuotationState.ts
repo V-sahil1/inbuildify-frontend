@@ -136,6 +136,10 @@ export type QuotationVersionDetails = {
 export type QuotationPriceListItem = {
   id?: string;
   quotationVersionId: string;
+  quotationVersionItemId?: string;
+  priceListItemCost?: string,
+  isPackageCostMismatch?: boolean;
+  isPriceListItemCostMismatch?: boolean;
   priceListItemId: string;
   quantity: number;
   note?: string;

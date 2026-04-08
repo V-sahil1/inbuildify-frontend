@@ -1,25 +1,26 @@
 import { useAppSelector } from '@hooks/redux';
 import { enumToReadable } from '@lib/utils/enumToRedable';
 import { RootState } from '@redux/feature/store';
-import { IconCheck, IconPencil, IconPlus, IconX } from '@tabler/icons-react';
-import { Tag, InputNumber, Button, Tooltip, Input, Modal } from 'antd';
+import { IconPencil, IconPlus, IconX, IconAlertTriangle } from '@tabler/icons-react';
+import { Tag, InputNumber, Button, Tooltip, Input } from 'antd';
 import React, { useState, useEffect } from 'react';
 import AddMasterPricingItemModal from '../common/Models/AddMasterPricingItemModel';
 import { IPriceList, IPriceListItem } from '@redux/feature/masterPriceList/iMasterPriceListState';
 import ChecklistNotesModal from '../construction/ChecklisrNotesModal';
-const { TextArea } = Input;
 interface QuatationItemProps {
   item: IPriceListItem;
   onQuantityChange: (itemId: string, qty: number) => void;
+  onQuantityUpdate?: (itemId: string, quantity: number) => Promise<void>;
   onToggleAdd: (item: IPriceListItem & { notes: string }) => void;
   isSelected: boolean;
   quantityRef?: any;
+  isDiffPrice?: boolean;
   disabled?: boolean;
   category?: IPriceList;
 }
 
 export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
-  ({ item, onToggleAdd, isSelected, onQuantityChange, quantityRef, disabled, category }) => {
+  ({ item, onToggleAdd, isSelected, onQuantityChange, onQuantityUpdate, quantityRef, disabled, category, isDiffPrice = false }) => {
     const { items } = useAppSelector((state: RootState) => state.quotation);
     const { leadDetail } = useAppSelector((state: RootState) => state.lead);
     const priceItem = items.find(i => i.priceListItemId === item.priceListItemId);
@@ -58,6 +59,17 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
 
     const handleQuantityChange = (value: number | null) => {
       setQuantity(value ?? 1);
+    };
+
+    const handleQuantityBlur = async () => {
+      if (!priceItem?.quotationVersionItemId || !quantity || !onQuantityUpdate) return;
+      
+      try {
+        await onQuantityUpdate(item.priceListItemId, quantity);
+      } catch (error) {
+        // Revert to original quantity on error
+        setQuantity(Number(priceItem.quantity) || 1);
+      }
     };
     const isIncluded = item.costType === 'Included';
 
@@ -120,25 +132,38 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
         <div className="table-cell text-center p-3 align-middle w-[100px]">
           <InputNumber
             min={1}
+            step={1}
+            precision={0}
             value={quantity}
             ref={quantityRef}
             onChange={handleQuantityChange}
+            onBlur={handleQuantityBlur}
             type="number"
             size="small"
             className="w-full text-center"
-            disabled={isIncluded || disabled || isSelected}
+            disabled={isIncluded || disabled}
             onWheel={(e) => e.currentTarget.blur()}
           />
         </div>
 
         {/* Price */}
         <div className="table-cell text-center p-3 align-middle w-[100px]">
-          {!isIncluded ? `$${item.cost || priceItem?.itemCost || 0}` : ' '}
+          <div className="flex items-center justify-center gap-1">
+            {!isIncluded ? `$${priceItem?.priceListItemCost || item.cost || 0}` : ' '}
+            {isDiffPrice && (
+              <Tooltip title={`Current price for this item is $${item.cost}`}>
+                <IconAlertTriangle 
+                  size={14} 
+                  className="text-yellow-500 cursor-help" 
+                />
+              </Tooltip>
+            )}
+          </div>
         </div>
 
         {/* Total */}
         <div className="table-cell text-center p-3 align-middle w-[60px]">
-          {!isIncluded ? `$${(item.cost || priceItem?.itemCost || 0) * quantity}` : ' '}
+          {!isIncluded ? `$${(Number(priceItem?.priceListItemCost) || item.cost || 0) * quantity}` : ' '}
         </div>
 
         {/* Action */}
@@ -146,9 +171,20 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
           <Button
             disabled={isIncluded || disabled || shouldDisableRemoval}
             type={isSelected ? 'primary' : 'dashed'}
+            style={{
+              boxShadow: 'none',
+            }}
             shape="circle"
             size="small"
-            icon={isSelected ? <IconX size={16} /> : <IconPlus size={16} />}
+            icon={isSelected ? (
+              <div>
+                <IconX size={16} />
+              </div>
+            ) : (
+              <div>
+                <IconPlus size={16} />
+              </div>
+            )}
             onClick={() => handleToggle(item)}
           />
         </div>

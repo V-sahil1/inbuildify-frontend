@@ -6,6 +6,7 @@ import {
   createQuotation,
   createQuotationCompareThunk,
   createQuotationCustomSection,
+  createQuotationPackageThunk,
   createQuotationPricellistThunk,
   createQuotationThunk,
   createQuotationVersionThunk,
@@ -19,6 +20,7 @@ import {
   getQuotationVersionById,
   updateQuotationCustomSection,
   updateQuotationVersion,
+  updateQuotationItemThunk,
 } from './quotationThunk';
 import { LeadContact } from '../lead/ILeadState';
 import {
@@ -288,10 +290,41 @@ const quotationSlice = createSlice({
         state.items = action.payload.map(i => ({ ...i, quantity: Number(i.quantity) || 1 }));
       })
       .addCase(deleteQuotationPricelistThunk.fulfilled, (state, action) => {
-        state.items = state.items?.filter(i => i.id !== action.meta.arg);
+        state.items = state.items?.filter(i => i.quotationVersionItemId !== action.meta.arg);
+      })
+
+      // quotation item update
+      .addCase(updateQuotationItemThunk.pending, (state, action) => {
+        state.status.create = Status.PENDING;
+      })
+      .addCase(updateQuotationItemThunk.fulfilled, (state, action) => {
+        state.status.create = Status.SUCCESS;
+        // Update the specific item in the items array
+        const updatedItem = action.payload;
+        const index = state.items.findIndex(item => item.quotationVersionItemId === updatedItem.quotationVersionItemId);
+        if (index !== -1) {
+          state.items[index] = { ...updatedItem, quantity: Number(updatedItem.quantity) || 1 };
+        }
+      })
+      .addCase(updateQuotationItemThunk.rejected, (state, action) => {
+        state.status.create = Status.ERROR;
       })
 
       // quotation package
+      .addCase(createQuotationPackageThunk.pending, (state, action) => {
+        state.status.create = Status.PENDING;
+      })
+      .addCase(createQuotationPackageThunk.fulfilled, (state, action) => {
+        state.status.create = Status.SUCCESS;
+        // Update package with response data
+        if (action.payload?.package) {
+          state.package = action.payload.package;
+        }
+      })
+      .addCase(createQuotationPackageThunk.rejected, (state, action) => {
+        state.status.create = Status.ERROR;
+      })
+
       .addCase(deleteQuotationPackageThunk.fulfilled, (state, action) => {
         state.package = null;
       })

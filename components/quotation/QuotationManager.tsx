@@ -16,11 +16,13 @@ import { RootState } from '@redux/feature/store';
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   createQuotation,
+  createQuotationPackageThunk,
   createQuotationVersionThunk,
   getQuotationCustomSection,
   getQuotationPricelistThunk,
   getQuotationVersionById,
   updateQuotationVersion,
+  updateQuotationItemThunk,
 } from '@redux/feature/quotation/quotationThunk';
 import {
   setQuotationPlan,
@@ -139,6 +141,7 @@ const QuotationManager = () => {
       if (!value) {
         return;
       }
+
       try {
         const payload: Partial<QuotationVersionDetails> = {};
         switch (type) {
@@ -153,6 +156,16 @@ const QuotationManager = () => {
           case 'package':
             dispatch(setQuotationPackage(value as Package));
             payload.packageId = (value as Package)?.packageId || null;
+            if (quoteVersionId && (value as Package)?.packageId) {
+              await dispatch(
+                createQuotationPackageThunk({
+                  quotationVersionId: quoteVersionId,
+                  packageId: (value as Package).packageId,
+                })
+              ).unwrap();
+              setHasChanges(false);
+              return;
+            }
             break;
           case 'range':
             dispatch(setSelectedFilters({ ...quotationFilters, range: value }));
@@ -179,12 +192,35 @@ const QuotationManager = () => {
         message.error(error || 'Failed to save changes');
       }
     },
-    [dispatch, quotationFilters]
+    [dispatch, quotationFilters, quoteVersionId, quoteDetails]
   );
 
   const handleRouteChange = (url: string) => {
     if (!url.startsWith(`/${SystemRoutes.QUOTATION}`)) {
       // dispatch(clearQuotation());
+    }
+  };
+
+  const handleItemQuantityUpdate = async (itemId: string, quantity: number) => {
+    try {
+      const priceItem = items.find(i => i.priceListItemId === itemId);
+      if (!priceItem?.quotationVersionItemId) return;
+      
+      // Only update if quantity has changed
+      if (Number(priceItem.quantity) !== quantity) {
+        await dispatch(
+          updateQuotationItemThunk({
+            quotationVersionItemId: priceItem.quotationVersionItemId,
+            quantity,
+            note: priceItem.note || '',
+            priceListItemDescription: priceItem.itemDescription || ''
+          })
+        ).unwrap();
+        message.success('Quantity updated successfully');
+      }
+    } catch (error) {
+      message.error(error as string || 'Failed to update quantity');
+      throw error; // Re-throw to let child component handle revert
     }
   };
 
@@ -228,6 +264,7 @@ const QuotationManager = () => {
               price_list_id: cat.priceListId,
               range_id: quotationFilters.range,
               dwelling_type_id: quotationFilters.dwellingType,
+              package_id: quoteDetails?.package?.packageId,
             })
           ).unwrap();
         })
@@ -258,9 +295,10 @@ const QuotationManager = () => {
   const fetchQuotationPricelistItem = async () => {
     try {
       await dispatch(
-        getQuotationPricelistThunk(
-          quoteVersionId ?? quotationData?.versions?.[0]?.quotationVersionId
-        )
+        getQuotationPricelistThunk({
+          quotationVersionId: quoteVersionId ?? quotationData?.versions?.[0]?.quotationVersionId,
+          package_id: selectedPackageFromSlice?.packageId
+        })
       ).unwrap();
     } catch (error) {
       message.error(error || 'Faied to fetch quotation items');
@@ -429,19 +467,6 @@ const QuotationManager = () => {
     );
   }
 
-  // if (isJob) {
-  //   return (
-  //     <div className="flex items-center justify-center h-screen">
-  //       <Result
-  //         status="403"
-  //         // title="Access Restricted"
-  //         subTitle="This lead has already been converted to a job and is no longer accessible from this page."
-  //         extra={<Link href="/job">Go to Jobs</Link>}
-  //       />
-  //     </div>
-  //   );
-  // }
-
   const handleCreateNewVersion = async () => {
     try {
       const response = await dispatch(
@@ -556,6 +581,7 @@ const QuotationManager = () => {
             <ItemsPanel
               category={getCategoryById(selectedCategory)}
               onItemQuantityChange={handleItemQuantityChange}
+              onItemQuantityUpdate={handleItemQuantityUpdate}
               extraItem={extraItem}
               onExtraClick={handleExtraClick}
               isReadOnly={quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0) || quoteDetails?.isApprove || !quoteDetails?.structuralEngineer}
