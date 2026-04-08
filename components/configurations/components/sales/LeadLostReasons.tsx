@@ -55,6 +55,7 @@ export const LeadLostReasons: React.FC = () => {
     }
   };
   const validateForm = () => {
+    const maxVal = (pagination?.totalRecords ?? 0) + (editingRow?.isNew ? 1 : 0);
     const errors = {
       lostReason: '',
       sortOrder: '',
@@ -64,8 +65,8 @@ export const LeadLostReasons: React.FC = () => {
       errors.lostReason = 'Lost Reason is required';
       isValid = false;
     }
-    if (!editingRow.sortOrder || editingRow.sortOrder < 1) {
-      errors.sortOrder = 'Sort order must be greater than 0';
+    if (!editingRow.sortOrder || editingRow.sortOrder < 1 || editingRow?.sortOrder > maxVal) {
+      errors.sortOrder = `Sort order must be between 1 and ${maxVal}`;
       isValid = false;
     }
     setError(errors);
@@ -121,10 +122,9 @@ export const LeadLostReasons: React.FC = () => {
         message.success('Lead Lost Reason updated successfully');
       }
       setEditingRow(null);
+      await dispatch(fetchAllLeadLostReason({ page: currentPage, limit: PAGE_SIZE })).unwrap();
     } catch (error) {
       message.error(error || 'Failed to save lead lost reason');
-    }finally{
-      await dispatch(fetchAllLeadLostReason({ page: currentPage, limit: PAGE_SIZE })).unwrap();
     }
   };
 
@@ -137,7 +137,7 @@ export const LeadLostReasons: React.FC = () => {
     const newRow: LeadLostReasonType = {
       leadLostReasonId: '',
       lostReason: '',
-      sortOrder: null,
+      sortOrder: (pagination?.totalRecords ?? 0) + 1,
       isActive: true,
       isNew: true,
     };
@@ -233,10 +233,12 @@ export const LeadLostReasons: React.FC = () => {
           <>
             <Input
               type="number"
-              value={isEditing ? (editingRow.sortOrder ?? '') : sortOrder}
+              value={isEditing ? (editingRow?.sortOrder ?? 1) : sortOrder}
               onChange={e => isEditing && handleSortChange(e.target.value)}
               disabled={status.create === Status.PENDING}
-              onWheel={(e) => e.currentTarget.blur()}
+              onWheel={e => e.currentTarget.blur()}
+              min={1}
+              max={(pagination?.totalRecords ?? 0) + (editingRow?.isNew ? 1 : 0)}
             />
             {error?.sortOrder && <span className="text-red-500">{error.sortOrder}</span>}
           </>

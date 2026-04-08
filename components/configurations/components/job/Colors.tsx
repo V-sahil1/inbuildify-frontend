@@ -283,7 +283,17 @@ export const Colors: React.FC = () => {
     {
       title: 'Attachments',
       key: 'attachments',
-      render: (record: JobColorSection) => <p>{record.attachments?.[0]?.name}</p>,
+      render: (record: JobColorSection) => (
+        <Button
+          type="link"
+          href={String(record?.attachments)}
+          target="_blank"
+          className="p-0 m-0"
+          rel="noopener noreferrer"
+        >
+          View Attachment
+        </Button>
+      ),
     },
     {
       title: 'Sort Order',

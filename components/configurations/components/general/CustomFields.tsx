@@ -17,6 +17,7 @@ import { CustomField } from '@redux/feature/admin/general/customField/ICustomFie
 import { GeneralCustomFieldListModal } from '@/components/common/Models/GeneralCustomFieldListModal';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import TooltipButton from '@/components/common/TooltipButton';
+import { createSortOrderValidation } from '@lib/constants/formInputValidations';
 
 const CustomFields: React.FC = () => {
   const { customFieldModule, customField, status, pagination } = useAppSelector(
@@ -78,7 +79,7 @@ const CustomFields: React.FC = () => {
       moduleId: selectedSection || '',
       fieldName: '',
       fieldType: undefined,
-      sortOrder: null,
+      sortOrder: (pagination?.totalRecords ?? 0) + 1,
       isActive: true,
     };
     setEditingRow(newRow);
@@ -111,10 +112,11 @@ const CustomFields: React.FC = () => {
       }
       setEditingRow(null);
       form.resetFields();
+      await dispatch(
+        fetchAllCustomField({ module_id: selectedSection, page: currentPage, limit: PAGE_SIZE })
+      ).unwrap();
     } catch (err) {
       message.error(err || 'Failed to save customfield');
-    }finally{
-      await dispatch(fetchAllCustomField({ module_id: selectedSection, page: 1, limit: 10 }));
     }
   };
 
@@ -192,10 +194,19 @@ const CustomFields: React.FC = () => {
         editingRow?.customFieldId === record.customFieldId ? (
           <Form.Item
             name="sortOrder"
-            rules={[{ required: true, message: 'Please enter sort order' }]}
+            rules={createSortOrderValidation(
+              pagination?.totalRecords ?? 0,
+              editingRow && editingRow.customFieldId !== ''
+            )}
             style={{ margin: 0 }}
           >
-            <Input type="number" onWheel={(e) => e.currentTarget.blur()} disabled={status.create === Status.PENDING} />
+            <Input
+              type="number"
+              onWheel={e => e.currentTarget.blur()}
+              disabled={status.create === Status.PENDING}
+              min={1}
+              max={(pagination?.totalRecords ?? 0) + (editingRow?.customFieldId === '' ? 1 : 0)}
+            />
           </Form.Item>
         ) : (
           record.sortOrder
