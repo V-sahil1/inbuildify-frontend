@@ -6,6 +6,7 @@ import {
   IPriceList,
   IPriceListItem,
   PricelistFetchParams,
+  PriceListItemCondition,
   PricelistItemFtechParams,
 } from './iMasterPriceListState';
 import { CommonPagination } from '../common/ICommonState';
@@ -179,6 +180,80 @@ export const copyCategoryItem = createAsyncThunk(
         }
       );
       return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+//pricelist item condition
+
+export const fetchCategoryItemCondition = createAsyncThunk(
+  'masterPriceList/fetchItemCondition',
+  async (params: { id: string; pricelistId: string }, { rejectWithValue }) => {
+    try {
+      const res = await api.get<ApiResponse<PriceListItemCondition[]>>(
+        API_ENDPOINTS.PRICELIST_ITEM_CONDITION,
+        {
+          params: { price_list_item_id: params?.id },
+        }
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const createCategoryItemCondition = createAsyncThunk(
+  'masterPriceList/createItemCondition',
+  async (
+    payload: { id: string; pricelistId: string; data: PriceListItemCondition },
+    { rejectWithValue }
+  ) => {
+    try {
+      const res = await api.post<ApiResponse<PriceListItemCondition>>(
+        API_ENDPOINTS.PRICELIST_ITEM_CONDITION,
+        {
+          data: payload.data,
+        }
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const updateCategoryItemCondition = createAsyncThunk(
+  'masterPriceList/updateItemCondition',
+  async (
+    payload: { id: string; pricelistId: string; data: Partial<PriceListItemCondition> },
+    { rejectWithValue }
+  ) => {
+    try {
+      const res = await api.put<ApiResponse<PriceListItemCondition>>(
+        API_ENDPOINTS.PRICELIST_ITEM_CONDITION + '/' + payload.id,
+        { data: payload.data }
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const deleteCategoryItemCondition = createAsyncThunk(
+  'masterPriceList/deleteItemCondition',
+  async (
+    payload: { id: string; priceListId: string; pricelistItemId: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const res = await api.delete<ApiResponse>(
+        API_ENDPOINTS.PRICELIST_ITEM_CONDITION + '/' + payload.id
+      );
+      return { id: payload, categoryId: payload };
     } catch (error) {
       return rejectWithValue(error.message);
     }

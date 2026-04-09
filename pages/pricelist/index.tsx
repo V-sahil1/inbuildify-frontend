@@ -200,7 +200,9 @@ const PriceList = () => {
             setSelectedPricelist(null);
           }}
           category={selectedPriceMaster}
-          categoryItem={selectedPricelist}
+          categoryItem={priceMaster
+            ?.find(i => i.priceListId === selectedPriceMaster?.priceListId)
+            ?.items?.find(i => i.priceListItemId === selectedPricelist?.priceListItemId)}
         />
       )}
       {['master', 'quotation', 'location'].includes(drawerOpen) && (

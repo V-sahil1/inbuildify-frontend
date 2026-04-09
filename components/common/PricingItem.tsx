@@ -23,6 +23,7 @@ interface PricingItemProps {
     open: 'create' | 'quotation' | 'copy' | 'location' | 'master' | 'edit' | null
   ) => void;
   handleActivateItem?: () => void;
+  handleFetchItemCondition?: (item: IPriceListItem) => void;
   isEditable?: boolean;
 }
 
@@ -33,6 +34,7 @@ export const PricingItem = ({
   setModalOpen,
   setDrawerOpen,
   handleActivateItem,
+  handleFetchItemCondition,
   isEditable = true,
 }: PricingItemProps) => {
   return (
@@ -81,20 +83,6 @@ export const PricingItem = ({
 
       {isEditable && (
         <div className="flex gap-4">
-          {/* {(item?.attachment || item?.image) && (
-          <Tooltip title="View attachment">
-            <button
-              type="button"
-              className="rounded-md p-1 group"
-              onClick={() => {
-                const url = item.attachment || item.image;
-                if (url) window.open(url, '_blank');
-              }}
-            >
-              <IconLink size={20} className="text-font-color group-hover:text-blue" />
-            </button>
-          </Tooltip>
-        )} */}
           <TooltipButton
             title="Copy"
             type="text"
@@ -113,6 +101,7 @@ export const PricingItem = ({
               e.stopPropagation();
               setModalOpen('ItemCreate');
               setSelectedPricelist(item);
+              handleFetchItemCondition(item);
             }}
           />
           {item.status === 'active' ? (

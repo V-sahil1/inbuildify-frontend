@@ -2,12 +2,16 @@ import { createSlice } from '@reduxjs/toolkit';
 import {
   copyCategoryItem,
   createCategoryItem,
+  createCategoryItemCondition,
   createPricelistMaster,
   deleteCategoryItem,
+  deleteCategoryItemCondition,
   deletePricelistMaster,
+  fetchCategoryItemCondition,
   fetchCategoryItems,
   fetchPricelistMaster,
   updateCategoryItem,
+  updateCategoryItemCondition,
   updatePricelistMaster,
   updateSuggestedPricelistMaster,
 } from './masterPriceListThunk';
@@ -166,7 +170,9 @@ const masterPriceListSlice = createSlice({
         const category = state.priceMaster.find(c => c.priceListId === action.payload.priceList.id);
         if (category) {
           category.items = category.items?.map(item =>
-            item.priceListItemId === action.payload.priceListItemId ? action.payload : item
+            item.priceListItemId === action.payload.priceListItemId
+              ? { ...item, ...action.payload }
+              : item
           );
         }
         state.status.priceListItem.create = Status.SUCCESS;
@@ -188,6 +194,58 @@ const masterPriceListSlice = createSlice({
           });
         }
         state.status.priceListItem.create = Status.SUCCESS;
+      })
+
+      //item condition
+      .addCase(fetchCategoryItemCondition.fulfilled, (state, action) => {
+        const category = state.priceMaster.find(i => i.priceListId === action.meta.arg.pricelistId);
+        if (category) {
+          console.log('category', action.meta.arg);
+          const item = category?.items?.find(i => i.priceListItemId === action.meta.arg.id);
+          if (item) {
+            item.conditions = action.payload;
+          }
+        }
+      })
+
+      .addCase(createCategoryItemCondition.fulfilled, (state, action) => {
+        const category = state.priceMaster.find(i => i.priceListId === action.meta.arg.pricelistId);
+        if (category) {
+          const item = category?.items?.find(i => i.priceListItemId === action.meta.arg.id);
+          if (item) {
+            item.conditions.unshift(action.payload);
+          }
+        }
+      })
+
+      .addCase(deleteCategoryItemCondition.fulfilled, (state, action) => {
+        const category = state.priceMaster.find(i => i.priceListId === action.meta.arg.priceListId);
+        if (category) {
+          const item = category?.items?.find(
+            i => i.priceListItemId === action.meta.arg.pricelistItemId
+          );
+          if (item) {
+            item.conditions = item.conditions.filter(
+              i => i.priceListItemConditionId !== action.meta.arg.id
+            );
+          }
+        }
+      })
+
+      .addCase(updateCategoryItemCondition.fulfilled, (state, action) => {
+        const category = state.priceMaster.find(i => i.priceListId === action.meta.arg.pricelistId);
+        if (category) {
+          const item = category?.items?.find(
+            i => i.priceListItemId === action.payload?.priceListItemId
+          );
+          if (item) {
+            item.conditions = item.conditions.map(i =>
+              i.priceListItemConditionId === action.payload.priceListItemConditionId
+                ? action.payload
+                : i
+            );
+          }
+        }
       });
   },
 });

@@ -1,15 +1,17 @@
 'use client';
 
-import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { Form, Input, Radio, Checkbox, Select, Modal, message } from 'antd';
-import { IconMinus, IconPlus } from '@tabler/icons-react';
+import { IconPlus, IconCheck, IconX, IconEdit, IconTrash } from '@tabler/icons-react';
 import {
   createCategoryItem,
   fetchPricelistMaster,
   updateCategoryItem,
+  createCategoryItemCondition,
+  updateCategoryItemCondition,
+  deleteCategoryItemCondition,
 } from '@redux/feature/masterPriceList/masterPriceListThunk';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import { getConditions } from '@redux/feature/floorPlan/floorPlanThunk';
 import { Status } from '@lib/constants/enum';
 import { addPackageItems } from '@redux/feature/package/packageSlice';
 import Loading from '../Loading';
@@ -30,24 +32,18 @@ export const UOM_OPTIONS = [
   { label: 'Square Yard (sq yd)', value: 'SQ_YD', category: 'AREA' },
   { label: 'Acre', value: 'ACRE', category: 'AREA' },
   { label: 'Hectare', value: 'HECTARE', category: 'AREA' },
-
   { label: 'Cubic Meter (m³)', value: 'CUBIC_METER', category: 'VOLUME' },
   { label: 'Cubic Feet (ft³)', value: 'CUBIC_FEET', category: 'VOLUME' },
-
   { label: 'Kilogram (kg)', value: 'KG', category: 'WEIGHT' },
   { label: 'Ton', value: 'TON', category: 'WEIGHT' },
-
   { label: 'Meter (m)', value: 'METER', category: 'LENGTH' },
   { label: 'Feet (ft)', value: 'FEET', category: 'LENGTH' },
-
   { label: 'Number (Nos)', value: 'NOS', category: 'COUNT' },
   { label: 'Units', value: 'UNITS', category: 'COUNT' },
-
   { label: 'Liter (L)', value: 'LITER', category: 'LIQUID' },
 ];
 
 const { TextArea } = Input;
-const { Option } = Select;
 
 interface AddMasterPricingItemModalProps {
   open: boolean;
@@ -70,21 +66,20 @@ const AddMasterPricingItemModal = ({
 }: AddMasterPricingItemModalProps) => {
   const [form] = Form.useForm();
   const [costType, setCostType] = useState('Included');
-  const { filters, status } = useAppSelector(state => state.floorPlan);
   const { priceMaster, status: mplStatus } = useAppSelector(state => state.masterPriceList);
   const { rangeOptions } = useDwellingAndRangeHook({ type: 'range' });
   const { dwellingTypeOptions } = useDwellingAndRangeHook({ type: 'dwellingType' });
-  const condition = Form.useWatch(['conditions', name, 'name'], form);
   const masterPriceOptions = priceMaster?.map((item: IPriceList) => ({
     label: item.name,
     value: item.priceListId,
   }));
-  const conditionOption = [
+  const allConditionOptions = [
     { label: 'Site Fall(mm)', value: 'site_fall' },
     { label: 'Land Size', value: 'land_size' },
     { label: 'Corner Block', value: 'corner_block' },
     { label: 'Land Fill', value: 'land_fill' },
   ];
+
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -96,6 +91,141 @@ const AddMasterPricingItemModal = ({
   // New state for button loading
   const [isAddingItem, setIsAddingItem] = useState(false);
 
+  // State for condition management
+  const [editingConditionId, setEditingConditionId] = useState<string | null>(null);
+  const [createdConditions, setCreatedConditions] = useState<Set<string>>(new Set());
+  const [conditionLoading, setConditionLoading] = useState<string | null>(null);
+
+  const conditionsList = Form.useWatch('conditions', form) || [];
+
+  // Get selected condition names to filter out already selected ones
+  const selectedConditionNames = conditionsList
+    .map((condition: any) => condition?.conditionName)
+    .filter(Boolean);
+
+  const conditionOption = allConditionOptions.filter(
+    option =>
+      !selectedConditionNames.includes(option.value) ||
+      // Keep the option if it's the current one being edited
+      (editingConditionId &&
+        conditionsList.find(
+          (c: any, index: number) =>
+            c?.priceListItemConditionId === editingConditionId && c?.conditionName === option.value
+        ))
+  );
+
+  // Handler functions for condition operations
+  const handleSaveCondition = async (fieldName: string) => {
+    const isExistingCondition = createdConditions.has(fieldName);
+    try {
+      setConditionLoading(fieldName);
+      const conditionData = form.getFieldValue(['conditions', fieldName]);
+      const condition = form
+        .getFieldValue('conditions')
+        ?.find(i => i.priceListItemConditionId === fieldName);
+      const payload = isExistingCondition ? condition : conditionData;
+
+      if (!categoryItem?.priceListItemId || !category?.priceListId) {
+        message.error('Missing required information for condition operation');
+        return;
+      }
+      const commonPayload = {
+        conditionName: payload?.conditionName,
+        rangeEnd: payload?.conditionName !== 'corner_block' ? payload?.rangeEnd : undefined,
+        rangeStart: payload?.conditionName !== 'corner_block' ? payload?.rangeStart : undefined,
+        status: payload?.conditionName === 'corner_block' ? payload?.status : undefined,
+      };
+
+      if (isExistingCondition) {
+        // Update existing condition
+        await dispatch(
+          updateCategoryItemCondition({
+            id: fieldName,
+            pricelistId: category.priceListId,
+            data: commonPayload,
+          })
+        ).unwrap();
+        message.success('Condition updated successfully');
+      } else {
+        // Create new condition
+        const result = await dispatch(
+          createCategoryItemCondition({
+            id: categoryItem.priceListItemId,
+            pricelistId: category.priceListId,
+            data: {
+              ...commonPayload,
+              priceListItemId: categoryItem.priceListItemId,
+            },
+          })
+        ).unwrap();
+        setCreatedConditions(prev => new Set(prev).add(result.priceListItemConditionId));
+        message.success('Condition created successfully');
+      }
+
+      setEditingConditionId(null);
+    } catch (error) {
+      message.error(
+        error?.message || `Failed to ${isExistingCondition ? 'update' : 'create'} condition`
+      );
+    } finally {
+      setConditionLoading(null);
+    }
+  };
+
+  const handleEditCondition = (conditionId: string) => {
+    setEditingConditionId(conditionId);
+  };
+
+  const handleDeleteCondition = async (conditionId: string, removeFn?: (index: number) => void) => {
+    try {
+      setConditionLoading(conditionId);
+
+      if (!categoryItem?.priceListItemId || !category?.priceListId) {
+        message.error('Missing required information for condition deletion');
+        return;
+      }
+
+      await dispatch(
+        deleteCategoryItemCondition({
+          id: conditionId,
+          priceListId: category.priceListId,
+          pricelistItemId: categoryItem.priceListItemId,
+        })
+      ).unwrap();
+
+      setCreatedConditions(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(conditionId);
+        return newSet;
+      });
+
+      // Remove the condition from form using remove function if available
+      if (removeFn) {
+        removeFn(parseInt(conditionId));
+      } else {
+        // Fallback: Remove the condition from form manually
+        const currentConditions = form.getFieldValue('conditions') || [];
+        const updatedConditions = currentConditions.filter(
+          (_: any, index: number) => index.toString() !== conditionId
+        );
+        form.setFieldValue('conditions', updatedConditions);
+      }
+
+      message.success('Condition deleted successfully');
+    } catch (error) {
+      message.error('Failed to delete condition');
+    } finally {
+      setConditionLoading(null);
+    }
+  };
+
+  const handleCancelCondition = (fieldName: string, removeFn?: (index: number) => void) => {
+    setEditingConditionId(null);
+    if (!createdConditions.has(fieldName) && removeFn) {
+      removeFn(parseInt(fieldName));
+    }
+  };
+
   useLayoutEffect(() => {
     if (categoryItem) {
       form.setFieldsValue({
@@ -103,40 +233,23 @@ const AddMasterPricingItemModal = ({
         priceListId: categoryItem?.priceList?.id,
         dwellingTypeId: categoryItem?.dwellingType?.map(i => i.id),
         rangeId: categoryItem?.range?.map(i => i.id),
-        // ...(categoryItem.conditions?.length > 0 && {
-        //   conditions: categoryItem.conditions.map((condition: any) => ({
-        //     name: condition.name,
-        //     range_start: condition.rangeStart,
-        //     range_end: condition.rangeEnd,
-        //   })),
-        // }),
+        conditions: categoryItem.conditions,
       });
       setCostType(categoryItem.costType);
     } else {
       form.resetFields();
       setCostType('Included');
-      // // if provided Pre-fill range and dwelling type only from package modal
-      // if (preselectedRange && preselectedDwelling) {
-      //   form.setFieldsValue({
-      //     range: preselectedRange,
-      //     dwelling: preselectedDwelling,
-      //   });
-      // }
     }
   }, [categoryItem, form]);
 
   useEffect(() => {
-    if (status.conditions === Status.IDLE) {
-      const fetchConditionsData = async () => {
-        try {
-          await dispatch(getConditions()).unwrap();
-        } catch (error) {
-          message.error(error);
-        }
-      };
-      fetchConditionsData();
+    if (categoryItem?.conditions && Array.isArray(categoryItem.conditions)) {
+      const existingConditionIds = categoryItem.conditions.map(
+        (condition: any) => condition.priceListItemConditionId
+      );
+      setCreatedConditions(new Set(existingConditionIds));
     }
-  }, [dispatch, filters, status.conditions]);
+  }, [categoryItem?.conditions]);
 
   const onFinish = async (values: IPriceListItem) => {
     if (values.costType === 'Included') {
@@ -151,7 +264,7 @@ const AddMasterPricingItemModal = ({
       setIsAddingItem(true);
 
       if (categoryItem) {
-        const { priceListId, ...newPayload } = values;
+        const { priceListId, conditions, ...newPayload } = values;
         const res = await dispatch(
           updateCategoryItem({
             payload: newPayload,
@@ -221,7 +334,6 @@ const AddMasterPricingItemModal = ({
     }
   };
 
-  const conditionsList = Form.useWatch('conditions', form) || [];
   return (
     <Modal
       title={categoryItem ? 'Update Master Pricing Item' : 'Add Master Pricing Item'}
@@ -230,7 +342,6 @@ const AddMasterPricingItemModal = ({
       footer={null}
       width="90%"
       style={{ maxWidth: 800 }}
-      // bodyStyle={{ padding: "16px 8px" }}
       className="responsive-modal"
     >
       <Form
@@ -299,7 +410,7 @@ const AddMasterPricingItemModal = ({
             label="Cost Type"
             name="costType"
             className="form-item-responsive flex-1"
-            initialValue="Included" // Set initial value here
+            initialValue="Included"
             rules={[{ required: true, message: 'Please select cost type' }]}
           >
             <Radio.Group
@@ -369,7 +480,7 @@ const AddMasterPricingItemModal = ({
               prefix="$"
               type="number"
               style={{ width: '100%' }}
-              onWheel={(e) => e.currentTarget.blur()}
+              onWheel={e => e.currentTarget.blur()}
               disabled={costType === 'Included'}
             />
           </Form.Item>
@@ -386,7 +497,7 @@ const AddMasterPricingItemModal = ({
                 prefix="$"
                 type="number"
                 style={{ width: '100%' }}
-                onWheel={(e) => e.currentTarget.blur()}
+                onWheel={e => e.currentTarget.blur()}
                 disabled={costType === 'Included'}
               />
             </Form.Item>
@@ -400,7 +511,7 @@ const AddMasterPricingItemModal = ({
               className="form-item-responsive"
               initialValue={category?.items?.length + 1 || 1}
             >
-              <Input type="number" min={1} onWheel={(e) => e.currentTarget.blur()} />
+              <Input type="number" min={1} onWheel={e => e.currentTarget.blur()} />
             </Form.Item>
             <Form.Item label="UOM" name="uom" className="form-item-responsive">
               <Select
@@ -470,8 +581,10 @@ const AddMasterPricingItemModal = ({
           {(fields, { add, remove }) => (
             <>
               {fields.map(({ key, name, ...restField }, index) => {
-                const row = conditionsList[name] || {};
-                const conditionName = row.name;
+                const conditionData = form.getFieldValue(['conditions', name.toString()]);
+                const conditionName = conditionData?.conditionName;
+                console.log('condition----', conditionName, conditionData);
+                const conditionId = conditionData?.priceListItemConditionId;
                 return (
                   <div
                     key={key}
@@ -481,30 +594,24 @@ const AddMasterPricingItemModal = ({
                     <Form.Item
                       {...restField}
                       label="Conditions"
-                      name={[name, 'name']}
+                      name={[name.toString(), 'conditionName']}
                       rules={[{ required: true, message: 'Please select condition' }]}
                     >
-                      {/* conditions are coming from backend but in video conditions are different*/}
                       <Select
                         placeholder="Please select"
                         className="w-full"
                         options={conditionOption}
-                      >
-                        {/* {filters?.conditions?.map((condition: { name: string }) => (
-                        <Option key={condition.name} value={condition.name}>
-                          {enumToReadable(condition.name)}
-                        </Option>
-                      ))} */}
-                      </Select>
+                        disabled={conditionId && editingConditionId !== conditionId}
+                      />
                     </Form.Item>
 
                     {/* Range Start */}
-                    {conditionName !== 'CornerBlock' && (
+                    {conditionName !== 'corner_block' && (
                       <Form.Item
                         {...restField}
                         label="Range - Start"
-                        name={[name, 'range_start']}
-                        dependencies={[['conditions', name, 'range_end']]} // 👈 watch end
+                        name={[name.toString(), 'rangeStart']}
+                        dependencies={[['conditions', name.toString(), 'rangeEnd']]}
                         rules={[
                           { required: true, message: 'Please enter range start' },
                           {
@@ -516,7 +623,11 @@ const AddMasterPricingItemModal = ({
                                 return Promise.reject('Range must not exceed 100,000');
                               if (start < 0) return Promise.reject('Range must be greater than 0');
 
-                              const end = form.getFieldValue(['conditions', name, 'range_end']);
+                              const end = form.getFieldValue([
+                                'conditions',
+                                name.toString(),
+                                'rangeEnd',
+                              ]);
                               if (end !== undefined && end !== null && start >= Number(end)) {
                                 return Promise.reject('Range Start must be less than Range End');
                               }
@@ -526,17 +637,23 @@ const AddMasterPricingItemModal = ({
                           },
                         ]}
                       >
-                        <Input type="number" min={0} className="w-full" onWheel={(e) => e.currentTarget.blur()}/>
+                        <Input
+                          type="number"
+                          min={0}
+                          className="w-full"
+                          disabled={conditionId && editingConditionId !== conditionId}
+                          onWheel={e => e.currentTarget.blur()}
+                        />
                       </Form.Item>
                     )}
 
                     {/* Range End */}
-                    {conditionName !== 'CornerBlock' && (
+                    {conditionName !== 'corner_block' && (
                       <Form.Item
                         {...restField}
                         label="Range - End"
-                        name={[name, 'range_end']}
-                        dependencies={[['conditions', name, 'range_start']]} // 👈 watch start
+                        name={[name.toString(), 'rangeEnd']}
+                        dependencies={[['conditions', name.toString(), 'rangeStart']]}
                         rules={[
                           { required: true, message: 'Please enter range end' },
                           {
@@ -548,7 +665,11 @@ const AddMasterPricingItemModal = ({
                                 return Promise.reject('Range must not exceed 100,000');
                               if (end < 0) return Promise.reject('Range must be greater than 0');
 
-                              const start = form.getFieldValue(['conditions', name, 'range_start']);
+                              const start = form.getFieldValue([
+                                'conditions',
+                                name.toString(),
+                                'rangeStart',
+                              ]);
                               if (start !== undefined && start !== null && end <= Number(start)) {
                                 return Promise.reject('Range End must be greater than Range Start');
                               }
@@ -558,33 +679,103 @@ const AddMasterPricingItemModal = ({
                           },
                         ]}
                       >
-                        <Input type="number" min={0} className="w-full" onWheel={(e) => e.currentTarget.blur()}/>
-                      </Form.Item>
-                    )}
-                    {/* status */}
-                    {conditionName === 'CornerBlock' && (
-                      <Form.Item
-                        label="Status"
-                        name={[name, 'status']}
-                        dependencies={[['conditions', name, 'status']]}
-                      >
-                        <Radio.Group
-                          options={[
-                            { label: 'Yes', value: 'Yes' },
-                            { label: 'No', value: 'No' },
-                          ]}
+                        <Input
+                          type="number"
+                          min={0}
+                          className="w-full"
+                          disabled={conditionId && editingConditionId !== conditionId}
+                          onWheel={e => e.currentTarget.blur()}
                         />
                       </Form.Item>
                     )}
-                    {/* Minus Button – hidden if only one row */}
-                    <div className="flex items-center justify-center">
-                      <button
-                        type="button"
-                        className="btn-danger flex flex-1 items-center justify-center h-full rounded hover:bg-gray-300"
-                        onClick={() => remove(name)}
+                    {/* status */}
+                    {conditionName === 'corner_block' && (
+                      <Form.Item
+                        label="Status"
+                        name={[name.toString(), 'status']}
+                        dependencies={[['conditions', name.toString(), 'status']]}
                       >
-                        <IconMinus />
-                      </button>
+                        <Radio.Group
+                          options={[
+                            { label: 'Yes', value: true },
+                            { label: 'No', value: false },
+                          ]}
+                          disabled={conditionId && editingConditionId !== conditionId}
+                        />
+                      </Form.Item>
+                    )}
+                    {/* Action Buttons */}
+                    <div className="flex items-center justify-center gap-1">
+                      {editingConditionId === (conditionId || name.toString()) ? (
+                        <>
+                          <button
+                            type="button"
+                            className="flex items-center justify-center p-1 rounded hover:bg-green-100 text-green-600"
+                            onClick={() => handleSaveCondition(conditionId || name.toString())}
+                            disabled={conditionLoading === (conditionId || name.toString())}
+                          >
+                            <IconCheck size={16} />
+                          </button>
+                          <button
+                            type="button"
+                            className="flex items-center justify-center p-1 rounded hover:bg-gray-100 text-gray-600"
+                            onClick={() =>
+                              handleCancelCondition(conditionId || name.toString(), remove)
+                            }
+                            disabled={conditionLoading === (conditionId || name.toString())}
+                          >
+                            <IconX size={16} />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          {conditionId && createdConditions.has(conditionId) ? (
+                            <>
+                              <button
+                                type="button"
+                                className="flex items-center justify-center p-1 rounded hover:bg-blue-100 text-blue-600"
+                                onClick={() => handleEditCondition(conditionId)}
+                                disabled={conditionLoading === conditionId}
+                              >
+                                <IconEdit size={16} />
+                              </button>
+                              <button
+                                type="button"
+                                className="flex items-center justify-center p-1 rounded hover:bg-red-100 text-red-600"
+                                onClick={() => handleDeleteCondition(conditionId, remove)}
+                                disabled={conditionLoading === conditionId}
+                              >
+                                <IconTrash size={16} />
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              {categoryItem && (
+                                <button
+                                  type="button"
+                                  className="flex items-center justify-center p-1 rounded hover:bg-green-100 text-green-600"
+                                  onClick={() =>
+                                    handleSaveCondition(conditionId || name.toString())
+                                  }
+                                  disabled={conditionLoading === (conditionId || name.toString())}
+                                >
+                                  <IconCheck size={16} />
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                className="flex items-center justify-center p-1 rounded hover:bg-gray-100 text-gray-600"
+                                onClick={() =>
+                                  handleCancelCondition(conditionId || name.toString(), remove)
+                                }
+                                disabled={conditionLoading === (conditionId || name.toString())}
+                              >
+                                <IconX size={16} />
+                              </button>
+                            </>
+                          )}
+                        </>
+                      )}
                     </div>
                   </div>
                 );
@@ -607,7 +798,6 @@ const AddMasterPricingItemModal = ({
         >
           <Radio.Group
             style={{ width: '100%' }}
-            // disabled={!categoryId}
             options={[
               { label: 'Active', value: 'active' },
               { label: 'Inactive', value: 'inactive' },
@@ -636,17 +826,15 @@ const AddMasterPricingItemModal = ({
             </div>
           )}
           <div>
-            {costType !== 'VARIABLE' && (
-              <Form.Item
-                name="showOnlyInPackage"
-                valuePropName="checked"
-                className="form-item-responsive"
-                initialValue={false}
-              >
-                <Checkbox> Package Only </Checkbox>
-              </Form.Item>
-            )}
-            {/* Show in HL Package */}
+            <Form.Item
+              name="showOnlyInPackage"
+              valuePropName="checked"
+              className="form-item-responsive"
+              initialValue={false}
+            >
+              <Checkbox> Package Only </Checkbox>
+            </Form.Item>
+
             <Form.Item
               name="showInHlPackage"
               valuePropName="checked"
@@ -661,8 +849,9 @@ const AddMasterPricingItemModal = ({
         <Form.Item className="mb-0">
           <button
             type="submit"
-            className={`btn btn-primary w-full md:w-auto px-8 py-2 text-base ${isAddingItem ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
+            className={`btn btn-primary w-full md:w-auto px-8 py-2 text-base ${
+              isAddingItem ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
             disabled={isAddingItem}
           >
             {isAddingItem ? (

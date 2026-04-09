@@ -13,7 +13,10 @@ import TooltipButton from './TooltipButton';
 import { PricingItem } from './PricingItem';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { setPriceMaster } from '@redux/feature/masterPriceList/masterPriceListSlice';
-import { updatePricelistMaster } from '@redux/feature/masterPriceList/masterPriceListThunk';
+import {
+  fetchCategoryItemCondition,
+  updatePricelistMaster,
+} from '@redux/feature/masterPriceList/masterPriceListThunk';
 import Loading from './Loading';
 
 interface MasterPricelistProps {
@@ -144,6 +147,16 @@ export const MasterPricelist = ({
   const isOrderChanged = () => {
     if (localCategories?.length !== priceMaster?.length) return true;
     return localCategories?.some((c, idx) => c?.priceListId !== priceMaster[idx]?.priceListId);
+  };
+
+  const handleFetchItemCondition = async (item: IPriceListItem) => {
+    try {
+      await dispatch(
+        fetchCategoryItemCondition({ id: item?.priceListItemId, pricelistId: item?.priceList?.id })
+      ).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch item condition');
+    }
   };
 
   return (
@@ -292,6 +305,7 @@ export const MasterPricelist = ({
                                   setModalOpen={setModalOpen}
                                   setDrawerOpen={setDrawerOpen}
                                   handleActivateItem={handleActivateItem}
+                                  handleFetchItemCondition={handleFetchItemCondition}
                                   isEditable={category.isActive ? isEditable : false}
                                 />
                               ))}

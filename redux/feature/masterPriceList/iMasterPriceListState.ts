@@ -37,6 +37,7 @@ export interface IPriceListItem {
   included?: boolean;
   modify?: boolean;
   additionalItem?: boolean;
+  conditions?: PriceListItemCondition[];
   // extraItemType?: 'Additional' | 'Complimentary' | 'Discount' | 'Note';
 }
 
@@ -56,11 +57,24 @@ export interface PricelistItemFtechParams {
   uom?: string;
   search?: string;
   package_id?: string;
+  is_system_data?: boolean;
 }
 
 export interface PricelistFetchParams {
   is_active?: boolean;
   search?: string;
   is_suggested?: boolean;
-  location_id?:string;
+  location_id?: string;
 }
+
+export type PriceListItemCondition = {
+  priceListItemConditionId?: string;
+  priceListItemId?: string;
+  conditionName: string;
+  status?: string | null;
+  rangeStart?: number;
+  rangeEnd?: number;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+  itemDescription?: string;
+};
