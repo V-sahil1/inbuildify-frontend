@@ -57,9 +57,11 @@ const FloorPlanModal: React.FC<FloorPlanModalProps> = ({
   };
 
   const handleSave = () => {
-    if (selectedFloorPlan) {
-      dispatch(setQuotationPlan(selectedFloorPlan));
-      onSave(selectedFloorPlan);
+    if (activeTab === 'available') {
+      if (selectedFloorPlan) {
+        dispatch(setQuotationPlan(selectedFloorPlan));
+        onSave(selectedFloorPlan);
+      }
     }
     handleCancel();
   };
@@ -117,7 +119,7 @@ const FloorPlanModal: React.FC<FloorPlanModalProps> = ({
             {
               key: 'custom',
               label: 'Custom',
-              children: <CustomPlanTab onCancel={handleCancel} />,
+              children: <CustomPlanTab onCancel={handleCancel} onSave={onSave} />,
             },
           ]}
         />

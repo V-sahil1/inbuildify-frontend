@@ -130,7 +130,6 @@ class API_ENDPOINTS {
   // builder
   public static BUILDER_BASE = '/builder';
 
-
   // item
   public static ITEM_BASE = '/item';
 
@@ -148,6 +147,8 @@ class API_ENDPOINTS {
     `${this.QUOTATION_VERSION}/${versionid}/duplicate`;
   public static QUOTATION_COMPARE = `${this.QUOTATION_BASE}/compare`;
   public static QUOTATION_CUSTOM_SECTION = '/quotation-version-custom-section';
+  public static QUOTATION_VERSION_PDF = (id: string) => `${this.QUOTATION_VERSION}/${id}/pdf`;
+
   // location
   public static COUNTRY_BASE = '/country';
   public static STATE_BASE = '/state';

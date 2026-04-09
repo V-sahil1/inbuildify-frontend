@@ -12,7 +12,10 @@ import { acceptOnlyImageRule, OptionalNumberRules } from '@lib/constants/formInp
 import useDwellingAndRangeHook from '@hooks/useDwellingAndRangeHook';
 import { formDataGenerator } from '@lib/utils/formDataGenerator';
 
-const CustomPlanTab: React.FC<{ onCancel: () => void }> = ({ onCancel }) => {
+const CustomPlanTab: React.FC<{
+  onCancel: () => void;
+  onSave: (plan: IFloorPlanState) => void;
+}> = ({ onCancel, onSave }) => {
   const [form] = Form.useForm<IFloorPlanState>();
   const dispatch = useAppDispatch();
   const { selectedFilters } = useAppSelector((state: any) => state.quotation);
@@ -37,6 +40,7 @@ const CustomPlanTab: React.FC<{ onCancel: () => void }> = ({ onCancel }) => {
       });
       const response = await dispatch(createFloorPlan(formData)).unwrap();
       dispatch(setQuotationPlan(response));
+      onSave(response);
       message.success('Floor Plan successfully Created!');
       onCancel();
       form.resetFields();
@@ -201,7 +205,7 @@ const CustomPlanTab: React.FC<{ onCancel: () => void }> = ({ onCancel }) => {
               >
                 <Input
                   type="number"
-                  onWheel={(e) => e.currentTarget.blur()}
+                  onWheel={e => e.currentTarget.blur()}
                   step="0.01"
                   onKeyPress={e => {
                     if (!/[0-9]/.test(e.key)) {
@@ -218,7 +222,7 @@ const CustomPlanTab: React.FC<{ onCancel: () => void }> = ({ onCancel }) => {
               >
                 <Input
                   type="number"
-                  onWheel={(e) => e.currentTarget.blur()}
+                  onWheel={e => e.currentTarget.blur()}
                   step="0.01"
                   onKeyPress={e => {
                     if (!/[0-9]/.test(e.key)) {
@@ -276,14 +280,10 @@ const CustomPlanTab: React.FC<{ onCancel: () => void }> = ({ onCancel }) => {
                 />
               </Form.Item>
 
-              <Form.Item
-                label="Total Sqft"
-                name="totalArea"
-                rules={OptionalNumberRules}
-              >
+              <Form.Item label="Total Sqft" name="totalArea" rules={OptionalNumberRules}>
                 <Input
                   type="number"
-                  onWheel={(e) => e.currentTarget.blur()}
+                  onWheel={e => e.currentTarget.blur()}
                   step="0.01"
                   onKeyPress={e => {
                     if (!/[0-9]/.test(e.key)) {

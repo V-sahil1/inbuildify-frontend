@@ -23,7 +23,7 @@ export const createEState = createAsyncThunk(
 export const fetchAllEState = createAsyncThunk(
   'estate/fetchAll',
   async (
-    params: { name?: string; zip?: string; location?: string; status?: boolean } = {},
+    params: { name?: string; zip_code?: string; location?: string; status?: boolean } = {},
     { rejectWithValue }
   ) => {
     try {

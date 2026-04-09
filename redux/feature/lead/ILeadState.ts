@@ -339,6 +339,7 @@ export type PropertyDetail = {
   stateName?: string;
   compactionReportContent?: CompactionReport;
   compactionReportUrl?: string;
+  compactionReportProvider?: string;
 };
 
 export type ILotDetail = {
@@ -372,10 +373,10 @@ export type SlopeCondition = 'Flat' | 'Gentle' | 'Moderate' | 'Steep';
 export type TestResult = 'pass' | 'fail';
 
 export interface CompactionReport {
-  compaction: number; 
-  dryDensity: number; 
-  maxDryDensity: number; 
-  moistureContent: number; 
+  compaction: number;
+  dryDensity: number;
+  maxDryDensity: number;
+  moistureContent: number;
   soilClass: SoilClass;
   soilType: SoilType;
   groundLevel: GroundLevel;
@@ -383,15 +384,14 @@ export interface CompactionReport {
   landType: string;
   engineerName: string;
   remarks?: string;
-  result: TestResult; 
+  result: TestResult;
 }
 
-export type WonLostPayload= {
-  outCome:string;
-  quotationVersionId?:string;
-  jobNote?:string;
-  sendEmail?:boolean,
-  leadLostComment?:string,
-  leadLostReasonId?:string;
-
-}
+export type WonLostPayload = {
+  outCome: string;
+  quotationVersionId?: string;
+  jobNote?: string;
+  sendEmail?: boolean;
+  leadLostComment?: string;
+  leadLostReasonId?: string;
+};

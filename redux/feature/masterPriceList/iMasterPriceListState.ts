@@ -40,7 +40,7 @@ export interface IPriceListItem {
   conditions?: PriceListItemCondition[];
   // extraItemType?: 'Additional' | 'Complimentary' | 'Discount' | 'Note';
 
-  isPriceListItemCostMismatch: boolean;
+  isPriceListItemCostMismatch?: boolean;
 }
 
 export interface PricelistItemFtechParams {

@@ -269,7 +269,7 @@ export const CommissionDrawer = ({
           onCancel={() => setModalOpen(null)}
           isEditing={!!selectedPartner}
           onSubmit={handleSaveParent}
-          fields={getParentFields()}
+          fields={getParentFields(10,false)} //todo: in params, add length of data and isEditing param
           initialValues={selectedPartner || {}}
           submitButtonText={!!selectedPartner ? 'Update' : 'Create'}
           loading={outgoingCommissionStatus.update === Status.PENDING}

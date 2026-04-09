@@ -35,7 +35,7 @@ export default function EstatePage() {
       const params = {
         name: filters?.name || undefined,
         status: filters?.status !== '' ? filters.status === 'active' : undefined,
-        // zip: filters?.zip || undefined,
+        zip_code: filters?.zip || undefined,
         location: filters?.location || undefined,
       };
       await dispatch(fetchAllEState(params)).unwrap();

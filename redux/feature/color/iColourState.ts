@@ -59,6 +59,8 @@ export interface ColorGroup {
   name: string;
   status?: boolean;
   items?: ColorGroupItem[] | null;
+  colorImage?: any[];
+  specification?: any[];
 }
 
 export interface IColorType {
@@ -74,12 +76,12 @@ export interface ColorGroupItem {
 
 export interface ColorItemCustomField {
   colorItemCustomFieldId?: string;
-  colorItem: string;
+  colorItem?: string;
   fieldType: string;
   fieldName: string;
   requiredField: boolean;
   sortOrder: number;
-  colorItemName: string;
+  colorItemName?: string;
 }
 export interface ColorInitialState {
   status: {

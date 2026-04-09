@@ -75,7 +75,14 @@ const InfoCards: React.FC<InfoCardsProps> = ({
 }) => {
   const { quoteDetails, items } = useAppSelector(state => state.quotation);
   const [modalOpen, setModalOpen] = useState<
-    'property' | 'floorPlan' | 'facade' | 'package' | 'linkContact' | 'contact' | 'structuralEngineer' | null
+    | 'property'
+    | 'floorPlan'
+    | 'facade'
+    | 'package'
+    | 'linkContact'
+    | 'contact'
+    | 'structuralEngineer'
+    | null
   >(null);
   const [loading, setLoading] = useState(false);
   const [selectedContact, setSelectedContact] = useState<IContact | null>(null);
@@ -86,12 +93,12 @@ const InfoCards: React.FC<InfoCardsProps> = ({
   const isPackageSelectionDisabled = !quoteDetails?.structuralEngineer || isSelectionDisabled;
   const isStructuralEngineerDisabled = !selectedPlan || !selectedFacade || isSelectionDisabled;
   const disabledMessage = isSelectionDisabled
-    ? 'Please select both Location and Dwelling Type first'
+    ? 'Please select both Range and Dwelling Type first'
     : !quoteDetails?.structuralEngineer
-    ? 'Please select a Structural Engineer first'
-    : !selectedPlan || !selectedFacade
-    ? 'Please select both Plan and Facade first'
-    : '';
+      ? 'Please select a Structural Engineer first'
+      : !selectedPlan || !selectedFacade
+        ? 'Please select both Plan and Facade first'
+        : '';
   const handleEditLeadSubmit = async (selectedContact: LeadContact | null, values: LeadContact) => {
     try {
       if (!!selectedContact) {
@@ -235,8 +242,8 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           <Tooltip>{!isReadOnly && <IconEdit className="text-gray-400 ml-auto" />}</Tooltip>
         </div>
         {leadDetail?.property?.city &&
-          leadDetail?.property?.stateName &&
-          leadDetail?.property?.zipCode ? (
+        leadDetail?.property?.stateName &&
+        leadDetail?.property?.zipCode ? (
           <div className="space-y-2">
             <div className="font-semibold text-font-color">
               {leadDetail?.property?.addressLine1}
@@ -280,7 +287,9 @@ const InfoCards: React.FC<InfoCardsProps> = ({
       </Card>
       {/* Select Plan Card */}
       <div className="flex gap-4 flex-col">
-        <Tooltip title={disabledMessage}>
+        <Tooltip
+          title={isSelectionDisabled ? 'Please select both Range and Dwelling Type first' : ''}
+        >
           <Card
             className={`shadow-sm transition-shadow ${isSelectionDisabled ? 'opacity-70' : 'hover:shadow-md cursor-pointer'}`}
             onClick={
@@ -342,7 +351,9 @@ const InfoCards: React.FC<InfoCardsProps> = ({
             )}
           </Card>
         </Tooltip>
-        <Tooltip title={disabledMessage}>
+        <Tooltip
+          title={isSelectionDisabled ? 'Please select both Range and Dwelling Type first' : ''}
+        >
           <Card
             className={`shadow-sm transition-shadow ${isSelectionDisabled ? 'opacity-70' : 'hover:shadow-md cursor-pointer'}`}
             onClick={!isSelectionDisabled && !isReadOnly ? () => setModalOpen('facade') : undefined}
@@ -370,19 +381,28 @@ const InfoCards: React.FC<InfoCardsProps> = ({
       </div>
 
       <div className="flex gap-4 flex-col">
-
         {/* Select Structural Engineer */}
-        <Tooltip title={isStructuralEngineerDisabled ? disabledMessage : undefined}>
+        <Tooltip
+          title={
+            isStructuralEngineerDisabled ? 'Please select a Structural Engineer first' : undefined
+          }
+        >
           <div
             className={`shadow-sm transition-shadow bg-card-color rounded-lg border border-border-color p-6 ${isStructuralEngineerDisabled ? 'opacity-70' : 'hover:shadow-md cursor-pointer'}`}
-            onClick={!isStructuralEngineerDisabled && !isReadOnly ? () => setModalOpen('structuralEngineer') : undefined}
+            onClick={
+              !isStructuralEngineerDisabled && !isReadOnly
+                ? () => setModalOpen('structuralEngineer')
+                : undefined
+            }
           >
             {!!quoteDetails?.structuralEngineer ? (
               <>
                 <div className="flex items-center justify-between gap-2 mb-3">
                   <div className="flex items-center gap-2">
                     <MdEngineering className="text-blue-500 shrink-0" />
-                    <span className="font-medium text-font-color">{quoteDetails?.structuralEngineer?.name}</span>
+                    <span className="font-medium text-font-color">
+                      {quoteDetails?.structuralEngineer?.name}
+                    </span>
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -403,12 +423,19 @@ const InfoCards: React.FC<InfoCardsProps> = ({
                   </div>
                 </div>
                 <p className="text-xl font-extrabold text-green-600 text-end">
-                  {quoteDetails?.structuralEngineer?.price ? `$${quoteDetails?.structuralEngineer?.price}` : 'Price not set'}
+                  {quoteDetails?.structuralEngineer?.price
+                    ? `$${quoteDetails?.structuralEngineer?.price}`
+                    : 'Price not set'}
                 </p>
               </>
             ) : (
               <div className="flex justify-center items-center h-full py-4">
-                <Button type="primary" size="middle" disabled={isStructuralEngineerDisabled} onClick={() => setModalOpen('structuralEngineer')}>
+                <Button
+                  type="primary"
+                  size="middle"
+                  disabled={isStructuralEngineerDisabled}
+                  onClick={() => setModalOpen('structuralEngineer')}
+                >
                   Select Structural Engineer
                 </Button>
               </div>
@@ -420,7 +447,9 @@ const InfoCards: React.FC<InfoCardsProps> = ({
         <Tooltip title={isPackageSelectionDisabled ? disabledMessage : undefined}>
           <div
             className={`shadow-sm transition-shadow bg-card-color rounded-lg border border-border-color p-6 ${isPackageSelectionDisabled ? 'opacity-70' : 'hover:shadow-md cursor-pointer'}`}
-            onClick={!isPackageSelectionDisabled && !isReadOnly ? () => setModalOpen('package') : undefined}
+            onClick={
+              !isPackageSelectionDisabled && !isReadOnly ? () => setModalOpen('package') : undefined
+            }
           >
             {!!selectedPackage ? (
               <>
@@ -457,16 +486,13 @@ const InfoCards: React.FC<InfoCardsProps> = ({
                 </div>
                 <div className="flex items-center justify-end gap-2">
                   {/* Warning icon for package cost mismatch */}
-                  {selectedPackage && quoteDetails?.package?.packageId === selectedPackage.packageId && items.some(
-                    item => item.isPackageCostMismatch
-                  ) && (
-                    <Tooltip title="Warning: Package cost or item mismatch from current">
-                      <IconAlertTriangle 
-                        size={16} 
-                        className="text-yellow-500 cursor-help" 
-                      />
-                    </Tooltip>
-                  )}
+                  {selectedPackage &&
+                    quoteDetails?.package?.packageId === selectedPackage.packageId &&
+                    items.some(item => item.isPackageCostMismatch) && (
+                      <Tooltip title="Warning: Package cost or item mismatch from current">
+                        <IconAlertTriangle size={16} className="text-yellow-500 cursor-help" />
+                      </Tooltip>
+                    )}
                   <p className="text-xl font-extrabold text-green-600 text-end">
                     ${selectedPackage?.cost}
                   </p>
@@ -481,7 +507,6 @@ const InfoCards: React.FC<InfoCardsProps> = ({
             )}
           </div>
         </Tooltip>
-
       </div>
 
       {modalOpen === 'property' && (

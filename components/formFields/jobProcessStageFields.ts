@@ -1,6 +1,11 @@
+import { createSortOrderValidation } from '@lib/constants/formInputValidations';
 import { FormField } from '../common/Models/ActionDialogModel';
 
-export const jobProcessStageFields = (jobProcessFunctionalityOptions: { value: string; label: string }[]): FormField[] => {
+export const jobProcessStageFields = (
+  jobProcessFunctionalityOptions: { value: string; label: string }[],
+  length?: number,
+  isEditing?: boolean
+): FormField[] => {
   return [
     {
       label: 'Stage Name',
@@ -17,12 +22,13 @@ export const jobProcessStageFields = (jobProcessFunctionalityOptions: { value: s
     //   label: 'Required ?',
     //   name: 'required',
     //   type: 'checkbox',
-    //   options: [{ label: 'date is required', value: 'dateIsRequired' }],
+    //   options: [{ label: 'date is required', value: 'dateIsRequi red' }],
     // },
     {
       label: 'Sort',
       name: 'sortOrder',
-      type: 'text',
+      type: 'number',
+      rules: createSortOrderValidation(length, isEditing),
     },
   ];
 };

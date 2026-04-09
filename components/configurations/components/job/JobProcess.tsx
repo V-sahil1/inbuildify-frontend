@@ -15,6 +15,8 @@ import {
   updateJobProcessStages,
 } from '@redux/feature/admin/job/jobProcess/jobProcessThunk';
 import { Status } from '@lib/constants/enum';
+import { handleReorder } from '@lib/utils/reorderBySort';
+import { updateJobStageList } from '@redux/feature/admin/job/jobProcess/jobProcessSlice';
 
 export const JobProcess: React.FC = () => {
   const [modal, setModal] = useState<{ type: string; stage: Partial<JobProcessStage> }>(null);
@@ -33,14 +35,22 @@ export const JobProcess: React.FC = () => {
 
   const handleSubmitStage = async (values: Partial<JobProcessStage>) => {
     try {
+      let response;
       if (modal.type === 'create') {
-        await dispatch(createJobProcessStages(values)).unwrap();
+        response = await dispatch(createJobProcessStages(values)).unwrap();
       } else if (modal.type === 'edit') {
-        await dispatch(
+        response = await dispatch(
           updateJobProcessStages({ data: values, jobStageId: modal.stage.stageId })
         ).unwrap();
       }
       setModal(null);
+      if (response) {
+        const updatedList = handleReorder(jobProcessStage, response, {
+          idKey: 'stageId',
+          sortKey: 'sortOrder',
+        });
+        dispatch(updateJobStageList(updatedList));
+      }
     } catch (error) {
       message.error(error);
     }
@@ -148,7 +158,11 @@ export const JobProcess: React.FC = () => {
           onCancel={() => setModal(null)}
           loading={loading}
           onSubmit={handleSubmitStage}
-          fields={jobProcessStageFields(jobProcessFunctionalityOptions)}
+          fields={jobProcessStageFields(
+            jobProcessFunctionalityOptions,
+            jobProcessStage?.length,
+            !!modal.stage
+          )}
           initialValues={{
             ...modal.stage,
             functionalityId: modal.stage?.functionality?.id,

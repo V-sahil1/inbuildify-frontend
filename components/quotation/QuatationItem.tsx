@@ -20,7 +20,17 @@ interface QuatationItemProps {
 }
 
 export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
-  ({ item, onToggleAdd, isSelected, onQuantityChange, onQuantityUpdate, quantityRef, disabled, category, isDiffPrice = false }) => {
+  ({
+    item,
+    onToggleAdd,
+    isSelected,
+    onQuantityChange,
+    onQuantityUpdate,
+    quantityRef,
+    disabled,
+    category,
+    isDiffPrice = false,
+  }) => {
     const { items } = useAppSelector((state: RootState) => state.quotation);
     const { leadDetail } = useAppSelector((state: RootState) => state.lead);
     const priceItem = items.find(i => i.priceListItemId === item.priceListItemId);
@@ -30,19 +40,26 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
     const [tempNotes, setTempNotes] = useState('');
 
     // Check if this is the Compaction Report Charge item
-    const isCompactionReportItem = item.itemDescription?.toLowerCase().includes('compaction report') ||
-      item.shortDescription?.toLowerCase().includes('compaction report');
-    const isReportAvailable = (leadDetail?.property as any)?.compactionReport !== 'available';
-    const isCompactionReportProviderBuilder = (leadDetail?.property as any)?.compactionReportProvider === 'builder';
-    const shouldAutoSelect = isCompactionReportItem && isReportAvailable && isCompactionReportProviderBuilder && !isSelected;
-    const shouldDisableRemoval = isCompactionReportItem && isCompactionReportProviderBuilder && isSelected;
+    // const isCompactionReportItem =
+    //   item.itemDescription?.toLowerCase().includes('compaction report') ||
+    //   item.shortDescription?.toLowerCase().includes('compaction report');
+    // const isReportAvailable = (leadDetail?.property as any)?.compactionReport !== 'available';
+    // const isCompactionReportProviderBuilder =
+    //   (leadDetail?.property as any)?.compactionReportProvider === 'builder';
+    // const shouldAutoSelect =
+    //   isCompactionReportItem &&
+    //   isReportAvailable &&
+    //   isCompactionReportProviderBuilder &&
+    //   !isSelected;
+    // const shouldDisableRemoval =
+    //   isCompactionReportItem && isCompactionReportProviderBuilder && isSelected;
 
-    // Auto-select compaction report item when provider is BUILDER
-    useEffect(() => {
-      if (shouldAutoSelect) {
-        handleToggle(item);
-      }
-    }, [shouldAutoSelect]);
+    // // Auto-select compaction report item when provider is BUILDER
+    // useEffect(() => {
+    //   if (shouldAutoSelect) {
+    //     handleToggle(item);
+    //   }
+    // }, [shouldAutoSelect]);
 
     useEffect(() => {
       setQuantity(priceItem?.quantity ?? 1);
@@ -63,7 +80,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
 
     const handleQuantityBlur = async () => {
       if (!priceItem?.quotationVersionItemId || !quantity || !onQuantityUpdate) return;
-      
+
       try {
         await onQuantityUpdate(item.priceListItemId, quantity);
       } catch (error) {
@@ -105,7 +122,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
           </div>
           <div className="flex flex-wrap gap-2 mt-1">
             {item.costType && <Tag color="yellow">{item.costType}</Tag>}
-            {item.dwellingType && (
+            {item?.dwellingType?.length > 0 && (
               <Tag color="blue">{enumToReadable(item?.dwellingType[0]?.name)}</Tag>
             )}
             {item.costOption && item.costOption !== 'NONE' && (
@@ -115,7 +132,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
               <Tag color="yellow">ADDITIONAL ITEM</Tag>
             )}
             {item.status && <Tag color="purple">{enumToReadable(item.status).toUpperCase()}</Tag>}
-            {item.range && (
+            {item?.range?.length > 0 && (
               <Tag color="orange">{enumToReadable(item?.range[0]?.name).toUpperCase()}</Tag>
             )}
             {/* the extraItemType is need to add in backednd there are 4 types  'Additional' | 'Complimentary' | 'Discount' | 'Note' is opening in the click of the extra */}
@@ -142,7 +159,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
             size="small"
             className="w-full text-center"
             disabled={isIncluded || disabled}
-            onWheel={(e) => e.currentTarget.blur()}
+            onWheel={e => e.currentTarget.blur()}
           />
         </div>
 
@@ -152,10 +169,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
             {!isIncluded ? `$${priceItem?.priceListItemCost || item.cost || 0}` : ' '}
             {isDiffPrice && (
               <Tooltip title={`Current price for this item is $${item.cost}`}>
-                <IconAlertTriangle 
-                  size={14} 
-                  className="text-yellow-500 cursor-help" 
-                />
+                <IconAlertTriangle size={14} className="text-yellow-500 cursor-help" />
               </Tooltip>
             )}
           </div>
@@ -163,28 +177,32 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
 
         {/* Total */}
         <div className="table-cell text-center p-3 align-middle w-[60px]">
-          {!isIncluded ? `$${(Number(priceItem?.priceListItemCost) || item.cost || 0) * quantity}` : ' '}
+          {!isIncluded
+            ? `$${(Number(priceItem?.priceListItemCost) || item.cost || 0) * quantity}`
+            : ' '}
         </div>
 
         {/* Action */}
         <div className="table-cell text-center p-3 align-middle w-[100px]">
           <Button
-            disabled={isIncluded || disabled || shouldDisableRemoval}
+            disabled={isIncluded || disabled}
             type={isSelected ? 'primary' : 'dashed'}
             style={{
               boxShadow: 'none',
             }}
             shape="circle"
             size="small"
-            icon={isSelected ? (
-              <div>
-                <IconX size={16} />
-              </div>
-            ) : (
-              <div>
-                <IconPlus size={16} />
-              </div>
-            )}
+            icon={
+              isSelected ? (
+                <div>
+                  <IconX size={16} />
+                </div>
+              ) : (
+                <div>
+                  <IconPlus size={16} />
+                </div>
+              )
+            }
             onClick={() => handleToggle(item)}
           />
         </div>

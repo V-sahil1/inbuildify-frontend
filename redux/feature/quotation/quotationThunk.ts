@@ -365,3 +365,15 @@ export const approveQuotation = createAsyncThunk(
     }
   }
 );
+
+export const getQuotationPdf = createAsyncThunk(
+  'quotation/getQuotationPdf',
+  async ({ id }: { id: string }, { rejectWithValue }) => {
+    try {
+      const res = await api.get<ApiResponse>(API_ENDPOINTS.QUOTATION_VERSION_PDF(id));
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);

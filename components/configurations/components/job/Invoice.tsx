@@ -162,9 +162,10 @@ export const Invoice: React.FC = () => {
         percentage: Number(values.percentage),
         sortOrder: Number(values.sortOrder),
       };
+      let response;
 
       if (editingStage) {
-        await dispatch(
+        response = await dispatch(
           updateJobInvoiceStage({
             data,
             jobInvoiceStagePaymentId: editingStage.jobInvoiceStagePaymentId,
@@ -172,13 +173,12 @@ export const Invoice: React.FC = () => {
         ).unwrap();
         message.success('Stage payment updated successfully');
       } else {
-        console.log('create in UI');
-        await dispatch(createJobInvoiceStage(data)).unwrap();
+        response = await dispatch(createJobInvoiceStage(data)).unwrap();
         message.success('Stage payment created successfully');
       }
-
       setIsModalOpen(false);
       setEditingStage(null);
+      await dispatch(fetchJobInvoiceStage({ page: currentPage, limit: PAGE_SIZE })).unwrap();
     } catch (error) {
       message.error(error || (editingStage ? 'Failed to update stage' : 'Failed to create stage'));
     }
@@ -221,7 +221,7 @@ export const Invoice: React.FC = () => {
               }
               suffix="days"
               style={{ width: '200px' }}
-              onWheel={(e) => e.currentTarget.blur()}
+              onWheel={e => e.currentTarget.blur()}
             />
             <p className="text-sm text-font-color-100">
               Enter the number of days from the invoice date to the payment due date.
@@ -283,7 +283,7 @@ export const Invoice: React.FC = () => {
           submitButtonText="Save"
           isEditing={editingStage !== null}
           initialValues={editingStage || {}}
-          fields={InvoiceSettingFields}
+          fields={InvoiceSettingFields(pagination?.totalRecords, !!editingStage)}
           loading={InvoiceStageStatus?.update === Status.PENDING}
         />
       )}

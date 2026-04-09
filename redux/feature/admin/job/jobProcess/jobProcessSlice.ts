@@ -62,7 +62,11 @@ const initialState: IJobSettingState = {
 const JobProcessSlice = createSlice({
   name: 'jobProcess',
   initialState,
-  reducers: {},
+  reducers: {
+    updateJobStageList: (state, action) => {
+      state.jobProcessStage = action.payload;
+    },
+  },
   extraReducers: builder => {
     builder
       .addCase(fetchJobProcessFunctionality.pending, state => {
@@ -345,4 +349,6 @@ const JobProcessSlice = createSlice({
       });
   },
 });
+export const { updateJobStageList } = JobProcessSlice.actions;
+
 export default JobProcessSlice.reducer;

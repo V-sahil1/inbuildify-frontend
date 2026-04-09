@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Form,
   Input,
@@ -74,15 +74,58 @@ const ColorCategoryItemModel = ({
   const { status } = useAppSelector(state => state.colour);
   const { rangeOptions } = useDwellingAndRangeHook({ type: 'range' });
   const { colorType } = useColorTypeHook();
-  const [images, setImages] = useState<{ color: File[]; specification: File[] }>({
+  const [images, setImages] = useState({
     color: [],
     specification: [],
   });
+
+  // State for managing custom fields when creating new item
+  const [customFields, setCustomFields] = useState<ColorItemCustomField[]>([]);
   const isStandard = Form.useWatch('costType', form);
   const isTBA = Form.useWatch('upgradeOption', form);
   const { supplierOptions } = useSupplierHook();
   const uploadRef = useRef(null);
   const imageUploadRef = useRef(null);
+
+  useEffect(() => {
+    if (categoryItem) {
+      // Initialize images state with existing items
+      const existingColorImages =
+        categoryItem && 'colorImage' in categoryItem && categoryItem.colorImage
+          ? categoryItem.colorImage.map((i, index) => ({
+              uid: `existing-${index}`,
+              name: 'colorImage',
+              status: 'done',
+              url: i.url,
+            }))
+          : [];
+
+      const existingSpecifications =
+        categoryItem && 'specification' in categoryItem && categoryItem.specification
+          ? categoryItem.specification.map((i, index) => ({
+              uid: `existing-${index}`,
+              name: 'specification',
+              status: 'done',
+              url: i.url,
+            }))
+          : [];
+
+      setImages({
+        color: existingColorImages,
+        specification: existingSpecifications,
+      });
+
+      // Set form values for validation
+      form.setFieldValue('colorImage', existingColorImages);
+      form.setFieldValue('specification', existingSpecifications);
+    } else {
+      // Reset state for new item
+      setImages({
+        color: [],
+        specification: [],
+      });
+    }
+  }, [categoryItem]);
 
   const handleUploadClick = () => {
     // Trigger the hidden upload input
@@ -133,15 +176,30 @@ const ColorCategoryItemModel = ({
         message.error('Please fill in all required fields');
         return;
       }
-      await dispatch(
-        createColourItemCustomField({
-          ...values,
-          sortOrder,
-          colorItem:
-            categoryItem && 'colorItemId' in categoryItem ? categoryItem.colorItemId : undefined,
-        })
-      ).unwrap();
-      message.success('Custom field added successfully');
+
+      if (categoryItem && 'colorItemId' in categoryItem) {
+        // Update existing item - call API
+        await dispatch(
+          createColourItemCustomField({
+            ...values,
+            sortOrder,
+            colorItem: categoryItem.colorItemId,
+          })
+        ).unwrap();
+        message.success('Custom field added successfully');
+      } else {
+        // Create new item - add to state
+        const newCustomField: ColorItemCustomField = {
+          colorItemCustomFieldId: `temp_${Date.now()}`, // Temporary ID
+          fieldType: values.fieldType,
+          fieldName: values.fieldName,
+          requiredField: values.requiredField,
+          sortOrder: sortOrder,
+        };
+        setCustomFields(prev => [...prev, newCustomField]);
+        message.success('Custom field added successfully');
+      }
+
       form.setFieldsValue({
         fieldType: undefined,
         fieldName: '',
@@ -157,11 +215,20 @@ const ColorCategoryItemModel = ({
   const onFinish = async values => {
     try {
       await form.validateFields();
-      const { ...restValues } = values;
+      const { fieldName, requiredField, customFieldSortOrder, ...restValues } = values;
+
+      const processFiles = (files: any[]) => {
+        const newFiles = files.filter(file => file.originFileObj).map(file => file.originFileObj);
+
+        const existingFiles = files.filter(file => !file.originFileObj).map(file => file.url);
+
+        return [...newFiles, ...existingFiles];
+      };
+
       const payload = {
         ...restValues,
-        colorImage: images?.color,
-        specification: images?.specification,
+        colorImage: processFiles(images.color),
+        specification: processFiles(images.specification),
       };
       if (categoryItem && 'colorItemId' in categoryItem) {
         const { isUpdated, updatedFields } = getUpdatedFields(payload, categoryItem);
@@ -173,14 +240,26 @@ const ColorCategoryItemModel = ({
         await dispatch(updateColourItem({ data: formData, id: categoryItem.colorItemId })).unwrap();
         message.success('Sub-category item updated successfully');
       } else {
-        const formData = formDataGenerator(
+        const mappedCustomFields = customFields.map(field => ({
+          fieldType: field.fieldType,
+          fieldName: field.fieldName,
+          requiredField: field.requiredField,
+          sortOrder: field.sortOrder,
+        }));
+
+        const createPayload =
           type === 'category'
             ? {
                 ...payload,
                 colorCategoryId: selectedColorCategoryId,
+                customFields: mappedCustomFields,
               }
-            : payload
-        );
+            : {
+                ...payload,
+                customFields: mappedCustomFields,
+              };
+
+        const formData = formDataGenerator(createPayload);
         await dispatch(createColourItem(formData)).unwrap();
         message.success('Sub-category item created successfully');
       }
@@ -197,6 +276,9 @@ const ColorCategoryItemModel = ({
           deleteColourItemCustomField({ id, colorItemId: categoryItem.colorItemId })
         ).unwrap();
         message.success('Custom field deleted successfully');
+      } else {
+        setCustomFields(prev => prev.filter(field => field.colorItemCustomFieldId !== id));
+        message.success('Custom field deleted successfully');
       }
     } catch (error) {
       message.error(error || 'Failed to delete custom field');
@@ -205,6 +287,7 @@ const ColorCategoryItemModel = ({
 
   const handleCancel = () => {
     form.resetFields();
+    setCustomFields([]);
     onClose();
   };
 
@@ -415,7 +498,7 @@ const ColorCategoryItemModel = ({
                           min={0}
                           step={1}
                           type="number"
-                          onWheel={(e) => e.currentTarget.blur()}
+                          onWheel={e => e.currentTarget.blur()}
                           placeholder="Enter sort order"
                         />
                       </Form.Item>
@@ -545,7 +628,11 @@ const ColorCategoryItemModel = ({
                         </Col>
                         <Col xs={10} md={5}>
                           <Form.Item name="customFieldSortOrder" label="Sort Order">
-                            <Input type="number" placeholder="Enter sort order" onWheel={(e) => e.currentTarget.blur()} />
+                            <Input
+                              type="number"
+                              placeholder="Enter sort order"
+                              onWheel={e => e.currentTarget.blur()}
+                            />
                           </Form.Item>
                         </Col>
                         <Col xs={8} md={4} className="flex justify-end items-center">
@@ -557,12 +644,17 @@ const ColorCategoryItemModel = ({
 
                       {/* Add the table below the form */}
                       <div className="mt-4">
-                        {categoryItem &&
-                        'customFields' in categoryItem &&
-                        categoryItem.customFields?.length > 0 ? (
+                        {(categoryItem &&
+                          'customFields' in categoryItem &&
+                          categoryItem.customFields?.length > 0) ||
+                        (!categoryItem && customFields.length > 0) ? (
                           <Table
                             columns={columns}
-                            dataSource={categoryItem.customFields}
+                            dataSource={
+                              categoryItem && 'customFields' in categoryItem
+                                ? categoryItem.customFields
+                                : customFields
+                            }
                             pagination={false}
                             loading={status.colorItemCustomField.fetch === Status.PENDING}
                             rowKey="colorItemCustomFieldId"
@@ -600,14 +692,12 @@ const ColorCategoryItemModel = ({
                         listType="picture"
                         accept={acceptOnlyImageRule}
                         onChange={info => {
-                          const files = info.fileList
-                            .map(file => file.originFileObj)
-                            .filter(Boolean);
-                          setImages({
-                            ...images,
-                            color: files,
-                          });
+                          setImages(prev => ({
+                            ...prev,
+                            color: info.fileList,
+                          }));
                         }}
+                        fileList={images.color}
                       />
 
                       <div>
@@ -630,7 +720,7 @@ const ColorCategoryItemModel = ({
                 <Row gutter={16}>
                   <Col xs={24} md={24}>
                     <p>Specification</p>
-                    <Form.Item name="specificationName">
+                    <Form.Item name="specification">
                       <Button
                         icon={<IconUpload />}
                         className="ml-auto flex self-end"
@@ -643,14 +733,12 @@ const ColorCategoryItemModel = ({
                         listType="picture"
                         className="text-center"
                         accept="image/*,.pdf"
+                        fileList={images.specification}
                         onChange={info => {
-                          const files = info.fileList
-                            .map(file => file.originFileObj)
-                            .filter(Boolean);
-                          setImages({
-                            ...images,
-                            specification: files,
-                          });
+                          setImages(prev => ({
+                            ...prev,
+                            specification: info.fileList,
+                          }));
                         }}
                       />
                     </Form.Item>

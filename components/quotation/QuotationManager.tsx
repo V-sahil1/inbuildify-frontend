@@ -23,6 +23,7 @@ import {
   getQuotationVersionById,
   updateQuotationVersion,
   updateQuotationItemThunk,
+  getQuotationPdf,
 } from '@redux/feature/quotation/quotationThunk';
 import {
   setQuotationPlan,
@@ -63,6 +64,7 @@ const QuotationManager = () => {
     quotation,
     structureEngineer: selectedStructuralEngineer,
   } = useAppSelector((state: RootState) => state.quotation);
+  const { leadDetail } = useAppSelector(state => state.lead);
   const { priceMaster: categoryData, status } = useAppSelector(
     (state: RootState) => state.masterPriceList
   );
@@ -135,7 +137,14 @@ const QuotationManager = () => {
   };
   const handleSelectionChange = useCallback(
     async (
-      type: 'plan' | 'facade' | 'package' | 'range' | 'dwellingType' | 'location' | 'structuralEngineer',
+      type:
+        | 'plan'
+        | 'facade'
+        | 'package'
+        | 'range'
+        | 'dwellingType'
+        | 'location'
+        | 'structuralEngineer',
       value: IFloorPlanState | IFacadeState | Package | string
     ) => {
       if (!value) {
@@ -156,10 +165,16 @@ const QuotationManager = () => {
           case 'package':
             dispatch(setQuotationPackage(value as Package));
             payload.packageId = (value as Package)?.packageId || null;
-            if (quoteVersionId && (value as Package)?.packageId) {
+            if (
+              quoteVersionId
+                ? quoteVersionId
+                : quotationData?.versions?.[0]?.quotationVersionId && (value as Package)?.packageId
+            ) {
               await dispatch(
                 createQuotationPackageThunk({
-                  quotationVersionId: quoteVersionId,
+                  quotationVersionId: quoteVersionId
+                    ? quoteVersionId
+                    : quotationData?.versions?.[0]?.quotationVersionId,
                   packageId: (value as Package).packageId,
                 })
               ).unwrap();
@@ -184,9 +199,12 @@ const QuotationManager = () => {
             payload.structureEngineerId = (value as any)?.structureEngineerId || null;
             break;
         }
-        await dispatch(
-          updateQuotationVersion({ id: quoteDetails?.quotationVersionId, data: payload })
-        ).unwrap();
+        if (type !== 'package') {
+          await dispatch(
+            updateQuotationVersion({ id: quoteDetails?.quotationVersionId, data: payload })
+          ).unwrap();
+        }
+
         setHasChanges(false);
       } catch (error) {
         message.error(error || 'Failed to save changes');
@@ -205,7 +223,7 @@ const QuotationManager = () => {
     try {
       const priceItem = items.find(i => i.priceListItemId === itemId);
       if (!priceItem?.quotationVersionItemId) return;
-      
+
       // Only update if quantity has changed
       if (Number(priceItem.quantity) !== quantity) {
         await dispatch(
@@ -213,13 +231,13 @@ const QuotationManager = () => {
             quotationVersionItemId: priceItem.quotationVersionItemId,
             quantity,
             note: priceItem.note || '',
-            priceListItemDescription: priceItem.itemDescription || ''
+            priceListItemDescription: priceItem.itemDescription || '',
           })
         ).unwrap();
         message.success('Quantity updated successfully');
       }
     } catch (error) {
-      message.error(error as string || 'Failed to update quantity');
+      message.error((error as string) || 'Failed to update quantity');
       throw error; // Re-throw to let child component handle revert
     }
   };
@@ -251,7 +269,12 @@ const QuotationManager = () => {
   };
 
   const fetchAllCategoryItems = async () => {
-    if (!quotationFilters?.range || !quotationFilters?.dwellingType) return;
+    if (
+      leadDetail?.property?.compactionReportProvider !== 'builder' &&
+      leadDetail?.property?.compactionReport !== 'not_available' &&
+      (!quotationFilters?.range || !quotationFilters?.dwellingType)
+    )
+      return;
 
     try {
       const responses = await Promise.all(
@@ -262,8 +285,11 @@ const QuotationManager = () => {
           return dispatch(
             fetchCategoryItems({
               price_list_id: cat.priceListId,
-              range_id: quotationFilters.range,
-              dwelling_type_id: quotationFilters.dwellingType,
+              range_id: quotationFilters.range || undefined,
+              dwelling_type_id: quotationFilters.dwellingType || undefined,
+              is_system_data:
+                leadDetail?.property?.compactionReportProvider === 'builder' &&
+                leadDetail?.property?.compactionReport === 'not_available',
               package_id: quoteDetails?.package?.packageId,
             })
           ).unwrap();
@@ -297,7 +323,7 @@ const QuotationManager = () => {
       await dispatch(
         getQuotationPricelistThunk({
           quotationVersionId: quoteVersionId ?? quotationData?.versions?.[0]?.quotationVersionId,
-          package_id: selectedPackageFromSlice?.packageId
+          package_id: selectedPackageFromSlice?.packageId,
         })
       ).unwrap();
     } catch (error) {
@@ -305,7 +331,7 @@ const QuotationManager = () => {
     }
   };
 
-  const handleItemQuantityChange = (itemId: string, quantity: number) => { };
+  const handleItemQuantityChange = (itemId: string, quantity: number) => {};
 
   const getQuotationItems = () => {
     const normalize = (item: any, isExtra = false) => ({
@@ -479,11 +505,13 @@ const QuotationManager = () => {
       // Update relevant states with the duplicated quotation data
       if (response) {
         // Update filters
-        dispatch(setSelectedFilters({
-          range: response.rangeId,
-          dwellingType: response.dwellingTypeId,
-          location: response.locationId,
-        }));
+        dispatch(
+          setSelectedFilters({
+            range: response.rangeId,
+            dwellingType: response.dwellingTypeId,
+            // location: response.locationId,
+          })
+        );
 
         // Update floor plan if available
         if (response.floorPlan) {
@@ -508,6 +536,17 @@ const QuotationManager = () => {
     }
   };
 
+  const handlePreView = async () => {
+    try {
+      const response = await dispatch(
+        getQuotationPdf({ id: quoteVersionId ?? quotationData?.versions?.[0]?.quotationVersionId })
+      ).unwrap();
+      window.open(response?.pdfUrl, '_blank');
+    } catch (error) {
+      message.error(error || 'Failed to get url');
+    }
+  };
+
   return (
     <>
       <div className="m-3 flex justify-between items-center">
@@ -525,12 +564,16 @@ const QuotationManager = () => {
               disabled={quoteDetails?.isApprove}
               loading={quotationStatus?.create === Status.PENDING}
             >
-              <IconNewSection />New Version
+              <IconNewSection />
+              New Version
             </Button>
           </Tooltip>
         </div>
         <QuotationFilter
-          isReadOnly={quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0) || quoteDetails?.isApprove}
+          isReadOnly={
+            quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0) ||
+            quoteDetails?.isApprove
+          }
           onFilterChange={({ type, value }) => {
             handleSelectionChange(type, value);
             setHasChanges(true);
@@ -551,14 +594,21 @@ const QuotationManager = () => {
         onPlanSelect={plan => handleSelectionChange('plan', plan)}
         onFacadeSelect={facade => handleSelectionChange('facade', facade)}
         onPackageSelect={pkg => handleSelectionChange('package', pkg)}
-        onStructuralEngineerSelect={engineer => handleSelectionChange('structuralEngineer', engineer)}
-        onPropertyUpdate={() => { }}
-        isReadOnly={(quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0)) || quoteDetails?.isApprove}
+        onStructuralEngineerSelect={engineer =>
+          handleSelectionChange('structuralEngineer', engineer)
+        }
+        onPropertyUpdate={() => {}}
+        isReadOnly={
+          quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0) ||
+          quoteDetails?.isApprove
+        }
         filters={quotationFilters}
       />
 
       <div className="flex flex-1 m-3 border border-border-color rounded-lg h-[360px]">
-        {quotationFilters?.range && quotationFilters?.dwellingType ? (
+        {(quotationFilters?.range && quotationFilters?.dwellingType) ||
+        (leadDetail?.property?.compactionReportProvider === 'builder' &&
+          leadDetail?.property?.compactionReport === 'not_available') ? (
           <>
             <div className="w-64">
               {status.priceMaster === Status.PENDING ? (
@@ -584,7 +634,11 @@ const QuotationManager = () => {
               onItemQuantityUpdate={handleItemQuantityUpdate}
               extraItem={extraItem}
               onExtraClick={handleExtraClick}
-              isReadOnly={quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0) || quoteDetails?.isApprove || !quoteDetails?.structuralEngineer}
+              isReadOnly={
+                quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0) ||
+                quoteDetails?.isApprove ||
+                !quoteDetails?.structuralEngineer
+              }
               // itemsLoading={
               //   selectedCategory
               //     ? (getCategoryById(selectedCategory)?.loadingItems ?? false)
@@ -614,14 +668,23 @@ const QuotationManager = () => {
       <div className="m-3">
         <FooterActions
           id={quotationData?.referenceNumber || ''}
-          total={calculateTotalQuotation(selectedPackageFromSlice, items, Number(facade?.cost), Number(quoteDetails?.structuralEngineer?.price) )}
+          total={calculateTotalQuotation(
+            selectedPackageFromSlice,
+            items,
+            Number(facade?.cost),
+            Number(quoteDetails?.structuralEngineer?.price)
+          )}
           quoteVersionId={quoteVersionId || quotationData?.versions?.[0]?.quotationVersionId}
           isEditMode={isEditMode}
           onEdit={() => setIsEditMode(true)}
           onCancel={() => setHasChanges(false)}
           onSave={handleCreateQuotation}
-          onPreview={() => { }} // todo handle preview
-          disableAction={quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0) || quoteDetails?.isApprove || !quoteDetails?.structuralEngineer}
+          onPreview={() => handlePreView()} // todo handle preview
+          disableAction={
+            quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0) ||
+            quoteDetails?.isApprove ||
+            !quoteDetails?.structuralEngineer
+          }
           previewLoading={previewLoading}
           loading={quotationStatus.create === Status.PENDING}
           hasUnsavedChanges={hasChanges}
