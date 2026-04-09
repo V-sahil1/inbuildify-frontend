@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useMemo } from 'react';
 import { Button, Dropdown, Form, Input, message } from 'antd';
 import { IPriceList } from '@redux/feature/masterPriceList/iMasterPriceListState';
 import { QuatationItem } from '../quotation/QuatationItem';
@@ -45,6 +45,28 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
     package: selectedPackageFromSlice,
     quoteDetails,
   } = useAppSelector((state: RootState) => state.quotation);
+
+  const { priceMaster: categoryData } = useAppSelector((state: RootState) => state.masterPriceList);
+
+  const userSelectedItems = useMemo(() =>
+    categoryData?.flatMap(cd =>
+      cd.items.reduce<typeof cd.items>((acc, categoryItem) => {
+        const quotationItem = items.find(
+          selected => selected?.priceListItemId === categoryItem?.priceListItemId
+        );
+
+        if (quotationItem) {
+          acc.push({
+            ...categoryItem,
+            isPriceListItemCostMismatch: quotationItem.isPriceListItemCostMismatch ?? false,
+          });
+        }
+
+        return acc;
+      }, [])
+    ), [categoryData, items]
+  );
+  
   const [form] = Form.useForm();
   const { leadDetail } = useAppSelector((state: RootState) => state.lead);
   const quantityRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -57,6 +79,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
     const searchTerm = search.toLowerCase();
 
     return itemsToFilter.filter(item => {
+      // Check rangeId and dwellingTypeId arrays
       if (item.rangeId && item.rangeId.length > 0 && selectedFilters?.range) {
         if (item.rangeId.includes(selectedFilters.range)) return true;
       }
@@ -70,25 +93,8 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
       // Check costType
       if (item.costType && item.costType.toLowerCase().includes(searchTerm)) return true;
 
-      // Check cost (as string)
-      if (item.cost && item.cost.toString().includes(searchTerm)) return true;
-
-      // Check costOption
-      if (item.costOption && item.costOption.toLowerCase().includes(searchTerm)) return true;
-
-      // Check range
-      if (item.range && item.range.length > 0) {
-        const rangeNames = item.range.map((r: any) => r.name?.toLowerCase() || '').join(' ');
-        if (rangeNames.includes(searchTerm)) return true;
-      }
-
-      // Check dwellingType
-      if (item.dwellingType && item.dwellingType.length > 0) {
-        const dwellingNames = item.dwellingType
-          .map((d: any) => d.name?.toLowerCase() || '')
-          .join(' ');
-        if (dwellingNames.includes(searchTerm)) return true;
-      }
+      // Check itemCost (as string)
+      if (item.itemCost && item.itemCost.toString().includes(searchTerm)) return true;
 
       // Check if this is the Compaction Report Charge item
       const isCompactionReportItem =
@@ -253,10 +259,10 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
                   </div>
                 ) : (
                   <>
-                    {(select ? filterItems(items) : filterItems(category?.items || []))?.length >
+                    {(select ? filterItems(userSelectedItems) : filterItems(category?.items || []))?.length >
                     0 ? (
                       (select
-                        ? filterItems(items)
+                        ? filterItems(userSelectedItems)
                         : filterItems(category?.items || [])?.filter(i => i.status === 'active')
                       ).map(item => (
                         <QuatationItem
@@ -271,10 +277,10 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
                           onQuantityChange={handleItemQuantityChange}
                           onQuantityUpdate={onItemQuantityUpdate}
                           quantityRef={el => (quantityRefs.current[item.priceListItemId] = el)}
-                          isSelected={items?.some(
+                          isSelected={userSelectedItems?.some(
                             itemData => itemData.priceListItemId === item.priceListItemId
                           )}
-                          isDiffPrice={items?.find(
+                          isDiffPrice={userSelectedItems?.find(
                             itemData => itemData.priceListItemId === item.priceListItemId
                           )?.isPriceListItemCostMismatch}
                           onToggleAdd={handleItemAdd}
