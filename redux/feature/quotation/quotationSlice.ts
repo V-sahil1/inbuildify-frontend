@@ -32,7 +32,7 @@ import {
 } from './IQuotationState';
 import { Package } from '../package/IPackageState';
 import { updateContact } from '../contacts/contactThunk';
-import { updateLeadThunk } from '../lead/leadThunk';
+import { updateLeadProperty, updateLeadThunk } from '../lead/leadThunk';
 export interface QuotationState {
   status: { create: Status; getById: Status; customSection: Status };
   quoteDetails: QuotationVersionDetails | null;
@@ -46,8 +46,8 @@ export interface QuotationState {
   extraItems: QuotationPriceListItem[];
   quotation: Quotation[];
   customSections: CustomSection[];
-   comparison?: QuotationComparison;
-   structureEngineer?: any;
+  comparison?: QuotationComparison;
+  structureEngineer?: any;
 }
 
 const initialState: QuotationState = {
@@ -63,8 +63,8 @@ const initialState: QuotationState = {
   extraItems: [],
   quotation: [],
   customSections: [],
-  comparison:null,
-  structureEngineer:null
+  comparison: null,
+  structureEngineer: null
 };
 
 const quotationSlice = createSlice({
@@ -331,7 +331,7 @@ const quotationSlice = createSlice({
 
       //quotation compare
       .addCase(createQuotationCompareThunk.fulfilled, (state, action) => {
-       state.comparison=action.payload
+        state.comparison = action.payload
       })
 
       //quotataion custom section
@@ -384,6 +384,9 @@ const quotationSlice = createSlice({
     //approve quotation
     builder.addCase(approveQuotation.fulfilled, (state, action) => {
       state.quoteDetails = action.payload;
+    });
+    builder.addCase(updateLeadProperty.fulfilled, (state, action) => {
+      state.quoteDetails.property = action.payload;
     });
   },
 });

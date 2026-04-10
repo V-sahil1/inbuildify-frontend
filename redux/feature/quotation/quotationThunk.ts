@@ -55,7 +55,7 @@ export const getQuotationVersionById = createAsyncThunk(
   ) => {
     try {
       const res = await api.get<ApiResponse<QuotationVersionDetails[]>>(
-        API_ENDPOINTS.QUOTATION_VERSION + '/' + quoteId
+        API_ENDPOINTS.QUOTATION_VERSION_DETAILS + (quoteVersionId ? '/' + quoteVersionId : '')
       );
       return res.data;
     } catch (error) {
@@ -175,12 +175,12 @@ export const getQuotationPricelistThunk = createAsyncThunk(
     try {
       const { quotationVersionId, package_id } = params;
       let apiUrl = API_ENDPOINTS.QUOTATION_VERSION_ITEM + '/version/' + quotationVersionId;
-      
+
       // Add package_id parameter if provided
       if (package_id) {
         apiUrl += '?package_id=' + package_id;
       }
-      
+
       const res = await api.get<ApiResponse<QuotationPriceListItem[]>>(apiUrl);
       return res.data;
     } catch (error) {
@@ -192,11 +192,11 @@ export const getQuotationPricelistThunk = createAsyncThunk(
 export const updateQuotationItemThunk = createAsyncThunk(
   'quotation/updateQuotationItemThunk',
   async (
-    payload: { 
-      quotationVersionItemId: string; 
-      quantity: number; 
-      note?: string; 
-      priceListItemDescription?: string 
+    payload: {
+      quotationVersionItemId: string;
+      quantity: number;
+      note?: string;
+      priceListItemDescription?: string
     },
     { rejectWithValue }
   ) => {

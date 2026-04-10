@@ -45,7 +45,7 @@ import { LeadContact } from '@redux/feature/lead/ILeadState';
 import StructuralEngineerListModal from '../common/Models/StructuralEngineerListModal';
 import { MdEngineering } from 'react-icons/md';
 interface InfoCardsProps {
-  propertyDetails: any;
+  propertyDetails?: any;
   selectedPlan?: IFloorPlanState;
   selectedFacade?: IFacadeState;
   selectedPackage?: Package;
@@ -194,9 +194,10 @@ const InfoCards: React.FC<InfoCardsProps> = ({
       message.error(error || 'Failed to remove lead contact');
     }
   };
+  console.log("quoteDetails", quoteDetails);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 p-3">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-3">
       {/* Lead Details Card */}
       <Card
         className="shadow-sm hover:shadow-md transition-shadow cursor-pointer"
@@ -212,20 +213,20 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           </Tooltip>
         </div>
         <div className="space-y-2">
-          <div className="font-semibold text-font-color">{leadDetail?.contacts?.[0]?.name}</div>
+          <div className="font-semibold text-font-color">{quoteDetails?.leadContacts?.[0]?.name}</div>
           <div className="flex items-center text-sm text-font-color-100">
             <IconPhone size={14} className="mr-1 text-font-color-100" />
-            {leadDetail?.contacts?.[0]?.phone || 'N/A'}
+            {quoteDetails?.leadContacts?.[0]?.phone || 'N/A'}
           </div>
           <div className="flex items-center text-sm text-font-color-100">
             <IconMail size={14} className="mr-1 text-font-color-100" />
-            {leadDetail?.contacts?.[0]?.email || 'N/A'}
+            {quoteDetails?.leadContacts?.[0]?.email || 'N/A'}
           </div>
-          {leadDetail?.contacts?.[0]?.address?.addressLine1 && (
+          {quoteDetails?.leadContacts?.[0]?.address?.addressLine1 && (
             <div className="flex items-start text-sm text-font-color-100">
               <IconMapPin size={14} className="mr-1 mt-0.5 text-font-color-100 flex-shrink-0" />
               <span className="line-clamp-2">
-                {leadDetail?.contacts?.[0]?.address?.addressLine1 || 'Not provided'}
+                {quoteDetails?.leadContacts?.[0]?.address?.addressLine1 || 'Not provided'}
               </span>
             </div>
           )}
@@ -241,39 +242,39 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           <span className="font-medium text-font-color">Property Details</span>
           <Tooltip>{!isReadOnly && <IconEdit className="text-gray-400 ml-auto" />}</Tooltip>
         </div>
-        {leadDetail?.property?.city &&
-        leadDetail?.property?.stateName &&
-        leadDetail?.property?.zipCode ? (
+        {quoteDetails?.property?.city &&
+          quoteDetails?.property?.stateName &&
+          quoteDetails?.property?.zipCode ? (
           <div className="space-y-2">
             <div className="font-semibold text-font-color">
-              {leadDetail?.property?.addressLine1}
+              {quoteDetails?.property?.addressLine1}
             </div>
             <div className="text-sm text-font-color">
               {[
-                leadDetail?.property?.city,
-                leadDetail?.property?.stateName,
-                leadDetail?.property?.zipCode,
+                quoteDetails?.property?.city,
+                quoteDetails?.property?.stateName,
+                quoteDetails?.property?.zipCode,
               ]
                 .filter(Boolean)
                 .join(', ')}
             </div>
             <div className="text-sm text-font-color-100">
               Title :{' '}
-              {leadDetail?.property?.titleDate
-                ? dayjs(leadDetail?.property?.titleDate).format('DD-MM-YYYY')
+              {quoteDetails?.property?.titleDate
+                ? dayjs(quoteDetails?.property?.titleDate).format('DD-MM-YYYY')
                 : ''}
             </div>
             <div className="text-sm text-font-color-100">
-              Type: {leadDetail?.property?.landType ?? ''}
+              Type: {quoteDetails?.property?.landType ?? ''}
             </div>
-            {leadDetail?.property?.widthM && leadDetail?.property?.depthM && (
+            {quoteDetails?.property?.widthM && quoteDetails?.property?.depthM && (
               <div className="text-sm text-font-color-100">
-                W: {leadDetail?.property?.widthM || ''}
-                {leadDetail?.property?.widthM ? 'm' : ''} D: x chr
-                {leadDetail?.property?.depthM || ''}
-                {leadDetail?.property?.depthM ? 'm' : ''} Total:{' '}
-                {leadDetail?.property?.totalSizeM2 || ''}
-                {leadDetail?.property?.totalSizeM2 ? ' m²' : ''}
+                W: {quoteDetails?.property?.widthM || ''}
+                {quoteDetails?.property?.widthM ? 'm' : ''} D: x chr
+                {quoteDetails?.property?.depthM || ''}
+                {quoteDetails?.property?.depthM ? 'm' : ''} Total:{' '}
+                {quoteDetails?.property?.totalSizeM2 || ''}
+                {quoteDetails?.property?.totalSizeM2 ? ' m²' : ''}
               </div>
             )}
           </div>

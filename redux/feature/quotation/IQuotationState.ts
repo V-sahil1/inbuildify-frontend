@@ -124,11 +124,14 @@ export type QuotationVersionDetails = {
   facade?: IFacadeState;
   package?: Package;
   customSections?: CustomSection[];
+  property?: any;
+  quoteDetails?: string;
+  referenceNumber?: string;
   structureEngineerId?: string | null;
   structuralEngineer?: {
     structuralEngineerId: string;
     name: string;
-    email:string;
+    email: string;
     price?: number;
   };
 };
@@ -151,8 +154,8 @@ export type QuotationPriceListItem = {
   itemCost?: number;
   costType?: 'Fixed' | 'Variable' | 'Included';
   uom?: string;
-  rangeId?:string[];
-  dwellingTypeId?:string[];
+  rangeId?: string[];
+  dwellingTypeId?: string[];
 };
 
 export type QuotationPackage = {

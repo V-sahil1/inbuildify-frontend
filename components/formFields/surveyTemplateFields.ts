@@ -3,7 +3,7 @@ import { FormField } from '../common/Models/ActionDialogModel';
 export const SurveyTemplateFields = (showStatus, setIsRecommended, isRecommended): FormField[] => {
   const column: FormField[] = [
     { label: 'Name', name: 'name', type: 'text' },
-    { label: 'Sort Order', name: 'sortOrder', type: 'number' },
+    { label: 'Sort Order', name: 'sortOrder', type: 'number', min: 1 },
     {
       label: 'Recommended Template',
       name: 'isRecommended',

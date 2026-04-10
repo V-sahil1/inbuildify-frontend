@@ -141,7 +141,7 @@ export default function Land() {
       dataIndex: 'estate',
       key: 'estate',
       width: 150,
-      render: estate => estate.name,
+      render: estate => estate?.name,
     },
     {
       title: (
@@ -156,7 +156,7 @@ export default function Land() {
       dataIndex: 'estateStage',
       key: 'estateStage',
       width: 150,
-      render: estateStage => estateStage.name,
+      render: estateStage => estateStage?.name,
     },
     {
       title: (

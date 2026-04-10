@@ -27,6 +27,7 @@ export type FormField = {
   disabled?: boolean;
   invite?: boolean;
   initialValue?: any;
+  min?: number;
   type?:
     | 'email'
     | 'phone'
@@ -385,6 +386,7 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
                   placeholder={field.placeholder}
                   type={field.type}
                   onWheel={(e) => e.currentTarget.blur()}
+                  min={field?.min || undefined}
                   disabled={field.disabled}
                   onKeyPress={e => {
                     if (!/[0-9]/.test(e.key)) {

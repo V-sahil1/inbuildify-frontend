@@ -136,6 +136,7 @@ class API_ENDPOINTS {
   //quotation
   public static QUOTATION_BASE = '/quotation';
   public static QUOTATION_VERSION = '/quotation/version';
+  public static QUOTATION_VERSION_DETAILS = '/quotation/version-details';
   public static GET_QUOTATIONS_BY_LEAD_ID = (leadId: string, page: number, limit: number) =>
     `${this.QUOTATION_BASE}?leadId=${leadId}&page=${page}&limit=${limit}`;
   public static QUOTATION_PRICELIST = '/quotation-version-pricelist-item-map';

@@ -77,7 +77,6 @@ const QuotationManager = () => {
   const lastFetchedFiltersRef = useRef<{ range?: string; dwellingType?: string } | null>(null);
 
   // const isJob = useMemo(() => quoteDetails?.leadStatus === 'JOB', [quoteDetails]);
-
   const quotationData = quoteVersionId
     ? quotation?.find(i => i.versions.find(j => j.quotationVersionId === quoteVersionId))
     : quotation[quotation?.length - 1];
@@ -89,10 +88,10 @@ const QuotationManager = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (quotationData?.quotationId) {
+    // if (quotationData?.quotationId) {
       fetchQuotation();
-    }
-  }, [dispatch, quotationData?.quotationId]);
+    // }
+  }, [dispatch, quotationData?.quotationId, router, quoteVersionId]);
 
   useEffect(() => {
     if (!!quoteVersionId || !!quotationData) {
@@ -223,6 +222,7 @@ const QuotationManager = () => {
     try {
       const priceItem = items.find(i => i.priceListItemId === itemId);
       if (!priceItem?.quotationVersionItemId) return;
+
 
       // Only update if quantity has changed
       if (Number(priceItem.quantity) !== quantity) {
@@ -497,7 +497,7 @@ const QuotationManager = () => {
     try {
       const response = await dispatch(
         createQuotationVersionThunk(
-          quoteVersionId ?? quotationData?.versions?.[0]?.quotationVersionId
+          quoteVersionId ?? quoteDetails?.quotationVersionId
         )
       ).unwrap();
       message.success('New version created successfully');
@@ -552,7 +552,7 @@ const QuotationManager = () => {
       <div className="m-3 flex justify-between items-center">
         <div className="flex items-center justify-center gap-4">
           <StageProgress
-            id={quotationData?.referenceNumber + ' V' + quoteDetails?.quotationVersionNo || ''}
+            id={quoteDetails?.referenceNumber + ' V' + quoteDetails?.quotationVersionNo || ''}
             title="Quotation"
             steps={[]}
           />
@@ -586,7 +586,7 @@ const QuotationManager = () => {
       </div>
 
       <InfoCards
-        propertyDetails={property}
+        // propertyDetails={property}
         selectedPlan={plan}
         selectedFacade={facade}
         selectedPackage={selectedPackageFromSlice}
