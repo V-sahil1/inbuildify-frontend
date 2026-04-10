@@ -1,6 +1,7 @@
+import { createSortOrderValidation } from '@lib/constants/formInputValidations';
 import { FormField } from '../common/Models/ActionDialogModel';
 
-export const getParentFields = (): FormField[] => [
+export const getParentFields = (length, isEditing): FormField[] => [
   {
     label: 'Name',
     name: 'name',
@@ -43,7 +44,7 @@ export const getParentFields = (): FormField[] => [
     label: 'Sort',
     name: 'sortOrder',
     type: 'number',
-    rules: [{ required: true, message: 'Please enter a sort order' }],
+    rules: createSortOrderValidation(length, isEditing),
   },
 ];
 

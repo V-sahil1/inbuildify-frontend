@@ -482,7 +482,7 @@ export const Comission: React.FC = () => {
           onCancel={() => setModalOpen(null)}
           isEditing={!!editingItem}
           onSubmit={handleSaveParent}
-          fields={getParentFields()}
+          fields={getParentFields(outgoingCommission?.length, !!editingItem)}
           initialValues={editingItem || {}}
           submitButtonText={editingItem ? 'Update' : 'Create'}
           loading={outgoingCommissionStatus.update === Status.PENDING}
