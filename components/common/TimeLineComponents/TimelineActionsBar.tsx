@@ -60,11 +60,12 @@ const TimelineActionsBar: FC<TimelineActionsBarProps> = ({
       </div>
 
       {/* Actions Section */}
-      {isActionShow && (
-        <div className="flex items-center gap-2 sm:mt-0 mt-2">
-          <button className="text-primary rounded p-1 border-2 border-primary">
-            <IconFilter />
-          </button>
+
+      <div className="flex items-center gap-2 sm:mt-0 mt-2">
+        {/* <button className="text-primary rounded p-1 border-2 border-primary">
+          <IconFilter />
+        </button> */}
+        {activeTab === 'All' ? (
           <Dropdown
             menu={{
               items: actionItems,
@@ -76,8 +77,12 @@ const TimelineActionsBar: FC<TimelineActionsBarProps> = ({
               Action
             </Button>
           </Dropdown>
-        </div>
-      )}
+        ) : (
+          <Button type="primary" icon={<IconPlus />} onClick={() => onActionSelect(activeTab)}>
+            Add {activeTab}
+          </Button>
+        )}
+      </div>
     </div>
   );
 };

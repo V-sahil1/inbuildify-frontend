@@ -349,7 +349,7 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
               handleSaveSms={handleSaveSms}
               handleClose={handleClose}
               type={
-                (editingItem as ITask)?.taskId && (editingItem as ITask)?.priority
+                (editingItem as ITask)?.taskId && (editingItem as ITask)?.dueDate
                   ? 'TASK'
                   : (editingItem as IAppointment)?.appointmentId
                     ? 'APPOINTMENT'
@@ -385,15 +385,6 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
               }
             />
           )}
-
-          {/* {cardsData.length > 0 && cardsData.map((item, idx) => (
-              <TimelineCard
-                key={idx}
-                {...item}
-                item={item}
-                onEdit={(data) => handleEdit(data, idx)}
-              />
-            ))} */}
         </div>
       </div>
     </div>

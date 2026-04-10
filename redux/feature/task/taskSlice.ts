@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { Status } from '@lib/constants/enum';
 import { ITaskState } from './ITaskStates';
 import { createTask, deleteTask, fetchAllTask, updateTask } from './taskThunk';
+import { createNote } from '../action/actionThunk';
 
 const initialState: ITaskState = {
   tasks: [],
@@ -22,7 +23,7 @@ const taskSlice = createSlice({
     });
     builder.addCase(createTask.fulfilled, (state, action) => {
       state.tasks.unshift(action.payload);
-      if(state.pagination){
+      if (state.pagination) {
         state.pagination.totalRecords++;
       }
       state.status.create = Status.SUCCESS;
@@ -61,6 +62,13 @@ const taskSlice = createSlice({
     });
     builder.addCase(deleteTask.rejected, state => {
       state.status.create = Status.ERROR;
+    });
+
+    builder.addCase(createNote.fulfilled, (state, action) => {
+      if (!!action.payload?.task) {
+        const data = action.payload?.task;
+        state.tasks.unshift({ taskId: data?.id, name: data?.taskname, dueDate: data?.dueDate });
+      }
     });
   },
 });

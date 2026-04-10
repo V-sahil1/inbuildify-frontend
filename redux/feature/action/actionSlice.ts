@@ -122,6 +122,14 @@ export const actionSlice = createSlice({
       } else {
         state.notes.unshift(action.payload);
         state.actions.notes.unshift(action.payload);
+        if (!!action.payload?.task) {
+          const data = action.payload?.task;
+          state.actions.tasks.unshift({
+            taskId: data?.id,
+            name: data?.taskname,
+            dueDate: data?.dueDate,
+          });
+        }
       }
       state.tagStatus = Status.SUCCESS;
     });

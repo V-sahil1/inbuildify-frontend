@@ -1,5 +1,4 @@
 import React from 'react';
-import TimelineCard from './TimeLineComponents/TimelineCard';
 import AddNotesCard from './TimeLineComponents/AddNotesCard';
 import AddAppointmentCard from './TimeLineComponents/AddAppointmentCard';
 import CreateTaskCard from './TimeLineComponents/CreateTaskCard';
@@ -7,13 +6,14 @@ import SendSmsCard from './TimeLineComponents/SendSmsCard';
 import { ActionType, NoteDetails, SmsDetails } from 'data/types';
 import { ITask } from '@redux/feature/task/ITaskStates';
 import { IAppointment } from '@redux/feature/appointment/IAppointmentState';
+import { Modal } from 'antd';
 
 interface TimelineActionFormRendererProps {
   activeAction: ActionType;
   editingItem: ITask | IAppointment | NoteDetails | SmsDetails | null;
   loading: boolean;
   handleSaveNote: (note: NoteDetails) => void;
-  handleSaveAppointment: (appointment: IAppointment) => void; //appointmentDetails
+  handleSaveAppointment: (appointment: IAppointment) => void;
   handleSaveTask: (task: ITask) => void;
   handleSaveSms: (sms: SmsDetails) => void;
   handleClose: () => void;
@@ -37,13 +37,14 @@ const TimelineActionFormRenderer: React.FC<TimelineActionFormRendererProps> = ({
     case 'addNotes':
     case 'NOTES':
       return (
-        <TimelineCard
-          type="NOTES"
-          date={new Date().toLocaleString()}
-          // createdByName="Current User"
-          createdAt={new Date().toLocaleString()}
-          onSave={handleSaveNote}
-          // notes={currentData?.item?.notes[0] as NoteDetails || { message: "", tags: [{name:"Draft"}], sendToCustomer: false, createFollowUpTask: false, attachment: [],task:{dueDate:""} }}
+        <Modal
+          title="Notes"
+          open={
+            (activeAction || (editingItem && type)) === 'NOTES' ||
+            (activeAction || (editingItem && type)) === 'addNotes'
+          }
+          footer={false}
+          onCancel={handleClose}
         >
           <AddNotesCard
             onSave={handleSaveNote}
@@ -51,16 +52,19 @@ const TimelineActionFormRenderer: React.FC<TimelineActionFormRendererProps> = ({
             loading={loading}
             initialData={type === 'NOTES' ? (currentData as NoteDetails) : undefined}
           />
-        </TimelineCard>
+        </Modal>
       );
     case 'bookAppointment':
     case 'APPOINTMENT':
       return (
-        <TimelineCard
-          type="APPOINTMENT"
-          date={new Date().toLocaleString()}
-          createdAt={new Date().toLocaleString()}
-          status="pending"
+        <Modal
+          title="Appointment"
+          open={
+            (activeAction || (editingItem && type)) === 'APPOINTMENT' ||
+            (activeAction || (editingItem && type)) === 'bookAppointment'
+          }
+          footer={false}
+          onCancel={handleClose}
         >
           <AddAppointmentCard
             onSave={handleSaveAppointment}
@@ -68,16 +72,19 @@ const TimelineActionFormRenderer: React.FC<TimelineActionFormRendererProps> = ({
             loading={loading}
             initialData={type === 'APPOINTMENT' ? (currentData as IAppointment) : undefined}
           />
-        </TimelineCard>
+        </Modal>
       );
     case 'createTask':
     case 'TASK':
       return (
-        <TimelineCard
-          type="TASK"
-          date={new Date().toLocaleString()}
-          createdAt={new Date().toLocaleString()}
-          status="pending"
+        <Modal
+          title="Task"
+          open={
+            (activeAction || (editingItem && type)) === 'TASK' ||
+            (activeAction || (editingItem && type)) === 'createTask'
+          }
+          footer={false}
+          onCancel={handleClose}
         >
           <CreateTaskCard
             onSave={values => handleSaveTask(values.task)}
@@ -85,21 +92,19 @@ const TimelineActionFormRenderer: React.FC<TimelineActionFormRendererProps> = ({
             loading={loading}
             initialData={type === 'TASK' ? (currentData as ITask) : undefined}
           />
-        </TimelineCard>
+        </Modal>
       );
     case 'sendSms':
     case 'SMS':
       return (
-        <TimelineCard
-          type="SMS"
-          date={new Date().toLocaleString()}
-          // createdByName="Current User"
-          createdAt={new Date().toLocaleString()}
-          status="pending"
-          // sms={currentData as SmsDetails || {
-          //     message: "",
-          //     recipient: "",
-          // }}
+        <Modal
+          title="SMS"
+          open={
+            (activeAction || (editingItem && type)) === 'SMS' ||
+            (activeAction || (editingItem && type)) === 'sendSms'
+          }
+          footer={false}
+          onCancel={handleClose}
         >
           <SendSmsCard
             onSave={handleSaveSms}
@@ -107,7 +112,7 @@ const TimelineActionFormRenderer: React.FC<TimelineActionFormRendererProps> = ({
             loading={loading}
             initialData={type === 'SMS' ? (currentData as SmsDetails) : undefined}
           />
-        </TimelineCard>
+        </Modal>
       );
     default:
       return null;

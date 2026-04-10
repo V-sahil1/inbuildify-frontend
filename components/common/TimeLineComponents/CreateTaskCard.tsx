@@ -133,7 +133,6 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
                 return { disabledHours: () => [], disabledMinutes: () => [] };
               }
 
-              // Only restrict time if selected date is today
               if (selectedDate.isSame(now, 'day')) {
                 return {
                   disabledHours: () => Array.from({ length: now.hour() }, (_, i) => i), // disable past hours
@@ -252,7 +251,7 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
           This is workflow task and cant be edited.Please click on Reference id to view more details
         </p>
       )}
-      <div className="flex gap-3">
+      <div className="flex gap-3 justify-end">
         <Button onClick={onCancel}>Cancel</Button>
         <Button type="primary" htmlType="submit" loading={loading} disabled={loading}>
           Save

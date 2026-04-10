@@ -4,14 +4,14 @@ import { CommonPagination } from '../common/ICommonState';
 export interface ITask {
   taskId: string;
   name: string;
-  description: string;
+  description?: string;
   dueDate: string;
-  dueTime: string;
-  status: string;
-  priority: string;
-  assigneeId: string;
-  linkType: string;
-  attachFiles: string;
+  dueTime?: string;
+  status?: string;
+  priority?: string;
+  assigneeId?: string;
+  linkType?: string;
+  attachFiles?: string;
   assigneeName?: string;
   actionId?: string;
   createdBy?: string;
@@ -27,7 +27,7 @@ export interface TaskQueryParams {
   priority?: string;
   assignedTo?: string;
   due_date?: string;
-  lead_id?:string;
+  lead_id?: string;
 }
 
 export interface ITaskState {

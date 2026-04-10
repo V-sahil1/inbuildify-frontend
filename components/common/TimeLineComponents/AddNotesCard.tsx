@@ -5,11 +5,9 @@ const { Option } = Select;
 import { IconUpload } from '@tabler/icons-react';
 import { NoteDetails } from 'data/types';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import { getActionTags } from '@redux/feature/action/actionThunk';
 import { Status } from '@lib/constants/enum';
 import { descriptionRules, dueDateRules, taskNameRules } from '@lib/constants/formInputValidations';
 import { disablePastDates } from '@lib/utils/getDisabledTimeDate';
-import dayjs from 'dayjs';
 import { fetchAllNotesTag } from '@redux/feature/admin/general/notesTag/notesTagThunk';
 
 interface AddNotesCardProps {
@@ -32,6 +30,7 @@ const AddNotesCard: FC<AddNotesCardProps> = ({
   const dispatch = useAppDispatch();
   const { notesTag, status } = useAppSelector(state => state.general.noteTags);
   const tagOptions = notesTag?.map(i => ({ label: i.name, value: i.notesTagId }));
+
   async function getTags() {
     try {
       await dispatch(fetchAllNotesTag({})).unwrap();
@@ -44,17 +43,9 @@ const AddNotesCard: FC<AddNotesCardProps> = ({
       getTags();
     }
   }, [status.fetch]);
-  console.log('initialData', initialData);
 
   const handleSave = async values => {
     await form.validateFields();
-    // if (values.task?.name) {
-    //   values.task = {
-    //     ...values.task,
-    //     priority: 'HIGH',
-    //     due_date: values.task?.due_date?.format('YYYY-MM-DD'),
-    //   };
-    // }
     if (!initialData) {
       values.noteType = 'send';
     }
@@ -161,19 +152,6 @@ const AddNotesCard: FC<AddNotesCardProps> = ({
               </div>
             </>
           )}
-          {/* {!initialData && !tagnSwitch && (
-            <div className="flex items-center gap-2 text-sm text-font-color-100 mt-4">
-              <Form.Item
-                name="sendToCustomer"
-                valuePropName="checked"
-                initialValue={initialData?.sendToReferralPartner || true}
-                noStyle
-              >
-                <Switch />
-              </Form.Item>
-              <span>Send this note to referral partner</span>
-            </div>
-          )} */}
           <Form.Item noStyle shouldUpdate>
             {({ getFieldValue }) =>
               getFieldValue('createFollowUpTask') ? (
@@ -183,20 +161,11 @@ const AddNotesCard: FC<AddNotesCardProps> = ({
                     name="taskName"
                     rules={taskNameRules}
                     className="mb-2"
-                    // initialValue={initialData?.task?.name}
                   >
                     <Input placeholder="Enter task name" />
                   </Form.Item>
 
-                  <Form.Item
-                    label="Due Date"
-                    name="dueDate"
-                    rules={dueDateRules}
-                    className="mb-0"
-                    // initialValue={
-                    //   initialData?.task?.dueDate ? dayjs(initialData?.task?.dueDate) : null
-                    // }
-                  >
+                  <Form.Item label="Due Date" name="dueDate" rules={dueDateRules} className="mb-0">
                     <DatePicker
                       className="w-full max-w-52"
                       placeholder="Select due date"
@@ -211,7 +180,7 @@ const AddNotesCard: FC<AddNotesCardProps> = ({
       </div>
 
       {/* Actions */}
-      <div className="flex justify-end gap-3">
+      <div className="flex justify-end gap-3 mt-2">
         <Button onClick={onCancel}>Cancel</Button>
         <Button loading={loading} disabled={loading} type="primary" htmlType="submit">
           {initialData ? 'Update' : 'Send'}

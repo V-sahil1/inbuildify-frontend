@@ -75,6 +75,8 @@ export interface NoteTask {
   dueDate?: string; // sometimes camelCase
   name?: string;
   priority?: string;
+  taskname?: string;
+  id?: string;
 }
 export interface NoteDetails {
   notesId?: string;
@@ -89,9 +91,9 @@ export interface NoteDetails {
   task?: NoteTask;
   attachFile?: string;
   noteTags?: Entity[];
-  parentNoteId?:string;
-  reply?:string;
-  replyId?:string
+  parentNoteId?: string;
+  reply?: string;
+  replyId?: string;
 }
 
 export interface AppointmentDetails {
@@ -165,8 +167,8 @@ export interface BaseTimelineCardProps {
   onEdit?: (updated: any) => void; // send updated values to parent
   onReschedule?: () => void;
   children?: React.ReactNode;
-  onSave?:(values)=>void
-  handleEdit?:(values)=>void
+  onSave?: (values) => void;
+  handleEdit?: (values) => void;
 }
 
 export interface TimelineCardProps extends BaseTimelineCardProps {
