@@ -276,12 +276,12 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
                           }
                           onQuantityChange={handleItemQuantityChange}
                           onQuantityUpdate={onItemQuantityUpdate}
-                          quantityRef={el => (quantityRefs.current[item.priceListItemId] = el)}
+                          quantityRef={el => (quantityRefs.current[item?.priceListItemId] = el)}
                           isSelected={userSelectedItems?.some(
-                            itemData => itemData.priceListItemId === item.priceListItemId
+                            itemData => itemData?.priceListItemId === item?.priceListItemId
                           )}
                           isDiffPrice={userSelectedItems?.find(
-                            itemData => itemData.priceListItemId === item.priceListItemId
+                            itemData => itemData?.priceListItemId === item?.priceListItemId
                           )?.isPriceListItemCostMismatch}
                           onToggleAdd={handleItemAdd}
                           category={category}

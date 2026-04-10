@@ -67,30 +67,6 @@ export const handleSaveTimelineCard = async <
           })
         ).unwrap();
       }
-
-      setCardsData(prev =>
-        type === 'TASK'
-          ? prev.map(i =>
-              (i.item as ITask).taskId === response?.taskId ? { type: 'TASK', item: response } : i
-            )
-          : type === 'APPOINTMENT'
-            ? prev.map(i =>
-                (i.item as IAppointment).appointmentId === response?.appointmentId
-                  ? { type: 'APPOINTMENT', item: response }
-                  : i
-              )
-            : type === 'SMS'
-              ? prev.map(i =>
-                  (i.item as SmsDetails).smsId === response?.smsId
-                    ? { type: 'SMS', item: response }
-                    : i
-                )
-              : prev.map(i =>
-                  (i.item as NoteDetails).notesId === response?.notesId
-                    ? { type: 'NOTES', item: { ...i.item, ...response } }
-                    : i
-                )
-      );
       message.success(`${type} updated successfully`);
       handleClose();
     } catch (err) {
@@ -98,67 +74,20 @@ export const handleSaveTimelineCard = async <
     }
   } else {
     try {
-      let response;
       if (type === 'TASK') {
-        response = await dispatch(
-          createTask(formDataGenerator({ ...data, leadId: leadId }))
-        ).unwrap();
+        await dispatch(createTask(formDataGenerator({ ...data, leadId: leadId }))).unwrap();
       } else if (type === 'APPOINTMENT') {
-        response = await dispatch(
-          createAppointment({ ...data, leadId: leadId } as IAppointment)
-        ).unwrap();
+        await dispatch(createAppointment({ ...data, leadId: leadId } as IAppointment)).unwrap();
       } else if (type === 'SMS') {
-        response = await dispatch(createSms({ ...data, leadsId: leadId } as SmsDetails)).unwrap();
+        await dispatch(createSms({ ...data, leadsId: leadId } as SmsDetails)).unwrap();
       } else if (type === 'NOTES') {
         const payload = data;
         if (!(payload as NoteDetails)?.parentNoteId) {
           (payload as NoteDetails).leadsId = leadId;
         }
-        response = await dispatch(createNote(formDataGenerator(payload))).unwrap();
+        await dispatch(createNote(formDataGenerator(payload))).unwrap();
       }
-      const baseCard = { ...response };
-      let newCard;
-
-      if (activeTab === 'All') {
-        newCard = {
-          ...baseCard,
-          appointment: response?.appointment ? [response.appointment] : [],
-          task: response?.task ? [response.task] : [],
-          sms: response?.sms ? [response.sms] : [],
-          notes: response?.notes ? [response.notes] : [],
-        };
-        setCardsData(prev => [...prev, { type: type, item: response }]);
-        message.success(`${type} created successfully`);
-        handleClose();
-        return;
-      }
-
-      if (activeTab.toLowerCase() === response.type?.toLowerCase()) {
-        switch (response.type) {
-          case 'NOTES':
-            newCard = { ...baseCard, notes: response?.notes ? [response.notes] : [] };
-            break;
-          case 'APPOINTMENT':
-            newCard = {
-              ...baseCard,
-              appointment: response?.appointment ? [response.appointment] : [],
-            };
-            break;
-          case 'TASK':
-            newCard = { ...baseCard, task: response?.task ? [response.task] : [] };
-            break;
-          case 'SMS':
-            newCard = { ...baseCard, sms: response?.sms ? [response.sms] : [] };
-            break;
-        }
-
-        if (newCard) {
-          setCardsData(prev => [...prev, { type: type, item: response }]);
-          message.success(`${type} created successfully`);
-        }
-      }
-
-      // ✅ Always close modal at the end
+      message.success(`${type} created successfully`);
       handleClose();
     } catch (error) {
       message.error(error?.message || `Failed to create ${type}`);
