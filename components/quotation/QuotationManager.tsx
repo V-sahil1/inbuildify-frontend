@@ -15,7 +15,6 @@ import { Package } from '@redux/feature/package/IPackageState';
 import { RootState } from '@redux/feature/store';
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
-  createQuotation,
   createQuotationPackageThunk,
   createQuotationVersionThunk,
   getQuotationCustomSection,
@@ -333,60 +332,6 @@ const QuotationManager = () => {
 
   const handleItemQuantityChange = (itemId: string, quantity: number) => {};
 
-  const getQuotationItems = () => {
-    const normalize = (item: any, isExtra = false) => ({
-      itemId: isExtra ? item.categoryItemId : item.itemId,
-      quantity: Number(item.quantity),
-      price: isExtra ? Number(item.cost) : Number(item.price),
-      total: Number(item.quantity) * (isExtra ? Number(item.cost) : Number(item.price)),
-    });
-
-    return [
-      ...items.map(item => normalize(item)),
-      ...extraItems.map(item => normalize(item, true)),
-    ];
-  };
-
-  const createQuotationPayload = () => {
-    return {
-      ...(quoteVersionId && { quoteId: quoteDetails?.quotationId }),
-      quotationPayload: {
-        ...(!quoteVersionId && {
-          leadId: property?.leadId,
-          propertyId: property?.propertyId,
-        }),
-        range: quotationFilters?.range,
-        dwellingType: quotationFilters?.dwellingType,
-        floorPlanId: plan?.floorPlanId,
-        facadeId: facade?.facadeId,
-        // packageId: selectedPackageFromSlice?.packageId,
-        items: getQuotationItems(),
-      },
-    };
-  };
-
-  const handleCreateQuotation = async () => {
-    try {
-      const payload = createQuotationPayload();
-      const response = await dispatch(createQuotation(payload)).unwrap();
-      if (!quoteVersionId) {
-        dispatch(
-          updateLeadStatus({
-            leadId: response?.leadId,
-            status: 'COMPLETED',
-            updatedAt: response.updatedAt,
-          })
-        );
-      }
-      message.success(
-        quoteVersionId ? 'Quotation updated successfully' : 'Quotation created successfully'
-      );
-      // router.push(`${SystemRoutes.JOB}/${property?.leadId}`);
-      router.back();
-    } catch (error) {
-      message.error(error);
-    }
-  };
   // const handlePreview = async () => {
   //   setPreviewLoading(true);
   //   try {
@@ -538,10 +483,10 @@ const QuotationManager = () => {
 
   const handlePreView = async () => {
     try {
-      const response = await dispatch(
-        getQuotationPdf({ id: quoteVersionId ?? quotationData?.versions?.[0]?.quotationVersionId })
-      ).unwrap();
-      window.open(response?.pdfUrl, '_blank');
+      // const response = await dispatch(
+      //   getQuotationPdf({ id: quoteVersionId ?? quotationData?.versions?.[0]?.quotationVersionId })
+      // ).unwrap();
+      // window.open(response?.pdfUrl, '_blank');
     } catch (error) {
       message.error(error || 'Failed to get url');
     }
@@ -678,7 +623,7 @@ const QuotationManager = () => {
           isEditMode={isEditMode}
           onEdit={() => setIsEditMode(true)}
           onCancel={() => setHasChanges(false)}
-          onSave={handleCreateQuotation}
+          onSave={() => {}}
           onPreview={() => handlePreView()} // todo handle preview
           disableAction={
             quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0) ||

@@ -3,7 +3,6 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Status } from '@lib/constants/enum';
 import {
   approveQuotation,
-  createQuotation,
   createQuotationCompareThunk,
   createQuotationCustomSection,
   createQuotationPackageThunk,
@@ -64,7 +63,7 @@ const initialState: QuotationState = {
   quotation: [],
   customSections: [],
   comparison: null,
-  structureEngineer: null
+  structureEngineer: null,
 };
 
 const quotationSlice = createSlice({
@@ -153,15 +152,6 @@ const quotationSlice = createSlice({
   },
   extraReducers(builder) {
     builder
-      .addCase(createQuotation.pending, state => {
-        state.status.create = Status.PENDING;
-      })
-      .addCase(createQuotation.fulfilled, state => {
-        state.status.create = Status.SUCCESS;
-      })
-      .addCase(createQuotation.rejected, state => {
-        state.status.create = Status.ERROR;
-      })
       .addCase(getQuotationVersionById.pending, state => {
         state.status.getById = Status.PENDING;
       })
@@ -170,70 +160,15 @@ const quotationSlice = createSlice({
           i => i.quotationVersionId === action.meta.arg.quoteVersionId
         );
         state.quoteDetails = data;
-        // state.quoteDetails = {
-        //   slugId: data.slugId,
-        //   quotationId: data.quotationId,
-        //   createdAt: data.createdAt,
-        //   updatedAt: data.updatedAt,
-        //   totalAmount: data.totalAmount,
-        //   builder: data.builder,
-        //   leadStatus: data.lead.status,
-        // };
-
-        // Set contact from lead.leadContact
-        if (data?.leadContacts) {
-          state.contact = data.leadContacts;
-        }
-
-        // // Set property
-        // if (data.property) {
-        //   state.property = data.property;
-        // }
-
-        // Set plan from floorPlan
-        if (data?.floorPlan) {
-          state.plan = data?.floorPlan;
-        }
-
-        // Set facade
-        if (data?.facade) {
-          state.facade = data?.facade;
-        }
-
-        // Set package
-        if (data?.package) {
-          state.package = data?.package;
-        }
-
-        // Set selected filters
+        state.contact = data.leadContacts;
+        state.plan = data?.floorPlan;
+        state.facade = data?.facade;
+        state.package = data?.package;
         state.selectedFilters = {
           range: data?.rangeId || '',
           dwellingType: data?.dwellingTypeId || '',
           location: data?.locationId || '',
         };
-
-        // state.items = data.items?.map(item => ({
-        //   priceListItemId: item.categoryItemId,
-        //   quantity: item.categoryItemQuantity, // Default quantity to 1 if not specified
-        //   price: parseFloat(item.categoryItemCost) || 0,
-        // }));
-        // Get latest version and set items
-        // const versions = data.versions;
-        // if (versions) {
-        //     // Get all version numbers and find the latest one
-        //     const versionNumbers = Object.keys(versions).map(Number);
-        //     const latestVersion = Math.max(...versionNumbers);
-        //     const latestItems = versions[latestVersion] || [];
-
-        //     // Map to the required format for items
-        //     state.items = latestItems?.map(item => ({
-        //         itemId: item.categoryItemId,
-        //         quantity: 1, // Default quantity to 1 if not specified
-        //         price: parseFloat(item.categoryItemCost) || 0
-        //     }));
-        // } else {
-        //     state.items = [];
-        // }
         state.status.getById = Status.SUCCESS;
       })
       .addCase(getQuotationVersionById.rejected, state => {
@@ -250,7 +185,17 @@ const quotationSlice = createSlice({
       //new
       .addCase(createQuotationThunk.fulfilled, (state, action) => {
         state.quotation.push(action.payload);
-        state.quoteDetails = action.payload.versions[action.payload.versions.length - 1];
+        const data = action.payload.versions[action.payload.versions.length - 1];
+        state.quoteDetails = data;
+        state.contact = data.leadContacts;
+        state.plan = data?.floorPlan;
+        state.facade = data?.facade;
+        state.package = data?.package;
+        state.selectedFilters = {
+          range: data?.rangeId || '',
+          dwellingType: data?.dwellingTypeId || '',
+          location: data?.locationId || '',
+        };
       })
       .addCase(getQuotationThunk.fulfilled, (state, action) => {
         state.quotation = action.payload;
@@ -301,7 +246,9 @@ const quotationSlice = createSlice({
         state.status.create = Status.SUCCESS;
         // Update the specific item in the items array
         const updatedItem = action.payload;
-        const index = state.items.findIndex(item => item.quotationVersionItemId === updatedItem.quotationVersionItemId);
+        const index = state.items.findIndex(
+          item => item.quotationVersionItemId === updatedItem.quotationVersionItemId
+        );
         if (index !== -1) {
           state.items[index] = { ...updatedItem, quantity: Number(updatedItem.quantity) || 1 };
         }
@@ -331,7 +278,7 @@ const quotationSlice = createSlice({
 
       //quotation compare
       .addCase(createQuotationCompareThunk.fulfilled, (state, action) => {
-        state.comparison = action.payload
+        state.comparison = action.payload;
       })
 
       //quotataion custom section
