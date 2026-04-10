@@ -13,8 +13,11 @@ import {
   deleteQuotationPackageThunk,
   deleteQuotationPricelistThunk,
   deleteQuotationThunk,
+  getAllQuotationsThunk,
   getQuotationCustomSection,
   getQuotationPricelistThunk,
+  getQuotationStatusCountsThunk,
+  getQuotationFilterOptionsThunk,
   getQuotationThunk,
   getQuotationVersionById,
   updateQuotationCustomSection,
@@ -26,14 +29,18 @@ import {
   CustomSection,
   Quotation,
   QuotationComparison,
+  QuotationListItem,
+  QuotationListPagination,
   QuotationPriceListItem,
+  QuotationStatusCounts,
+  QuotationFilterOption,
   QuotationVersionDetails,
 } from './IQuotationState';
 import { Package } from '../package/IPackageState';
 import { updateContact } from '../contacts/contactThunk';
 import { updateLeadProperty, updateLeadThunk } from '../lead/leadThunk';
 export interface QuotationState {
-  status: { create: Status; getById: Status; customSection: Status };
+  status: { create: Status; getById: Status; customSection: Status; list: Status };
   quoteDetails: QuotationVersionDetails | null;
   selectedFilters: any;
   contact: LeadContact[];
@@ -47,10 +54,15 @@ export interface QuotationState {
   customSections: CustomSection[];
   comparison?: QuotationComparison;
   structureEngineer?: any;
+  // quotation listing
+  quotationList: QuotationListItem[];
+  quotationListPagination: QuotationListPagination;
+  quotationStatusCounts: QuotationStatusCounts;
+  quotationFilterOptions: QuotationFilterOption[];
 }
 
 const initialState: QuotationState = {
-  status: { create: Status.IDLE, getById: Status.IDLE, customSection: Status.IDLE },
+  status: { create: Status.IDLE, getById: Status.IDLE, customSection: Status.IDLE, list: Status.IDLE },
   quoteDetails: null,
   selectedFilters: { range: '', dwellingType: '', location: '' },
   contact: [],
@@ -64,6 +76,11 @@ const initialState: QuotationState = {
   customSections: [],
   comparison: null,
   structureEngineer: null,
+  // quotation listing
+  quotationList: [],
+  quotationListPagination: { total: 0, page: 1, limit: 10, totalPages: 0 },
+  quotationStatusCounts: { total: 0, approved: 0, draft: 0 },
+  quotationFilterOptions: [],
 };
 
 const quotationSlice = createSlice({
@@ -132,6 +149,12 @@ const quotationSlice = createSlice({
     },
     setQuotationStructuralEngineer(state, action: PayloadAction<any>) {
       state.structureEngineer = action.payload;
+      // Keep quoteDetails in sync so the package-selection guard
+      // (which reads quoteDetails.structuralEngineer) becomes truthy immediately
+      // without waiting for an API round-trip.
+      if (state.quoteDetails) {
+        state.quoteDetails.structuralEngineer = action.payload;
+      }
     },
     updateQuotationItem: (state, action) => {
       const { itemId, quantity } = action.payload;
@@ -160,10 +183,40 @@ const quotationSlice = createSlice({
           i => i.quotationVersionId === action.meta.arg.quoteVersionId
         );
         state.quoteDetails = data;
-        state.contact = data.leadContacts;
-        state.plan = data?.floorPlan;
-        state.facade = data?.facade;
-        state.package = data?.package;
+        // state.quoteDetails = {
+        //   slugId: data.slugId,
+        //   quotationId: data.quotationId,
+        //   createdAt: data.createdAt,
+        //   updatedAt: data.updatedAt,
+        //   totalAmount: data.totalAmount,
+        //   builder: data.builder,
+        //   leadStatus: data.lead.status,
+        // };
+
+        // Set contact from lead.leadContact
+        if (data?.leadContacts) {
+          state.contact = data.leadContacts;
+        }
+
+        // // Set property
+        // if (data.property) {
+        //   state.property = data.property;
+        // }
+
+        // Always overwrite (not conditionally) so stale data from a previously
+        // viewed quotation is never carried into a new one.
+        // If the incoming quotation has no plan/facade/package/engineer the
+        // fields correctly become null rather than keeping old values.
+        state.plan = data?.floorPlan ?? null;
+        state.facade = data?.facade ?? null;
+        state.package = data?.package ?? null;
+        state.structureEngineer = data?.structuralEngineer ?? null;
+
+        // Extra items belong to the current quotation only — reset them so
+        // previously-viewed quotation extras don't leak through.
+        state.extraItems = [];
+
+        // Set selected filters
         state.selectedFilters = {
           range: data?.rangeId || '',
           dwellingType: data?.dwellingTypeId || '',
@@ -176,10 +229,24 @@ const quotationSlice = createSlice({
       })
 
       .addCase(updateQuotationVersion.fulfilled, (state, action) => {
-        state.quoteDetails = action.payload;
-        state.plan = action.payload.floorPlan;
-        state.facade = action.payload.facade;
-        state.package = action.payload.package;
+        // Preserve fields that the update API doesn't return (leadContacts, property,
+        // structuralEngineer) so they don't disappear after a range/dwelling-type change.
+        state.quoteDetails = {
+          ...action.payload,
+          leadContacts:
+            action.payload?.leadContacts ?? state.quoteDetails?.leadContacts,
+          property:
+            action.payload?.property ?? state.quoteDetails?.property,
+          structuralEngineer:
+            action.payload?.structuralEngineer ?? state.quoteDetails?.structuralEngineer,
+        };
+        // Use nullish coalescing so that a partial API response (e.g. when
+        // only the structural engineer was updated and the backend returns
+        // null for unrelated fields) does NOT wipe the user's existing
+        // plan/facade/package selections.
+        state.plan = action.payload.floorPlan ?? state.plan;
+        state.facade = action.payload.facade ?? state.facade;
+        state.package = action.payload.package ?? state.package;
       })
 
       //new
@@ -335,6 +402,45 @@ const quotationSlice = createSlice({
     builder.addCase(updateLeadProperty.fulfilled, (state, action) => {
       state.quoteDetails.property = action.payload;
     });
+
+    // get all quotations (listing)
+    builder
+      .addCase(getAllQuotationsThunk.pending, state => {
+        state.status.list = Status.PENDING;
+      })
+      .addCase(getAllQuotationsThunk.fulfilled, (state, action) => {
+        state.status.list = Status.SUCCESS;
+        const payload = action.payload as any;
+        // Handle both shapes:
+        // 1) thunk returns res.data => { data: [], pagination: {} }
+        // 2) older shape => { data: { data: [], pagination: {} } }
+        const listingPayload = Array.isArray(payload?.data)
+          ? payload
+          : payload?.data && Array.isArray(payload?.data?.data)
+            ? payload.data
+            : payload;
+        state.quotationList = listingPayload?.data || [];
+        state.quotationListPagination = listingPayload?.pagination || {
+          total: 0,
+          page: 1,
+          limit: 10,
+          totalPages: 0,
+        };
+      })
+      .addCase(getAllQuotationsThunk.rejected, state => {
+        state.status.list = Status.ERROR;
+      });
+
+    // get quotation status counts
+    builder
+      .addCase(getQuotationStatusCountsThunk.fulfilled, (state, action) => {
+        const payload = action.payload as any;
+        state.quotationStatusCounts = payload?.total !== undefined ? payload : payload?.data || state.quotationStatusCounts;
+      })
+      .addCase(getQuotationFilterOptionsThunk.fulfilled, (state, action) => {
+        const payload = action.payload as any;
+        state.quotationFilterOptions = Array.isArray(payload) ? payload : payload?.data || [];
+      });
   },
 });
 

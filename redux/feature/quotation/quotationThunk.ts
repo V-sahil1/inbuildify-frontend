@@ -6,11 +6,106 @@ import {
   CustomSection,
   Quotation,
   QuotationComparison,
+  QuotationItemPayload,
+  QuotationListResponse,
+  QuotationFilterOption,
   QuotationPriceListItem,
   QuotationResponse,
+  QuotationStatusCounts,
   QuotationVersionDetails,
 } from './IQuotationState';
 
+export const getAllQuotationsThunk = createAsyncThunk(
+  'quotation/getAllQuotations',
+  async (
+    params: {
+      page?: number;
+      limit?: number;
+      search?: string;
+      status?: string;
+      statuses?: string[];
+      leadIds?: string[];
+      contactIds?: string[];
+      startDate?: string;
+      endDate?: string;
+      sortBy?: string;
+      sortOrder?: 'asc' | 'desc';
+    } = {},
+    { rejectWithValue }
+  ) => {
+    try {
+      const res = await api.get<ApiResponse<QuotationListResponse>>(
+        API_ENDPOINTS.GET_ALL_QUOTATIONS(params)
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const getQuotationStatusCountsThunk = createAsyncThunk(
+  'quotation/getStatusCounts',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await api.get<ApiResponse<QuotationStatusCounts>>(
+        API_ENDPOINTS.QUOTATION_STATUS_COUNTS
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const getQuotationFilterOptionsThunk = createAsyncThunk(
+  'quotation/getFilterOptions',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await api.get<ApiResponse<QuotationFilterOption[]>>(
+        API_ENDPOINTS.QUOTATION_FILTER_OPTIONS
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const createQuotation = createAsyncThunk(
+  'quotation/create',
+  async (
+    payload: { quoteId?: string; quotationPayload: QuotationItemPayload },
+    { rejectWithValue }
+  ) => {
+    try {
+      const { quoteId, quotationPayload } = payload;
+      const apiEndpoint = quoteId
+        ? API_ENDPOINTS.QUOTATION_BASE + '/' + quoteId + '/version'
+        : API_ENDPOINTS.QUOTATION_BASE;
+      const res = await api.post<ApiResponse<QuotationResponse>>(apiEndpoint, {
+        data: quotationPayload,
+      });
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const getQuotationById = createAsyncThunk(
+  'quotation/getById',
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const res = await api.get<ApiResponse<QuotationResponse>>(
+        API_ENDPOINTS.QUOTATION_BASE + '/' + id
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
 
 export const getQuotationVersionById = createAsyncThunk(
   'quotation/getVersionById',

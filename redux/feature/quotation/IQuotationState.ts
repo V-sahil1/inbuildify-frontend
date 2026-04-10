@@ -3,6 +3,59 @@ import { ILeadContact, LeadContact } from '../lead/ILeadState';
 import { IFloorPlanState } from '../floorPlan/IFloorPlanState';
 import { IFacadeState } from '../facade/IFacadeState';
 import { Package } from '../package/IPackageState';
+export type QuotationStatus = 'all' | 'draft' | 'approved' | 'modified' | 'pendingApproval' | 'cancelled' | 'expired';
+
+export type QuotationListItem = {
+  quotationId: string;
+  referenceNumber: string;
+  leadsId: string;
+  customerName: string;
+  propertyAddress: string;
+  propertyDetails?: string;
+  contactName: string;
+  createdAt: string;
+  updatedAt: string;
+  status: QuotationStatus;
+  approverName: string;
+  approverInitials: string;
+  assigneeName: string;
+  assigneeInitials: string;
+  latestVersionId: string | null;
+  latestVersionNo?: number | null;
+  quotationTotal?: number | string | null;
+  versionCount: number;
+};
+
+export type QuotationListPagination = {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
+export type QuotationListResponse = {
+  data: QuotationListItem[];
+  pagination: QuotationListPagination;
+};
+
+export type QuotationStatusCounts = {
+  total: number;
+  approved: number;
+  draft: number;
+  cancelled?: number;
+  expired?: number;
+};
+
+export type QuotationFilterOption = {
+  optionType?: 'lead' | 'contact';
+  optionId?: string;
+  optionLabel?: string;
+  leadId: string;
+  leadsId?: string;
+  customerName: string;
+  contactName?: string | null;
+};
+
 export interface QuotationItem {
   price: number;
   total: number;

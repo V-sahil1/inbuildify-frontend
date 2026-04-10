@@ -21,6 +21,18 @@ export interface ActivityItem {
 
 export interface InitialState {
   leads: Lead[];
+  leadListPagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+  leadStats: {
+    totalLeads: number;
+    newLeads: number;
+    workingLeads: number;
+    qualifiedLeads: number;
+  };
   status: {
     leads: Status;
     leadSources: Status;
@@ -152,6 +164,7 @@ export interface Lead {
   createdAt: string;
   updatedAt: string;
   leadSourceName: string;
+  propertyDetails?: string;
   clientTypeName: string;
   regionName: string;
   assigneeName: string;

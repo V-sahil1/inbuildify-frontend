@@ -23,6 +23,7 @@ import {
   getLeadInvoiceThunk,
   getLeadJobThunk,
   getLeadProperty,
+  getLeadStatsThunk,
   getLeadSourcesThunk,
   getLeadThunk,
   getQuotationsByLeadIdThunk,
@@ -44,6 +45,8 @@ import { createQuotationThunk, getQuotationThunk } from '../quotation/quotationT
 
 const initialState: InitialState = {
   leads: [],
+  leadListPagination: { total: 0, page: 1, limit: 25, totalPages: 0 },
+  leadStats: { totalLeads: 0, newLeads: 0, workingLeads: 0, qualifiedLeads: 0 },
   status: {
     leads: Status.IDLE,
     leadSources: Status.IDLE,
@@ -110,11 +113,29 @@ export const leadSlice = createSlice({
       state.status.leads = Status.PENDING;
     });
     builder.addCase(getLeadThunk.fulfilled, (state, action) => {
-      state.leads = action.payload.leads;
+      const payload: any = action.payload;
+      const listingPayload =
+        payload?.data && Array.isArray(payload?.data?.leads)
+          ? payload.data
+          : Array.isArray(payload?.leads)
+            ? payload
+            : { leads: [], pagination: { total: 0, page: 1, limit: 25, totalPages: 0 } };
+      state.leads = listingPayload.leads || [];
+      state.leadListPagination = listingPayload.pagination || initialState.leadListPagination;
       state.status.leads = Status.SUCCESS;
     });
     builder.addCase(getLeadThunk.rejected, state => {
       state.status.leads = Status.ERROR;
+    });
+    builder.addCase(getLeadStatsThunk.fulfilled, (state, action) => {
+      const payload: any = action.payload;
+      const stats = payload?.data || payload || {};
+      state.leadStats = {
+        totalLeads: Number(stats.totalLeads || stats.total_leads || 0),
+        newLeads: Number(stats.newLeads || stats.new_leads || 0),
+        workingLeads: Number(stats.workingLeads || stats.working_leads || 0),
+        qualifiedLeads: Number(stats.qualifiedLeads || stats.qualified_leads || 0),
+      };
     });
     builder.addCase(getLeadByIdThunk.pending, state => {
       state.status.leadById = Status.PENDING;

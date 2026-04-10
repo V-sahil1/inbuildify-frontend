@@ -523,7 +523,9 @@ const QuotationManager = () => {
             handleSelectionChange(type, value);
             setHasChanges(true);
             setSelectedCategory(null);
-            dispatch(setQuotationPackage([]));
+            // Use null (not []) so !!selectedPackage stays falsy and "Select Package"
+            // button renders instead of an empty package box.
+            dispatch(setQuotationPackage(null));
             dispatch(setQuotationFacade(null));
             dispatch(setQuotationPlan(null));
           }}

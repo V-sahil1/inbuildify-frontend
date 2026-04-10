@@ -29,19 +29,37 @@ export interface createLeadPayload {
 export const getLeadThunk = createAsyncThunk(
   'lead/getLead',
   async (
-    params: { search?: string; lead_source_id?: string; status?: string; created_at?: string },
+    params: {
+      page?: number;
+      limit?: number;
+      search?: string;
+      lead_source_id?: string | string[];
+      assignee_id?: string | string[];
+      status?: string;
+      rating?: string | string[];
+      created_at?: string;
+      sort_by?: string;
+      sort_order?: 'asc' | 'desc';
+    },
     { rejectWithValue }
   ) => {
     try {
-      const response: ApiResponse<{ leads: Lead[] }> = await api.get(API_ENDPOINTS.LEAD_BASE, {
-        params,
-      });
+      const response: ApiResponse<{ leads: Lead[] }> = await api.get(API_ENDPOINTS.GET_ALL_LEADS(params));
       return response.data;
     } catch (err) {
       return rejectWithValue(err.message);
     }
   }
 );
+
+export const getLeadStatsThunk = createAsyncThunk('lead/getLeadStats', async (_, { rejectWithValue }) => {
+  try {
+    const response: ApiResponse<any> = await api.get(API_ENDPOINTS.LEAD_STATS);
+    return response.data;
+  } catch (err: any) {
+    return rejectWithValue(err.message);
+  }
+});
 
 export const createLeadThunk = createAsyncThunk(
   'lead/createLead',

@@ -1356,3 +1356,31 @@ body .apexcharts-legend-marker {
 .ant-table-tbody > tr > td {
   vertical-align: top;
 }
+
+/* Keep Ant table sort/fixed styles theme-consistent (prevents black flash/column). */
+.ant-table-wrapper .ant-table {
+  background: var(--card-color);
+  color: var(--font-color);
+}
+
+.ant-table-wrapper .ant-table-thead > tr > th,
+.ant-table-wrapper .ant-table-tbody > tr > td {
+  background: var(--card-color) !important;
+  color: var(--font-color) !important;
+  border-color: var(--border-color) !important;
+}
+
+.ant-table-wrapper .ant-table-column-sort,
+.ant-table-wrapper .ant-table-thead > tr > th.ant-table-column-sort,
+.ant-table-wrapper .ant-table-tbody > tr > td.ant-table-column-sort {
+  background: var(--card-color) !important;
+}
+
+.ant-table-wrapper .ant-table-thead > tr > th:hover {
+  background: color-mix(in srgb, var(--card-color) 85%, var(--primary-10) 15%) !important;
+}
+
+.ant-table-wrapper .ant-table-cell-fix-left,
+.ant-table-wrapper .ant-table-cell-fix-right {
+  background: var(--card-color) !important;
+}

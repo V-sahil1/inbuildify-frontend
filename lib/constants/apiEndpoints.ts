@@ -43,6 +43,46 @@ class API_ENDPOINTS {
 
   //leads
   public static LEAD_BASE = '/leads';
+  public static GET_ALL_LEADS = (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: string;
+    rating?: string | string[];
+    lead_source_id?: string | string[];
+    assignee_id?: string | string[];
+    created_at?: string;
+    sort_by?: string;
+    sort_order?: 'asc' | 'desc';
+  }) => {
+    const query = new URLSearchParams();
+    if (params?.page) query.set('page', String(params.page));
+    if (params?.limit) query.set('limit', String(params.limit));
+    if (params?.search) query.set('search', params.search);
+    if (params?.status && params.status !== 'all') query.set('status', params.status);
+    if (params?.rating) {
+      const value = Array.isArray(params.rating) ? params.rating.join(',') : params.rating;
+      if (value) query.set('rating', value);
+    }
+    if (params?.lead_source_id) {
+      const value = Array.isArray(params.lead_source_id)
+        ? params.lead_source_id.join(',')
+        : params.lead_source_id;
+      if (value) query.set('lead_source_id', value);
+    }
+    if (params?.assignee_id) {
+      const value = Array.isArray(params.assignee_id)
+        ? params.assignee_id.join(',')
+        : params.assignee_id;
+      if (value) query.set('assignee_id', value);
+    }
+    if (params?.created_at) query.set('created_at', params.created_at);
+    if (params?.sort_by) query.set('sort_by', params.sort_by);
+    if (params?.sort_order) query.set('sort_order', params.sort_order);
+    const qs = query.toString();
+    return `${this.LEAD_BASE}${qs ? '?' + qs : ''}`;
+  };
+  public static LEAD_STATS = `${this.LEAD_BASE}/stats`;
   public static CREATE_LEAD = `${this.LEAD_BASE}`;
   public static GET_LEAD_BY_ID = (id: string) => `${this.LEAD_BASE}/${id}`;
   public static LEAD_TRANSFER = `${this.LEAD_BASE}/transfer`;
@@ -136,6 +176,36 @@ class API_ENDPOINTS {
   //quotation
   public static QUOTATION_BASE = '/quotation';
   public static QUOTATION_VERSION = '/quotation/version';
+  public static QUOTATION_STATUS_COUNTS = `${this.QUOTATION_BASE}/status-counts`;
+  public static QUOTATION_FILTER_OPTIONS = `${this.QUOTATION_BASE}/filter-options`;
+  public static GET_ALL_QUOTATIONS = (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: string;
+    statuses?: string[];
+    leadIds?: string[];
+    contactIds?: string[];
+    startDate?: string;
+    endDate?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+  }) => {
+    const query = new URLSearchParams();
+    if (params?.page) query.set('page', String(params.page));
+    if (params?.limit) query.set('limit', String(params.limit));
+    if (params?.search) query.set('search', params.search);
+    if (params?.status && params.status !== 'all') query.set('status', params.status);
+    if (params?.statuses?.length) query.set('statuses', params.statuses.join(','));
+    if (params?.leadIds?.length) query.set('leadIds', params.leadIds.join(','));
+    if (params?.contactIds?.length) query.set('contactIds', params.contactIds.join(','));
+    if (params?.startDate) query.set('startDate', params.startDate);
+    if (params?.endDate) query.set('endDate', params.endDate);
+    if (params?.sortBy) query.set('sortBy', params.sortBy);
+    if (params?.sortOrder) query.set('sortOrder', params.sortOrder);
+    const qs = query.toString();
+    return `${this.QUOTATION_BASE}${qs ? '?' + qs : ''}`;
+  };
   public static QUOTATION_VERSION_DETAILS = '/quotation/version-details';
   public static GET_QUOTATIONS_BY_LEAD_ID = (leadId: string, page: number, limit: number) =>
     `${this.QUOTATION_BASE}?leadId=${leadId}&page=${page}&limit=${limit}`;
