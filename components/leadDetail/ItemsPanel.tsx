@@ -50,7 +50,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
 
   const userSelectedItems = useMemo(() =>
     categoryData?.flatMap(cd =>
-      cd.items.reduce<typeof cd.items>((acc, categoryItem) => {
+      cd?.items?.reduce<typeof cd.items>((acc, categoryItem) => {
         const quotationItem = items.find(
           selected => selected?.priceListItemId === categoryItem?.priceListItemId
         );
