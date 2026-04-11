@@ -178,7 +178,7 @@ const TimelineCard: FC<TimelineCardProps> = ({
     }
     return (
       <>
-        {onEdit && (
+        {onEdit && type !== 'SMS' && (
           <button onClick={() => onEdit(item)}>
             <IconEdit size={18} />
           </button>

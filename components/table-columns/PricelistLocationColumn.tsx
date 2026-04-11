@@ -22,9 +22,9 @@ export const PricelistLocationColumn = (setModalOpen, setSelectedLocation, selec
       message.error(error || 'Failed to fetch price master');
     }
   };
-  useEffect(() => {
-    fetchLocations();
-  }, [filters]);
+  // useEffect(() => {
+  //   fetchLocations();
+  // }, [filters]);
 
   useEffect(() => {
     return () => {

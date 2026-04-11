@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import SystemRoutes from '@lib/constants/Routes';
 import { createQuotationThunk } from '@redux/feature/quotation/quotationThunk';
 import { IconFileText, IconSearch, IconTrash, IconX } from '@tabler/icons-react';
-import { Card, Input, List, message, Tag } from 'antd';
+import { Card, Input, List, message, Popconfirm, Tag } from 'antd';
 import { useRouter } from 'next/router';
 import { Dispatch, SetStateAction } from 'react';
 import TooltipButton from '../common/TooltipButton';
@@ -87,12 +87,15 @@ export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
         <div
           className={`justify-between flex flex-col ${hasQuotations ? '' : 'min-h-[220px] items-center justify-center'}`}
         >
-          <div
-            className={`justify-between flex gap-2 items-center w-full`}
-          >
-              <p className="text-sm cursor-pointer text-blue text-nowrap text-center" onClick={handleCreateQuotation} >
+          <div className={`justify-between flex gap-2 items-center w-full`}>
+            <Popconfirm
+              title="Are you sure you want to create quotation?"
+              onConfirm={handleCreateQuotation}
+            >
+              <p className="text-sm cursor-pointer text-blue text-nowrap text-center">
                 Create Quotation
               </p>
+            </Popconfirm>
             {hasQuotations && (
               <div
                 className={`flex items-center min-w-0 ${showSearchInput && 'max-w-[45%]'} flex-shrink-0`}
