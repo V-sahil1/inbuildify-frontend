@@ -1,5 +1,5 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
-import { persistStore, persistReducer } from 'redux-persist';
+import { persistStore, persistReducer, createTransform } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import { authReducer } from './auth/authSlice';
 import { leadReducer } from './lead/leadSlice';
@@ -101,10 +101,26 @@ const rootReducer = (state: ReturnType<typeof appReducer> | undefined, action: a
   return appReducer(state, action);
 };
 
+// Do not persist filter dropdown options (stale shape / empty array from older clients
+// overwrote fresh API data). Always refill from GET /quotation/filter-options.
+const quotationFilterOptionsTransform = createTransform(
+  inboundState => {
+    if (!inboundState || typeof inboundState !== 'object') return inboundState;
+    const { quotationFilterOptions: _removed, ...rest } = inboundState as Record<string, unknown>;
+    return rest;
+  },
+  outboundState => {
+    if (!outboundState || typeof outboundState !== 'object') return outboundState;
+    return { ...outboundState, quotationFilterOptions: [] };
+  },
+  { whitelist: ['quotation'] }
+);
+
 const persistConfig = {
   key: 'root',
   storage,
   whitelist: ['auth', 'lead', 'quotation'],
+  transforms: [quotationFilterOptionsTransform],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

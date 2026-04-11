@@ -15,6 +15,21 @@ import {
   QuotationVersionDetails,
 } from './IQuotationState';
 
+/** Normalize filter-options API body (array or wrapped { data }) to a list. */
+export function unwrapQuotationFilterOptionsResponse(res: unknown): QuotationFilterOption[] {
+  if (!res) return [];
+  if (Array.isArray(res)) return res as QuotationFilterOption[];
+  const r = res as Record<string, unknown>;
+  if (Array.isArray(r.data)) return r.data as QuotationFilterOption[];
+  const inner = r.data as Record<string, unknown> | undefined;
+  if (inner && Array.isArray(inner.data)) return inner.data as QuotationFilterOption[];
+  if (inner && Array.isArray(inner.rows)) return inner.rows as QuotationFilterOption[];
+  if (inner && Array.isArray(inner.options)) return inner.options as QuotationFilterOption[];
+  if (Array.isArray(r.rows)) return r.rows as QuotationFilterOption[];
+  if (Array.isArray(r.options)) return r.options as QuotationFilterOption[];
+  return [];
+}
+
 export const getAllQuotationsThunk = createAsyncThunk(
   'quotation/getAllQuotations',
   async (
@@ -62,12 +77,10 @@ export const getQuotationFilterOptionsThunk = createAsyncThunk(
   'quotation/getFilterOptions',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await api.get<ApiResponse<QuotationFilterOption[]>>(
-        API_ENDPOINTS.QUOTATION_FILTER_OPTIONS
-      );
-      return res.data;
-    } catch (error) {
-      return rejectWithValue(error.message);
+      const res = await api.get<unknown>(API_ENDPOINTS.QUOTATION_FILTER_OPTIONS);
+      return unwrapQuotationFilterOptionsResponse(res);
+    } catch (error: any) {
+      return rejectWithValue(error?.message ?? 'Failed to load filter options');
     }
   }
 );

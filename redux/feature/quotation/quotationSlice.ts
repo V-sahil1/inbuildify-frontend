@@ -1,5 +1,6 @@
 import { PropertyDetails } from 'data/types';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { REHYDRATE } from 'redux-persist';
 import { Status } from '@lib/constants/enum';
 import {
   approveQuotation,
@@ -175,6 +176,11 @@ const quotationSlice = createSlice({
   },
   extraReducers(builder) {
     builder
+      .addCase(REHYDRATE, state => {
+        if (!Array.isArray(state.quotationFilterOptions)) {
+          state.quotationFilterOptions = [];
+        }
+      })
       .addCase(getQuotationVersionById.pending, state => {
         state.status.getById = Status.PENDING;
       })
@@ -439,7 +445,14 @@ const quotationSlice = createSlice({
       })
       .addCase(getQuotationFilterOptionsThunk.fulfilled, (state, action) => {
         const payload = action.payload as any;
-        state.quotationFilterOptions = Array.isArray(payload) ? payload : payload?.data || [];
+        let raw = Array.isArray(payload) ? payload : payload?.data;
+        if (!Array.isArray(raw) && raw && typeof raw === 'object') {
+          const nested = raw as { data?: unknown; rows?: unknown; options?: unknown };
+          if (Array.isArray(nested.data)) raw = nested.data;
+          else if (Array.isArray(nested.rows)) raw = nested.rows;
+          else if (Array.isArray(nested.options)) raw = nested.options;
+        }
+        state.quotationFilterOptions = Array.isArray(raw) ? raw : [];
       });
   },
 });

@@ -64,6 +64,40 @@ const FILTER_TABS: Array<{ type: FilterType; label: string }> = [
   { type: 'expired', label: 'Expired' },
 ];
 
+type LeadCustomerSelectOption = { value: string; label: string };
+
+/** Map API row (camelCase or snake_case) to Select value `lead:id` / `contact:id`. */
+function rowToLeadCustomerSelectOption(row: Record<string, unknown>): LeadCustomerSelectOption | null {
+  const optionType = String(row.optionType ?? row.option_type ?? 'lead').toLowerCase();
+  const rawId =
+    row.optionId ??
+    row.option_id ??
+    row.leadId ??
+    row.lead_id ??
+    row.leadsId ??
+    row.leads_id ??
+    row.id ??
+    row.users_id ??
+    row.usersId;
+  let optionId = rawId != null && rawId !== '' ? String(rawId).trim() : '';
+  // Some payloads include only leadsId for lead rows; use it when optionId is missing.
+  const leadsOnlyId = String(row.leadsId ?? row.leads_id ?? '').trim();
+  if (!optionId && optionType !== 'contact' && leadsOnlyId) optionId = leadsOnlyId;
+  if (!optionId) return null;
+  const customerName = String(row.customerName ?? row.customer_name ?? '').trim() || 'Customer';
+  const contactRaw = row.contactName ?? row.contact_name;
+  const contactName = contactRaw != null && contactRaw !== '' ? String(contactRaw).trim() : '';
+  const optionLabelRaw = row.optionLabel ?? row.option_label;
+  const optionLabel =
+    typeof optionLabelRaw === 'string' && optionLabelRaw.trim()
+      ? optionLabelRaw.trim()
+      : contactName
+        ? `${contactName} (${customerName})`
+        : customerName;
+  const prefix = optionType === 'contact' ? 'contact' : 'lead';
+  return { value: `${prefix}:${optionId}`, label: optionLabel };
+}
+
 const QuotationPage: React.FC = () => {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
@@ -74,6 +108,7 @@ const QuotationPage: React.FC = () => {
 
   const safePagination = quotationListPagination ?? { total: 0, page: 1, limit: 20, totalPages: 0 };
   const safeStatusCounts = quotationStatusCounts ?? { total: 0, approved: 0, draft: 0, expired: 0 };
+  const safeQuotationFilterOptions = quotationFilterOptions ?? [];
   const isLoading = status?.list === Status.PENDING;
 
   const [selectedStatuses, setSelectedStatuses] = useState<FilterType[]>([]);
@@ -86,11 +121,30 @@ const QuotationPage: React.FC = () => {
   const [sortBy, setSortBy] = useState<string | undefined>(undefined);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | undefined>(undefined);
   const [showFilters, setShowFilters] = useState(false);
+  const [isFilterOptionsLoading, setIsFilterOptionsLoading] = useState(false);
   const [renderList, setRenderList] = useState<QuotationListItem[]>([]);
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const tableScrollRef = useRef<HTMLDivElement | null>(null);
   const inFlightRequestsRef = useRef<Set<string>>(new Set());
+  /** Keeps every lead/contact option we've seen so multi-select stays usable: once one lead is chosen, the list API only returns that lead's rows, which would otherwise drop other names from the dropdown. */
+  const accumulatedLeadCustomerOptionsRef = useRef<Map<string, LeadCustomerSelectOption>>(new Map());
+
+  const leadCustomerSelectOptions = useMemo(() => {
+    const acc = accumulatedLeadCustomerOptionsRef.current;
+    for (const row of safeQuotationFilterOptions) {
+      const opt = rowToLeadCustomerSelectOption(row as unknown as Record<string, unknown>);
+      if (opt) acc.set(opt.value, opt);
+    }
+    for (const item of renderList) {
+      const leadId = String(item.leadsId ?? '').trim();
+      if (!leadId) continue;
+      const value = `lead:${leadId}`;
+      const label = String(item.customerName ?? '').trim() || 'Customer';
+      acc.set(value, { value, label });
+    }
+    return Array.from(acc.values()).sort((a, b) => a.label.localeCompare(b.label));
+  }, [safeQuotationFilterOptions, renderList]);
 
   const selectedLeadIds = useMemo(
     () =>
@@ -238,6 +292,7 @@ const QuotationPage: React.FC = () => {
     setDateRange(null);
     setSelectedStatuses([]);
     setSelectedLeadOrContactIds([]);
+    accumulatedLeadCustomerOptionsRef.current.clear();
     setCurrentPage(1);
   };
 
@@ -319,7 +374,7 @@ const QuotationPage: React.FC = () => {
       },
     },
     {
-      title: 'Quotation Total',
+      title: 'Total',
       dataIndex: 'quotationTotal',
       key: 'quotationTotal',
       width: 150,
@@ -534,32 +589,26 @@ const QuotationPage: React.FC = () => {
                   className="w-full"
                   mode="multiple"
                   allowClear
-                  placeholder="Select lead/customer"
+                  placeholder="Select one or more leads / customers"
                   value={selectedLeadOrContactIds}
                   onChange={(vals: string[]) => {
                     setSelectedLeadOrContactIds(vals);
                     setCurrentPage(1);
                   }}
-                  options={quotationFilterOptions
-                    .map(option => {
-                      const optionType = option.optionType || 'lead';
-                      const optionId = option.optionId || option.leadId || option.leadsId;
-                      if (!optionId) return null;
-                      const defaultLabel = option.contactName
-                        ? `${option.contactName} (${option.customerName})`
-                        : option.customerName;
-                      const optionLabel = option.optionLabel || defaultLabel;
-                      return {
-                        value: `${optionType}:${optionId}`,
-                        label: optionLabel,
-                      };
-                    })
-                    .filter(Boolean) as Array<{ value: string; label: string }>}
+                  options={leadCustomerSelectOptions}
+                  loading={isFilterOptionsLoading}
+                  maxTagCount="responsive"
                   showSearch
                   optionFilterProp="label"
-                  filterOption={(input, option) =>
-                    String(option?.label || '').toLowerCase().includes(input.toLowerCase())
-                  }
+                  onDropdownVisibleChange={open => {
+                    if (open) {
+                      setIsFilterOptionsLoading(true);
+                      dispatch(getQuotationFilterOptionsThunk())
+                        .unwrap()
+                        .catch(() => {})
+                        .finally(() => setIsFilterOptionsLoading(false));
+                    }
+                  }}
                 />
               </Col>
 
