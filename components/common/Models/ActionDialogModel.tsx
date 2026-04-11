@@ -138,6 +138,10 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
           initialValues.logo
         );
       }
+      // Handle image field for facades
+      if (initialValues.image) {
+        values.image = makeFileFromUrl(initialValues.image);
+      }
       form.setFieldsValue({
         ...values,
       });
@@ -150,13 +154,18 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
     try {
       const values = await form.validateFields();
 
-      // Clean up image value if it's just the preview
       if (values.image && values.image.length > 0) {
         const imageField = values.image[0];
-        if (imageField.status === 'done' && imageField.url && !imageField.originFileObj) {
-          // This is just a preview, not a new upload
+        // If it's a new file, send the originFileObj
+        if (imageField.originFileObj) {
+          values.image = imageField.originFileObj;
+        } else if (imageField.url) {
+          // If it's an existing image with a URL, don't send it in the payload
           delete values.image;
         }
+      } else if (values.image && values.image.length === 0) {
+        // If the image was removed, send null or an empty string
+        values.image = null;
       }
 
       onSubmit(values);
@@ -333,16 +342,17 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
               ) : field.type === 'image' ? (
                 <Form.Item
                   name={field.name}
-                  getValueFromEvent={({ fileList }) => {
-                    if (fileList && fileList.length > 0) {
-                      return fileList[0].originFileObj;
+                  valuePropName="fileList"
+                  getValueFromEvent={(e) => {
+                    if (Array.isArray(e)) {
+                      return e;
                     }
-                    return null;
+                    return e?.fileList || [];
                   }}
                   rules={[
                     {
                       validator: (_, value) => {
-                        if (field.rules?.some(r => 'required' in r && r.required) && !value) {
+                        if (field.rules?.some(r => 'required' in r && r.required) && (!value || value.length === 0)) {
                           return Promise.reject(new Error('Image is required'));
                         }
                         return Promise.resolve();
@@ -386,7 +396,7 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
                   placeholder={field.placeholder}
                   type={field.type}
                   onWheel={(e) => e.currentTarget.blur()}
-                  min={field?.min || undefined}
+                  min={field?.min || 0}
                   disabled={field.disabled}
                   onKeyPress={e => {
                     if (!/[0-9]/.test(e.key)) {

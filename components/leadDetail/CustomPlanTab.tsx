@@ -8,7 +8,7 @@ import { useAppDispatch, useAppSelector } from '@hooks/redux';
 // import { Status } from "@lib/constants/enum";
 import { createFloorPlan } from '@redux/feature/floorPlan/floorPlanThunk';
 import { setQuotationPlan } from '@redux/feature/quotation/quotationSlice';
-import { acceptOnlyImageRule, OptionalNumberRules } from '@lib/constants/formInputValidations';
+import { acceptOnlyImageRule, OptionalNumberRules, planMeasureRange, planNumberRange } from '@lib/constants/formInputValidations';
 import useDwellingAndRangeHook from '@hooks/useDwellingAndRangeHook';
 import { formDataGenerator } from '@lib/utils/formDataGenerator';
 
@@ -69,7 +69,15 @@ const CustomPlanTab: React.FC<{
             <Form.Item
               label="Name"
               name="name"
-              rules={[{ required: true, message: 'Please input floor plan name' }]}
+              rules={[
+                { required: true, message: 'Please input floor plan name' },
+                {
+                  pattern: /^[a-zA-Z0-9\s]+$/,
+                  message: 'Name can only contain letters, numbers, and spaces',
+                },
+                { min: 2, message: 'Name must be at least 2 characters long' },
+                { max: 100, message: 'Name must be at most 100 characters long' },
+              ]}
             >
               <Input />
             </Form.Item>
@@ -84,7 +92,7 @@ const CustomPlanTab: React.FC<{
                 options={rangeOptions}
                 value={selectedFilters?.range}
                 disabled
-                // className="white-disabled-select"
+              // className="white-disabled-select"
               />
             </Form.Item>
 
@@ -98,7 +106,7 @@ const CustomPlanTab: React.FC<{
                 options={dwellingTypeOptions}
                 value={selectedFilters?.dwellingType}
                 disabled
-                // className="white-disabled-select"
+              // className="white-disabled-select"
               />
             </Form.Item>
             <Form.Item
@@ -137,6 +145,7 @@ const CustomPlanTab: React.FC<{
                 rules={[
                   { required: true, message: 'Please input number of beds' },
                   { pattern: /^[0-9]+(\.[0-9]{1,2})?$/, message: 'Only numbers allowed' },
+                  ...planNumberRange
                 ]}
               >
                 <Input
@@ -153,7 +162,9 @@ const CustomPlanTab: React.FC<{
               <Form.Item
                 label="Bath"
                 name="baths"
-                rules={[{ required: true, message: 'Please input number of baths' }]}
+                rules={[{ required: true, message: 'Please input number of baths' },
+                ...planNumberRange
+                ]}
               >
                 <Input
                   min={0}
@@ -169,7 +180,9 @@ const CustomPlanTab: React.FC<{
               <Form.Item
                 label="Car Park"
                 name="carpark"
-                rules={[{ required: true, message: 'Please input number of car parks' }]}
+                rules={[{ required: true, message: 'Please input number of car parks' },
+                ...planNumberRange
+                ]}
               >
                 <Input
                   min={0}
@@ -185,7 +198,9 @@ const CustomPlanTab: React.FC<{
               <Form.Item
                 label="Garage"
                 name="garageArea"
-                rules={[{ required: true, message: 'Please input number of garages' }]}
+                rules={[{ required: true, message: 'Please input number of garages' },
+                ...planNumberRange
+                ]}
               >
                 <Input
                   min={0}
@@ -201,7 +216,9 @@ const CustomPlanTab: React.FC<{
               <Form.Item
                 label="Width (m)"
                 name="minLandWidth"
-                rules={[{ required: true, message: 'Please input width in meters' }]}
+                rules={[{ required: true, message: 'Please input width in meters' },
+                ...planMeasureRange
+                ]}
               >
                 <Input
                   type="number"
@@ -218,7 +235,9 @@ const CustomPlanTab: React.FC<{
               <Form.Item
                 label="Depth (m)"
                 name="minLandDepth"
-                rules={[{ required: true, message: 'Please input depth in meters' }]}
+                rules={[{ required: true, message: 'Please input depth in meters' },
+                ...planMeasureRange
+                ]}
               >
                 <Input
                   type="number"
@@ -235,7 +254,9 @@ const CustomPlanTab: React.FC<{
               <Form.Item
                 label="Dwelling (sqm)"
                 name="dwellingArea"
-                rules={[{ required: true, message: 'Please input dwelling area' }]}
+                rules={[{ required: true, message: 'Please input dwelling area' },
+                ...planMeasureRange
+                ]}
               >
                 <Input
                   min={0}
@@ -251,7 +272,9 @@ const CustomPlanTab: React.FC<{
               <Form.Item
                 label="Porch (sqm)"
                 name="porchArea"
-                rules={[{ required: true, message: 'Please input porch area' }]}
+                rules={[{ required: true, message: 'Please input porch area' },
+                  ...planMeasureRange
+                ]}
               >
                 <Input
                   min={0}
@@ -267,7 +290,9 @@ const CustomPlanTab: React.FC<{
               <Form.Item
                 label="Alfresco (sqm)"
                 name="alfrescoArea"
-                rules={[{ required: true, message: 'Please input alfresco area' }]}
+                rules={[{ required: true, message: 'Please input alfresco area' },
+                  ...planMeasureRange
+                ]}
               >
                 <Input
                   min={0}

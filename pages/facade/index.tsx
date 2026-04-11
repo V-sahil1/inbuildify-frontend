@@ -78,8 +78,12 @@ const FacadeMaster = () => {
       });
 
       if (isEditing) {
-        const { updatedFields } = getUpdatedFields(values, isEditing);
+        const { image, ...rest } = values;
+        const { updatedFields } = getUpdatedFields(rest, isEditing);
         const updateFormData = formDataGenerator(updatedFields);
+        if (image) {
+          updateFormData.append('image', image);
+        }
         await dispatch(
           updateFacade({ data: updateFormData, facadeId: isEditing.facadeId })
         ).unwrap();

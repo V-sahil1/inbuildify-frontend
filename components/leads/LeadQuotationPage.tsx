@@ -70,8 +70,8 @@ export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
     // }
 
     try {
-      router.push(SystemRoutes.QUOTATION_CREATE(leadId));
       await dispatch(createQuotationThunk(leadId)).unwrap();
+      router.push(SystemRoutes.QUOTATION_CREATE(leadId));
     } catch (error) {
       message.error(error || 'Failed to create quotation');
     }

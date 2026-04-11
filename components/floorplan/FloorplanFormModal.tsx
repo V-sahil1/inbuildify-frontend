@@ -2,7 +2,10 @@ import { Button, Form, Input, Modal, Radio, Select, Upload } from 'antd';
 import DwellingTypeSelect from '../common/custom-selects/DwellingTypeSelect';
 import {
   acceptOnlyImageRule,
+  descriptionRules,
   numberRules,
+  planMeasureRange,
+  planNumberRange,
   settingNameRules,
 } from '@lib/constants/formInputValidations';
 import { useEffect } from 'react';
@@ -74,42 +77,87 @@ const FloorPlanFormModal = ({
         <div className="grid grid-cols-6 gap-2">
           <div className="col-span-4">
             <div className="flex justify-between gap-2">
-              <Form.Item label="Min Land Width(m)" name="minLandWidth" rules={numberRules}>
-                <Input type="number" onWheel={(e) => e.currentTarget.blur()} />
+              <Form.Item label="Min Land Width(m)" name="minLandWidth" rules={[{ pattern: /^[0-9]+(\.[0-9]{1,2})?$/, message: 'Only numbers allowed' }, ...planMeasureRange]}>
+                <Input type="number" onWheel={(e) => e.currentTarget.blur()}
+                  onKeyPress={e => {
+                    if (!/[0-9]/.test(e.key)) {
+                      e.preventDefault();
+                    }
+                  }} />
               </Form.Item>
-              <Form.Item label="Min Land Depth(m)" name="minLandDepth" rules={numberRules}>
-                <Input />
+              <Form.Item label="Min Land Depth(m)" name="minLandDepth" rules={[{ pattern: /^[0-9]+(\.[0-9]{1,2})?$/, message: 'Only numbers allowed' }, ...planMeasureRange]}>
+                <Input onKeyPress={e => {
+                    if (!/[0-9]/.test(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}/>
               </Form.Item>
-              <Form.Item label="Dwelling(sq)" name="dwellingArea" rules={numberRules}>
-                <Input />
+              <Form.Item label="Dwelling(sq)" name="dwellingArea" rules={[{ pattern: /^[0-9]+(\.[0-9]{1,2})?$/, message: 'Only numbers allowed' }, ...planMeasureRange]}>
+                <Input onKeyPress={e => {
+                    if (!/[0-9]/.test(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}/>
               </Form.Item>
             </div>
             <div className="flex justify-between  gap-2">
-              <Form.Item label="Beds" name="beds" rules={numberRules}>
-                <Input />
+              <Form.Item label="Beds" name="beds" rules={[{ pattern: /^[0-9]+(\.[0-9]{1,2})?$/, message: 'Only numbers allowed' }, ...planNumberRange]}>
+                <Input onKeyPress={e => {
+                    if (!/[0-9]/.test(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}/>
               </Form.Item>
-              <Form.Item label="Bath" name="baths" rules={numberRules}>
-                <Input />
+              <Form.Item label="Bath" name="baths" rules={[{ pattern: /^[0-9]+(\.[0-9]{1,2})?$/, message: 'Only numbers allowed' }, ...planNumberRange]}>
+                <Input onKeyPress={e => {
+                    if (!/[0-9]/.test(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}/>
               </Form.Item>
-              <Form.Item label="Carpark" name="carpark" rules={numberRules}>
-                <Input />
+              <Form.Item label="Carpark" name="carpark" rules={[{ pattern: /^[0-9]+(\.[0-9]{1,2})?$/, message: 'Only numbers allowed' }, ...planNumberRange]}>
+                <Input onKeyPress={e => {
+                    if (!/[0-9]/.test(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}/>
               </Form.Item>
-              <Form.Item label="Living" name="living" rules={numberRules}>
-                <Input />
+              <Form.Item label="Living Area(sq)" name="living" rules={[{ pattern: /^[0-9]+(\.[0-9]{1,2})?$/, message: 'Only numbers allowed' }, ...planMeasureRange]}>
+                <Input onKeyPress={e => {
+                    if (!/[0-9]/.test(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}/>
               </Form.Item>
             </div>
             <div className="flex justify-between  gap-2">
-              <Form.Item label="Garage(sq)" name="garageArea" rules={numberRules}>
-                <Input />
+              <Form.Item label="Garage(sq)" name="garageArea" rules={[{ pattern: /^[0-9]+(\.[0-9]{1,2})?$/, message: 'Only numbers allowed' }, ...planMeasureRange]}>
+                <Input onKeyPress={e => {
+                    if (!/[0-9]/.test(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}/>
               </Form.Item>
-              <Form.Item label="Porch(sq)" name="porchArea" rules={numberRules}>
-                <Input />
+              <Form.Item label="Porch(sq)" name="porchArea" rules={[{ pattern: /^[0-9]+(\.[0-9]{1,2})?$/, message: 'Only numbers allowed' }, ...planMeasureRange]}>
+                <Input onKeyPress={e => {
+                    if (!/[0-9]/.test(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}/>
               </Form.Item>
-              <Form.Item label="Alfresco(sq)" name="alfrescoArea" rules={numberRules}>
-                <Input />
+              <Form.Item label="Alfresco(sq)" name="alfrescoArea" rules={[{ pattern: /^[0-9]+(\.[0-9]{1,2})?$/, message: 'Only numbers allowed' }, ...planMeasureRange]}>
+                <Input onKeyPress={e => {
+                    if (!/[0-9]/.test(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}/>
               </Form.Item>
-              <Form.Item label="Total(sq)" name="totalArea" rules={numberRules}>
-                <Input />
+              <Form.Item label="Total(sq)" name="totalArea" rules={[{ pattern: /^[0-9]+(\.[0-9]{1,2})?$/, message: 'Only numbers allowed' }]}>
+                <Input onKeyPress={e => {
+                    if (!/[0-9]/.test(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}/>
               </Form.Item>
             </div>
           </div>
@@ -152,6 +200,7 @@ const FloorPlanFormModal = ({
           <Form.Item
             label="Detailed Image"
             name="detailedImage"
+            valuePropName="fileList"
             rules={[{ required: true, message: 'Please upload image' }]}
             getValueFromEvent={e => {
               if (e && e.fileList) {
@@ -172,6 +221,7 @@ const FloorPlanFormModal = ({
           <Form.Item
             label="Simple Image"
             name="simpleImage"
+            valuePropName="fileList"
             rules={[{ required: true, message: 'Please upload image' }]}
             getValueFromEvent={e => {
               if (e && e.fileList) {
@@ -193,7 +243,9 @@ const FloorPlanFormModal = ({
         <Form.Item
           label="FloorPlan Description"
           name="description"
-          rules={[{ required: true, message: 'Enter Description' }]}
+          rules={[{ required: true, message: 'Enter Description' },
+          ...descriptionRules
+          ]}
         >
           <TextArea rows={4} className="!resize-none" />
         </Form.Item>
