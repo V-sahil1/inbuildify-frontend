@@ -86,7 +86,7 @@ export const Quotation: React.FC = () => {
           name="allowSaveAsNewVersion"
           valuePropName="checked"
         >
-          <Switch />
+          <Switch defaultChecked disabled/>
         </Form.Item>
 
         <Form.Item
@@ -100,7 +100,7 @@ export const Quotation: React.FC = () => {
             </p>
           }
         >
-          <Switch />
+          <Switch disabled/>
         </Form.Item>
 
         <Form.Item
@@ -114,7 +114,7 @@ export const Quotation: React.FC = () => {
             </p>
           }
         >
-          <Switch />
+          <Switch disabled/>
         </Form.Item>
 
         <Form.Item
@@ -127,7 +127,7 @@ export const Quotation: React.FC = () => {
             </p>
           }
         >
-          <Switch />
+          <Switch disabled/>
         </Form.Item>
 
         <Form.Item
@@ -167,7 +167,7 @@ export const Quotation: React.FC = () => {
           name="allowMultiplePackages"
           valuePropName="checked"
         >
-          <Switch />
+          <Switch disabled/>
         </Form.Item>
 
         <Form.Item

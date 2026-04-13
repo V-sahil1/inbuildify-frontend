@@ -514,13 +514,21 @@ export const acnNumberRules = [
 ];
 
 export const hiaMembershipRules = [
-  { min: 2, message: 'Number must be at least 2 characters long' },
-  { max: 100, message: 'Number must not exceed 100 characters' },
+  { min: 6, message: 'Number must be at least 6 characters long' },
+  { max: 8, message: 'Number must not exceed 8 characters' },
+  {
+    pattern: /^(?!\s).*\S(?!\s)$/,
+    message: 'Number cannot have spaces at the beginning or end'
+  },
 ];
 
 export const registrationNumberRules = [
-  { min: 10, message: 'Registration number must be at least 10 characters long' },
-  { max: 100, message: 'Registration number must not exceed 100 characters' },
+  { min: 6, message: 'Registration number must be at least 6 characters long' },
+  { max: 20, message: 'Registration number must not exceed 20 characters' },
+  {
+    pattern: /^(?!\s).*\S(?!\s)$/,
+    message: 'Registration number cannot have spaces at the beginning or end'
+  },
 ];
 export const addressLine1Rules = [
   { required: true, message: 'Address line 1 is required' },
@@ -552,6 +560,10 @@ export const builderNameRules = [
 export const optionalNameRule = [
   { min: 3, message: 'Field must be at least 3 characters long' },
   { max: 150, message: 'Field must not exceed 150 characters' },
+  {
+    pattern: /^(?!\s).*\S(?!\s)$/,
+    message: 'Field cannot have spaces at the beginning or end'
+  },
 ];
 
 export const surveyorRegistrationRules = [
