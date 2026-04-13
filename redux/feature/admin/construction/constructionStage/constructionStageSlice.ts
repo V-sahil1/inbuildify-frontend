@@ -19,7 +19,11 @@ const initialState: IStageState = {
 const stageSlice = createSlice({
   name: 'stage',
   initialState,
-  reducers: {},
+  reducers: {
+    updateStageList(state, action) {
+      state.stage = action.payload;
+    },
+  },
   extraReducers: builder => {
     builder.addCase(createStage.pending, state => {
       state.status.create = Status.PENDING;
@@ -65,4 +69,6 @@ const stageSlice = createSlice({
     });
   },
 });
+export const { updateStageList } = stageSlice.actions;
+
 export default stageSlice.reducer;

@@ -17,6 +17,8 @@ import {
 } from '@redux/feature/admin/construction/constructionType/constructionTypeThunk';
 import { ConstructionType } from '@redux/feature/admin/construction/constructionType/IConstructionTypeState';
 import { ColumnType } from 'antd/es/table';
+import { handleReorder } from '@lib/utils/reorderBySort';
+import { updateTypeList } from '@redux/feature/admin/construction/constructionType/constructionTypeSlice';
 
 export const Types: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -54,21 +56,29 @@ export const Types: React.FC = () => {
     setModalOpen('create');
   };
 
-  const handleSave = async (values) => {
+  const handleSave = async values => {
     try {
+      let response;
       if (currentItem?.constructionTypeId) {
-        await dispatch(updateType({ data: values, id: currentItem?.constructionTypeId })).unwrap();
+        response = await dispatch(
+          updateType({ data: values, id: currentItem?.constructionTypeId })
+        ).unwrap();
         message.success('Build type updated');
       } else {
-        await dispatch(createType({ ...values, builder: builderId })).unwrap();
+        response = await dispatch(createType({ ...values, builder: builderId })).unwrap();
         message.success('Build type added');
       }
       setModalOpen(null);
       setCurrentItem(null);
+      if (response) {
+        const updatedList = handleReorder(type, response, {
+          idKey: 'constructionTypeId',
+          sortKey: 'sortOrder',
+        });
+        dispatch(updateTypeList(updatedList));
+      }
     } catch (error) {
       message.error(error || 'Failed to save construction type');
-    }finally{
-      await dispatch(fetchAllType()).unwrap();
     }
   };
 
@@ -206,7 +216,7 @@ export const Types: React.FC = () => {
           onSubmit={handleSave}
           isEditing={!!currentItem}
           submitButtonText={currentItem ? 'Update' : 'Create'}
-          fields={constructionTypesFields(dwellingTypeOptions)}
+          fields={constructionTypesFields(dwellingTypeOptions,type?.length,!!currentItem)}
           initialValues={{
             ...currentItem,
             dwellingType: currentItem?.dwellingType?.map(item => item.id),

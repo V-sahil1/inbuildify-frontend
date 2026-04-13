@@ -14,7 +14,11 @@ const initialState: ITypeState = {
 const typeSlice = createSlice({
   name: 'type',
   initialState,
-  reducers: {},
+  reducers: {
+    updateTypeList(state,action) {
+      state.type = action.payload;
+    }
+  },
   extraReducers: builder => {
     builder.addCase(createType.pending, state => {
       state.status.create = Status.PENDING;
@@ -60,4 +64,5 @@ const typeSlice = createSlice({
     });
   },
 });
+export const { updateTypeList } = typeSlice.actions;
 export default typeSlice.reducer;

@@ -39,6 +39,12 @@ const processSlice = createSlice({
         process.isExpanded = true;
       }
     },
+    updateStageList(state, action) {
+      const process = state.process.find(c => c.salesProcessId === action.payload.id);
+      if (process) {
+        process.Stages = action.payload.data;
+      }
+    },
   },
   extraReducers: builder => {
     builder.addCase(createProcess.pending, state => {
@@ -173,5 +179,5 @@ const processSlice = createSlice({
     });
   },
 });
-export const { toggleExpand } = processSlice.actions;
+export const { toggleExpand, updateStageList } = processSlice.actions;
 export default processSlice.reducer;
