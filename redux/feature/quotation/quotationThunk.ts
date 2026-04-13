@@ -158,7 +158,7 @@ export const updateQuotationItemThunk = createAsyncThunk(
   async (
     payload: {
       quotationVersionItemId: string;
-      quantity: number;
+      quantity?: number;
       note?: string;
       priceListItemDescription?: string
     },
