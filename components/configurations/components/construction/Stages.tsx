@@ -25,6 +25,8 @@ import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import { ConstructionStage } from '@redux/feature/admin/construction/constructionStage/IConstructionStageState';
 import { useConstructionTypeHook } from '@hooks/useConstructionTypeHook';
 import TooltipButton from '@/components/common/TooltipButton';
+import { handleReorder } from '@lib/utils/reorderBySort';
+import { updateStageList } from '@redux/feature/admin/construction/constructionStage/constructionStageSlice';
 
 export function Stages() {
   const dispatch = useAppDispatch();
@@ -97,6 +99,7 @@ export function Stages() {
       return;
     }
     try {
+      let response;
       if (editingId === 'new') {
         // insert
         const newRow: ConstructionStage = {
@@ -110,7 +113,7 @@ export function Stages() {
           bgColor: local.bgColor || '#6f2ca8',
           fontColor: local.fontColor || '#ffffff',
         };
-        await dispatch(createStage(newRow)).unwrap();
+        response = await dispatch(createStage(newRow)).unwrap();
         message.success('Stage added');
       } else {
         const id = editingId as string;
@@ -130,15 +133,20 @@ export function Stages() {
           setLocal(null);
           return;
         }
-        await dispatch(updateStage({ data: updatedFields, id })).unwrap();
+        response = await dispatch(updateStage({ data: updatedFields, id })).unwrap();
         message.success('Stage updated');
       }
       setEditingId(null);
       setLocal(null);
+      if (response) {
+        const updatedList = handleReorder(stage, response, {
+          idKey: 'constructionStage',
+          sortKey: 'sortOrder',
+        });
+        dispatch(updateStageList(updatedList));
+      }
     } catch (error) {
       message.error(error || 'Failed to save stage');
-    }finally{
-      await dispatch(fetchAllConstructionStage({})).unwrap();
     }
   };
 

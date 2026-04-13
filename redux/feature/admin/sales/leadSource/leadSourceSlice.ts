@@ -20,11 +20,7 @@ const initialState: ILeadSourceState = {
 const leadSoucerSlice = createSlice({
   name: 'leadSource',
   initialState,
-  reducers: {
-    updateLeadSourceList: (state, action) => {
-      state.leadSource = action.payload;
-    },
-  },
+  reducers: {} ,
   extraReducers: builder => {
     builder.addCase(createleadSource.pending, state => {
       state.status.create = Status.PENDING;
@@ -79,5 +75,4 @@ const leadSoucerSlice = createSlice({
     });
   },
 });
-export const { updateLeadSourceList } = leadSoucerSlice.actions;
 export default leadSoucerSlice.reducer;

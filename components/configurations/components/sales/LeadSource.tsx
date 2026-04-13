@@ -16,8 +16,6 @@ import { Status } from '@lib/constants/enum';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import { LeadSourceType } from '@redux/feature/admin/sales/leadSource/ILeadSourceState';
 import { getPaginationConfig } from '@lib/utils/getPaginationConfig';
-import { updateLeadSourceList } from '@redux/feature/admin/sales/leadSource/leadSourceSlice';
-import { handleReorder } from '@lib/utils/reorderBySort';
 import { createSortOrderValidation } from '@lib/constants/formInputValidations';
 
 export const LeadSource: React.FC = () => {
@@ -53,10 +51,9 @@ export const LeadSource: React.FC = () => {
 
   const saveEdit = async () => {
     const values = await form.validateFields();
-    let response;
     try {
       if (editingRow?.isNew) {
-        response = await dispatch(createleadSource({ ...values, isActive: true })).unwrap();
+        await dispatch(createleadSource({ ...values, isActive: true })).unwrap();
         message.success('leadsource created successfully');
       } else {
         const { isUpdated, updatedFields } = getUpdatedFields(
@@ -67,24 +64,17 @@ export const LeadSource: React.FC = () => {
           setEditingRow(null);
           return;
         }
-        response = await dispatch(
+        await dispatch(
           updateleadSource({ data: updatedFields, id: editingRow.leadSourceId })
         ).unwrap();
         message.success('leadsource updated successfully');
       }
       form.resetFields();
       setEditingRow(null);
-      if (response) {
-        const updatedList = handleReorder(leadSource, response, {
-          idKey: 'leadSourceId',
-          sortKey: 'sortOrder',
-        });
-        dispatch(updateLeadSourceList(updatedList));
-      }
+      await dispatch(fetchAllleadSource({ page: currentPage, limit: PAGE_SIZE })).unwrap();
     } catch (error) {
       message.error(error || 'Failed to save leadsource');
     } finally {
-      await dispatch(fetchAllleadSource({ page: currentPage, limit: PAGE_SIZE })).unwrap();
     }
   };
 

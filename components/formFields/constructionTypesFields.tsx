@@ -2,9 +2,10 @@ import { FormField } from '../common/Models/ActionDialogModel';
 import { CustomBulkSelect } from '../common/CustomBulkSelect';
 import NoDataMessage from '../common/NoDataMessage';
 import SystemRoutes from '@lib/constants/Routes';
+import { createSortOrderValidation } from '@lib/constants/formInputValidations';
 
 export const constructionTypesFields = (
-  dwellingTypeOptions: { label: string; value: string }[] = []
+  dwellingTypeOptions: { label: string; value: string }[] = [],length?:number,isEditing?:boolean
 ): FormField[] => {
   return [
     {
@@ -42,7 +43,7 @@ export const constructionTypesFields = (
       name: 'sortOrder',
       type: 'number',
       placeholder: 'Enter sort order',
-      rules: [{ required: true, message: 'Please enter sort order' }],
+      rules: createSortOrderValidation(length,isEditing),
     },
   ];
 };

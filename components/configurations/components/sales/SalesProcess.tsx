@@ -22,9 +22,10 @@ import {
   updateStage,
 } from '@redux/feature/admin/sales/process/processThunk';
 import { Status } from '@lib/constants/enum';
-import { toggleExpand } from '@redux/feature/admin/sales/process/processSlice';
+import { toggleExpand, updateStageList } from '@redux/feature/admin/sales/process/processSlice';
 import TooltipButton from '@/components/common/TooltipButton';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
+import { handleReorder } from '@lib/utils/reorderBySort';
 
 export const SalesProcess: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -116,6 +117,7 @@ export const SalesProcess: React.FC = () => {
       category: '',
       sortOrder: '',
     };
+    const maxVal = stages?.length + (record.salesStageId === '' ? 2 : 0);
     let isValid = true;
     if (!record.stageName?.trim()) {
       errors.stageName = 'Stage name is required';
@@ -125,8 +127,8 @@ export const SalesProcess: React.FC = () => {
       errors.category = 'Category is required';
       isValid = false;
     }
-    if (!record.sortOrder || record.sortOrder <= 0) {
-      errors.sortOrder = 'Sort order is required and must be greater than 0';
+    if (!record.sortOrder || record.sortOrder < 1 || record?.sortOrder > maxVal) {
+      errors.sortOrder = `Sort order is required and must be 1 and ${maxVal}`;
       isValid = false;
     }
 
@@ -244,16 +246,24 @@ export const SalesProcess: React.FC = () => {
     }
     const id = record.salesStageId;
     try {
+      let response;
       if (record.salesStageId === '') {
-        await dispatch(createStage(payload)).unwrap();
+        response = await dispatch(createStage(payload)).unwrap();
         message.success('stage created successfully');
       } else {
         delete payload.salesProcessId;
-        await dispatch(updateStage({ data: payload, id: id })).unwrap();
+        response = await dispatch(updateStage({ data: payload, id: id })).unwrap();
         message.success('stage updated successfully');
       }
       setEditingStageId(null);
       setNewStageRow(null);
+      if (response) {
+        const updatedList = handleReorder(stages, response, {
+          idKey: 'salesStageId',
+          sortKey: 'sortOrder',
+        });
+        dispatch(updateStageList({ data: updatedList, id: selectedProcess?.salesProcessId }));
+      }
     } catch (error) {
       message.error(error || 'Failed to save stage');
     }
@@ -560,7 +570,7 @@ export const SalesProcess: React.FC = () => {
                 }
               }}
               disabled={stageStatus.create === Status.PENDING}
-              onWheel={(e) => e.currentTarget.blur()}
+              onWheel={e => e.currentTarget.blur()}
             />
             {errors?.stage?.sortOrder && (
               <span className="text-red-500">{errors?.stage?.sortOrder}</span>
