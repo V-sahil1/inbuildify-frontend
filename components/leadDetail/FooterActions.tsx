@@ -17,6 +17,7 @@ import { useRouter } from 'next/navigation';
 
 interface FooterActionsProps {
   id?: string;
+  versionNo?: number;
   total: number;
   quoteVersionId?: string;
   isEditMode: boolean;
@@ -33,6 +34,7 @@ interface FooterActionsProps {
 
 const FooterActions: React.FC<FooterActionsProps> = ({
   id,
+  versionNo,
   total,
   quoteVersionId,
   isEditMode,
@@ -85,7 +87,9 @@ const FooterActions: React.FC<FooterActionsProps> = ({
     <div className="space-y-2">
       <div>
         <p>Quotation Reference No</p>
-        <p className="text-blue">{id}</p>
+        <p className="text-blue">
+          {id} V{versionNo}
+        </p>
       </div>
       <div>
         <p>Sketch Number</p>

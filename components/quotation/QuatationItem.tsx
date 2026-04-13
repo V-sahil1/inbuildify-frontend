@@ -141,26 +141,26 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
         </div>
 
         {/* UOM */}
-        <div className="table-cell text-center p-3 align-middle w-[100px]">
-          {!isIncluded ? `${item.uom !== null ? item.uom : ' '}` : ' '}
-        </div>
+        <div className="table-cell text-center p-3 align-middle w-[100px]">{item?.uom}</div>
 
         {/* Quantity */}
         <div className="table-cell text-center p-3 align-middle w-[100px]">
-          <InputNumber
-            min={1}
-            step={1}
-            precision={0}
-            value={quantity}
-            ref={quantityRef}
-            onChange={handleQuantityChange}
-            onBlur={handleQuantityBlur}
-            type="number"
-            size="small"
-            className="w-full text-center"
-            disabled={isIncluded || disabled}
-            onWheel={e => e.currentTarget.blur()}
-          />
+          {!isIncluded && (
+            <InputNumber
+              min={1}
+              step={1}
+              precision={0}
+              value={quantity}
+              ref={quantityRef}
+              onChange={handleQuantityChange}
+              onBlur={handleQuantityBlur}
+              type="number"
+              size="small"
+              className="w-full text-center"
+              disabled={isIncluded || disabled}
+              onWheel={e => e.currentTarget.blur()}
+            />
+          )}
         </div>
 
         {/* Price */}
@@ -228,7 +228,6 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
               setNotesModalVisible(false);
             }}
             initialValue={tempNotes}
-            isEditable={!isSelected}
           />
         )}
       </div>
