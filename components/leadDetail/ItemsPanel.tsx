@@ -165,6 +165,16 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
     }
   };
 
+  const handleNotesUpdate = async (itemId: string, notes: string) => {
+    try {
+      await dispatch(
+        updateQuotationItemThunk({ quotationVersionItemId: itemId, note: notes })
+      ).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to update notes');
+    }
+  };
+
   const handleItemQuantityChange = (itemId: string, quantity: number) => {
     dispatch(updateQuotationItem({ itemId, quantity }));
   };
@@ -185,7 +195,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
       <Form
         form={form}
         onValuesChange={(changed, all) => {
-          const total = (all.quantity | 0) * (all.cost | 0);
+          const total = (all.quantity | 1) * (all.cost | 0);
           form.setFieldValue('total', total);
         }}
       >
@@ -285,6 +295,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
                           )?.isPriceListItemCostMismatch}
                           onToggleAdd={handleItemAdd}
                           category={category}
+                          onNoteUpdate={handleNotesUpdate}
                         />
                       ))
                     ) : (

@@ -33,7 +33,7 @@ export const PricelistColumn = (setDrawerOpen, setSelectedPricelist, selectedPri
       setSelectedPricelist(null);
       setDrawerOpen(null);
     } catch (error) {
-      message.error(error || 'Failed to copy pricelist ');
+      message.error(error?.message || error || 'Failed to copy pricelist ');
     }
     
   }

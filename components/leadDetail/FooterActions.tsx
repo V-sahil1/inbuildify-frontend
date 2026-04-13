@@ -17,6 +17,7 @@ import { useRouter } from 'next/navigation';
 
 interface FooterActionsProps {
   id?: string;
+  versionNo?: number;
   total: number;
   quoteVersionId?: string;
   isEditMode: boolean;
@@ -33,6 +34,7 @@ interface FooterActionsProps {
 
 const FooterActions: React.FC<FooterActionsProps> = ({
   id,
+  versionNo,
   total,
   quoteVersionId,
   isEditMode,
@@ -44,7 +46,7 @@ const FooterActions: React.FC<FooterActionsProps> = ({
   previewLoading,
   disableAction,
   hasUnsavedChanges = false,
-  onCreateNewVersion
+  onCreateNewVersion,
 }) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -85,13 +87,15 @@ const FooterActions: React.FC<FooterActionsProps> = ({
     <div className="space-y-2">
       <div>
         <p>Quotation Reference No</p>
-        <p className="text-blue">{id}</p>
+        <p className="text-blue">
+          {id} {!!versionNo && 'V' + versionNo}
+        </p>
       </div>
       <div>
         <p>Sketch Number</p>
         <Input
           type="number"
-          onWheel={(e) => e.currentTarget.blur()}
+          onWheel={e => e.currentTarget.blur()}
           className="max-w-[200px]"
           value={sketchNum}
           onChange={e => setSketchNum(e.target.value)}
@@ -215,12 +219,12 @@ const FooterActions: React.FC<FooterActionsProps> = ({
             onClick={() => {
               setModalOpen('approval');
             }}
-            loading={loading}
+            // loading={loading}
             disabled={disableAction}
           >
             Approve
           </Button>
-          <Button type="primary" onClick={() => { }} loading={loading} disabled={disableAction}>
+          <Button type="primary" onClick={() => {}} disabled={disableAction}>
             Email
           </Button>
           <Dropdown
@@ -245,12 +249,12 @@ const FooterActions: React.FC<FooterActionsProps> = ({
             onClick={() => {
               setModalOpen('custom');
             }}
-            loading={loading}
+            // loading={loading}
             disabled={disableAction}
           >
             Custom Section
           </Button>
-          <Button type="primary" loading={loading} disabled={disableAction}>
+          <Button type="primary" disabled={disableAction}>
             View Opprtunity
           </Button>
         </Space>

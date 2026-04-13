@@ -194,7 +194,6 @@ const InfoCards: React.FC<InfoCardsProps> = ({
       message.error(error || 'Failed to remove lead contact');
     }
   };
-  console.log("quoteDetails", quoteDetails);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-3">

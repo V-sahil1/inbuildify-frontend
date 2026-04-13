@@ -78,7 +78,7 @@ const TimelineActionsBar: FC<TimelineActionsBarProps> = ({
             </Button>
           </Dropdown>
         ) : (
-          <Button type="primary" icon={<IconPlus />} onClick={() => onActionSelect(activeTab)}>
+          <Button type="primary" icon={<IconPlus />} onClick={() => onActionSelect?.(activeTab)}>
             Add {activeTab}
           </Button>
         )}

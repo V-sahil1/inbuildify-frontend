@@ -2,7 +2,7 @@ import { useAppSelector } from '@hooks/redux';
 import { enumToReadable } from '@lib/utils/enumToRedable';
 import { RootState } from '@redux/feature/store';
 import { IconPencil, IconPlus, IconX, IconAlertTriangle } from '@tabler/icons-react';
-import { Tag, InputNumber, Button, Tooltip, Input } from 'antd';
+import { Tag, InputNumber, Button, Tooltip } from 'antd';
 import React, { useState, useEffect } from 'react';
 import AddMasterPricingItemModal from '../common/Models/AddMasterPricingItemModel';
 import { IPriceList, IPriceListItem } from '@redux/feature/masterPriceList/iMasterPriceListState';
@@ -12,6 +12,7 @@ interface QuatationItemProps {
   onQuantityChange: (itemId: string, qty: number) => void;
   onQuantityUpdate?: (itemId: string, quantity: number) => Promise<void>;
   onToggleAdd: (item: IPriceListItem & { notes: string }) => void;
+  onNoteUpdate?: (itemId: string, note: string) => Promise<void>;
   isSelected: boolean;
   quantityRef?: any;
   isDiffPrice?: boolean;
@@ -30,6 +31,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
     disabled,
     category,
     isDiffPrice = false,
+    onNoteUpdate,
   }) => {
     const { items } = useAppSelector((state: RootState) => state.quotation);
     const { leadDetail } = useAppSelector((state: RootState) => state.lead);
@@ -141,26 +143,26 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
         </div>
 
         {/* UOM */}
-        <div className="table-cell text-center p-3 align-middle w-[100px]">
-          {!isIncluded ? `${item.uom !== null ? item.uom : ' '}` : ' '}
-        </div>
+        <div className="table-cell text-center p-3 align-middle w-[100px]">{item?.uom}</div>
 
         {/* Quantity */}
         <div className="table-cell text-center p-3 align-middle w-[100px]">
-          <InputNumber
-            min={1}
-            step={1}
-            precision={0}
-            value={quantity}
-            ref={quantityRef}
-            onChange={handleQuantityChange}
-            onBlur={handleQuantityBlur}
-            type="number"
-            size="small"
-            className="w-full text-center"
-            disabled={isIncluded || disabled}
-            onWheel={e => e.currentTarget.blur()}
-          />
+          {!isIncluded && (
+            <InputNumber
+              min={1}
+              step={1}
+              precision={0}
+              value={quantity}
+              ref={quantityRef}
+              onChange={handleQuantityChange}
+              onBlur={handleQuantityBlur}
+              type="number"
+              size="small"
+              className="w-full text-center"
+              disabled={isIncluded || disabled}
+              onWheel={e => e.currentTarget.blur()}
+            />
+          )}
         </div>
 
         {/* Price */}
@@ -226,9 +228,11 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
             onSubmit={value => {
               setTempNotes(value);
               setNotesModalVisible(false);
+              if (!!priceItem) {
+                onNoteUpdate?.(priceItem?.quotationVersionItemId, value);
+              }
             }}
             initialValue={tempNotes}
-            isEditable={!isSelected}
           />
         )}
       </div>

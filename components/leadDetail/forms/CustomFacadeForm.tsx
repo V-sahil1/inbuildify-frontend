@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Form, Input, Select, Checkbox, Upload, Button, FormInstance, Radio } from 'antd';
 import { facadeFields } from '@/components/formFields/facadeFields';
 import { acceptOnlyImageRule } from '@lib/constants/formInputValidations';
@@ -15,8 +15,10 @@ const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
   onFormChange,
   form,
 }) => {
-  const fields = facadeFields({ isDwellingDisable: true });
+  const [costType, setCostType] = useState<'standard' | 'upgrade'>('standard');
+  const fields = facadeFields({ isDwellingDisable: true, type: costType });
   const { selectedFilters } = useAppSelector(state => state.quotation);
+  
   useEffect(() => {
     form.setFieldsValue({
       ...initialValues,
@@ -24,10 +26,37 @@ const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
       dwellingTypeId: selectedFilters?.dwellingType,
       // locationId: selectedFilters?.location || undefined,
     });
+    // Set initial cost type from initialValues
+    if (initialValues?.costType) {
+      setCostType(initialValues.costType);
+    }
   }, [initialValues, form]);
 
-  const handleValuesChange = () => {
+  const handleValuesChange = (changedValues: any) => {
+    // Handle cost type change
+    if (changedValues.costType) {
+      setCostType(changedValues.costType);
+      // Clear cost and builder cost when switching to standard
+      if (changedValues.costType === 'standard') {
+        form.setFieldsValue({
+          cost: undefined,
+          builderCost: undefined,
+        });
+      }
+    }
     onFormChange(form.getFieldsValue());
+  };
+
+  const handleCostTypeChange = (e: any) => {
+    const value = e?.target?.value || e;
+    setCostType(value);
+    // Clear cost and builder cost when switching to standard
+    if (value === 'standard') {
+      form.setFieldsValue({
+        cost: undefined,
+        builderCost: undefined,
+      });
+    }
   };
 
   return (
@@ -83,8 +112,11 @@ const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
         }
         if (field.type === 'radio') {
           return (
-            <Form.Item key={field.name} name={field.name} label={field?.label}>
-              <Radio.Group options={field?.options} />
+            <Form.Item key={field.name} name={field.name} label={field?.label} rules={field.rules}>
+              <Radio.Group 
+                options={field?.options} 
+                onChange={field.name === 'costType' ? handleCostTypeChange : undefined}
+              />
             </Form.Item>
           );
         }
@@ -98,6 +130,9 @@ const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
             <Input
               placeholder={field.placeholder}
               type={field.type}
+              disabled={field.disabled}
+              onWheel={(e) => e.currentTarget.blur()}
+              min={field?.min || 0}
               onKeyPress={
                 field.type === 'number'
                   ? e => {

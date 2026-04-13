@@ -180,18 +180,17 @@ const masterPriceListSlice = createSlice({
 
       //copy item
       .addCase(copyCategoryItem.fulfilled, (state, action) => {
-        const { priceListId, priceListItemId, itemDescription, sortOrder } = action.payload;
+        const { priceList } = action.payload;
         const category = state.priceMaster.find(c => c.priceListId === action.meta.arg.priceListId);
         if (category) {
           const item = category.items?.find(item => item.priceListItemId === action.meta.arg.id);
-          const newCategory = state.priceMaster.find(c => c.priceListId === priceListId);
-          newCategory.items.push({
-            ...item,
-            priceListItemId,
-            itemDescription,
-            sortOrder,
-            priceListId,
-          });
+          const newCategory = state.priceMaster.find(c => c.priceListId === priceList?.id);
+          if (newCategory) {
+            newCategory?.items?.push({
+              ...item,
+              ...action.payload,
+            });
+          }
         }
         state.status.priceListItem.create = Status.SUCCESS;
       })
@@ -200,7 +199,6 @@ const masterPriceListSlice = createSlice({
       .addCase(fetchCategoryItemCondition.fulfilled, (state, action) => {
         const category = state.priceMaster.find(i => i.priceListId === action.meta.arg.pricelistId);
         if (category) {
-          console.log('category', action.meta.arg);
           const item = category?.items?.find(i => i.priceListItemId === action.meta.arg.id);
           if (item) {
             item.conditions = action.payload;

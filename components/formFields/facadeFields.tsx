@@ -19,14 +19,8 @@ export const facadeFields = ({
   type?: 'standard' | 'upgrade';
 }): FormField[] => {
   const { selectedFilters } = useAppSelector(state => state.quotation);
-  const [costType, setCostType] = useState<'standard' | 'upgrade'>(type);
   const { dwellingTypeOptions, rangeOptions } = useDwellingAndRangeHook({ type: ['dwellingType', 'range'] });
   const { locationOptions } = useLocationAndTimezoneHook({ type: 'location' });
-
-  const handleCostTypeChange = (e) => {
-    const value = e?.target?.value || e;
-    setCostType(value);
-  };
 
   const fields = useMemo((): FormField[] => {
     return [
@@ -79,15 +73,15 @@ export const facadeFields = ({
         ],
         placeholder: 'Select cost type',
         rules: [{ required: true, message: 'Please select a cost type' }],
-        onChange: handleCostTypeChange,
-        initialValue: costType,
+        initialValue: type,
       },
       {
         label: 'Cost',
         name: 'cost',
         type: 'number' as const,
-        disabled: costType === 'standard',
-        rules: costType === 'upgrade' ? costRules : [],
+        disabled: type === 'standard',
+        min: 0,
+        rules: type === 'upgrade' ? costRules : [],
       },
       {
         label: 'Image',
@@ -100,8 +94,9 @@ export const facadeFields = ({
         label: 'Builder cost',
         name: 'builderCost',
         type: 'number',
-        disabled: costType === 'standard',
-        rules: costType === 'upgrade' ? costRules : [],
+        disabled: type === 'standard',
+        min: 0,
+        rules: type === 'upgrade' ? costRules : [],
       },
       {
         label: 'Status',
@@ -118,7 +113,7 @@ export const facadeFields = ({
     ].filter(Boolean) as FormField[];
 
    
-  }, [costType, dwellingTypeOptions, isDwellingDisable, selectedFilters, locationOptions, rangeOptions]);
+  }, [type, dwellingTypeOptions, isDwellingDisable, selectedFilters, locationOptions, rangeOptions]);
 
   return fields;
 };

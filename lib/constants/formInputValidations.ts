@@ -357,14 +357,39 @@ export const settingNameRules = [
         return Promise.reject('Name must be at least 2 letters');
       }
 
-      if (value.length > 225) {
-        return Promise.reject('Name must be at most 225 letters');
+      if (value.length > 100) {
+        return Promise.reject('Name must be at most 100 letters');
       }
 
       return Promise.resolve();
     },
   },
 ];
+
+export const planNumberRange = [
+  {
+    validator: (_: any, value: number) => {
+      if (value > 100000) {
+        return Promise.reject('Value must be lower than 100,000');
+      }
+
+      return Promise.resolve();
+    },
+  },
+];
+
+export const planMeasureRange = [
+  {
+    validator: (_: any, value: number) => {
+      if (value > 1000000) {
+        return Promise.reject('Value must be lower than 10,00,000');
+      }
+
+      return Promise.resolve();
+    },
+  },
+];
+
 
 export const leadAddressRules = [
   {

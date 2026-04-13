@@ -58,11 +58,13 @@ export const PricingItem = ({
               <p>{item?.costType}</p>
             </Tag>
           )}
-          {item?.dwellingTypeName && item?.dwellingTypeName !== 'NONE' && (
-            <Tag color="blue" className="text-[10px]">
-              <p>{enumToReadable(item?.dwellingTypeName).toUpperCase()}</p>
-            </Tag>
-          )}
+          {item?.dwellingType &&
+            item?.dwellingType?.length > 0 &&
+            item?.dwellingType?.map(i => (
+              <Tag color="blue" className="text-[10px]">
+                {i.name}
+              </Tag>
+            ))}
           {item?.costOption && item?.costOption !== 'NONE' && (
             <Tag color="red" className="text-[10px]">
               <p>{enumToReadable(item?.costOption).toUpperCase()}</p>
@@ -73,11 +75,13 @@ export const PricingItem = ({
               <p>{enumToReadable(item?.status).toUpperCase()}</p>
             </Tag>
           )}
-          {item.showInHlPackage && item?.rangeName && item?.rangeName !== 'NONE' && (
-            <Tag color="orange" className="text-[10px]">
-              <p>{enumToReadable(item?.rangeName).toUpperCase()}</p>
-            </Tag>
-          )}
+          {item?.range &&
+            item?.range?.length > 0 &&
+            item?.range?.map(i => (
+              <Tag color="orange" className="text-[10px]">
+                {i.name}
+              </Tag>
+            ))}
         </div>
       </div>
 

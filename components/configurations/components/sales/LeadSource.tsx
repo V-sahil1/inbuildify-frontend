@@ -192,7 +192,7 @@ export const LeadSource: React.FC = () => {
         const inactive = row.isActive === false;
         const editable = editingRow?.leadSourceId === row.leadSourceId;
         return (
-          <div className={`text-center ${inactive ? 'opacity-45' : ''}`}>
+          <div className={`text-center justify-center flex ${inactive ? 'opacity-45' : ''}`}>
             {editable ? (
               <Form.Item name="allowChange" valuePropName="checked">
                 <Switch
