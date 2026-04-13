@@ -42,6 +42,7 @@ import agentReferralPartnerReducer from './agentReferral/agentReferralSlice';
 import estateReducer from './estate/estateSlice';
 import landReducer from './land/landSlice';
 import structuralReducer from './structuralengg/structuralSlice';
+import jobListReducer from './job/jobSlice';
 
 const authPersistConfig = {
   key: 'auth',
@@ -90,6 +91,7 @@ const appReducer = combineReducers({
   estate: estateReducer,
   land: landReducer,
   structural: structuralReducer,
+  jobList: jobListReducer,
 });
 
 const rootReducer = (state: ReturnType<typeof appReducer> | undefined, action: any) => {

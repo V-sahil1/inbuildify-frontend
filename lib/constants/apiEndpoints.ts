@@ -92,6 +92,33 @@ class API_ENDPOINTS {
   public static DELETE_LEAD_HLPACKAGE = (id: string) => `${this.LEAD_BASE}/${id}/hl-package`;
 
   public static CONVERT_LEAD_TO_JOB = `/job`;
+  public static JOB_BASE = `/job`;
+  public static GET_ALL_JOBS = (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: string;
+    reference_id?: string;
+    customer_name?: string;
+    job_address?: string;
+    estate_name?: string;
+    consultant?: string;
+    assignee_id?: string | string[];
+    created_at_from?: string;
+    created_at_to?: string;
+    title_date_from?: string;
+    title_date_to?: string;
+    sort_by?: string;
+    sort_order?: 'asc' | 'desc';
+  }) => {
+    if (!params) return '/job';
+    const qs = Object.entries(params)
+      .filter(([, v]) => v !== undefined && v !== null && v !== '')
+      .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(Array.isArray(v) ? v.join(',') : String(v))}`)
+      .join('&');
+    return `/job${qs ? '?' + qs : ''}`;
+  };
+  public static UPDATE_JOB_STATUS = (jobId: string) => `/job/${jobId}/status`;
   public static LEAD_CONTACT = `/leads-contact`;
   public static LEAD_SOURCE = `/lead-source`;
   public static LEAD_BUSINESS_CONTACT = `/business-contact`;
