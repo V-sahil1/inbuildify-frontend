@@ -2,7 +2,7 @@ import { useAppSelector } from '@hooks/redux';
 import { enumToReadable } from '@lib/utils/enumToRedable';
 import { RootState } from '@redux/feature/store';
 import { IconPencil, IconPlus, IconX, IconAlertTriangle } from '@tabler/icons-react';
-import { Tag, InputNumber, Button, Tooltip, Input } from 'antd';
+import { Tag, InputNumber, Button, Tooltip } from 'antd';
 import React, { useState, useEffect } from 'react';
 import AddMasterPricingItemModal from '../common/Models/AddMasterPricingItemModel';
 import { IPriceList, IPriceListItem } from '@redux/feature/masterPriceList/iMasterPriceListState';
@@ -12,6 +12,7 @@ interface QuatationItemProps {
   onQuantityChange: (itemId: string, qty: number) => void;
   onQuantityUpdate?: (itemId: string, quantity: number) => Promise<void>;
   onToggleAdd: (item: IPriceListItem & { notes: string }) => void;
+  onNoteUpdate?: (itemId: string, note: string) => Promise<void>;
   isSelected: boolean;
   quantityRef?: any;
   isDiffPrice?: boolean;
@@ -30,6 +31,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
     disabled,
     category,
     isDiffPrice = false,
+    onNoteUpdate,
   }) => {
     const { items } = useAppSelector((state: RootState) => state.quotation);
     const { leadDetail } = useAppSelector((state: RootState) => state.lead);
@@ -226,6 +228,9 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
             onSubmit={value => {
               setTempNotes(value);
               setNotesModalVisible(false);
+              if (!!priceItem) {
+                onNoteUpdate?.(priceItem?.quotationVersionItemId, value);
+              }
             }}
             initialValue={tempNotes}
           />
