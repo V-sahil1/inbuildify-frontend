@@ -11,7 +11,7 @@ export const useUserGroupHook = (type: boolean = true) => {
 
   const fetchUserGroupData = async () => {
     try {
-      dispatch(fetchAllUserGroup()).unwrap();
+      await dispatch(fetchAllUserGroup({})).unwrap();
     } catch (error) {
       message.error(error || 'Failed to fetch user groups');
     }

@@ -5,7 +5,6 @@ import { useRouter } from 'next/router';
 import { Button, Tabs, Empty, Typography, Upload, Image, message } from 'antd';
 import { Tag } from 'antd';
 import { IconLayoutBoardSplit, IconMapPin, IconUpload } from '@tabler/icons-react';
-import TabPane from 'antd/es/tabs/TabPane';
 import EstateStages from '@/components/estate/EstateStages';
 import EstateFeatures from '@/components/estate/EstateFeatures';
 import EstateDocuments from '@/components/estate/EstateDocuments';
@@ -22,6 +21,7 @@ import { Status } from '@lib/constants/enum';
 import { toggleEstateExpand } from '@redux/feature/estate/estateSlice';
 import { formDataGenerator } from '@lib/utils/formDataGenerator';
 //todo : manage location
+const { TabPane } = Tabs;
 export default function EstateDetailsPage() {
   const dispatch = useAppDispatch();
   const router = useRouter();

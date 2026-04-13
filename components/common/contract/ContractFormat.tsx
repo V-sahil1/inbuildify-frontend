@@ -2,7 +2,6 @@ import { ContractSectionColumn } from '@/components/table-columns/ContractSectio
 import SystemRoutes from '@lib/constants/Routes';
 import { IconPencil } from '@tabler/icons-react';
 import { Button, Divider, Form, Input, Radio, Select, Space, Tabs, Table, message } from 'antd';
-import TabPane from 'antd/es/tabs/TabPane';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { ActionDialogmodel } from '../Models/ActionDialogModel';
@@ -22,6 +21,7 @@ import { clearContractDetail } from '@redux/feature/contractFormat/contractForma
 type ContractFormatProps = {
   id?: string;
 };
+const { TabPane } = Tabs;
 const ContractFormat: React.FC<ContractFormatProps> = ({ id }) => {
   const dispatch = useAppDispatch();
   const [form] = Form.useForm();

@@ -186,7 +186,6 @@ const TodosPage: React.FC = () => {
         <div className="flex flex-col">
           <span>Supplier</span>
           <Select
-            value={instantFilters.supplier}
             mode="multiple"
             value={instantFilters.supplier ? instantFilters.supplier.split(',').filter(Boolean) : []}
             onChange={values => setParams({ supplier: values.join(',') })}
