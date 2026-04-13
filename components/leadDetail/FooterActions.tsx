@@ -14,6 +14,7 @@ import {
 } from '@redux/feature/quotation/quotationThunk';
 import { Status } from '@lib/constants/enum';
 import { useRouter } from 'next/navigation';
+import SystemRoutes from '@lib/constants/Routes';
 
 interface FooterActionsProps {
   id?: string;
@@ -145,21 +146,26 @@ const FooterActions: React.FC<FooterActionsProps> = ({
   const handleQuotationApproval = async () => {
     try {
       setIsLoading(true);
-      const payload = {
-        isApprove: true,
-        sketchNumber: Number(sketchNum),
-      }
-      const res = await dispatch(approveQuotation({ versionId: quoteVersionId, payload })).unwrap();
-      if (res) {
-        message.success('Quotation approved successfully!');
-        setModalOpen(null);
-        router.back()
-      }
+      
+      // Get email from lead contacts
+      const email = quoteDetails?.leadContacts?.[0]?.email || 'user@example.com'; // Use first contact's email
+      
+      // Generate a mock envelope ID (in real implementation, this would come from DocuSign)
+      const envelopeId = `env-${Date.now()}-${quoteVersionId}`;
+      
+      // Navigate to approval page with required parameters
+      const approvalUrl = SystemRoutes.APPROVAL_WITH_PARAMS(
+        email,
+        quoteVersionId || '',
+        envelopeId
+      );
+      
+      window.location.href = approvalUrl;
+      
     } catch (error) {
-      message.error(error || 'Failed to approve quotation');
+      message.error(error || 'Failed to initiate approval process');
     }
     setIsLoading(false);
-
   };
 
   return (

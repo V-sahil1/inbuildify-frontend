@@ -109,7 +109,10 @@ export default function App({ Component, pageProps }) {
                 <PageLoading key={routeLoaderKey} type="primary" />
               </div>
             )}
-            {isAuthRoute ? (
+            {/* Special handling for approval page - no layout, no auth required */}
+            {pageUrl === '/approve' ? (
+              <Component {...pageProps} />
+            ) : isAuthRoute ? (
               <AuthLayout>
                 <Component {...pageProps} />
               </AuthLayout>
