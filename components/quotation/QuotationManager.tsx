@@ -523,7 +523,7 @@ const QuotationManager = () => {
             handleSelectionChange(type, value);
             setHasChanges(true);
             setSelectedCategory(null);
-            dispatch(setQuotationPackage([]));
+            dispatch(setQuotationPackage(null));
             dispatch(setQuotationFacade(null));
             dispatch(setQuotationPlan(null));
           }}
