@@ -91,6 +91,11 @@ export const PasswordPolicy: React.FC = () => {
               addonAfter="days"
               className="w-full rounded-lg shadow-sm"
               disabled={status.update === Status.PENDING}
+              onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}
             />
           </Form.Item>
 
@@ -111,6 +116,11 @@ export const PasswordPolicy: React.FC = () => {
               min={1}
               className="w-full rounded-lg shadow-sm"
               disabled={status.update === Status.PENDING}
+              onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}
             />
           </Form.Item>
 
@@ -132,6 +142,11 @@ export const PasswordPolicy: React.FC = () => {
               addonAfter="days"
               className="w-full rounded-lg shadow-sm"
               disabled={status.update === Status.PENDING}
+              onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}
             />
           </Form.Item>
 
@@ -152,6 +167,11 @@ export const PasswordPolicy: React.FC = () => {
               min={1}
               className="w-full rounded-lg shadow-sm"
               disabled={status.update === Status.PENDING}
+              onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}
             />
           </Form.Item>
 

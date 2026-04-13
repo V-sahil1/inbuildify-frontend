@@ -111,16 +111,38 @@ const BuilderDetails = () => {
             <Input type="email" />
           </Form.Item>
           <Form.Item label="Phone" name="phoneNumber" rules={builderPhoneRules}>
-            <Input />
+            <Input
+              onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }} />
           </Form.Item>
           <Form.Item label="ABN" name="abnNumber" rules={abnRules}>
-            <Input />
+            <Input
+              onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }} />
           </Form.Item>
           <Form.Item label="ACN" name="acnNumber" rules={acnNumberRules}>
-            <Input />
+            <Input
+              onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}
+            />
           </Form.Item>
           <Form.Item label="HIA Membership No" name="hiaMembershipNo" rules={hiaMembershipRules}>
-            <Input />
+            <Input
+              onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}
+            />
           </Form.Item>
           <Form.Item
             label="Register Number"
@@ -129,7 +151,7 @@ const BuilderDetails = () => {
           >
             <Input />
           </Form.Item>
-          <Form.Item label="Registered Building Practitioner" name="registeredBuildingPractitioner">
+          <Form.Item label="Registered Building Practitioner" name="registeredBuildingPractitioner" rules={optionalNameRule}>
             <Input />
           </Form.Item>
           <Form.Item
@@ -175,7 +197,13 @@ const BuilderDetails = () => {
             <Select options={countryOptions} />
           </Form.Item>
           <Form.Item label="Zip / Postal Code" name={['address', 'zipCode']} rules={zipCodeRules}>
-            <Input />
+            <Input
+              onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}
+            />
           </Form.Item>
         </div>
 
@@ -224,10 +252,18 @@ const BuilderDetails = () => {
             <Select options={stateOptions} />
           </Form.Item>
           <Form.Item label="Zip / Postal Code" name={['insurer', 'zipCode']} rules={zipCodeRules}>
-            <Input type="number" onWheel={(e) => e.currentTarget.blur()} />
+            <Input  onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }} />
           </Form.Item>
           <Form.Item label="Phone" name={['insurer', 'phoneNumber']} rules={phoneRules}>
-            <Input type="number" onWheel={(e) => e.currentTarget.blur()} />
+            <Input  onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }} />
           </Form.Item>
           <Form.Item
             label="Name of Insured"

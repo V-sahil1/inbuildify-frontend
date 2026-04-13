@@ -147,7 +147,14 @@ const CustomFields: React.FC = () => {
         editingRow?.customFieldId === record.customFieldId ? (
           <Form.Item
             name="fieldName"
-            rules={[{ required: true, message: 'Please enter field name' }]}
+            rules={[{ required: true, message: 'Please enter field name' },
+            { min: 2, message: "minimum 2 character required" },
+            { max: 150, message: "maximum 150 character allowed" },
+            {
+              pattern: /^(?!\s).*\S(?!\s)$/,
+              message: 'Name cannot have spaces at the beginning or end'
+            }
+            ]}
             style={{ margin: 0 }}
           >
             <Input disabled={status.create === Status.PENDING} />
@@ -204,6 +211,11 @@ const CustomFields: React.FC = () => {
               type="number"
               onWheel={e => e.currentTarget.blur()}
               disabled={status.create === Status.PENDING}
+              onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}
               min={1}
               max={(pagination?.totalRecords ?? 0) + (editingRow?.customFieldId === '' ? 1 : 0)}
             />

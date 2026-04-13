@@ -34,6 +34,8 @@ const CompanyDetails = () => {
   const selectedCountryId = Form.useWatch(['address', 'countryId'], form);
   const { stateOptions } = useStateHook(selectedCountryId);
   const [isChanged, setIsChanged] = useState(false);
+  const [emailSignatureLogoState, setEmailSignatureLogoState] = useState([]);
+  const [companyLogoState, setCompanyLogoState] = useState([]);
 
   const fetchCompanyInfoData = async () => {
     try {
@@ -50,41 +52,84 @@ const CompanyDetails = () => {
   }, [dispatch, status.fetch]);
 
   useEffect(() => {
-    if (!company) return;
+    if (!company || !form) return;
 
-    form.setFieldsValue({
-      ...company,
-      timezoneId: company.timezoneId,
-      emailSignatureLogo: [
-        {
-          uid: '-1',
-          name: 'Email Logo',
-          status: 'done',
-          url: company.emailSignatureLogo,
-        },
-      ],
-      companyLogo: [
-        {
-          uid: '-1',
-          name: 'Company Logo',
-          status: 'done',
-          url: company.companyLogo,
-        },
-      ],
-    });
-  }, [company]);
+    // Set local state for images
+    const emailSignatureLogoData = company.emailSignatureLogo && company.emailSignatureLogo.trim() !== '' ? [
+      {
+        uid: '-1',
+        name: 'Email Logo',
+        status: 'done',
+        url: company.emailSignatureLogo,
+      },
+    ] : [];
+    
+    const companyLogoData = company.companyLogo && company.companyLogo.trim() !== '' ? [
+      {
+        uid: '-1',
+        name: 'Company Logo',
+        status: 'done',
+        url: company.companyLogo,
+      },
+    ] : [];
+    
+    setEmailSignatureLogoState(emailSignatureLogoData);
+    setCompanyLogoState(companyLogoData);
+
+    try {
+      // Create a safe company object by filtering out potential array fields that might cause issues
+      const safeCompanyData = { ...company };
+      
+      // Remove any fields that might be arrays and cause .map() issues
+      Object.keys(safeCompanyData).forEach(key => {
+        if (Array.isArray(safeCompanyData[key])) {
+          delete safeCompanyData[key];
+        }
+      });
+      
+      form.setFieldsValue({
+        ...safeCompanyData,
+        timezoneId: company.timezoneId,
+        emailSignatureLogo: emailSignatureLogoData,
+        companyLogo: companyLogoData,
+      });
+    } catch (error) {
+      console.error('Error setting form values:', error);
+      // Fallback: set only the essential fields
+      try {
+        form.setFieldsValue({
+          name: company.name,
+          emailSignatureLogo: emailSignatureLogoData,
+          companyLogo: companyLogoData,
+        });
+      } catch (fallbackError) {
+        console.error('Fallback error setting form values:', fallbackError);
+      }
+    }
+    setIsChanged(false);
+  }, [company, form]);
   const onFinish = async values => {
     if (!company) return;
     try {
       const { emailSignatureLogo, companyLogo, ...rest } = values;
-      let companyLogoFile = company?.companyLogo || null;
-      let emailSignatureLogoFile = company?.emailSignatureLogo || null;
+      let companyLogoFile = null;
+      let emailSignatureLogoFile = null;
+      
+      // Use local state to determine what to send
       if (emailSignatureLogo && emailSignatureLogo.length > 0) {
-        emailSignatureLogoFile = emailSignatureLogo[0].originFileObj || companyLogoFile;
+        emailSignatureLogoFile = emailSignatureLogo[0].originFileObj || null;
+      } else if (company.emailSignatureLogo && emailSignatureLogoState.length === 0) {
+        // Image was removed (original existed but state is empty)
+        emailSignatureLogoFile = '';
       }
+      
       if (companyLogo && companyLogo.length > 0) {
-        companyLogoFile = companyLogo[0].originFileObj || companyLogoFile;
+        companyLogoFile = companyLogo[0].originFileObj || null;
+      } else if (company.companyLogo && companyLogoState.length === 0) {
+        // Image was removed (original existed but state is empty)
+        companyLogoFile = '';
       }
+      
       const formData = formDataGenerator({
         ...rest,
         companyLogo: companyLogoFile,
@@ -103,6 +148,18 @@ const CompanyDetails = () => {
     setIsChanged(isUpdated);
   };
 
+  const handleEmailSignatureChange = ({ fileList }) => {
+    const safeFileList = Array.isArray(fileList) ? fileList : [];
+    setEmailSignatureLogoState(safeFileList.length > 0 ? safeFileList : []);
+    form.setFieldsValue({ emailSignatureLogo: safeFileList });
+  };
+
+  const handleCompanyLogoChange = ({ fileList }) => {
+    const safeFileList = Array.isArray(fileList) ? fileList : [];
+    setCompanyLogoState(safeFileList.length > 0 ? safeFileList : []);
+    form.setFieldsValue({ companyLogo: safeFileList });
+  };
+
   return (
     <div className="p-6">
       <Form
@@ -111,7 +168,6 @@ const CompanyDetails = () => {
         onFinish={onFinish}
         className="space-y-10"
         onValuesChange={handleValueChange}
-        initialValues={company}
         disabled={status.update === Status.PENDING}
       >
         {/* Basic Info */}
@@ -132,7 +188,7 @@ const CompanyDetails = () => {
             name="timezoneId"
             rules={[{ required: true, message: 'TimeZone is required' }]}
           >
-            <Select options={timezoneOptions} />
+            <Select options={timezoneOptions} placeholder="Select the Timezone"/>
           </Form.Item>
         </div>
 
@@ -156,21 +212,21 @@ const CompanyDetails = () => {
             <Input />
           </Form.Item>
           <Form.Item label="Zip / Postal Code" name={['address', 'zipCode']} rules={zipCodeRules}>
-            <Input type="number" onWheel={(e) => e.currentTarget.blur()}/>
+            <Input type="number" onWheel={(e) => e.currentTarget.blur()} min={0}/>
           </Form.Item>
           <Form.Item
             label="Country"
             name={['address', 'countryId']}
             rules={[{ required: true, message: 'Country is required' }]}
           >
-            <Select options={countryOptions} className="bg-gray-100 text-gray-500" />
+            <Select options={countryOptions} placeholder="Select Country" className="bg-gray-100 text-gray-500 capitalize" />
           </Form.Item>
           <Form.Item
             label="State / Region"
             name={['address', 'stateId']}
             rules={[{ required: true, message: 'State is required' }]}
           >
-            <Select options={stateOptions} />
+            <Select options={stateOptions} placeholder="Select State" className='capitalize' disabled={!form.getFieldValue(['address', 'countryId'])}/>
           </Form.Item>
         </div>
 
@@ -187,7 +243,7 @@ const CompanyDetails = () => {
             <Input />
           </Form.Item>
           <Form.Item label="Account BSB" name="accountBsb" rules={accountBsbRules}>
-            <Input />
+            <Input type="number" onWheel={(e) => e.currentTarget.blur()} min={0}/>
           </Form.Item>
         </div>
 
@@ -199,12 +255,6 @@ const CompanyDetails = () => {
             <Form.Item
               name="emailSignatureLogo"
               valuePropName="fileList"
-              getValueFromEvent={e => {
-                if (e && e.fileList) {
-                  return e.fileList;
-                }
-                return [];
-              }}
             >
               <Upload
                 name="emailSignatureLogo"
@@ -213,6 +263,7 @@ const CompanyDetails = () => {
                 maxCount={1}
                 beforeUpload={() => false}
                 accept=".png,.jpg,.jpeg"
+                onChange={handleEmailSignatureChange}
               >
                 <Button icon={<IconUpload />}>Upload</Button>
               </Upload>
@@ -224,12 +275,6 @@ const CompanyDetails = () => {
             <Form.Item
               name="companyLogo"
               valuePropName="fileList"
-              getValueFromEvent={e => {
-                if (e && e.fileList) {
-                  return e.fileList;
-                }
-                return [];
-              }}
             >
               <Upload
                 name="companyLogo"
@@ -238,6 +283,7 @@ const CompanyDetails = () => {
                 maxCount={1}
                 beforeUpload={() => false}
                 accept=".png,.jpg,.jpeg"
+                onChange={handleCompanyLogoChange}
               >
                 <Button icon={<IconUpload />}>Upload</Button>
               </Upload>

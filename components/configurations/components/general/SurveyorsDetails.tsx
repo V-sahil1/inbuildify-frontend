@@ -113,8 +113,7 @@ const SurveyorsDetails = () => {
     {
       title: 'Address',
       render: (_, record: Surveyor) =>
-        `${record.address1 || ''}${
-          record.address2 ? ', ' + record.address2 : ''
+        `${record.address1 || ''}${record.address2 ? ', ' + record.address2 : ''
         }, ${record.city || ''}`,
     },
     { title: 'Email', dataIndex: 'email', key: 'email' },
@@ -164,17 +163,32 @@ const SurveyorsDetails = () => {
               <Input placeholder="constance@mailinator.com" />
             </Form.Item>
             <Form.Item label="Phone" name="phone" rules={phoneRules}>
-              <Input placeholder="7654832318" maxLength={15} minLength={10} />
+              <Input placeholder="7654832318"
+                onKeyPress={(e) => {
+                  if (!/[0-9]/.test(e.key)) {
+                    e.preventDefault();
+                  }
+                }} maxLength={15} minLength={10} />
             </Form.Item>
             <Form.Item label="ABN" name="abnNumber" rules={abnRules}>
-              <Input placeholder="47021213123" maxLength={11} />
+              <Input placeholder="47021213123" maxLength={11}
+                onKeyPress={(e) => {
+                  if (!/[0-9]/.test(e.key)) {
+                    e.preventDefault();
+                  }
+                }} />
             </Form.Item>
             <Form.Item
               label="Register Number"
               name="registrationNumber"
               rules={surveyorRegistrationRules}
             >
-              <Input placeholder="9793" maxLength={100} type="number" onWheel={(e) => e.currentTarget.blur()} />
+              <Input placeholder="9793" maxLength={20}
+                onKeyPress={(e) => {
+                  if (!/[0-9]/.test(e.key)) {
+                    e.preventDefault();
+                  }
+                }} />
             </Form.Item>
             <div></div> {/* spacer */}
             <Form.Item label="Address1" name="address1" rules={addressLine1Rules}>
@@ -194,7 +208,12 @@ const SurveyorsDetails = () => {
               <Select options={stateOption} placeholder="Please Select" />
             </Form.Item>
             <Form.Item label="Zip / Postal Code" name="zipPostalCode" rules={zipCodeRules}>
-              <Input placeholder="4067" maxLength={4} />
+              <Input placeholder="4067" maxLength={4}
+                onKeyPress={(e) => {
+                  if (!/[0-9]/.test(e.key)) {
+                    e.preventDefault();
+                  }
+                }} />
             </Form.Item>
             <div></div> {/* spacer */}
             <div className="col-span-3 flex justify-end gap-4 pt-4">

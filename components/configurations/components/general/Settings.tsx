@@ -62,7 +62,7 @@ const SettingsPage = () => {
     const hex = e.target.value.toUpperCase();
     setNegativeColor(hex);
     form.setFieldsValue({ negativeValueColor: hex });
-     setIsChange(hex !== settings?.negativeValueColor);
+    setIsChange(hex !== settings?.negativeValueColor);
   };
 
   const renderDescription = (mainText: string, noteText?: string) => (
@@ -217,7 +217,16 @@ const SettingsPage = () => {
               const type = getFieldValue('referenceIdType');
               return type === 'none' || type === 'doc_id' ? null : (
                 <Col span={8}>
-                  <Form.Item name="jobIdLabel" label="Label of Job ID">
+                  <Form.Item name="jobIdLabel" label="Label of Job ID" rules={[
+                    {
+                      validator: (_, value: string) => {
+                        if (!value) return Promise.resolve();
+                        if (value.trim().length > 100)
+                          return Promise.reject('Reference ID must be 100 characters or less.');
+                        return Promise.resolve();
+                      },
+                    },
+                  ]}>
                     <Input placeholder="Job No." />
                   </Form.Item>
                 </Col>
