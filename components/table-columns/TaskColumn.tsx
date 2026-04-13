@@ -2,19 +2,17 @@ import { Input, message, Popconfirm, Select, Tag } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import DateFilterDropdown from '../common/custom-selects/DateFilterDropdown';
 import PrioritySelect from '../common/custom-selects/PrioritySelect';
-import AssigneeSelect from '../common/custom-selects/AssigneeSelect';
-import { IconCalendarX, IconExternalLink } from '@tabler/icons-react';
+import { IconCalendarX, IconExternalLink, IconTrash } from '@tabler/icons-react';
 import Link from 'next/link';
 import { useAppDispatch } from '@hooks/redux';
-import { contactData } from '@/components/common/TimeLineComponents/CreateTaskCard';
-import { createTask, updateTask } from '@redux/feature/task/taskThunk';
+import { createTask, deleteTask, updateTask } from '@redux/feature/task/taskThunk';
 import { ITask } from '@redux/feature/task/ITaskStates';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import { formDataGenerator } from '@lib/utils/formDataGenerator';
 import TooltipButton from '../common/TooltipButton';
 import CustomAvtar from '../common/CustomAvtar';
 
-export const TaskColumn = (selectedTask, filters, setParams, setModalOpen) => {
+export const TaskColumn = (selectedTask, filters, setParams, setModalOpen, assigneeOptions = []) => {
   const dispatch = useAppDispatch();
   const statusOptions = [
     { label: 'Completed', value: 'Completed' },
@@ -38,34 +36,9 @@ export const TaskColumn = (selectedTask, filters, setParams, setModalOpen) => {
       render: (_, record) => (
         <>
           <p className={record.status === 'Cancelled' ? 'line-through' : ''}>{record.name}</p>
-          <Tag color="purple">{contactData.filter(i => i.id === record.name)[0]?.type}</Tag>
+          {record.linkType && <Tag color="purple">{record.linkType}</Tag>}
         </>
       ),
-    },
-    {
-      title: (
-        <>
-          <span>Contact Name</span>
-          <Input
-            value={filters.contactName}
-            onChange={e => setParams({ contactName: e.target.value })}
-          />
-        </>
-      ),
-      dataIndex: 'contactName',
-      key: 'contactName',
-      width: 200,
-    },
-    {
-      title: (
-        <>
-          <span>Phone</span>
-          <Input value={filters.phone} onChange={e => setParams({ phone: e.target.value })} />
-        </>
-      ),
-      dataIndex: 'phone',
-      key: 'phone',
-      width: 150,
     },
     {
       title: (
@@ -85,7 +58,7 @@ export const TaskColumn = (selectedTask, filters, setParams, setModalOpen) => {
       dataIndex: 'dueDate',
       key: 'dueDate',
       width: 150,
-      render: dueDate => new Date(dueDate).toLocaleDateString(),
+      render: dueDate => (dueDate ? new Date(dueDate).toLocaleDateString() : '—'),
     },
     {
       title: (
@@ -118,21 +91,29 @@ export const TaskColumn = (selectedTask, filters, setParams, setModalOpen) => {
     },
     {
       title: (
-        <>
+        <div className="flex min-w-[220px] flex-col">
           <span>Assignee</span>
-          <AssigneeSelect
-            value={filters.assignedTo}
-            onChange={value => setParams({ assignedTo: value })}
+          <Select
+            mode="multiple"
+            value={filters.assignedTo ? filters.assignedTo.split(',').filter(Boolean) : []}
+            onChange={values => setParams({ assignedTo: values.join(',') })}
+            options={assigneeOptions}
+            allowClear
+            showSearch
+            optionFilterProp="label"
+            placeholder="Assignee"
+            style={{ width: '100%' }}
+            maxTagCount="responsive"
           />
-        </>
+        </div>
       ),
       dataIndex: 'assigneeName',
       key: 'assigneeName',
       width: 200,
       render: (_, record) => (
         <div className="flex justify-between items-center">
-          <CustomAvtar label={record?.assigneeName[0]} />
-          {record.status === 'yettostart' && (
+          <CustomAvtar label={record?.assigneeName?.[0] ?? '?'} />
+          {record.status === 'Yet to Start' && (
             <Popconfirm title="Do you want to cancel?" okText="Yes" cancelText="No">
               <TooltipButton
                 type="text"
@@ -156,7 +137,36 @@ export const TaskColumn = (selectedTask, filters, setParams, setModalOpen) => {
         </div>
       ),
     },
+    {
+      title: '',
+      key: 'actions',
+      width: 60,
+      render: (_, record) => (
+        <Popconfirm
+          title="Delete this task?"
+          okText="Yes"
+          cancelText="No"
+          onConfirm={async e => {
+            e?.stopPropagation();
+            try {
+              await dispatch(deleteTask(record.taskId)).unwrap();
+              message.success('Task deleted successfully');
+            } catch (err) {
+              message.error(err || 'Failed to delete task');
+            }
+          }}
+        >
+          <TooltipButton
+            type="text"
+            title="Delete Task"
+            icon={<IconTrash size={16} className="text-red-500" />}
+            onClick={e => e.stopPropagation()}
+          />
+        </Popconfirm>
+      ),
+    },
   ];
+
   async function handleSubmit(values) {
     try {
       if (selectedTask) {
@@ -173,9 +183,10 @@ export const TaskColumn = (selectedTask, filters, setParams, setModalOpen) => {
         const formData = formDataGenerator(values);
         await dispatch(createTask(formData)).unwrap();
         message.success('Task created successfully');
+        setModalOpen(null);
       }
     } catch (error) {
-      message.error(error || 'Failed to save ');
+      message.error(error || 'Failed to save');
     }
   }
 

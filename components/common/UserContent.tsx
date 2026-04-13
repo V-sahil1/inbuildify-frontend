@@ -1,18 +1,29 @@
 import { IconMail, IconPhone } from '@tabler/icons-react';
 
-export const UserContent = () => {
+interface UserContentProps {
+  name?: string;
+  address?: string;
+  phone?: string | null;
+  email?: string | null;
+}
+
+export const UserContent = ({ name, address, phone, email }: UserContentProps) => {
   return (
     <div className="space-y-2">
-      <p>Murthy</p>
-      <p> Lot 300 Tallis Cct,Tarneit,VIC,5345</p>
-      <p className="flex items-center gap-1">
-        <IconPhone size={15} />
-        7863625436
-      </p>
-      <p className="flex items-center gap-1">
-        <IconMail size={15} />
-        murthy@mailinator.com
-      </p>
+      {name && <p>{name}</p>}
+      {address && <p>{address}</p>}
+      {phone && (
+        <p className="flex items-center gap-1">
+          <IconPhone size={15} />
+          {phone}
+        </p>
+      )}
+      {email && (
+        <p className="flex items-center gap-1">
+          <IconMail size={15} />
+          {email}
+        </p>
+      )}
     </div>
   );
 };

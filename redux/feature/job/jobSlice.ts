@@ -1,10 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { IJobState, initialJobFilters, JobFilters, JobStatusSummary } from './IJobState';
-import { getAllJobsThunk, updateJobStatusThunk } from './jobThunk';
+import { getAllJobsThunk, getJobByIdThunk, updateJobStatusThunk } from './jobThunk';
 import { Status } from '@lib/constants/enum';
 
 const initialState: IJobState = {
   jobs: [],
+  currentJob: null,
   pagination: { page: 1, limit: 25, total: 0, totalPages: 0 },
   totalJobs: 0,
   statusSummary: {
@@ -18,6 +19,7 @@ const initialState: IJobState = {
   status: {
     list:         Status.IDLE,
     updateStatus: Status.IDLE,
+    detail:       Status.IDLE,
   },
 };
 
@@ -34,6 +36,10 @@ const jobSlice = createSlice({
     clearJobs(state) {
       state.jobs       = [];
       state.pagination = initialState.pagination;
+    },
+    clearCurrentJob(state) {
+      state.currentJob  = null;
+      state.status.detail = Status.IDLE;
     },
   },
   extraReducers: builder => {
@@ -54,6 +60,19 @@ const jobSlice = createSlice({
         state.status.list = Status.ERROR;
       });
 
+    // ── getJobByIdThunk ──────────────────────────────────
+    builder
+      .addCase(getJobByIdThunk.pending, state => {
+        state.status.detail = Status.PENDING;
+      })
+      .addCase(getJobByIdThunk.fulfilled, (state, action) => {
+        state.status.detail = Status.SUCCESS;
+        state.currentJob    = action.payload as any;
+      })
+      .addCase(getJobByIdThunk.rejected, state => {
+        state.status.detail = Status.ERROR;
+      });
+
     // ── updateJobStatusThunk ─────────────────────────────
     builder
       .addCase(updateJobStatusThunk.pending, state => {
@@ -71,5 +90,5 @@ const jobSlice = createSlice({
   },
 });
 
-export const { setJobFilters, resetJobFilters, clearJobs } = jobSlice.actions;
+export const { setJobFilters, resetJobFilters, clearJobs, clearCurrentJob } = jobSlice.actions;
 export default jobSlice.reducer;

@@ -39,19 +39,32 @@ export const userGroupColumn = (setModalOpen, setSelectedGroup, selectedGroup) =
     },
   ];
 
-  function handleSubmit(values: userGroup) {
+  async function handleSubmit(values: userGroup) {
     try {
       if (selectedGroup) {
-        const { isUpdated, updatedFields } = getUpdatedFields(values, selectedGroup);
+        const normalizedOriginal = {
+          ...selectedGroup,
+          usersId: selectedGroup.users?.map(user => user.id) || [],
+        };
+
+        const { isUpdated, updatedFields } = getUpdatedFields(values, normalizedOriginal);
         if (!isUpdated) {
           message.error('No changes made');
-          setModalOpen(false);
-          setSelectedGroup(null);
           return;
         }
-        dispatch(updateUserGroup({ data: updatedFields, id: selectedGroup.userGroupId })).unwrap();
+
+        const isStatusChangeOnly = 'isActive' in updatedFields;
+        if (isStatusChangeOnly && Object.keys(updatedFields).length > 1) {
+          message.error('Status update must be done without changing other fields.');
+          return;
+        }
+
+        const payload = isStatusChangeOnly ? { isActive: updatedFields.isActive } : updatedFields;
+        await dispatch(updateUserGroup({ data: payload, id: selectedGroup.userGroupId })).unwrap();
+        message.success('User group updated successfully');
       } else {
-        dispatch(createUserGroup(values)).unwrap();
+        await dispatch(createUserGroup(values)).unwrap();
+        message.success('User group created successfully');
       }
       setModalOpen(false);
       setSelectedGroup(null);

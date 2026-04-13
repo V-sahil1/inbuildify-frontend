@@ -11,6 +11,7 @@ const initialState: ITaskState = {
     create: Status.IDLE,
   },
   pagination: null,
+  counters: null,
 };
 
 const taskSlice = createSlice({
@@ -37,6 +38,7 @@ const taskSlice = createSlice({
     builder.addCase(fetchAllTask.fulfilled, (state, action) => {
       state.tasks = action.payload.tasks;
       state.pagination = action.payload.pagination;
+      state.counters = action.payload.counters ?? null;
       state.status.fetch = Status.SUCCESS;
     });
     builder.addCase(fetchAllTask.rejected, state => {

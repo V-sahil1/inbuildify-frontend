@@ -44,6 +44,21 @@ export const getAllJobsThunk = createAsyncThunk(
 );
 
 /**
+ * Fetch full detail of a single job by ID.
+ */
+export const getJobByIdThunk = createAsyncThunk(
+  'job/getJobById',
+  async (jobId: string, { rejectWithValue }) => {
+    try {
+      const response: ApiResponse<any> = await api.get(API_ENDPOINTS.GET_JOB_BY_ID(jobId));
+      return response.data;
+    } catch (err: any) {
+      return rejectWithValue(err?.message || 'Failed to fetch job detail');
+    }
+  }
+);
+
+/**
  * Update the status of a single job.
  */
 export const updateJobStatusThunk = createAsyncThunk(

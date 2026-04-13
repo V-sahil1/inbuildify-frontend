@@ -30,6 +30,7 @@ interface LeadContactModelProps {
   open: boolean;
   onCancel: () => void;
   contacts: LeadContact[];
+  title?: string;
   loading?: boolean;
   onSaveContact?: (contact: LeadContact, values: LeadContact) => Promise<void>;
   onDeleteContact?: (contactId: string) => Promise<void>;
@@ -41,6 +42,7 @@ const LeadContactModel: React.FC<LeadContactModelProps> = ({
   open,
   onCancel,
   contacts = [],
+  title = 'Lead Contacts',
   loading = false,
   onSaveContact,
   onDeleteContact,
@@ -256,29 +258,33 @@ const LeadContactModel: React.FC<LeadContactModelProps> = ({
   };
 
   const handleCancel = () => {
-    if (contacts.length > 1) {
-      setSelectedContact(null);
+    if (showAddForm) {
       setShowAddForm(false);
       form.resetFields();
-    } else {
-      if (showAddForm) {
+      if (contacts.length > 0) {
         setSelectedContact(contacts[0]);
         form.setFieldsValue({
           ...contacts[0],
           address: contacts[0].address || {},
         });
-        setShowAddForm(false);
       } else {
-        const { isUpdated } = getUpdatedFields(form.getFieldsValue(), contacts[0]);
-        if (isUpdated) {
-          form.setFieldsValue({
-            ...contacts[0],
-            address: contacts[0].address || {},
-          });
-        } else {
-          onCancel();
-        }
+        setSelectedContact(null);
       }
+    } else if (contacts.length > 1) {
+      setSelectedContact(null);
+      form.resetFields();
+    } else if (contacts.length === 1) {
+      const { isUpdated } = getUpdatedFields(form.getFieldsValue(), contacts[0]);
+      if (isUpdated) {
+        form.setFieldsValue({
+          ...contacts[0],
+          address: contacts[0].address || {},
+        });
+      } else {
+        onCancel();
+      }
+    } else {
+      onCancel();
     }
   };
 
@@ -295,14 +301,6 @@ const LeadContactModel: React.FC<LeadContactModelProps> = ({
     }
   };
 
-  if (contacts?.length === 0) {
-    return (
-      <div className="text-center py-8 text-gray-500">
-        <p>No contacts available</p>
-      </div>
-    );
-  }
-
   return (
     <Modal
       open={open}
@@ -311,7 +309,7 @@ const LeadContactModel: React.FC<LeadContactModelProps> = ({
       width={800}
       title={
         <div className="flex w-full justify-between items-center">
-          <span>Lead Contacts</span>
+          <span>{title}</span>
           <div className="flex gap-2 items-center">
             {contacts.length < maxContacts && (
               <div className="flex items-center gap-2">
@@ -333,6 +331,13 @@ const LeadContactModel: React.FC<LeadContactModelProps> = ({
       closable={false}
       footer={false}
     >
+      {/* Empty state — no contacts yet */}
+      {contacts.length === 0 && !showAddForm && (
+        <div className="text-center py-8 text-gray-400">
+          <p>No contacts added yet.</p>
+        </div>
+      )}
+
       {/* Add Contact Form */}
       {showAddForm && (
         <div className="mb-6">

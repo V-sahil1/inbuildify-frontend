@@ -6,12 +6,12 @@ import JobAction from '@/components/job/jobDetail/JobAction';
 import JobInvoicePayment from '@/components/job/jobDetail/Invoice-payment/JobInvoicePayment';
 import JobVariationManager from '@/components/job/jobDetail/Variation/JobVariationManager';
 import SystemRoutes from '@lib/constants/Routes';
-import { Result, Tabs } from 'antd';
+import { Result, Skeleton, Tabs } from 'antd';
 import router from 'next/router';
 import { JobCommission } from '@/components/job/jobDetail/comission/JobCommission';
 import JobDetailHeader from '@/components/job/jobDetail/JobDetailHeader';
 import JobCustomFields from '@/components/job/jobDetail/JobCustomFields';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 
 import ActivityCard from '@/components/common/ActivityCard';
@@ -21,13 +21,33 @@ import FileExplorer from '@/components/common/FileExplorer';
 import { sdriveRootFolders } from '../../data/sdriveData';
 import { usePdf } from '@hooks/usePdf';
 import ColorPdf from '@/components/common/pdf/ColorPdf';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { getJobByIdThunk } from '@redux/feature/job/jobThunk';
+import { clearCurrentJob } from '@redux/feature/job/jobSlice';
+import { Status } from '@lib/constants/enum';
+
 const { TabPane } = Tabs;
 
 export default function JobDetail() {
   const { id } = router.query;
+  const dispatch = useAppDispatch();
+  const { currentJob, status } = useAppSelector(state => state.jobList);
+  const isLoading = status.detail === Status.PENDING;
+
   const [isConstructionModelOpen, setConstructionModelOpen] = useState(false);
   const [constructionReady, setConstructionReady] = useState(false);
   const { previewPdf } = usePdf(ColorPdf);
+
+  // ── Fetch job detail on mount / id change ────────────────────────────────
+  useEffect(() => {
+    if (!id) return;
+    dispatch(getJobByIdThunk(id as string));
+    return () => {
+      dispatch(clearCurrentJob());
+    };
+  }, [id, dispatch]);
+
+  // ── Workflow steps ────────────────────────────────────────────────────────
   const [workFlowSteps, setWorkflowSteps] = useState([
     {
       key: 'Sales',
@@ -35,7 +55,7 @@ export default function JobDetail() {
       status: 'Closed',
       color: 'bg-cyan-500',
       icon: 'MM',
-      date: '12/03/2025',
+      date: '',
       onClick: () => {
         handleWorkflowStepsStatus('Sales');
         router.push(`${SystemRoutes.LEADS}/${id}`);
@@ -51,7 +71,7 @@ export default function JobDetail() {
       status: 'Completed',
       color: 'bg-cyan-500',
       icon: '2',
-      date: '12/03/2025',
+      date: '',
       onClick: () => {
         handleWorkflowStepsStatus('Preconstruction');
         router.push(`${SystemRoutes.JOB_PRECONSTRUCTION}/${id}`);
@@ -64,7 +84,7 @@ export default function JobDetail() {
       status: 'Started',
       color: 'bg-cyan-500',
       icon: 'MM',
-      date: '12/03/2025',
+      date: '',
       onClick: () => {
         handleWorkflowStepsStatus('Color');
         router.push(`${SystemRoutes.JOB}/colour/${id}`);
@@ -111,37 +131,53 @@ export default function JobDetail() {
       )
     );
   }
+
   function handleSubmit(values) {
     setConstructionReady(true);
     setConstructionModelOpen(false);
     console.log('constructionmodel', values);
   }
+
+  // ── StageProgress data derived from job detail ───────────────────────────
+  const stageData = {
+    builder: currentJob?.builderName ?? '',
+    leadSource: currentJob?.leadSourceName ?? '',
+    assignedTask: currentJob?.consultantName
+      ? [
+          {
+            label: 'Consultant',
+            value: currentJob.consultantName,
+            status: 'Active' as const,
+          },
+        ]
+      : [],
+  };
+
+  if (status.detail === Status.ERROR) {
+    return (
+      <Result
+        status="404"
+        title="Job not found"
+        subTitle="The job you are looking for does not exist or you do not have access."
+      />
+    );
+  }
+
   return (
     <>
       <div className="m-3">
-        <div className="flex justify-between">
-          <StageProgress
-            id="MH-001"
-            title="Job"
-            status="Pending"
-            steps={[]}
-            data={{
-              builder: 'xyz',
-              leadSource: 'website',
-              assignedTask: [
-                { label: 'Accounts', value: 'Accounts Myhome', status: 'Inactive' },
-                { label: 'Color Consultant', value: 'Color Consultant', status: 'Inactive' },
-                {
-                  label: 'Construction Manager - MH',
-                  value: 'Manasa Gummuluru',
-                  status: 'Inactive',
-                },
-                { label: 'My Home - Company Admin', value: 'Manasa Gummuluru', status: 'Inactive' },
-              ],
-            }}
-          />
-          <JobDetailHeader />
-        </div>
+        <Skeleton loading={isLoading} active paragraph={{ rows: 2 }}>
+          <div className="flex justify-between">
+            <StageProgress
+              id={currentJob?.referenceNumber ?? ''}
+              title="Job"
+              status={currentJob?.status ?? ''}
+              steps={[]}
+              data={stageData}
+            />
+            <JobDetailHeader jobDetail={currentJob} />
+          </div>
+        </Skeleton>
         <WorkflowSteps steps={workFlowSteps} />
       </div>
       <div className="m-3">

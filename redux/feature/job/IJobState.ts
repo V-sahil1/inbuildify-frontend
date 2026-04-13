@@ -1,5 +1,48 @@
 import { Status } from '@lib/constants/enum';
 
+export interface JobDetailInvoice {
+  invoiceId: string;
+  referenceNumber: string | null;
+  invoiceAmount: number | null;
+  depositAmount: number | null;
+  status: string | null;
+}
+
+export interface IJobDetail {
+  jobId: string;
+  referenceNumber: string;
+  status: string;
+  jobNote: string | null;
+  builderId: string | null;
+  companyId: string | null;
+  quotationVersionId: string | null;
+  createdAt: string;
+  updatedAt: string;
+  // Customer
+  leadsId: string;
+  customerName: string;
+  customerEmail: string | null;
+  customerPhone: string | null;
+  // Property / Address
+  jobAddress: string;
+  estateName: string | null;
+  titleDate: string | null;
+  titleStatus: string | null;
+  // Builder
+  builderName: string | null;
+  // Lead source
+  leadSourceName: string | null;
+  // Consultant
+  consultantId: string | null;
+  consultantName: string | null;
+  consultantInitials: string | null;
+  consultantEmail: string | null;
+  // Financial
+  quotationTotal: number;
+  totalPaid: number;
+  invoices: JobDetailInvoice[];
+}
+
 export interface JobConsultant {
   id: string;
   name: string;
@@ -71,6 +114,7 @@ export interface JobFilters {
 
 export interface IJobState {
   jobs: Job[];
+  currentJob: IJobDetail | null;
   pagination: JobPagination;
   statusSummary: JobStatusSummary;
   totalJobs: number;
@@ -78,6 +122,7 @@ export interface IJobState {
   status: {
     list: Status;
     updateStatus: Status;
+    detail: Status;
   };
 }
 

@@ -6,6 +6,14 @@ import { userGroup } from './IUserGroupState';
 import { Pagination } from '../admin/general/surveyor/ISurveyorState';
 import { ApiResponse } from '../auth/IAuthState';
 
+interface FetchUserGroupParams {
+  page?: number;
+  limit?: number;
+  isActive?: boolean;
+  search?: string;
+  append?: boolean;
+}
+
 export const createUserGroup = createAsyncThunk(
   'userGroup/create',
   async (payload: userGroup, { rejectWithValue }) => {
@@ -22,12 +30,20 @@ export const createUserGroup = createAsyncThunk(
 
 export const fetchAllUserGroup = createAsyncThunk(
   'userGroup/fetchAll',
-  async (_, { rejectWithValue }) => {
+  async (params: FetchUserGroupParams = {}, { rejectWithValue }) => {
     try {
+      const { page = 1, limit = 20, isActive, search, append = false } = params;
       const response = await api.get<
         ApiResponse<{ userGroups: userGroup[]; pagination: Pagination }>
-      >(API_ENDPOINTS.USER_GROUP);
-      return response.data;
+      >(API_ENDPOINTS.USER_GROUP, {
+        params: {
+          page,
+          limit,
+          is_active: isActive,
+          search,
+        },
+      });
+      return { ...response.data, append };
     } catch (error) {
       return rejectWithValue(error.message);
     }

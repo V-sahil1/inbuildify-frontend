@@ -118,6 +118,7 @@ class API_ENDPOINTS {
       .join('&');
     return `/job${qs ? '?' + qs : ''}`;
   };
+  public static GET_JOB_BY_ID = (jobId: string) => `/job/${jobId}`;
   public static UPDATE_JOB_STATUS = (jobId: string) => `/job/${jobId}/status`;
   public static LEAD_CONTACT = `/leads-contact`;
   public static LEAD_SOURCE = `/lead-source`;
@@ -413,6 +414,9 @@ class API_ENDPOINTS {
 
   //task
   public static TASK_BASE = '/task';
+
+  //todo
+  public static TODO_BASE = '/todo';
 
   //agent referral
   public static AGENT_REFERRAL = '/agent-referral-partner';

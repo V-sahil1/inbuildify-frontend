@@ -43,6 +43,7 @@ import estateReducer from './estate/estateSlice';
 import landReducer from './land/landSlice';
 import structuralReducer from './structuralengg/structuralSlice';
 import jobListReducer from './job/jobSlice';
+import todoReducer from './todo/todoSlice';
 
 const authPersistConfig = {
   key: 'auth',
@@ -92,6 +93,7 @@ const appReducer = combineReducers({
   land: landReducer,
   structural: structuralReducer,
   jobList: jobListReducer,
+  todo: todoReducer,
 });
 
 const rootReducer = (state: ReturnType<typeof appReducer> | undefined, action: any) => {

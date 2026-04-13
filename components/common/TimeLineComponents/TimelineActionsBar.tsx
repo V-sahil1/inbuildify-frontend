@@ -1,7 +1,7 @@
 'use client';
 import { FC, useState } from 'react';
 import { Button, Dropdown, MenuProps } from 'antd';
-import { IconFilter, IconPlus } from '@tabler/icons-react';
+import { IconPlus } from '@tabler/icons-react';
 
 export interface FilterOption {
   type: string;
@@ -36,14 +36,14 @@ const TimelineActionsBar: FC<TimelineActionsBarProps> = ({
   };
 
   return (
-    <div className="flex justify-between items-center w-full sm:flex-row flex-col">
+    <div className="flex w-full items-center justify-between gap-2">
       {/* Tabs Section */}
-      <div className="flex items-center sm:gap-2 border border-gray-300 rounded-full sm:px-2 px-1 py-1 w-fit">
+      <div className="flex max-w-full items-center gap-1 overflow-x-auto whitespace-nowrap rounded-full border border-gray-300 px-1 py-1 sm:gap-2 sm:px-2">
         {tabs.map(tab => (
           <button
             key={tab.type}
             onClick={() => handleTabClick(tab.type)}
-            className={`px-2 sm:px-3 py-1 sm:text-sm text-xs rounded-full transition flex gap-2
+            className={`flex shrink-0 gap-2 rounded-full px-2 py-1 text-xs whitespace-nowrap transition sm:px-3 sm:text-sm
               ${
                 activeTab === tab.type
                   ? 'bg-[--primary] text-white font-medium'
@@ -53,7 +53,7 @@ const TimelineActionsBar: FC<TimelineActionsBarProps> = ({
           >
             {tab.label}
             {isCountShow && (
-              <div className="rounded-3xl bg-white text-gray-500 w-fit h-fit px-1">{tab.count}</div>
+              <div className="h-fit w-fit rounded-3xl bg-white px-1 text-gray-500">{tab.count}</div>
             )}
           </button>
         ))}
@@ -61,28 +61,27 @@ const TimelineActionsBar: FC<TimelineActionsBarProps> = ({
 
       {/* Actions Section */}
 
-      <div className="flex items-center gap-2 sm:mt-0 mt-2">
-        {/* <button className="text-primary rounded p-1 border-2 border-primary">
-          <IconFilter />
-        </button> */}
-        {activeTab === 'All' ? (
-          <Dropdown
-            menu={{
-              items: actionItems,
-              onClick: ({ key }) => onActionSelect?.(key),
-            }}
-            placement="bottomRight"
-          >
-            <Button type="primary" icon={<IconPlus />}>
-              Action
+      {isActionShow && (
+        <div className="flex shrink-0 items-center gap-2">
+          {activeTab === 'All' ? (
+            <Dropdown
+              menu={{
+                items: actionItems,
+                onClick: ({ key }) => onActionSelect?.(key),
+              }}
+              placement="bottomRight"
+            >
+              <Button type="primary" icon={<IconPlus />}>
+                Action
+              </Button>
+            </Dropdown>
+          ) : (
+            <Button type="primary" icon={<IconPlus />} onClick={() => onActionSelect(activeTab)}>
+              Add {activeTab}
             </Button>
-          </Dropdown>
-        ) : (
-          <Button type="primary" icon={<IconPlus />} onClick={() => onActionSelect?.(activeTab)}>
-            Add {activeTab}
-          </Button>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

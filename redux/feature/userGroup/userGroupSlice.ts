@@ -5,6 +5,12 @@ import { IUserGroupState } from './IUserGroupState';
 
 const initialState: IUserGroupState = {
   userGroups: [],
+  pagination: {
+    currentPage: 1,
+    limit: 20,
+    totalRecords: 0,
+    totalPages: 0,
+  },
   status: {
     fetch: Status.IDLE,
     create: Status.IDLE,
@@ -30,7 +36,10 @@ const userGroupSlice = createSlice({
       state.status.fetch = Status.PENDING;
     });
     builder.addCase(fetchAllUserGroup.fulfilled, (state, action) => {
-      state.userGroups = action.payload.userGroups;
+      state.userGroups = action.payload.append
+        ? [...state.userGroups, ...action.payload.userGroups]
+        : action.payload.userGroups;
+      state.pagination = action.payload.pagination || state.pagination;
       state.status.fetch = Status.SUCCESS;
     });
     builder.addCase(fetchAllUserGroup.rejected, state => {

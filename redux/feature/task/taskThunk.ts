@@ -2,7 +2,7 @@ import api, { apiWithFormDataMethods } from '@lib/constants/api';
 import API_ENDPOINTS from '@lib/constants/apiEndpoints';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { ApiResponse } from '../auth/IAuthState';
-import { ITask, TaskQueryParams } from './ITaskStates';
+import { ITask, ITaskCounters, TaskQueryParams } from './ITaskStates';
 import { CommonPagination } from '../common/ICommonState';
 
 export const createTask = createAsyncThunk(
@@ -24,10 +24,9 @@ export const fetchAllTask = createAsyncThunk(
   'task/fetchAll',
   async (params: TaskQueryParams = {}, { rejectWithValue }) => {
     try {
-      const response = await api.get<ApiResponse<{ tasks: ITask[]; pagination: CommonPagination }>>(
-        API_ENDPOINTS.TASK_BASE,
-        { params }
-      );
+      const response = await api.get<
+        ApiResponse<{ tasks: ITask[]; pagination: CommonPagination; counters: ITaskCounters }>
+      >(API_ENDPOINTS.TASK_BASE, { params });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);

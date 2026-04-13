@@ -1,30 +1,81 @@
-import { useEffect, useState } from 'react';
-import { Table, Input, Button, Space, Dropdown, Menu } from 'antd';
-import { IconDownload, IconTruck } from '@tabler/icons-react';
+import { UIEvent, useEffect, useState } from 'react';
+import { Table, Input, Button, Space, Dropdown, Menu, Select, message } from 'antd';
+import { IconDownload, IconPlus, IconTruck } from '@tabler/icons-react';
 import { exportToExcel } from '@lib/utils/exportToExcel';
 import DateFilterDropdown from '@/components/common/custom-selects/DateFilterDropdown';
 import type { ColumnsType } from 'antd/es/table';
-import { todoDummyData, TodoDataType } from 'data/tasklistData';
-import AssigneeSelect from '@/components/common/custom-selects/AssigneeSelect';
 import CustomAvtar from '@/components/common/CustomAvtar';
 import TimelineActionsBar from '@/components/common/TimeLineComponents/TimelineActionsBar';
 import { debouncedURL } from '@lib/utils/debounceURL';
 import { TodoFormDrawer } from '@/components/common/todo/TodoFormDrawer';
-import { ChecklistDateChange } from '@/components/common/todo/ChecklistDateChange';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { fetchAllTodos } from '@redux/feature/todo/todoThunk';
+import { ITodo } from '@redux/feature/todo/IToDoState';
+import { useSupplierHook } from '@hooks/useSupplierHook';
+
+const DATE_FILTER_MAP: Record<string, string> = {
+  all: '',
+  today: 'today',
+  tomorrow: 'tomorrow',
+  'this-week': 'this_week',
+  'next-week': 'next_week',
+  overdue: 'overdue',
+};
 
 const TodosPage: React.FC = () => {
-  const [drawerOpen, setDrawerOpen] = useState(null);
-  const [modalOpen, setModalOpen] = useState(false);
+  const dispatch = useAppDispatch();
+  const [drawerOpen, setDrawerOpen] = useState<ITodo | null>(null);
+  const [createDrawerOpen, setCreateDrawerOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [todoRows, setTodoRows] = useState<ITodo[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const { counters } = useAppSelector(state => state.todo);
+  const { supplierOptions } = useSupplierHook();
+  const PAGE_SIZE = 10;
+
   const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
     filtersKey: [
       'jobAddress',
       'taskName',
       'supplier',
-      'bookingDate',
-      'startDate',
-      'siteSupervisor',
+      'bookingDateFrom',
+      'bookingDateTo',
+      'startDateFrom',
+      'startDateTo',
+      'dateFilter',
     ],
   });
+
+  const fetchTodos = async (page: number = 1, limit: number = PAGE_SIZE, append: boolean = false) => {
+    try {
+      const response = await dispatch(
+        fetchAllTodos({
+          page,
+          limit,
+          task_name: filters?.taskName || undefined,
+          job_address: filters?.jobAddress || undefined,
+          supplier_id: filters?.supplier || undefined,
+          booking_date_from: filters?.bookingDateFrom || undefined,
+          booking_date_to: filters?.bookingDateTo || undefined,
+          start_date_from: filters?.startDateFrom || undefined,
+          start_date_to: filters?.startDateTo || undefined,
+          date_filter: filters?.dateFilter || undefined,
+        })
+      ).unwrap();
+      const incomingTodos = response?.todos ?? [];
+      setTodoRows(prev => (append ? [...prev, ...incomingTodos] : incomingTodos));
+      setHasMore(page < (response?.pagination?.totalPages ?? 0));
+    } catch (err) {
+      message.error('Failed to fetch todos');
+    }
+  };
+
+  useEffect(() => {
+    setCurrentPage(1);
+    setHasMore(true);
+    fetchTodos(1, PAGE_SIZE, false);
+  }, [filters]);
 
   useEffect(() => {
     return () => {
@@ -32,13 +83,13 @@ const TodosPage: React.FC = () => {
     };
   }, [debouncedUpdateURL]);
 
-  const handleExport = (data: TodoDataType[], type: string) => {
+  const handleExport = (data: ITodo[], type: string) => {
     const column = {
-      JobAddress: 'Job Address',
+      jobAddress: 'Job Address',
       taskName: 'Task Name',
-      supplier: 'Supplier',
+      supplierName: 'Supplier',
       bookingDate: 'Booking Date',
-      startDate: 'start Date',
+      startDate: 'Start Date',
       siteSupervisor: 'Site Supervisor',
     };
     exportToExcel({
@@ -50,11 +101,16 @@ const TodosPage: React.FC = () => {
   };
 
   const handleFilterTabChange = (selectedType: string) => {
-    console.log('Selected filter:', selectedType);
-    // You can call your API or set state here
+    if (selectedType === 'all') {
+      setParams({ dateFilter: '' });
+      return;
+    }
+    const mapped = DATE_FILTER_MAP[selectedType] ?? selectedType;
+    const current = filters?.dateFilter;
+    setParams({ dateFilter: current === mapped ? '' : mapped });
   };
 
-  const columns: ColumnsType<TodoDataType> = [
+  const columns: ColumnsType<ITodo> = [
     {
       title: (
         <div>
@@ -89,12 +145,12 @@ const TodosPage: React.FC = () => {
           <span>Booking Date</span>
           <DateFilterDropdown
             onFilter={(type, dates) => {
-              const dateString = dates ? `${dates[0].toISOString()},${dates[1].toISOString()}` : '';
-              setParams({ bookingDate: dateString });
+              const from = dates ? dates[0].toISOString() : '';
+              const to = dates ? dates[1].toISOString() : '';
+              setParams({ bookingDateFrom: from, bookingDateTo: to });
             }}
             onClear={() => {
-              console.log('Cleared date filter');
-              setParams({ bookingDate: '' });
+              setParams({ bookingDateFrom: '', bookingDateTo: '' });
             }}
           />
         </div>
@@ -102,7 +158,7 @@ const TodosPage: React.FC = () => {
       dataIndex: 'bookingDate',
       key: 'bookingDate',
       width: 150,
-      render: date => new Date(date).toLocaleDateString(),
+      render: date => (date ? new Date(date).toLocaleDateString() : '—'),
     },
     {
       title: (
@@ -110,12 +166,12 @@ const TodosPage: React.FC = () => {
           <span>Start Date</span>
           <DateFilterDropdown
             onFilter={(type, dates) => {
-              const dateString = dates ? `${dates[0].toISOString()},${dates[1].toISOString()}` : '';
-              setParams({ startDate: dateString });
+              const from = dates ? dates[0].toISOString() : '';
+              const to = dates ? dates[1].toISOString() : '';
+              setParams({ startDateFrom: from, startDateTo: to });
             }}
             onClear={() => {
-              console.log('Cleared date filter');
-              setParams({ startDate: '' });
+              setParams({ startDateFrom: '', startDateTo: '' });
             }}
           />
         </div>
@@ -123,28 +179,49 @@ const TodosPage: React.FC = () => {
       dataIndex: 'startDate',
       key: 'startDate',
       width: 150,
-      render: date => new Date(date).toLocaleDateString(),
+      render: date => (date ? new Date(date).toLocaleDateString() : '—'),
     },
     {
       title: (
         <div className="flex flex-col">
-          <span>Site Supervisor</span>
-          <AssigneeSelect
-            value={instantFilters.siteSupervisor}
-            onChange={value => setParams({ siteSupervisor: value })}
+          <span>Supplier</span>
+          <Select
+            value={instantFilters.supplier}
+            mode="multiple"
+            value={instantFilters.supplier ? instantFilters.supplier.split(',').filter(Boolean) : []}
+            onChange={values => setParams({ supplier: values.join(',') })}
+            options={supplierOptions}
+            allowClear
+            showSearch
+            optionFilterProp="label"
           />
         </div>
       ),
-      dataIndex: 'siteSupervisor',
-      key: 'siteSupervisor',
+      dataIndex: 'supplierName',
+      key: 'supplierName',
       width: 150,
       render: (_, record) => (
         <div className="flex items-center justify-between">
-          <CustomAvtar label={record.siteSupervisor} />
+          <CustomAvtar label={record.supplierName} />
           <IconTruck size={20} className="text-blue cursor-pointer" />
         </div>
       ),
     },
+  ];
+
+  type FilterType = 'all' | 'today' | 'tomorrow' | 'this-week' | 'next-week' | 'overdue';
+
+  const filterOptions: Array<{
+    type: FilterType;
+    label: string;
+    count: number;
+  }> = [
+    { type: 'all', label: 'All', count: counters?.allCount ?? 0 },
+    { type: 'today', label: 'Today', count: counters?.todayCount ?? 0 },
+    { type: 'tomorrow', label: 'Tomorrow', count: counters?.tomorrowCount ?? 0 },
+    { type: 'this-week', label: 'This Week', count: counters?.thisWeekCount ?? 0 },
+    { type: 'next-week', label: 'Next Week', count: counters?.nextWeekCount ?? 0 },
+    { type: 'overdue', label: 'Overdue', count: counters?.overdueCount ?? 0 },
   ];
 
   const menu = (
@@ -153,17 +230,17 @@ const TodosPage: React.FC = () => {
         {
           key: '1',
           label: 'Export Today list',
-          onClick: () => handleExport(todoDummyData, 'today'),
+          onClick: () => handleExport(todoRows, 'today'),
         },
         {
           key: '2',
           label: 'Export Today and overdue list',
-          onClick: () => handleExport(todoDummyData, 'todayAndOverdue'),
+          onClick: () => handleExport(todoRows, 'todayAndOverdue'),
         },
         {
           key: '3',
           label: 'Export All list',
-          onClick: () => handleExport(todoDummyData, 'all'),
+          onClick: () => handleExport(todoRows, 'all'),
         },
         {
           key: '4',
@@ -178,72 +255,75 @@ const TodosPage: React.FC = () => {
     />
   );
 
-  type FilterType = 'today' | 'tomorrow' | 'this-week' | 'next-week' | 'overdue';
-
-  const filterOptions: Array<{
-    type: FilterType;
-    label: string;
-    count: number;
-  }> = [
-    { type: 'today', label: 'Today', count: todoDummyData.length },
-    { type: 'tomorrow', label: 'Tomorrow', count: todoDummyData.length },
-    { type: 'this-week', label: 'This Week', count: todoDummyData.length },
-    { type: 'next-week', label: 'Next Week', count: todoDummyData.length },
-    { type: 'overdue', label: 'Overdue', count: todoDummyData.length },
-  ];
+  const handleTableScroll = async (e: UIEvent<HTMLDivElement>) => {
+    const { scrollTop, clientHeight, scrollHeight } = e.currentTarget;
+    if (scrollHeight - scrollTop - clientHeight > 80 || isLoadingMore || !hasMore) return;
+    setIsLoadingMore(true);
+    const nextPage = currentPage + 1;
+    await fetchTodos(nextPage, PAGE_SIZE, true);
+    setCurrentPage(nextPage);
+    setIsLoadingMore(false);
+  };
 
   return (
     <div className="p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Todo</h1>
-        <div>
+      <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <h1 className="text-2xl font-bold leading-tight">Todo</h1>
+        <div className="order-3 lg:order-2 lg:flex-1 lg:px-2">
+          <div className="overflow-x-auto">
           <TimelineActionsBar
             tabs={filterOptions}
             onTabChange={handleFilterTabChange}
             isActionShow={false}
             isCountShow={true}
           />
+          </div>
         </div>
-        <Space>
+        <Space className="order-2 self-start lg:order-3 lg:self-auto">
           <Dropdown overlay={menu} className="w-[100px]" trigger={['click']}>
             <Button icon={<IconDownload />}>Export</Button>
           </Dropdown>
+          <Button type="primary" icon={<IconPlus size={16} />} onClick={() => setCreateDrawerOpen(true)}>
+            Add Todo
+          </Button>
         </Space>
       </div>
 
-      {/* Filter Tabs */}
-
-      <Table
-        columns={columns}
-        dataSource={todoDummyData}
-        rowSelection={{
-          type: 'checkbox',
-        }}
-        onRow={record => ({
-          onClick: () => setDrawerOpen(record),
-          style: { cursor: 'pointer' },
-        })}
-        pagination={{
-          pageSize: 10,
-          showSizeChanger: true,
-          showQuickJumper: true,
-        }}
-      />
+      <div className="max-h-[65vh] overflow-auto" onScroll={handleTableScroll}>
+        <Table
+          columns={columns}
+          dataSource={todoRows}
+          rowKey="todoId"
+          rowSelection={{
+            type: 'checkbox',
+          }}
+          onRow={record => ({
+            onClick: () => setDrawerOpen(record),
+            style: { cursor: 'pointer' },
+          })}
+          pagination={false}
+          scroll={{ x: 1100 }}
+        />
+      </div>
       {!!drawerOpen && (
         <TodoFormDrawer
           open={!!drawerOpen}
+          initialData={drawerOpen}
           onCancel={() => setDrawerOpen(null)}
           onSubmit={() => {
-            setModalOpen(true);
+            setDrawerOpen(null);
+            fetchTodos();
           }}
         />
       )}
-      {modalOpen && (
-        <ChecklistDateChange
-          open={modalOpen}
-          onCancel={() => setModalOpen(false)}
-          onSubmit={values => {
-            console.log('values', values);
+      {createDrawerOpen && (
+        <TodoFormDrawer
+          open={createDrawerOpen}
+          onCancel={() => setCreateDrawerOpen(false)}
+          onSubmit={() => {
+            setCreateDrawerOpen(false);
+            fetchTodos(1, PAGE_SIZE, false);
+            setCurrentPage(1);
           }}
         />
       )}
