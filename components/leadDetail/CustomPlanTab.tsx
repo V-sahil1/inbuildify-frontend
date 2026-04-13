@@ -217,7 +217,8 @@ const CustomPlanTab: React.FC<{
                 label="Width (m)"
                 name="minLandWidth"
                 rules={[{ required: true, message: 'Please input width in meters' },
-                ...planMeasureRange
+                ...planMeasureRange,
+                ...OptionalNumberRules
                 ]}
               >
                 <Input
@@ -236,7 +237,8 @@ const CustomPlanTab: React.FC<{
                 label="Depth (m)"
                 name="minLandDepth"
                 rules={[{ required: true, message: 'Please input depth in meters' },
-                ...planMeasureRange
+                ...planMeasureRange,
+                ...OptionalNumberRules
                 ]}
               >
                 <Input

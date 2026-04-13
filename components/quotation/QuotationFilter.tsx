@@ -101,6 +101,7 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({
           value={selectedFilters?.range || undefined}
           notFoundContent={<NoDataMessage label="Range type" link={SystemRoutes.SALES_RANGE} />}
           onChange={value => {
+            console.log("🔥 ~ :104 ~ QuotationFilter ~ value:", value)
             onFilterChange({ type: 'range', value });
           }}
           options={rangeOptions}
