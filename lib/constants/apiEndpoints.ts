@@ -407,6 +407,7 @@ class API_ENDPOINTS {
 
   //appointment
   public static APPOINTMENT = '/appointment';
+  public static APPOINTMENT_TAB_COUNTS = '/appointment/tab-counts';
 
   //contract format
   public static CONTRACT_FORMAT = '/contract-format';

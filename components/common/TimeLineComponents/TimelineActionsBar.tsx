@@ -42,18 +42,27 @@ const TimelineActionsBar: FC<TimelineActionsBarProps> = ({
         {tabs.map(tab => (
           <button
             key={tab.type}
+            type="button"
             onClick={() => handleTabClick(tab.type)}
-            className={`flex shrink-0 gap-2 rounded-full px-2 py-1 text-xs whitespace-nowrap transition sm:px-3 sm:text-sm
+            className={`flex shrink-0 items-center gap-1.5 rounded-full px-2 py-1 text-xs whitespace-nowrap transition sm:px-3 sm:text-sm
               ${
                 activeTab === tab.type
                   ? 'bg-[--primary] text-white font-medium'
-                  : 'hover:text-[--primary]'
+                  : 'text-[var(--font-color)] hover:text-[--primary]'
               }
             `}
           >
-            {tab.label}
-            {isCountShow && (
-              <div className="h-fit w-fit rounded-3xl bg-white px-1 text-gray-500">{tab.count}</div>
+            <span className="leading-none">{tab.label}</span>
+            {isCountShow && tab.count !== undefined && (
+              <span
+                className={`inline-flex min-h-[1.25rem] min-w-[1.25rem] items-center justify-center rounded-full px-1.5 text-[0.6875rem] font-medium tabular-nums leading-none ${
+                  activeTab === tab.type
+                    ? 'bg-white/25 text-white'
+                    : 'border border-[var(--border-color)] bg-[var(--font-color-200)] text-[var(--font-color-100)]'
+                }`}
+              >
+                {tab.count}
+              </span>
             )}
           </button>
         ))}

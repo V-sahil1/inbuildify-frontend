@@ -1384,3 +1384,9 @@ body .apexcharts-legend-marker {
 .ant-table-wrapper .ant-table-cell-fix-right {
   background: var(--card-color) !important;
 }
+
+.ant-table-wrapper .ant-table-footer {
+  background: var(--card-color) !important;
+  color: var(--font-color-100) !important;
+  border-color: var(--border-color) !important;
+}

@@ -331,7 +331,7 @@ const TimelineCard: FC<TimelineCardProps> = ({
                 })()}
               </p>
               <p>
-                <strong>Send to Customer:</strong> {item?.sendAppointmentCustomer ? 'Yes' : 'No'}
+                <strong>Send to Assignee:</strong> {item?.sendAppointmentCustomer ? 'Yes' : 'No'}
               </p>
             </div>
           )}

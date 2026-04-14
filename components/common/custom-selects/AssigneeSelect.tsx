@@ -37,6 +37,7 @@ const AssigneeSelect: React.FC<CustomSelectProps> = ({ value, onChange, width })
 
   return (
     <CustomSelect
+      size="middle"
       value={value}
       onChange={onChange}
       options={assigneeOptions}

@@ -2,11 +2,37 @@ import api from '@lib/constants/api';
 import API_ENDPOINTS from '@lib/constants/apiEndpoints';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { ApiResponse } from '../auth/IAuthState';
-import { IAppointment } from './IAppointmentState';
+import { IAppointment, IAppointmentPagination, IAppointmentTabCounts } from './IAppointmentState';
+
+export interface FetchAppointmentParams {
+  page?: number;
+  limit?: number;
+  title?: string;
+  locationText?: string;
+  date_from?: string;
+  date_to?: string;
+  lead_id?: string;
+  assignee_id?: string;
+  include_cancelled?: boolean;
+}
+
+export interface FetchTabCountsParams {
+  anchor_date?: string;
+  title?: string;
+  assignee_id?: string;
+  include_cancelled?: boolean;
+}
+
+export interface FetchAppointmentResponse {
+  appointment: IAppointment[];
+  totalRecords: number;
+  currentPage: number;
+  totalPages: number;
+}
 
 export const createAppointment = createAsyncThunk(
   'appointment/create',
-  async (payload: IAppointment, { rejectWithValue }) => {
+  async (payload: Partial<IAppointment>, { rejectWithValue }) => {
     try {
       const response = await api.post<ApiResponse<IAppointment>>(API_ENDPOINTS.APPOINTMENT, {
         data: payload,
@@ -20,13 +46,20 @@ export const createAppointment = createAsyncThunk(
 
 export const fetchAllAppointment = createAsyncThunk(
   'appointment/fetchAll',
-  async (params: { lead_id?: string }, { rejectWithValue }) => {
+  async (params: FetchAppointmentParams, { rejectWithValue }) => {
     try {
-      const response = await api.get<ApiResponse<{ appointment: IAppointment[] }>>(
+      const response = await api.get<ApiResponse<FetchAppointmentResponse>>(
         API_ENDPOINTS.APPOINTMENT,
         { params }
       );
-      return response.data;
+      // Backend returns "currenPage" (typo) — normalise to currentPage
+      const data = response.data as any;
+      return {
+        appointment: data.appointment ?? [],
+        totalRecords: data.totalRecords ?? 0,
+        currentPage: data.currentPage ?? data.currenPage ?? params.page ?? 1,
+        totalPages: data.totalPages ?? 1,
+      } as FetchAppointmentResponse;
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -54,6 +87,21 @@ export const deleteAppointment = createAsyncThunk(
     try {
       await api.delete<ApiResponse>(`${API_ENDPOINTS.APPOINTMENT}/${id}`);
       return;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const fetchAppointmentTabCounts = createAsyncThunk(
+  'appointment/fetchTabCounts',
+  async (params: FetchTabCountsParams, { rejectWithValue }) => {
+    try {
+      const response = await api.get<ApiResponse<IAppointmentTabCounts>>(
+        API_ENDPOINTS.APPOINTMENT_TAB_COUNTS,
+        { params }
+      );
+      return response.data as IAppointmentTabCounts;
     } catch (error) {
       return rejectWithValue(error.message);
     }

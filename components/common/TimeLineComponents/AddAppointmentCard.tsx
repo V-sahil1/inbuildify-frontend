@@ -5,7 +5,6 @@ import dayjs from 'dayjs';
 
 import {
   dueDateRules,
-  locationRules,
   optionalNotesRule,
   taskNameRules,
   timeRules,
@@ -15,7 +14,6 @@ import NoDataMessage from '../NoDataMessage';
 import SystemRoutes from '@lib/constants/Routes';
 import { useUsersHook } from '@hooks/useUserHook';
 import { IAppointment } from '@redux/feature/appointment/IAppointmentState';
-import { useLocationAndTimezoneHook } from '@hooks/useLocationAndTimezoneHook';
 const { TextArea } = Input;
 
 interface AddAppointmentCardProps {
@@ -32,7 +30,6 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
   initialData,
 }) => {
   const { userOptions } = useUsersHook();
-  const { locationOptions } = useLocationAndTimezoneHook({ type: 'location' });
 
   const [form] = Form.useForm();
   const handleFinish = values => {
@@ -40,6 +37,8 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
     values.startTime = values.startTime.format('HH:mm');
     values.date = values.date?.format('YYYY-MM-DD');
     values.endTime = values.endTime.format('HH:mm');
+    const lt = values.locationText?.trim();
+    values.locationText = lt || undefined;
     onSave(values);
   };
 
@@ -68,16 +67,14 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
           />
         </Form.Item>
 
-        {/* {locationOptions?.length > 0 && (
-          <Form.Item
-            label="Location"
-            name="locationId"
-            rules={locationRules}
-            initialValue={initialData?.location?.id}
-          >
-            <Select placeholder="Select Location" options={locationOptions} />
-          </Form.Item>
-        )} */}
+        <Form.Item
+          label="Location"
+          name="locationText"
+          rules={[{ max: 500, message: 'Location must be at most 500 characters' }]}
+          initialValue={initialData?.locationText ?? ''}
+        >
+          <Input allowClear placeholder="Location / address (optional)" />
+        </Form.Item>
 
         {/* Start Time */}
         <Form.Item shouldUpdate={(prev, curr) => prev.date !== curr.date}>
@@ -192,7 +189,7 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
           className="mb-0"
           initialValue={initialData?.sendAppointmentCustomer}
         >
-          <Switch className="mr-2" /> Send this appointment to customer
+          <Switch className="mr-2" /> Send this appointment to Assignee
         </Form.Item>
 
         <div className="flex gap-3">
