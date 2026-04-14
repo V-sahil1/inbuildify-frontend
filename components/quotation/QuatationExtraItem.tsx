@@ -1,6 +1,4 @@
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import { createCategoryItem } from '@redux/feature/masterPriceList/masterPriceListThunk';
-import { setQuotationExtraItems } from '@redux/feature/quotation/quotationSlice';
 import { RootState } from '@redux/feature/store';
 import { IconPlus, IconX } from '@tabler/icons-react';
 import { Button, Input, Select, message, Form } from 'antd';
@@ -8,7 +6,10 @@ import React, { useState } from 'react';
 import { QuatationItem } from './QuatationItem';
 import { Status } from '@lib/constants/enum';
 import { IPriceListItem } from '@redux/feature/masterPriceList/iMasterPriceListState';
-import { createQuotationPricellistThunk } from '@redux/feature/quotation/quotationThunk';
+import { createQuotationAdditionalPricellistThunk } from '@redux/feature/quotation/quotationThunk';
+import { UOM_OPTIONS } from '../common/Models/AddMasterPricingItemModel';
+import { enumToReadable } from '@lib/utils/enumToRedable';
+import { ExtraItem } from '@redux/feature/quotation/IQuotationState';
 const { TextArea } = Input;
 
 interface QuatationItemProps {
@@ -17,10 +18,11 @@ interface QuatationItemProps {
   form?: any;
   isReadOnly?: boolean;
   quantityRef?: React.RefObject<Record<string, HTMLInputElement | null>>;
+  type?: 'item' | 'complimentry' | 'discount' | 'note';
 }
 
 export const QuatationExtraItem: React.FC<QuatationItemProps> = React.memo(
-  ({ onToggleAdd, onItemQuantityChange, form, isReadOnly, quantityRef }) => {
+  ({ onToggleAdd, onItemQuantityChange, form, isReadOnly, quantityRef, type }) => {
     const [added, setAdded] = useState(false);
     const { priceMaster, status } = useAppSelector((state: RootState) => state.masterPriceList);
     const { selectedFilters, quoteDetails } = useAppSelector((state: RootState) => state.quotation);
@@ -38,36 +40,30 @@ export const QuatationExtraItem: React.FC<QuatationItemProps> = React.memo(
       setAdded(false);
       try {
         if (newAdded) {
-          const payload: IPriceListItem = {
+          const payload: ExtraItem = {
             priceListId: values.category_id,
-            costType: values.cost_type,
-            itemDescription: values.description,
-            dwellingTypeId: [selectedFilters.dwellingType || quoteDetails?.dwellingTypeId],
-            rangeId: [selectedFilters.range || quoteDetails?.rangeId],
-            cost: costType === 'Included' ? null : Number(values.cost),
-            builderCost: values.builderCost,
-            additionalItem: true,
+            priceListItemCostType: values.cost_type,
+            priceListItemDescription: values.description,
+            priceListItemDwellingTypeId: [
+              selectedFilters.dwellingType || quoteDetails?.dwellingTypeId,
+            ],
+            priceListItemRangeId: [selectedFilters.range || quoteDetails?.rangeId],
+            priceListItemCost:
+              costType === 'Included' || type === 'complimentry' ? undefined : Number(values.cost),
+            priceListItemBuilderCost: values.builderCost,
+            priceListItemCostTypeText: values.costTypeText,
+            priceListItemUom: values.uom,
+            extraType: type,
+            quantity:
+              costType === 'Included' || type !== 'item' ? undefined : Number(values.quantity),
+            note: values.notes || undefined,
           };
-          const response = await dispatch(createCategoryItem(payload)).unwrap();
-          await dispatch(
-            createQuotationPricellistThunk({
-              quotationVersionId: quoteDetails?.quotationVersionId,
-              priceListItemId: response?.priceListItemId,
-              quantity: Number(values.quantity),
-              note: values.notes || '',
+          const response = await dispatch(
+            createQuotationAdditionalPricellistThunk({
+              data: payload,
+              versionId: quoteDetails?.quotationVersionId,
             })
           ).unwrap();
-          const { priceListItemId, itemDescription, shortDescription } = response;
-          dispatch(
-            setQuotationExtraItems({
-              priceListItemId: priceListItemId,
-              quotationVersionId: quoteDetails?.quotationVersionId,
-              itemDescription: itemDescription,
-              shortDescription: shortDescription,
-              quantity: values.quantity,
-              itemCost: costType === 'Included' ? 0 : Number(values.cost) || 0,
-            })
-          );
           form.resetFields();
         }
       } catch (error) {
@@ -78,8 +74,8 @@ export const QuatationExtraItem: React.FC<QuatationItemProps> = React.memo(
       <>
         <div className="table-row hover:bg-card-color overflow-y-auto">
           {/* Item */}
-          <div className="table-cell p-3 align-top">
-            <div className="font-medium text-[16px]">Extra Item</div>
+          <div className="table-cell p-3 align-top w-[475px]">
+            <div className="font-medium text-[16px]">Extra {enumToReadable(type)}</div>
             <div className="flex flex-col flex-wrap gap-5 mt-1">
               <div className="flex gap-5">
                 {/* Category Select */}
@@ -95,22 +91,37 @@ export const QuatationExtraItem: React.FC<QuatationItemProps> = React.memo(
                 </Form.Item>
 
                 {/* Cost Type Select */}
-                <Form.Item name="cost_type">
-                  <Select
-                    placeholder="Select Cost Type"
-                    style={{ minWidth: '180px' }}
-                    options={[
-                      { value: 'Included', label: 'Included' },
-                      { value: 'Fixed', label: 'Fixed' },
-                      { value: 'Variable', label: 'Variable' },
-                    ]}
-                  />
-                </Form.Item>
+                {type !== 'discount' && (
+                  <Form.Item name="cost_type">
+                    <Select
+                      placeholder="Select Cost Type"
+                      style={{ minWidth: '180px' }}
+                      options={[
+                        { value: 'Included', label: 'Included' },
+                        { value: 'Fixed', label: 'Fixed' },
+                        { value: 'Variable', label: 'Variable' },
+                      ]}
+                    />
+                  </Form.Item>
+                )}
 
                 {/* buildercost */}
-                <Form.Item name="builderCost">
-                  <Input type="number" onWheel={(e) => e.currentTarget.blur()} placeholder="Enter Builder Cost" />
-                </Form.Item>
+
+                {type !== 'discount' && costType === 'Included' && (
+                  <Form.Item name="costTypeText">
+                    <Input placeholder="Enter Cost Type Text" />
+                  </Form.Item>
+                )}
+
+                {type === 'item' &&  costType !== 'Included' &&(
+                  <Form.Item name="builderCost">
+                    <Input
+                      type="number"
+                      onWheel={e => e.currentTarget.blur()}
+                      placeholder="Enter Builder Cost"
+                    />
+                  </Form.Item>
+                )}
               </div>
 
               {/* Description */}
@@ -127,28 +138,57 @@ export const QuatationExtraItem: React.FC<QuatationItemProps> = React.memo(
               </div>
             </div>
           </div>
+          {/* uom */}
+          <div className="table-cell text-center p-3 align-middle w-[100px]">
+            {type !== 'discount' && (
+              <Form.Item name="uom">
+                <Select
+                  placeholder="Select Unit of Measurement"
+                  options={UOM_OPTIONS}
+                  showSearch
+                  filterOption={(input, option) =>
+                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                  }
+                  allowClear
+                  className="!w-[80px]"
+                />
+              </Form.Item>
+            )}
+          </div>
 
           {/* Quantity */}
-          <div className="table-cell text-center p-3 align-middle">
-            {costType !== 'INCLUDED' && (
+          <div className="table-cell text-center p-3 align-middle w-[100px]">
+            {type !== 'discount' && costType !== 'Included' && (
               <Form.Item name="quantity">
-                <Input type="number" onWheel={(e) => e.currentTarget.blur()} min={1} size="small" className="w-full text-center" />
+                <Input
+                  type="number"
+                  onWheel={e => e.currentTarget.blur()}
+                  min={1}
+                  size="small"
+                  className="w-full text-center"
+                />
               </Form.Item>
             )}
           </div>
 
           {/* Price */}
-          <div className="table-cell text-center p-3 align-middle">
-            {costType !== 'INCLUDED' && (
+          <div className="table-cell text-center p-3 align-middle w-[100px]">
+            {type !== 'complimentry' && costType !== 'Included' && (
               <Form.Item name="cost">
-                <Input type="number" onWheel={(e) => e.currentTarget.blur()} min={1} prefix="$" style={{ width: '100%' }} />
+                <Input
+                  type="number"
+                  onWheel={e => e.currentTarget.blur()}
+                  min={1}
+                  prefix="$"
+                  style={{ width: '100%' }}
+                />
               </Form.Item>
             )}
           </div>
 
           {/* Total */}
-          <div className="table-cell text-center p-3 align-middle">
-            {costType !== 'INCLUDED' && (
+          <div className="table-cell text-center p-3 align-middle w-[60px]">
+            {type !== 'complimentry' && costType !== 'Included' && (
               <Form.Item name="total">
                 <Input disabled />
               </Form.Item>
@@ -156,7 +196,7 @@ export const QuatationExtraItem: React.FC<QuatationItemProps> = React.memo(
           </div>
 
           {/* Action */}
-          <div className="table-cell text-center p-3 align-middle">
+          <div className="table-cell text-center p-3 align-middle w-[100px]">
             <Button
               loading={status.priceListItem.create === Status.PENDING}
               type={added ? 'primary' : 'dashed'}
@@ -169,23 +209,27 @@ export const QuatationExtraItem: React.FC<QuatationItemProps> = React.memo(
           </div>
         </div>
 
-        {extraItems?.map(item => (
-          <QuatationItem
-            key={item?.priceListItemId}
-            item={item}
-            disabled={
-              isReadOnly
-              // ||
-              // selectedPackageFromSlice?.categoryItems?.some(
-              //   catItem => catItem.id === item.priceListItemId
-              // )
-            }
-            quantityRef={el => (quantityRef.current[item.priceListItemId] = el)}
-            onQuantityChange={onItemQuantityChange}
-            isSelected={items?.some(itemData => itemData.priceListItemId === item.priceListItemId)}
-            onToggleAdd={onToggleAdd}
-          />
-        ))}
+        {items
+          ?.filter(i => i.extraItem)
+          ?.map(item => (
+            <QuatationItem
+              key={item?.priceListItemId}
+              item={item}
+              disabled={
+                isReadOnly
+                // ||
+                // selectedPackageFromSlice?.categoryItems?.some(
+                //   catItem => catItem.id === item.priceListItemId
+                // )
+              }
+              quantityRef={el => (quantityRef.current[item.priceListItemId] = el)}
+              onQuantityChange={onItemQuantityChange}
+              isSelected={items?.some(
+                itemData => itemData.priceListItemId === item.priceListItemId
+              )}
+              onToggleAdd={onToggleAdd}
+            />
+          ))}
       </>
     );
   }

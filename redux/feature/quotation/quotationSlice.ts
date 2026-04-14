@@ -20,6 +20,7 @@ import {
   updateQuotationCustomSection,
   updateQuotationVersion,
   updateQuotationItemThunk,
+  createQuotationAdditionalPricellistThunk,
 } from './quotationThunk';
 import { LeadContact } from '../lead/ILeadState';
 import {
@@ -32,6 +33,19 @@ import {
 import { Package } from '../package/IPackageState';
 import { updateContact } from '../contacts/contactThunk';
 import { updateLeadProperty, updateLeadThunk } from '../lead/leadThunk';
+// Helper function to map price list item data to quotation item format
+const mapPriceListItemToQuotationItem = (item: any, quantity?: number) => ({
+  ...item,
+  quantity: Number(quantity || item?.quantity) || 1,
+  itemDescription: item.priceListItemDescription,
+  costType: item?.priceListItemCostType,
+  cost: item?.priceListItemCost,
+  uom: item?.priceListItemUom,
+  rangeId: item?.priceListItemRangeId,
+  dwellingTypeId: item?.priceListItemDwellingTypeId,
+  status: 'active',
+});
+
 export interface QuotationState {
   status: { create: Status; getById: Status; customSection: Status };
   quoteDetails: QuotationVersionDetails | null;
@@ -180,6 +194,7 @@ const quotationSlice = createSlice({
         state.plan = action.payload.floorPlan;
         state.facade = action.payload.facade;
         state.package = action.payload.package;
+        state.items = action.payload.quotationVersionItems?.filter(i => !i.packageId).map(i => mapPriceListItemToQuotationItem(i));
       })
 
       //new
@@ -229,13 +244,24 @@ const quotationSlice = createSlice({
 
       // quotation pricelist
       .addCase(createQuotationPricellistThunk.fulfilled, (state, action) => {
-        state.items.push({ ...action.payload, quantity: Number(action.payload.quantity) || 1 });
+        const { quantity, note } = action.payload;
+        state.items.push({
+          ...mapPriceListItemToQuotationItem(action.payload, quantity),
+          note: note,
+        });
       })
       .addCase(getQuotationPricelistThunk.fulfilled, (state, action) => {
-        state.items = action.payload.map(i => ({ ...i, quantity: Number(i.quantity) || 1 }));
+        state.items = action.payload.map(i => mapPriceListItemToQuotationItem(i));
       })
       .addCase(deleteQuotationPricelistThunk.fulfilled, (state, action) => {
         state.items = state.items?.filter(i => i.quotationVersionItemId !== action.meta.arg);
+      })
+      .addCase(createQuotationAdditionalPricellistThunk.fulfilled, (state, action) => {
+        const { quantity, note } = action.payload;
+        state.items.push({
+          ...mapPriceListItemToQuotationItem(action.payload, quantity),
+          note: note,
+        });
       })
 
       // quotation item update
@@ -250,7 +276,10 @@ const quotationSlice = createSlice({
           item => item.quotationVersionItemId === updatedItem.quotationVersionItemId
         );
         if (index !== -1) {
-          state.items[index] = { ...updatedItem, quantity: Number(updatedItem.quantity) || 1 };
+          state.items[index] = {
+            ...state.items[index],
+            ...mapPriceListItemToQuotationItem(updatedItem),
+          };
         }
       })
       .addCase(updateQuotationItemThunk.rejected, (state, action) => {

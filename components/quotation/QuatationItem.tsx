@@ -34,43 +34,20 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
     onNoteUpdate,
   }) => {
     const { items } = useAppSelector((state: RootState) => state.quotation);
-    const { leadDetail } = useAppSelector((state: RootState) => state.lead);
-    const priceItem = items.find(i => i.priceListItemId === item.priceListItemId);
+    const priceItem = items.find(i =>
+      item?.extraItem
+        ? i.quotationVersionItemId === item.quotationVersionItemId
+        : i.priceListItemId === item.priceListItemId
+    );
     const [quantity, setQuantity] = useState<number>();
     const [isEdited, setIsEdited] = useState({ item: false, extraitem: false });
     const [notesModalVisible, setNotesModalVisible] = useState(false);
     const [tempNotes, setTempNotes] = useState('');
 
-    // Check if this is the Compaction Report Charge item
-    // const isCompactionReportItem =
-    //   item.itemDescription?.toLowerCase().includes('compaction report') ||
-    //   item.shortDescription?.toLowerCase().includes('compaction report');
-    // const isReportAvailable = (leadDetail?.property as any)?.compactionReport !== 'available';
-    // const isCompactionReportProviderBuilder =
-    //   (leadDetail?.property as any)?.compactionReportProvider === 'builder';
-    // const shouldAutoSelect =
-    //   isCompactionReportItem &&
-    //   isReportAvailable &&
-    //   isCompactionReportProviderBuilder &&
-    //   !isSelected;
-    // const shouldDisableRemoval =
-    //   isCompactionReportItem && isCompactionReportProviderBuilder && isSelected;
-
-    // // Auto-select compaction report item when provider is BUILDER
-    // useEffect(() => {
-    //   if (shouldAutoSelect) {
-    //     handleToggle(item);
-    //   }
-    // }, [shouldAutoSelect]);
-
     useEffect(() => {
       setQuantity(priceItem?.quantity ?? 1);
       setTempNotes(priceItem?.note || '');
     }, [priceItem]);
-
-    useEffect(() => {
-      // onQuantityChange(item.priceListItemId, quantity);
-    }, [quantity, item.cost, item.priceListItemId, onQuantityChange]);
 
     const handleToggle = item => {
       onToggleAdd({ ...item, notes: tempNotes });
@@ -105,21 +82,25 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
                 {item.itemDescription ? item.itemDescription : item.shortDescription}
               </p>
             </Tooltip>
-            <Tooltip title="Edit">
-              <IconPencil
-                size={15}
-                className={`text-blue ${isSelected ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-                onClick={() => !isSelected && setIsEdited(prev => ({ ...prev, item: true }))}
-              />
-            </Tooltip>
+            {isSelected && (
+              <Tooltip title="Edit">
+                <IconPencil
+                  size={15}
+                  className="text-blue cursor-pointer"
+                  onClick={() => setIsEdited(prev => ({ ...prev, item: true }))}
+                />
+              </Tooltip>
+            )}
             <div>
-              <div
-                className="flex items-center gap-2 cursor-pointer"
-                onClick={() => setNotesModalVisible(true)}
-              >
-                <IconPlus size={16} className="border rounded-full border-primary text-primary" />
-                Notes
-              </div>
+              {isSelected && (
+                <div
+                  className="flex items-center gap-2 cursor-pointer"
+                  onClick={() => setNotesModalVisible(true)}
+                >
+                  <IconPlus size={16} className="border rounded-full border-primary text-primary" />
+                  Notes
+                </div>
+              )}
             </div>
           </div>
           <div className="flex flex-wrap gap-2 mt-1">
@@ -130,15 +111,13 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
             {item.costOption && item.costOption !== 'NONE' && (
               <Tag color="red">{enumToReadable(item.costOption).toUpperCase()}</Tag>
             )}
-            {item?.additionalItem && item.additionalItem && (
-              <Tag color="yellow">ADDITIONAL ITEM</Tag>
+            {item?.extraType && item.extraType && (
+              <Tag color="purple">{enumToReadable(item?.extraType)}</Tag>
             )}
-            {item.status && <Tag color="purple">{enumToReadable(item.status).toUpperCase()}</Tag>}
+            {item.status && <Tag color="green">{enumToReadable(item.status).toUpperCase()}</Tag>}
             {item?.range?.length > 0 && (
               <Tag color="orange">{enumToReadable(item?.range[0]?.name).toUpperCase()}</Tag>
             )}
-            {/* the extraItemType is need to add in backednd there are 4 types  'Additional' | 'Complimentary' | 'Discount' | 'Note' is opening in the click of the extra */}
-            {/* {item.extraItemType && <Tag color="yellow">{item.extraItemType}Additional Item</Tag>} */}
           </div>
         </div>
 
@@ -147,7 +126,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
 
         {/* Quantity */}
         <div className="table-cell text-center p-3 align-middle w-[100px]">
-          {!isIncluded && (
+          {!isIncluded && item?.extraType !== 'discount' && (
             <InputNumber
               min={1}
               step={1}
@@ -168,7 +147,9 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
         {/* Price */}
         <div className="table-cell text-center p-3 align-middle w-[100px]">
           <div className="flex items-center justify-center gap-1">
-            {!isIncluded ? `$${priceItem?.priceListItemCost || item.cost || 0}` : ' '}
+            {!isIncluded && item?.extraType !== 'complimentry'
+              ? `$${Math.abs(Number(priceItem?.priceListItemCost) || item.cost || 0)}`
+              : ' '}
             {isDiffPrice && (
               <Tooltip title={`Current price for this item is $${item.cost}`}>
                 <IconAlertTriangle size={14} className="text-yellow-500 cursor-help" />
@@ -179,8 +160,8 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
 
         {/* Total */}
         <div className="table-cell text-center p-3 align-middle w-[60px]">
-          {!isIncluded
-            ? `$${(Number(priceItem?.priceListItemCost) || item.cost || 0) * quantity}`
+          {!isIncluded && item?.extraType !== 'complimentry'
+            ? `$${Math.abs((Number(priceItem?.priceListItemCost) || item.cost || 0) * quantity)}`
             : ' '}
         </div>
 
@@ -228,7 +209,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
             onSubmit={value => {
               setTempNotes(value);
               setNotesModalVisible(false);
-              if (!!priceItem) {
+              if (!!isSelected) {
                 onNoteUpdate?.(priceItem?.quotationVersionItemId, value);
               }
             }}

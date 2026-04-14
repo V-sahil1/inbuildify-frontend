@@ -72,8 +72,13 @@ const QuotationManager = () => {
   const [hasChanges, setHasChanges] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
-  const [extraItem, setExtraItem] = useState(false);
+  const [extraItem, setExtraItem] = useState<'item' | 'complimentry' | 'discount' | 'note' | null>(
+    null
+  );
   const lastFetchedFiltersRef = useRef<{ range?: string; dwellingType?: string } | null>(null);
+  const compactionReportShow =
+    leadDetail?.property?.compactionReportProvider === 'builder' &&
+    leadDetail?.property?.compactionReport === 'not_available';
 
   // const isJob = useMemo(() => quoteDetails?.leadStatus === 'JOB', [quoteDetails]);
   const quotationData = quoteVersionId
@@ -87,9 +92,9 @@ const QuotationManager = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    // if (quotationData?.quotationId) {
+    if (!!quoteVersionId || !!quotationData?.versions?.[0]?.quotationVersionId) {
       fetchQuotation();
-    // }
+    }
   }, [dispatch, quotationData?.quotationId, router, quoteVersionId]);
 
   useEffect(() => {
@@ -99,6 +104,11 @@ const QuotationManager = () => {
       fetchQuotationCustomSection();
     }
   }, [quoteVersionId, quotationData]);
+  useEffect(() => {
+    if (!!quoteVersionId || !!quotationData) {
+      fetchQuotationPricelistItem();
+    }
+  }, [quoteVersionId, quotationData, quotationFilters?.range, quotationFilters?.dwellingType]);
 
   useEffect(() => {
     if (status.priceMaster === Status.IDLE) {
@@ -229,8 +239,8 @@ const QuotationManager = () => {
           updateQuotationItemThunk({
             quotationVersionItemId: priceItem.quotationVersionItemId,
             quantity,
-            note: priceItem.note || '',
-            priceListItemDescription: priceItem.itemDescription || '',
+            note: priceItem.note || undefined,
+            priceListItemDescription: priceItem.itemDescription || undefined,
           })
         ).unwrap();
         message.success('Quantity updated successfully');
@@ -268,11 +278,7 @@ const QuotationManager = () => {
   };
 
   const fetchAllCategoryItems = async () => {
-    if (
-      leadDetail?.property?.compactionReportProvider !== 'builder' &&
-      leadDetail?.property?.compactionReport !== 'not_available' &&
-      (!quotationFilters?.range || !quotationFilters?.dwellingType)
-    )
+    if (!compactionReportShow && (!quotationFilters?.range || !quotationFilters?.dwellingType))
       return;
 
     try {
@@ -286,9 +292,7 @@ const QuotationManager = () => {
               price_list_id: cat.priceListId,
               range_id: quotationFilters.range || undefined,
               dwelling_type_id: quotationFilters.dwellingType || undefined,
-              is_system_data:
-                leadDetail?.property?.compactionReportProvider === 'builder' &&
-                leadDetail?.property?.compactionReport === 'not_available',
+              is_system_data: compactionReportShow,
               package_id: quoteDetails?.package?.packageId,
             })
           ).unwrap();
@@ -319,12 +323,16 @@ const QuotationManager = () => {
 
   const fetchQuotationPricelistItem = async () => {
     try {
-      await dispatch(
-        getQuotationPricelistThunk({
-          quotationVersionId: quoteVersionId ?? quotationData?.versions?.[0]?.quotationVersionId,
-          package_id: selectedPackageFromSlice?.packageId,
-        })
-      ).unwrap();
+      if (selectedPackageFromSlice?.packageId) {
+        await dispatch(
+          getQuotationPricelistThunk({
+            quotationVersionId: quoteVersionId ?? quotationData?.versions?.[0]?.quotationVersionId,
+            package_id: selectedPackageFromSlice?.packageId,
+            range_id: quotationFilters?.range,
+            dwelling_type_id: quotationFilters?.dwellingType,
+          })
+        ).unwrap();
+      }
     } catch (error) {
       message.error(error || 'Faied to fetch quotation items');
     }
@@ -406,11 +414,10 @@ const QuotationManager = () => {
   //   }
   // };
 
-  const handleExtraClick = () => {
+  const handleExtraClick = (type: 'item' | 'complimentry' | 'discount' | 'note') => {
     setSelectedCategory(null);
-    setTimeout(() => {
-      setExtraItem(true);
-    }, 0);
+    setExtraItem(type);
+    setSelect(false);
   };
 
   // if (quoteVersionId && quotationStatus?.getById === Status.ERROR) {
@@ -441,9 +448,7 @@ const QuotationManager = () => {
   const handleCreateNewVersion = async () => {
     try {
       const response = await dispatch(
-        createQuotationVersionThunk(
-          quoteVersionId ?? quoteDetails?.quotationVersionId
-        )
+        createQuotationVersionThunk(quoteVersionId ?? quoteDetails?.quotationVersionId)
       ).unwrap();
       message.success('New version created successfully');
 
@@ -566,7 +571,7 @@ const QuotationManager = () => {
                   selectedCategory={selectedCategory}
                   onCategorySelect={categoryId => {
                     setSelectedCategory(categoryId);
-                    setExtraItem(false);
+                    setExtraItem(null);
                   }}
                   setSelect={setSelect}
                 />
@@ -613,6 +618,7 @@ const QuotationManager = () => {
       <div className="m-3">
         <FooterActions
           id={quotationData?.referenceNumber || ''}
+          versionNo={quoteDetails?.quotationVersionNo}
           total={calculateTotalQuotation(
             selectedPackageFromSlice,
             items,
