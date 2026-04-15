@@ -28,7 +28,7 @@ export default function App({ Component, pageProps }) {
     const initializeApp = () => {
       setTimeout(() => {
         setIsAppReady(true);
-      }, 100); // Minimal delay to prevent flash
+      }, 500);
     };
 
     initializeApp();
