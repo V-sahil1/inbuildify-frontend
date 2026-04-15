@@ -54,6 +54,7 @@ import StructuralEngineerAssignment from '@/components/leadDetail/StructuralEngi
 import LeadQuotations from '@/components/leadDetail/LeadQuotations/LeadQuotations';
 import LeadContactModel from '@/components/common/Models/LeadContactModel';
 import Loading from '@/components/common/Loading';
+import { debouncedURL } from '@lib/utils/debounceURL';
 
 const { TabPane } = Tabs;
 
@@ -84,6 +85,19 @@ const LeadDetailPage = () => {
   const createdQuotations: Quotation[] = leadDetail?.createdQuotations?.quotations || [];
   const { columns } = LeadDepositColumn();
   // const isJob = useMemo(() => leadDetail?.lead?.status === "JOB", [leadDetail]);
+    const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
+      filtersKey: ['search'],
+      shouldSyncURL:false
+    });
+    useEffect(() => {
+      return () => {
+        debouncedUpdateURL.cancel();
+      };
+    }, [debouncedUpdateURL]);
+
+    useEffect(()=>{
+fetchLeadActivity()
+    },[filters?.search])
 
   useEffect(() => {
     if (leadId) {
@@ -215,6 +229,15 @@ const LeadDetailPage = () => {
     }
   };
 
+  const fetchLeadActivity = async ()=>{
+    try{
+      await dispatch(getLeadActiviesThunk({id:leadId,search:filters?.search || undefined})).unwrap();
+    }
+    catch(error){
+      message.error(error || 'Failed to fetch lead activity')
+    }
+  }
+
   const steps = useMemo(() => {
     if (isOpportunity) {
       return [
@@ -235,7 +258,7 @@ const LeadDetailPage = () => {
         {
           key: 'Close',
           label: 'Close',
-          color: 'bg-gray-200',
+          color: 'bg-orange-200',
           textColor: 'text-black',
           onClick: () => { },
         },
@@ -259,7 +282,7 @@ const LeadDetailPage = () => {
       {
         key: 'Convert',
         label: 'Convert',
-        color: 'bg-gray-200',
+        color: 'bg-orange-200',
         textColor: 'text-black',
         onClick: handleConvertClick,
       },
@@ -275,31 +298,31 @@ const LeadDetailPage = () => {
       key: 'delete',
       label: 'Delete',
     },
-    {
-      key: 'onhold',
-      label: 'On Hold',
-    },
-    {
-      key: 'blocklist',
-      label: 'Blocklist',
-    },
-    {
-      key: 'referanceid',
-      label: 'Referance ID',
-    },
-    isOpportunity && {
-      key: 'convertToLead',
-      label: 'Convert to Lead',
-    },
+    // {
+    //   key: 'onhold',
+    //   label: 'On Hold',
+    // },
+    // {
+    //   key: 'blocklist',
+    //   label: 'Blocklist',
+    // },
+    // {
+    //   key: 'referanceid',
+    //   label: 'Referance ID',
+    // },
+    // isOpportunity && {
+    //   key: 'convertToLead',
+    //   label: 'Convert to Lead',
+    // },
     leadDetail?.lead?.status === 'Working' &&
     leadDetail?.property && {
       key: 'convertToOpprtunity',
       label: 'Convert to Opportunity',
     },
-    {
-      key: 'sendwelcomelatter',
-      label: 'Send Welcome Letter',
-    },
+    // {
+    //   key: 'sendwelcomelatter',
+    //   label: 'Send Welcome Letter',
+    // },
   ].filter(Boolean);
 
   if (status.leads === Status.PENDING) {
@@ -447,7 +470,7 @@ const LeadDetailPage = () => {
             onChange={async (activeKey) => {
               try {
                 if (activeKey === 'Activity') {
-                const res = await dispatch(getLeadActiviesThunk(leadId)).unwrap();
+               fetchLeadActivity();
                 }
               } catch (error) {
                 console.error('Error fetching activities:', error);
@@ -487,7 +510,9 @@ const LeadDetailPage = () => {
                 tabs={[
                   { type: 'own', label: 'Own', count: leadDetail?.activities?.filter(a => a.userId === user?.usersId).length || 0 },
                   { type: 'all', label: 'All', count: leadDetail?.activities?.length || 0 }
-                ]} 
+                ]}
+                setParams={setParams}
+                filters={instantFilters}
                 loading={status?.activities === 'PENDING'}
               />
             </TabPane>

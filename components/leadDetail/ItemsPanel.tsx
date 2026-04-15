@@ -18,8 +18,8 @@ interface ItemsPanelProps {
   category?: IPriceList;
   onItemQuantityChange: (itemId: string, quantity: number) => void;
   onItemQuantityUpdate: (itemId: string, quantity: number) => Promise<void>;
-  onExtraClick: () => void;
-  extraItem: boolean;
+  onExtraClick: (type: string) => void;
+  extraItem: 'item' | 'complimentry' | 'discount' | 'note' | null;
   isReadOnly: boolean;
   itemsLoading: boolean;
   select?: boolean;
@@ -113,16 +113,16 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
     });
   };
   const menuItems = [
-    { key: 'additionalItem', label: 'Additional Items' },
-    { key: 'complimentary', label: 'Complimentary' },
+    { key: 'item', label: 'Additional Items' },
+    { key: 'complimentry', label: 'Complimentary' },
     { key: 'discount', label: 'Discount' },
-    { key: 'note', label: 'Note' },
+    // { key: 'note', label: 'Note' },
   ];
 
   const handleItemAdd = async (item: any) => {
     try {
       const quantity = quantityRefs.current[item.priceListItemId]?.value || '1';
-      const pricelist = items.find(i => i.priceListItemId === item.priceListItemId);
+      const pricelist = items.find(i => i.quotationVersionItemId === item.quotationVersionItemId);
       
       if (!!pricelist) {
         await dispatch(deleteQuotationPricelistThunk(pricelist?.quotationVersionItemId)).unwrap();
@@ -195,7 +195,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
       <Form
         form={form}
         onValuesChange={(changed, all) => {
-          const total = (all.quantity | 1) * (all.cost | 0);
+          const total = (all.quantity | 0) * (all.cost | 0);
           form.setFieldValue('total', total);
         }}
       >
@@ -225,14 +225,15 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
                     menu={{
                       items: menuItems,
                       onClick: ({ key }) => {
-                        if (key === 'additionalItem') {
-                          onExtraClick();
-                        }
+                        onExtraClick(key);
+                        form.resetFields();
                       },
                     }}
+                    disabled={!selectedFilters?.range || !selectedFilters?.dwellingType}
                   >
                     <Button type="primary" size="small" ghost>
-                      Extra <span className="ml-1">{extraItems.length ?? 0}</span>
+                      Extra{' '}
+                      <span className="ml-1">{items?.filter(i => i.extraItem).length ?? 0}</span>
                     </Button>
                   </Dropdown>
                 </div>
@@ -244,7 +245,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
           <div className="overflow-y-auto max-h-[250px] custom-scrollbar w-full">
             <div className="table border-collapse w-full" style={{ tableLayout: 'fixed' }}>
               <div className="table-row-group">
-                {extraItem && !select && (
+                {!!extraItem && !select && (
                   <QuatationExtraItem
                     key={'extra-item'}
                     onToggleAdd={handleItemAdd}
@@ -252,6 +253,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
                     form={form}
                     isReadOnly={isReadOnly}
                     quantityRef={quantityRefs}
+                    type={extraItem}
                   />
                 )}
                 {!category && !extraItem && (items.length <= 0 || !select) && (
@@ -269,35 +271,35 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
                   </div>
                 ) : (
                   <>
-                    {(select ? filterItems(userSelectedItems) : filterItems(category?.items || []))?.length >
+                    {(select ? filterItems(items) : filterItems(category?.items || []))?.length >
                     0 ? (
-                      (select
-                        ? filterItems(userSelectedItems)
-                        : filterItems(category?.items || [])?.filter(i => i.status === 'active')
-                      ).map(item => (
-                        <QuatationItem
-                          key={item?.priceListItemId}
-                          item={item}
-                          disabled={
-                            isReadOnly
-                            // || selectedPackageFromSlice?.some(
-                            //   catItem => catItem.id === item.priceListItemId
-                            // )
-                          }
-                          onQuantityChange={handleItemQuantityChange}
-                          onQuantityUpdate={onItemQuantityUpdate}
-                          quantityRef={el => (quantityRefs.current[item?.priceListItemId] = el)}
-                          isSelected={userSelectedItems?.some(
-                            itemData => itemData?.priceListItemId === item?.priceListItemId
-                          )}
-                          isDiffPrice={userSelectedItems?.find(
-                            itemData => itemData?.priceListItemId === item?.priceListItemId
-                          )?.isPriceListItemCostMismatch}
-                          onToggleAdd={handleItemAdd}
-                          category={category}
-                          onNoteUpdate={handleNotesUpdate}
-                        />
-                      ))
+                      (select ? filterItems(items) : filterItems(category?.items || [])).map(
+                        item => (
+                          <QuatationItem
+                            key={item?.priceListItemId}
+                            item={item}
+                            disabled={
+                              isReadOnly || item?.itemDescription === 'Compaction Report Charge'
+                            }
+                            onQuantityChange={handleItemQuantityChange}
+                            onQuantityUpdate={onItemQuantityUpdate}
+                            quantityRef={el => (quantityRefs.current[item?.priceListItemId] = el)}
+                            isSelected={
+                              userSelectedItems?.some(
+                                itemData => itemData?.priceListItemId === item?.priceListItemId
+                              ) || !!item?.extraItem
+                            }
+                            isDiffPrice={
+                              userSelectedItems?.find(
+                                itemData => itemData?.priceListItemId === item?.priceListItemId
+                              )?.isPriceListItemCostMismatch
+                            }
+                            onToggleAdd={handleItemAdd}
+                            category={category}
+                            onNoteUpdate={handleNotesUpdate}
+                          />
+                        )
+                      )
                     ) : (
                       <div className="table-row">
                         {category && (

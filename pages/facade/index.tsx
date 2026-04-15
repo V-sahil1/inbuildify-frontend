@@ -19,7 +19,6 @@ import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import ConfirmationModal from '@/components/common/ConfirmationModal';
 import { QuotationHistoryColumn } from '@/components/table-columns/QuotationHistoryColumn';
 import { QuotationHistory } from '@lib/utils/Reports/quotation/QuotationHistory';
-import TooltipButton from '@/components/common/TooltipButton';
 
 const FacadeMaster = () => {
   const [open, setOpen] = useState<'quotation' | 'facade' | 'delete' | null>(null);
@@ -29,17 +28,30 @@ const FacadeMaster = () => {
   const { facades, status, pagination } = useAppSelector(state => state.facade);
   const dispatch = useAppDispatch();
   const { columns: quotationColumns, data } = QuotationHistoryColumn();
+  ;
 
+  const [costType, setCostType] = useState<'standard' | 'upgrade'>(
+    (isEditing?.costType as 'standard' | 'upgrade') || 'standard'
+  );
   const PAGE_SIZE = 10;
 
   const fields = facadeFields({
     isDwellingDisable: false,
-    type: (isEditing?.costType as 'standard' | 'upgrade') || 'standard',
-  }) as FormField[];
+    type: costType,
+  })
+
 
   const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
     filtersKey: ['name', 'dwellingType', 'range', 'costType', 'location', 'status', 'cost'],
   });
+  ``
+  useEffect(() => {
+    if (isEditing?.costType) {
+      setCostType(isEditing.costType as 'standard' | 'upgrade');
+    } else {
+      setCostType('standard'); // reset when creating new
+    }
+  }, [isEditing]);
 
   useEffect(() => {
     fetchFacadesData();
@@ -271,6 +283,19 @@ const FacadeMaster = () => {
           }}
           title={`${isEditing ? 'Edit' : 'New'} Facade Information`}
           isEditing={!!isEditing}
+          onValuesChange={(values, form) => {
+            if (values.costType) {
+              setCostType(values.costType);
+
+              // clear values when switching to standard
+              if (values.costType === 'standard') {
+                form.setFieldsValue({
+                  cost: undefined,
+                  builderCost: undefined,
+                });
+              }
+            }
+          }}
           initialValues={
             isEditing
               ? {

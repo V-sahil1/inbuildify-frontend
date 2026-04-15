@@ -187,13 +187,14 @@ export type QuotationVersionDetails = {
     email: string;
     price?: number;
   };
+  quotationVersionItems?: any[]; 
 };
 
 export type QuotationPriceListItem = {
   id?: string;
   quotationVersionId: string;
   quotationVersionItemId?: string;
-  priceListItemCost?: string,
+  priceListItemCost?: string;
   isPackageCostMismatch?: boolean;
   isPriceListItemCostMismatch?: boolean;
   priceListItemId: string;
@@ -209,6 +210,7 @@ export type QuotationPriceListItem = {
   uom?: string;
   rangeId?: string[];
   dwellingTypeId?: string[];
+  extraItem?:boolean
 };
 
 export type QuotationPackage = {
@@ -281,4 +283,19 @@ export type CustomSection = {
   createdAt: string;
   updatedAt: string;
   fileName?: string;
+};
+
+export type ExtraItem = {
+  extraType: 'item' | 'complimentry' | 'discount' | 'note';
+  priceListId: string;
+  priceListItemDescription: string;
+  priceListItemCostType?: 'Fixed' | 'Variable' | string;
+  priceListItemCost?: number;
+  priceListItemBuilderCost?: number;
+  priceListItemUom?: 'SQ_YD' | string;
+  quantity?: number;
+  note?: string;
+  priceListItemCostTypeText?:string;
+  priceListItemRangeId?:string[];
+  priceListItemDwellingTypeId?:string[]
 };

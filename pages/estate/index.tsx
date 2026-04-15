@@ -50,7 +50,7 @@ export default function EstatePage() {
 
   const handleCreateEstate = async (values: IEstate) => {
     try {
-      const formData = formDataGenerator(values);
+      const formData = formDataGenerator({...values,estateLogo:values?.estateLogo?.[0]?.originFileObj as File});
       await dispatch(createEState(formData)).unwrap();
       message.success('Estate created successfully');
       setNewEstateOpen(false);

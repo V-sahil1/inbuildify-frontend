@@ -189,8 +189,9 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
           className="mb-0"
           initialValue={initialData?.sendAppointmentCustomer}
         >
-          <Switch className="mr-2" /> Send this appointment to Assignee
+          <Switch className="mr-2" />
         </Form.Item>
+        <span>Send this appointment to customer</span>
 
         <div className="flex gap-3">
           <Button onClick={onCancel}>Cancel</Button>

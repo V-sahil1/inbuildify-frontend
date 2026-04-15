@@ -616,10 +616,10 @@ export const deleteLeadProperty = createAsyncThunk(
 
 export const getLeadActiviesThunk = createAsyncThunk(
   'lead/activies/get',
-  async (leadId: string, { rejectWithValue }) => {
+  async (payload:{id:string,search?:string}, { rejectWithValue }) => {
     try {
       const response: ApiResponse = await api.get(
-        `${API_ENDPOINTS.LEAD_ACTIVITY_LOG}/${leadId}`
+        `${API_ENDPOINTS.LEAD_ACTIVITY_LOG}/${payload.id}`,{params:{search:payload?.search}}
       );
       return response.data;
     } catch (err) {

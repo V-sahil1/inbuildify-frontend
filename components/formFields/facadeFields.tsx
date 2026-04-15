@@ -78,9 +78,9 @@ export const facadeFields = ({
       {
         label: 'Cost',
         name: 'cost',
-        type: 'number' as const,
-        disabled: type === 'standard',
+        type: 'number',
         min: 0,
+        disabled: type === 'standard',
         rules: type === 'upgrade' ? costRules : [],
       },
       {
@@ -94,8 +94,8 @@ export const facadeFields = ({
         label: 'Builder cost',
         name: 'builderCost',
         type: 'number',
-        disabled: type === 'standard',
         min: 0,
+        disabled: type === 'standard',
         rules: type === 'upgrade' ? costRules : [],
       },
       {
@@ -112,7 +112,7 @@ export const facadeFields = ({
       },
     ].filter(Boolean) as FormField[];
 
-   
+
   }, [type, dwellingTypeOptions, isDwellingDisable, selectedFilters, locationOptions, rangeOptions]);
 
   return fields;

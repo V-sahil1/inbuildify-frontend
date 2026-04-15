@@ -124,6 +124,11 @@ const CustomFields: React.FC = () => {
     try {
       await dispatch(deleteCustomField(id)).unwrap();
       message.success('CustomField deleted Successfully');
+      if (customField.length === 1 && currentPage !== 1) {
+        setCurrentPage(prev => prev - 1);
+      } else if (currentPage !== pagination?.totalPages) {
+        fetchCustomField(currentPage, PAGE_SIZE);
+      }
     } catch (error) {
       message.error(error);
     }

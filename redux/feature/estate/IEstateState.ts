@@ -9,7 +9,7 @@ export interface IEstate {
   stateId: string;
   countryId: string;
   zip: string;
-  estateLogo: string | null;
+  estateLogo: string | File;
   website: string;
   description: string;
   status?: boolean;

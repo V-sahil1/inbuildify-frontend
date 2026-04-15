@@ -44,26 +44,43 @@ export const Setting: React.FC = () => {
   }, [settings, jobSetting]);
 
   const handleChange = (key: keyof JobSettings, value: string | number | boolean) => {
-    setSettings(prev => {
-      if (!prev) return prev;
-      const updated = { ...prev, [key]: value };
-      return updated;
-    });
+    if (key === 'autoArchiveAfterCompletion') {
+      const boolValue = Boolean(value);
+      if (!boolValue) {
+        setSettings(prev => {
+          if (!prev) return prev;
+          const updated = { ...prev, autoArchiveAfterDays: undefined, [key]: boolValue };
+          delete updated.autoArchiveAfterDays;
+          return updated;
+        });
+      } else {
+        setSettings(prev => {
+          if (!prev) return prev;
+          const updated = { ...prev, [key]: boolValue };
+          return updated;
+        });
+      }
+    } else {
+      setSettings(prev => {
+        if (!prev) return prev;
+        const updated = { ...prev, [key]: value };
+        return updated;
+      });
+    }
   };
 
   const handleSave = async () => {
     if (!settings || !jobSetting) return;
-    const { isUpdated, updatedFields } = getUpdatedFields(settings, jobSetting);
-    if (!isUpdated) {
-      message.info('No changes to save');
-      return;
-    }
     try {
-      if(!settings?.autoArchiveAfterDays){
-        delete updatedFields?.autoArchiveAfterDays;
+      const { isUpdated, updatedFields } = getUpdatedFields(settings, jobSetting);
+      if (!isUpdated) {
+        message.info('No changes to save');
+        setIsChanged(false);
+        return;
       }
       await dispatch(updateJobSetting(updatedFields)).unwrap();
       message.success('Settings saved successfully!');
+      setIsChanged(false);
     } catch (error) {
       message.error(error || 'Failed to save settings');
     }

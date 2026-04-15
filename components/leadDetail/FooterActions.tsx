@@ -57,26 +57,26 @@ const FooterActions: React.FC<FooterActionsProps> = ({
   const [sketchNum, setSketchNum] = useState('');
   const previewMenu = [
     { key: 'quotation', label: 'Quotation', icon: <IconFileTypePdf size={15} color="red" /> },
-    {
-      key: 'quotationSpecification',
-      label: 'Quotation With Specification',
-      icon: <IconFileTypePdf size={15} color="red" />,
-    },
-    {
-      key: 'preliminaryAgreement',
-      label: 'Preliminary Agreement',
-      icon: <IconFileTypePdf size={15} color="red" />,
-    },
-    {
-      key: 'quotationBuilderCost',
-      label: 'Quotation With Builder Cost',
-      icon: <IconFileTypePdf size={15} color="red" />,
-    },
-    {
-      key: 'quotationSpecificationExcel',
-      label: 'Quotation With Specification',
-      icon: <IconFileTypeXls size={15} color="green" />,
-    },
+    // {
+    //   key: 'quotationSpecification',
+    //   label: 'Quotation With Specification',
+    //   icon: <IconFileTypePdf size={15} color="red" />,
+    // },
+    // {
+    //   key: 'preliminaryAgreement',
+    //   label: 'Preliminary Agreement',
+    //   icon: <IconFileTypePdf size={15} color="red" />,
+    // },
+    // {
+    //   key: 'quotationBuilderCost',
+    //   label: 'Quotation With Builder Cost',
+    //   icon: <IconFileTypePdf size={15} color="red" />,
+    // },
+    // {
+    //   key: 'quotationSpecificationExcel',
+    //   label: 'Quotation With Specification',
+    //   icon: <IconFileTypeXls size={15} color="green" />,
+    // },
   ];
 
   const onSaveMenu = [
@@ -172,7 +172,7 @@ const FooterActions: React.FC<FooterActionsProps> = ({
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-4">
         <Space>
-          <Dropdown
+          {/* <Dropdown
             menu={{
               items: onSaveMenu,
               onClick: e => {
@@ -182,7 +182,7 @@ const FooterActions: React.FC<FooterActionsProps> = ({
             placement="top"
           >
             <Button disabled={disableAction}>Save As</Button>
-          </Dropdown>
+          </Dropdown> */}
           {/* {quoteVersionId ? (
             isEditMode ? (
               <>
@@ -230,9 +230,9 @@ const FooterActions: React.FC<FooterActionsProps> = ({
           >
             Approve
           </Button>
-          <Button type="primary" onClick={() => {}} disabled={disableAction}>
+          {/* <Button type="primary" onClick={() => {}} disabled={disableAction}>
             Email
-          </Button>
+          </Button> */}
           <Dropdown
             menu={{
               items: previewMenu,
@@ -240,6 +240,7 @@ const FooterActions: React.FC<FooterActionsProps> = ({
                 handlePreview(e.key);
               },
             }}
+            placement='top'
           >
             <Button
               icon={<IconEye size={16} />}
@@ -260,7 +261,7 @@ const FooterActions: React.FC<FooterActionsProps> = ({
           >
             Custom Section
           </Button>
-          <Button type="primary" disabled={disableAction}>
+          <Button type="primary" disabled={disableAction} onClick={()=>router.back()}>
             View Opprtunity
           </Button>
         </Space>

@@ -38,9 +38,10 @@ export interface IPriceListItem {
   modify?: boolean;
   additionalItem?: boolean;
   conditions?: PriceListItemCondition[];
-  // extraItemType?: 'Additional' | 'Complimentary' | 'Discount' | 'Note';
-
+  extraType?:"item"| "complimentry"| "discount"
+  extraItem?:boolean;
   isPriceListItemCostMismatch?: boolean;
+  quotationVersionItemId?:string
 }
 
 export interface PricelistItemFtechParams {
@@ -60,6 +61,7 @@ export interface PricelistItemFtechParams {
   search?: string;
   package_id?: string;
   is_system_data?: boolean;
+  additional_item?:boolean
 }
 
 export interface PricelistFetchParams {

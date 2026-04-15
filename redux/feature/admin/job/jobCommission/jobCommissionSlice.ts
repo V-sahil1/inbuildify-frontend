@@ -46,6 +46,12 @@ const JobCommissionSlice = createSlice({
         commission.isExpanded = true;
       }
     },
+    updateOutgoingList(state, action) {
+     state.outgoingCommission = action.payload
+    },
+    updateIngoingList(state, action) {
+     state.incomingCommission = action.payload
+    },
   },
   extraReducers: builder => {
     //setting
@@ -220,5 +226,5 @@ const JobCommissionSlice = createSlice({
     });
   },
 });
-export const { toggleExpand } = JobCommissionSlice.actions;
+export const { toggleExpand, updateOutgoingList, updateIngoingList } = JobCommissionSlice.actions;
 export default JobCommissionSlice.reducer;

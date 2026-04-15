@@ -168,7 +168,7 @@ export const CostCenterColumn = (filters, setParams, setEditRecord, setOpenModal
         );
         message.success('Cost Center updated successfully');
       } else {
-        await dispatch(createCostCenter({ ...values, status: values.status === 'true' })).unwrap();
+        await dispatch(createCostCenter({ ...values, status: true })).unwrap();
         message.success('Cost Center created successfully');
       }
       setEditRecord(null);

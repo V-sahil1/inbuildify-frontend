@@ -4,6 +4,7 @@ import API_ENDPOINTS from '@lib/constants/apiEndpoints';
 import api, { apiWithFormDataMethods } from '@lib/constants/api';
 import {
   CustomSection,
+  ExtraItem,
   Quotation,
   QuotationComparison,
   QuotationItemPayload,
@@ -128,7 +129,7 @@ export const getQuotationVersionById = createAsyncThunk(
   ) => {
     try {
       const res = await api.get<ApiResponse<QuotationVersionDetails[]>>(
-        API_ENDPOINTS.QUOTATION_VERSION_DETAILS + (quoteVersionId ? '/' + quoteVersionId : '')
+        API_ENDPOINTS.QUOTATION_VERSION_DETAILS + '/' + quoteVersionId
       );
       return res.data;
     } catch (error) {
@@ -227,9 +228,24 @@ export const createQuotationPricellistThunk = createAsyncThunk(
   'quotation/createQuotationPricelist',
   async (data: QuotationPriceListItem, { rejectWithValue }) => {
     try {
-      const res = await api.post<ApiResponse<QuotationPriceListItem>>(
+      const res = await api.post<ApiResponse>(
         API_ENDPOINTS.QUOTATION_VERSION_ITEM + API_ENDPOINTS.ITEM_BASE,
         { data }
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const createQuotationAdditionalPricellistThunk = createAsyncThunk(
+  'quotation/createQuotationAdditionalPricellistThunk',
+  async (payload: { data: ExtraItem; versionId: string }, { rejectWithValue }) => {
+    try {
+      const res = await api.post<ApiResponse>(
+        API_ENDPOINTS.QUOTATION_EXTRA_ITEM + '/' + payload.versionId,
+        { data: payload.data }
       );
       return res.data;
     } catch (error) {
@@ -241,19 +257,20 @@ export const createQuotationPricellistThunk = createAsyncThunk(
 export const getQuotationPricelistThunk = createAsyncThunk(
   'quotation/getQuotationPricelist',
   async (
-    params: { quotationVersionId: string; package_id?: string },
+    params: {
+      quotationVersionId: string;
+      package_id?: string;
+      range_id?: string;
+      dwelling_type_id?: string;
+    },
     { rejectWithValue }
   ) => {
     try {
-      const { quotationVersionId, package_id } = params;
-      let apiUrl = API_ENDPOINTS.QUOTATION_VERSION_ITEM + '/version/' + quotationVersionId;
-
-      // Add package_id parameter if provided
-      if (package_id) {
-        apiUrl += '?package_id=' + package_id;
-      }
-
-      const res = await api.get<ApiResponse<QuotationPriceListItem[]>>(apiUrl);
+      const { quotationVersionId, ...rest } = params;
+      const res = await api.get<ApiResponse>(
+        API_ENDPOINTS.QUOTATION_VERSION_ITEM + '/version/' + quotationVersionId,
+        { params: rest }
+      );
       return res.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -268,20 +285,20 @@ export const updateQuotationItemThunk = createAsyncThunk(
       quotationVersionItemId: string;
       quantity?: number;
       note?: string;
-      priceListItemDescription?: string
+      priceListItemDescription?: string;
     },
     { rejectWithValue }
   ) => {
     try {
       const { quotationVersionItemId, quantity, note, priceListItemDescription } = payload;
-      const res = await api.put<ApiResponse<QuotationPriceListItem>>(
+      const res = await api.put<ApiResponse>(
         API_ENDPOINTS.QUOTATION_VERSION_ITEM + '/' + quotationVersionItemId,
         {
           data: {
             quantity,
-            note: note || '',
-            priceListItemDescription: priceListItemDescription || ''
-          }
+            note: note || undefined,
+            priceListItemDescription: priceListItemDescription || undefined,
+          },
         }
       );
       return res.data;

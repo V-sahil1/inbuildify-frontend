@@ -101,13 +101,13 @@ export const gridMenuItems2: MenuItem[] = [
     id: 4,
     icon: <IconHome className="w-4 h-4 mr-3" />,
     label: 'Facade',
-    href: `${SystemRoutes.FACADE}`,
+    href: `${SystemRoutes.SETTINGS}/?tab=facade`,
   },
   {
     id: 5,
     icon: <IconLayout2 className="w-4 h-4 mr-3" />,
     label: 'Floor Plan',
-    href: `${SystemRoutes.FLOORPLAN}`,
+    href: `${SystemRoutes.SETTINGS}/?tab=floor-plan`,
   },
   {
     id: 6,

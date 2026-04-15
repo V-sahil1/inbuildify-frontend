@@ -247,6 +247,7 @@ class API_ENDPOINTS {
   public static QUOTATION_COMPARE = `${this.QUOTATION_BASE}/compare`;
   public static QUOTATION_CUSTOM_SECTION = '/quotation-version-custom-section';
   public static QUOTATION_VERSION_PDF = (id: string) => `${this.QUOTATION_VERSION}/${id}/pdf`;
+  public static QUOTATION_EXTRA_ITEM = `${this.QUOTATION_VERSION_ITEM}/extra-item`
 
   // location
   public static COUNTRY_BASE = '/country';
