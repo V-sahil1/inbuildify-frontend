@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Card,
   Space,
@@ -12,6 +12,7 @@ import {
   Row,
   Col,
   Empty,
+  Input,
 } from 'antd';
 // import { SubCategoryItem } from '@redux/feature/color/iColourState';
 import Loading from '@/components/common/Loading';
@@ -27,72 +28,130 @@ interface Props {
 // Extracted card content to avoid duplication
 const CardContent = (
   { item, isGridView }: { item: any; isGridView: boolean } // item:SubCategoryItem
-) => (
-  <>
+) => {
+  const [unitsValue, setUnitsValue] = useState('');
+  const [notesValue, setNotesValue] = useState('');
+  const [highlightNotes, setHighlightNotes] = useState(false);
+  const [descriptionValue, setDescriptionValue] = useState('');
+  const [featuresValue, setFeaturesValue] = useState('');
+
+  return (
     <div className={isGridView ? 'flex flex-col h-full' : 'flex flex-col md:flex-row gap-6 h-full'}>
       {/* Image Carousel */}
       <div className={isGridView ? 'w-full' : 'w-full md:w-44 flex-shrink-0'}>
-        <Carousel dots={true} arrows={isGridView} infinite={false}>
-          {/* {item.images.map((img, idx) => ( */}
-          <div key={item.image} className="overflow-hidden rounded-lg">
-            <Image
-              src={item.image}
-              alt={`${item.name}-${item.image}`}
-              width={isGridView ? '100%' : 180}
-              height={isGridView ? 180 : 120}
-              style={{ objectFit: 'cover', borderRadius: 8 }}
-              fallback="/images/placeholder.png"
-              preview={true}
-            />
-          </div>
-          {/* ))} */}
+        <Carousel dots={true}
+          arrows={true}
+          infinite={false}>
+          {item.colorImage.map((img: any) => (
+            <div key={img.url} className="overflow-hidden rounded-lg">
+              <Image
+                src={img.url}
+                alt={`${item.name}-${img.url}`}
+                width={isGridView ? '100%' : 180}
+                height={isGridView ? 180 : 120}
+                style={{ objectFit: 'cover', borderRadius: 8 }}
+                fallback="/images/placeholder.png"
+                preview={true}
+              />
+            </div>
+          ))}
         </Carousel>
       </div>
 
       {/* Item Details */}
       <div className="flex-1 flex flex-col justify-between p-2">
         <div>
-          <div className="flex justify-between">
-            <Title level={5}>{item.name}</Title>
-            <Button type={((item as any).isAdded ?? false) ? 'default' : 'primary'} size="small">
-              {((item as any).isAdded ?? false) ? 'Remove' : 'Add'}
-            </Button>
+          <div className="flex justify-between items-start">
+            <div className="flex">
+              <Title level={5}>{item.itemName}</Title>
+            </div>
+            <div>
+              <Text strong>Item Code: </Text>
+              <Text className="mt-1">{item?.itemCode}</Text>
+            </div>
+            <div className="flex items-center gap-4">
+              {/* Units field beside Add button */}
+              {item?.units === 'mandatory' && (
+                <div className="flex items-center gap-1">
+                  <Text strong>Units:</Text>
+                  <Input
+                    size="small"
+                    placeholder="Enter units"
+                    value={unitsValue}
+                    onChange={(e) => setUnitsValue(e.target.value)}
+                    style={{ width: '80px' }}
+                  />
+                </div>
+              )}
+              <Button type={((item as any).isAdded ?? false) ? 'default' : 'primary'} size="small">
+                {((item as any).isAdded ?? false) ? 'Remove' : 'Add'}
+              </Button>
+            </div>
           </div>
-          <Text type="secondary">{item?.code}</Text>
           <Divider className="my-2" />
-          <Text strong>Notes: </Text>
-          <Text className="text-gray-700">{item?.notes}</Text>
-        </div>
 
-        <div className="mt-4 flex flex-col gap-2">
-          <div className="flex flex-wrap gap-4 items-center">
-            {/* <div>
-              <Text strong>Features: </Text> */}
-            {/* {item.itemFeatures?.split(",").map((feature, idx) => (
-                <Tag color="blue" key={idx}>
-                  {feature.trim()}
-                </Tag>
-              ))} */}
-            {/* </div> */}
+          {/* Essential Information */}
+          <div className="space-y-2">
+            <div>
+              <Text strong>Description: </Text>
+              {item?.description ? (
+                <Text className="text-gray-700">{item?.description}</Text>
+              ) : (
+                <Input.TextArea
+                  placeholder="Enter description..."
+                  value={descriptionValue}
+                  onChange={(e) => setDescriptionValue(e.target.value)}
+                  rows={2}
+                  className="mt-1"
+                />
+              )}
+            </div>
 
-            {/* {item.itemSupplier && (
-              <div>
-                <Text strong>Supplier: </Text>
-                <Text>{item.itemSupplier}</Text>
-              </div>
-            )} */}
+            <div>
+              <Text strong>Features: </Text>
+              {item?.features ? (
+                <Text className="mt-1">{item?.features}</Text>
+              ) : (
+                <Input.TextArea
+                  placeholder="Enter features..."
+                  value={featuresValue}
+                  onChange={(e) => setFeaturesValue(e.target.value)}
+                  rows={2}
+                  className="mt-1"
+                />
+              )}
+            </div>
           </div>
-
-          {/* Notes toggle */}
-          <div className="mt-2 flex items-center gap-2">
-            <Switch size="small" value={item?.highlightNotesOnPdf} disabled />
-            <Text>Highlight notes on PDF</Text>
+          
+          {/* Notes Input and Toggle */}
+          <div className="mt-auto pt-4 border-t">
+            <div className="space-y-3 mt-auto">
+              <div>
+                <Text strong>Notes: </Text>
+                <Input.TextArea
+                  placeholder="Enter notes..."
+                  value={notesValue}
+                  onChange={(e) => setNotesValue(e.target.value)}
+                  rows={2}
+                  className="mt-1"
+                />
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <Switch
+                  size="small"
+                  value={highlightNotes}
+                  onChange={setHighlightNotes}
+                />
+                <Text>Highlight notes on PDF</Text>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </>
-);
+  );
+};
 
 export const ColorItemCard: React.FC<Props> = ({ data, isGridView, loading }) => {
   // console.log("data of card", data);
@@ -140,7 +199,7 @@ export const ColorItemCard: React.FC<Props> = ({ data, isGridView, loading }) =>
             <Col key={item?.colorItemId} xs={24} sm={12} md={12} lg={12}>
               <Card
                 className="w-full h-full rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 relative"
-                bodyStyle={{ padding: 16 }}
+                bodyStyle={{ padding: 16, height: '100%' }}
               >
                 <CardContent item={item} isGridView={isGridView} />
               </Card>
@@ -152,7 +211,7 @@ export const ColorItemCard: React.FC<Props> = ({ data, isGridView, loading }) =>
           {data.map(item => (
             <Card
               key={item?.colorItemId}
-              className="w-full rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 relative"
+              className="w-full rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 relative h-full"
               bodyStyle={{ padding: 16 }}
             >
               <CardContent item={item} isGridView={isGridView} />

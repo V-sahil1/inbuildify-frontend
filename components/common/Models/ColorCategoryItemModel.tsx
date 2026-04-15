@@ -22,6 +22,9 @@ import {
   nameRules,
   optionalNotesRule,
   acceptOnlyImageRule,
+  notesRules,
+  optionalNameRules,
+  OptionalNumberRules,
 } from '@lib/constants/formInputValidations';
 import { IconUpload } from '@tabler/icons-react';
 import { Status } from '@lib/constants/enum';
@@ -35,6 +38,7 @@ import {
   createColourItemCustomField,
   createColourType,
   deleteColourItemCustomField,
+  deleteColourItemImagebyIndex,
   updateColourItem,
   updateColourType,
 } from '@redux/feature/color/colorThunk';
@@ -44,6 +48,8 @@ import { ColorItem, ColorItemCustomField, ColorGroup } from '@redux/feature/colo
 import { useColorTypeHook } from '@hooks/useColorTypeHook';
 import NoDataMessage from '../NoDataMessage';
 import SystemRoutes from '@lib/constants/Routes';
+import Item from 'antd/es/list/Item';
+import { MdRule } from 'react-icons/md';
 
 interface ColorCategoryItemModalProps {
   open: boolean;
@@ -92,22 +98,22 @@ const ColorCategoryItemModel = ({
       // Initialize images state with existing items
       const existingColorImages =
         categoryItem && 'colorImage' in categoryItem && categoryItem.colorImage
-          ? categoryItem.colorImage.map((i, index) => ({
-              uid: `existing-${index}`,
-              name: 'colorImage',
-              status: 'done',
-              url: i.url,
-            }))
+          ? categoryItem?.colorImage?.map((i, index) => ({
+            uid: `existing-${index}`,
+            name: 'colorImage',
+            status: 'done',
+            url: i.url,
+          }))
           : [];
 
       const existingSpecifications =
         categoryItem && 'specification' in categoryItem && categoryItem.specification
           ? categoryItem.specification.map((i, index) => ({
-              uid: `existing-${index}`,
-              name: 'specification',
-              status: 'done',
-              url: i.url,
-            }))
+            uid: `existing-${index}`,
+            name: 'specification',
+            status: 'done',
+            url: i.url,
+          }))
           : [];
 
       setImages({
@@ -212,6 +218,44 @@ const ColorCategoryItemModel = ({
     }
   };
 
+  const handleImageRemove = async (file, fieldName) => {
+    try {
+      if (file?.originFileObj) {
+        return;
+      }
+      // Determine which field to update based on fieldName
+      if (fieldName === 'colorImage') {
+        const index = images.color.findIndex(img => img.uid === file.uid);
+        const colorItem = categoryItem as ColorItem;
+        const res = await dispatch(deleteColourItemImagebyIndex({
+          colorItemId: colorItem.colorItemId,
+          data: {
+            fieldName: 'color_image',
+            index: Number(index)
+          }
+        })).unwrap();
+        if (res) {
+          message.success('Image removed successfully');
+        }
+      } else if (fieldName === 'specification') {
+        const index = images.specification.findIndex(img => img.uid === file.uid);
+        const colorItem = categoryItem as ColorItem;
+        const res = await dispatch(deleteColourItemImagebyIndex({
+          colorItemId: colorItem.colorItemId,
+          data: {
+            fieldName: 'specification',
+            index: Number(index)
+          }
+        })).unwrap();
+        if (res) {
+          message.success('Image removed successfully');
+        }
+      }
+    } catch (error) {
+      message.error('Failed to remove image');
+    }
+  }
+
   const onFinish = async values => {
     try {
       await form.validateFields();
@@ -219,24 +263,52 @@ const ColorCategoryItemModel = ({
 
       const processFiles = (files: any[]) => {
         const newFiles = files.filter(file => file.originFileObj).map(file => file.originFileObj);
-
-        const existingFiles = files.filter(file => !file.originFileObj).map(file => file.url);
-
-        return [...newFiles, ...existingFiles];
+        return newFiles;
       };
+
+      // Handle image arrays correctly for formDataGenerator
+      const colorImageProcessed = processFiles(images.color);
+      const specProcessed = processFiles(images.specification);
 
       const payload = {
         ...restValues,
-        colorImage: processFiles(images.color),
-        specification: processFiles(images.specification),
+        // Only include image fields if they contain NEW files (uploads)
+        ...(colorImageProcessed.length > 0 && { colorImage: colorImageProcessed }),
+        ...(specProcessed.length > 0 && { specification: specProcessed }),
       };
+
       if (categoryItem && 'colorItemId' in categoryItem) {
-        const { isUpdated, updatedFields } = getUpdatedFields(payload, categoryItem);
+        const mappedCustomFields = customFields.map(field => ({
+          fieldType: field.fieldType,
+          fieldName: field.fieldName,
+          requiredField: field.requiredField,
+          sortOrder: field.sortOrder,
+        }));
+
+        const fullPayload = {
+          ...restValues,
+          customFields: mappedCustomFields,
+          ...(colorImageProcessed.length > 0 && { colorImage: colorImageProcessed }),
+          ...(specProcessed.length > 0 && { specification: specProcessed }),
+        };
+
+        const { isUpdated, updatedFields } = getUpdatedFields(fullPayload, categoryItem);
         if (!isUpdated) {
           message.info('No changes detected');
           return;
         }
-        const formData = formDataGenerator(updatedFields);
+
+        // Filter out image fields if they don't contain new files
+        const filteredUpdatedFields = { ...updatedFields };
+        if (colorImageProcessed.length === 0) {
+          delete filteredUpdatedFields.colorImage;
+        }
+        if (specProcessed.length === 0) {
+          delete filteredUpdatedFields.specification;
+        }
+
+        // Use filteredUpdatedFields to include custom fields in form data
+        const formData = formDataGenerator(filteredUpdatedFields);
         await dispatch(updateColourItem({ data: formData, id: categoryItem.colorItemId })).unwrap();
         message.success('Sub-category item updated successfully');
       } else {
@@ -250,14 +322,14 @@ const ColorCategoryItemModel = ({
         const createPayload =
           type === 'category'
             ? {
-                ...payload,
-                colorCategoryId: selectedColorCategoryId,
-                customFields: mappedCustomFields,
-              }
+              ...payload,
+              colorCategoryId: selectedColorCategoryId,
+              customFields: mappedCustomFields,
+            }
             : {
-                ...payload,
-                customFields: mappedCustomFields,
-              };
+              ...payload,
+              customFields: mappedCustomFields,
+            };
 
         const formData = formDataGenerator(createPayload);
         await dispatch(createColourItem(formData)).unwrap();
@@ -294,9 +366,9 @@ const ColorCategoryItemModel = ({
   const initialValues = categoryItem
     ? categoryItem
     : {
-        isActive: true,
-        highlightNotesOnPdf: false,
-      };
+      isActive: true,
+      highlightNotesOnPdf: false,
+    };
 
   const columns = [
     {
@@ -312,6 +384,7 @@ const ColorCategoryItemModel = ({
       title: 'Field Name',
       dataIndex: 'fieldName',
       key: 'fieldName',
+      rules: optionalNameRules,
     },
     {
       title: 'Required',
@@ -323,6 +396,8 @@ const ColorCategoryItemModel = ({
       title: 'Sort Order',
       dataIndex: 'sortOrder',
       key: 'sortOrder',
+      min: 0,
+      rules: OptionalNumberRules,
     },
     {
       title: 'Actions',
@@ -386,7 +461,25 @@ const ColorCategoryItemModel = ({
                     <Form.Item
                       name="itemCode"
                       label="Item Code"
-                      rules={[{ required: true, message: 'Please enter item code' }]}
+                      rules={[
+                        { required: true, message: 'Please enter item code' },
+                        {
+                          validator: (_, value) => {
+                            if (!value) return Promise.resolve();
+                            if (value.startsWith(' ') || value.endsWith(' ')) {
+                              return Promise.reject('Item Code cannot start or end with spaces');
+                            }
+                            const isValid = value.length >= 2 && value.length <= 50;
+
+                            if (!isValid) {
+                              return Promise.reject(
+                                'Item Code must be at least 2 characters and at most 50 characters'
+                              );
+                            }
+                            return Promise.resolve();
+                          },
+                        },
+                      ]}
                     >
                       <Input maxLength={100} minLength={1} placeholder="Enter item code" />
                     </Form.Item>
@@ -476,9 +569,17 @@ const ColorCategoryItemModel = ({
                           disabled={isStandard === 'standard'}
                           style={{ width: '100%' }}
                           min={0}
+                          max={1000000}
                           step={0.01}
                           formatter={value => `$${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                           placeholder="Enter price"
+                          stringMode
+                          onKeyPress={(e) => {
+                            const char = String.fromCharCode(e.which);
+                            if (!/[0-9.]/.test(char)) {
+                              e.preventDefault();
+                            }
+                          }}
                         />
                       </Form.Item>
                     )}
@@ -500,6 +601,12 @@ const ColorCategoryItemModel = ({
                           type="number"
                           onWheel={e => e.currentTarget.blur()}
                           placeholder="Enter sort order"
+                          onKeyPress={(e) => {
+                            const char = String.fromCharCode(e.which);
+                            if (!/[0-9.]/.test(char)) {
+                              e.preventDefault();
+                            }
+                          }}
                         />
                       </Form.Item>
                     </Col>
@@ -647,7 +754,7 @@ const ColorCategoryItemModel = ({
                         {(categoryItem &&
                           'customFields' in categoryItem &&
                           categoryItem.customFields?.length > 0) ||
-                        (!categoryItem && customFields.length > 0) ? (
+                          (!categoryItem && customFields.length > 0) ? (
                           <Table
                             columns={columns}
                             dataSource={
@@ -691,6 +798,9 @@ const ColorCategoryItemModel = ({
                         maxCount={type === 'category' ? 10 : 1}
                         listType="picture"
                         accept={acceptOnlyImageRule}
+                        onRemove={(file) => {
+                          return handleImageRemove(file, 'colorImage');
+                        }}
                         onChange={info => {
                           setImages(prev => ({
                             ...prev,
@@ -734,6 +844,9 @@ const ColorCategoryItemModel = ({
                         className="text-center"
                         accept="image/*,.pdf"
                         fileList={images.specification}
+                        onRemove={(file) => {
+                          return handleImageRemove(file, 'specification');
+                        }}
                         onChange={info => {
                           setImages(prev => ({
                             ...prev,
@@ -742,7 +855,7 @@ const ColorCategoryItemModel = ({
                         }}
                       />
                     </Form.Item>
-                    <Form.Item name="specificationName">
+                    <Form.Item name="specificationName" rules={optionalNotesRule}>
                       <Input placeholder="Enter specification text" />
                     </Form.Item>
                     <div>

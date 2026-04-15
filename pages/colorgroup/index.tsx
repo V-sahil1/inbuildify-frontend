@@ -78,6 +78,7 @@ const ColorGroupPage = () => {
     try {
       await dispatch(
         fetchColourGroupItems({ color_group_id: selectedGroup?.colorGroupId })
+        // fetchColourItems({})
       ).unwrap();
     } catch (error) {
       message.error(error || 'Failed to fetch color items');
@@ -189,7 +190,14 @@ const ColorGroupPage = () => {
             />
           </div>
           <div className="flex flex-col ">
-            {colorGroup?.map(item => (
+            {colorGroup
+              ?.filter(item => {
+                if (instantFilters?.groupSearch) {
+                  return item.name.toLowerCase().includes(instantFilters.groupSearch.toLowerCase());
+                }
+                return true;
+              })
+              .map(item => (
               <div
                 key={item.colorGroupId}
                 onClick={() => setSelectedGroup(item)}
@@ -208,7 +216,7 @@ const ColorGroupPage = () => {
                       icon={
                         <IconPencil
                           size={16}
-                          className={` ${filters?.selectedGroup === item?.name ? '!text-white' : '!text-primary'}  group-hover:text-black transition-all`}
+                          className={` ${filters?.selectedGroup === item?.name || selectedGroup?.colorGroupId === item?.colorGroupId ? '!text-white' : '!text-primary'}  group-hover:text-black transition-all`}
                         />
                       }
                     />
@@ -222,7 +230,7 @@ const ColorGroupPage = () => {
                       icon={
                         <IconTrash
                           size={16}
-                          className={` ${filters?.selectedGroup === item?.name ? '!text-white' : '!text-primary'}  group-hover:text-black transition-all`}
+                          className={` ${filters?.selectedGroup === item?.name || selectedGroup?.colorGroupId === item?.colorGroupId ? '!text-white' : '!text-primary'}  group-hover:text-black transition-all`}
                         />
                       }
                     />
@@ -239,10 +247,10 @@ const ColorGroupPage = () => {
           <div className="flex  items-center justify-between mb-4">
             <div className="flex w-[60%] gap-2">
               <Select
-                options={supplierOptions}
-                value={instantFilters?.supplier}
+                options={[{ value: 'all', label: 'All Suppliers' }, ...supplierOptions]}
+                value={instantFilters?.supplier || 'all'}
                 onChange={e => {
-                  setParams({ supplier: e });
+                  setParams({ supplier: e === 'all' ? null : e });
                 }}
                 className="min-w-[200px]"
                 placeholder="Select Supplier"
@@ -289,7 +297,32 @@ const ColorGroupPage = () => {
 
           <div className="flex flex-col">
             {colorItems.length > 0 ? (
-              colorItems.map(item => {
+              colorItems
+                .filter(item => {
+                  // Filter by selected view (group membership)
+                  if (selectedView === 'selected' && selectedGroup) {
+                    if (!item.colorGroups?.some(g => g.colorGroupId === selectedGroup.colorGroupId)) {
+                      return false;
+                    }
+                  }
+                  
+                  // Filter by supplier (only if not 'all')
+                  if (instantFilters?.supplier && instantFilters.supplier !== 'all' && item.supplierId !== instantFilters.supplier) {
+                    return false;
+                  }
+                  
+                  // Filter by search term (item name or item code)
+                  if (instantFilters?.search) {
+                    const searchTerm = instantFilters.search.toLowerCase();
+                    return (
+                      item.itemName?.toLowerCase().includes(searchTerm) ||
+                      item.itemCode?.toLowerCase().includes(searchTerm)
+                    );
+                  }
+                  
+                  return true;
+                })
+                .map(item => {
                 const i = item.colorGroups?.find(
                   g => g.colorGroupId === selectedGroup?.colorGroupId
                 );
@@ -350,6 +383,14 @@ const ColorGroupPage = () => {
                       </div>
 
                       <div className="col-span-full flex flex-wrap gap-2 mt-2">
+                        {item.supplierId && (
+                          <span
+                            key={item.supplierId}
+                            className="text-xs bg-indigo-500 text-white px-2 py-1 rounded whitespace-nowrap"
+                          >
+                            {supplierOptions.find(supplier => supplier.value === item.supplierId)?.label || item.supplierId}
+                          </span>
+                        )}
                         {item.colorGroups &&
                           item.colorGroups.length > 0 &&
                           item.colorGroups.map((grp, idx) => (
@@ -424,15 +465,15 @@ const ColorGroupPage = () => {
           message={
             modalOpen === 'group'
               ? 'Color Group : ' +
-                selectedGroup?.name +
-                ' is been used in existing color selections.\n ' +
-                selectedGroup?.name +
-                " can't be deleted . You can inactivate the color group if not required.\n Are you sure you want to inactivate"
+              selectedGroup?.name +
+              ' is been used in existing color selections.\n ' +
+              selectedGroup?.name +
+              " can't be deleted . You can inactivate the color group if not required.\n Are you sure you want to inactivate"
               : 'Color Item : ' +
-                selectedItem?.itemName +
-                ' is been used in existing color item selections.\n ' +
-                selectedItem?.itemName +
-                " can't be deleted . You can inactivate the color item if not required.\n Are you sure you want to inactivate"
+              selectedItem?.itemName +
+              ' is been used in existing color item selections.\n ' +
+              selectedItem?.itemName +
+              " can't be deleted . You can inactivate the color item if not required.\n Are you sure you want to inactivate"
           }
         />
       )}
