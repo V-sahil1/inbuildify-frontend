@@ -61,7 +61,7 @@ const TimelineActionsBar: FC<TimelineActionsBarProps> = ({
 
       {/* Actions Section */}
 
-      <div className="flex items-center gap-2 sm:mt-0 mt-2">
+      {isActionShow && <div className="flex items-center gap-2 sm:mt-0 mt-2">
         {/* <button className="text-primary rounded p-1 border-2 border-primary">
           <IconFilter />
         </button> */}
@@ -82,7 +82,7 @@ const TimelineActionsBar: FC<TimelineActionsBarProps> = ({
             Add {activeTab}
           </Button>
         )}
-      </div>
+      </div>}
     </div>
   );
 };

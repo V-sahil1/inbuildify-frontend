@@ -167,6 +167,11 @@ const Checklist = () => {
     try {
       await dispatch(deleteChecklist(id)).unwrap();
       message.success('Checklist delete successfully');
+      if (checklist.length === 1 && currentPage !== 1) {
+        setCurrentPage(prev => prev - 1);
+      } else if (currentPage !== pagination?.totalPages) {
+        fetchChecklist(currentPage, PAGE_SIZE);
+      }
     } catch (error) {
       message.error(error || 'Failed to delete checklist');
     }

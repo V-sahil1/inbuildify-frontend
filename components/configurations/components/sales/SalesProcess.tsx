@@ -424,7 +424,6 @@ export const SalesProcess: React.FC = () => {
                           setNewProcess(false);
                           setEditingProcessId(null);
                         }
-                        handleDeleteProcess(record);
                       }}
                     />
                   </Popconfirm>

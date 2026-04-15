@@ -93,6 +93,11 @@ const NotesTag: React.FC = () => {
   const handleDelete = async (id: string) => {
     try {
       await dispatch(deleteNotesTag(id)).unwrap();
+      if (notesTag.length === 1 && currentPage !== 1) {
+        setCurrentPage(prev => prev - 1);
+      } else if (currentPage !== pagination?.totalPages) {
+        fetchAllNotes(currentPage, PAGE_SIZE);
+      }
       message.success('Tag deleted successfully');
     } catch (error) {
       message.error(error || 'Failed to delete tag');

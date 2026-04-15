@@ -27,7 +27,12 @@ import {
   CommissionStage,
   JobCommission,
 } from '@redux/feature/admin/job/jobCommission/IJobCommissionState';
-import { toggleExpand } from '@redux/feature/admin/job/jobCommission/jobCommissionSlice';
+import {
+  toggleExpand,
+  updateIngoingList,
+  updateOutgoingList,
+} from '@redux/feature/admin/job/jobCommission/jobCommissionSlice';
+import { handleReorder } from '@lib/utils/reorderBySort';
 
 const { Text } = Typography;
 
@@ -50,7 +55,7 @@ export const Comission: React.FC = () => {
   const [editingItem, setEditingItem] = useState<JobCommission | null>(null);
   const [editingStage, setEditingStage] = useState<CommissionStage | null>(null);
   const [editingParent, setEditingParent] = useState<string | null>(null);
-  const [editingIncoming, setEditingIncoming] = useState<CommissionStage | null>(null);
+  const [editingIncoming, setEditingIncoming] = useState<JobCommission | null>(null);
   const [form] = Form.useForm();
   const [childForm] = Form.useForm();
   const [incomingForm] = Form.useForm();
@@ -108,26 +113,6 @@ export const Comission: React.FC = () => {
     }
   };
 
-  // --- Sorting helpers ---
-  const sortData = (arr: any[]) => [...arr].sort((a, b) => a.sort - b.sort);
-
-  const adjustSort = (arr: any[], newSort: number, editingId?: string) => {
-    const sorted = sortData(arr);
-    let updated = sorted;
-    if (newSort < 1) newSort = 1;
-    if (newSort > arr.length + (editingId ? 0 : 1)) newSort = arr.length + 1;
-
-    if (editingId) updated = updated.filter(i => i.id !== editingId);
-    updated.splice(newSort - 1, 0, { placeholder: true });
-
-    return updated
-      .filter(i => !i.placeholder)
-      .map((item, idx) => ({
-        ...item,
-        sort: idx + 1,
-      }));
-  };
-
   //save setting
   async function handleSaveSetting() {
     try {
@@ -153,8 +138,9 @@ export const Comission: React.FC = () => {
   const handleSaveParent = async values => {
     await form.validateFields();
     try {
+      let response;
       if (editingItem) {
-        await dispatch(
+        response = await dispatch(
           updateOutgoingCommission({
             data: values,
             id: editingItem.jobCommissionId,
@@ -163,12 +149,23 @@ export const Comission: React.FC = () => {
         ).unwrap();
         message.success('Outgoing commission updated successfully');
       } else {
-        await dispatch(
+        response = await dispatch(
           createOutgoingCommission({ ...values, commissionType: 'outgoing' })
         ).unwrap();
         message.success('Outgoing commission created successfully');
       }
       setModalOpen(null);
+      if (response) {
+        const updatedList = handleReorder(
+          outgoingCommission,
+          editingItem ? response?.data : response,
+          {
+            idKey: 'jobCommissionId',
+            sortKey: 'sortOrder',
+          }
+        );
+        dispatch(updateOutgoingList(updatedList));
+      }
     } catch (error) {
       message.error(error || 'Failed to save outgoing commission');
     }
@@ -244,7 +241,7 @@ export const Comission: React.FC = () => {
     setModalOpen('incoming');
   };
 
-  const handleEditIncoming = (record: CommissionStage) => {
+  const handleEditIncoming = (record: JobCommission) => {
     setEditingIncoming(record);
     incomingForm.setFieldsValue(record);
     setModalOpen('incoming');
@@ -253,22 +250,34 @@ export const Comission: React.FC = () => {
   const handleSaveIncoming = async values => {
     await incomingForm.validateFields();
     try {
+      let response;
       if (editingIncoming) {
-        await dispatch(
+        response = await dispatch(
           updateOutgoingCommission({
             data: values,
             id: editingIncoming.jobCommissionId,
             commissionType: 'incoming',
           })
         ).unwrap();
-        message.success('Outgoing commission updated successfully');
+        message.success('Incoming commission updated successfully');
       } else {
-        await dispatch(
+        response = await dispatch(
           createOutgoingCommission({ ...values, commissionType: 'incoming' })
         ).unwrap();
-        message.success('Outgoing commission created successfully');
+        message.success('Incoming commission created successfully');
       }
       setModalOpen(null);
+      if (response) {
+        const updatedList = handleReorder(
+          incomingCommission,
+          editingIncoming ? response?.data : response,
+          {
+            idKey: 'jobCommissionId',
+            sortKey: 'sortOrder',
+          }
+        );
+        dispatch(updateIngoingList(updatedList));
+      }
     } catch (error) {
       message.error(error || 'Failed to save incoming record');
     }
@@ -366,7 +375,7 @@ export const Comission: React.FC = () => {
     );
   };
 
-  const incomingColumns: ColumnsType<CommissionStage> = [
+  const incomingColumns: ColumnsType<JobCommission> = [
     { title: 'Name', dataIndex: 'name' },
     { title: 'Commission Value', dataIndex: 'commissionValue' },
     { title: 'Sort', dataIndex: 'sortOrder', width: 100 },
@@ -446,7 +455,7 @@ export const Comission: React.FC = () => {
           </div>
           <Table
             columns={outgoingColumns}
-            dataSource={sortData(outgoingCommission)}
+            dataSource={outgoingCommission}
             expandable={{ expandedRowRender }}
             pagination={false}
             rowKey="jobCommissionId"
@@ -465,7 +474,7 @@ export const Comission: React.FC = () => {
           </div>
           <Table
             columns={incomingColumns}
-            dataSource={sortData(incomingCommission)}
+            dataSource={incomingCommission}
             pagination={false}
             rowKey="id"
             bordered
