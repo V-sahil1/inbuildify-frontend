@@ -25,7 +25,7 @@ const DashboardDrawer: React.FC<DashboardDrawerProps> = ({
     'Lead Sources',
     'Top 5 Performers',
     'Job Conversion',
-    'overall summary',
+    'Overall Summary',
     'Top 10 Floorplan',
     'Top 10 Facade',
     'Lead Lost Reasons',
@@ -66,7 +66,7 @@ const DashboardDrawer: React.FC<DashboardDrawerProps> = ({
     <Drawer
       title={
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Customize he dashboard</h2>
+          <h2 className="text-lg font-semibold">Customize the Dashboard</h2>
           <Button type="text" icon={<IconX size={20} />} onClick={onClose} className="p-0 h-auto" />
         </div>
       }

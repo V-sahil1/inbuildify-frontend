@@ -1,6 +1,7 @@
 class API_ENDPOINTS {
   //dashboard
   public static DASHBOARD_BASE = '/dashboard';
+  public static REFRESH_WIDGETS_CACHE = `${this.DASHBOARD_BASE}/widgets/refresh`;
 
   //auth
   public static AUTH_BASE = '/auth';
@@ -83,6 +84,20 @@ class API_ENDPOINTS {
     return `${this.LEAD_BASE}${qs ? '?' + qs : ''}`;
   };
   public static LEAD_STATS = `${this.LEAD_BASE}/stats`;
+  public static SALES_DASHBOARD_STATS = (params?: {
+    user_id?: string;
+    created_at?: string;
+    created_at_from?: string;
+    created_at_to?: string;
+  }) => {
+    const query = new URLSearchParams();
+    if (params?.user_id && params.user_id !== 'all') query.set('user_id', params.user_id);
+    if (params?.created_at) query.set('created_at', params.created_at);
+    if (params?.created_at_from) query.set('created_at_from', params.created_at_from);
+    if (params?.created_at_to) query.set('created_at_to', params.created_at_to);
+    const qs = query.toString();
+    return `${this.LEAD_BASE}/sales-dashboard${qs ? '?' + qs : ''}`;
+  };
   public static CREATE_LEAD = `${this.LEAD_BASE}`;
   public static GET_LEAD_BY_ID = (id: string) => `${this.LEAD_BASE}/${id}`;
   public static LEAD_TRANSFER = `${this.LEAD_BASE}/transfer`;

@@ -13,6 +13,7 @@ import {
   Badge,
   Row,
   Col,
+  message,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import type { SorterResult } from 'antd/es/table/interface';
@@ -24,12 +25,14 @@ import {
   IconExternalLink,
   IconBriefcase,
   IconLoader2,
+  IconRefresh,
 } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import { exportToExcel } from '@lib/utils/exportToExcel';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { getAllJobsThunk } from '@redux/feature/job/jobThunk';
 import { setJobFilters, resetJobFilters } from '@redux/feature/job/jobSlice';
+import { refreshWidgetsCacheThunk } from '@redux/feature/dashboard/dashboardThunk';
 import { Job } from '@redux/feature/job/IJobState';
 import { Status } from '@lib/constants/enum';
 import SystemRoutes from '@lib/constants/Routes';
@@ -87,6 +90,7 @@ const JobPage: React.FC = () => {
   const [showFilters,     setShowFilters]     = useState(false);
   const [sortBy,          setSortBy]          = useState<string>('created_at');
   const [sortOrder,       setSortOrder]       = useState<'asc' | 'desc'>('desc');
+  const [isRefreshingWidgets, setIsRefreshingWidgets] = useState(false);
 
   // Infinite scroll state
   const [renderList,    setRenderList]    = useState<Job[]>([]);
@@ -288,6 +292,29 @@ const JobPage: React.FC = () => {
     setIsSearchOpen(false);
     setActiveStatusTab('all');
     dispatch(resetJobFilters());
+  };
+
+  const handleRefreshWidgets = async () => {
+    setIsRefreshingWidgets(true);
+    try {
+      await dispatch(refreshWidgetsCacheThunk()).unwrap();
+      inFlightRequestsRef.current.clear();
+      autoFillPagesRef.current = 0;
+      setRenderList([]);
+      setHasMore(true);
+
+      if (currentPage === 1) {
+        await fetchData(1, false);
+      } else {
+        setCurrentPage(1);
+      }
+
+      message.success('Widgets refreshed with latest data.');
+    } catch {
+      message.error('Failed to refresh widgets. Please try again.');
+    } finally {
+      setIsRefreshingWidgets(false);
+    }
   };
 
   const hasActiveFilters =
@@ -519,6 +546,15 @@ const JobPage: React.FC = () => {
             <Tooltip title="Export to Excel">
               <Button icon={<IconDownload size={16} />} onClick={handleExport}>
                 <span className="hidden sm:inline">Export</span>
+              </Button>
+            </Tooltip>
+            <Tooltip title="Refresh widgets">
+              <Button
+                icon={<IconRefresh size={16} />}
+                loading={isRefreshingWidgets}
+                onClick={handleRefreshWidgets}
+              >
+                <span className="hidden sm:inline">Refresh</span>
               </Button>
             </Tooltip>
           </div>

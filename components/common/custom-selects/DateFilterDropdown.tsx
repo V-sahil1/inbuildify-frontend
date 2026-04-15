@@ -23,7 +23,12 @@ const DateFilterDropdown: React.FC<DateFilterDropdownProps> = ({ onFilter, onCle
   const [customDates, setCustomDates] = useState<[Dayjs, Dayjs] | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
 
-  const handleChange = (value: string) => {
+  const handleChange = (value?: string) => {
+    if (!value) {
+      handleClear();
+      return;
+    }
+
     if (value === 'custom') {
       setIsModalOpen(true);
     } else {
@@ -51,6 +56,7 @@ const DateFilterDropdown: React.FC<DateFilterDropdownProps> = ({ onFilter, onCle
         size="middle"
         value={selectedFilter}
         onChange={handleChange}
+        onClear={handleClear}
         allowClear
         placeholder="Select date"
         style={{ width: '100%' }}

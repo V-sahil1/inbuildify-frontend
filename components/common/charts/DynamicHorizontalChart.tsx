@@ -77,6 +77,7 @@ const DynamicHorizontalChart: React.FC<DynamicHorizontalChartProps> = ({
   const resolvedSeriesName = seriesName ?? title;
   const theme = useContext(themeContext);
   const isDark = theme?.isDarkMode ?? false;
+  const [hoveredRadialIndex, setHoveredRadialIndex] = useState<number | null>(null);
 
   const chartColors =
     colors && colors.length >= categories.length
@@ -89,6 +90,7 @@ const DynamicHorizontalChart: React.FC<DynamicHorizontalChartProps> = ({
     isLineOrArea: ['line', 'area'].includes(chartType || ''),
     isRadar: chartType === 'radar',
     isPolar: chartType === 'polarArea',
+    isRadialBar: chartType === 'radialBar',
     useSeriesAsArray: ['pie', 'donut'].includes(chartType || ''),
     showLegend: ['pie', 'donut', 'radar', 'polarArea'].includes(chartType || ''),
     showDataLabels: ['pie', 'donut', 'bar'].includes(chartType || ''),
@@ -97,6 +99,8 @@ const DynamicHorizontalChart: React.FC<DynamicHorizontalChartProps> = ({
     ),
     clickEvent: ['pie', 'donut'].includes(chartType || '') ? 'dataPointSelection' : 'click',
   };
+
+  const overallTotal = seriesData?.reduce((a, b) => a + (b || 0), 0) ?? 0;
 
   // Label color adapts to theme so bars remain readable in both modes
   const labelColor = isDark ? '#e0e0e0' : '#363535';
@@ -117,6 +121,33 @@ const DynamicHorizontalChart: React.FC<DynamicHorizontalChartProps> = ({
     return s;
   };
 
+  const buildTooltipContent = (
+    headerTitle: string,
+    statusLabel: string,
+    value: string,
+    dotColor: string
+  ): string => {
+    const headerBg = isDark ? '#2d2d2d' : '#ececec';
+    const headerFg = isDark ? '#f0f0f0' : '#1f1f1f';
+    const bodyBg = isDark ? '#1f1f1f' : '#ffffff';
+    const bodyFg = isDark ? '#e8e8e8' : '#262626';
+    const border = isDark ? '#404040' : '#e0e0e0';
+
+    return `
+      <div class="apex-cust-tt" style="border-radius:6px;overflow:hidden;border:1px solid ${border};box-shadow:0 4px 14px rgba(0,0,0,.14);min-width:132px;max-width:min(320px,88vw);">
+        <div style="padding:6px 10px;font-size:12px;font-weight:600;background:${headerBg};color:${headerFg};line-height:1.35;word-break:break-word;">
+          ${escapeHtml(String(headerTitle))}
+        </div>
+        <div style="padding:8px 10px;font-size:12px;color:${bodyFg};background:${bodyBg};line-height:1.35;display:flex;flex-direction:row;align-items:center;gap:8px;word-break:break-word;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:10px;height:10px;border-radius:9999px;background:${dotColor};flex:0 0 auto;line-height:0;align-self:center;"></span>
+          <span style="display:flex;align-items:center;gap:4px;min-width:0;">
+            <strong style="font-weight:600;">${escapeHtml(statusLabel)}</strong><span>:</span><span>${escapeHtml(value)}</span>
+          </span>
+        </div>
+      </div>
+    `;
+  };
+
   const buildOptions = (): ApexOptions => ({
     chart: {
       type: chartType || 'bar',
@@ -130,6 +161,19 @@ const DynamicHorizontalChart: React.FC<DynamicHorizontalChartProps> = ({
             onBarClick(categories[config.dataPointIndex]);
           }
         },
+        ...(chartConfig.isRadialBar && {
+          dataPointMouseEnter: (_event: any, _chartContext: any, config: any) => {
+            if (config?.dataPointIndex !== undefined && config.dataPointIndex >= 0) {
+              setHoveredRadialIndex(config.dataPointIndex);
+            }
+          },
+          dataPointMouseLeave: () => {
+            setHoveredRadialIndex(null);
+          },
+          mouseLeave: () => {
+            setHoveredRadialIndex(null);
+          },
+        }),
         ...(chartConfig.clickEvent === 'dataPointSelection' && {
           dataPointSelection: (_event: any, _chartContext: any, config: any) => {
             if (config.dataPointIndex !== undefined && onBarClick) {
@@ -143,9 +187,88 @@ const DynamicHorizontalChart: React.FC<DynamicHorizontalChartProps> = ({
     ...(chartConfig.isPieOrDonut
       ? {
           labels: categories,
-          legend: { show: chartConfig.showLegend, position: 'right' },
-          dataLabels: { enabled: chartConfig.showDataLabels },
+          legend: {
+            show: chartConfig.showLegend,
+            position: 'bottom' as const,
+            horizontalAlign: 'center' as const,
+            fontSize: '12px',
+            itemMargin: { horizontal: 8, vertical: 4 },
+            labels: { colors: axisLabelColor },
+          },
+          dataLabels: {
+            enabled: chartConfig.showDataLabels,
+            style: { fontSize: '11px' },
+            dropShadow: { enabled: false },
+          },
+          plotOptions: {
+            pie: {
+              donut: {
+                labels: {
+                  show: chartType === 'donut',
+                  total: {
+                    show: chartType === 'donut',
+                    label: 'Total',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    color: axisLabelColor,
+                  },
+                  value: {
+                    fontSize: '20px',
+                    fontWeight: 700,
+                    color: labelColor,
+                  },
+                },
+              },
+            },
+          },
         }
+      : chartType === 'radialBar'
+        ? {
+            labels: categories,
+            plotOptions: {
+              radialBar: {
+                hollow: { size: '30%' },
+                dataLabels: {
+                  show: true,
+                  name: {
+                    show: true,
+                    fontSize: '11px',
+                    color: axisLabelColor,
+                    offsetY: -6,
+                  },
+                  value: {
+                    show: true,
+                    fontSize: '14px',
+                    fontWeight: 700,
+                    color: labelColor,
+                    offsetY: 8,
+                    formatter: (_val: number) => {
+                      if (hoveredRadialIndex !== null) {
+                        return String(seriesData[hoveredRadialIndex] ?? 0);
+                      }
+                      return String(overallTotal);
+                    },
+                  },
+                  total: {
+                    show: true,
+                    label: 'Total',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    color: axisLabelColor,
+                    formatter: () => String(overallTotal),
+                  },
+                },
+              },
+            },
+            legend: {
+              show: true,
+              position: 'bottom' as const,
+              horizontalAlign: 'center' as const,
+              fontSize: '12px',
+              itemMargin: { horizontal: 8, vertical: 4 },
+              labels: { colors: axisLabelColor },
+            },
+          }
       : chartConfig.isBar
         ? {
             plotOptions: {
@@ -154,19 +277,20 @@ const DynamicHorizontalChart: React.FC<DynamicHorizontalChartProps> = ({
                 barHeight: '70%',
                 distributed: true,
                 borderRadius: 4,
-                dataLabels: { position: horizontal ? 'end' : 'top' },
+                dataLabels: { position: horizontal ? 'end' : 'center' },
               },
             },
             dataLabels: {
               enabled: chartConfig.showDataLabels,
-              textAnchor: horizontal ? 'start' : 'start',
+              textAnchor: horizontal ? 'start' : 'middle',
               style: { colors: [labelColor], fontSize: '12px', fontWeight: 'normal' },
               formatter: (_val: any, opt: any) => {
                 const n = seriesData[opt.dataPointIndex];
                 if (n == null || n === 0) return '';
                 return String(n);
               },
-              offsetX: horizontal ? 6 : 10,
+              offsetX: horizontal ? 6 : 0,
+              offsetY: horizontal ? 0 : 0,
             },
             xaxis: {
               categories,
@@ -223,11 +347,11 @@ const DynamicHorizontalChart: React.FC<DynamicHorizontalChartProps> = ({
       enabled: true,
       theme: isDark ? 'dark' : 'light',
       style: { fontSize: '12px' },
-      ...(chartConfig.isBar && horizontal
+      shared: false,
+      intersect: true,
+      x: { show: false },
+      ...(chartConfig.isBar
         ? {
-            intersect: true,
-            shared: false,
-            /** Default Apex marker flex is unreliable for horizontal bars — render our own row */
             custom: (opts: {
               series: number[][];
               seriesIndex: number;
@@ -239,50 +363,54 @@ const DynamicHorizontalChart: React.FC<DynamicHorizontalChartProps> = ({
               const raw = series?.[seriesIndex]?.[dataPointIndex] as unknown;
               const count = formatNumericAxisLabel(raw);
               const dot = chartColors[dataPointIndex % chartColors.length] ?? '#1890ff';
-              const headerBg = isDark ? '#2d2d2d' : '#ececec';
-              const headerFg = isDark ? '#f0f0f0' : '#1f1f1f';
-              const bodyBg = isDark ? '#1f1f1f' : '#ffffff';
-              const bodyFg = isDark ? '#e8e8e8' : '#262626';
-              const border = isDark ? '#404040' : '#e0e0e0';
-              return `
-                <div class="apex-cust-tt" style="border-radius:6px;overflow:hidden;border:1px solid ${border};box-shadow:0 4px 14px rgba(0,0,0,.14);min-width:132px;">
-                  <div style="padding:6px 10px;font-size:12px;font-weight:600;background:${headerBg};color:${headerFg};line-height:1.35;">
-                    ${escapeHtml(String(cat))}
-                  </div>
-                  <div style="padding:8px 10px;font-size:12px;color:${bodyFg};background:${bodyBg};line-height:1.35;display:flex;flex-direction:row;align-items:center;gap:8px;">
-                    <span style="display:inline-block;width:10px;height:10px;border-radius:9999px;background:${dot};flex:0 0 auto;line-height:0;"></span>
-                    <span style="display:flex;align-items:center;gap:4px;min-width:0;">
-                      <strong style="font-weight:600;">${escapeHtml(resolvedSeriesName)}</strong><span>:</span><span>${escapeHtml(count)}</span>
-                    </span>
-                  </div>
-                </div>
-              `;
+              return buildTooltipContent(title, cat, count, dot);
+            },
+          }
+        : {}),
+      ...((chartConfig.isPieOrDonut || chartConfig.isRadialBar)
+        ? {
+            custom: (opts: {
+              series: number[][];
+              seriesIndex: number;
+              dataPointIndex: number;
+              w?: unknown;
+            }) => {
+              const idx = opts.dataPointIndex >= 0 ? opts.dataPointIndex : opts.seriesIndex;
+              const label = categories[idx] ?? resolvedSeriesName;
+              const raw =
+                chartConfig.isRadialBar
+                  ? (seriesData[idx] as unknown)
+                  : ((opts.series?.[0]?.[idx] ?? seriesData[idx]) as unknown);
+              const count = formatNumericAxisLabel(raw);
+              const dot = chartColors[idx % chartColors.length] ?? '#1890ff';
+              return buildTooltipContent(title, label, count, dot);
             },
           }
         : {}),
     },
   });
 
+  const buildSeries = () => {
+    if (chartConfig.useSeriesAsArray || chartConfig.isRadialBar) return seriesData;
+    return [{ name: resolvedSeriesName, data: seriesData }];
+  };
+
   const [chartData, setChartData] = useState<{
     series: { name: string; data: number[] }[] | number[];
     options: ApexOptions;
   }>({
-    series: chartConfig.useSeriesAsArray
-      ? seriesData
-      : [{ name: resolvedSeriesName, data: seriesData }],
+    series: buildSeries(),
     options: buildOptions(),
   });
 
   // Re-build options whenever theme, data, or categories change
   useEffect(() => {
     setChartData({
-      series: chartConfig.useSeriesAsArray
-        ? seriesData
-        : [{ name: resolvedSeriesName, data: seriesData }],
+      series: buildSeries(),
       options: buildOptions(),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [seriesData, categories, isDark, title, resolvedSeriesName, horizontal]);
+  }, [seriesData, categories, isDark, title, resolvedSeriesName, horizontal, hoveredRadialIndex]);
 
   return (
     <div
@@ -343,11 +471,19 @@ const DynamicHorizontalChart: React.FC<DynamicHorizontalChartProps> = ({
           max-width: min(280px, 90vw);
           white-space: normal !important;
         }
+        .dynamic-h-chart .apex-cust-tt {
+          width: fit-content;
+          max-width: min(320px, 88vw);
+        }
         .dynamic-h-chart .apexcharts-tooltip-series-group {
+          display: flex !important;
           padding: 6px 10px !important;
           align-items: center !important;
         }
         .dynamic-h-chart .apexcharts-tooltip-marker {
+          display: inline-flex !important;
+          align-items: center !important;
+          justify-content: center !important;
           flex-shrink: 0 !important;
           align-self: center !important;
           margin-top: 0 !important;
@@ -362,6 +498,18 @@ const DynamicHorizontalChart: React.FC<DynamicHorizontalChartProps> = ({
         .dynamic-h-chart .apexcharts-tooltip-text-y-label {
           word-break: break-word !important;
           white-space: normal !important;
+          font-size: 12px !important;
+        }
+        @media (max-width: 640px) {
+          .dynamic-h-chart .apexcharts-tooltip {
+            max-width: min(240px, 88vw);
+          }
+          .dynamic-h-chart .apexcharts-tooltip-text,
+          .dynamic-h-chart .apexcharts-tooltip-text-y-value,
+          .dynamic-h-chart .apexcharts-tooltip-text-y-label {
+            font-size: 11px !important;
+            line-height: 1.3 !important;
+          }
         }
       `}</style>
     </div>

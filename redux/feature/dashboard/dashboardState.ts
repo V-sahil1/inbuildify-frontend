@@ -36,3 +36,53 @@ export interface DashboardData {
   leadCount: string;
   leadData: Lead[];
 }
+
+export interface MonthlyLead {
+  month: string;
+  total: number;
+  newCount: number;
+  workingCount: number;
+  convertedCount: number;
+}
+
+export interface LeadSourceStat {
+  source: string;
+  count: number;
+}
+
+export interface TopPerformer {
+  name: string;
+  count: number;
+}
+
+export interface OverallSummary {
+  totalLeads: number;
+  newLeads: number;
+  workingLeads: number;
+  convertedLeads: number;
+}
+
+export interface FloorplanStat {
+  name: string;
+  count: number;
+}
+
+export interface FacadeStat {
+  name: string;
+  count: number;
+}
+
+export interface LeadLostReason {
+  name: string;
+  count: number;
+}
+
+export interface SalesDashboardStats {
+  monthlyLeads: MonthlyLead[];
+  leadSources: LeadSourceStat[];
+  topPerformers: TopPerformer[];
+  overallSummary: OverallSummary;
+  topFloorplans: FloorplanStat[];
+  topFacades: FacadeStat[];
+  leadLostReasons: LeadLostReason[];
+}
