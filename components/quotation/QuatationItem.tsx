@@ -186,7 +186,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
                 </div>
               )
             }
-            onClick={() => handleToggle(item)}
+            onClick={() => handleToggle(isSelected ?priceItem :item)}
           />
         </div>
         {isEdited.item && (

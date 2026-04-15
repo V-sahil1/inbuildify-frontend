@@ -323,16 +323,14 @@ const QuotationManager = () => {
 
   const fetchQuotationPricelistItem = async () => {
     try {
-      if (selectedPackageFromSlice?.packageId) {
-        await dispatch(
-          getQuotationPricelistThunk({
-            quotationVersionId: quoteVersionId ?? quotationData?.versions?.[0]?.quotationVersionId,
-            package_id: selectedPackageFromSlice?.packageId,
-            range_id: quotationFilters?.range,
-            dwelling_type_id: quotationFilters?.dwellingType,
+      await dispatch(
+        getQuotationPricelistThunk({
+          quotationVersionId: quoteVersionId ?? quotationData?.versions?.[0]?.quotationVersionId,
+          package_id: selectedPackageFromSlice?.packageId || undefined,
+          range_id: quotationFilters?.range || undefined,
+          dwelling_type_id: quotationFilters?.dwellingType || undefined,
           })
         ).unwrap();
-      }
     } catch (error) {
       message.error(error || 'Faied to fetch quotation items');
     }
