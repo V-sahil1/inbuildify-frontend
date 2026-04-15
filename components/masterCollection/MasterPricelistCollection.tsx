@@ -22,12 +22,17 @@ export const MasterPricelistCollection = ({ filters }) => {
   }, [priceMaster]);
 
   const handleExpand = async (categoryId: string, isExpanded: boolean) => {
-    setDropDowns(prev => ({
-      ...prev,
-      [categoryId]: !prev[categoryId],
-    }));
-
-    if (!isExpanded) {
+    // Get the actual current state from dropdowns
+    const isCurrentlyExpanded = dropDowns[categoryId] || false;
+    
+    // Only call API when expanding (not collapsing)
+    if (!isCurrentlyExpanded) {
+      // Open dropdown immediately to show loading
+      setDropDowns(prev => ({
+        ...prev,
+        [categoryId]: true,
+      }));
+      
       try {
         setLoadingItems(prev => ({ ...prev, [categoryId]: true }));
         dispatch(toggleExpand(categoryId));
@@ -40,11 +45,23 @@ export const MasterPricelistCollection = ({ filters }) => {
             status: filters?.status !== '' ? (filters.status as 'active' | 'inactive') : undefined,
           })
         ).unwrap();
+        // Data is now loaded, dropdown stays open
       } catch (error: any) {
         message.error(error || 'Failed to fetch category items');
+        // Close dropdown on error
+        setDropDowns(prev => ({
+          ...prev,
+          [categoryId]: false,
+        }));
       } finally {
         setLoadingItems(prev => ({ ...prev, [categoryId]: false }));
       }
+    } else {
+      // Just collapse without API call
+      setDropDowns(prev => ({
+        ...prev,
+        [categoryId]: !prev[categoryId],
+      }));
     }
   };
 

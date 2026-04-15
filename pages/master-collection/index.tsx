@@ -198,7 +198,7 @@ const MasterCollection = () => {
   return (
     <div className="p-4">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-semibold">{activeTab} Collections </h1>
+        <h1 className="text-2xl font-semibold sm:!min-w-[240px]">{activeTab} Collections </h1>
         <CustomFilterButtons
           filterButtons={['Price List', 'Facade', 'Floor Plan']}
           activeTab={activeTab}
@@ -208,7 +208,7 @@ const MasterCollection = () => {
           }}
         />
 
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-2 items-center sm:!min-w-[266px]">
           <Input
             addonBefore={<IconSearch size={15} />}
             className="max-w-[200px]"

@@ -95,7 +95,7 @@ export const gridMenuItems2: MenuItem[] = [
     id: 3,
     icon: <IconReceipt className="w-4 h-4 mr-3" />,
     label: 'Price List',
-    href: `${SystemRoutes.PRICELIST}`,
+    href: `${SystemRoutes.SETTINGS}/?tab=items`,
   },
   {
     id: 4,
@@ -113,7 +113,7 @@ export const gridMenuItems2: MenuItem[] = [
     id: 6,
     icon: <IconPackage className="w-4 h-4 mr-3" />,
     label: 'Package',
-    href: `${SystemRoutes.PACKAGE}`,
+    href: `${SystemRoutes.SETTINGS}/?tab=package`,
   },
 
   {
