@@ -17,7 +17,7 @@ import { getAllNotes, getAllSms, getLeadActions } from '@redux/feature/action/ac
 
 const actionItems: MenuProps['items'] = [
   { key: 'addNotes', label: 'Add Notes' },
-  { key: 'sendSms', label: 'Send SMS' },
+  // { key: 'sendSms', label: 'Send SMS' },
   { key: 'bookAppointment', label: 'Book An Appointment' },
   { key: 'createTask', label: 'Create Task' },
 ];
@@ -45,11 +45,10 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
     actions,
     status: actionStatus,
   } = useAppSelector(state => state.action);
-
   const tabs: FilterOption[] = [
     { type: 'All', label: 'All' },
     { type: 'NOTES', label: 'Notes' },
-    { type: 'SMS', label: 'SMS' },
+    // { type: 'SMS', label: 'SMS' },
     { type: 'APPOINTMENT', label: 'Appointment' },
     { type: 'TASK', label: 'Task' },
   ];

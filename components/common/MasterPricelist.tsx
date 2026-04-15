@@ -257,7 +257,7 @@ export const MasterPricelist = ({
                                     setModalOpen('edit');
                                   }}
                                 />
-                                <Tooltip title="Remove">
+                                <Tooltip title="Inactivate">
                                   <Popconfirm
                                     title="Do you want to inactive price master?"
                                     onConfirm={e => {

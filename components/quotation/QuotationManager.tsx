@@ -98,7 +98,7 @@ const QuotationManager = () => {
   }, [dispatch, quotationData?.quotationId, router, quoteVersionId]);
 
   useEffect(() => {
-    if (!!quoteVersionId || !!quotationData) {
+    if (!!quoteVersionId || !!quotationData?.versions?.[0]?.quotationVersionId) {
       setIsEditMode(false);
       fetchQuotationPricelistItem();
       fetchQuotationCustomSection();
@@ -488,10 +488,10 @@ const QuotationManager = () => {
 
   const handlePreView = async () => {
     try {
-      // const response = await dispatch(
-      //   getQuotationPdf({ id: quoteVersionId ?? quotationData?.versions?.[0]?.quotationVersionId })
-      // ).unwrap();
-      // window.open(response?.pdfUrl, '_blank');
+      const response = await dispatch(
+        getQuotationPdf({ id: quoteVersionId ?? quotationData?.versions?.[0]?.quotationVersionId })
+      ).unwrap();
+      window.open(response?.pdfUrl, '_blank');
     } catch (error) {
       message.error(error || 'Failed to get url');
     }

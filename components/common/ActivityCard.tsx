@@ -37,6 +37,8 @@ interface ActivityCardProps {
   data: ActivityItem[];
   tabs?: FilterOption[];
   loading?: boolean;
+  setParams?: (val: Record<string, string>) => void;
+  filters?: Record<string, string>;
 }
 
 const getStatusTag = (status: 'Sent' | 'Delivered') => {
@@ -48,28 +50,12 @@ const getStatusTag = (status: 'Sent' | 'Delivered') => {
   );
 };
 
-const ActivityCard: React.FC<ActivityCardProps> = ({ data, tabs, loading }) => {
-  const [searchTerm, setSearchTerm] = useState('');
+const ActivityCard: React.FC<ActivityCardProps> = ({ data, tabs, loading, setParams, filters }) => {
   const [activeTab, setActiveTab] = useState('all');
   
   // Get current user ID from Redux state
   const { user } = useAppSelector(state => state.auth);
   const currentUserId = user?.usersId;
-
-  const filteredData = data?.filter((item) => {
-    // First filter by tab (own/all)
-    const matchesTab = activeTab === 'all' || (activeTab === 'own' && item.userId === currentUserId);
-    
-    // Then filter by search term
-    const matchesSearch = 
-      item?.activityType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item?.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item?.userName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item?.propertyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item?.propertyAddress?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    return matchesTab && matchesSearch;
-  });
 
   const formatDateTime = (createdAt: string) => {
     const date = new Date(createdAt);
@@ -93,23 +79,23 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ data, tabs, loading }) => {
   return (
     <div className="w-full overflow-hidden p-4 bg-card-color border border-t-0 border-border-color">
       {tabs && (
-        <div className="flex sm:flex-row justify-between sm:items-center gap-3 mb-4">
-          <TimelineActionsBar
+        <div className="flex sm:flex-row justify-end sm:items-center gap-3 mb-4">
+          {/* <TimelineActionsBar
             tabs={tabs}
             onTabChange={setActiveTab}
             isActionShow={false}
             isCountShow={true}
-          />
+          /> */}
 
           <div className="flex items-center gap-2">
             <Input
               prefix={<IconSearch size={16} />}
               placeholder="Search by type, description, user, or property..."
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
+              value={filters?.search}
+              onChange={e => setParams({ search: e.target.value })}
               className="w-full sm:w-[300px] lg:w-[400px]"
             />
-            <Button icon={<IconFilter size={20} />} />
+            {/* <Button icon={<IconFilter size={20} />} /> */}
           </div>
         </div>
       )}
@@ -123,7 +109,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ data, tabs, loading }) => {
           <div className="flex flex-col relative">
             <div className="absolute top-1 bottom-0 left-[140px] w-0.5 bg-primary-10 z-0 m-0.5" />
 
-            {filteredData.map(item => {
+            {data.map(item => {
               const { date, time } = formatDateTime(item.createdAt);
               return (
                 <div key={item.activityId} className="relative flex items-start mb-8 group">
@@ -144,17 +130,17 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ data, tabs, loading }) => {
 
                   <div className="flex-grow pl-5 -mt-1">
                     <Card size="small" className="shadow-sm bg-card-color hover:bg-body-color">
-                      <div className="flex justify-between mb-2 mr-[40%]">
+                      <div className="flex justify-between mb-2">
                         <div>
                           <Title level={5} className="!m-0 !mb-1 text-base font-medium text-gray-800">
                             {item.activityType}
                           </Title>
                           <Text className="text-gray-500 text-sm">{item.description}</Text>
-                          {item.userName && (
+                          {/* {item.userName && (
                             <Text className="text-gray-400 text-xs block mt-1">
                               By: {item.userName}
                             </Text>
-                          )}
+                          )} */}
                           {item.propertyName && (
                             <Text className="text-gray-400 text-xs block">
                               Property: {item.propertyName}
@@ -166,15 +152,20 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ data, tabs, loading }) => {
                             </Text>
                           )}
                         </div>
-                        <div className="flex gap-3 items-start justify-center">
-                          {item.activityType && (
+                        <div className="flex gap-3 items-start justify-end">
+                          {/* {item.activityType && (
                             <Tag color="blue" className="flex items-center w-fit">
                               {item.activityType}
                             </Tag>
+                          )} */}
+                          {item.userName && (
+                            <Text className="text-gray-400 text-xs block mt-1">
+                              By: {item.userName}
+                            </Text>
                           )}
                         </div>
                       </div>
-                      <div className="flex justify-between items-center">
+                      {/* <div className="flex justify-between items-center">
                         <Text className="text-gray-500">Activity ID: {item.activityId}</Text>
                         <div className="flex gap-2 invisible group-hover:visible">
                           <button>
@@ -184,14 +175,14 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ data, tabs, loading }) => {
                             <IconArrowsDiagonal size={22} className="text-primary" />
                           </button>
                         </div>
-                      </div>
+                      </div> */}
                     </Card>
                   </div>
                 </div>
               );
             })}
 
-            {filteredData.length === 0 && !loading && (
+            {data.length === 0 && !loading && (
               <div className="text-center text-gray-500 py-10">No matching records found.</div>
             )}
           </div>
