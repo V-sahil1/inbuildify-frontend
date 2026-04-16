@@ -41,7 +41,8 @@ export interface IPriceListItem {
   extraType?:"item"| "complimentry"| "discount"
   extraItem?:boolean;
   isPriceListItemCostMismatch?: boolean;
-  quotationVersionItemId?:string
+  quotationVersionItemId?:string;
+  note?:string;
 }
 
 export interface PricelistItemFtechParams {

@@ -375,7 +375,7 @@ const DynamicHorizontalChart: React.FC<DynamicHorizontalChartProps> = ({
               dataPointIndex: number;
               w?: unknown;
             }) => {
-              const idx = opts.dataPointIndex >= 0 ? opts.dataPointIndex : opts.seriesIndex;
+              const idx = opts.dataPointIndex !== null && opts.dataPointIndex >= 0 ? opts.dataPointIndex : opts.seriesIndex;
               const label = categories[idx] ?? resolvedSeriesName;
               const raw =
                 chartConfig.isRadialBar

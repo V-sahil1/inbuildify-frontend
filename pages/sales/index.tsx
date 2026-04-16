@@ -248,8 +248,12 @@ const SalesDashboard = () => {
               {chartVisibility['Sales Overview'] && (
                 <DynamicHorizontalChart
                   title="Sales Overview"
-                  categories={monthlyLeads.length > 0 ? monthlyLeads.map(d => d.month) : ['No Data']}
-                  seriesData={monthlyLeads.length > 0 ? monthlyLeads.map(d => Number(d.total)) : [0]}
+                  categories={
+                    monthlyLeads.length > 0 ? monthlyLeads.map(d => d.month) : ['No Data']
+                  }
+                  seriesData={
+                    monthlyLeads.length > 0 ? monthlyLeads.map(d => Number(d.total)) : [0]
+                  }
                   chartType="bar"
                   horizontal={false}
                   height={260}
@@ -269,8 +273,12 @@ const SalesDashboard = () => {
               {chartVisibility['Top 5 Performers'] && (
                 <DynamicHorizontalChart
                   title="Top 5 Performers"
-                  categories={topPerformers.length > 0 ? topPerformers.map(p => p.name) : ['No Data']}
-                  seriesData={topPerformers.length > 0 ? topPerformers.map(p => Number(p.count)) : [0]}
+                  categories={
+                    topPerformers.length > 0 ? topPerformers.map(p => p.name) : ['No Data']
+                  }
+                  seriesData={
+                    topPerformers.length > 0 ? topPerformers.map(p => Number(p.count)) : [0]
+                  }
                   chartType="bar"
                   horizontal={true}
                   height={260}
@@ -300,8 +308,12 @@ const SalesDashboard = () => {
               {chartVisibility['Top 10 Floorplan'] && (
                 <DynamicHorizontalChart
                   title="Top 10 Floorplan"
-                  categories={topFloorplans.length > 0 ? topFloorplans.map(f => f.name) : ['No Data']}
-                  seriesData={topFloorplans.length > 0 ? topFloorplans.map(f => Number(f.count)) : [0]}
+                  categories={
+                    topFloorplans.length > 0 ? topFloorplans.map(f => f.name) : ['No Data']
+                  }
+                  seriesData={
+                    topFloorplans.length > 0 ? topFloorplans.map(f => Number(f.count)) : [0]
+                  }
                   chartType="pie"
                   height={260}
                 />

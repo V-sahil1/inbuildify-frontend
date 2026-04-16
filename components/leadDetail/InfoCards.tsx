@@ -73,7 +73,6 @@ const InfoCards: React.FC<InfoCardsProps> = ({
   isReadOnly,
   filters,
 }) => {
-  console.log("🔥 ~ :76 ~ InfoCards ~ selectedPackage:", selectedPackage)
   const { quoteDetails, items } = useAppSelector(state => state.quotation);
   const [modalOpen, setModalOpen] = useState<
     | 'property'

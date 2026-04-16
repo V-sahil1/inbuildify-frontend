@@ -58,7 +58,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
         if (quotationItem) {
           acc.push({
             ...categoryItem,
-            isPriceListItemCostMismatch: quotationItem.isPriceListItemCostMismatch ?? false,
+            isPriceListItemCostMismatch: quotationItem?.isPriceListItemCostMismatch ?? false,
           });
         }
 
@@ -198,9 +198,10 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
           const total = (all.quantity | 0) * (all.cost | 0);
           form.setFieldValue('total', total);
         }}
+        className="min-h-0 h-full overflow-hidden"
       >
         {/* Table */}
-        <div className="w-full">
+        <div className="w-full min-h-0 h-full flex flex-col">
           <div className="table w-full border-collapse" style={{ tableLayout: 'fixed' }}>
             {/* Table Head */}
             <div className="table-header-group bg-card-color text-sm font-medium text-font-color border-b border-gray-200">
@@ -242,7 +243,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
           </div>
 
           {/* Scrollable Table Body */}
-          <div className="overflow-y-auto max-h-[250px] custom-scrollbar w-full">
+          <div className="overflow-auto h-full min-h-0 w-full">
             <div className="table border-collapse w-full" style={{ tableLayout: 'fixed' }}>
               <div className="table-row-group">
                 {!!extraItem && !select && (
@@ -271,9 +272,9 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
                   </div>
                 ) : (
                   <>
-                    {(select ? filterItems(items) : filterItems(category?.items || []))?.length >
+                    {(select ? filterItems(userSelectedItems) : filterItems(category?.items || []))?.length >
                     0 ? (
-                      (select ? filterItems(items) : filterItems(category?.items || [])).map(
+                      (select ? filterItems(userSelectedItems) : filterItems(category?.items || [])).map(
                         item => (
                           <QuatationItem
                             key={item?.priceListItemId}

@@ -1,7 +1,7 @@
 import { useAppSelector } from '@hooks/redux';
 import { enumToReadable } from '@lib/utils/enumToRedable';
 import { RootState } from '@redux/feature/store';
-import { IconPencil, IconPlus, IconX, IconAlertTriangle } from '@tabler/icons-react';
+import { IconPencil, IconPlus, IconX, IconAlertTriangle, IconEye } from '@tabler/icons-react';
 import { Tag, InputNumber, Button, Tooltip } from 'antd';
 import React, { useState, useEffect } from 'react';
 import AddMasterPricingItemModal from '../common/Models/AddMasterPricingItemModel';
@@ -97,7 +97,11 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
                   className="flex items-center gap-2 cursor-pointer"
                   onClick={() => setNotesModalVisible(true)}
                 >
-                  <IconPlus size={16} className="border rounded-full border-primary text-primary" />
+                  {tempNotes ? (
+                    <IconEye size={16} className="text-primary" />
+                  ) : (
+                    <IconPlus size={16} className="border rounded-full border-primary text-primary" />
+                  )}
                   Notes
                 </div>
               )}
