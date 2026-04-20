@@ -224,9 +224,9 @@ const FooterActions: React.FC<FooterActionsProps> = ({
           >
             Approve
           </Button>
-          {/* <Button type="primary" onClick={() => {}} disabled={disableAction}>
+          <Button type="primary" onClick={() => {}} disabled={disableAction}>
             Email
-          </Button> */}
+          </Button>
           <Dropdown
             menu={{
               items: previewMenu,
