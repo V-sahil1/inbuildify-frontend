@@ -236,8 +236,7 @@ const ColourSlice = createSlice({
           ].colorCategories.map((c: Category) =>
             c.colorCategoryId === action.payload.colorCategoryId
               ? {
-                ...c,
-                categoryName: action.payload.categoryName,
+                ...action.payload,
               }
               : c
           );
@@ -318,9 +317,8 @@ const ColourSlice = createSlice({
               category.items.unshift(action.payload);
             }
           }
-        } else {
-          state.colorItems.unshift({ ...action.payload, colorGroups: [] });
         }
+        state.colorItems.unshift({ ...action.payload});
       })
       .addCase(createColourItem.rejected, state => {
         state.status.colorItem.create = Status.ERROR;
@@ -352,11 +350,10 @@ const ColourSlice = createSlice({
                 : subCategory
             );
           }
-        } else {
-          state.colorItems = state.colorItems.map(i =>
-            i.colorItemId === action.payload.colorItemId ? { ...i, ...action.payload } : i
-          );
         }
+        state.colorItems = state.colorItems.map(i =>
+          i.colorItemId === action.payload.colorItemId ? { ...i, ...action.payload } : i
+        );
       })
       .addCase(updateColourItem.rejected, state => {
         state.status.colorItem.create = Status.ERROR;

@@ -98,6 +98,16 @@ const Index = () => {
     console.log('Selected template:', selectedTemplate);
     setSelectedTemplate(templateKey);
   };
+
+  const handleItemToggle = (itemId: string, isAdded: boolean) => {
+    setSubCategoryItem(prevItems => 
+      prevItems.map(item => 
+        item.colorItemId === itemId 
+          ? { ...item, isAdded } 
+          : item
+      )
+    );
+  };
   const addedCount = color?.reduce((total, category) => {
     if (!category.colorCategories) return total;
     return (
@@ -231,7 +241,7 @@ const Index = () => {
                 );
                 console.log('Update item:', id, field, value);
               }}
-              items={subCategoryItem.map(item => ({...item,
+                            items={subCategoryItem.map(item => ({...item,
                 id: item.colorItemId,
                 name: item.name,
 
@@ -241,7 +251,7 @@ const Index = () => {
               }))}
             />
           ) : subCategoryItem.length > 0 ? (
-            <ColorItemCard loading={loading} data={subCategoryItem || []} isGridView={isGridView} />
+            <ColorItemCard loading={loading} data={subCategoryItem || []} isGridView={isGridView} onItemToggle={handleItemToggle} />
           ) : (
             <div className="w-full h-full flex justify-center items-center">
               <NoDataMessage label="Color Sub Category Item" link={SystemRoutes.SETTINGS_COLOUR} />

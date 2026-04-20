@@ -99,6 +99,9 @@ export const descriptionRules = [
       if (!value || !value.trim()) {
         return Promise.reject('Please enter description');
       }
+      if (value.startsWith(' ') || value.endsWith(' ')) {
+        return Promise.reject('Description cannot start or end with spaces');
+      }
 
       const trimmed = value.trim();
       if (trimmed.length < 5) {

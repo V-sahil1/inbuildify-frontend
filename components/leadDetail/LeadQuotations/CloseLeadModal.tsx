@@ -70,7 +70,7 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
         ).unwrap();
         message.success(response?.response?.message);
         form.resetFields();
-        router.push(`${SystemRoutes.JOB}/${leadData?.leadId}`);
+        router.push(`${SystemRoutes.JOB}/${response?.response?.data?.jobId}`);
         setIsModalOpen(false);
       } catch (err) {
         message.error(err);

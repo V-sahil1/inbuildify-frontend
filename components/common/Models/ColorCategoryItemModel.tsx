@@ -46,10 +46,10 @@ import { useSupplierHook } from '@hooks/useSupplierHook';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import { ColorItem, ColorItemCustomField, ColorGroup } from '@redux/feature/color/iColourState';
 import { useColorTypeHook } from '@hooks/useColorTypeHook';
+import { useColorHook } from '@hooks/useColorHook';
+import { useCategoryHook } from '@hooks/useCategoryHook';
 import NoDataMessage from '../NoDataMessage';
 import SystemRoutes from '@lib/constants/Routes';
-import Item from 'antd/es/list/Item';
-import { MdRule } from 'react-icons/md';
 
 interface ColorCategoryItemModalProps {
   open: boolean;
@@ -59,6 +59,7 @@ interface ColorCategoryItemModalProps {
   categoryItem?: ColorItem | ColorGroup;
   handleAddColorItem?: (values) => void;
   type?: 'group' | 'category';
+  selectedGroup?: ColorGroup;
 }
 
 const FieldTypes = [
@@ -74,11 +75,13 @@ const ColorCategoryItemModel = ({
   selectedColorCategoryId,
   categoryItem,
   type = 'category',
+  selectedGroup,
 }: ColorCategoryItemModalProps) => {
   const [form] = Form.useForm();
   const dispatch = useAppDispatch();
   const { status } = useAppSelector(state => state.colour);
   const { rangeOptions } = useDwellingAndRangeHook({ type: 'range' });
+  const upgradeOption = Form.useWatch('upgradeOption', form);
   const { colorType } = useColorTypeHook();
   const [images, setImages] = useState({
     color: [],
@@ -92,6 +95,26 @@ const ColorCategoryItemModel = ({
   const { supplierOptions } = useSupplierHook();
   const uploadRef = useRef(null);
   const imageUploadRef = useRef(null);
+  const { colorMasterOptions, color, isLoading: colorLoading } = useColorHook();
+  const { fetchCategoryData, getCategoryOptions, isLoading: categoryLoading, resetFetchedCategories } = useCategoryHook();
+  // Watch form values for cascading logic
+  const selectedColorId = Form.useWatch('colorId', form);
+  const selectedCategoryId = Form.useWatch('colorCategoryId', form);
+  
+  // Generate options for dropdowns
+  const categoryOptions = getCategoryOptions(selectedColorId);
+  
+  // Fetch category data when color is selected
+  useEffect(() => {
+    if (selectedColorId) {
+      fetchCategoryData(selectedColorId);
+    }
+  }, [selectedColorId, fetchCategoryData]);
+  
+  // Reset fetched categories when color master changes
+  useEffect(() => {
+    resetFetchedCategories();
+  }, [selectedColorId, resetFetchedCategories]);
 
   useEffect(() => {
     if (categoryItem) {
@@ -322,14 +345,16 @@ const ColorCategoryItemModel = ({
         const createPayload =
           type === 'category'
             ? {
-              ...payload,
-              colorCategoryId: selectedColorCategoryId,
-              customFields: mappedCustomFields,
-            }
+                ...payload,
+                colorId: null,
+                colorCategoryId: selectedColorCategoryId,
+                customFields: mappedCustomFields,
+              }
             : {
-              ...payload,
-              customFields: mappedCustomFields,
-            };
+                ...payload,
+                colorGroupId: selectedGroup?.colorGroupId,
+                customFields: mappedCustomFields,
+              };
 
         const formData = formDataGenerator(createPayload);
         await dispatch(createColourItem(formData)).unwrap();
@@ -449,6 +474,70 @@ const ColorCategoryItemModel = ({
           <>
             <Row gutter={16}>
               <Col xs={20} md={10}>
+              
+                {type === 'group' && (
+                  <>
+                    <Row gutter={16}>
+                      <Col xs={12} md={12}>
+                        <Form.Item
+                          name="colorId"
+                          label="Color Master"
+                          rules={[
+                            {
+                              validator: (_, value) => {
+                                // Only validate if category is selected
+                                if (selectedCategoryId && !value) {
+                                  return Promise.reject('Please select color master first');
+                                }
+                                return Promise.resolve();
+                              },
+                            },
+                          ]}
+                        >
+                          <Select
+                            placeholder="Select color master"
+                            options={colorMasterOptions}
+                            showSearch
+                            filterOption={(input, option) =>
+                              (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                            }
+                            onChange={() => {
+                              // Reset category when color master changes
+                              form.setFieldValue('colorCategoryId', undefined);
+                            }}
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col xs={12} md={12}>
+                        <Form.Item
+                          name="colorCategoryId"
+                          label="Category"
+                          rules={[
+                            {
+                              validator: (_, value) => {
+                                // If color master is selected, category is required
+                                if (selectedColorId && !value) {
+                                  return Promise.reject('Please select category');
+                                }
+                                return Promise.resolve();
+                              },
+                            },
+                          ]}
+                        >
+                          <Select
+                            placeholder="Select category"
+                            options={categoryOptions}
+                            showSearch
+                            filterOption={(input, option) =>
+                              (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                            }
+                            disabled={!selectedColorId}
+                          />
+                        </Form.Item>
+                      </Col>
+                    </Row>
+                  </>
+                )}
                 <Row gutter={16}>
                   <Col xs={24} md={24}>
                     <Form.Item name="itemName" label="Item Name" rules={nameRules}>
@@ -563,17 +652,28 @@ const ColorCategoryItemModel = ({
                             required: false,
                             message: 'Please enter price',
                           },
+                          {
+                            validator: (_: any, value: number) => {
+                              if (value === undefined || value === null) return Promise.resolve();
+                              if (value > 1000000) {
+                                return Promise.reject(new Error('Cost must not exceed 1,000,000'));
+                              }
+                              if (value < 0) {
+                                return Promise.reject(new Error('Cost must be greater than 0'));
+                              }
+                              return Promise.resolve();
+                            },
+                          },
                         ]}
                       >
-                        <InputNumber
-                          disabled={isStandard === 'standard'}
+                        <Input
+                          disabled={isStandard === 'standard' || !upgradeOption}
                           style={{ width: '100%' }}
+                          prefix="$"
                           min={0}
                           max={1000000}
                           step={0.01}
-                          formatter={value => `$${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                           placeholder="Enter price"
-                          stringMode
                           onKeyPress={(e) => {
                             const char = String.fromCharCode(e.which);
                             if (!/[0-9.]/.test(char)) {
@@ -612,6 +712,7 @@ const ColorCategoryItemModel = ({
                     </Col>
                   </Row>
                 )}
+                
 
                 {/* Row 2: Item Code + Cost Type */}
                 <Row gutter={16}>
@@ -795,7 +896,7 @@ const ColorCategoryItemModel = ({
                       <Upload
                         ref={imageUploadRef}
                         beforeUpload={() => false}
-                        maxCount={type === 'category' ? 10 : 1}
+                        maxCount={10}
                         listType="picture"
                         accept={acceptOnlyImageRule}
                         onRemove={(file) => {
@@ -839,7 +940,7 @@ const ColorCategoryItemModel = ({
                       <Upload
                         ref={uploadRef}
                         beforeUpload={() => false}
-                        maxCount={type === 'category' ? 10 : 1}
+                        maxCount={10}
                         listType="picture"
                         className="text-center"
                         accept="image/*,.pdf"

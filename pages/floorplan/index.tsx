@@ -119,6 +119,9 @@ const FloorPlanMaster = () => {
       setSelectedFloorplan(null);
     } catch (error) {
       message.error(error || 'Failed to save Floor Plans');
+    } finally {
+      setcreateFloorPlanOpen(false);
+      setSelectedFloorplan(null);
     }
   };
   return (
@@ -183,8 +186,6 @@ const FloorPlanMaster = () => {
           }}
           onSubmit={values => {
             handleFloorPlan(values);
-            setcreateFloorPlanOpen(false);
-            setSelectedFloorplan(null);
           }}
           isEditing={!!selectedFloorplan}
           initialValues={selectedFloorplan}
@@ -227,10 +228,10 @@ const FloorPlanMaster = () => {
               columns: floorplanPricelistColumn,
               data: !!showSelectedData
                 ? floorPlans
-                    ?.find(i => i?.floorPlanId === selectedFloorplan?.floorPlanId)
-                    ?.pricelistItems?.map(i =>
-                      priceListItems.find(c => c?.priceListItemId === i?.priceListItemId)
-                    )
+                  ?.find(i => i?.floorPlanId === selectedFloorplan?.floorPlanId)
+                  ?.pricelistItems?.map(i =>
+                    priceListItems.find(c => c?.priceListItemId === i?.priceListItemId)
+                  )
                 : priceListItems,
             },
           ]}
@@ -268,8 +269,8 @@ const FloorPlanMaster = () => {
               columns: facadeColumns,
               data: !!showSelectedData
                 ? floorPlans
-                    ?.find(i => i?.floorPlanId === selectedFloorplan?.floorPlanId)
-                    ?.facade?.map(i => facades.find(c => c?.facadeId === i?.facadeId))
+                  ?.find(i => i?.floorPlanId === selectedFloorplan?.floorPlanId)
+                  ?.facade?.map(i => facades.find(c => c?.facadeId === i?.facadeId))
                 : facades,
             },
           ]}

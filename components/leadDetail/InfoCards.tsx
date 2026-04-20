@@ -91,7 +91,8 @@ const InfoCards: React.FC<InfoCardsProps> = ({
   const dispatch = useAppDispatch();
   const { leadDetail } = useAppSelector(state => state.lead);
   const isSelectionDisabled = !filters?.range || !filters?.dwellingType;
-  const isPackageSelectionDisabled = !quoteDetails?.structuralEngineer || isSelectionDisabled;
+  const isFacadeSelectionDisabled = !selectedPlan || isSelectionDisabled;
+  const isPackageSelectionDisabled = !quoteDetails?.structuralEngineer || isSelectionDisabled || !selectedPlan || !selectedFacade;
   const isStructuralEngineerDisabled = !selectedPlan || !selectedFacade || isSelectionDisabled;
   const disabledMessage = isSelectionDisabled
     ? 'Please select both Range and Dwelling Type first'
@@ -353,11 +354,17 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           </Card>
         </Tooltip>
         <Tooltip
-          title={isSelectionDisabled ? 'Please select both Range and Dwelling Type first' : ''}
+          title={
+            isFacadeSelectionDisabled
+              ? !selectedPlan
+                ? 'Please select a floor plan first'
+                : 'Please select both Range and Dwelling Type first'
+              : ''
+          }
         >
           <Card
-            className={`shadow-sm transition-shadow ${isSelectionDisabled ? 'opacity-70' : 'hover:shadow-md cursor-pointer'}`}
-            onClick={!isSelectionDisabled && !isReadOnly ? () => setModalOpen('facade') : undefined}
+            className={`shadow-sm transition-shadow ${isFacadeSelectionDisabled ? 'opacity-70' : 'hover:shadow-md cursor-pointer'}`}
+            onClick={!isFacadeSelectionDisabled && !isReadOnly ? () => setModalOpen('facade') : undefined}
           >
             {selectedFacade ? (
               <>
@@ -372,7 +379,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
               </>
             ) : (
               <div className="text-center py-4">
-                <Button type="primary" size="middle" disabled={isSelectionDisabled}>
+                <Button type="primary" size="middle" disabled={isFacadeSelectionDisabled}>
                   Select Facade
                 </Button>
               </div>
@@ -396,7 +403,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
                 : undefined
             }
           >
-            {!!quoteDetails?.structuralEngineer ? (
+            { selectedFacade && !!quoteDetails?.structuralEngineer ? (
               <>
                 <div className="flex items-center justify-between gap-2 mb-3">
                   <div className="flex items-center gap-2">
@@ -452,7 +459,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
               !isPackageSelectionDisabled && !isReadOnly ? () => setModalOpen('package') : undefined
             }
           >
-            {!!selectedPackage ? (
+            {selectedFacade && !!quoteDetails?.structuralEngineer && !!selectedPackage ? (
               <>
                 <div className="flex items-center justify-between gap-2 mb-3">
                   <div className="flex items-center gap-2">

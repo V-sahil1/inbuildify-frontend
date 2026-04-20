@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
+  IconDownload,
   IconPencil,
   IconPlus,
   IconRotate2,
@@ -7,11 +8,12 @@ import {
   IconTrash,
   IconX,
 } from '@tabler/icons-react';
-import { Button, Empty, Input, message, Select } from 'antd';
+import { Button, Empty, Input, message, Select, Tooltip } from 'antd';
 import { ColorGroupFields } from '@/components/formFields/colorGroupFields';
 import ConfirmationModal from '@/components/common/ConfirmationModal';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import ColorCategoryItemModel from '@/components/common/Models/ColorCategoryItemModel';
+import { TableDrawer } from '@/components/common/TableDrawer';
 import { debouncedURL } from '@lib/utils/debounceURL';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import {
@@ -29,6 +31,8 @@ import { useSupplierHook } from '@hooks/useSupplierHook';
 import TooltipButton from '@/components/common/TooltipButton';
 import { Status } from '@lib/constants/enum';
 import { ColorGroup, ColorItem } from '@redux/feature/color/iColourState';
+import { QuotationHistoryColumn } from '@/components/table-columns/QuotationHistoryColumn';
+import { QuotationHistory } from '@lib/utils/Reports/quotation/QuotationHistory';
 
 const ColorGroupPage = () => {
   const dispatch = useAppDispatch();
@@ -41,9 +45,12 @@ const ColorGroupPage = () => {
   >(null);
   const [selectedGroup, setSelectedGroup] = useState<ColorGroup | null>(null);
   const [selectedItem, setSelectedItem] = useState<ColorItem | null>(null);
+  const [quotationDrawerOpen, setQuotationDrawerOpen] = useState(false);
+  const [selectedHistoryItem, setSelectedHistoryItem] = useState<ColorItem | null>(null);
 
   const { colorGroup, colorItems, status } = useAppSelector(state => state.colour);
   const { supplierOptions } = useSupplierHook();
+  const { columns: quotationColumns, data } = QuotationHistoryColumn();
 
   useEffect(() => {
     if (status.group.fetch === Status.IDLE) fetchColorGroup();
@@ -87,15 +94,17 @@ const ColorGroupPage = () => {
 
   const handleRemoveItemFromGroup = async (id: string, itemId: string, groupId: string) => {
     try {
-      if (!id || !itemId || !groupId) {
-        message.error('error');
-        return;
-      }
       await dispatch(deleteColourGroupItem({ id, itemId, groupId })).unwrap();
-      message.success('Item removed successfully');
+      message.success('Item removed from group successfully');
+      fetchColorGroupItems();
     } catch (error) {
       message.error(error || 'Failed to remove item from group');
     }
+  };
+
+  const handleHistoryClick = (item: ColorItem) => {
+    setSelectedHistoryItem(item);
+    setQuotationDrawerOpen(true);
   };
 
   const handleAddItemToGroup = async (item: ColorItem) => {
@@ -159,6 +168,26 @@ const ColorGroupPage = () => {
     }
   };
 
+  const handleToggleGroupStatus = async (group: ColorGroup) => {
+    try {
+      const newStatus = !group.status;
+      const payload = {
+        status: newStatus,
+      };
+
+      await dispatch(
+        updateColourGroup({
+          payload: payload,
+          id: group.colorGroupId,
+        })
+      ).unwrap();
+
+      message.success(`Group ${newStatus ? 'activated' : 'deactivated'} successfully`);
+    } catch (error) {
+      message.error(error || 'Failed to update group status');
+    }
+  };
+
   return (
     <div className="p-4">
       {/* header */}
@@ -167,12 +196,26 @@ const ColorGroupPage = () => {
           Color Group
         </h2>
         <div className="flex gap-3">
-          <Button type="default" onClick={() => setModalOpen('addColorGroup')}>
+          <Button type="default" onClick={() => {
+            setSelectedGroup(null);
+            setModalOpen('addColorGroup');
+          }}>
             New Group
           </Button>
-          <Button type="default" onClick={() => setModalOpen('addColorSubCategory')}>
-            New Item
-          </Button>
+          <Tooltip title={selectedGroup ? "New Item" : "Select a group first"}>
+            <Button
+              type="default"
+              onClick={() => {
+                if (selectedGroup) {
+                  setModalOpen('addColorSubCategory');
+                }
+              }}
+              disabled={!selectedGroup}
+              className={!selectedGroup ? 'opacity-50 cursor-not-allowed' : ''}
+            >
+              New Item
+            </Button>
+          </Tooltip>
         </div>
       </div>
       {/* main content */}
@@ -198,48 +241,55 @@ const ColorGroupPage = () => {
                 return true;
               })
               .map(item => (
-              <div
-                key={item.colorGroupId}
-                onClick={() => setSelectedGroup(item)}
-                className={` ${filters?.selectedGroup === item?.name || selectedGroup?.colorGroupId === item?.colorGroupId ? 'bg-primary text-white' : ''} group flex justify-between items-center px-2 py-4 border-b cursor-pointer`}
-              >
-                <p>{item.name}</p>
-                {item.status ? (
-                  <div>
+                <div
+                  key={item.colorGroupId}
+                  onClick={() => setSelectedGroup(item)}
+                  className={` ${filters?.selectedGroup === item?.name || selectedGroup?.colorGroupId === item?.colorGroupId ? 'bg-primary text-white' : ''} ${!item.status ? 'bg-gray-100 opacity-60' : ''} group flex justify-between items-center px-2 py-4 border-b cursor-pointer`}
+                >
+                  <p>{item.name}</p>
+                  {item.status ? (
+                    <div>
+                      <TooltipButton
+                        type="text"
+                        onClick={() => {
+                          setSelectedGroup(item);
+                          setModalOpen('addColorGroup');
+                        }}
+                        title="Edit"
+                        icon={
+                          <IconPencil
+                            size={16}
+                            className={` ${filters?.selectedGroup === item?.name || selectedGroup?.colorGroupId === item?.colorGroupId ? '!text-white' : '!text-primary'}  group-hover:text-black transition-all`}
+                          />
+                        }
+                      />
+                      <TooltipButton
+                        type="text"
+                        onClick={() => {
+                          if (item.status) {
+                            setModalOpen('group');
+                          }
+                        }}
+                        title="Deactivate"
+                        icon={
+                          <IconTrash
+                            size={16}
+
+                            className={` ${filters?.selectedGroup === item?.name || selectedGroup?.colorGroupId === item?.colorGroupId ? '!text-white' : '!text-primary'}  group-hover:text-black transition-all`}
+                          />
+                        }
+                      />
+                    </div>
+                  ) : (
                     <TooltipButton
+                      title="Activate"
                       type="text"
-                      onClick={() => {
-                        setSelectedGroup(item);
-                        setModalOpen('addColorGroup');
-                      }}
-                      title="Edit"
-                      icon={
-                        <IconPencil
-                          size={16}
-                          className={` ${filters?.selectedGroup === item?.name || selectedGroup?.colorGroupId === item?.colorGroupId ? '!text-white' : '!text-primary'}  group-hover:text-black transition-all`}
-                        />
-                      }
+                      icon={<IconPlus size={16} className={` ${filters?.selectedGroup === item?.name || selectedGroup?.colorGroupId === item?.colorGroupId ? '!text-white' : '!text-primary'}  group-hover:text-black transition-all`} />}
+                      onClick={(e) => { e.stopPropagation(); handleToggleGroupStatus(item) }}
                     />
-                    <TooltipButton
-                      type="text"
-                      onClick={() => {
-                        setSelectedGroup(item);
-                        setModalOpen('group');
-                      }}
-                      title="Delete"
-                      icon={
-                        <IconTrash
-                          size={16}
-                          className={` ${filters?.selectedGroup === item?.name || selectedGroup?.colorGroupId === item?.colorGroupId ? '!text-white' : '!text-primary'}  group-hover:text-black transition-all`}
-                        />
-                      }
-                    />
-                  </div>
-                ) : (
-                  <TooltipButton title="Activate" type="text" icon={<IconPlus size={16} />} />
-                )}
-              </div>
-            ))}
+                  )}
+                </div>
+              ))}
           </div>
         </div>
         {/* right side */}
@@ -305,12 +355,12 @@ const ColorGroupPage = () => {
                       return false;
                     }
                   }
-                  
+
                   // Filter by supplier (only if not 'all')
                   if (instantFilters?.supplier && instantFilters.supplier !== 'all' && item.supplierId !== instantFilters.supplier) {
                     return false;
                   }
-                  
+
                   // Filter by search term (item name or item code)
                   if (instantFilters?.search) {
                     const searchTerm = instantFilters.search.toLowerCase();
@@ -319,93 +369,107 @@ const ColorGroupPage = () => {
                       item.itemCode?.toLowerCase().includes(searchTerm)
                     );
                   }
-                  
+
                   return true;
                 })
                 .map(item => {
-                const i = item.colorGroups?.find(
-                  g => g.colorGroupId === selectedGroup?.colorGroupId
-                );
+                  const i = item.colorGroups?.find(
+                    g => g.colorGroupId === selectedGroup?.colorGroupId
+                  );
 
-                const id = colorGroup
-                  ?.find(i => i.colorGroupId === selectedGroup?.colorGroupId)
-                  ?.items?.find(i => i.colorItemId === item.colorItemId)?.id;
+                  const id = colorGroup
+                    ?.find(i => i.colorGroupId === selectedGroup?.colorGroupId)
+                    ?.items?.find(i => i.colorItemId === item.colorItemId)?.id;
 
-                return (
-                  <div
-                    key={item.colorItemId}
-                    className="group w-full bg-card-color py-4 px-6 border-b"
-                  >
-                    <div className="w-full grid grid-cols-[2fr_2fr_2fr_auto] items-center gap-4">
-                      <p className="font-semibold line-clamp-1">{item.itemName}</p>
-                      <p className="text-sm line-clamp-1">{item.itemCode}</p>
-                      <p className="text-sm line-clamp-1">{item.description}</p>
-                      <div className="flex justify-end gap-2">
-                        {/* this button is there in the UI but no functionality of it shown in the video */}
-                        <TooltipButton title="History" icon={<IconRotate2 size={18} />} />
-                        {!!i ? (
-                          <TooltipButton
-                            title="Remove from group"
-                            onClick={() => {
-                              handleRemoveItemFromGroup(
-                                id,
-                                item.colorItemId,
-                                selectedGroup?.colorGroupId
-                              );
-                            }}
-                            icon={<IconX size={18} />}
+                  return (
+                    <div
+                      key={item.colorItemId}
+                      className={`group w-full bg-card-color py-4 px-6 border-b ${!item.status ? 'bg-white-100 opacity-60' : ''}`}
+                    >
+                      <div className="w-full grid grid-cols-[2fr_2fr_2fr_auto] items-center gap-4">
+                        <p className="font-semibold line-clamp-1">{item.itemName}</p>
+                        <p className="text-sm line-clamp-1">{item.itemCode}</p>
+                        <p className="text-sm line-clamp-1">{item.description}</p>
+                        <div className="flex justify-end gap-2">
+                          <TooltipButton 
+                            title="History" 
+                            icon={<IconRotate2 size={18} />} 
+                            disabled={!item.status} 
+                            className={!item.status ? 'opacity-50 cursor-not-allowed' : ''}
+                            onClick={() => handleHistoryClick(item)}
                           />
-                        ) : (
+                          {!!i ? (
+                            <TooltipButton
+                              title="Remove from group"
+                              onClick={() => {
+                                handleRemoveItemFromGroup(
+                                  id,
+                                  item.colorItemId,
+                                  selectedGroup?.colorGroupId
+                                );
+                              }}
+                              icon={<IconX size={18} />}
+                              className="bg-orange-500 text-white hover:bg-orange-600"
+                            />
+                          ) : (
+                            <TooltipButton
+                              title={selectedGroup ? (item.status ? "Add to group" : "Item is inactive") : "Select a group first"}
+                              onClick={() => {
+                                if (selectedGroup && selectedGroup.status && item.status) {
+                                  handleAddItemToGroup(item);
+                                }
+                              }}
+                              icon={<IconPlus size={18} />}
+                              disabled={!selectedGroup || !selectedGroup.status || !item.status}
+                              className={!selectedGroup || !item.status ? 'opacity-50 cursor-not-allowed' : ''}
+                            />
+                          )}
                           <TooltipButton
-                            title="Add to group"
+                            title={item.status ? "Delete" : "Item is inactive"}
                             onClick={() => {
-                              handleAddItemToGroup(item);
+                              if (item.status) {
+                                setSelectedItem(item);
+                                setModalOpen('item');
+                              }
                             }}
-                            icon={<IconPlus size={18} />}
+                            icon={<IconTrash size={16} />}
+                            disabled={!item.status}
+                            className={!item.status ? 'opacity-50 cursor-not-allowed' : ''}
                           />
-                        )}
-                        <TooltipButton
-                          title="Delete"
-                          onClick={() => {
-                            setSelectedItem(item);
-                            setModalOpen('item');
-                          }}
-                          icon={<IconTrash size={16} />}
-                        />
-                        <TooltipButton
-                          title="Edit Item"
-                          onClick={() => {
-                            setSelectedItem(item);
-                            setModalOpen('addColorSubCategory');
-                          }}
-                          icon={<IconPencil size={16} />}
-                        />
-                      </div>
+                          <TooltipButton
+                            title="Edit Item"
+                            onClick={() => {
+                              setSelectedItem(item);
+                              setModalOpen('addColorSubCategory');
+                            }}
+                            icon={<IconPencil size={16} />}
+                          />
+                        </div>
 
-                      <div className="col-span-full flex flex-wrap gap-2 mt-2">
-                        {item.supplierId && (
-                          <span
-                            key={item.supplierId}
-                            className="text-xs bg-indigo-500 text-white px-2 py-1 rounded whitespace-nowrap"
-                          >
-                            {supplierOptions.find(supplier => supplier.value === item.supplierId)?.label || item.supplierId}
-                          </span>
-                        )}
-                        {item.colorGroups &&
-                          item.colorGroups.length > 0 &&
-                          item.colorGroups.map((grp, idx) => (
+                        <div className="col-span-full flex flex-wrap gap-2 mt-2">
+                          {item.supplierId && (
                             <span
-                              key={idx}
-                              className="text-xs bg-gray-500 text-white px-2 py-1 rounded whitespace-nowrap"
+                              key={item.supplierId}
+                              className="text-xs bg-indigo-500 text-white px-2 py-1 rounded whitespace-nowrap"
                             >
-                              {grp.colorGroupName}
+                              {supplierOptions.find(supplier => supplier.value === item.supplierId)?.label || item.supplierId}
                             </span>
-                          ))}
+                          )}
+                          {item.colorGroups &&
+                            item.colorGroups.length > 0 &&
+                            item.colorGroups.map((grp, idx) => (
+                              <span
+                                key={idx}
+                                className="text-xs bg-gray-500 text-white px-2 py-1 rounded whitespace-nowrap"
+                              >
+                                {grp.colorGroupName}
+                              </span>
+                            ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })
+                  );
+                })
             ) : (
               <Empty
                 description={<span className="text-gray-500">No Workflow Process found.</span>}
@@ -444,6 +508,7 @@ const ColorGroupPage = () => {
           }}
           categoryItem={selectedItem}
           type="group"
+          selectedGroup={selectedGroup}
         />
       )}
 
@@ -475,6 +540,29 @@ const ColorGroupPage = () => {
               selectedItem?.itemName +
               " can't be deleted . You can inactivate the color item if not required.\n Are you sure you want to inactivate"
           }
+        />
+      )}
+
+      {/* Quotation History Drawer */}
+      {quotationDrawerOpen && (
+        <TableDrawer
+          open={quotationDrawerOpen}
+          width={1200}
+          onClose={() => {
+            setQuotationDrawerOpen(false);
+            setSelectedHistoryItem(null);
+          }}
+          title={
+            <div className="flex justify-between">
+              <p>Quotation History - {selectedHistoryItem?.itemName}</p>
+              <Button
+                type="primary"
+                onClick={() => QuotationHistory(data, 'Color Group Item QuotationList')}
+                icon={<IconDownload size={20} />}
+              />
+            </div>
+          }
+          table={[{ columns: quotationColumns, data }]}
         />
       )}
     </div>
