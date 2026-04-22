@@ -19,8 +19,7 @@ export const LeadPropertyPage = ({ setModalOpen, handleDeleteJobDetail }) => {
                 Add property details
               </button>
               <div className="flex items-center gap-2 mt-2">
-                <p
-                  className="text-sm text-gray-600 cursor-pointer"
+                <p className="text-sm cursor-pointer" style={{ color: 'var(--secondary-gray)' }}
                   onClick={() => setModalOpen('job')}
                 >
                   {!!leadDetail?.job ? 'Job details' : 'Add Job details'}
@@ -43,7 +42,8 @@ export const LeadPropertyPage = ({ setModalOpen, handleDeleteJobDetail }) => {
               Property
             </span>
             <IconEdit
-              className="text-gray-400 text-sm cursor-pointer hover:text-gray-600"
+              className="text-sm cursor-pointer hover:text-font-color"
+              style={{ color: 'var(--secondary-gray)' }}
               onClick={() => setModalOpen('property')}
             />
           </>
@@ -62,13 +62,13 @@ export const LeadPropertyPage = ({ setModalOpen, handleDeleteJobDetail }) => {
               {propertyFromSlice?.addressLine1 ?? ''}
             </Typography.Title>
           </Tooltip>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm" style={{ color: 'var(--secondary-gray)' }}>
             {[propertyFromSlice?.city, propertyFromSlice?.stateName, propertyFromSlice?.zipCode]
               .filter(Boolean)
               .join(', ')}
           </p>
 
-          <div className="text-sm text-gray-600 mt-2">
+          <div className="text-sm mt-2" style={{ color: 'var(--secondary-gray)' }}>
             <p>
               Title :{' '}
               {propertyFromSlice?.titleDate
@@ -85,7 +85,7 @@ export const LeadPropertyPage = ({ setModalOpen, handleDeleteJobDetail }) => {
           </div>
           <div className="flex items-center justify-between gap-2 mt-2">
             <p
-              className="text-sm text-gray-600 cursor-pointer"
+              className="text-sm text-font-color-100 cursor-pointer"
               onClick={() => setModalOpen('job')}
             >
               {!!leadDetail?.job ? 'Job details' : 'Add Job details'}

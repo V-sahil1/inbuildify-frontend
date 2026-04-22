@@ -60,9 +60,9 @@
 }
 
 [data-theme='dark'] {
-  --primary: #4c3575;
+  --primary: #e27d39;
   --primary-10: #4c35751a;
-  --primary-hover: #66469d;
+  --primary-hover: #db8c58;
   --primary-light: #eadefe;
   --body-color: #2d3238;
   --font-color: #e0e0e0;

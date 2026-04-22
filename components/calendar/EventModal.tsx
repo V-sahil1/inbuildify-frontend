@@ -40,9 +40,9 @@ const EventModal = ({ event, isOpen, onClose }: EventModalProps) => {
       title={
         <div className="flex items-center gap-2">
           {event.type === 'Task' ? (
-            <IconCircleCheckFilled className="text-lg text-gray-600" />
+            <IconCircleCheckFilled className="text-lg text-font-color-100" />
           ) : (
-            <IconCircleFilled className="text-lg text-gray-600" />
+            <IconCircleFilled className="text-lg text-font-color-100" />
           )}
           <span className="text-lg font-semibold">Event Details</span>
         </div>
@@ -55,7 +55,7 @@ const EventModal = ({ event, isOpen, onClose }: EventModalProps) => {
     >
       <div className="space-y-4 py-4">
         <div>
-          <h3 className="text-xl font-semibold text-gray-800 mb-2">{event.title}</h3>
+          <h3 className="text-xl font-semibold text-font-color mb-2">{event.title}</h3>
           <div className="flex items-center gap-2">
             <Tag color={categoryColors[event.category]}>{event.category}</Tag>
             <Tag>{event.type}</Tag>
@@ -64,49 +64,49 @@ const EventModal = ({ event, isOpen, onClose }: EventModalProps) => {
 
         {event.description && (
           <div>
-            <h4 className="text-sm font-medium text-gray-600 mb-1">Description</h4>
-            <p className="text-gray-700">{event.description}</p>
+            <h4 className="text-sm font-medium text-font-color-100 mb-1">Description</h4>
+            <p className="text-font-color">{event.description}</p>
           </div>
         )}
 
         <div className="space-y-3 border-t pt-4">
           <div className="flex items-start gap-3">
-            <IconUser className="text-lg text-gray-500 mt-1" />
+            <IconUser className="text-lg text-font-color-100 mt-1" />
             <div>
-              <div className="text-sm font-medium text-gray-600">Responsible</div>
-              <div className="text-base text-gray-800 font-semibold">{event.responsible}</div>
+              <div className="text-sm font-medium text-font-color-100">Responsible</div>
+              <div className="text-base text-font-color font-semibold">{event.responsible}</div>
             </div>
           </div>
 
           <div className="flex items-start gap-3">
-            <IconCalendar className="text-lg text-gray-500 mt-1" />
+            <IconCalendar className="text-lg text-font-color-100 mt-1" />
             <div>
-              <div className="text-sm font-medium text-gray-600">Start Date & Time</div>
-              <div className="text-base text-gray-800">
+              <div className="text-sm font-medium text-font-color-100">Start Date & Time</div>
+              <div className="text-base text-font-color">
                 {startTime.format('dddd, MMMM D, YYYY')}
               </div>
-              <div className="text-base text-gray-800 font-semibold">
+              <div className="text-base text-font-color font-semibold">
                 {startTime.format('h:mm A')}
               </div>
             </div>
           </div>
 
           <div className="flex items-start gap-3">
-            <IconCalendar className="text-lg text-gray-500 mt-1" />
+            <IconCalendar className="text-lg text-font-color-100 mt-1" />
             <div>
-              <div className="text-sm font-medium text-gray-600">End Date & Time</div>
-              <div className="text-base text-gray-800">{endTime.format('dddd, MMMM D, YYYY')}</div>
-              <div className="text-base text-gray-800 font-semibold">
+              <div className="text-sm font-medium text-font-color-100">End Date & Time</div>
+              <div className="text-base text-font-color">{endTime.format('dddd, MMMM D, YYYY')}</div>
+              <div className="text-base text-font-color font-semibold">
                 {endTime.format('h:mm A')}
               </div>
             </div>
           </div>
 
           <div className="flex items-start gap-3">
-            <IconClock className="text-lg text-gray-500 mt-1" />
+            <IconClock className="text-lg text-font-color-100 mt-1" />
             <div>
-              <div className="text-sm font-medium text-gray-600">Duration</div>
-              <div className="text-base text-gray-800">
+              <div className="text-sm font-medium text-font-color-100">Duration</div>
+              <div className="text-base text-font-color">
                 {hours > 0 && `${hours} hour${hours > 1 ? 's' : ''} `}
                 {minutes > 0 && `${minutes} minute${minutes > 1 ? 's' : ''}`}
                 {hours === 0 && minutes === 0 && 'Less than a minute'}
