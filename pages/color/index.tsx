@@ -328,9 +328,9 @@ const ColorView = ({ showSearchBar = true }: ColorViewProps) => {
   };
 
   return (
-    <div className="p-4">
+    <div>
       <div>
-        <h2 className="text-[24px]/[30px] font-black my-4 text-[var(--font-color-bl)]">
+        <h2 className="text-[24px]/[30px] font-black mb-4 text-[var(--font-color-bl)]">
           Colour Master
         </h2>
         {showSearchBar && (

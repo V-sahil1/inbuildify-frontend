@@ -102,7 +102,7 @@ const Package = () => {
   }, [debouncedUpdateURL]);
 
   return (
-    <div className="p-4">
+    <div>
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold">Package Master</h1>
         <div className="flex items-center gap-3">

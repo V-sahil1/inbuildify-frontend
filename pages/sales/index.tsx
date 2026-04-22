@@ -161,7 +161,7 @@ const SalesDashboard = () => {
 
   return (
     <div
-      className="min-h-[83%] bg-gray-50 px-3 py-4 sm:px-5 sm:py-5 lg:px-6 lg:py-6 flex flex-col"
+      className="min-h-[93%] bg-gray-50 px-3 pt-4 sm:px-5 sm:pt-5 lg:px-6 lg:pt-6 flex flex-col"
       style={{ backgroundColor: 'var(--bg-color)' }}
     >
       {/* Header */}

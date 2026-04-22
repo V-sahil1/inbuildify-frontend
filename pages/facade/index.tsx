@@ -124,7 +124,7 @@ const FacadeMaster = () => {
   };
 
   return (
-    <div className="p-6 h-[calc(100vh-150px)] flex flex-col">
+    <div className="h-[calc(100vh-150px)] flex flex-col">
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <h1 className="text-2xl font-semibold">Facade Master</h1>
         <div className="flex items-center gap-2">
@@ -142,7 +142,7 @@ const FacadeMaster = () => {
             <Spin size="large" />
           </div>
         ) : facades.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
             {facades?.map((facade: IFacadeState) => (
               <div
                 key={facade.facadeId}

@@ -2,7 +2,7 @@ import { IconMail, IconPhone, IconPlus, IconTrash, IconUser } from '@tabler/icon
 import { Tag } from 'antd';
 import { ContentCard } from './card/ContentCard';
 export function HeaderContent({ id, data }) {
-  console.log('data', data);
+
   return (
     <div className="max-h-[400px] overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
       <div>

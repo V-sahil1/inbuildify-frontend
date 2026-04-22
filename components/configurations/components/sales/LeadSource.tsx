@@ -278,7 +278,7 @@ export const LeadSource: React.FC = () => {
   const dataSource = !!editingRow && editingRow.isNew ? [editingRow, ...leadSource] : leadSource;
 
   return (
-    <div className="p-4">
+    <div>
       <div className="flex justify-between items-center mb-3">
         <h3 className="text-xl font-semibold m-0">Lead Source</h3>
         <Button

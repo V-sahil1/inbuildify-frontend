@@ -122,7 +122,7 @@ const FloorPlanMaster = () => {
     }
   };
   return (
-    <div className="p-4 h-[calc(100vh-150px)] flex flex-col ">
+    <div className="h-[calc(100vh-150px)] flex flex-col">
       <div className="flex justify-between items-center mb-4 flex-shrink-0">
         <h1 className="text-2xl font-bold">Floor Plan Master</h1>
         <Space>

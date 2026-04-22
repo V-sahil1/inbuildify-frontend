@@ -331,18 +331,18 @@ export default function Header({
               </button>
 
               {isGridDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-[500px] bg-white rounded-md shadow-lg overflow-hidden z-50">
+                <div className="absolute right-0 mt-2 w-[500px] bg-card-color rounded-md shadow-lg overflow-hidden z-50 border border-border-color">
                   <div className="max-h-[70vh] flex flex-col">
                     {/* First Section */}
-                    <div className="p-3 border-b border-gray-200">
-                      <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 px-2">
+                    <div className="p-3 border-b border-border-color">
+                      <h3 className="text-xs font-medium text-font-color-100 uppercase tracking-wider mb-2 px-2">
                         Quick Links
                       </h3>
                       <div className="grid grid-cols-3 gap-2">
                         {gridMenuItems.map(item => (
                           <p
                             key={item.id}
-                            className="flex cursor-pointer items-center px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                            className="flex cursor-pointer items-center px-3 py-2 rounded-md text-sm text-font-color hover:bg-primary-10 transition-colors"
                             onClick={() => {
                               router.push(item.href);
                               setIsGridDropdownOpen(false);
@@ -360,14 +360,14 @@ export default function Header({
                       <div className="p-3">
                         {/* this functionality need to add dont remove the code */}
 
-                        <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 px-2">
+                        <h3 className="text-xs font-medium text-font-color-100 uppercase tracking-wider mb-2 px-2">
                           Administration
                         </h3>
                         <div className="grid grid-cols-3 gap-2">
                           {gridMenuItems2.map(item => (
                             <p
                               key={item.id}
-                              className="flex cursor-pointer items-center px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                              className="flex cursor-pointer items-center px-3 py-2 rounded-md text-sm text-font-color hover:bg-primary-10 transition-colors"
                               onClick={() => {
                                 router.push(item.href);
                                 setIsGridDropdownOpen(false);

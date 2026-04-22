@@ -246,7 +246,7 @@ export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
                     >
                       <div className="flex items-center justify-between w-full overflow-hidden">
                         <div className="flex items-center space-x-4">
-                          <div className="bg-gray-100 p-2 rounded-lg">
+                          <div className="bg-color-primary-10 p-2 rounded-lg">
                             {quotation.indexOf(item) + 1}
                           </div>
                           <div>
