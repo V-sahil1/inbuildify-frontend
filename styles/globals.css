@@ -34,7 +34,6 @@
   --blue: #0d6efd;
 
   --primary: #191a1c;
-  --primary-10: #191a1c1a;
   --secondary: #837788;
   --chart-color1: #191a1c;
   --chart-color2: #837788;
@@ -1389,4 +1388,48 @@ body .apexcharts-legend-marker {
   background: var(--card-color) !important;
   color: var(--font-color-100) !important;
   border-color: var(--border-color) !important;
+}
+
+/* Custom disabled select styling for theme-aware colors */
+.custom-disabled-select.ant-select-disabled .ant-select-selector {
+  background-color: var(--primary-10) !important;
+  border-color: var(--border-color) !important;
+}
+
+.custom-disabled-select.ant-select-disabled .ant-select-selection-item {
+  color: var(--font-color) !important;
+}
+
+.custom-disabled-select.ant-select-disabled .ant-select-selection-placeholder {
+  color: var(--font-color-100) !important;
+}
+
+/* Custom upload component styling for theme-aware colors */
+.custom-themed-upload .ant-upload-list {
+  background-color: var(--card-color) !important;
+}
+
+.custom-themed-upload .ant-upload-list-item {
+  background-color: var(--primary-10) !important;
+  border-color: var(--border-color) !important;
+}
+
+.custom-themed-upload .ant-upload-list-item-name {
+  color: var(--font-color) !important;
+}
+
+.custom-themed-upload .ant-upload-list-item-name-icon-count-1 {
+  color: var(--font-color) !important;
+}
+
+.custom-themed-upload .ant-upload-list-item-card-actions {
+  color: var(--font-color-100) !important;
+}
+
+.custom-themed-upload .ant-upload-list-item-card-actions .anticon {
+  color: var(--font-color-100) !important;
+}
+
+.custom-themed-upload .ant-upload-list-item-info {
+  color: var(--font-color) !important;
 }

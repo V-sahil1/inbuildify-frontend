@@ -86,9 +86,10 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
       if (item.dwellingTypeId && item.dwellingTypeId.length > 0 && selectedFilters?.dwellingType) {
         if (item.dwellingTypeId.includes(selectedFilters.dwellingType)) return true;
       }
-      // Check shortDescription or itemDescription
-      const description = (item.shortDescription || item.itemDescription || '').toLowerCase();
-      if (description.includes(searchTerm)) return true;
+      // Check both shortDescription and itemDescription
+      const shortDesc = item?.shortDescription?.toLowerCase();
+      const itemDesc = item?.itemDescription?.toLowerCase();
+      if (shortDesc?.includes(searchTerm) || itemDesc?.includes(searchTerm)) return true;
 
       // Check costType
       if (item.costType && item.costType.toLowerCase().includes(searchTerm)) return true;

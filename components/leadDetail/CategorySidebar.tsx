@@ -38,7 +38,7 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
       <Input
         placeholder="Search Price List..."
         prefix={<IconSearch size={15} className="text-gray-400" />}
-        className="w-full rounded-none rounded-tl-lg border-t-0 border-r-2  border-l-0 h-[50px] !border-[#e6e7eb] hover:!border-[#e6e7eb] focus-within:!border-[#e6e7eb] active:!border-[#e6e7eb] !shadow-none hover:!shadow-none focus-within:!shadow-none"
+        className="w-full rounded-none rounded-tl-lg border-t-0  border-l-0 h-[50px] !border-[#e6e7eb] hover:!border-[#e6e7eb] focus-within:!border-[#e6e7eb] active:!border-[#e6e7eb] !shadow-none hover:!shadow-none focus-within:!shadow-none"
         value={search}
         onChange={e => setSearch(e.target.value)}
       />
@@ -49,7 +49,7 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
           onCategorySelect(key);
           setSelect(false);
         }}
-        className="border-0 rounded-bl-lg flex-1"
+        className="!border-r-[1px] !border-[#e6e7eb] rounded-bl-lg flex-1"
         items={menuItems}
       />
     </div>
