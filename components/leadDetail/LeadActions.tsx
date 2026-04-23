@@ -14,6 +14,7 @@ import { Status } from '@lib/constants/enum';
 import { fetchAllAppointment } from '@redux/feature/appointment/appointmentThunk';
 import { IAppointment } from '@redux/feature/appointment/IAppointmentState';
 import { getAllNotes, getAllSms, getLeadActions } from '@redux/feature/action/actionThunk';
+import { LeadStatus } from '@redux/feature/lead/ILeadState';
 
 const actionItems: MenuProps['items'] = [
   { key: 'addNotes', label: 'Add Notes' },
@@ -45,6 +46,7 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
     actions,
     status: actionStatus,
   } = useAppSelector(state => state.action);
+  const { leadDetail } = useAppSelector(state => state.lead);
   const tabs: FilterOption[] = [
     { type: 'All', label: 'All' },
     { type: 'NOTES', label: 'Notes' },
@@ -322,6 +324,7 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
           <TimelineActionsBar
             tabs={tabs}
             onTabChange={handleTabChange}
+            isActionShow={leadDetail?.lead?.opportunityOutcome !== LeadStatus.WON}
             actionItems={actionItems}
             onActionSelect={key => {
               setActiveAction(key as ActionType);

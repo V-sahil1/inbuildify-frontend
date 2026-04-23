@@ -16,11 +16,11 @@ import LeadUpdateDetail from '../leadDetail/LeadUpdateDetail';
 import EditableField from './EditableField';
 import { notesRules, leadSourceRules } from '@lib/constants/formInputValidations';
 import { mapToOptions } from '@lib/utils/rangeAndDwellingObjToOptions';
-import { IconCirclePlus, IconTrash } from '@tabler/icons-react';
+import { IconCirclePlus, IconLock, IconTrash } from '@tabler/icons-react';
 import HouseLandPopover from '../common/HLPopover';
 import LeadSourceDetailsDrawer from '../common/LeadSourceDetailDrawer';
 import { PurposeOptions, RatingOptions, YesNoOptions } from 'data/options';
-import { BusinessContact, Lead } from '@redux/feature/lead/ILeadState';
+import { BusinessContact, Lead, LeadStatus } from '@redux/feature/lead/ILeadState';
 import { fetchAllleadSource } from '@redux/feature/admin/sales/leadSource/leadSourceThunk';
 import { useClientTypeHook } from '@hooks/useClientTypeHook';
 import { useStateHook } from '@hooks/useStateHook';
@@ -28,6 +28,7 @@ import { useStateHook } from '@hooks/useStateHook';
 export const LeadSource = () => {
   const dispatch = useAppDispatch();
   const { leadDetail } = useAppSelector((state: RootState) => state.lead);
+  const isWinedLead = leadDetail?.lead?.opportunityOutcome === LeadStatus.WON;
   const { leadSource, status } = useAppSelector((state: RootState) => state.sales.leadSource);
   const updateLeadStatusState = useAppSelector(
     (state: RootState) => state.lead.status.updateLeadSource
@@ -170,6 +171,7 @@ export const LeadSource = () => {
           initialValues={{ leadSource: leadDetail.lead?.leadSourceId || '' }}
           type="Select"
           onSave={handleLeadSourceEdit}
+          disable={isWinedLead}
         />
 
         {/* <EditableField
@@ -196,6 +198,7 @@ export const LeadSource = () => {
           loading={updateLeadStatusState === Status.PENDING}
           initialValues={{ rating: leadDetail.lead?.rating || '' }}
           onSave={handleLeadSourceEdit}
+          disable={isWinedLead}
         />
 
         <EditableField
@@ -209,6 +212,7 @@ export const LeadSource = () => {
           loading={updateLeadStatusState === Status.PENDING}
           initialValues={{ land: leadDetail.lead?.land || '' }}
           onSave={handleLeadSourceEdit}
+          disable={isWinedLead}
         />
 
         <EditableField
@@ -222,6 +226,7 @@ export const LeadSource = () => {
           loading={updateLeadStatusState === Status.PENDING}
           initialValues={{ finance: leadDetail.lead?.finance || '' }}
           onSave={handleLeadSourceEdit}
+          disable={isWinedLead}
         />
 
         <EditableField
@@ -235,6 +240,7 @@ export const LeadSource = () => {
           loading={updateLeadStatusState === Status.PENDING}
           initialValues={{ faceToFace: leadDetail.lead?.faceToFace || '' }}
           onSave={handleLeadSourceEdit}
+          disable={isWinedLead}
         />
 
         <EditableField
@@ -248,6 +254,7 @@ export const LeadSource = () => {
           loading={updateLeadStatusState === Status.PENDING}
           initialValues={{ purpose: leadDetail.lead?.purpose || '' }}
           onSave={handleLeadSourceEdit}
+          disable={isWinedLead}
         />
 
         <EditableField
@@ -261,6 +268,7 @@ export const LeadSource = () => {
           loading={updateLeadStatusState === Status.PENDING}
           initialValues={{ clientTypeId: leadDetail.lead?.clientTypeId || '' }}
           onSave={handleLeadSourceEdit}
+          disable={isWinedLead}
         />
 
         <EditableField
@@ -273,6 +281,7 @@ export const LeadSource = () => {
           loading={updateLeadStatusState === Status.PENDING}
           initialValues={{ forcastClose: leadDetail.lead?.forcastClose || '' }}
           onSave={handleLeadSourceEdit}
+          disable={isWinedLead}
         />
       </div>
 
@@ -282,9 +291,9 @@ export const LeadSource = () => {
             <HouseLandPopover onSave={handleLeadSourceEdit}>
               <button
                 className="flex items-center gap-2 hover:text-blue-800"
-                disabled={!!leadDetail?.lead?.houseLandPackageDetails}
+                disabled={!!leadDetail?.lead?.houseLandPackageDetails || isWinedLead}
               >
-                <IconCirclePlus /> House and Land Package
+                {isWinedLead ? <IconLock /> : <IconCirclePlus />} House and Land Package
               </button>
             </HouseLandPopover>
             {leadDetail?.lead?.houseLandPackageDetails && (
@@ -304,8 +313,8 @@ export const LeadSource = () => {
           </div>
 
           <div>
-            <button className="flex gap-2" onClick={() => setDrawerOpen('company')}>
-              <IconCirclePlus /> Company Details
+            <button className="flex gap-2" onClick={() => setDrawerOpen('company')} disabled={isWinedLead}>
+              {isWinedLead ? <IconLock /> : <IconCirclePlus />} Company Details
             </button>
             {leadDetail?.lead?.company && (
               <div className="flex items-center gap-2 justify-between text-sm text-font-color">
@@ -330,8 +339,8 @@ export const LeadSource = () => {
             )}
           </div>
           <div>
-            <button className="flex gap-2" onClick={() => setDrawerOpen('conveyancer')}>
-              <IconCirclePlus /> Conveyancer / Solicitor
+            <button className="flex gap-2" onClick={() => setDrawerOpen('conveyancer')} disabled={isWinedLead}>
+              {isWinedLead ? <IconLock /> : <IconCirclePlus />} Conveyancer / Solicitor
             </button>
             {leadDetail?.lead?.conveyancer && (
               <div className="flex items-center gap-2 justify-between text-sm text-font-color">
@@ -355,8 +364,8 @@ export const LeadSource = () => {
             )}
           </div>
           <div>
-            <button className="flex gap-2" onClick={() => setDrawerOpen('mortgage_broker')}>
-              <IconCirclePlus /> Mortgage Broker
+            <button className="flex gap-2" onClick={() => setDrawerOpen('mortgage_broker')} disabled={isWinedLead}>
+              {isWinedLead ? <IconLock /> : <IconCirclePlus />} Mortgage Broker
             </button>
             {leadDetail?.lead?.mortgageBroker && (
               <div className="flex items-center gap-2 justify-between text-sm text-font-color">
@@ -380,8 +389,8 @@ export const LeadSource = () => {
             )}
           </div>
           <div>
-            <button className="flex gap-2" onClick={() => setDrawerOpen('financer')}>
-              <IconCirclePlus /> Bank / Financer
+            <button className="flex gap-2" onClick={() => setDrawerOpen('financer')} disabled={isWinedLead}>
+              {isWinedLead ? <IconLock /> : <IconCirclePlus />} Bank / Financer
             </button>
             {leadDetail?.lead?.financer && (
               <div className="flex items-center gap-2 justify-between text-sm text-font-color">
@@ -421,6 +430,7 @@ export const LeadSource = () => {
           isleadEditing={isLeadEditing.buildBudget}
           setIsLeadEditing={setIsLeadEditing}
           onSave={handleLeadSourceEdit}
+          disable={isWinedLead}
         />
 
         <EditableField
@@ -432,6 +442,7 @@ export const LeadSource = () => {
           isleadEditing={isLeadEditing.regionId}
           setIsLeadEditing={setIsLeadEditing}
           onSave={handleLeadSourceEdit}
+          disable={isWinedLead}
         />
 
         <EditableField
@@ -442,6 +453,7 @@ export const LeadSource = () => {
           isleadEditing={isLeadEditing.prelimAgreement}
           setIsLeadEditing={setIsLeadEditing}
           onSave={handleLeadSourceEdit}
+          disable={isWinedLead}
         />
 
         <EditableField
@@ -452,6 +464,7 @@ export const LeadSource = () => {
           isleadEditing={isLeadEditing.clientProfile}
           setIsLeadEditing={setIsLeadEditing}
           onSave={handleLeadSourceEdit}
+          disable={isWinedLead}
         />
 
         <EditableField
@@ -462,6 +475,7 @@ export const LeadSource = () => {
           isleadEditing={isLeadEditing.hLBudget}
           setIsLeadEditing={setIsLeadEditing}
           onSave={handleLeadSourceEdit}
+          disable={isWinedLead}
         />
       </div>
 

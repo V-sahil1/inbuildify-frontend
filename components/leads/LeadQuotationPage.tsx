@@ -8,6 +8,7 @@ import { useRouter } from 'next/router';
 import { Dispatch, SetStateAction } from 'react';
 import TooltipButton from '../common/TooltipButton';
 import { Quotation } from '@redux/feature/quotation/IQuotationState';
+import { LeadStatus } from '@redux/feature/lead/ILeadState';
 
 interface LeadQuotationsProps {
   leadId: string;
@@ -36,6 +37,7 @@ export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
 }) => {
   const dispatch = useAppDispatch();
   const { leadDetail } = useAppSelector(state => state.lead);
+  const isWinnedLead = leadDetail?.lead?.opportunityOutcome === LeadStatus.WON;
   const { quotation } = useAppSelector(state => state.quotation);
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
@@ -88,14 +90,14 @@ export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
           className={`justify-between flex flex-col ${hasQuotations ? '' : 'min-h-[220px] items-center justify-center'}`}
         >
           <div className={`justify-between flex gap-2 items-center w-full`}>
-            <Popconfirm
+            {isWinnedLead ? null : <Popconfirm
               title="Are you sure you want to create quotation?"
               onConfirm={handleCreateQuotation}
             >
               <p className="text-sm cursor-pointer text-blue text-nowrap text-center">
                 Create Quotation
               </p>
-            </Popconfirm>
+            </Popconfirm>}
             {hasQuotations && (
               <div
                 className={`flex items-center min-w-0 ${showSearchInput && 'max-w-[45%]'} flex-shrink-0`}
@@ -267,7 +269,7 @@ export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
                           ${Number(latestVersion?.grandTotalCost || 0)}
                         </div>
 
-                        <TooltipButton
+                        {!isWinnedLead && <TooltipButton
                           title="Delete Quotation"
                           type="text"
                           size="small"
@@ -277,7 +279,7 @@ export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
                             setSelectedQuotationId(item?.quotationId);
                             setShowDeleteConfirm(true);
                           }}
-                        />
+                        />}
                       </div>
                     </List.Item>
                   );
