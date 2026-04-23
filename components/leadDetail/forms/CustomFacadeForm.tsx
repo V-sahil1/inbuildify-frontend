@@ -104,6 +104,7 @@ const CustomFacadeForm: React.FC<CustomFacadeFormProps> = ({
                 maxCount={1}
                 accept={acceptOnlyImageRule}
                 beforeUpload={() => false}
+                className="custom-themed-upload"
               >
                 <Button>Click to Upload</Button>
               </Upload>

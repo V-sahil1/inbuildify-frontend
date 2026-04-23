@@ -92,7 +92,7 @@ const CustomPlanTab: React.FC<{
                 options={rangeOptions}
                 value={selectedFilters?.range}
                 disabled
-              // className="white-disabled-select"
+                className="custom-disabled-select"
               />
             </Form.Item>
 
@@ -106,7 +106,7 @@ const CustomPlanTab: React.FC<{
                 options={dwellingTypeOptions}
                 value={selectedFilters?.dwellingType}
                 disabled
-              // className="white-disabled-select"
+                className="custom-disabled-select"
               />
             </Form.Item>
             <Form.Item
@@ -129,6 +129,7 @@ const CustomPlanTab: React.FC<{
                 maxCount={1}
                 accept={acceptOnlyImageRule}
                 beforeUpload={() => false}
+                className="custom-themed-upload"
               >
                 <Button>Click to Upload</Button>
               </Upload>

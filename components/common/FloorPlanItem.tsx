@@ -27,7 +27,7 @@ export const FloorPlanItem = ({
     }
   };
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 ">
       {floorPlans?.map((floorPlan: IFloorPlanState) => (
         <div
           key={floorPlan.floorPlanId}
@@ -118,7 +118,7 @@ export const FloorPlanItem = ({
 
           <h5 className="text-[20px]/[24px] font-bold mb-2 text-center">{floorPlan?.name}</h5>
           <p className="text-font-color-100 mb-4 text-center">{floorPlan?.rangeName}</p>
-          <div className="flex  w-full rounded-lg p-4 overflow- bg-body-color">
+          <div className="flex flex-col w-full rounded-lg p-4 overflow- bg-body-color">
             {/* Left Section */}
             <div className="flex-1 space-y-2 ">
               <div className="flex justify-between text-md  md:text-sm ">
@@ -144,7 +144,7 @@ export const FloorPlanItem = ({
             </div>
 
             {/* Vertical Divider */}
-            <Divider type="vertical" className="h-auto mx-4" />
+            <Divider type="horizontal" className="h-auto mx-4" />
 
             {/* Right Section */}
             <div className="flex-1 space-y-2 ">

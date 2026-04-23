@@ -137,14 +137,14 @@ const DayView = ({ currentDate, events, onEventClick }: DayViewProps) => {
   }, [singleDayEvents, currentDate]);
 
   return (
-    <div className="bg-white overflow-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
-      <div className="flex border-b border-gray-200 sticky top-0 z-20 bg-white">
-        <div className="w-24 flex-shrink-0 border-r border-gray-200 bg-gray-50"></div>
+    <div className="bg-card-color overflow-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+      <div className="flex border-b border-border-color sticky top-0 z-20 bg-card-color">
+        <div className="w-24 flex-shrink-0 border-r border-border-color bg-primary-10"></div>
         <div className="flex-1">
-          <div className="p-4 text-center border-b border-gray-200">
-            <div className="text-sm text-gray-600">{currentDate.format('dddd')}</div>
+          <div className="p-4 text-center border-b border-border-color">
+            <div className="text-sm text-font-color-100">{currentDate.format('dddd')}</div>
             <div
-              className={`text-3xl font-semibold ${currentDate.isSame(dayjs(), 'day') ? 'text-blue-600' : 'text-gray-800'
+              className={`text-3xl font-semibold ${currentDate.isSame(dayjs(), 'day') ? 'text-color-primary' : 'text-font-color'
                 }`}
             >
               {currentDate.format('MMMM D, YYYY')}
@@ -153,7 +153,7 @@ const DayView = ({ currentDate, events, onEventClick }: DayViewProps) => {
 
           {/* All Day Events Section */}
           {allDayEvents.length > 0 && (
-            <div className="p-2 space-y-1 border-b border-gray-200 bg-gray-50">
+            <div className="p-2 space-y-1 border-b border-border-color bg-primary-10">
               {allDayEvents.map(event => (
                 <div
                   key={event.id}
@@ -178,7 +178,7 @@ const DayView = ({ currentDate, events, onEventClick }: DayViewProps) => {
           {hours.map(hour => (
             <div
               key={hour}
-              className="h-32 border-b border-gray-200 pr-3 pt-2 text-right text-sm text-gray-600"
+              className="h-32 border-b border-border-color pr-3 pt-2 text-right text-sm text-font-color-100"
             >
               {hour === 0
                 ? '12:00 AM'
@@ -191,11 +191,11 @@ const DayView = ({ currentDate, events, onEventClick }: DayViewProps) => {
           ))}
         </div>
 
-        <div className="flex-1 border-l border-gray-200 relative">
+        <div className="flex-1 border-l border-border-color relative">
           {/* Background Grid */}
           <div className="absolute inset-0 pointer-events-none">
             {hours.map(h => (
-              <div key={h} className="h-32 border-b border-gray-200"></div>
+              <div key={h} className="h-32 border-b border-border-color"></div>
             ))}
           </div>
 

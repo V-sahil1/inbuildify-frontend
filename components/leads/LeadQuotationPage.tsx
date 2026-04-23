@@ -248,12 +248,14 @@ export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
                     >
                       <div className="flex items-center justify-between w-full overflow-hidden">
                         <div className="flex items-center space-x-4">
-                          <div className="bg-gray-100 p-2 rounded-lg">
-                            {quotation.indexOf(item) + 1}
+                          <div className="bg-primary-10 p-2 rounded-lg">
+                            <span className="text-font-color-100">
+                              {quotation.indexOf(item) + 1}
+                            </span>
                           </div>
                           <div>
-                            <div className="flex flex-col gap-2 font-medium text-gray-900">
-                              <span className=" text-sm text-gray-500">
+                            <div className="flex flex-col gap-2 font-medium text-font-color">
+                              <span className=" text-sm text-font-color-100">
                                 {item?.referenceNumber}
                               </span>
                               {item?.versions[0]?.isApprove && (
@@ -265,7 +267,7 @@ export const LeadQuotation: React.FC<LeadQuotationsProps> = ({
                           </div>
                         </div>
 
-                        <div className="text-lg font-semibold text-gray-900">
+                        <div className="text-lg font-semibold text-font-color">
                           ${Number(latestVersion?.grandTotalCost || 0)}
                         </div>
 

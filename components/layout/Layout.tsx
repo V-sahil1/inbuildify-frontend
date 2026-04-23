@@ -54,7 +54,7 @@ export default function Layout({ children }) {
     <div className={`admin-wrapper overflow-hidden ${miniSidebar ? 'mini-sidebar' : ''}`}>
       <div className="flex h-svh relative">
         <div
-          className={`sidebar ${miniSidebar ? 'w-[80px]' : 'sm:w-[240px]'} !border-e-[4px] border-solid border-white ${miniSidebar ? '!min-w-[80px]' : 'sm:min-w-[240px]'} px-2 py-4 overflow-y-scroll flex flex-col custom-scrollbar xl:static fixed xl:h-screen md:h-[calc(100vh-74px)] h:[calc(100vh-64px)] md:top-[74px] top-[64px] z-[51] bg-body-color xl:shadow-none transition-all duration-300 ${mobileNav ? 'shadow-shadow-lg left-0' : '-left-full'} ${miniSidebar ? 'mini-sidebar' : ''}`}
+          className={`sidebar ${miniSidebar ? 'w-[80px]' : 'sm:w-[240px]'} !border-e-[4px] border-solid border-card-color ${miniSidebar ? '!min-w-[80px]' : 'sm:min-w-[240px]'} px-2 py-4 overflow-y-scroll flex flex-col custom-scrollbar xl:static fixed xl:h-screen md:h-[calc(100vh-74px)] h:[calc(100vh-64px)] md:top-[74px] top-[64px] z-[51] bg-body-color xl:shadow-none transition-all duration-300 ${mobileNav ? 'shadow-shadow-lg left-0' : '-left-full'} ${miniSidebar ? 'mini-sidebar' : ''}`}
         >
           <Sidebar
             mobileNav={mobileNav}
