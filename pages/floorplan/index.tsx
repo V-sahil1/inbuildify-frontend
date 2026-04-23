@@ -45,6 +45,17 @@ const FloorPlanMaster = () => {
     selectedFloorplan,
     setSelectedFloorplan
   );
+    // Filter priceListItems by selected floor plan's dwellingType and range
+  const filteredPriceListItems = priceListItems?.filter(item => {
+    if (!selectedFloorplan) return true;
+    const matchesDwellingType = selectedFloorplan.dwellingTypeId &&
+      item.dwellingType?.some(dwelling => dwelling.id === selectedFloorplan.dwellingTypeId);
+    const matchesRange = selectedFloorplan.rangeId &&
+      item.range?.some(range => range.id === selectedFloorplan.rangeId);
+    // Only show items that have BOTH matching dwelling type AND matching range
+    return matchesDwellingType && matchesRange;
+  }) || [];
+
   const { columns: facadeColumns, facades } = FacadeColumns(
     floorPlans?.find(i => i?.floorPlanId === selectedFloorplan?.floorPlanId)?.facade,
     selectedFloorplan,
@@ -230,9 +241,9 @@ const FloorPlanMaster = () => {
                 ? floorPlans
                   ?.find(i => i?.floorPlanId === selectedFloorplan?.floorPlanId)
                   ?.pricelistItems?.map(i =>
-                    priceListItems.find(c => c?.priceListItemId === i?.priceListItemId)
+                    filteredPriceListItems.find(c => c?.priceListItemId === i?.priceListItemId)
                   )
-                : priceListItems,
+                : filteredPriceListItems,
             },
           ]}
         >

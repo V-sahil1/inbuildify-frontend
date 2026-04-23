@@ -100,17 +100,17 @@ const ColorCategoryItemModel = ({
   // Watch form values for cascading logic
   const selectedColorId = Form.useWatch('colorId', form);
   const selectedCategoryId = Form.useWatch('colorCategoryId', form);
-  
+
   // Generate options for dropdowns
   const categoryOptions = getCategoryOptions(selectedColorId);
-  
+
   // Fetch category data when color is selected
   useEffect(() => {
     if (selectedColorId) {
       fetchCategoryData(selectedColorId);
     }
   }, [selectedColorId, fetchCategoryData]);
-  
+
   // Reset fetched categories when color master changes
   useEffect(() => {
     resetFetchedCategories();
@@ -345,16 +345,16 @@ const ColorCategoryItemModel = ({
         const createPayload =
           type === 'category'
             ? {
-                ...payload,
-                colorId: null,
-                colorCategoryId: selectedColorCategoryId,
-                customFields: mappedCustomFields,
-              }
+              ...payload,
+              colorId: null,
+              colorCategoryId: selectedColorCategoryId,
+              customFields: mappedCustomFields,
+            }
             : {
-                ...payload,
-                colorGroupId: selectedGroup?.colorGroupId,
-                customFields: mappedCustomFields,
-              };
+              ...payload,
+              colorGroupId: selectedGroup?.colorGroupId,
+              customFields: mappedCustomFields,
+            };
 
         const formData = formDataGenerator(createPayload);
         await dispatch(createColourItem(formData)).unwrap();
@@ -474,8 +474,8 @@ const ColorCategoryItemModel = ({
           <>
             <Row gutter={16}>
               <Col xs={20} md={10}>
-              
-                {type === 'group' && (
+
+                {type === 'group' && !categoryItem && (
                   <>
                     <Row gutter={16}>
                       <Col xs={12} md={12}>
@@ -667,7 +667,7 @@ const ColorCategoryItemModel = ({
                         ]}
                       >
                         <Input
-                          disabled={isStandard === 'standard' || !upgradeOption}
+                          disabled={isStandard === 'standard' || upgradeOption === 'tba'}
                           style={{ width: '100%' }}
                           prefix="$"
                           min={0}
@@ -712,7 +712,7 @@ const ColorCategoryItemModel = ({
                     </Col>
                   </Row>
                 )}
-                
+
 
                 {/* Row 2: Item Code + Cost Type */}
                 <Row gutter={16}>

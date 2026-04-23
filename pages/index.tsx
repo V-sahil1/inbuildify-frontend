@@ -278,12 +278,12 @@ const Leads = () => {
             <div
               key={lead.leadsId}
               onClick={() => {
-                if (lead.status === 'CANCELLED') return;
-                else if (lead.status === 'JOB') router.push(`${SystemRoutes.JOB}/${lead.leadsId}`);
+                if (lead.status === 'CANCELLED' || (lead.status === 'Convert' && lead.opportunityOutcome === 'lost')) return;
+                else if (lead.status === 'Convert' && lead.opportunityOutcome === 'won') router.push(`${SystemRoutes.JOB}/${lead.jobId}`);
                 else router.push(`${SystemRoutes.LEADS}/${lead.leadsId}`);
               }}
               className={`rounded-2xl border border-border-color shadow-sm p-6 ${
-                lead.status === 'CANCELLED'
+                lead.status === 'CANCELLED' || (lead.status === 'Convert' && lead.opportunityOutcome === 'lost')
                   ? 'opacity-60 cursor-not-allowed'
                   : 'cursor-pointer hover:shadow-xl hover:scale-[1.02]'
               } 
@@ -298,12 +298,16 @@ const Leads = () => {
                       ? 'bg-purple-100 text-purple-700'
                       : lead.status === 'COMPLETED'
                         ? 'bg-green-100 text-green-700'
-                        : lead.status === 'JOB'
+                        : lead.status === 'Convert' && lead.opportunityOutcome === 'won'
                           ? 'bg-fuchsia-300 text-fuchsia-700'
-                          : 'bg-yellow-100 text-yellow-700'
+                          : lead.status === 'Convert' && lead.opportunityOutcome === 'lost'
+                            ? 'bg-red-100 text-red-700'
+                            : 'bg-yellow-100 text-yellow-700'
                   }`}
                 >
-                  {enumToReadable(lead.status)}
+                  {lead.status === 'Convert' && lead.opportunityOutcome === 'won' ? 'Job' : 
+                   lead.status === 'Convert' && lead.opportunityOutcome === 'lost' ? 'Lost' : 
+                   enumToReadable(lead.status)}
                 </span>
               </div>
 

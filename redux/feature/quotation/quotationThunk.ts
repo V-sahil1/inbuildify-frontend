@@ -328,7 +328,7 @@ export const createQuotationPackageThunk = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const res = await api.post<ApiResponse<QuotationVersionDetails>>(
+      const res = await api.put<ApiResponse<QuotationVersionDetails>>(
         API_ENDPOINTS.QUOTATION_PACKAGE_CREATE,
         {
           data: {

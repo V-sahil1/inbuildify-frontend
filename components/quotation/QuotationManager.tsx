@@ -165,6 +165,9 @@ const QuotationManager = () => {
           case 'plan':
             dispatch(setQuotationPlan(value as IFloorPlanState));
             payload.floorPlanId = (value as IFloorPlanState)?.floorPlanId || null;
+            // Clear facade when floor plan is changed
+            dispatch(setQuotationFacade(null));
+            payload.facadeId = null;
             break;
           case 'facade':
             dispatch(setQuotationFacade(value as IFacadeState));

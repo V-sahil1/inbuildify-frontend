@@ -153,9 +153,16 @@ const ColorGroupPage = () => {
   const handleDeleteGroup = async () => {
     try {
       if (modalOpen === 'group') {
-        await dispatch(deleteColourGroup(selectedGroup?.colorGroupId)).unwrap();
-        message.success('Group deleted successfully');
-        setSelectedGroup(null);
+        if (selectedGroup?.isMapped === false) {
+          // Only allow deletion if group is inactive
+          await dispatch(deleteColourGroup(selectedGroup?.colorGroupId)).unwrap();
+          message.success('Group deleted successfully');
+          setSelectedGroup(null);
+        } else {
+          // If group is active, just toggle status to inactive
+          await handleToggleGroupStatus(selectedGroup);
+          // return;
+        }
       } else {
         await dispatch(deleteColourItem({ id: selectedItem.colorItemId })).unwrap();
         message.success('Color Item deleted successfully');
@@ -447,6 +454,22 @@ const ColorGroupPage = () => {
                         </div>
 
                         <div className="col-span-full flex flex-wrap gap-2 mt-2">
+                          {item.color && (
+                            <span
+                              key={item.color.id}
+                              className="text-xs bg-orange-600 text-white px-2 py-1 rounded whitespace-nowrap"
+                            >
+                              {item.color.name}
+                            </span>
+                          )}
+                          {item.colorCategory && (
+                            <span
+                              key={item.colorCategory?.id}
+                              className="text-xs bg-orange-400 text-white px-2 py-1 rounded whitespace-nowrap"
+                            >
+                              {item.colorCategory.name}
+                            </span>
+                          )}
                           {item.supplierId && (
                             <span
                               key={item.supplierId}
@@ -526,19 +549,21 @@ const ColorGroupPage = () => {
           }}
           type="danger"
           title="Conformation"
-          confirmText="Inactivate"
+          confirmText={modalOpen === 'group' && selectedGroup?.isMapped ? 'Inactivate' : 'Delete'}
           message={
             modalOpen === 'group'
-              ? 'Color Group : ' +
-              selectedGroup?.name +
-              ' is been used in existing color selections.\n ' +
-              selectedGroup?.name +
-              " can't be deleted . You can inactivate the color group if not required.\n Are you sure you want to inactivate"
+              ? selectedGroup?.isMapped
+                ? 'Color Group: ' +
+                  selectedGroup?.name +
+                  ' is currently active and cannot be deleted.\n Are you sure you want to inactivate it?'
+                : 'Color Group: ' +
+                  selectedGroup?.name +
+                  ' is currently inactive and can be deleted.\n Are you sure you want to delete it?'
               : 'Color Item : ' +
-              selectedItem?.itemName +
-              ' is been used in existing color item selections.\n ' +
-              selectedItem?.itemName +
-              " can't be deleted . You can inactivate the color item if not required.\n Are you sure you want to inactivate"
+                selectedItem?.itemName +
+                ' is been used in existing color item selections.\n ' +
+                selectedItem?.itemName +
+                " can't be deleted . You can inactivate the color item if not required.\n Are you sure you want to inactivate"
           }
         />
       )}

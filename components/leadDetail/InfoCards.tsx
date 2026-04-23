@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Button, Tooltip, message, Popconfirm } from 'antd';
+import { Card, Button, Tooltip, message, Modal, Popconfirm } from 'antd';
 import {
   IconUser,
   IconHome,
@@ -83,6 +83,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
     | 'linkContact'
     | 'contact'
     | 'structuralEngineer'
+    | 'floorPlanConfirmation'
     | null
   >(null);
   const [loading, setLoading] = useState(false);
@@ -295,7 +296,14 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           <Card
             className={`shadow-sm transition-shadow ${isSelectionDisabled ? 'opacity-70' : 'hover:shadow-md cursor-pointer'}`}
             onClick={
-              !isSelectionDisabled && !isReadOnly ? () => setModalOpen('floorPlan') : undefined
+              !isSelectionDisabled && !isReadOnly ? () => {
+                // Check if there are items in quotation and if a floor plan is already selected
+                if (selectedPlan && items && items.length > 0) {
+                  setModalOpen('floorPlanConfirmation');
+                } else {
+                  setModalOpen('floorPlan');
+                }
+              } : undefined
             }
           >
             {selectedPlan ? (
@@ -582,6 +590,20 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           onSelect={onPackageSelect}
           filters={filters}
         />
+      )}
+      {modalOpen === 'floorPlanConfirmation' && (
+        <Modal
+          title="Change Floor Plan"
+          open={modalOpen === 'floorPlanConfirmation'}
+          onOk={() => {
+            setModalOpen('floorPlan');
+          }}
+          onCancel={() => setModalOpen(null)}
+          okText="Continue"
+          cancelText="Cancel"
+        >
+          <p>Changing the floor plan will clear the selected facade and may affect your quotation items. Do you want to continue?</p>
+        </Modal>
       )}
       {modalOpen === 'linkContact' && (
         <LeadLinkContactModel

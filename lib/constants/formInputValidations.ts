@@ -124,6 +124,9 @@ export const optionalDescriptionRules = [
       }
 
       const trimmed = value.trim();
+      if (value.startsWith(' ') || value.endsWith(' ')) {
+        return Promise.reject('Description cannot start or end with spaces');
+      }
 
       if (!trimmed) {
         return Promise.reject('Description cannot be only spaces');
@@ -137,6 +140,30 @@ export const optionalDescriptionRules = [
         return Promise.reject('Description must be at most 500 characters');
       }
 
+      return Promise.resolve();
+    },
+  },
+];
+
+export const optionalLargeDescriptionRules = [
+  {
+    validator: (_: any, value: string) => {
+      if (!value) {
+        return Promise.resolve();
+      }
+      const trimmed = value.trim();
+      if (value.startsWith(' ') || value.endsWith(' ')) {
+        return Promise.reject('Description cannot start or end with spaces');
+      }
+      if (!trimmed) {
+        return Promise.reject('Description cannot be only spaces');
+      }
+      if (trimmed.length < 5) {
+        return Promise.reject('Description must be at least 5 characters');
+      }
+      if (trimmed.length > 1000) {
+        return Promise.reject('Description must be at most 1000 characters');
+      }
       return Promise.resolve();
     },
   },

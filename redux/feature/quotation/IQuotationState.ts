@@ -210,7 +210,9 @@ export type QuotationPriceListItem = {
   uom?: string;
   rangeId?: string[];
   dwellingTypeId?: string[];
-  extraItem?:boolean
+  extraItem?:boolean;
+  isAutomaticallyMapped?: boolean;
+  priceListItemIsSystemData?: boolean;
 };
 
 export type QuotationPackage = {
