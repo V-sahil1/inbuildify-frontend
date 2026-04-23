@@ -699,7 +699,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
             <Form.Item
               label="Total Size (m²)"
               name="totalSizeM2"
-              rules={OptionalNumberRules}
+              // rules={OptionalNumberRules}
               initialValue={0}
             >
               <Input
@@ -711,7 +711,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
                     e.preventDefault();
                   }
                 }}
-                disabled
+                readOnly
               />
             </Form.Item>
           </Col>

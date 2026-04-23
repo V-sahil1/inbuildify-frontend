@@ -10,6 +10,7 @@ import { enumToReadable } from '@lib/utils/enumToRedable';
 import SystemRoutes from '@lib/constants/Routes';
 import { fetchAllLeadLostReason } from '@redux/feature/admin/sales/leadLostReason/leadLostReasonThunk';
 import { RootState } from '@redux/feature/store';
+import { optionalLargeDescriptionRules } from '@lib/constants/formInputValidations';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -191,7 +192,7 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
 
       <div className="mb-6">
         <label className="block mb-2 font-medium">Notes</label>
-        <Form.Item name="message" className="m-0" rules={[{ required: true }]}>
+        <Form.Item name="message" className="m-0" rules={optionalLargeDescriptionRules}>
           <TextArea rows={4} placeholder="Add notes..." maxLength={1000} showCount />
         </Form.Item>
       </div>
@@ -224,7 +225,7 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
         <Form.Item
           name="message"
           className="m-0"
-          rules={[{ required: true, message: 'Please add a comment' }]}
+          rules={optionalLargeDescriptionRules}
         >
           <TextArea rows={4} placeholder="Add comments..." maxLength={1000} showCount />
         </Form.Item>

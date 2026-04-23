@@ -69,16 +69,16 @@ const FloorPlanFormModal = ({
     onSubmit(formData);
   }
   return (
-    <Modal title={title} open={open} onCancel={onCancel} width={800} onOk={handleSubmit}>
+    <Modal title={title} open={open} onCancel={onCancel} width={800} onOk={handleSubmit} confirmLoading={loading}>
       <Form form={form} layout="vertical">
-        <Form.Item label="Name" name="name" rules={settingNameRules}>
+        <Form.Item label="Name" name="name" rules={[{ required: true, message: 'Please select a status' },...settingNameRules]}>
           <Input className="max-w-[300px]" type="text" placeholder="Luxury Villa" />
         </Form.Item>
         <div className="grid grid-cols-6 gap-2">
           <div className="col-span-4">
             <div className="flex justify-between gap-2">
               <Form.Item label="Min Land Width(m)" name="minLandWidth" rules={[{ pattern: /^[0-9]+(\.[0-9]{1,2})?$/, message: 'Only numbers allowed' }, ...planMeasureRange]}>
-                <Input type="number" onWheel={(e) => e.currentTarget.blur()}
+                <Input onWheel={(e) => e.currentTarget.blur()}
                   onKeyPress={e => {
                     if (!/[0-9]/.test(e.key)) {
                       e.preventDefault();
@@ -213,6 +213,7 @@ const FloorPlanFormModal = ({
               accept={acceptOnlyImageRule}
               multiple={false}
               maxCount={1}
+              listType="picture"
               beforeUpload={() => false}
             >
               <Button>Click to Upload</Button>
@@ -234,6 +235,7 @@ const FloorPlanFormModal = ({
               accept={acceptOnlyImageRule}
               multiple={false}
               maxCount={1}
+              listType="picture"
               beforeUpload={() => false}
             >
               <Button>Click to Upload</Button>

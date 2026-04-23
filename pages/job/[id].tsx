@@ -6,7 +6,7 @@ import JobAction from '@/components/job/jobDetail/JobAction';
 import JobInvoicePayment from '@/components/job/jobDetail/Invoice-payment/JobInvoicePayment';
 import JobVariationManager from '@/components/job/jobDetail/Variation/JobVariationManager';
 import SystemRoutes from '@lib/constants/Routes';
-import { Result, Skeleton, Tabs } from 'antd';
+import { Result, Skeleton, Tabs, message } from 'antd';
 import router from 'next/router';
 import { JobCommission } from '@/components/job/jobDetail/comission/JobCommission';
 import JobDetailHeader from '@/components/job/jobDetail/JobDetailHeader';
@@ -41,7 +41,25 @@ export default function JobDetail() {
   // ── Fetch job detail on mount / id change ────────────────────────────────
   useEffect(() => {
     if (!id) return;
-    dispatch(getJobByIdThunk(id as string));
+    
+    const fetchJobData = async () => {
+      try {
+        await dispatch(getJobByIdThunk(id as string)).unwrap();
+      } catch (error) {
+        console.error('Failed to fetch job:', error);
+        // Handle invalid job ID
+        if (error?.includes('not found') || error?.includes('404') || error?.includes('invalid')) {
+          // Redirect to jobs page with error message
+          router.push('/job');
+          message.error('Job not found or invalid job ID');
+        } else {
+          message.error(error || 'Failed to fetch job details');
+        }
+      }
+    };
+
+    fetchJobData();
+    
     return () => {
       dispatch(clearCurrentJob());
     };

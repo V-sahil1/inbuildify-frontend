@@ -45,6 +45,17 @@ const FloorPlanMaster = () => {
     selectedFloorplan,
     setSelectedFloorplan
   );
+    // Filter priceListItems by selected floor plan's dwellingType and range
+  const filteredPriceListItems = priceListItems?.filter(item => {
+    if (!selectedFloorplan) return true;
+    const matchesDwellingType = selectedFloorplan.dwellingTypeId &&
+      item.dwellingType?.some(dwelling => dwelling.id === selectedFloorplan.dwellingTypeId);
+    const matchesRange = selectedFloorplan.rangeId &&
+      item.range?.some(range => range.id === selectedFloorplan.rangeId);
+    // Only show items that have BOTH matching dwelling type AND matching range
+    return matchesDwellingType && matchesRange;
+  }) || [];
+
   const { columns: facadeColumns, facades } = FacadeColumns(
     floorPlans?.find(i => i?.floorPlanId === selectedFloorplan?.floorPlanId)?.facade,
     selectedFloorplan,
@@ -119,6 +130,9 @@ const FloorPlanMaster = () => {
       setSelectedFloorplan(null);
     } catch (error) {
       message.error(error || 'Failed to save Floor Plans');
+    } finally {
+      setcreateFloorPlanOpen(false);
+      setSelectedFloorplan(null);
     }
   };
   return (
@@ -183,8 +197,6 @@ const FloorPlanMaster = () => {
           }}
           onSubmit={values => {
             handleFloorPlan(values);
-            setcreateFloorPlanOpen(false);
-            setSelectedFloorplan(null);
           }}
           isEditing={!!selectedFloorplan}
           initialValues={selectedFloorplan}
@@ -227,11 +239,11 @@ const FloorPlanMaster = () => {
               columns: floorplanPricelistColumn,
               data: !!showSelectedData
                 ? floorPlans
-                    ?.find(i => i?.floorPlanId === selectedFloorplan?.floorPlanId)
-                    ?.pricelistItems?.map(i =>
-                      priceListItems.find(c => c?.priceListItemId === i?.priceListItemId)
-                    )
-                : priceListItems,
+                  ?.find(i => i?.floorPlanId === selectedFloorplan?.floorPlanId)
+                  ?.pricelistItems?.map(i =>
+                    filteredPriceListItems.find(c => c?.priceListItemId === i?.priceListItemId)
+                  )
+                : filteredPriceListItems,
             },
           ]}
         >
@@ -268,8 +280,8 @@ const FloorPlanMaster = () => {
               columns: facadeColumns,
               data: !!showSelectedData
                 ? floorPlans
-                    ?.find(i => i?.floorPlanId === selectedFloorplan?.floorPlanId)
-                    ?.facade?.map(i => facades.find(c => c?.facadeId === i?.facadeId))
+                  ?.find(i => i?.floorPlanId === selectedFloorplan?.floorPlanId)
+                  ?.facade?.map(i => facades.find(c => c?.facadeId === i?.facadeId))
                 : facades,
             },
           ]}

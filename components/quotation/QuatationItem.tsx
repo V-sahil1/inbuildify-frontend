@@ -134,9 +134,15 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
             <InputNumber
               min={1}
               step={1}
+              max={100}
               precision={0}
               value={quantity}
               ref={quantityRef}
+              onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}
               onChange={handleQuantityChange}
               onBlur={handleQuantityBlur}
               type="number"
@@ -172,7 +178,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
         {/* Action */}
         <div className="table-cell text-center p-3 align-middle w-[100px]">
           <Button
-            disabled={isIncluded || disabled}
+            disabled={isIncluded || disabled || item?.isSystemData}
             type={isSelected ? 'primary' : 'dashed'}
             style={{
               boxShadow: 'none',

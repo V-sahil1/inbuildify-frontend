@@ -202,6 +202,7 @@ class API_ENDPOINTS {
   public static GET_COLOR_GROUP_ITEM = `${this.COLOUR_SUB_CATEGORY_ITEM}/without-category`;
   public static COLOUR_SUB_CATEGORY_ITEM_COPY = id => `${this.COLOUR_SUB_CATEGORY_ITEM}/copy/${id}`;
   public static COLOR_ITEM_MOVE = (id: string) => `${this.COLOUR_SUB_CATEGORY_ITEM}/move/${id}`;
+  public static COLOR_ITEM_IMAGE = `${this.COLOUR_SUB_CATEGORY_ITEM}/image`;
   public static COLOUR_GROUP = `/color-group`;
   public static COLOUR_TYPE = `/color-type`;
   public static COLOR_ITEM_CUSTOM_FIELD = `/color-item-custom-field`;

@@ -49,6 +49,9 @@ export const nameRules = [
           'Name must be at least 2 letters and at most 100 letters and can only contain letters and spaces'
         );
       }
+      if (value.startsWith(' ') || value.endsWith(' ')) {
+        return Promise.reject('Name cannot start or end with spaces');
+      }
       return Promise.resolve();
     },
   },
@@ -96,6 +99,9 @@ export const descriptionRules = [
       if (!value || !value.trim()) {
         return Promise.reject('Please enter description');
       }
+      if (value.startsWith(' ') || value.endsWith(' ')) {
+        return Promise.reject('Description cannot start or end with spaces');
+      }
 
       const trimmed = value.trim();
       if (trimmed.length < 5) {
@@ -118,6 +124,9 @@ export const optionalDescriptionRules = [
       }
 
       const trimmed = value.trim();
+      if (value.startsWith(' ') || value.endsWith(' ')) {
+        return Promise.reject('Description cannot start or end with spaces');
+      }
 
       if (!trimmed) {
         return Promise.reject('Description cannot be only spaces');
@@ -131,6 +140,30 @@ export const optionalDescriptionRules = [
         return Promise.reject('Description must be at most 500 characters');
       }
 
+      return Promise.resolve();
+    },
+  },
+];
+
+export const optionalLargeDescriptionRules = [
+  {
+    validator: (_: any, value: string) => {
+      if (!value) {
+        return Promise.resolve();
+      }
+      const trimmed = value.trim();
+      if (value.startsWith(' ') || value.endsWith(' ')) {
+        return Promise.reject('Description cannot start or end with spaces');
+      }
+      if (!trimmed) {
+        return Promise.reject('Description cannot be only spaces');
+      }
+      if (trimmed.length < 5) {
+        return Promise.reject('Description must be at least 5 characters');
+      }
+      if (trimmed.length > 1000) {
+        return Promise.reject('Description must be at most 1000 characters');
+      }
       return Promise.resolve();
     },
   },
@@ -187,11 +220,23 @@ export const OptionalNumberRules = [
     pattern: /^\d+(\.\d+)?$/,
     message: 'Value cannot be negative or contain a minus sign',
   },
+  {
+    validator: (_: any, value: string) => {
+      if (!value) return Promise.resolve(); // empty is ok
+      if (value.startsWith('-')) {
+        return Promise.reject('Value cannot be negative');
+      }
+      return Promise.resolve();
+    },
+  },
 ];
 
 export const optionalNameRules = [
   {
     validator: (_: any, value: string) => {
+      if (value.startsWith(' ') || value.endsWith(' ')) {
+        return Promise.reject('Name cannot start or end with spaces');
+      }
       if (value.length > 255) {
         return Promise.reject('Name must be at most 255 letters');
       }
@@ -231,6 +276,9 @@ export const optionalNotesRule = [
   {
     validator: (_: any, value: string) => {
       if (!value) return Promise.resolve();
+      if (value.startsWith(' ') || value.endsWith(' ')) {
+        return Promise.reject('Name cannot start or end with spaces');
+      }
       const trimmed = value.trim();
       if (trimmed.length === 0) return Promise.resolve();
       if (trimmed.length < 2) {
@@ -347,6 +395,10 @@ export const settingNameRules = [
     validator: (_: any, value: string) => {
       if (!value) {
         return Promise.reject('Please enter a name');
+      }
+      // Check for spaces at start or end
+      if (value.startsWith(' ') || value.endsWith(' ')) {
+        return Promise.reject('Name cannot start or end with spaces');
       }
       const pattern = /^[a-zA-Z0-9\s]+$/;
       if (!pattern.test(value)) {

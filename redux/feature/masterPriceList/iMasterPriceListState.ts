@@ -43,6 +43,7 @@ export interface IPriceListItem {
   isPriceListItemCostMismatch?: boolean;
   quotationVersionItemId?:string;
   note?:string;
+  isSystemData?:boolean
 }
 
 export interface PricelistItemFtechParams {

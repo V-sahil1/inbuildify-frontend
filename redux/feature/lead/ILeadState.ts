@@ -196,6 +196,7 @@ export interface Lead {
   opportunityStatus?: string;
   structureEngineerId?: string;
   structureReportFile?: string;
+  jobId?: string;
 }
 
 export interface BusinessContact {

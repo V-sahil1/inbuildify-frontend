@@ -1,4 +1,4 @@
-import React, { useRef, useState, useMemo } from 'react';
+import React, { useRef, useState, useMemo, useCallback } from 'react';
 import { Button, Dropdown, Form, Input, message } from 'antd';
 import { IPriceList } from '@redux/feature/masterPriceList/iMasterPriceListState';
 import { QuatationItem } from '../quotation/QuatationItem';
@@ -45,7 +45,6 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
     package: selectedPackageFromSlice,
     quoteDetails,
   } = useAppSelector((state: RootState) => state.quotation);
-
   const { priceMaster: categoryData } = useAppSelector((state: RootState) => state.masterPriceList);
 
   const userSelectedItems = useMemo(() =>
@@ -54,7 +53,6 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
         const quotationItem = items.find(
           selected => selected?.priceListItemId === categoryItem?.priceListItemId
         );
-
         if (quotationItem) {
           acc.push({
             ...categoryItem,
@@ -66,7 +64,17 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
       }, [])
     ), [categoryData, items]
   );
-  
+
+  // Helper function to check if item is automatically mapped
+  const isItemAutomaticallyMapped = useCallback((priceListItemId: string) => {
+    const quotationItem = items.find(
+      item => item?.priceListItemId === priceListItemId
+    );
+    return quotationItem?.isAutomaticallyMapped === true;
+  }, [items]);
+
+
+
   const [form] = Form.useForm();
   const { leadDetail } = useAppSelector((state: RootState) => state.lead);
   const quantityRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -123,7 +131,6 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
     try {
       const quantity = quantityRefs.current[item.priceListItemId]?.value || '1';
       const pricelist = items.find(i => i.quotationVersionItemId === item.quotationVersionItemId);
-      
       if (!!pricelist) {
         await dispatch(deleteQuotationPricelistThunk(pricelist?.quotationVersionItemId)).unwrap();
         message.success('Item removed successfully');
@@ -146,7 +153,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
     try {
       const priceItem = items.find(i => i.priceListItemId === itemId);
       if (!priceItem?.quotationVersionItemId) return;
-      
+
       // Only update if quantity has changed
       if (Number(priceItem.quantity) !== quantity) {
         await dispatch(
@@ -280,7 +287,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
                             key={item?.priceListItemId}
                             item={item}
                             disabled={
-                              isReadOnly || item?.itemDescription === 'Compaction Report Charge'
+                              isReadOnly || item?.isSystemData || isItemAutomaticallyMapped(item?.priceListItemId) || item?.priceListItemIsSystemData
                             }
                             onQuantityChange={handleItemQuantityChange}
                             onQuantityUpdate={onItemQuantityUpdate}
@@ -289,6 +296,8 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
                               userSelectedItems?.some(
                                 itemData => itemData?.priceListItemId === item?.priceListItemId
                               ) || !!item?.extraItem
+                              || item?.isSystemData
+                              || item?.isAutomaticallyMapped
                             }
                             isDiffPrice={
                               userSelectedItems?.find(

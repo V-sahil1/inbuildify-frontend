@@ -55,6 +55,7 @@ const FooterActions: React.FC<FooterActionsProps> = ({
   const [modalOpen, setModalOpen] = useState<'approval' | 'save' | 'custom' | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [sketchNum, setSketchNum] = useState('');
+  const [validationError, setValidationError] = useState('');
   const previewMenu = [
     { key: 'quotation', label: 'Quotation', icon: <IconFileTypePdf size={15} color="red" /> },
     // {
@@ -95,12 +96,33 @@ const FooterActions: React.FC<FooterActionsProps> = ({
       <div>
         <p>Sketch Number</p>
         <Input
-          type="number"
           onWheel={e => e.currentTarget.blur()}
+          onKeyPress={e => {
+            if (!/[0-9]/.test(e.key)) {
+              e.preventDefault();
+            }
+          }}
+          min={0}
+          max={99999999}
           className="max-w-[200px]"
           value={sketchNum}
-          onChange={e => setSketchNum(e.target.value)}
+          onChange={e => {
+            const value = e.target.value;
+            // Check if value exceeds max limit
+            const numValue = parseInt(value) || 0;
+            if (numValue <= 99999999) {
+              setSketchNum(value);
+              setValidationError('');
+            } else {
+              setValidationError('Maximum sketch number is 99999999');
+            }
+          }}
         />
+        {validationError && (
+          <div className="text-red-500 text-sm mt-1">
+            {validationError}
+          </div>
+        )}
       </div>
       <p>Are you sure you want to approve this quatation?</p>
     </div>

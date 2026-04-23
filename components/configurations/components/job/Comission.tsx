@@ -47,8 +47,8 @@ export const Comission: React.FC = () => {
     incomingCommissionStatus,
     status,
   } = useAppSelector(state => state.job.jobCommission);
-  const [outgoingEnabled, setOutgoingEnabled] = useState<boolean>();
-  const [incomingEnabled, setIncomingEnabled] = useState<boolean>();
+  const [outgoingEnabled, setOutgoingEnabled] = useState<boolean>(false);
+  const [incomingEnabled, setIncomingEnabled] = useState<boolean>(false);
   const [modalOpen, setModalOpen] = useState<'outgoing' | 'incoming' | 'outgoingChild' | null>(
     null
   );
@@ -61,26 +61,30 @@ export const Comission: React.FC = () => {
   const [incomingForm] = Form.useForm();
 
   useEffect(() => {
-    if (status.fetch === Status.IDLE) {
-      fetchCommissionSetting();
-    }
-    if (commissionSetting) {
-      setOutgoingEnabled(commissionSetting.defineOutgoingCommission);
-      setIncomingEnabled(commissionSetting.defineIncomingCommission);
-    }
+    try {
+      if (status.fetch === Status.IDLE) {
+        fetchCommissionSetting().catch(console.error);
+      }
+      if (commissionSetting) {
+        setOutgoingEnabled(commissionSetting.defineOutgoingCommission || false);
+        setIncomingEnabled(commissionSetting.defineIncomingCommission || false);
+      }
 
-    if (
-      outgoingCommissionStatus.fetch === Status.IDLE &&
-      commissionSetting?.defineOutgoingCommission
-    ) {
-      fetchOutgoingommission();
-    }
+      if (
+        outgoingCommissionStatus.fetch === Status.IDLE &&
+        commissionSetting?.defineOutgoingCommission
+      ) {
+        fetchOutgoingommission().catch(console.error);
+      }
 
-    if (
-      incomingCommissionStatus.fetch === Status.IDLE &&
-      commissionSetting?.defineIncomingCommission
-    ) {
-      fetchIncomingommission();
+      if (
+        incomingCommissionStatus.fetch === Status.IDLE &&
+        commissionSetting?.defineIncomingCommission
+      ) {
+        fetchIncomingommission().catch(console.error);
+      }
+    } catch (error) {
+      console.error('Error in commission useEffect:', error);
     }
   }, [
     status.fetch,
