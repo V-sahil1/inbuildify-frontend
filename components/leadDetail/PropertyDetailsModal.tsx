@@ -37,12 +37,14 @@ interface PropertyDetailsModalProps {
   visible: boolean;
   onCancel: () => void;
   initialValues?: PropertyDetail;
+  disableSave?: boolean;
 }
 
 const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
   visible,
   onCancel,
   initialValues,
+  disableSave = false,
 }) => {
   const [form] = Form.useForm();
   const dispatch = useAppDispatch();
@@ -358,9 +360,11 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
         <Button key="cancel" onClick={handleCancel}>
           Cancel
         </Button>,
-        <Button key="save" type="primary" onClick={handleSave}>
-          Save
-        </Button>,
+        !disableSave && (
+          <Button key="save" type="primary" onClick={handleSave}>
+            Save
+          </Button>
+        ),
       ]}
     // destroyOnClose
     >
@@ -368,6 +372,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
         form={form}
         layout="vertical"
         className="mt-4"
+        disabled={disableSave}
         style={{ maxHeight: '70vh', overflowY: 'auto', paddingRight: '8px' }}
         onValuesChange={(_, values) => {
           const width = values.widthM;
@@ -694,7 +699,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
             <Form.Item
               label="Total Size (m²)"
               name="totalSizeM2"
-              rules={OptionalNumberRules}
+              // rules={OptionalNumberRules}
               initialValue={0}
             >
               <Input
@@ -706,7 +711,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
                     e.preventDefault();
                   }
                 }}
-                disabled
+                readOnly
               />
             </Form.Item>
           </Col>

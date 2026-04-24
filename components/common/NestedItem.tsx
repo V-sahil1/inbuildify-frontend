@@ -2,6 +2,7 @@ import { Category, ColorItem } from '@redux/feature/color/iColourState';
 import {
   IconChevronDown,
   IconChevronUp,
+  IconClockHour7,
   IconCopy,
   IconDotsVertical,
   IconEdit,
@@ -26,6 +27,7 @@ interface NestedItemProps {
   onToggleDropdown?: (item: Category) => void;
   actionType?: string;
   handleCopy?: (item: Category | ColorItem, type: CopyType) => void;
+  onQuotationHistoryClick?: (subItem: ColorItem) => void;
 }
 
 export const NestedItem = ({
@@ -37,6 +39,7 @@ export const NestedItem = ({
   onToggleDropdown,
   handleCopy,
   actionType,
+  onQuotationHistoryClick,
 }: NestedItemProps) => {
   const dispatch = useAppDispatch();
   const { colorGroup } = useAppSelector(state => state.colour);
@@ -176,6 +179,17 @@ export const NestedItem = ({
                     </div>
                   </div>
                   <div className="flex gap-2">
+                    <TooltipButton
+                      title="Quotation History"
+                      size="small"
+                      type="text"
+                      onClick={e => {
+                        e.stopPropagation();
+                        onQuotationHistoryClick?.(subItem);
+                      }}
+                      icon={<IconClockHour7 size={18} />}
+                    />
+
                     <TooltipButton
                       title="Copy"
                       className="p-2 rounded-lg hover:!bg-green-50 transition border-none !bg-transparent"

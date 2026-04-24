@@ -36,6 +36,7 @@ interface LeadContactModelProps {
   onDeleteContact?: (contactId: string) => Promise<void>;
   onLinkContact?: () => void;
   maxContacts?: number;
+  disableSave?: boolean;
 }
 
 const LeadContactModel: React.FC<LeadContactModelProps> = ({
@@ -48,6 +49,7 @@ const LeadContactModel: React.FC<LeadContactModelProps> = ({
   onDeleteContact,
   onLinkContact,
   maxContacts = 2,
+  disableSave = false,
 }) => {
   const [form] = Form.useForm();
   const [selectedContact, setSelectedContact] = useState<LeadContact | null>(null);
@@ -200,14 +202,14 @@ const LeadContactModel: React.FC<LeadContactModelProps> = ({
           <Button onClick={onCancel} icon={<IconX size={16} />}>
             Cancel
           </Button>
-          <Button
+          {!disableSave && <Button
             type="primary"
             onClick={onSubmit}
             loading={loading}
             icon={<IconUserCheck size={16} />}
           >
             {submitText}
-          </Button>
+          </Button>}
         </div>
       </Form>
     );

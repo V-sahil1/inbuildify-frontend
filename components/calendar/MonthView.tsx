@@ -62,10 +62,10 @@ const MonthView = ({
   };
 
   return (
-    <div className="bg-white">
-      <div className="grid grid-cols-7 border-b border-gray-200">
+    <div className="bg-card-color">
+      <div className="grid grid-cols-7 border-b border-border-color">
         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-          <div key={day} className="py-3 text-center font-medium text-gray-600 text-sm">
+          <div key={day} className="py-3 text-center font-medium text-font-color-100 text-sm">
             {day}
           </div>
         ))}
@@ -156,8 +156,8 @@ const MonthView = ({
             return (
               <div
                 key={`${weekIndex}-${dayIndex}`}
-                className={`min-h-[120px] border-r border-b border-gray-200 pb-2 cursor-pointer hover:bg-primary-10 ${
-                  !isCurrentMonth ? 'bg-gray-100' : ''
+                className={`min-h-[120px] border-r border-b border-border-color pb-2 cursor-pointer hover:bg-primary-10 ${
+                  !isCurrentMonth ? 'bg-primary-5' : ''
                 }`}
                 onClick={() => onDateClick && day}
                 onDragOver={e => {
@@ -174,8 +174,8 @@ const MonthView = ({
               >
                 <div
                   className={`text-sm mb-1 p-2 ${
-                    isCurrentMonth ? 'text-gray-700' : 'text-gray-400'
-                  } ${isToday ? 'font-bold text-blue-600' : ''}`}
+                    isCurrentMonth ? 'text-font-color' : 'text-font-color-400'
+                  } ${isToday ? 'font-bold text-color-primary' : ''}`}
                 >
                   {day.date()}
                 </div>
@@ -260,7 +260,7 @@ const MonthView = ({
                     }
                   })}
                   {hiddenEventsCount > 0 && (
-                    <div className="text-xs text-gray-500 px-2">+{hiddenEventsCount} more</div>
+                    <div className="text-xs text-font-color-100 px-2">+{hiddenEventsCount} more</div>
                   )}
                 </div>
               </div>

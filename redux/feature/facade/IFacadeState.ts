@@ -20,6 +20,7 @@ export interface GetFacadesParams {
   name?: string;
   dwelling_type_id?: string;
   range_id?: string;
+  floor_plan_id?: string;
   page?: number;
   limit?: number;
   standard?: boolean;

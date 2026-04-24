@@ -278,7 +278,7 @@ export const WorkflowProcessPage = () => {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-[24px]/[30px] font-black my-4 text-[var(--font-color-bl)]">
+        <h2 className="text-[24px]/[30px] font-black mb-4 text-[var(--font-color-bl)]">
           Workflow Process List
         </h2>
         <div className="flex gap-2">

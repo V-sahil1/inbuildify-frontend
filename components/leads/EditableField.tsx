@@ -21,6 +21,7 @@ type EditableFieldProps = {
   onSave?: (values: Partial<Lead>) => void;
   isleadEditing?: boolean;
   setIsLeadEditing?: (values) => void;
+  disable?: boolean;
 };
 
 const EditableField: React.FC<EditableFieldProps> = ({
@@ -35,6 +36,7 @@ const EditableField: React.FC<EditableFieldProps> = ({
   onSave = () => {},
   isleadEditing = false,
   setIsLeadEditing = () => {},
+  disable = false,
 }) => {
   const [form] = Form.useForm();
   const [editedValue, setEditedValue] = useState<string | string[]>(value ?? '');
@@ -114,7 +116,7 @@ const EditableField: React.FC<EditableFieldProps> = ({
           )}
         </div>
         <div className="col-span-1">
-          {isleadEditing ? (
+          {!disable && (isleadEditing ? (
             <Form.Item>
               <Button
                 type="text"
@@ -131,7 +133,7 @@ const EditableField: React.FC<EditableFieldProps> = ({
               icon={<IconEdit size={20} />}
               disabled={name === 'leadSourceId'}
             />
-          )}
+          ))}
         </div>
       </div>
     </Form>

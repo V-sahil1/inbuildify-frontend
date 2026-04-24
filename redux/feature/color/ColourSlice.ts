@@ -33,6 +33,7 @@ import {
   createColourGroupItem,
   deleteColourGroupItem,
   fetchColourGroupItems,
+  deleteColourItemImagebyIndex,
 } from './colorThunk';
 import { ColorInitialState, Category } from './iColourState';
 
@@ -235,9 +236,8 @@ const ColourSlice = createSlice({
           ].colorCategories.map((c: Category) =>
             c.colorCategoryId === action.payload.colorCategoryId
               ? {
-                  ...c,
-                  categoryName: action.payload.categoryName,
-                }
+                ...action.payload,
+              }
               : c
           );
         }
@@ -317,9 +317,8 @@ const ColourSlice = createSlice({
               category.items.unshift(action.payload);
             }
           }
-        } else {
-          state.colorItems.unshift({ ...action.payload, colorGroups: [] });
         }
+        state.colorItems.unshift({ ...action.payload});
       })
       .addCase(createColourItem.rejected, state => {
         state.status.colorItem.create = Status.ERROR;
@@ -342,20 +341,19 @@ const ColourSlice = createSlice({
             ].colorCategories.map((subCategory: Category) =>
               subCategory.colorCategoryId === action.payload.colorCategoryId
                 ? {
-                    ...subCategory,
-                    items:
-                      subCategory.items?.map(item =>
-                        item.colorItemId === action.payload.colorItemId ? action.payload : item
-                      ) || [],
-                  }
+                  ...subCategory,
+                  items:
+                    subCategory.items?.map(item =>
+                      item.colorItemId === action.payload.colorItemId ? action.payload : item
+                    ) || [],
+                }
                 : subCategory
             );
           }
-        } else {
-          state.colorItems = state.colorItems.map(i =>
-            i.colorItemId === action.payload.colorItemId ? { ...i, ...action.payload } : i
-          );
         }
+        state.colorItems = state.colorItems.map(i =>
+          i.colorItemId === action.payload.colorItemId ? { ...i, ...action.payload } : i
+        );
       })
       .addCase(updateColourItem.rejected, state => {
         state.status.colorItem.create = Status.ERROR;
@@ -383,6 +381,21 @@ const ColourSlice = createSlice({
       })
       .addCase(deleteColourItem.rejected, state => {
         state.status.colorItem.create = Status.ERROR;
+      })
+
+      .addCase(deleteColourItemImagebyIndex.fulfilled, (state, action) => {
+        // Update the specific item with the response from API
+        const { colorItemId } = action.meta.arg;
+        const updatedItem = action.payload;
+        // Find the color item across all colors and categories
+        for (const color of state.color) {
+          for (const category of color.colorCategories) {
+            const itemIndex = category.items.findIndex(item => item.colorItemId === colorItemId);
+            // Update the item in the state with the updated version
+            category.items[itemIndex] = updatedItem;
+            return; // Exit loops once found and updated
+          }
+        }
       })
 
       .addCase(copyColourItem.pending, state => {
@@ -697,9 +710,9 @@ const ColourSlice = createSlice({
         state.colorItems = state.colorItems.map(i =>
           i.colorItemId === action.meta.arg.itemId
             ? {
-                ...i,
-                colorGroups: i.colorGroups.filter(g => g.colorGroupId !== action.meta.arg.groupId),
-              }
+              ...i,
+              colorGroups: i.colorGroups.filter(g => g.colorGroupId !== action.meta.arg.groupId),
+            }
             : i
         );
       })

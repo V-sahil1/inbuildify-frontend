@@ -78,7 +78,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
           <div className="flex gap-2 items-center font-medium text-[16px] break-all">
             <Tooltip title={item.itemDescription ? item.itemDescription : item.shortDescription}>
               {' '}
-              <p className="line-clamp-2">
+              <p className="line-clamp-2 text-font-color">
                 {item.itemDescription ? item.itemDescription : item.shortDescription}
               </p>
             </Tooltip>
@@ -94,7 +94,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
             <div>
               {isSelected && (
                 <div
-                  className="flex items-center gap-2 cursor-pointer"
+                  className="flex items-center gap-2 cursor-pointer text-font-color"
                   onClick={() => setNotesModalVisible(true)}
                 >
                   {tempNotes ? (
@@ -126,7 +126,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
         </div>
 
         {/* UOM */}
-        <div className="table-cell text-center p-3 align-middle w-[100px]">{item?.uom}</div>
+        <div className="table-cell text-center p-3 align-middle w-[100px] text-font-color">{item?.uom}</div>
 
         {/* Quantity */}
         <div className="table-cell text-center p-3 align-middle w-[100px]">
@@ -134,9 +134,15 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
             <InputNumber
               min={1}
               step={1}
+              max={100}
               precision={0}
               value={quantity}
               ref={quantityRef}
+              onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}
               onChange={handleQuantityChange}
               onBlur={handleQuantityBlur}
               type="number"
@@ -149,7 +155,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
         </div>
 
         {/* Price */}
-        <div className="table-cell text-center p-3 align-middle w-[100px]">
+        <div className="table-cell text-center p-3 align-middle w-[100px] text-font-color">
           <div className="flex items-center justify-center gap-1">
             {!isIncluded && item?.extraType !== 'complimentry'
               ? `$${Math.abs(Number(priceItem?.priceListItemCost) || item.cost || 0)}`
@@ -163,7 +169,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
         </div>
 
         {/* Total */}
-        <div className="table-cell text-center p-3 align-middle w-[60px]">
+        <div className="table-cell text-center p-3 align-middle w-[60px] text-font-color">
           {!isIncluded && item?.extraType !== 'complimentry'
             ? `$${Math.abs((Number(priceItem?.priceListItemCost) || item.cost || 0) * quantity)}`
             : ' '}
@@ -172,7 +178,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
         {/* Action */}
         <div className="table-cell text-center p-3 align-middle w-[100px]">
           <Button
-            disabled={isIncluded || disabled}
+            disabled={isIncluded || disabled || item?.isSystemData}
             type={isSelected ? 'primary' : 'dashed'}
             style={{
               boxShadow: 'none',

@@ -103,24 +103,24 @@ const WeekView = ({ currentDate, events, onEventClick }: WeekViewProps) => {
   };
 
   return (
-    <div className="bg-white overflow-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
-      <div className="flex border-b border-gray-200 sticky top-0 z-20 bg-white">
-        <div className="w-16 flex-shrink-0 border-r border-gray-200 bg-gray-50"></div>
+    <div className="bg-card-color overflow-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+      <div className="flex border-b border-border-color sticky top-0 z-20 bg-card-color">
+        <div className="w-16 flex-shrink-0 border-r border-border-color bg-primary-10"></div>
         <div className="flex-1">
           {/* Header Days */}
-          <div className="grid grid-cols-7 border-b border-gray-200">
+          <div className="grid grid-cols-7 border-b border-border-color">
             {weekDays.map(day => {
               const isToday = day.isSame(dayjs(), 'day');
               return (
                 <div
                   key={day.toString()}
-                  className="border-r border-gray-200 p-2 text-center last:border-r-0"
+                  className="border-r border-border-color p-2 text-center last:border-r-0"
                 >
-                  <div className={`font-medium ${isToday ? 'text-blue-600' : 'text-gray-700'}`}>
+                  <div className={`font-medium ${isToday ? 'text-color-primary' : 'text-font-color'}`}>
                     {day.format('ddd')}
                   </div>
                   <div
-                    className={`text-2xl ${isToday ? 'text-blue-600 font-bold' : 'text-gray-700'}`}
+                    className={`text-2xl ${isToday ? 'text-color-primary font-bold' : 'text-font-color'}`}
                   >
                     {day.date()}
                   </div>
@@ -131,11 +131,11 @@ const WeekView = ({ currentDate, events, onEventClick }: WeekViewProps) => {
 
           {/* Multi-day Events Section */}
           {sortedMultiDayEvents.length > 0 && (
-            <div className="relative border-b border-gray-200" style={{ height: `${maxMultiDaySlots * 28 + 8}px` }}>
+            <div className="relative border-b border-border-color" style={{ height: `${maxMultiDaySlots * 28 + 8}px` }}>
               {/* Grid lines for multi-day section */}
               <div className="absolute inset-0 grid grid-cols-7 h-full">
                 {weekDays.map((day, i) => (
-                  <div key={i} className="border-r border-gray-200 h-full last:border-r-0"></div>
+                  <div key={i} className="border-r border-border-color h-full last:border-r-0"></div>
                 ))}
               </div>
 
@@ -191,7 +191,7 @@ const WeekView = ({ currentDate, events, onEventClick }: WeekViewProps) => {
           {hours.map(hour => (
             <div
               key={hour}
-              className="h-24 border-b border-gray-200 pr-2 pt-1 text-right text-xs text-gray-500"
+              className="h-24 border-b border-border-color pr-2 pt-1 text-right text-xs text-font-color-100"
             >
               {hour === 0
                 ? '12 AM'
@@ -208,9 +208,9 @@ const WeekView = ({ currentDate, events, onEventClick }: WeekViewProps) => {
           {/* Background Grid */}
           <div className="absolute inset-0 grid grid-cols-7 pointer-events-none">
             {weekDays.map((day, i) => (
-              <div key={i} className="border-r border-gray-200 h-full">
+              <div key={i} className="border-r border-border-color h-full">
                 {hours.map(h => (
-                  <div key={h} className="h-24 border-b border-gray-200"></div>
+                  <div key={h} className="h-24 border-b border-border-color"></div>
                 ))}
               </div>
             ))}

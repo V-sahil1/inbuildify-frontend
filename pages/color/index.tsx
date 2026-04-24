@@ -36,6 +36,7 @@ import Loading from '@/components/common/Loading';
 import ConfirmationModal from '@/components/common/ConfirmationModal';
 import ColorCategoryItemModel from '@/components/common/Models/ColorCategoryItemModel';
 import NestedItem from '@/components/common/NestedItem';
+import { TableDrawer } from '@/components/common/TableDrawer';
 import { ColorMasterCategoryFields } from '@/components/formFields/colorCategoryFields';
 import { ColorSubCategoryFields } from '@/components/formFields/colorSubCategoryFields';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
@@ -45,6 +46,9 @@ import TooltipButton from '@/components/common/TooltipButton';
 import { useColorGroupHook } from '@hooks/useColorGroupHook';
 import { useSupplierHook } from '@hooks/useSupplierHook';
 import { CopyInitialValues, useBuildCopyFields } from '@/components/formFields/copyColorcategories';
+import { QuotationHistoryColumn } from '@/components/table-columns/QuotationHistoryColumn';
+import { QuotationHistory } from '@lib/utils/Reports/quotation/QuotationHistory';
+import { IconDownload } from '@tabler/icons-react';
 
 // add the popover  on the delete button if the status ia active and make it inactive , if ie is inactive then  delte it with conformation modal
 
@@ -72,13 +76,16 @@ const ColorView = ({ showSearchBar = true }: ColorViewProps) => {
   const [dropDowns, setDropDowns] = useState<Record<string, boolean>>({});
   const [selectedItem, setSelectedItem] = useState(null);
   const [copyInitialValues, setCopyInitialValues] = useState<CopyInitialValues>({});
+  const [quotationDrawerOpen, setQuotationDrawerOpen] = useState(false);
+  const [selectedSubItem, setSelectedSubItem] = useState<ColorItem | null>(null);
   const { colorGroupOptions } = useColorGroupHook();
-  const { supplierOptions } = useSupplierHook();  
+  const { supplierOptions } = useSupplierHook();
   const copyFields = useBuildCopyFields({
     copyModal: modalOpen,
     copyInitialValues,
     color,
   });
+  const { columns: quotationColumns, data } = QuotationHistoryColumn();
   const loading =
     status.color.create === Status.PENDING ||
     status.category.create === Status.PENDING ||
@@ -327,10 +334,15 @@ const ColorView = ({ showSearchBar = true }: ColorViewProps) => {
     }
   };
 
+  const handleQuotationHistoryClick = (subItem: ColorItem) => {
+    setSelectedSubItem(subItem);
+    setQuotationDrawerOpen(true);
+  };
+
   return (
-    <div className="p-4">
+    <div>
       <div>
-        <h2 className="text-[24px]/[30px] font-black my-4 text-[var(--font-color-bl)]">
+        <h2 className="text-[24px]/[30px] font-black mb-4 text-[var(--font-color-bl)]">
           Colour Master
         </h2>
         {showSearchBar && (
@@ -438,7 +450,7 @@ const ColorView = ({ showSearchBar = true }: ColorViewProps) => {
                         <Loading type="primary" />
                       </div>
                     ) : record?.colorCategories?.length > 0 ? (
-                      <div className="mt-2 max-h-[300px] overflow-y-auto space-y-2 pr-2">
+                      <div className="mt-2 max-h-[300px] overflow-y-auto space-y-2 pr-2 custom-scrollbar">
                         {record?.colorCategories?.map((item: Category) => (
                           <NestedItem
                             key={item?.colorCategoryId}
@@ -449,6 +461,7 @@ const ColorView = ({ showSearchBar = true }: ColorViewProps) => {
                             handleClick={handleColourSubCategoryAction}
                             onToggleDropdown={handleSubCategoryExpand}
                             isLoading={status.colorItem.fetch === Status.PENDING}
+                            onQuotationHistoryClick={handleQuotationHistoryClick}
                           />
                         ))}
                       </div>
@@ -583,6 +596,29 @@ const ColorView = ({ showSearchBar = true }: ColorViewProps) => {
                 ? 'Are you sure you want to delete this Sub Category? Deleting it will also remove it from any associated Color category.'
                 : 'Are you sure you want to delete this Category? Deleting it will also remove all the subcategories and subcategory items under it and affect any places where it is used.'
           }
+        />
+      )}
+
+      {/* Quotation History Drawer */}
+      {quotationDrawerOpen && (
+        <TableDrawer
+          open={quotationDrawerOpen}
+          width={1200}
+          onClose={() => {
+            setQuotationDrawerOpen(false);
+            setSelectedSubItem(null);
+          }}
+          title={
+            <div className="flex justify-between">
+              <p>Quotation History - {selectedSubItem?.itemName}</p>
+              <Button
+                type="primary"
+                onClick={() => QuotationHistory(data, 'Color Item QuotationList')}
+                icon={<IconDownload size={20} />}
+              />
+            </div>
+          }
+          table={[{ columns: quotationColumns, data }]}
         />
       )}
     </div>

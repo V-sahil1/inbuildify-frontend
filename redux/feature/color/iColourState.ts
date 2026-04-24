@@ -44,6 +44,8 @@ export interface ColorItem {
   specification: any[];
   status: boolean;
   customFields?: ColorItemCustomField[];
+  color?: { id: string; name: string };
+  colorCategory?: { id: string; name: string };
   colorGroups?: { colorGroupId: string; colorGroupName: string }[];
 }
 
@@ -61,6 +63,7 @@ export interface ColorGroup {
   items?: ColorGroupItem[] | null;
   colorImage?: any[];
   specification?: any[];
+  isMapped?: boolean;
 }
 
 export interface IColorType {

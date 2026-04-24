@@ -387,6 +387,22 @@ export const deleteColourItemCustomField = createAsyncThunk(
   }
 );
 
+export const deleteColourItemImagebyIndex = createAsyncThunk(
+  'color/deleteColourItemImagebyIndex',
+
+async(payload: { colorItemId:string, data : {fieldName:string,index :number}}, { rejectWithValue }) => {
+  try {
+    const res = await api.delete<ApiResponse>(
+      API_ENDPOINTS.COLOR_ITEM_IMAGE + '/' + payload.colorItemId,
+      {data:payload.data}
+    );
+    return res.data;
+  } catch (error) {
+    return rejectWithValue(error.message);
+  }
+}
+)
+
 //colorGroup
 
 export const createColourGroup = createAsyncThunk(

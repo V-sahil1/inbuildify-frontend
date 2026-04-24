@@ -3,6 +3,11 @@ import { Quotation, QuotationResponse } from '../quotation/IQuotationState';
 import { Status } from '@lib/constants/enum';
 import { IAddress } from '../contacts/contactState';
 
+export enum LeadStatus {
+  WON = 'won',
+  LOST = 'lost',
+}
+
 export interface ActivityItem {
   activityId: string;
   activityType: string;
@@ -187,9 +192,11 @@ export interface Lead {
   };
   lotDetails?: ILotDetail;
   quotations?: Quotation[];
+  opportunityOutcome?: LeadStatus;
   opportunityStatus?: string;
   structureEngineerId?: string;
   structureReportFile?: string;
+  jobId?: string;
 }
 
 export interface BusinessContact {

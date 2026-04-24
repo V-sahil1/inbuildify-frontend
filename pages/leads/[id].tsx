@@ -55,6 +55,7 @@ import LeadQuotations from '@/components/leadDetail/LeadQuotations/LeadQuotation
 import LeadContactModel from '@/components/common/Models/LeadContactModel';
 import Loading from '@/components/common/Loading';
 import { debouncedURL } from '@lib/utils/debounceURL';
+import { LeadStatus } from '@redux/feature/lead/ILeadState';
 
 const { TabPane } = Tabs;
 
@@ -538,6 +539,7 @@ fetchLeadActivity()
             onLinkContact={handleOpenContactModal}
             onDeleteContact={handleDeleteContact}
             onSaveContact={handleEditLeadSubmit}
+            disableSave={leadDetail?.lead?.opportunityOutcome === LeadStatus.WON}
           />
         )}
 
@@ -547,6 +549,7 @@ fetchLeadActivity()
             visible={modalOpen === 'property'}
             onCancel={() => setModalOpen(null)}
             initialValues={leadDetail?.property}
+            disableSave={leadDetail?.lead?.opportunityOutcome === LeadStatus.WON}
           />
         )}
         <CloseLeadModal

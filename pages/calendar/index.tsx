@@ -149,19 +149,19 @@ const CalendarView = () => {
 
   return (
     <div
-      className="bg-white overflow-auto custom-scrollbar"
+      className="bg-body-color overflow-auto custom-scrollbar"
       style={{ minHeight: 'calc(100vh - 156px)' }}
     >
-      <div className="border-b border-gray-200">
+      <div className="border-b border-border-color">
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-4">
-            <h1 className="text-xl font-semibold text-gray-800">Calendar</h1>
+            <h1 className="text-xl font-semibold text-font-color">Calendar</h1>
             <div className="flex items-center gap-2">
               <Button icon={<IconChevronLeft />} onClick={handlePrevious} />
               <Button icon={<IconChevronRight />} onClick={handleNext} />
               <Button onClick={handleToday}>today</Button>
             </div>
-            <div className="text-xl font-semibold text-gray-800">{getTitle()}</div>
+            <div className="text-xl font-semibold text-font-color">{getTitle()}</div>
           </div>
 
           <div className="flex items-center gap-4">
@@ -244,50 +244,50 @@ const CalendarView = () => {
         initialData={{ date: selectedDate }}
       />
 
-      <div className="fixed bottom-6 left-6 flex items-center gap-4 bg-white p-4 rounded-lg shadow-lg border border-gray-200">
+      <div className="fixed bottom-6 left-6 flex items-center gap-4 bg-card-color p-4 rounded-lg shadow-lg border border-border-color">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-blue-500 rounded"></div>
-            <span className="text-sm text-gray-600">General</span>
+            <span className="text-sm text-font-color-100">General</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-purple-500 rounded"></div>
-            <span className="text-sm text-gray-600">Sales</span>
+            <span className="text-sm text-font-color-100">Sales</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-orange-500 rounded"></div>
-            <span className="text-sm text-gray-600">Job</span>
+            <span className="text-sm text-font-color-100">Job</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-green-600 rounded"></div>
-            <span className="text-sm text-gray-600">Construction</span>
+            <span className="text-sm text-font-color-100">Construction</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-red-600 rounded"></div>
-            <span className="text-sm text-gray-600">Maintenance</span>
+            <span className="text-sm text-font-color-100">Maintenance</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-gray-700 rounded"></div>
-            <span className="text-sm text-gray-600">ReferralPartner</span>
+            <span className="text-sm text-font-color-100">ReferralPartner</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-yellow-200 rounded"></div>
-            <span className="text-sm text-gray-600">Today</span>
+            <span className="text-sm text-font-color-100">Today</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-red-500 rounded"></div>
-            <span className="text-sm text-gray-600">Holiday</span>
+            <span className="text-sm text-font-color-100">Holiday</span>
           </div>
         </div>
-        <div className="h-6 w-px bg-gray-300"></div>
+        <div className="h-6 w-px bg-border-color"></div>
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-black rounded-full"></div>
-            <span className="text-sm text-gray-600">Appointment</span>
+            <div className="w-3 h-3 bg-font-color rounded-full"></div>
+            <span className="text-sm text-font-color-100">Appointment</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
-            <span className="text-sm text-gray-600">Task</span>
+            <span className="text-sm text-font-color-100">Task</span>
           </div>
         </div>
       </div>

@@ -82,8 +82,8 @@ const QuotationManager = () => {
 
   // const isJob = useMemo(() => quoteDetails?.leadStatus === 'JOB', [quoteDetails]);
   const quotationData = quoteVersionId
-    ? quotation?.find(i => i.versions.find(j => j.quotationVersionId === quoteVersionId))
-    : quotation[quotation?.length - 1];
+    ? quotation?.find(i => i.versions?.find(j => j.quotationVersionId === quoteVersionId))
+    : quotation?.[quotation?.length - 1];
 
   useEffect(() => {
     return () => {
@@ -140,7 +140,7 @@ const QuotationManager = () => {
         })
       ).unwrap();
     } catch (error) {
-      message.error(error || 'Faailed to fetch quotation version detail');
+      message.error(error || 'Failed to fetch quotation version detail');
     }
   };
   const handleSelectionChange = useCallback(
@@ -165,6 +165,9 @@ const QuotationManager = () => {
           case 'plan':
             dispatch(setQuotationPlan(value as IFloorPlanState));
             payload.floorPlanId = (value as IFloorPlanState)?.floorPlanId || null;
+            // Clear facade when floor plan is changed
+            dispatch(setQuotationFacade(null));
+            payload.facadeId = null;
             break;
           case 'facade':
             dispatch(setQuotationFacade(value as IFacadeState));
@@ -327,16 +330,16 @@ const QuotationManager = () => {
         getQuotationPricelistThunk({
           quotationVersionId: quoteVersionId ?? quotationData?.versions?.[0]?.quotationVersionId,
           package_id: selectedPackageFromSlice?.packageId || undefined,
-          range_id: quotationFilters?.range || undefined,
-          dwelling_type_id: quotationFilters?.dwellingType || undefined,
-          })
-        ).unwrap();
+          // range_id: quotationFilters?.range || undefined,
+          // dwelling_type_id: quotationFilters?.dwellingType || undefined,
+        })
+      ).unwrap();
     } catch (error) {
-      message.error(error || 'Faied to fetch quotation items');
+      message.error(error || 'Failed to fetch quotation items');
     }
   };
 
-  const handleItemQuantityChange = (itemId: string, quantity: number) => {};
+  const handleItemQuantityChange = (itemId: string, quantity: number) => { };
 
   // const handlePreview = async () => {
   //   setPreviewLoading(true);
@@ -547,7 +550,7 @@ const QuotationManager = () => {
         onStructuralEngineerSelect={engineer =>
           handleSelectionChange('structuralEngineer', engineer)
         }
-        onPropertyUpdate={() => {}}
+        onPropertyUpdate={() => { }}
         isReadOnly={
           quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0) ||
           quoteDetails?.isApprove
@@ -557,8 +560,8 @@ const QuotationManager = () => {
 
       <div className="flex flex-1 m-3 border border-border-color rounded-lg h-[360px]">
         {(quotationFilters?.range && quotationFilters?.dwellingType) ||
-        (leadDetail?.property?.compactionReportProvider === 'builder' &&
-          leadDetail?.property?.compactionReport === 'not_available') ? (
+          (leadDetail?.property?.compactionReportProvider === 'builder' &&
+            leadDetail?.property?.compactionReport === 'not_available') ? (
           <>
             <div className="w-64">
               {status.priceMaster === Status.PENDING ? (
@@ -629,7 +632,7 @@ const QuotationManager = () => {
           isEditMode={isEditMode}
           onEdit={() => setIsEditMode(true)}
           onCancel={() => setHasChanges(false)}
-          onSave={() => {}}
+          onSave={() => { }}
           onPreview={() => handlePreView()} // todo handle preview
           disableAction={
             quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0) ||

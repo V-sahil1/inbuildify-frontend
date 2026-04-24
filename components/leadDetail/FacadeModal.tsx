@@ -27,6 +27,7 @@ const FacadeModal: React.FC<FacadeModalProps> = ({ visible, onCancel, onSave, se
   const [selected, setSelected] = useState<IFacadeState>(selectedFacade || null);
   const [formValues, setFormValues] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const { quoteDetails } = useAppSelector(state => state.quotation);
 
   useEffect(() => {
     if (visible) {
@@ -35,6 +36,7 @@ const FacadeModal: React.FC<FacadeModalProps> = ({ visible, onCancel, onSave, se
           status: true,
           dwelling_type_id: quoteFilters?.dwellingType,
           range_id: quoteFilters?.range,
+          floor_plan_id: quoteDetails?.floorPlan?.floorPlanId,
           cost_type: selectedFilters?.standard
             ? 'standard'
             : selectedFilters?.upgrade

@@ -19,6 +19,7 @@ const calculateTotalQuotation = (
 
   total += Number(packageFromSlice?.cost) || 0;
   total += structuralEngineerPrice || 0;
+  total += facadeCost || 0;
 
   return Number(total.toFixed(2));
 };
