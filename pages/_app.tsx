@@ -13,6 +13,7 @@ import theme from '../antd.config';
 import AuthValidator from '@/components/common/AuthValidator';
 import PageLoading from '@/components/common/PageLoading';
 import { ThemeContextProvider } from 'contexts/ThemeContext';
+import SystemRoutes from '@lib/constants/Routes';
 
 export default function App({ Component, pageProps }) {
   const { isAuthRoute } = pageProps;
@@ -109,8 +110,8 @@ export default function App({ Component, pageProps }) {
                 <PageLoading key={routeLoaderKey} type="primary" />
               </div>
             )}
-            {/* Special handling for approval page - no layout, no auth required */}
-            {pageUrl === '/approve' ? (
+            {/* Public standalone pages — no layout, no auth required */}
+            {[SystemRoutes.APPROVAL, SystemRoutes.SIGN_COMPLETE, SystemRoutes.SIGNING_ERROR].includes(pageUrl) ? (
               <Component {...pageProps} />
             ) : isAuthRoute ? (
               <AuthLayout>

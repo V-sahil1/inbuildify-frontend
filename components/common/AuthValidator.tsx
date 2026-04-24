@@ -15,6 +15,8 @@ const publicRoutes = [
   SystemRoutes.INVITE,
   SystemRoutes.VERIFY_EMAIL,
   SystemRoutes.APPROVAL,
+  SystemRoutes.SIGN_COMPLETE,
+  SystemRoutes.SIGNING_ERROR,
 ];
 
 type AuthState = 'checking' | 'authenticated' | 'unauthenticated' | 'redirecting';
