@@ -6,7 +6,7 @@ import { StructuralEngineer } from '@/components/table-columns/structuralEnginee
 import { updateLeadThunk } from '@redux/feature/lead/leadThunk';
 import type { UploadProps } from 'antd/es/upload';
 import StructuralEngineerListModal from '../common/Models/StructuralEngineerListModal';
-import { updateQuotationVersion } from '@redux/feature/quotation/quotationThunk';
+import { updateQuotationVersion, uploadQuotationStructuralReport } from '@redux/feature/quotation/quotationThunk';
 
 interface StructuralEngineerAssignmentProps {
   leadId: string;
@@ -25,6 +25,7 @@ const StructuralEngineerAssignment: React.FC<StructuralEngineerAssignmentProps> 
   const [uploadLoading, setUploadLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedQuotationVersion, setSelectedQuotationVersion] = useState<any>(null);
+  const [selectedUploadVersion, setSelectedUploadVersion] = useState<any>(null);
 
   const handleAssign = (record: any) => {
     setSelectedQuotationVersion(record);
@@ -49,6 +50,10 @@ const StructuralEngineerAssignment: React.FC<StructuralEngineerAssignmentProps> 
     }
   };
 
+  const handleUploadClick = (record: any) => {
+    setSelectedUploadVersion(record);
+  };
+
   const handleFileUpload: UploadProps['onChange'] = async info => {
     const { file } = info;
 
@@ -59,11 +64,11 @@ const StructuralEngineerAssignment: React.FC<StructuralEngineerAssignmentProps> 
 
     if (file.status === 'done') {
       try {
-        const payload: any = {
-          structureReportFile: file.originFileObj,
-        };
-
-        const res = await dispatch(updateLeadThunk({ id: leadId, details: payload })).unwrap();
+        // Send binary file directly using the new upload thunk
+        const res = await dispatch(uploadQuotationStructuralReport({ 
+          id: selectedUploadVersion?.versionId, 
+          file: file.originFileObj 
+        })).unwrap();
         if (res) {
           message.success('File uploaded successfully!');
         }
@@ -71,6 +76,7 @@ const StructuralEngineerAssignment: React.FC<StructuralEngineerAssignmentProps> 
         message.error('Failed to upload file');
       } finally {
         setUploadLoading(false);
+        setSelectedUploadVersion(null);
       }
     } else if (file.status === 'error') {
       message.error('File upload failed');
@@ -172,9 +178,9 @@ const StructuralEngineerAssignment: React.FC<StructuralEngineerAssignmentProps> 
       title: 'Upload Report',
       key: 'upload',
       width: 180,
-      render: (_: any, record: StructuralEngineer) => {
-        const isAssigned = leadDetail?.lead?.structureEngineerId === record.key;
-        const currentFile = leadDetail?.lead?.structureReportFile;
+      render: (_: any, record: any) => {
+        const isAssigned = record?.version?.isApprove;
+        const currentFile = record?.version?.uploadReport;
 
         if (!isAssigned) {
           return <span style={{ color: '#999', fontSize: '12px' }}>-</span>;
@@ -225,24 +231,26 @@ const StructuralEngineerAssignment: React.FC<StructuralEngineerAssignmentProps> 
               </div>
             )}
             {!currentFile && (
-              <Upload {...uploadProps} accept='.pdf'>
-                <Button
-                disabled={!hasReport || leadDetail?.lead?.structureReportFile}  
-                  type="default"
-                  size="small"
-                  icon={<IconUpload size={14} />}
-                  loading={uploadLoading}
-                  style={{
-                    color: '#1890ff',
-                    borderColor: '#1890ff',
-                    height: '24px',
-                    fontSize: '12px',
-                    padding: '0 8px'
-                  }}
-                >
-                  Upload
-                </Button>
-              </Upload>
+              <div onClick={() => handleUploadClick(record)}>
+                <Upload {...uploadProps} accept='.pdf'>
+                  <Button
+                  disabled={!record?.version?.structuralEngineer?.id}  
+                    type="default"
+                    size="small"
+                    icon={<IconUpload size={14} />}
+                    loading={uploadLoading}
+                    style={{
+                      color: '#1890ff',
+                      borderColor: '#1890ff',
+                      height: '24px',
+                      fontSize: '12px',
+                      padding: '0 8px'
+                    }}
+                  >
+                    Upload
+                  </Button>
+                </Upload>
+              </div>
             )}
             {currentFile && (
               <Button
@@ -270,10 +278,13 @@ const StructuralEngineerAssignment: React.FC<StructuralEngineerAssignmentProps> 
       key: 'action',
       width: 120,
       render: (_: any, record: any) => {
-        const isDisabled = !record.version?.facadeId || !record.version?.floorPlanId || record?.version?.isApprove;
-        const tooltipText = isDisabled 
-          ? "Please select floor plan and facade before assigning engineer" 
-          : "Assign structural engineer to this quotation version";
+        const isApproved = record?.version?.isApprove
+        const isDisabled = !record.version?.facadeId || !record.version?.floorPlanId || isApproved;
+        const tooltipText = isApproved
+          ? 'This quotation version is already approved'
+          : isDisabled
+            ? 'Please select floor plan and facade before assigning engineer'
+            : 'Assign structural engineer to this quotation version';
 
         return (
           <Tooltip title={tooltipText}>
@@ -285,7 +296,7 @@ const StructuralEngineerAssignment: React.FC<StructuralEngineerAssignmentProps> 
               loading={assignLoading === record.key}
               disabled={isDisabled}
             >
-              Assign
+              {record?.version?.structuralEngineer?.id ? 'Change' : 'Assign'}
             </Button>
           </Tooltip>
         );

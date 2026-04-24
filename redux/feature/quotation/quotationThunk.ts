@@ -153,6 +153,24 @@ export const updateQuotationVersion = createAsyncThunk(
   }
 );
 
+export const uploadQuotationStructuralReport = createAsyncThunk(
+  'quotation/uploadStructuralReport',
+  async (payload: { id: string; file: File }, { rejectWithValue }) => {
+    try {
+      const formData = new FormData();
+      formData.append('uploadReport', payload.file);
+
+      const res = await apiWithFormDataMethods.put<ApiResponse<QuotationVersionDetails>>(
+        API_ENDPOINTS.QUOTATION_VERSION + '/' + payload.id,
+        formData
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 export const deleteQuotation = createAsyncThunk(
   'lead/deleteQuotation',
   async (quotationId: string, { rejectWithValue }) => {
