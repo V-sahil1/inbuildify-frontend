@@ -44,7 +44,7 @@ const JobDetailHeader = ({ jobDetail }: JobDetailHeaderProps) => {
     if (!jobDetail?.leadsId) return;
     setContactsLoading(true);
     try {
-      const contacts = await dispatch(getLeadContactMapThunk(jobDetail.leadsId)).unwrap();
+      const contacts = await dispatch(getLeadContactMapThunk(jobDetail?.leadsId)).unwrap();
       setJobContacts((contacts as any) ?? []);
     } catch {
       message.error('Failed to fetch contacts');
@@ -68,11 +68,11 @@ const JobDetailHeader = ({ jobDetail }: JobDetailHeaderProps) => {
       } else {
         const res = await dispatch(createContact(values)).unwrap() as any;
         await dispatch(
-          createLeadContactMapThunk({ leadsId: jobDetail.leadsId, contactId: res.usersId })
+          createLeadContactMapThunk({ leadsId: jobDetail?.leadsId, contactId: res.usersId })
         ).unwrap();
         message.success('Contact added successfully');
       }
-      const updated = await dispatch(getLeadContactMapThunk(jobDetail.leadsId)).unwrap();
+      const updated = await dispatch(getLeadContactMapThunk(jobDetail?.leadsId)).unwrap();
       setJobContacts((updated as any) ?? []);
       setManageUserOpen(false);
     } catch (err: any) {
@@ -88,7 +88,7 @@ const JobDetailHeader = ({ jobDetail }: JobDetailHeaderProps) => {
     try {
       await dispatch(deleteLeadContactMapThunk(id)).unwrap();
       message.success('Contact removed successfully');
-      const updated = await dispatch(getLeadContactMapThunk(jobDetail.leadsId)).unwrap();
+      const updated = await dispatch(getLeadContactMapThunk(jobDetail?.leadsId)).unwrap();
       setJobContacts((updated as any) ?? []);
     } catch (err: any) {
       message.error(err?.message || 'Failed to remove contact');
@@ -165,7 +165,7 @@ const JobDetailHeader = ({ jobDetail }: JobDetailHeaderProps) => {
               <div className="flex items-center gap-1">
                 {jobDetail?.jobAddress ?? '—'}
                 {jobDetail?.titleStatus && (
-                  <Tag color="green">{jobDetail.titleStatus}</Tag>
+                  <Tag color="green">{jobDetail?.titleStatus}</Tag>
                 )}
               </div>
             </Popover>

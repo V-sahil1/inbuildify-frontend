@@ -260,6 +260,26 @@ const quotationSlice = createSlice({
           structuralEngineer:
             action.payload?.structuralEngineer ?? state.quoteDetails?.structuralEngineer,
         };
+        // Update the structural engineer in the matching quotation version
+        if (state.quotation) {
+          state.quotation = state.quotation.map(q => {
+            if (q.versions) {
+              return {
+                ...q,
+                versions: q.versions.map(v => {
+                  if (v.quotationVersionId === action.payload?.quotationVersionId) {
+                    return {
+                      ...v,
+                      ...action.payload
+                    };
+                  }
+                  return v;
+                })
+              };
+            }
+            return q;
+          });
+        }
         // Use nullish coalescing so that a partial API response (e.g. when
         // only the structural engineer was updated and the backend returns
         // null for unrelated fields) does NOT wipe the user's existing

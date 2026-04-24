@@ -171,15 +171,15 @@ export default function JobDetail() {
       : [],
   };
 
-  if (status.detail === Status.ERROR) {
-    return (
-      <Result
-        status="404"
-        title="Job not found"
-        subTitle="The job you are looking for does not exist or you do not have access."
-      />
-    );
-  }
+  // if (status.detail === Status.ERROR) {
+  //   return (
+  //     <Result
+  //       status="404"
+  //       title="Job not found"
+  //       subTitle="The job you are looking for does not exist or you do not have access."
+  //     />
+  //   );
+  // }
 
   return (
     <>
