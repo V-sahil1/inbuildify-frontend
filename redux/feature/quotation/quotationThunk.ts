@@ -142,29 +142,33 @@ export const updateQuotationVersion = createAsyncThunk(
   'quotation/updateVersion',
   async (payload: { id: string; data: Partial<QuotationVersionDetails> }, { rejectWithValue }) => {
     try {
-      const res = await api.put<ApiResponse<QuotationVersionDetails>>(
-        API_ENDPOINTS.QUOTATION_VERSION + '/' + payload.id,
-        { data: payload.data }
-      );
-      return res.data;
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
-  }
-);
+      // Check if data contains File objects that need FormData
+      const hasFile = Object.values(payload.data).some(value => value instanceof File);
+      
+      if (hasFile) {
+        // Use FormData for file uploads
+        const formData = new FormData();
+        Object.entries(payload.data).forEach(([key, value]) => {
+          if (value instanceof File) {
+            formData.append(key, value);
+          } else if (value !== undefined && value !== null) {
+            formData.append(key, String(value));
+          }
+        });
 
-export const uploadQuotationStructuralReport = createAsyncThunk(
-  'quotation/uploadStructuralReport',
-  async (payload: { id: string; file: File }, { rejectWithValue }) => {
-    try {
-      const formData = new FormData();
-      formData.append('uploadReport', payload.file);
-
-      const res = await apiWithFormDataMethods.put<ApiResponse<QuotationVersionDetails>>(
-        API_ENDPOINTS.QUOTATION_VERSION + '/' + payload.id,
-        formData
-      );
-      return res.data;
+        const res = await apiWithFormDataMethods.put<ApiResponse<QuotationVersionDetails>>(
+          API_ENDPOINTS.QUOTATION_VERSION + '/' + payload.id,
+          formData
+        );
+        return res.data;
+      } else {
+        // Use regular JSON for non-file data
+        const res = await api.put<ApiResponse<QuotationVersionDetails>>(
+          API_ENDPOINTS.QUOTATION_VERSION + '/' + payload.id,
+          { data: payload.data }
+        );
+        return res.data;
+      }
     } catch (error) {
       return rejectWithValue(error.message);
     }

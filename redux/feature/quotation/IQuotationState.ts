@@ -180,6 +180,7 @@ export type QuotationVersionDetails = {
   property?: any;
   quoteDetails?: string;
   referenceNumber?: string;
+  uploadReport?: File | string;
   structureEngineerId?: string | null;
   structuralEngineer?: {
     structuralEngineerId: string;
