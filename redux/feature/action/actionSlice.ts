@@ -25,7 +25,20 @@ export const actionSlice = createSlice({
     smsStatus: Status.IDLE,
     status: Status.IDLE,
   },
-  reducers: {},
+  reducers: {
+    resetActionStatus: state => {
+      state.status = Status.IDLE;
+      state.actions = { notes: [], tasks: [], appointments: [], sms: [] };
+    },
+    resetSmsStatus: state => {
+      state.smsStatus = Status.IDLE;
+      state.sms = [];
+    },
+    resetTagStatus: state => {
+      state.tagStatus = Status.IDLE;
+      state.notes = [];
+    },
+  },
   extraReducers: builder => {
     builder.addCase(getActionsThunk.pending, state => {
       state.status = Status.PENDING;
@@ -209,4 +222,5 @@ export const actionSlice = createSlice({
   },
 });
 
+export const { resetActionStatus, resetSmsStatus, resetTagStatus } = actionSlice.actions;
 export default actionSlice.reducer;

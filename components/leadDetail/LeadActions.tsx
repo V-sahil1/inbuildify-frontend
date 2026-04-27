@@ -14,6 +14,9 @@ import { Status } from '@lib/constants/enum';
 import { fetchAllAppointment } from '@redux/feature/appointment/appointmentThunk';
 import { IAppointment } from '@redux/feature/appointment/IAppointmentState';
 import { getAllNotes, getAllSms, getLeadActions } from '@redux/feature/action/actionThunk';
+import { resetActionStatus, resetSmsStatus, resetTagStatus } from '@redux/feature/action/actionSlice';
+import { resetAppointmentFetch } from '@redux/feature/appointment/appointmentSlice';
+import { resetTaskFetch } from '@redux/feature/task/taskSlice';
 import { LeadStatus } from '@redux/feature/lead/ILeadState';
 
 const actionItems: MenuProps['items'] = [
@@ -47,6 +50,18 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
     status: actionStatus,
   } = useAppSelector(state => state.action);
   const { leadDetail } = useAppSelector(state => state.lead);
+  
+  useEffect(() => {
+    if (leadId) {
+      // Reset action states
+      dispatch(resetActionStatus());
+      dispatch(resetSmsStatus());
+      dispatch(resetTagStatus());
+      dispatch(resetAppointmentFetch());
+      dispatch(resetTaskFetch());
+    }
+  }, [leadId, dispatch]);
+
   const tabs: FilterOption[] = [
     { type: 'All', label: 'All' },
     { type: 'NOTES', label: 'Notes' },
@@ -226,6 +241,76 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
     smsStatus,
   ]);
 
+  // Sync changes to All tab when switching to All tab or when individual states change
+  useEffect(() => {
+    if (activeTab === 'All') {
+      // Fetch comprehensive data for All tab
+      const fetchAllData = async () => {
+        try {
+          setLoading(true);
+          
+          // Fetch all data sources
+          const [actionsResponse, appointmentResponse, taskResponse, notesResponse, smsResponse] = await Promise.all([
+            dispatch(getLeadActions(leadId)).unwrap().catch(() => ({ notes: [], appointments: [], tasks: [], sms: [] })),
+            dispatch(fetchAllAppointment({ lead_id: leadId })).unwrap().catch(() => ({ appointment: [] })),
+            dispatch(fetchAllTask({ lead_id: leadId })).unwrap().catch(() => ({ tasks: [] })),
+            dispatch(getAllNotes({ leads_id: leadId })).unwrap().catch(() => ({ notes: [] })),
+            dispatch(getAllSms({ leads_id: leadId })).unwrap().catch(() => ({ sms: [] }))
+          ]);
+
+          // Process all data
+          const appointments = [
+            ...(actionsResponse.appointments || []).map(i => ({ type: 'APPOINTMENT' as const, item: i })),
+            ...(appointmentResponse.appointment || []).map(i => ({ type: 'APPOINTMENT' as const, item: { ...i, createdBy: i.createdBy } }))
+          ];
+          
+          const tasks = [
+            ...(actionsResponse.tasks || []).map(i => ({ type: 'TASK' as const, item: i })),
+            ...(taskResponse.tasks || []).map((task: ITask) => ({ type: 'TASK' as const, item: task }))
+          ];
+          
+          const notes = [
+            ...(actionsResponse.notes || []).map(i => ({ type: 'NOTES' as const, item: i })),
+            ...(notesResponse.notes || []).filter(i => !i.parentNoteId).map(i => ({
+              type: 'NOTES' as const,
+              item: {
+                ...i,
+                reply: notesResponse.notes.find(j => j.parentNoteId === i.notesId)?.description,
+                replyId: notesResponse.notes.find(j => j.parentNoteId === i.notesId)?.notesId,
+              }
+            }))
+          ];
+          
+          const sms = [
+            ...(actionsResponse.sms || []).map(i => ({ type: 'SMS' as const, item: i })),
+            ...(smsResponse.sms || []).map(i => ({ type: 'SMS' as const, item: i }))
+          ];
+
+          // Combine all data and remove duplicates
+          const allData = [...appointments, ...tasks, ...notes, ...sms];
+          const uniqueData = allData.filter((item, index, self) => 
+            index === self.findIndex((t) => 
+              t.type === item.type && 
+              ((item.type === 'APPOINTMENT' && t.item.appointmentId === item.item.appointmentId) ||
+               (item.type === 'TASK' && t.item.taskId === item.item.taskId) ||
+               (item.type === 'NOTES' && t.item.notesId === item.item.notesId) ||
+               (item.type === 'SMS' && t.item.smsId === item.item.smsId))
+            )
+          );
+
+          setCardsData(uniqueData);
+        } catch (error) {
+          console.error('Error fetching all data:', error);
+          message.error('Failed to fetch all data');
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchAllData();
+    }
+  }, [activeTab, leadId, dispatch]);
+
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
   };
@@ -316,6 +401,8 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
       setFormLoading(false);
     }
   };
+  console.log('task',tasks);
+  console.log('cardData',cardsData);
 
   return (
     <div className="relative p-4 mt-0 bg-card-color">

@@ -47,8 +47,9 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
   } = useAppSelector((state: RootState) => state.quotation);
   const { priceMaster: categoryData } = useAppSelector((state: RootState) => state.masterPriceList);
 
-  const userSelectedItems = useMemo(() =>
-    categoryData?.flatMap(cd =>
+  const userSelectedItems = useMemo(() => {
+    // Get regular items from category data
+    const regularItems = categoryData?.flatMap(cd =>
       cd?.items?.reduce<typeof cd.items>((acc, categoryItem) => {
         const quotationItem = items.find(
           selected => selected?.priceListItemId === categoryItem?.priceListItemId
@@ -62,9 +63,20 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
 
         return acc;
       }, [])
-    ), [categoryData, items]
-  );
+    ) || [];
 
+    // Get extra items (items without priceListItemId)
+    const extraItems = items
+      .filter(item => !item.priceListItemId)
+      .map(item => ({
+        ...item,
+        itemName: item.itemDescription || item.shortDescription || 'Extra Item',
+        priceListItemId: item.quotationVersionItemId, // Use quotationVersionItemId as fallback
+        isExtraItem: true,
+      }));
+
+    return [...regularItems, ...extraItems];
+  }, [categoryData, items]);
   // Helper function to check if item is automatically mapped
   const isItemAutomaticallyMapped = useCallback((priceListItemId: string) => {
     const quotationItem = items.find(
@@ -281,7 +293,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
                 ) : (
                   <>
                     {(select ? filterItems(userSelectedItems) : filterItems(category?.items || []))?.length >
-                    0 ? (
+                      0 ? (
                       (select ? filterItems(userSelectedItems) : filterItems(category?.items || [])).map(
                         item => (
                           <QuatationItem

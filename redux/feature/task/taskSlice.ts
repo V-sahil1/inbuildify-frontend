@@ -17,7 +17,14 @@ const initialState: ITaskState = {
 const taskSlice = createSlice({
   name: 'task',
   initialState,
-  reducers: {},
+  reducers: {
+    resetTaskFetch(state) {
+      state.status.fetch = Status.IDLE;
+      state.tasks = [];
+      state.pagination = null;
+      state.counters = null;
+    },
+  },
   extraReducers: builder => {
     builder.addCase(createTask.pending, state => {
       state.status.create = Status.PENDING;
@@ -58,8 +65,8 @@ const taskSlice = createSlice({
       state.status.create = Status.PENDING;
     });
     builder.addCase(deleteTask.fulfilled, (state, action) => {
-      state.tasks = state.tasks.filter(task => task.taskId !== action.meta.arg);
-      state.pagination.totalRecords--;
+      state.tasks = state.tasks.map(i => (i.taskId === action.payload.taskId ? action.payload : i));
+      // state.pagination.totalRecords--;
       state.status.create = Status.SUCCESS;
     });
     builder.addCase(deleteTask.rejected, state => {
@@ -75,4 +82,5 @@ const taskSlice = createSlice({
   },
 });
 
+export const { resetTaskFetch } = taskSlice.actions;
 export default taskSlice.reducer;

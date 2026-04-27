@@ -189,7 +189,7 @@ const AddAppointmentCard: FC<AddAppointmentCardProps> = ({
           className="mb-0"
           initialValue={initialData?.sendAppointmentCustomer}
         >
-          <Switch className="mr-2" />
+          <Switch className="mr-2" disabled={!!initialData} />
         </Form.Item>
         <span>Send this appointment to customer</span>
 

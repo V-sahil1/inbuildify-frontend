@@ -88,6 +88,14 @@ const noWhitespace = {
 };
 
 export const taskNameRules = [
+  {
+    validator: (_: any, value: string) => {
+      if (value.startsWith(' ') || value.endsWith(' ')) {
+        return Promise.reject('Title cannot start or end with spaces');
+      }
+      return Promise.resolve();
+    },
+  },
   { required: true, message: 'Please enter title' },
   { min: 2, message: 'Title must be at least 2 characters' },
   { max: 80, message: 'Title must be at most 80 characters' },
@@ -226,6 +234,10 @@ export const OptionalNumberRules = [
       if (value.startsWith('-')) {
         return Promise.reject('Value cannot be negative');
       }
+      const numValue = parseFloat(value);
+      if (numValue > 1000000) {
+        return Promise.reject('Value cannot exceed 1,000,000');
+      }
       return Promise.resolve();
     },
   },
@@ -320,7 +332,7 @@ export const acceptOnlyImageRule = '.jpeg,.jpg,.png,.gif,.webp';
 
 export const costRules = [
   { required: true, message: 'Please enter cost' },
-  numberRules,
+  ...numberRules,
   {
     validator: (_: any, value: number) => {
       if (value === undefined || value === null) return Promise.resolve();
@@ -454,6 +466,10 @@ export const leadAddressRules = [
       if (!value) {
         return Promise.resolve();
       }
+       // Check for spaces at start or end
+      if (value.startsWith(' ') || value.endsWith(' ')) {
+        return Promise.reject('Address cannot start or end with spaces');
+      }
 
       if (value.length < 2) {
         return Promise.reject('Address must be at least 2 letters');
@@ -552,6 +568,10 @@ export const zipCodeRules = [
   { min: 4, message: 'Zip code must be at least 4 characters long' },
   { max: 4, message: 'Zip code must not exceed 4 characters' },
 ];
+export const optionalZipCodeRules = [
+  { min: 4, message: 'Zip code must be at least 4 characters long' },
+  { max: 4, message: 'Zip code must not exceed 4 characters' },
+];
 
 export const builderPhoneRules = [
   {
@@ -592,6 +612,18 @@ export const addressLine1Rules = [
   },
 ];
 export const addressLine2Rules = [
+  // Check for spaces at start or end
+  {
+    validator: (_: any, value: string) => {
+      if (!value) {
+        return Promise.resolve();
+      }
+      if (value.startsWith(' ') || value.endsWith(' ')) {
+        return Promise.reject('Address cannot start or end with spaces');
+      }
+      return Promise.resolve();
+    },
+  },
   { min: 2, message: 'Address must be at least 2 characters long' },
   { max: 255, message: 'Address must not exceed 255 characters' },
   {

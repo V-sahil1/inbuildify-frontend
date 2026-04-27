@@ -298,7 +298,12 @@ export default function Appointments() {
       dataIndex: 'locationText',
       key: 'locationText',
       width: 160,
-      render: (val: string) => val?.trim() || '-',
+      // render: (val: string) => val?.trim() || '-',
+      render: (_: any, record: IAppointment) => (
+        <span className={record.isDeleted ? 'line-through text-gray-400' : ''}>
+          {record.locationText}
+        </span>
+      ),
     },
     {
       title: (
@@ -377,10 +382,10 @@ export default function Appointments() {
       dataIndex: 'notes',
       key: 'notes',
       width: 180,
-      render: (notes: string) =>
+      render: (notes: string, record: IAppointment) =>
         notes ? (
           <Tooltip title={notes} overlayStyle={{ maxWidth: 360 }}>
-            <div className="line-clamp-2 break-words max-w-[180px] cursor-default">{notes}</div>
+            <div className={`line-clamp-2 break-words max-w-[180px] cursor-default ${record.isDeleted ? 'line-through text-gray-400' : ''}`}>{notes}</div>
           </Tooltip>
         ) : (
           '-'
@@ -391,7 +396,7 @@ export default function Appointments() {
       key: 'actions',
       width: 90,
       render: (_: any, record: IAppointment) => (
-        <Button size="small" type="link" onClick={() => handleEditAppointment(record)}>
+        <Button size="small" type="link" disabled={record.isDeleted} onClick={() => handleEditAppointment(record)}>
           Edit
         </Button>
       ),

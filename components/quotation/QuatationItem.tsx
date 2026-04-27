@@ -36,8 +36,8 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
     const { items } = useAppSelector((state: RootState) => state.quotation);
     const priceItem = items.find(i =>
       item?.extraItem
-        ? i.quotationVersionItemId === item.quotationVersionItemId
-        : i.priceListItemId === item.priceListItemId
+        ? i?.quotationVersionItemId === item?.quotationVersionItemId
+        : i?.priceListItemId === item?.priceListItemId
     );
     const [quantity, setQuantity] = useState<number>();
     const [isEdited, setIsEdited] = useState({ item: false, extraitem: false });
@@ -134,7 +134,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
             <InputNumber
               min={1}
               step={1}
-              max={100}
+              max={200}
               precision={0}
               value={quantity}
               ref={quantityRef}
@@ -171,8 +171,10 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
         {/* Total */}
         <div className="table-cell text-center p-3 align-middle w-[60px] text-font-color">
           {!isIncluded && item?.extraType !== 'complimentry'
-            ? `$${Math.abs((Number(priceItem?.priceListItemCost) || item.cost || 0) * quantity)}`
-            : ' '}
+            ? item?.extraType === 'discount' 
+              ? `-$${Math.abs((Number(priceItem?.priceListItemCost) || item.cost || 0) * quantity)}`
+              : `$${Math.abs((Number(priceItem?.priceListItemCost) || item.cost || 0) * quantity)}`
+            : ''}
         </div>
 
         {/* Action */}

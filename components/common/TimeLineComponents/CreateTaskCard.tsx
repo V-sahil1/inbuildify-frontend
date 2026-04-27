@@ -9,6 +9,7 @@ import {
   acceptOnlyImageRule,
   descriptionRules,
   dueDateRules,
+  optionalDescriptionRules,
   priorityRules,
   taskNameRules,
   timeRules,
@@ -105,7 +106,7 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
             className="w-full"
             inputReadOnly
             onChange={date => {
-              // Reset the time field whenever dueDate changes
+              // Reset the time field whenever dueDate changes or is cleared
               form.setFieldsValue({
                 task: { ...form.getFieldValue('task'), dueTime: null },
               });
@@ -114,38 +115,42 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
           />
         </Form.Item>
 
-        <Form.Item
-          label="Time"
-          name={['task', 'dueTime']}
-          rules={timeRules}
-          initialValue={initialData?.dueTime ? dayjs(initialData.dueTime, 'HH:mm') : null}
-        >
-          <TimePicker
-            disabled={isStatusShow}
-            format="HH:mm"
-            className="w-full"
-            hideDisabledOptions
-            disabledTime={() => {
-              const selectedDate: dayjs.Dayjs = form.getFieldValue(['task', 'dueDate']);
-              const now = dayjs();
+        <Form.Item shouldUpdate={(prev, curr) => prev.task?.dueDate !== curr.task?.dueDate}>
+          {({ getFieldValue }) => (
+            <Form.Item
+              label="Time"
+              name={['task', 'dueTime']}
+              rules={timeRules}
+              initialValue={initialData?.dueTime ? dayjs(initialData.dueTime, 'HH:mm') : null}
+            >
+              <TimePicker
+                disabled={isStatusShow || !getFieldValue(['task', 'dueDate'])}
+                format="HH:mm"
+                className="w-full"
+                hideDisabledOptions
+                disabledTime={() => {
+                  const selectedDate: dayjs.Dayjs = getFieldValue(['task', 'dueDate']);
+                  const now = dayjs();
 
-              if (!selectedDate) {
-                return { disabledHours: () => [], disabledMinutes: () => [] };
-              }
+                  if (!selectedDate) {
+                    return { disabledHours: () => [], disabledMinutes: () => [] };
+                  }
 
-              if (selectedDate.isSame(now, 'day')) {
-                return {
-                  disabledHours: () => Array.from({ length: now.hour() }, (_, i) => i), // disable past hours
-                  disabledMinutes: (selectedHour: number) =>
-                    selectedHour === now.hour()
-                      ? Array.from({ length: now.minute() }, (_, i) => i) // disable past minutes
-                      : [],
-                };
-              }
+                  if (selectedDate.isSame(now, 'day')) {
+                    return {
+                      disabledHours: () => Array.from({ length: now.hour() }, (_, i) => i), // disable past hours
+                      disabledMinutes: (selectedHour: number) =>
+                        selectedHour === now.hour()
+                          ? Array.from({ length: now.minute() }, (_, i) => i) // disable past minutes
+                          : [],
+                    };
+                  }
 
-              return { disabledHours: () => [], disabledMinutes: () => [] };
-            }}
-          />
+                  return { disabledHours: () => [], disabledMinutes: () => [] };
+                }}
+              />
+            </Form.Item>
+          )}
         </Form.Item>
       </div>
       <Form.Item
@@ -154,14 +159,14 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
         initialValue={
           initialData?.assigneeId
             ? {
-                key: initialData?.assigneeId,
-                label: initialData?.assigneeName,
-                value: initialData?.assigneeId,
-              }
+              key: initialData?.assigneeId,
+              label: initialData?.assigneeName,
+              value: initialData?.assigneeId,
+            }
             : {
-                key: initialData?.assigneeId,
-                value: initialData?.assigneeId,
-              }
+              key: initialData?.assigneeId,
+              value: initialData?.assigneeId,
+            }
         }
         rules={[{ required: true, message: 'Please select assignee' }]}
       >
@@ -204,7 +209,7 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
       <Form.Item
         label="Description"
         name={['task', 'description']}
-        rules={descriptionRules}
+        rules={optionalDescriptionRules}
         initialValue={initialData?.description}
       >
         <Input.TextArea
@@ -228,23 +233,41 @@ const CreateTaskCard: FC<CreateTaskCardProps> = ({
         initialValue={
           initialData?.attachFiles
             ? [
+              {
+                uid: '-1',
+                name: initialData?.attachFiles?.split('/').pop() || 'attachment.jpg',
+                status: 'done',
+                url: initialData?.attachFiles,
+              },
+            ]
+            : []
+        }
+      >
+        <Upload
+          listType="picture"
+          beforeUpload={() => false}
+          maxCount={1}
+          accept={acceptOnlyImageRule}
+          disabled={isStatusShow}
+          defaultFileList={
+            initialData?.attachFiles
+              ? [
                 {
                   uid: '-1',
-                  name: 'attachment.jpg',
+                  name: initialData?.attachFiles?.split('/').pop() || 'attachment.jpg',
                   status: 'done',
                   url: initialData?.attachFiles,
                 },
               ]
-            : []
-        }
-      >
-        {attachment && (
-          <Upload beforeUpload={() => false} maxCount={1} accept={acceptOnlyImageRule}>
+              : []
+          }
+        >
+          {attachment && (
             <Button disabled={isStatusShow} icon={<IconUpload />}>
               Attach Files
             </Button>
-          </Upload>
-        )}
+          )}
+        </Upload>
       </Form.Item>
       {isStatusShow && (
         <p className="text-red-500">
