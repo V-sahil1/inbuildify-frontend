@@ -34,7 +34,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
     onNoteUpdate,
   }) => {
     const { items } = useAppSelector((state: RootState) => state.quotation);
-    const priceItem = items.find(i =>
+    const priceItem = items?.find(i =>
       item?.extraItem
         ? i?.quotationVersionItemId === item?.quotationVersionItemId
         : i?.priceListItemId === item?.priceListItemId

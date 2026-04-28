@@ -52,7 +52,6 @@ const TimelineCard: FC<TimelineCardProps> = ({
   const [taskStatus, setTaskStatus] = useState<string>(item?.status || 'Yet to Start');
   const [attachedFiles, setAttachedFiles] = useState<any[]>([]);
   const [replyError, setReplyError] = useState<string>('');
-  console.log('item', item);
 
   const handleFileChange = (info: any) => {
     const { fileList } = info;
@@ -480,9 +479,9 @@ const TimelineCard: FC<TimelineCardProps> = ({
             </>
 
             <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              {item?.createdAt && item?.createdBy && (
+              {item?.createdAt && item?.createdbyname && (
                 <p className="text-xs text-font-color-100">
-                  {item?.createdBy} created {timeAgo(item?.createdAt || item?.createdAt)}
+                  {item?.createdbyname} created {timeAgo(item?.createdAt || item?.createdAt)}
                 </p>
               )}
 

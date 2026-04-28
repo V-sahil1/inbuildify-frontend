@@ -81,7 +81,7 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
 
       const transformedTasks = taskData?.tasks?.map((task: ITask) => ({
         type: 'TASK',
-        item: { ...task, createdBy: { id: task.assigneeId, name: task.assigneeName || 'Unknown' } },
+        item: { ...task, createdBy: task.assigneeName || 'Unknown' },
       }));
 
       if (activeTab === 'TASK' || activeTab === 'All') {
@@ -401,8 +401,6 @@ const LeadActions = ({ leadId }: { leadId: string }) => {
       setFormLoading(false);
     }
   };
-  console.log('task',tasks);
-  console.log('cardData',cardsData);
 
   return (
     <div className="relative p-4 mt-0 bg-card-color">
