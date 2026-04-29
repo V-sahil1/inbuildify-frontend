@@ -326,6 +326,7 @@ const QuotationManager = () => {
 
   const fetchQuotationPricelistItem = async () => {
     try {
+      console.log('Fetching quotation pricelist item');
       await dispatch(
         getQuotationPricelistThunk({
           quotationVersionId: quoteVersionId ?? quotationData?.versions?.[0]?.quotationVersionId,
@@ -489,12 +490,17 @@ const QuotationManager = () => {
 
   const handlePreView = async () => {
     try {
+      setPreviewLoading(true);
       const response = await dispatch(
         getQuotationPdf({ id: quoteVersionId ?? quotationData?.versions?.[0]?.quotationVersionId })
       ).unwrap();
-      window.open(response?.pdfUrl, '_blank');
+      if (response) {
+        window.open(response?.pdfUrl, '_blank');
+        setPreviewLoading(false);
+      }
     } catch (error) {
       message.error(error || 'Failed to get url');
+      setPreviewLoading(false);
     }
   };
 

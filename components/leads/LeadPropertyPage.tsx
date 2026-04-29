@@ -2,9 +2,15 @@ import { useAppSelector } from '@hooks/redux';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { Button, Card, Popconfirm, Tooltip, Typography } from 'antd';
 import dayjs from 'dayjs';
+import { useMemo } from 'react';
 
 export const LeadPropertyPage = ({ setModalOpen, handleDeleteJobDetail }) => {
   const { leadDetail } = useAppSelector(state => state.lead);
+  const { quotation } = useAppSelector(state => state.quotation);
+  const isQuotationApproved = useMemo(() => {
+    return quotation?.some(q => q.versions?.some(v => v.isApprove === true));
+  }, [quotation]);
+
   const propertyFromSlice = leadDetail?.property;
   return (
     <Card className="relative">
@@ -13,8 +19,13 @@ export const LeadPropertyPage = ({ setModalOpen, handleDeleteJobDetail }) => {
           <div className="flex items-center justify-center h-full p-4 w-full">
             <Card className="text-center h-full my-auto">
               <button
-                className="text-sm text-blue-600 underline hover:text-blue-800 transition-colors"
-                onClick={() => setModalOpen('property')}
+                className={`text-sm underline transition-colors ${
+                  isQuotationApproved 
+                    ? 'text-gray-400 cursor-not-allowed' 
+                    : 'text-blue-600 hover:text-blue-800'
+                }`}
+                onClick={() => !isQuotationApproved && setModalOpen('property')}
+                disabled={isQuotationApproved}
               >
                 Add property details
               </button>
@@ -41,11 +52,17 @@ export const LeadPropertyPage = ({ setModalOpen, handleDeleteJobDetail }) => {
             <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded">
               Property
             </span>
-            <IconEdit
-              className="text-sm cursor-pointer hover:text-font-color"
-              style={{ color: 'var(--secondary-gray)' }}
-              onClick={() => setModalOpen('property')}
-            />
+            {!isQuotationApproved && (
+              <IconEdit
+              className={`text-sm transition-colors ${
+                isQuotationApproved 
+                ? 'text-gray-300 cursor-not-allowed' 
+                : 'cursor-pointer hover:text-font-color'
+                }`}
+                style={{ color: isQuotationApproved ? 'var(--secondary-gray)' : 'var(--secondary-gray)' }}
+                onClick={() => !isQuotationApproved && setModalOpen('property')}
+                />
+            )}
           </>
         )}
       </div>

@@ -15,8 +15,10 @@ import {
 import { TimelineCardProps } from 'data/types';
 import { NoteDetails, SmsDetails } from 'data/types';
 import dayjs from 'dayjs';
-import { useAppSelector } from '@hooks/redux';
+import { useAppSelector, useAppDispatch } from '@hooks/redux';
 import { timeAgo } from '@lib/utils/timeAgo';
+import { deleteAppointment } from '@redux/feature/appointment/appointmentThunk';
+import { deleteTask, updateTask } from '@redux/feature/task/taskThunk';
 import {
   Button,
   Tooltip,
@@ -41,13 +43,15 @@ const TimelineCard: FC<TimelineCardProps> = ({
   handleEdit,
 }) => {
   const { users } = useAppSelector(state => state.user);
+  const dispatch = useAppDispatch();
   const [showReply, setShowReply] = useState(false);
   const [replyText, setReplyText] = useState(item?.reply || '');
   const [sendToCustomer, setSendToCustomer] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [isCanceled, setIsCanceled] = useState(false);
-  const [taskStatus, setTaskStatus] = useState<string>('In Progress');
+  // const [isCanceled, setIsCanceled] = useState(false);
+  const [taskStatus, setTaskStatus] = useState<string>(item?.status || 'Yet to Start');
   const [attachedFiles, setAttachedFiles] = useState<any[]>([]);
+  const [replyError, setReplyError] = useState<string>('');
 
   const handleFileChange = (info: any) => {
     const { fileList } = info;
@@ -69,7 +73,7 @@ const TimelineCard: FC<TimelineCardProps> = ({
       handleEdit({ description: replyText, notesId: item?.replyId });
     }
     setEditingIndex(null);
-
+    setReplyError('');
     setShowReply(false);
   };
 
@@ -81,10 +85,15 @@ const TimelineCard: FC<TimelineCardProps> = ({
     setAttachedFiles([]);
   };
 
-  const handleCancelAction = () => {
-    setIsCanceled(true);
-    if (item?.type === 'APPOINTMENT' && onReschedule) {
-      onReschedule();
+  const handleCancelAction = async () => {
+    try {
+      if (item?.appointmentId) {
+        await dispatch(deleteAppointment(item.appointmentId)).unwrap();
+      } else if (item?.taskId) {
+        await dispatch(deleteTask(item.taskId)).unwrap();
+      }
+    } catch (error) {
+      console.error('Failed to delete item:', error);
     }
   };
 
@@ -158,32 +167,94 @@ const TimelineCard: FC<TimelineCardProps> = ({
         return <IconMessage size={18} />;
     }
   };
+  const getStatusOptions = () => {
+    const currentStatus = item?.status || 'Yet to Start';
+    if (currentStatus === 'Yet to Start') {
+      return [
+        <Menu.Item key="Yet to Start">Yet to Start</Menu.Item>,
+        <Menu.Item key="In Progress">In Progress</Menu.Item>,
+        <Menu.Item key="Completed">Completed</Menu.Item>,
+      ];
+    } else if (currentStatus === 'In Progress') {
+      return [
+        <Menu.Item key="In Progress">In Progress</Menu.Item>,
+        <Menu.Item key="Completed">Completed</Menu.Item>,
+      ];
+    } else {
+      return [
+        <Menu.Item key="Completed">Completed</Menu.Item>,
+      ];
+    }
+  };
+
   const statusMenu = (
-    <Menu onClick={({ key }) => setTaskStatus(key)}>
-      <Menu.Item key="Yet to start">Yet to start</Menu.Item>
-      <Menu.Item key="In Progress">In Progress</Menu.Item>
-      <Menu.Item key="Completed">Completed</Menu.Item>
+    <Menu onClick={({ key }) => handleStatusChange(key)}>
+      {getStatusOptions()}
     </Menu>
   );
 
+  const handleStatusChange = async (newStatus: string) => {
+    setTaskStatus(newStatus);
+    // Create FormData to update task status
+    const formData = new FormData();
+    formData.append('status', newStatus);
+    try {
+      if (item?.taskId) {
+        // Call update task API
+        await dispatch(updateTask({
+          data: formData,
+          id: item.taskId
+        })).unwrap();
+
+        // Update local state through onSave callback
+        // if (onSave) {
+        //   onSave({
+        //     ...item,
+        //     status: newStatus,
+        //   });
+        // }
+      }
+    } catch (error) {
+      console.error('Failed to update task status:', error);
+      // You could show an error message here
+    }
+  };
+
   const renderCanceledText = (text: string) => {
-    return isCanceled ? <del>{text}</del> : text;
+    return item?.isDeleted ? <del>{text}</del> : text;
   };
 
   const renderButtons = () => {
-    if ((type === 'APPOINTMENT' || type === 'TASK') && isCanceled) {
+    if ((type === 'APPOINTMENT' || type === 'TASK') && item?.isDeleted) {
       return (
         <span className="px-2 py-1 bg-gray-200 text-gray-600 text-xs rounded-md">Canceled</span>
       );
     }
+    
+    // Check if task is completed
+    const isTaskCompleted = type === 'TASK' && item?.status === 'Completed';
+    const showDropdown = type === 'TASK' && (item.status === 'Yet to Start' || item.status === 'In Progress');
+    
     return (
       <>
-        {onEdit && type !== 'SMS' && (
+        {showDropdown && (
+          <Dropdown overlay={statusMenu} trigger={['click']}>
+            <a className="flex items-center gap-1">
+              <div>{item?.status}</div> <IconCaretDown size={16} />
+            </a>
+          </Dropdown>
+        )}
+        {type === 'TASK' && !showDropdown && (
+          <div className="flex items-center gap-1">
+            <div>{item?.status}</div>
+          </div>
+        )}
+        {onEdit && type !== 'SMS' && !isTaskCompleted && (
           <button onClick={() => onEdit(item)}>
             <IconEdit size={18} />
           </button>
         )}
-        {(type === 'APPOINTMENT' || type === 'TASK') && (
+        {(type === 'APPOINTMENT' || type === 'TASK') && !isTaskCompleted && (
           <Popconfirm
             title="Do you want to cancel?"
             okText="Yes"
@@ -209,51 +280,319 @@ const TimelineCard: FC<TimelineCardProps> = ({
       </div>
 
       <div className="flex-1 bg-body-color rounded-lg shadow-sm border border-border-color p-4">
-        <div className="mb-2 flex items-center justify-between gap-2">
-          <div className="flex flex-wrap gap-2">
-            {getTags()
-              .slice(0, 5)
-              .map((tag, idx) => (
-                <span
-                  key={idx}
-                  className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-md"
+        <div className="flex items-start justify-between gap-2">
+          <div>
+            <div className="flex flex-wrap gap-2">
+              {getTags()
+                .slice(0, 5)
+                .map((tag, idx) => (
+                  <span
+                    key={idx}
+                    className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-md"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              {getTags().length > 5 && (
+                <Tooltip
+                  color="var(--card-color)"
+                  title={
+                    <div className="flex flex-wrap gap-2 max-w-xs">
+                      {getTags().map((tag, idx) => (
+                        <span
+                          key={idx}
+                          className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-md"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  }
                 >
-                  {tag}
-                </span>
-              ))}
-            {getTags().length > 5 && (
-              <Tooltip
-                color="var(--card-color)"
-                title={
-                  <div className="flex flex-wrap gap-2 max-w-xs">
-                    {getTags().map((tag, idx) => (
-                      <span
-                        key={idx}
-                        className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-md"
+                  <span className="px-2 py-1 bg-gray-200 text-gray-600 text-xs rounded-md cursor-pointer">
+                    +{getTags().length - 5}
+                  </span>
+                </Tooltip>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="font-medium text-font-color text-base sm:text-lg">{getTitle()}</h3>
+            </div>
+
+            <>
+              {children ?? <p className="text-sm text-font-color-100 mb-3">{getDescription()}</p>}
+              {type === 'NOTES' && item && (
+                <div className="text-xs text-font-color-100 space-y-1 mt-2">
+                  {(item as NoteDetails)?.sendToCustomer && (
+                    <p>
+                      <strong>Send to Customer:</strong> Yes
+                    </p>
+                  )}
+                  {(item as NoteDetails)?.createFollowUpTask && (
+                    <p>
+                      <strong>Create Follow-up:</strong> Yes{' '}
+                      {/* {formatApiDate((item?.notes?.[0] as NoteDetails)?.task?.dueDate) &&
+                    `(Due: ${(item?.notes?.[0] as NoteDetails)?.task?.dueDate})`} */}
+                    </p>
+                  )}
+                  {typeof (item as NoteDetails)?.attachFile === 'string' && (
+                    <p className="p-0">
+                      <strong>Attachments:</strong>{' '}
+                      <Button
+                        type="link"
+                        href={String((item as NoteDetails)?.attachFile)}
+                        target="_blank"
+                        className="p-0 m-0"
+                        rel="noopener noreferrer"
                       >
-                        {tag}
-                      </span>
-                    ))}
+                        View Attachment
+                      </Button>
+                    </p>
+                  )}
+                </div>
+              )}
+              {type === 'APPOINTMENT' && item && (
+                <div className="text-xs text-font-color-100 space-y-1 mt-2">
+                  <div className="flex gap-4">
+
+                    <p>
+                      <strong>Date:</strong>{' '}
+                      {renderCanceledText(item.date ? dayjs(item.date).format('YYYY-MM-DD') : '-')}
+                    </p>
+                    <p>
+                      <strong>Time:</strong> {renderCanceledText(item?.startTime + '-' + item?.endTime)}
+                    </p>
                   </div>
-                }
-              >
-                <span className="px-2 py-1 bg-gray-200 text-gray-600 text-xs rounded-md cursor-pointer">
-                  +{getTags().length - 5}
-                </span>
-              </Tooltip>
+                  {/* <p>
+                <strong>Location:</strong> {item?.location?.name || '-'}
+              </p> */}
+                  <div className="flex gap-4">
+
+
+                    <p>
+                      <strong>User:</strong>{' '}
+                      {(() => {
+                        const selectedIds = item?.selectUsers || [];
+                        const userNames = Array.isArray(selectedIds)
+                          ? selectedIds
+                            .map(id => {
+                              const found = users.find(u => u.usersId === id.id);
+                              return found?.name;
+                            })
+                            .filter(Boolean)
+                            .join(', ')
+                          : '-';
+                        return userNames || '-';
+                      })()}
+                    </p>
+                    <p>
+                      <strong>Send to Assignee:</strong> {item?.sendAppointmentCustomer ? 'Yes' : 'No'}
+                    </p>
+                  </div>
+                </div>
+              )}
+              {type === 'TASK' && item && (
+                <div className="text-xs text-font-color-100 space-y-1 mt-2">
+                  <div className="flex gap-4">
+                    <p>
+                      <strong>Due Date:</strong>{' '}
+                      {renderCanceledText(item.dueDate ? dayjs(item.dueDate).format('YYYY-MM-DD') : '-')}
+                    </p>
+                    <p>
+                      <strong>Time:</strong> {renderCanceledText(item?.dueTime || '-')}
+                    </p>
+                  </div>
+                  <div className="flex gap-4">
+
+                    <p>
+                      <strong>Priority:</strong> {item?.priority || '-'}
+                    </p>
+                    <p>
+                      <strong>Assignee:</strong>{' '}
+                      {(() => {
+                        const assigneeId = item?.assigneeId;
+                        if (!assigneeId) return '-';
+                        const assigneeUser = users.find(u => u.usersId === assigneeId);
+                        return assigneeUser?.name || '-';
+                      })()}
+                    </p>
+                  </div>
+                  {item?.attachFiles && (
+                    <p>
+                      <strong>Attachments:</strong>{' '}
+                      <Button
+                        type="link"
+                        href={String(item?.attachFiles)}
+                        target="_blank"
+                        className="p-0 m-0"
+                        rel="noopener noreferrer"
+                      >
+                        View Attachment
+                      </Button>
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {item?.reply && (
+                <div className="mt-2 p-2 bg-gray-50 border-l-4 border-primary rounded text-sm flex flex-col ml-3">
+                  <div className="w-full flex justify-between items-center mb-1">
+                    <div className="mr-[1%] flex-grow">
+                      {editingIndex === 0 ? (
+                        <Input
+                          value={replyText}
+                          onChange={e => setReplyText(e.target.value)}
+                          size="small"
+                          className="h-9"
+                        />
+                      ) : (
+                        item.reply
+                      )}
+                    </div>
+                    <div>
+                      {editingIndex === 0 ? (
+                        <Button type="link" onClick={handleSaveReply} className="p-0 !text-primary">
+                          Save
+                        </Button>
+                      ) : (
+                        <Button
+                          type="link"
+                          onClick={() => {
+                            setEditingIndex(0);
+                            setReplyText(item.reply);
+                          }}
+                          className="p-0"
+                        >
+                          <IconPencil size={18} className="text-primary" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                  {(item?.createdAt || item?.createdAt) && item?.createdBy?.name && (
+                    <p className="text-xs text-font-color-100">
+                      {item?.createdBy?.name} created {timeAgo(item?.createdAt || item?.createdAt)}
+                    </p>
+                  )}
+                </div>
+              )}
+            </>
+
+            <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              {item?.createdAt && item?.createdbyname && (
+                <p className="text-xs text-font-color-100">
+                  {item?.createdbyname} created {timeAgo(item?.createdAt || item?.createdAt)}
+                </p>
+              )}
+
+              <div className="flex gap-3">
+                {/* {type === 'TASK' && !isCanceled && (
+              <Dropdown overlay={statusMenu} trigger={['click']}>
+                <a className="flex items-center gap-1">
+                  <div>{taskStatus}</div> <IconCaretDown size={16} />
+                </a>
+              </Dropdown>
+            )} */}
+                {renderButtons()}
+              </div>
+            </div>
+
+            {type === 'NOTES' && item?.notesId && (
+              <div className={`mt-2 ${!item?.reply ? 'border-t' : ''} pt-2`}>
+                {!showReply && !item?.reply && (
+                  <Button
+                    type="primary"
+                    icon={<IconArrowBackUp size={16} />}
+                    onClick={() => {
+                      setShowReply(true);
+                      setReplyText('');
+                      setSendToCustomer(false);
+                      setAttachedFiles([]);
+                    }}
+                    size="small"
+                  >
+                    Reply
+                  </Button>
+                )}
+                {showReply && (
+                  <div className="flex flex-col gap-2">
+                    <TextArea
+                      value={replyText}
+                      // onChange={e => setReplyText(e.target.value)}
+                      onChange={e => {
+                        const value = e.target.value;
+                        // Apply optionalDescriptionRules validation
+                        if (value.startsWith(' ') || value.endsWith(' ')) {
+                          setReplyError('Description cannot start or end with spaces');
+                        } else {
+                          setReplyError('');
+                        }
+                        if (value.length < 5) {
+                          setReplyError('Description must be at least 5 characters');
+                        }
+
+                        if (value.length > 500) {
+                          setReplyError('Description must be at most 500 characters');
+                        }
+                        setReplyText(value);
+                      }}
+                      onBlur={(e) => {
+                        const value = e.target.value;
+                        // Validate on blur
+                        if (value.startsWith(' ') || value.endsWith(' ')) {
+                          // Trim spaces on blur
+                          setReplyText(value.trim());
+                          setReplyError('');
+                        }
+                      }}
+                      rows={2}
+                      placeholder="Type your reply..."
+                      className={`h-9 ${replyError ? 'border-red-500' : ''}`}
+                    />
+                    {replyError && (
+                      <div className="text-red-500 text-xs mt-1">
+                        {replyError}
+                      </div>
+                    )}
+                    <div className="flex gap-2 justify-between items-center">
+                      <div>
+                        {/* <Upload
+                      beforeUpload={() => false}
+                      maxCount={1}
+                      accept=".jpg,.jpeg,.png,.gif,.webp"
+                      listType="picture"
+                      onChange={handleFileChange}
+                      fileList={attachedFiles}
+                    >
+                      <Button icon={<IconUpload />}>Attach Files</Button>
+                    </Upload> */}
+                      </div>
+                      <div className="flex gap-2 justify-end items-center">
+                        Send this reply to customer
+                        <Switch
+                          checked={sendToCustomer}
+                          onChange={checked => setSendToCustomer(checked)}
+                        />
+                        <Button onClick={handleCancelReply}>Cancel</Button>
+                        <Button type="primary" onClick={handleSaveReply}>
+                          {sendToCustomer ? 'Send' : 'Save'}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
           </div>
           <div className="flex items-center gap-2 ml-auto">
             {type && (
               <span
-                className={`px-2 py-1 text-xs rounded-md ${
-                  {
-                    NOTES: 'bg-gray-300 text-blue-700',
-                    TASK: 'bg-green-100 text-green-700',
-                    SMS: 'bg-yellow-100 text-yellow-700',
-                    APPOINTMENT: 'bg-red-100 text-red-700',
-                  }[type] || 'bg-gray-100 text-gray-700'
-                }`}
+                className={`px-2 py-1 text-xs rounded-md ${{
+                  NOTES: 'bg-gray-300 text-blue-700',
+                  TASK: 'bg-green-100 text-green-700',
+                  SMS: 'bg-yellow-100 text-yellow-700',
+                  APPOINTMENT: 'bg-red-100 text-red-700',
+                }[type] || 'bg-gray-100 text-gray-700'}`}
               >
                 {type}
               </span>
@@ -265,230 +604,6 @@ const TimelineCard: FC<TimelineCardProps> = ({
             )}
           </div>
         </div>
-
-        <div className="flex items-center justify-between gap-3">
-          <h3 className="font-medium text-font-color text-base sm:text-lg">{getTitle()}</h3>
-        </div>
-
-        <>
-          {children ?? <p className="text-sm text-font-color-100 mb-3">{getDescription()}</p>}
-          {type === 'NOTES' && item && (
-            <div className="text-xs text-font-color-100 space-y-1 mt-2">
-              {(item as NoteDetails)?.sendToCustomer && (
-                <p>
-                  <strong>Send to Customer:</strong> Yes
-                </p>
-              )}
-              {(item as NoteDetails)?.createFollowUpTask && (
-                <p>
-                  <strong>Create Follow-up:</strong> Yes{' '}
-                  {/* {formatApiDate((item?.notes?.[0] as NoteDetails)?.task?.dueDate) &&
-                    `(Due: ${(item?.notes?.[0] as NoteDetails)?.task?.dueDate})`} */}
-                </p>
-              )}
-              {typeof (item as NoteDetails)?.attachFile === 'string' && (
-                <p className="p-0">
-                  <strong>Attachments:</strong>{' '}
-                  <Button
-                    type="link"
-                    href={String((item as NoteDetails)?.attachFile)}
-                    target="_blank"
-                    className="p-0 m-0"
-                    rel="noopener noreferrer"
-                  >
-                    View Attachment
-                  </Button>
-                </p>
-              )}
-            </div>
-          )}
-          {type === 'APPOINTMENT' && item && (
-            <div className="text-xs text-font-color-100 space-y-1 mt-2">
-              <p>
-                <strong>Date:</strong>{' '}
-                {renderCanceledText(item.date ? dayjs(item.date).format('YYYY-MM-DD') : '-')}
-              </p>
-              <p>
-                <strong>Time:</strong> {renderCanceledText(item?.startTime + '-' + item?.endTime)}
-              </p>
-              {/* <p>
-                <strong>Location:</strong> {item?.location?.name || '-'}
-              </p> */}
-              <p>
-                <strong>User:</strong>{' '}
-                {(() => {
-                  const selectedIds = item?.selectUsers || [];
-                  const userNames = Array.isArray(selectedIds)
-                    ? selectedIds
-                        .map(id => {
-                          const found = users.find(u => u.usersId === id.id);
-                          return found?.name;
-                        })
-                        .filter(Boolean)
-                        .join(', ')
-                    : '-';
-                  return userNames || '-';
-                })()}
-              </p>
-              <p>
-                <strong>Send to Assignee:</strong> {item?.sendAppointmentCustomer ? 'Yes' : 'No'}
-              </p>
-            </div>
-          )}
-          {type === 'TASK' && item && (
-            <div className="text-xs text-font-color-100 space-y-1 mt-2">
-              <p>
-                <strong>Due Date:</strong>{' '}
-                {renderCanceledText(item.dueDate ? dayjs(item.dueDate).format('YYYY-MM-DD') : '-')}
-              </p>
-              <p>
-                <strong>Time:</strong> {renderCanceledText(item?.dueTime || '-')}
-              </p>
-              <p>
-                <strong>Priority:</strong> {item?.priority || '-'}
-              </p>
-              <p>
-                <strong>Assignee:</strong>{' '}
-                {(() => {
-                  const assigneeId = item?.assigneeId;
-                  if (!assigneeId) return '-';
-                  const assigneeUser = users.find(u => u.usersId === assigneeId);
-                  return assigneeUser?.name || '-';
-                })()}
-              </p>
-              {item?.attachFiles && (
-                <p>
-                  <strong>Attachments:</strong>{' '}
-                  <Button
-                    type="link"
-                    href={String(item?.attachFiles)}
-                    target="_blank"
-                    className="p-0 m-0"
-                    rel="noopener noreferrer"
-                  >
-                    View Attachment
-                  </Button>
-                </p>
-              )}
-            </div>
-          )}
-
-          {item?.reply && (
-            <div className="mt-2 p-2 bg-gray-50 border-l-4 border-primary rounded text-sm flex flex-col ml-3">
-              <div className="w-full flex justify-between items-center mb-1">
-                <div className="mr-[1%] flex-grow">
-                  {editingIndex === 0 ? (
-                    <Input
-                      value={replyText}
-                      onChange={e => setReplyText(e.target.value)}
-                      size="small"
-                      className="h-9"
-                    />
-                  ) : (
-                    item.reply
-                  )}
-                </div>
-                <div>
-                  {editingIndex === 0 ? (
-                    <Button type="link" onClick={handleSaveReply} className="p-0 !text-primary">
-                      Save
-                    </Button>
-                  ) : (
-                    <Button
-                      type="link"
-                      onClick={() => {
-                        setEditingIndex(0);
-                        setReplyText(item.reply);
-                      }}
-                      className="p-0"
-                    >
-                      <IconPencil size={18} className="text-primary" />
-                    </Button>
-                  )}
-                </div>
-              </div>
-              {(item?.createdAt || item?.createdAt) && item?.createdBy?.name && (
-                <p className="text-xs text-font-color-100">
-                  {item?.createdBy?.name} created {timeAgo(item?.createdAt || item?.createdAt)}
-                </p>
-              )}
-            </div>
-          )}
-        </>
-
-        <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          {item?.createdAt && item?.createdBy && (
-            <p className="text-xs text-font-color-100">
-              {item?.createdBy} created {timeAgo(item?.createdAt || item?.createdAt)}
-            </p>
-          )}
-
-          <div className="flex gap-3">
-            {/* {type === 'TASK' && !isCanceled && (
-              <Dropdown overlay={statusMenu} trigger={['click']}>
-                <a className="flex items-center gap-1">
-                  <div>{taskStatus}</div> <IconCaretDown size={16} />
-                </a>
-              </Dropdown>
-            )} */}
-            {renderButtons()}
-          </div>
-        </div>
-
-        {type === 'NOTES' && item?.notesId && (
-          <div className={`mt-2 ${!item?.reply ? 'border-t' : ''} pt-2`}>
-            {!showReply && !item?.reply && (
-              <Button
-                type="primary"
-                icon={<IconArrowBackUp size={16} />}
-                onClick={() => {
-                  setShowReply(true);
-                  setReplyText('');
-                  setSendToCustomer(false);
-                  setAttachedFiles([]);
-                }}
-                size="small"
-              >
-                Reply
-              </Button>
-            )}
-            {showReply && (
-              <div className="flex flex-col gap-2">
-                <TextArea
-                  value={replyText}
-                  onChange={e => setReplyText(e.target.value)}
-                  rows={2}
-                  placeholder="Type your reply..."
-                />
-                <div className="flex gap-2 justify-between items-center">
-                  <div>
-                    <Upload
-                      beforeUpload={() => false}
-                      maxCount={1}
-                      accept=".jpg,.jpeg,.png,.gif,.webp"
-                      listType="picture"
-                      onChange={handleFileChange}
-                      fileList={attachedFiles}
-                    >
-                      <Button icon={<IconUpload />}>Attach Files</Button>
-                    </Upload>
-                  </div>
-                  <div className="flex gap-2 justify-end items-center">
-                    Send this reply to customer
-                    <Switch
-                      checked={sendToCustomer}
-                      onChange={checked => setSendToCustomer(checked)}
-                    />
-                    <Button onClick={handleCancelReply}>Cancel</Button>
-                    <Button type="primary" onClick={handleSaveReply}>
-                      {sendToCustomer ? 'Send' : 'Save'}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );

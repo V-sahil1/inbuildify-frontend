@@ -28,7 +28,7 @@ export const useCountryHook = () => {
 
   const countryOptions = useMemo(() => {
     return countries.map(country => ({
-      label: country.name,
+      label: country.name.charAt(0).toUpperCase() + country.name.slice(1),
       value: country.countryId,
     }));
   }, [countries]);

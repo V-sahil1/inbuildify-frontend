@@ -14,6 +14,7 @@ export interface FetchAppointmentParams {
   lead_id?: string;
   assignee_id?: string;
   include_cancelled?: boolean;
+  is_deleted?: boolean;
 }
 
 export interface FetchTabCountsParams {
@@ -50,7 +51,7 @@ export const fetchAllAppointment = createAsyncThunk(
     try {
       const response = await api.get<ApiResponse<FetchAppointmentResponse>>(
         API_ENDPOINTS.APPOINTMENT,
-        { params }
+        { params: { ...params, is_deleted: true } }
       );
       // Backend returns "currenPage" (typo) — normalise to currentPage
       const data = response.data as any;
@@ -85,8 +86,8 @@ export const deleteAppointment = createAsyncThunk(
   'appointment/delete',
   async (id: string, { rejectWithValue }) => {
     try {
-      await api.delete<ApiResponse>(`${API_ENDPOINTS.APPOINTMENT}/${id}`);
-      return;
+      const response = await api.delete<ApiResponse>(`${API_ENDPOINTS.APPOINTMENT}/${id}`);
+      return response.data;
     } catch (error) {
       return rejectWithValue(error.message);
     }

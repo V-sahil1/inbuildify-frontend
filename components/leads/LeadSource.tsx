@@ -151,6 +151,7 @@ export const LeadSource = () => {
       message.error(error || 'Failed to delete hl package');
     }
   };
+  console.log('laed detail', leadDetail?.lead);
   return (
     <div className="flex flex-col md:flex-row lg:flex-col m-3 p-1">
       <div className="flex-1">

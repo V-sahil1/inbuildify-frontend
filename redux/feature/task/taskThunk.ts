@@ -26,7 +26,7 @@ export const fetchAllTask = createAsyncThunk(
     try {
       const response = await api.get<
         ApiResponse<{ tasks: ITask[]; pagination: CommonPagination; counters: ITaskCounters }>
-      >(API_ENDPOINTS.TASK_BASE, { params });
+      >(API_ENDPOINTS.TASK_BASE, { params: { ...params, is_deleted: true } });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -55,8 +55,8 @@ export const deleteTask = createAsyncThunk(
   'task/delete',
   async (id: string, { rejectWithValue }) => {
     try {
-      await api.delete<ApiResponse>(`${API_ENDPOINTS.TASK_BASE}/${id}`);
-      return;
+      const res = await api.delete<ApiResponse>(`${API_ENDPOINTS.TASK_BASE}/${id}`);
+      return res.data;
     } catch (error) {
       return rejectWithValue(error.message);
     }

@@ -133,11 +133,11 @@ export const createLeadContactThunk = createAsyncThunk(
 
 export const updateLeadThunk = createAsyncThunk(
   'lead/updateLead',
-  async (payload: { id: string; details: FormData }, { rejectWithValue }) => {
+  async (payload: { id: string; details: any }, { rejectWithValue }) => {
     try {
-      const response: ApiResponse<Lead> = await apiWithFormDataMethods.put(
+      const response: ApiResponse<Lead> = await api.put(
         `${API_ENDPOINTS.LEAD_BASE}/${payload.id}`,
-        payload.details
+        { data: payload.details }
       );
       return response.data;
     } catch (err: any) {

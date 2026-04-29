@@ -30,7 +30,7 @@ export const useStateHook = (countryId?: string) => {
 
   const stateOptions = useMemo(() => {
     return states.map(state => ({
-      label: state.name,
+      label: state.name.charAt(0).toUpperCase() + state.name.slice(1),
       value: state.stateId,
     }));
   }, [states]);

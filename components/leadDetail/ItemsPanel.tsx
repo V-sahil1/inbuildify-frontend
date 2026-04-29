@@ -46,11 +46,13 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
     quoteDetails,
   } = useAppSelector((state: RootState) => state.quotation);
   const { priceMaster: categoryData } = useAppSelector((state: RootState) => state.masterPriceList);
+  console.log("Quotation Items", items);
 
-  const userSelectedItems = useMemo(() =>
-    categoryData?.flatMap(cd =>
+  const userSelectedItems = useMemo(() => {
+    // Get regular items from category data
+    const regularItems = categoryData?.flatMap(cd =>
       cd?.items?.reduce<typeof cd.items>((acc, categoryItem) => {
-        const quotationItem = items.find(
+        const quotationItem = items?.find(
           selected => selected?.priceListItemId === categoryItem?.priceListItemId
         );
         if (quotationItem) {
@@ -62,9 +64,20 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
 
         return acc;
       }, [])
-    ), [categoryData, items]
-  );
+    ) || [];
 
+    // Get extra items (items without priceListItemId)
+    const extraItems = items
+      ?.filter(item => !item.priceListItemId)
+      .map(item => ({
+        ...item,
+        itemName: item.itemDescription || item.shortDescription || 'Extra Item',
+        priceListItemId: item.quotationVersionItemId, // Use quotationVersionItemId as fallback
+        isExtraItem: true,
+      }));
+
+    return [...regularItems, ...(extraItems || [])];
+  }, [categoryData, items]);
   // Helper function to check if item is automatically mapped
   const isItemAutomaticallyMapped = useCallback((priceListItemId: string) => {
     const quotationItem = items.find(
@@ -196,7 +209,8 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
             size="small"
             onClick={() => setSelect(!select)}
           >
-            Selected Items {items?.length ?? 0}
+            {/* Selected Items {items?.length ?? 0} */}
+            Selected Items {userSelectedItems?.length ?? 0}
           </Button>
         </div>
       </div>
@@ -265,7 +279,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
                     type={extraItem}
                   />
                 )}
-                {!category && !extraItem && (items.length <= 0 || !select) && (
+                {!category && !extraItem && (items?.length <= 0 || !select) && (
                   <div className="table-row">
                     <div className="table-cell p-6 text-center col-span-7 text-font-color">
                       No items found
@@ -281,7 +295,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
                 ) : (
                   <>
                     {(select ? filterItems(userSelectedItems) : filterItems(category?.items || []))?.length >
-                    0 ? (
+                      0 ? (
                       (select ? filterItems(userSelectedItems) : filterItems(category?.items || [])).map(
                         item => (
                           <QuatationItem

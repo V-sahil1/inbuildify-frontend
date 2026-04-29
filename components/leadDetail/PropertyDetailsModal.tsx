@@ -20,6 +20,7 @@ import { disablePastDates } from '@lib/utils/getDisabledTimeDate';
 import {
   addressLine2Rules,
   CityNameRules,
+  descriptionRules,
   leadAddressRules,
   optionalNameRules,
   OptionalNumberRules,
@@ -240,6 +241,9 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
             if (value <= 0) {
               return Promise.reject('Value must be greater than 0');
             }
+            if (value > 100) {
+              return Promise.reject('Value cannot exceed 100');
+            }
             return Promise.resolve();
           },
         },
@@ -256,6 +260,9 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
             if (value === undefined || value === null) return Promise.resolve();
             if (value <= 0) {
               return Promise.reject('Value must be greater than 0');
+            }
+            if (value >= 3000) {
+              return Promise.reject('Value cannot exceed 3000');
             }
             return Promise.resolve();
           },
@@ -274,6 +281,9 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
             if (value <= 0) {
               return Promise.reject('Value must be greater than 0');
             }
+            if (value >= 3000) {
+              return Promise.reject('Value cannot exceed 3000');
+            }
             return Promise.resolve();
           },
         },
@@ -290,6 +300,9 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
             if (value === undefined || value === null) return Promise.resolve();
             if (value <= 0) {
               return Promise.reject('Value must be greater than 0');
+            }
+            if (value > 100) {
+              return Promise.reject('Value cannot exceed 100');
             }
             return Promise.resolve();
           },
@@ -311,13 +324,18 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
       label: 'Engineer Name',
       name: 'engineerName',
       type: 'text',
-      rules: [{ required: true, message: 'Please Enter Engineer Name' }],
+      rules: [
+        { required: true, message: '' },
+        ...optionalNameRules,
+      ],
     },
     {
       label: 'Remarks',
       name: 'remarks',
       type: 'textarea',
-      rules: [{ required: true, message: 'Please Enter remark' }],
+      rules: [{ required: true, message: 'Please Enter remark' },
+        ...descriptionRules,
+      ],
     },
   ];
 
@@ -388,13 +406,13 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
             </Form.Item>
           </Col>
           <Col span={6}>
-            <Form.Item label="Street Name" name="street">
-              <Input placeholder="Lot 234" maxLength={255} />
+            <Form.Item label="Street Name" name="street" rules={leadAddressRules}>
+              <Input placeholder="Street Name" maxLength={255} />
             </Form.Item>
           </Col>
           <Col span={6}>
             <Form.Item label="Address1" name="addressLine1" rules={leadAddressRules}>
-              <Input placeholder="Lot 234" />
+              <Input placeholder="Address Line 1" />
             </Form.Item>
           </Col>
           <Col span={6}>
@@ -669,7 +687,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
             <Form.Item label="Width (m)" name="widthM" rules={OptionalNumberRules}>
               <Input
                 placeholder="Enter width"
-                type="number"
+                // type="number"
                 onWheel={(e) => e.currentTarget.blur()}
                 min={0}
                 onKeyPress={e => {
@@ -684,7 +702,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
             <Form.Item label="Depth (m)" name="depthM" rules={OptionalNumberRules}>
               <Input
                 placeholder="Enter depth"
-                type="number"
+                // type="number"
                 onWheel={(e) => e.currentTarget.blur()}
                 min={0}
                 onKeyPress={e => {
@@ -703,7 +721,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
               initialValue={0}
             >
               <Input
-                type="number"
+                // type="number"
                 onWheel={(e) => e.currentTarget.blur()}
                 min={0}
                 onKeyPress={e => {
@@ -723,7 +741,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
             <Form.Item label="Site Fall (mm)" name="siteFallMm" rules={OptionalNumberRules}>
               <Input
                 placeholder="300"
-                type="number"
+                // type="number"
                 onWheel={(e) => e.currentTarget.blur()}
                 min={0}
                 onKeyPress={e => {
@@ -738,7 +756,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
             <Form.Item label="Land Fill (mm)" name="landFillMm" rules={OptionalNumberRules}>
               <Input
                 placeholder="500"
-                type="number"
+                // type="number"
                 onWheel={(e) => e.currentTarget.blur()}
                 min={0}
                 onKeyPress={e => {

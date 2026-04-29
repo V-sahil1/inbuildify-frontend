@@ -116,8 +116,10 @@ const appointmentSlice = createSlice({
       state.status.create = Status.PENDING;
     });
     builder.addCase(deleteAppointment.fulfilled, (state, action) => {
-      state.appointment = state.appointment.filter(i => i.appointmentId !== action.meta.arg);
-      state.pagination.totalRecords = Math.max(0, state.pagination.totalRecords - 1);
+      state.appointment = state.appointment.map(i =>
+        i.appointmentId === action.payload.appointmentId ? action.payload : i
+      );
+      // state.pagination.totalRecords = Math.max(0, state.pagination.totalRecords - 1);
       state.status.create = Status.SUCCESS;
     });
     builder.addCase(deleteAppointment.rejected, state => {

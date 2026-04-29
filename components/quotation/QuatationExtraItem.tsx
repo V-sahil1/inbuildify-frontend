@@ -10,6 +10,7 @@ import { createQuotationAdditionalPricellistThunk } from '@redux/feature/quotati
 import { UOM_OPTIONS } from '../common/Models/AddMasterPricingItemModel';
 import { enumToReadable } from '@lib/utils/enumToRedable';
 import { ExtraItem } from '@redux/feature/quotation/IQuotationState';
+import { descriptionRules, } from '@lib/constants/formInputValidations';
 const { TextArea } = Input;
 
 interface QuatationItemProps {
@@ -113,12 +114,16 @@ export const QuatationExtraItem: React.FC<QuatationItemProps> = React.memo(
                   </Form.Item>
                 )}
 
-                {type === 'item' &&  costType !== 'Included' &&(
+                {type === 'item' && costType !== 'Included' && (
                   <Form.Item name="builderCost">
                     <Input
-                      type="number"
                       onWheel={e => e.currentTarget.blur()}
                       placeholder="Enter Builder Cost"
+                      onKeyPress={(e) => {
+                        if (!/[0-9]/.test(e.key)) {
+                          e.preventDefault();
+                        }
+                      }}
                     />
                   </Form.Item>
                 )}
@@ -126,7 +131,7 @@ export const QuatationExtraItem: React.FC<QuatationItemProps> = React.memo(
 
               {/* Description */}
               <div>
-                <Form.Item name="description">
+                <Form.Item name="description" rules={descriptionRules}>
                   <TextArea
                     showCount
                     maxLength={500}
@@ -161,9 +166,15 @@ export const QuatationExtraItem: React.FC<QuatationItemProps> = React.memo(
             {type !== 'discount' && costType !== 'Included' && (
               <Form.Item name="quantity">
                 <Input
-                  type="number"
                   onWheel={e => e.currentTarget.blur()}
                   min={1}
+                  step={1}
+                  max={200}
+                  onKeyPress={(e) => {
+                    if (!/[0-9]/.test(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
                   size="small"
                   className="w-full text-center"
                 />
@@ -176,9 +187,13 @@ export const QuatationExtraItem: React.FC<QuatationItemProps> = React.memo(
             {type !== 'complimentry' && costType !== 'Included' && (
               <Form.Item name="cost">
                 <Input
-                  type="number"
                   onWheel={e => e.currentTarget.blur()}
                   min={1}
+                  onKeyPress={(e) => {
+                    if (!/[0-9]/.test(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
                   prefix="$"
                   style={{ width: '100%' }}
                 />

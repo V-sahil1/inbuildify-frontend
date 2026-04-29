@@ -18,8 +18,8 @@ export const TaskColumn = (selectedTask, filters, setParams, setModalOpen, assig
     { label: 'Completed', value: 'Completed' },
     { label: 'Yet To Start', value: 'Yet to Start' },
     { label: 'In Progress', value: 'In Progress' },
-    { label: 'Skipped', value: 'Skipped' },
-    { label: 'Cancelled', value: 'Cancelled' },
+    // { label: 'Skipped', value: 'Skipped' },
+    // { label: 'Cancelled', value: 'Cancelled' },
   ];
 
   const columns: ColumnsType<ITask> = [
@@ -156,12 +156,12 @@ export const TaskColumn = (selectedTask, filters, setParams, setModalOpen, assig
             }
           }}
         >
-          <TooltipButton
+          {/* <TooltipButton
             type="text"
             title="Delete Task"
             icon={<IconTrash size={16} className="text-red-500" />}
             onClick={e => e.stopPropagation()}
-          />
+          /> */}
         </Popconfirm>
       ),
     },
