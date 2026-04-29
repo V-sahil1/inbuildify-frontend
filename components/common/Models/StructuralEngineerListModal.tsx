@@ -28,10 +28,8 @@ const StructuralEngineerListModal: React.FC<StructuralEngineerListModalProps> = 
   const [filteredEngineers, setFilteredEngineers] = useState<any[]>([]);
 
   useEffect(() => {
-    if (visible) {
-      dispatch(getStructuralThunk());
-    }
-  }, [visible, dispatch]);
+    dispatch(getStructuralThunk());
+  }, [dispatch]);
 
   useEffect(() => {
     if (structuralengg) {

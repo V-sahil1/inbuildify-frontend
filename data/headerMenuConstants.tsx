@@ -120,7 +120,7 @@ export const gridMenuItems2: MenuItem[] = [
     id: 7,
     icon: <IconPalette className="w-4 h-4 mr-3" />,
     label: 'Color',
-    href: `${SystemRoutes.COLOR}`,
+    href: `${SystemRoutes.SETTINGS}/?tab=colour`,
   },
   {
     id: 8,

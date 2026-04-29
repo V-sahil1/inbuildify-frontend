@@ -1,11 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Table, Typography, message, Spin, Modal, Tag, Space, Upload } from 'antd';
-import { IconUserCheck, IconUpload } from '@tabler/icons-react';
+import React, { useState, useMemo } from 'react';
+import {
+  Button,
+  Table,
+  Typography,
+  message,
+  Spin,
+  Modal,
+  Tag,
+  Space,
+  Upload,
+  Select,
+  Tooltip,
+} from 'antd';
+import { IconUserCheck, IconUpload, IconEdit, IconEditOff } from '@tabler/icons-react';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import { getStructuralThunk } from '@redux/feature/structuralengg/structuralEnggThunk';
-import { StructuralEngineer } from '@/components/table-columns/structuralEngineerColumn';
-import { updateLeadThunk } from '@redux/feature/lead/leadThunk';
 import type { UploadProps } from 'antd/es/upload';
+import StructuralEngineerListModal from '../common/Models/StructuralEngineerListModal';
+import { updateQuotationVersion } from '@redux/feature/quotation/quotationThunk';
 
 interface StructuralEngineerAssignmentProps {
   leadId: string;
@@ -14,58 +25,46 @@ interface StructuralEngineerAssignmentProps {
 
 const StructuralEngineerAssignment: React.FC<StructuralEngineerAssignmentProps> = ({
   leadId,
-  hasReport = false
+  hasReport = false,
 }) => {
   const dispatch = useAppDispatch();
   const { status, structuralengg } = useAppSelector((state: any) => state.structural);
+  const { quotation } = useAppSelector((state: any) => state.quotation);
   const { leadDetail } = useAppSelector((state: any) => state.lead);
   const [assignLoading, setAssignLoading] = useState<string | null>(null);
   const [uploadLoading, setUploadLoading] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedQuotationVersion, setSelectedQuotationVersion] = useState<any>(null);
+  const [selectedUploadVersion, setSelectedUploadVersion] = useState<any>(null);
 
-  useEffect(() => {
-    dispatch(getStructuralThunk());
-  }, [dispatch]);
-
-  const handleAssign = (engineer: StructuralEngineer) => {
-    if (!hasReport) {
-      message.warning('No report available for assignment');
-      return;
-    }
-
-    // Check if this engineer is already assigned
-    if (leadDetail?.lead?.structureEngineerId === engineer.key) {
-      message.info('This structural engineer is already assigned to this lead');
-      return;
-    }
-
-    Modal.confirm({
-      title: 'Assign Structural Engineer',
-      content: `Are you sure you want to assign ${engineer.name} to this lead?`,
-      okText: 'Assign',
-      cancelText: 'Cancel',
-      onOk: async () => {
-        setAssignLoading(engineer.key);
-        try {
-          const payload: any = {
-            structureEngineerId: engineer.key
-          };
-
-          const res = await dispatch(updateLeadThunk({ id: leadId, details: payload })).unwrap();
-          // TODO: Implement assign API call
-          // await dispatch(assignStructuralEngineerThunk({ leadId, structuralEngineerId: engineer.key })).unwrap();
-          if (res) {
-            message.success(`${engineer.name} assigned successfully!`);
-          }
-        } catch (error) {
-          message.error('Failed to assign structural engineer');
-        } finally {
-          setAssignLoading(null);
-        }
-      },
-    });
+  const handleAssign = (record: any) => {
+    setSelectedQuotationVersion(record);
+    setModalOpen(true);
   };
 
-  const handleFileUpload: UploadProps['onChange'] = async (info) => {
+  const onStructuralEngineerSelect = async (engineer: any) => {
+    if (!selectedQuotationVersion) return;
+
+    try {
+      await dispatch(
+        updateQuotationVersion({
+          id: selectedQuotationVersion?.versionId,
+          data: { structureEngineerId: engineer?.structureEngineerId },
+        })
+      ).unwrap();
+      message.success('Engineer assigned successfully!');
+      setModalOpen(false);
+      setSelectedQuotationVersion(null);
+    } catch (error) {
+      message.error('Failed to assign engineer');
+    }
+  };
+
+  const handleUploadClick = (record: any) => {
+    setSelectedUploadVersion(record);
+  };
+
+  const handleFileUpload: UploadProps['onChange'] = async info => {
     const { file } = info;
 
     if (file.status === 'uploading') {
@@ -75,11 +74,13 @@ const StructuralEngineerAssignment: React.FC<StructuralEngineerAssignmentProps> 
 
     if (file.status === 'done') {
       try {
-        const payload: any = {
-          structureReportFile: file.originFileObj
-        };
-
-        const res = await dispatch(updateLeadThunk({ id: leadId, details: payload })).unwrap();
+        // Send binary file directly using the new upload thunk
+        const res = await dispatch(
+          updateQuotationVersion({
+            id: selectedUploadVersion?.versionId,
+            data: { uploadReport: file.originFileObj },
+          })
+        ).unwrap();
         if (res) {
           message.success('File uploaded successfully!');
         }
@@ -87,6 +88,7 @@ const StructuralEngineerAssignment: React.FC<StructuralEngineerAssignmentProps> 
         message.error('Failed to upload file');
       } finally {
         setUploadLoading(false);
+        setSelectedUploadVersion(null);
       }
     } else if (file.status === 'error') {
       message.error('File upload failed');
@@ -99,10 +101,9 @@ const StructuralEngineerAssignment: React.FC<StructuralEngineerAssignmentProps> 
     multiple: false,
     showUploadList: false,
     onChange: handleFileUpload,
-    beforeUpload: (file) => {
+    beforeUpload: file => {
       const isValidType = file.type === 'application/pdf';
       if (!isValidType) {
-
         message.error('You can only upload PDF files!');
         return false;
       }
@@ -115,145 +116,159 @@ const StructuralEngineerAssignment: React.FC<StructuralEngineerAssignmentProps> 
     },
   };
 
+  // Transform quotation versions data for table
+  const tableData = useMemo(() => {
+    const data: any[] = [];
+
+    quotation?.forEach((q: any) => {
+      if (q.versions && q.versions.length > 0) {
+        q.versions.forEach((v: any) => {
+          data.push({
+            key: v.quotationVersionId,
+            quotationReference: q.referenceNumber,
+            version: v,
+            versionNo: v.quotationVersionNo,
+            versionId: v.quotationVersionId,
+            structuralEngineer: structuralengg?.find(
+              (e: any) => e?.structureEngineerId === v?.structuralEngineer?.id
+            ),
+            quotation: q,
+          });
+        });
+      }
+    });
+
+    return data;
+  }, [quotation, structuralengg]);
+
   const columns = [
     {
+      title: 'Quotation',
+      key: 'quotation',
+      render: (_: any, record: any) => {
+        return (
+          <div style={{ fontWeight: 'bold' }}>
+            {record.quotationReference} V{record.versionNo}
+          </div>
+        );
+      },
+    },
+    {
       title: 'Name',
-      dataIndex: 'name',
       key: 'name',
-      // sorter: (a: StructuralEngineer, b: StructuralEngineer) => a.name.localeCompare(b.name),
+      render: (_: any, record: any) => {
+        return (
+          record?.structuralEngineer?.name || (
+            <span style={{ color: '#999', fontSize: '12px' }}>-</span>
+          )
+        );
+      },
     },
     {
       title: 'Email',
-      dataIndex: 'email',
       key: 'email',
-      // sorter: (a: StructuralEngineer, b: StructuralEngineer) => a.email.localeCompare(b.email),
+      render: (_: any, record: any) => {
+        return (
+          record.structuralEngineer?.email || (
+            <span style={{ color: '#999', fontSize: '12px' }}>-</span>
+          )
+        );
+      },
     },
     {
       title: 'Phone',
-      dataIndex: 'phone',
       key: 'phone',
-      // sorter: (a: StructuralEngineer, b: StructuralEngineer) => a.phone.localeCompare(b.phone),
-    },
-    {
-      title: 'Status',
-      dataIndex: 'isActive',
-      key: 'isActive',
-      render: (isActive: boolean, record: StructuralEngineer) => {
-        const isAssigned = leadDetail?.lead?.structureEngineerId === record.key;
-
-        if (isAssigned) {
-          return <Tag color="blue">Assigned</Tag>;
-        }
-
+      render: (_: any, record: any) => {
         return (
-          <Tag color={isActive ? 'green' : 'red'}>
-            {isActive ? 'Active' : 'Inactive'}
-          </Tag>
+          record.structuralEngineer?.phone || (
+            <span style={{ color: '#999', fontSize: '12px' }}>-</span>
+          )
         );
       },
-      // sorter: (a: StructuralEngineer, b: StructuralEngineer) => {
-      //   const aAssigned = leadDetail?.lead?.structureEngineerId === a.key;
-      //   const bAssigned = leadDetail?.lead?.structureEngineerId === b.key;
-
-      //   if (aAssigned && !bAssigned) return -1;
-      //   if (!aAssigned && bAssigned) return 1;
-
-      //   return Number(a.isActive) - Number(b.isActive);
-      // },
     },
     {
       title: 'Upload Report',
       key: 'upload',
       width: 180,
-      render: (_: any, record: StructuralEngineer) => {
-        const isAssigned = leadDetail?.lead?.structureEngineerId === record.key;
-        const currentFile = leadDetail?.lead?.structureReportFile;
+      render: (_: any, record: any) => {
+        const isAssigned = record?.version?.isApprove;
+        const currentFile = record?.version?.uploadReport;
 
         if (!isAssigned) {
           return <span style={{ color: '#999', fontSize: '12px' }}>-</span>;
         }
 
         return (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <div style={{ display: 'flex', gap: '4px' }}>
             {currentFile && (
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  padding: '2px 6px',
-                  backgroundColor: '#f6ffed',
-                  border: '1px solid #b7eb8f',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-                onClick={() => {
-                  const fileUrl = currentFile.startsWith('http')
-                    ? currentFile
-                    : `${process.env.NEXT_PUBLIC_API_URL || ''}${currentFile}`;
-                  window.open(fileUrl, '_blank', 'noopener,noreferrer');
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#d9f7be';
-                  e.currentTarget.style.borderColor = '#95de64';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#f6ffed';
-                  e.currentTarget.style.borderColor = '#b7eb8f';
-                }}
-                title="Click to open file in new tab"
-              >
-                <span style={{ fontSize: '12px', color: '#52c41a' }}>📄</span>
-                <span style={{
-                  fontSize: '11px',
-                  color: '#52c41a',
-                  maxWidth: '120px',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap'
-                }}>
-                  {currentFile.split('/').pop() || 'Current Report'}
-                </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    padding: '2px 6px',
+                    backgroundColor: '#f6ffed',
+                    border: '1px solid #b7eb8f',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    flex: 1,
+                  }}
+                  onClick={() => {
+                    const fileUrl = currentFile.startsWith('http')
+                      ? currentFile
+                      : `${process.env.NEXT_PUBLIC_API_URL || ''}${currentFile}`;
+                    window.open(fileUrl, '_blank', 'noopener,noreferrer');
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.backgroundColor = '#d9f7be';
+                    e.currentTarget.style.borderColor = '#95de64';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.backgroundColor = '#f6ffed';
+                    e.currentTarget.style.borderColor = '#b7eb8f';
+                  }}
+                  title="Click to open file in new tab"
+                >
+                  <span style={{ fontSize: '12px', color: '#52c41a' }}>📄</span>
+                  <span
+                    style={{
+                      fontSize: '11px',
+                      color: '#52c41a',
+                      maxWidth: '100px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {currentFile.split('/').pop() || 'Current Report'}
+                  </span>
+                </div>
               </div>
             )}
-            {!currentFile && (
-              <Upload {...uploadProps} accept='.pdf'>
+            <div onClick={() => handleUploadClick(record)}>
+              <Upload {...uploadProps} accept=".pdf">
                 <Button
-                disabled={!hasReport || leadDetail?.lead?.structureReportFile}  
+                  disabled={!record?.version?.structuralEngineer?.id}
                   type="default"
                   size="small"
-                  icon={<IconUpload size={14} />}
+                  icon={
+                    currentFile ? <IconUpload size={14} /> : <IconEdit size={14} className="mt-1" />
+                  }
                   loading={uploadLoading}
                   style={{
                     color: '#1890ff',
                     borderColor: '#1890ff',
                     height: '24px',
                     fontSize: '12px',
-                    padding: '0 8px'
+                    padding: '0 8px',
                   }}
                 >
-                  Upload
+                  {!currentFile && 'Upload'}
                 </Button>
               </Upload>
-            )}
-            {currentFile && (
-              <Button
-                type="default"
-                size="small"
-                disabled
-                style={{
-                  height: '24px',
-                  fontSize: '12px',
-                  padding: '0 8px',
-                  backgroundColor: '#f5f5f5',
-                  color: '#bfbfbf',
-                  borderColor: '#d9d9d9'
-                }}
-              >
-                Uploaded
-              </Button>
-            )}
+            </div>
           </div>
         );
       },
@@ -262,38 +277,32 @@ const StructuralEngineerAssignment: React.FC<StructuralEngineerAssignmentProps> 
       title: 'Action',
       key: 'action',
       width: 120,
-      render: (_: any, record: StructuralEngineer) => {
-        const isAssigned = leadDetail?.lead?.structureEngineerId === record.key;
+      render: (_: any, record: any) => {
+        const isApproved = record?.version?.isApprove;
+        const isDisabled = !record.version?.facadeId || !record.version?.floorPlanId || isApproved;
+        const tooltipText = isApproved
+          ? 'This quotation version is already approved'
+          : isDisabled
+            ? 'Please select floor plan and facade before assigning engineer'
+            : 'Assign structural engineer to this quotation version';
 
         return (
-          <Button
-            type={isAssigned ? "default" : "primary"}
-            size="small"
-            icon={<IconUserCheck size={16} />}
-            onClick={() => handleAssign(record)}
-            loading={assignLoading === record.key}
-            disabled={!hasReport || isAssigned || leadDetail?.lead?.structureReportFile}
-            style={{
-              backgroundColor: isAssigned ? '#f0f0f0' : (hasReport ? '#52c41a' : undefined),
-              borderColor: isAssigned ? '#d9d9d9' : (hasReport ? '#52c41a' : undefined),
-              color: isAssigned ? '#999' : undefined
-            }}
-          >
-            {isAssigned ? 'Assigned' : 'Assign'}
-          </Button>
+          <Tooltip title={tooltipText}>
+            <Button
+              type="primary"
+              size="small"
+              icon={<IconUserCheck size={16} />}
+              onClick={() => handleAssign(record)}
+              loading={assignLoading === record.key}
+              disabled={isDisabled}
+            >
+              {record?.version?.structuralEngineer?.id ? 'Change' : 'Assign'}
+            </Button>
+          </Tooltip>
         );
       },
     },
   ];
-
-  // Transform engineers data for table
-  const tableData = structuralengg && structuralengg.length > 0 ? structuralengg.map((engineer: any) => ({
-    key: engineer.structureEngineerId,
-    name: engineer.name,
-    email: engineer.email,
-    phone: engineer.phone,
-    isActive: engineer.isActive,
-  })) : [];
 
   return (
     <div>
@@ -323,11 +332,22 @@ const StructuralEngineerAssignment: React.FC<StructuralEngineerAssignmentProps> 
             pageSize: 10,
             showSizeChanger: true,
             showQuickJumper: true,
-            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} engineers`,
+            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
           }}
           rowKey="key"
         />
       )}
+
+      {/* Structural Engineer List Modal */}
+      <StructuralEngineerListModal
+        visible={modalOpen}
+        onCancel={() => {
+          setModalOpen(false);
+          setSelectedQuotationVersion(null);
+        }}
+        onAssign={onStructuralEngineerSelect}
+        selectedStructuralEngineer={selectedQuotationVersion?.structuralEngineer}
+      />
     </div>
   );
 };
