@@ -31,7 +31,7 @@ import {
   updateContact,
 } from '@redux/feature/contacts/contactThunk';
 import { IFloorPlanState } from '@redux/feature/floorPlan/IFloorPlanState';
-import { deleteQuotationPackageThunk } from '@redux/feature/quotation/quotationThunk';
+import { deleteQuotationPackageThunk, sendEmailToStructuralEngineer } from '@redux/feature/quotation/quotationThunk';
 import { Package } from '@redux/feature/package/IPackageState';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 import {
@@ -44,6 +44,7 @@ import LeadContactModel from '../common/Models/LeadContactModel';
 import { LeadContact } from '@redux/feature/lead/ILeadState';
 import StructuralEngineerListModal from '../common/Models/StructuralEngineerListModal';
 import { MdEngineering } from 'react-icons/md';
+import { setSendToEngineer } from '@redux/feature/quotation/quotationSlice';
 interface InfoCardsProps {
   propertyDetails?: any;
   selectedPlan?: IFloorPlanState;
@@ -54,7 +55,7 @@ interface InfoCardsProps {
   onFacadeSelect: (facade: IFacadeState) => void;
   onPackageSelect: (pkg: Package) => void;
   onStructuralEngineerSelect: (engineer: any) => void;
-  onPropertyUpdate: (property: PropertyDetails) => void;
+  onPropertyUpdate?: (property: PropertyDetails) => void;
   isReadOnly?: boolean;
   filters?: Record<string, string>;
 }
@@ -86,6 +87,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
     | null
   >(null);
   const [loading, setLoading] = useState(false);
+  const [emailLoading, setEmailLoading] = useState(false);
   const [selectedContact, setSelectedContact] = useState<IContact | null>(null);
   const { contact } = useAppSelector(state => state.contact);
   const dispatch = useAppDispatch();
@@ -127,7 +129,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
       setModalOpen(null);
       setLoading(false);
     } catch (error) {
-      message.error(error || 'Failed to save contact');
+      message.error((error as string) || error?.message || 'Failed to save contact');
     }
   };
 
@@ -140,20 +142,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
       await dispatch(deleteQuotationPackageThunk({ versionId, pkgId })).unwrap();
       message.success('Package deleted successfully');
     } catch (error) {
-      message.error(error || 'Failed to delete package');
-    }
-  };
-
-  const handleDeleteStructuralEngineer = async (versionId: string, engineerId: string) => {
-    try {
-      if (!versionId) {
-        message.error('Quotation version ID is required to delete structural engineer');
-        return;
-      }
-      // await dispatch(deleteQuotationStructuralEngineerThunk({ versionId, engineerId })).unwrap();
-      message.success('Structural engineer deleted successfully');
-    } catch (error) {
-      message.error(error || 'Failed to delete structural engineer');
+      message.error((error as string) || error?.message || 'Failed to delete package');
     }
   };
 
@@ -163,7 +152,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
       try {
         await dispatch(fetchAllContact({})).unwrap();
       } catch (error) {
-        message.error(error || 'Failed to fetch contacts');
+        message.error((error as string) || error?.message || 'Failed to fetch contacts');
       }
     }
   };
@@ -193,7 +182,33 @@ const InfoCards: React.FC<InfoCardsProps> = ({
       await dispatch(deleteLeadContactMapThunk(id));
       message.success('Contact removed successfully');
     } catch (error) {
-      message.error(error || 'Failed to remove lead contact');
+      message.error((error as string) || error?.message || 'Failed to remove lead contact');
+    }
+  };
+
+  const handleSendEmail = async () => {
+    if (!quoteDetails?.quotationVersionId) {
+      message.error('Quotation version is required');
+      return;
+    }
+    // Check if compaction report is required
+    if (!quoteDetails?.property?.compactionReportUrl) {
+      return;
+    }
+    try {
+      setEmailLoading(true);
+      await dispatch(
+        sendEmailToStructuralEngineer({
+          versionId: quoteDetails.quotationVersionId,
+        })
+      ).unwrap();
+      dispatch(setSendToEngineer());
+      message.success('Email sent to structural engineer successfully');
+
+    } catch (error) {
+      message.error((error as string) || error?.message || 'Failed to send email');
+    } finally {
+      setEmailLoading(false);
     }
   };
 
@@ -405,12 +420,12 @@ const InfoCards: React.FC<InfoCardsProps> = ({
           <div
             className={`shadow-sm transition-shadow bg-card-color rounded-lg border border-border-color p-6 ${isStructuralEngineerDisabled ? 'opacity-70' : 'hover:shadow-md cursor-pointer'}`}
             onClick={
-              !isStructuralEngineerDisabled && !isReadOnly
+              !isStructuralEngineerDisabled && !isReadOnly && !quoteDetails?.sendToEngineer
                 ? () => setModalOpen('structuralEngineer')
                 : undefined
             }
           >
-            { selectedFacade && !!quoteDetails?.structuralEngineer ? (
+            {selectedFacade && !!quoteDetails?.structuralEngineer ? (
               <>
                 <div className="flex items-center justify-between gap-2 mb-3">
                   <div className="flex items-center gap-2">
@@ -423,13 +438,41 @@ const InfoCards: React.FC<InfoCardsProps> = ({
                   <div className="flex items-center gap-2">
                     {!isReadOnly && (
                       <>
-                        <Tooltip title="Change Structural Engineer">
+                        <Popconfirm
+                          title={
+                            quoteDetails?.property?.compactionReportUrl
+                              ? "Are you sure you want to send email to structural engineer? After sending email, you cannot change structural engineer."
+                              : "Compaction report is required before sending email to structural engineer."
+                          }
+                          onConfirm={(e) => {
+                            e?.stopPropagation();
+                            handleSendEmail();
+                          }}
+                          onCancel={(e) => {
+                            e?.stopPropagation();
+                          }}
+                        >
+                          <Tooltip title="Send Email">
+                            <IconMail
+                              className={`cursor-pointer ${emailLoading ? 'text-blue-500 animate-pulse' : 'text-gray-500 hover:text-blue-500'}`}
+                              size={15}
+                              onClick={e => {
+                                e.stopPropagation();
+                              }}
+                            />
+                          </Tooltip>
+                        </Popconfirm>
+                        <Tooltip title={quoteDetails?.sendToEngineer ? "Email already sent - cannot change engineer" : "Change Structural Engineer"}>
                           <IconEdit
-                            className="text-gray-500 cursor-pointer hover:text-blue-500"
+                            className={`cursor-pointer ${quoteDetails?.sendToEngineer ? 'text-gray-300' : 'text-gray-500 hover:text-blue-500'}`}
                             size={15}
                             onClick={e => {
                               e.stopPropagation();
-                              setModalOpen('structuralEngineer');
+                              if (!quoteDetails?.sendToEngineer) {
+                                setModalOpen('structuralEngineer');
+                              } else {
+                                message.warning('Cannot change structural engineer after email has been sent');
+                              }
                             }}
                           />
                         </Tooltip>

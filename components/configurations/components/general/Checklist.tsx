@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Input, Select, Button, Space, Popconfirm, message } from 'antd';
+import { Table, Input, Select, Button, Space, Popconfirm, message, Form } from 'antd';
 import { IconCheck, IconTrash, IconEdit, IconPlus, IconX } from '@tabler/icons-react';
 import ChecklistDrawer from '../ChecklistDrawer';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
@@ -38,6 +38,7 @@ const Checklist = () => {
     functionalityId: string;
   } | null>(null);
   const [error, setError] = useState({ name: '', screenId: '', functionalityId: '' });
+  const [form] = Form.useForm();
   const screenOption =
     screen &&
     screen.map((item: screenTypeResponse) => ({ label: item.name, value: item.screenId }));
@@ -191,17 +192,41 @@ const Checklist = () => {
         if ((isAdding && index === 0 && !record.checklistId) || editingId === record.checklistId) {
           console.log(error);
           return (
-            <>
-              <Input
-                value={formRow.name}
-                onChange={e => {
-                  e.stopPropagation();
-                  setFormRow({ ...formRow, name: e.target.value });
-                }}
-                disabled={status.create === Status.PENDING}
-              />
-              {error?.name && <span className="text-red-500">{error?.name}</span>}
-            </>
+            <Form
+              form={form}
+              initialValues={{ name: formRow.name }}
+              onValuesChange={(changedValues) => {
+                if (changedValues.name !== undefined) {
+                  setFormRow({ ...formRow, name: changedValues.name });
+                }
+              }}
+            >
+              <Form.Item
+                name="name"
+                rules={[
+                  {
+                    validator: (_, value) => {
+                      if (value && (value.startsWith(' ') || value.endsWith(' '))) {
+                        return Promise.reject('Name cannot start or end with spaces');
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                  { required: true, message: 'Please enter name' },
+                  { min: 3, message: 'Name should contain at least 3 characters' },
+                  { max: 100, message: 'Name should not exceed 100 characters' },
+                ]}
+              >
+                <Input
+                  value={formRow.name}
+                  onChange={e => {
+                    e.stopPropagation();
+                    setFormRow({ ...formRow, name: e.target.value });
+                  }}
+                  disabled={status.create === Status.PENDING}
+                />
+              </Form.Item>
+            </Form>
           );
         }
         return record.name;

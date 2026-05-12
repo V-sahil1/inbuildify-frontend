@@ -156,7 +156,22 @@ export const LeadsOrOpportunities: React.FC = () => {
             <Form.Item
               label="Sales Won Button Text"
               name="salesWonButtonText"
-              rules={[{ required: true, message: 'Please enter sales won button text' }]}
+              rules={[
+                {
+                  validator: (_: any, value: string) => {
+                    if (!value) {
+                      return Promise.resolve();
+                    }
+                    if (value.startsWith(' ') || value.endsWith(' ')) {
+                      return Promise.reject('Sales won button text cannot start or end with spaces');
+                    }
+                    return Promise.resolve();
+                  },
+                },
+                { required: true, message: 'Please enter sales won button text' },
+                { min: 5, message: 'Sales won button text must be at least 5 characters long' },
+                { max: 100, message: 'Sales won button text cannot exceed 100 characters.' },
+              ]}
             >
               <Input placeholder="Won" />
             </Form.Item>

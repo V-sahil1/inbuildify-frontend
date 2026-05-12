@@ -159,7 +159,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
         message.success('Item added successfully');
       }
     } catch (error) {
-      message.error(error as string || 'Failed to update item. Please try again.');
+      message.error((error as string) || error?.message || 'Failed to update item. Please try again.');
     }
   };
 
@@ -181,7 +181,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
         message.success('Quantity updated successfully');
       }
     } catch (error) {
-      message.error(error as string || 'Failed to update quantity');
+      message.error((error as string) || error?.message || 'Failed to update quantity');
       throw error; // Re-throw to let child component handle revert
     }
   };
@@ -192,7 +192,7 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
         updateQuotationItemThunk({ quotationVersionItemId: itemId, note: notes })
       ).unwrap();
     } catch (error) {
-      message.error(error || 'Failed to update notes');
+      message.error((error as string) || error?.message || 'Failed to update notes');
     }
   };
 

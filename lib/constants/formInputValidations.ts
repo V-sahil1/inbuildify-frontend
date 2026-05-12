@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import type { Rule } from 'antd/es/form';
+import { message } from 'antd';
 
 export const passwordRules = [
   { required: true, message: 'Password is required' },
@@ -49,6 +50,18 @@ export const nameRules = [
           'Name must be at least 2 letters and at most 100 letters and can only contain letters and spaces'
         );
       }
+      if (value.startsWith(' ') || value.endsWith(' ')) {
+        return Promise.reject('Name cannot start or end with spaces');
+      }
+      return Promise.resolve();
+    },
+  },
+];
+export const packagenameRules = [
+  { required: true, message: 'Please enter name' },
+  {
+    validator: (_: any, value: string) => {
+      if (!value) return Promise.resolve();
       if (value.startsWith(' ') || value.endsWith(' ')) {
         return Promise.reject('Name cannot start or end with spaces');
       }
@@ -633,6 +646,18 @@ export const addressLine2Rules = [
 ];
 
 export const builderNameRules = [
+  // Check for spaces at start or end
+  {
+    validator: (_: any, value: string) => {
+      if (!value) {
+        return Promise.resolve();
+      }
+      if (value.startsWith(' ') || value.endsWith(' ')) {
+        return Promise.reject('Name cannot start or end with spaces');
+      }
+      return Promise.resolve();
+    },
+  },
   { min: 2, message: 'Name must be at least 2 characters long' },
   { max: 150, message: 'Name must not exceed 150 characters' },
   {

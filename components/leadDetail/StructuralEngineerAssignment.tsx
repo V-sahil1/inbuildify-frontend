@@ -30,9 +30,7 @@ const StructuralEngineerAssignment: React.FC<StructuralEngineerAssignmentProps> 
   const dispatch = useAppDispatch();
   const { status, structuralengg } = useAppSelector((state: any) => state.structural);
   const { quotation } = useAppSelector((state: any) => state.quotation);
-  const { leadDetail } = useAppSelector((state: any) => state.lead);
-  const [assignLoading, setAssignLoading] = useState<string | null>(null);
-  const [uploadLoading, setUploadLoading] = useState(false);
+  const [uploadLoading, setUploadLoading] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedQuotationVersion, setSelectedQuotationVersion] = useState<any>(null);
   const [selectedUploadVersion, setSelectedUploadVersion] = useState<any>(null);
@@ -68,7 +66,7 @@ const StructuralEngineerAssignment: React.FC<StructuralEngineerAssignmentProps> 
     const { file } = info;
 
     if (file.status === 'uploading') {
-      setUploadLoading(true);
+      setUploadLoading(selectedUploadVersion?.versionId);
       return;
     }
 
@@ -87,12 +85,11 @@ const StructuralEngineerAssignment: React.FC<StructuralEngineerAssignmentProps> 
       } catch (error) {
         message.error('Failed to upload file');
       } finally {
-        setUploadLoading(false);
-        setSelectedUploadVersion(null);
+        setUploadLoading(null);
       }
     } else if (file.status === 'error') {
       message.error('File upload failed');
-      setUploadLoading(false);
+      setUploadLoading(null);
     }
   };
 
@@ -191,12 +188,12 @@ const StructuralEngineerAssignment: React.FC<StructuralEngineerAssignmentProps> 
       key: 'upload',
       width: 180,
       render: (_: any, record: any) => {
-        const isAssigned = record?.version?.isApprove;
+        // const isAssigned = record?.version?.isApprove;
         const currentFile = record?.version?.uploadReport;
 
-        if (!isAssigned) {
-          return <span style={{ color: '#999', fontSize: '12px' }}>-</span>;
-        }
+        // if (!isAssigned) {
+        //   return <span style={{ color: '#999', fontSize: '12px' }}>-</span>;
+        // }
 
         return (
           <div style={{ display: 'flex', gap: '4px' }}>
@@ -247,28 +244,6 @@ const StructuralEngineerAssignment: React.FC<StructuralEngineerAssignmentProps> 
                 </div>
               </div>
             )}
-            <div onClick={() => handleUploadClick(record)}>
-              <Upload {...uploadProps} accept=".pdf">
-                <Button
-                  disabled={!record?.version?.structuralEngineer?.id}
-                  type="default"
-                  size="small"
-                  icon={
-                    currentFile ? <IconUpload size={14} /> : <IconEdit size={14} className="mt-1" />
-                  }
-                  loading={uploadLoading}
-                  style={{
-                    color: '#1890ff',
-                    borderColor: '#1890ff',
-                    height: '24px',
-                    fontSize: '12px',
-                    padding: '0 8px',
-                  }}
-                >
-                  {!currentFile && 'Upload'}
-                </Button>
-              </Upload>
-            </div>
           </div>
         );
       },
@@ -278,44 +253,84 @@ const StructuralEngineerAssignment: React.FC<StructuralEngineerAssignmentProps> 
       key: 'action',
       width: 120,
       render: (_: any, record: any) => {
-        const isApproved = record?.version?.isApprove;
-        const isDisabled = !record.version?.facadeId || !record.version?.floorPlanId || isApproved;
-        const tooltipText = isApproved
-          ? 'This quotation version is already approved'
-          : isDisabled
-            ? 'Please select floor plan and facade before assigning engineer'
-            : 'Assign structural engineer to this quotation version';
+        // const isAssigned = record?.version?.isApprove;
+        const currentFile = record?.version?.uploadReport;
+
+        // if (!isAssigned) {
+        //   return <span style={{ color: '#999', fontSize: '12px' }}>-</span>;
+        // }
 
         return (
-          <Tooltip title={tooltipText}>
-            <Button
-              type="primary"
-              size="small"
-              icon={<IconUserCheck size={16} />}
-              onClick={() => handleAssign(record)}
-              loading={assignLoading === record.key}
-              disabled={isDisabled}
-            >
-              {record?.version?.structuralEngineer?.id ? 'Change' : 'Assign'}
-            </Button>
-          </Tooltip>
+          <div style={{ display: 'flex', gap: '4px' }}>
+            <div onClick={() => handleUploadClick(record)}>
+              <Upload {...uploadProps} accept=".pdf">
+                <Button
+                  disabled={!record?.version?.structuralEngineer?.id}
+                  type="default"
+                  size="small"
+                  icon={
+                    currentFile ? <IconEdit size={14} className="mt-1" /> : <IconUpload size={14} />
+                  }
+                  loading={uploadLoading === record.versionId}
+                  style={{
+                    color: '#1890ff',
+                    borderColor: '#1890ff',
+                    height: '24px',
+                    fontSize: '12px',
+                    padding: '0 8px',
+                  }}
+                >
+                  {currentFile ? 'Replace' : 'Upload'}
+                </Button>
+              </Upload>
+            </div>
+          </div>
         );
       },
-    },
+    }
+    // {
+    //   title: 'Action',
+    //   key: 'action',
+    //   width: 120,
+    //   render: (_: any, record: any) => {
+    //     const isApproved = record?.version?.isApprove;
+    //     const isDisabled = !record.version?.facadeId || !record.version?.floorPlanId || isApproved;
+    //     const tooltipText = isApproved
+    //       ? 'This quotation version is already approved'
+    //       : isDisabled
+    //         ? 'Please select floor plan and facade before assigning engineer'
+    //         : 'Assign structural engineer to this quotation version';
+
+    //     return (
+    //       <Tooltip title={tooltipText}>
+    //         <Button
+    //           type="primary"
+    //           size="small"
+    //           icon={<IconUserCheck size={16} />}
+    //           onClick={() => handleAssign(record)}
+    //           loading={assignLoading === record.key}
+    //           disabled={isDisabled}
+    //         >
+    //           {record?.version?.structuralEngineer?.id ? 'Change' : 'Assign'}
+    //         </Button>
+    //       </Tooltip>
+    //     );
+    //   },
+    // },
   ];
 
   return (
     <div>
-      <div className="mb-4">
-        <Typography.Title level={4}>Assign Structural Engineer</Typography.Title>
+      <div className="my-4">
+        <Typography.Title level={4}>Structural Engineer</Typography.Title>
         {!hasReport && (
           <Tag color="orange" className="mb-4">
-            No report available - Assignment is disabled
+            No report available
           </Tag>
         )}
         {hasReport && (
           <Tag color="green" className="mb-4">
-            Report available - You can assign structural engineers
+            Report available
           </Tag>
         )}
       </div>
