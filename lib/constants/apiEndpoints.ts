@@ -264,6 +264,7 @@ class API_ENDPOINTS {
   public static QUOTATION_CUSTOM_SECTION = '/quotation-version-custom-section';
   public static QUOTATION_VERSION_PDF = (id: string) => `${this.QUOTATION_VERSION}/${id}/pdf`;
   public static QUOTATION_EXTRA_ITEM = `${this.QUOTATION_VERSION_ITEM}/extra-item`
+  public static QUOTATION_SEND_EMAIL = (versionId: string) => `${this.QUOTATION_VERSION}/${versionId}/send`;
 
   // location
   public static COUNTRY_BASE = '/country';

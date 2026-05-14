@@ -488,3 +488,16 @@ export const getQuotationPdf = createAsyncThunk(
     }
   }
 );
+
+
+export const sendQuotationEmailThunk = createAsyncThunk(
+  'quotation/sendQuotationEmail',
+  async ({ versionId }: { versionId: string }, { rejectWithValue }) => {
+    try {
+      const res = await api.post<ApiResponse>(API_ENDPOINTS.QUOTATION_SEND_EMAIL(versionId), {});
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error?.response?.data?.message || error.message);
+    }
+  }
+);

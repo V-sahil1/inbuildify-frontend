@@ -11,6 +11,7 @@ import {
   createQuotationCustomSection,
   deleteQuotationCustomSection,
   updateQuotationCustomSection,
+  sendQuotationEmailThunk,
 } from '@redux/feature/quotation/quotationThunk';
 import { Status } from '@lib/constants/enum';
 import { useRouter } from 'next/navigation';
@@ -54,6 +55,7 @@ const FooterActions: React.FC<FooterActionsProps> = ({
   const { quoteDetails, customSections, status } = useAppSelector(state => state.quotation);
   const [modalOpen, setModalOpen] = useState<'approval' | 'save' | 'custom' | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isEmailSending, setIsEmailSending] = useState(false);
   const [sketchNum, setSketchNum] = useState('');
   const [validationError, setValidationError] = useState('');
   const previewMenu = [
@@ -165,6 +167,22 @@ const FooterActions: React.FC<FooterActionsProps> = ({
     }
   };
 
+  const handleSendEmail = async () => {
+    if (!quoteVersionId) {
+      message.error('No quotation version found');
+      return;
+    }
+    try {
+      setIsEmailSending(true);
+      await dispatch(sendQuotationEmailThunk({ versionId: quoteVersionId })).unwrap();
+      message.success('Quotation email is being processed and will be sent to the customer shortly.');
+    } catch (error) {
+      message.error(typeof error === 'string' ? error : 'Failed to queue quotation email');
+    } finally {
+      setIsEmailSending(false);
+    }
+  };
+
   const handleQuotationApproval = async () => {
     try {
       setIsLoading(true);
@@ -246,7 +264,12 @@ const FooterActions: React.FC<FooterActionsProps> = ({
           >
             Approve
           </Button>
-          <Button type="primary" onClick={() => {}} disabled={disableAction}>
+          <Button
+            type="primary"
+            onClick={handleSendEmail}
+            loading={isEmailSending}
+            disabled={disableAction || isEmailSending}
+          >
             Email
           </Button>
           <Dropdown
