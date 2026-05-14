@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import type { MenuProps } from 'antd';
 import {
   Button,
@@ -17,39 +17,13 @@ import {
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import RichTextEditor from '@/components/common/rich-text-editor/RichTextEditor';
 
-const formatColumn1 = [
-  { label: 'Builder Name', value: 'My Home' },
-  { label: 'Logo Alignment', value: 'Left' },
-  { label: 'Logo Size', value: 'Standard' },
-  { label: 'Logo Padding', value: 'Normal' },
-  { label: 'Show Job Address in Quotation Footer', value: 'No' },
-  { label: 'Label Logo Size', value: 'Default' },
-  { label: 'Custom Footer', value: 'No' },
-];
-
-const formatColumn2 = [
-  { label: 'Format Name', value: 'Quotation' },
-  { label: 'Show Account', value: 'Builder Account' },
-  { label: 'Hide logo from first page', value: 'No' },
-  { label: 'Water Mark', value: <button className="text-primary">Preview</button> },
-  { label: 'Default Facade', value: '' },
-  { label: 'Draft Background', value: <button className="text-primary">Preview</button> },
-  { label: 'Hide watermark / background from first page', value: 'No' },
-];
-
-const formatColumn3 = [
-  { label: 'Status', value: <Tag color="green">Active</Tag> },
-  { label: 'Default', value: 'Yes' },
-  { label: 'Include Package in Price List', value: 'Yes' },
-  { label: 'ShowExcel', value: 'No' },
-  { label: 'Roles Can View', value: 'Select Role' },
-];
 
 interface QuotationFormatDetailsProps {
   startInEdit?: boolean;
+  quotationFormatData?: any;
 }
 
-const QuotationFormatDetails: React.FC<QuotationFormatDetailsProps> = ({ startInEdit }) => {
+const QuotationFormatDetails: React.FC<QuotationFormatDetailsProps> = ({ startInEdit, quotationFormatData }) => {
   const [isEditing, setIsEditing] = useState(!!startInEdit);
   const [form] = Form.useForm();
   const [footerColumnsState, setFooterColumnsState] = useState<number>(0);
@@ -59,6 +33,107 @@ const QuotationFormatDetails: React.FC<QuotationFormatDetailsProps> = ({ startIn
     defaultFacade: boolean;
     draftBackground: boolean;
   }>({ watermark: false, defaultFacade: false, draftBackground: false });
+
+  // Initialize form with API data when available
+  React.useEffect(() => {
+    if (quotationFormatData && !isEditing) {
+      const data = quotationFormatData;
+      form.setFieldsValue({
+        builderName: data.builderInfo?.name || '',
+        formatName: data.formatName || '',
+        status: data.status ?'active' : 'inactive',
+        makeDefault: data.makeDefault || false,
+        showAccount: data.showAccount || 'Builder Account',
+        showExel: data.showExcel || false,
+        hideLogoFirstPage: data.hideLogoFirstPage || false,
+        showJobAddress: data.showJobAddress,
+        customFooter: data.customFooter,
+        draftBackground: data.draftBackground,
+        hideWatermarkFirstPage: data.hideLogoFirstPage || false,
+        includePackage: data.includePackagePriceList || false,
+        logoAlignment: data.logoAlignment
+          ? data.logoAlignment.charAt(0).toUpperCase() + data.logoAlignment.slice(1).toLowerCase()
+          : '',
+        logoWidth: data.logoSizeWidth || '',
+        logoHeight: data.logoSizeHeight || '',
+        logoPadding: data.logoPadding || '',
+        labelLogoWidth: data.labelLogoSizeWidth || '',
+        labelLogoHeight: data.labelLogoSizeHeight || '',
+      });
+      
+      // Set asset flags based on API data
+      setAssetFlags({
+        watermark: !!data.watermark,
+        defaultFacade: !!data.defaultFacade,
+        draftBackground: !!data.draftBackground,
+      });
+    }
+  }, [quotationFormatData, isEditing, form]);
+
+  // Create dynamic display columns based on API data
+  const displayColumns = useMemo(() => {
+    if (!quotationFormatData) {
+      return [
+        [
+          { label: 'Builder Name', value: 'My Home' },
+          { label: 'Logo Alignment', value: 'Left' },
+          { label: 'Logo Size', value: 'Standard' },
+          { label: 'Logo Padding', value: 'Normal' },
+          { label: 'Show Job Address in Quotation Footer', value: 'No' },
+          { label: 'Label Logo Size', value: 'Default' },
+          { label: 'Custom Footer', value: 'No' },
+        ],
+        [
+          { label: 'Format Name', value: 'Quotation' },
+          { label: 'Show Account', value: 'Builder Account' },
+          { label: 'Hide logo from first page', value: 'No' },
+          { label: 'Water Mark', value: <button className="text-primary">Preview</button> },
+          { label: 'Default Facade', value: '' },
+          { label: 'Draft Background', value: <button className="text-primary">Preview</button> },
+          { label: 'Hide watermark / background from first page', value: 'No' },
+        ],
+        [
+          { label: 'Status', value: <Tag color="green">Active</Tag> },
+          { label: 'Default', value: 'Yes' },
+          { label: 'Include Package in Price List', value: 'Yes' },
+          { label: 'ShowExcel', value: 'No' },
+          { label: 'Roles Can View', value: 'Select Role' },
+        ],
+      ];
+    }
+
+    const data = quotationFormatData;
+    
+    const formatColumn1 = [
+      { label: 'Builder Name', value: data.builderInfo?.name || '' },
+      { label: 'Logo Alignment', value: data.logoAlignment || 'Left' },
+      { label: 'Logo Size', value: `${data.logoSizeWidth || ''} x ${data.logoSizeHeight || ''}` },
+      { label: 'Logo Padding', value: data.logoPadding || 'Normal' },
+      { label: 'Show Job Address in Quotation Footer', value: data.showJobAddress ? 'Yes' : 'No' },
+      { label: 'Label Logo Size', value: `${data.labelLogoSizeWidth || ''} x ${data.labelLogoSizeHeight || ''}` },
+      { label: 'Custom Footer', value: data.customFooter ? 'Yes' : 'No' },
+    ];
+
+    const formatColumn2 = [
+      { label: 'Format Name', value: data.formatName || '' },
+      { label: 'Show Account', value: data.showAccount || 'Builder Account' },
+      { label: 'Hide logo from first page', value: data.hideLogoFirstPage ? 'Yes' : 'No' },
+      { label: 'Water Mark', value: data.watermark ? <button className="text-primary">Preview</button> : '' },
+      { label: 'Default Facade', value: data.defaultFacade ? <button className="text-primary">Preview</button> : '' },
+      { label: 'Draft Background', value: data.draftBackground ? <button className="text-primary">Preview</button> : '' },
+      { label: 'Hide watermark / background from first page', value: data.hideWatermarkFirstPage ? 'Yes' : 'No' },
+    ];
+
+    const formatColumn3 = [
+      { label: 'Status', value: <Tag color={data.status ? 'green' : 'red'}>{data.status ? 'Active' : 'Inactive'}</Tag> },
+      { label: 'Default', value: data.makeDefault ? 'Yes' : 'No' },
+      { label: 'Include Package in Price List', value: data.includePackagePriceList ? 'Yes' : 'No' },
+      { label: 'ShowExcel', value: data.showExcel ? 'Yes' : 'No' },
+      { label: 'Roles Can View', value: data.roles?.map((r: any) => r.name).join(', ') || 'Select Role' },
+    ];
+
+    return [formatColumn1, formatColumn2, formatColumn3];
+  }, [quotationFormatData]);
 
   const handleEditClick = () => {
     
@@ -133,7 +208,7 @@ const QuotationFormatDetails: React.FC<QuotationFormatDetailsProps> = ({ startIn
 
       {!isEditing ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-font-color">
-          {[formatColumn1, formatColumn2, formatColumn3].map((col, colIndex) => (
+          {displayColumns.map((col, colIndex) => (
             <div key={colIndex} className="space-y-3">
               {col.map(item => (
                 <div key={item.label} className="flex justify-between gap-4">

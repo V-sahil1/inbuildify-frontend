@@ -1,8 +1,11 @@
 import { Button, Dropdown, Input, Popover, Select, Space, Tag, type MenuProps } from 'antd';
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { debouncedURL } from '@lib/utils/debounceURL';
 import DateFilterDropdown from '@/components/common/custom-selects/DateFilterDropdown';
 import { IconCopy, IconDotsVertical, IconExternalLink } from '@tabler/icons-react';
+import { useAppDispatch } from '@hooks/redux';
+import { getallQuotationFormatThunk } from '@redux/feature/quotation-format/quotationFormatThunk';
+import { formatDate } from '@lib/utils/formatDate';
 
 const { Option } = Select;
 
@@ -17,46 +20,35 @@ export interface QuotationFormat {
 }
 
 export const useQuotationFormatColumns = () => {
-  const initialData: QuotationFormat[] = [
-    {
-      key: '1',
-      builderName: 'My Home',
-      formatName: 'Quotation',
-      created: '09-05-2020',
-      updated: '24-03-2025',
-      isActive: true,
-      defaultQuotation: true,
-    },
-    {
-      key: '2',
-      builderName: 'My Home',
-      formatName: 'Preliminary Agreement',
-      created: '07-12-2022',
-      updated: '25-03-2025',
-      isActive: true,
-      defaultQuotation: false,
-    },
-    {
-      key: '3',
-      builderName: 'My Home',
-      formatName: 'Quotation With Specification',
-      created: '17-07-2020',
-      updated: '13-10-2022',
-      isActive: false,
-      defaultQuotation: false,
-    },
-    {
-      key: '4',
-      builderName: 'My Home',
-      formatName: 'MG Quotation Format',
-      created: '05-10-2021',
-      updated: '10-08-2020',
-      isActive: true,
-      defaultQuotation: true,
-    },
-  ];
+  const [quotationFormat, setQuotationFormat] = React.useState<any[]>([]);
+  const dispatch = useAppDispatch();
 
-  const [data] = useState<QuotationFormat[]>(initialData);
+  useEffect(() => {
+    try {
+      if (quotationFormat.length === 0) {
+        // Fetch quotation formats
+        const res = dispatch(getallQuotationFormatThunk()).unwrap();
+        res.then((data) => {
+          setQuotationFormat(data.quotationFormats);
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching quotation formats:', error);
+    }
+  }, [dispatch, quotationFormat]);
+  
+  const data: QuotationFormat[] = useMemo(() => {
+    return quotationFormat?.map((item: any, index: number) => ({
+      key: item.quotationFormatId || index.toString(),
+      builderName: item.builderInfo?.name || '',
+      formatName: item.formatName || '',
+      created: new Date(item?.createdAt).toLocaleDateString() || '',
+      updated: new Date(item?.updatedAt).toLocaleDateString() || '',
+      isActive: item.status || false,
+      defaultQuotation: item.isDefault || false,
+    })) || [];
+  }, [quotationFormat]);
+  
   const [warningForKey, setWarningForKey] = useState<string | null>(null);
 
   const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
@@ -181,9 +173,8 @@ export const useQuotationFormatColumns = () => {
           <div>
             <span className="flex items-center gap-1">
               <span
-                className={`inline-block w-2 h-2 rounded-full ${
-                  value ? 'bg-green-500' : 'bg-red-400'
-                }`}
+                className={`inline-block w-2 h-2 rounded-full ${value ? 'bg-green-500' : 'bg-red-400'
+                  }`}
               />
               <span>{value ? 'Yes' : 'No'}</span>
             </span>

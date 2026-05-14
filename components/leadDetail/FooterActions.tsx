@@ -257,6 +257,7 @@ const FooterActions: React.FC<FooterActionsProps> = ({
               },
             }}
             placement='top'
+            disabled={disableAction || previewLoading}
           >
             <Button
               icon={<IconEye size={16} />}

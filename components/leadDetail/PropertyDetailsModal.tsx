@@ -97,7 +97,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
           ? {
             ...values,
             compactionReportContent: compactionInfo,
-            compactionReportUrl: uploadedPdf,
+            compactionReportUrl: uploadedPdf, // This will now be a File object instead of blob URL
             titleDate: values.titleDate?.format('YYYY-MM-DD'),
             clearingDate: values.clearingDate?.format('YYYY-MM-DD'),
           }
@@ -351,9 +351,18 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
     setCompactionInfo(values);
     try {
       let pdfUrl = null;
+      let pdfFile = null;
       // Generate PDF from form data
       pdfUrl = await generatePdfUrl(values);
-      setUploadedPdf(pdfUrl as any);
+      // Convert blob URL to File object
+      if (pdfUrl && pdfUrl.startsWith('blob:')) {
+        const response = await fetch(pdfUrl);
+        const blob = await response.blob();
+        pdfFile = new File([blob], 'compaction-report.pdf', { type: 'application/pdf' });
+        setUploadedPdf(pdfFile as any);
+      } else {
+        setUploadedPdf(pdfUrl as any);
+      }
       setCompactionOpen(false);
     } catch (error) {
       message.error('Error processing compaction report');

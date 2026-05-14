@@ -265,6 +265,9 @@ class API_ENDPOINTS {
   public static QUOTATION_VERSION_PDF = (id: string) => `${this.QUOTATION_VERSION}/${id}/pdf`;
   public static QUOTATION_EXTRA_ITEM = `${this.QUOTATION_VERSION_ITEM}/extra-item`
 
+  //quotation-format
+  public static QUOTATION_FORMAT = '/quotation-format';
+
   // location
   public static COUNTRY_BASE = '/country';
   public static STATE_BASE = '/state';

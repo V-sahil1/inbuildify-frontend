@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button, Table, Tabs, Typography } from 'antd';
 import { useRouter } from 'next/router';
 import QuotationFormatDetails from './QuotationFormatDetails';
@@ -11,6 +11,8 @@ import {
   getCustomGroupFields,
   getSectionDetailsFields,
 } from '@/components/formFields/quotationFormatFields';
+import { useAppDispatch } from '@hooks/redux';
+import { getQuotationFormatByIdThunk } from '@redux/feature/quotation-format/quotationFormatThunk';
 
 const { TabPane } = Tabs as any;
 
@@ -20,11 +22,28 @@ interface QuotationFormatFormProps {
 
 const QuotationFormatForm: React.FC<QuotationFormatFormProps> = ({ id }) => {
   const router = useRouter();
+  const dispatch = useAppDispatch();
+  const [quotationFormatData, setQuotationFormatData] = React.useState<any>(null);
 
   const { columns: quoteColumns, data: quoteSections } = useQuotationSectionColumns();
   const { columns: customColumns, data: customRows } = useCustomSectionColumns();
 
   const isCreate = !id;
+
+  // Fetch quotation format by ID when navigating to detail page
+  useEffect(() => {
+    if (id) {
+      dispatch(getQuotationFormatByIdThunk(id as string))
+        .unwrap()
+        .then((response) => {
+          console.log('Quotation format details:', response);
+          setQuotationFormatData(response);
+        })
+        .catch((error) => {
+          console.error('Error fetching quotation format:', error);
+        });
+    }
+  }, [id, dispatch]);
 
   const [activeTab, setActiveTab] = React.useState<'quote' | 'master' | 'custom'>('quote');
   const [activeModal, setActiveModal] = React.useState<
@@ -63,7 +82,7 @@ const QuotationFormatForm: React.FC<QuotationFormatFormProps> = ({ id }) => {
         </div>
       </div>
 
-      <QuotationFormatDetails startInEdit={isCreate} />
+      <QuotationFormatDetails startInEdit={isCreate} quotationFormatData={quotationFormatData} />
 
       <Tabs
         defaultActiveKey="quote"
