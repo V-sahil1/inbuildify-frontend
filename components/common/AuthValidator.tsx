@@ -28,7 +28,7 @@ export default function AuthValidator({ children }) {
   const router = useRouter();
   const pathname = usePathname();
   const dispatch = useAppDispatch();
-  const { isAuthenticated, status } = useAppSelector(state => state.auth);
+  const { isAuthenticated, status, user } = useAppSelector(state => state.auth);
   const [authState, setAuthState] = useState<AuthState>('checking');
 
   function normalizePath(path: string) {
@@ -36,7 +36,7 @@ export default function AuthValidator({ children }) {
     return path?.replace(/\/+$/, '');
   }
   const normalizedPath = normalizePath(pathname);
-  const isPublicRoute = publicRoutes.includes(normalizedPath);
+  const isPublicRoute = publicRoutes.includes(normalizedPath) || normalizedPath.startsWith('/external');
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
@@ -60,11 +60,25 @@ export default function AuthValidator({ children }) {
       }
 
       try {
+        let fetchedUser = null;
         if (status !== Status.SUCCESS && status !== Status.ERROR) {
-          await Promise.race([
-            dispatch(getUserThunk()).unwrap(),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('Auth timeout')), 10000)),
-          ]);
+          try {
+            fetchedUser = await Promise.race([
+              dispatch(getUserThunk()).unwrap(),
+              new Promise((_, reject) => setTimeout(() => reject(new Error('Auth timeout')), 10000)),
+            ]);
+          } catch (e) {
+            // swallow, will handle below
+          }
+        }
+
+        const effectiveUser = fetchedUser || user;
+
+        // If authenticated user hasn't finished onboarding, send them to onboarding
+        if (effectiveUser && effectiveUser.isOnboardingFinished === false && normalizedPath !== '/onboarding') {
+          setAuthState('redirecting');
+          timeoutId = setTimeout(() => router.replace('/onboarding'), 300);
+          return;
         }
 
         if (isPublicRoute && isAuthenticated) {

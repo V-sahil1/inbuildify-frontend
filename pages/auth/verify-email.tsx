@@ -121,7 +121,7 @@ export default function VerifyEmail() {
     try {
       await dispatch(VerifyEmailThunk({ otp: otp, email })).unwrap();
       message.success('Verification successful! OTP');
-      router.push('/auth/sign-in');
+      router.push('/onboarding');
     } catch (error) {
       message.error(error || 'Failed to verify OTP');
     }

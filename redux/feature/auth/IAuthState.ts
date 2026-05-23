@@ -27,6 +27,19 @@ export interface User {
   rootUser: boolean;
   createdAt: string;
   updatedAt: string;
+  isOnboardingFinished?: boolean;
+  company?: {
+    companyId?: string;
+    name?: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    postcode?: string;
+    website?: string;
+    abn?: string;
+    timezoneId?: string;
+    logo?: string;
+  };
 }
 
 export interface LoginResponse {
@@ -35,7 +48,8 @@ export interface LoginResponse {
 }
 
 export interface RegisterUser {
-  name: string;
+  name?: string;
+  companyName?: string;
   email: string;
   password: string;
   roleId: string;

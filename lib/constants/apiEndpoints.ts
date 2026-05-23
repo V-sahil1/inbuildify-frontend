@@ -8,6 +8,7 @@ class API_ENDPOINTS {
   public static LOGIN = `${this.AUTH_BASE}/login`;
   public static REFRESH_TOKEN = `${this.AUTH_BASE}/refresh-token`;
   public static REGISTER_BASE = `${this.AUTH_BASE}/register`;
+  public static COMPANY_REGISTER = '/company-signup';
   public static VERIFY_EMAIL = `${this.AUTH_BASE}/verify-email`;
   public static RESEND_OTP = `${this.AUTH_BASE}/resend-otp`;
   public static FORGOT_PASSWORD = `${this.AUTH_BASE}/forgot-password`;
@@ -284,6 +285,7 @@ class API_ENDPOINTS {
   public static GENERAL_SETTING = '/general-setting';
   public static GET_GENERAL_SETTING = `${this.GENERAL_SETTING}/user`;
   public static COMPANY_BASE = '/company';
+  public static COMPANY_ONBOARDING = `/company-onboarding`;
   // public static BUILDER_BASE = '/builder';
   public static SURVEYOR_BASE = '/surveyor';
   public static CUSTOMFIELD_BASE = '/custom-field';
