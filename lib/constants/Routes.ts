@@ -15,6 +15,7 @@ class SystemRoutes {
   public static APPROVAL = `/approve`;
   public static APPROVAL_WITH_PARAMS = (email: string, quotationId: string, envelopeId: string) =>
     `${this.APPROVAL}?email=${email}&quotationId=${quotationId}&envelopeId=${envelopeId}`;
+  public static EXTERNAL = `/external`;
   public static SETTINGS = `/settings`;
   public static SETTINGS_COLOUR = `${this.SETTINGS}/?tab=colour`;
   public static DWELLING_AND_RANGE = `${this.SETTINGS}/?tab=range-dwelling`;

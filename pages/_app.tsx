@@ -110,7 +110,7 @@ export default function App({ Component, pageProps }) {
               </div>
             )}
             {/* Special handling for approval page - no layout, no auth required */}
-            {pageUrl === '/approve' ? (
+            {pageUrl === '/approve' || pageUrl.startsWith('/external') ? (
               <Component {...pageProps} />
             ) : isAuthRoute ? (
               <AuthLayout>

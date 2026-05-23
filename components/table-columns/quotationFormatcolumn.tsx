@@ -21,19 +21,25 @@ export interface QuotationFormat {
 
 export const useQuotationFormatColumns = () => {
   const [quotationFormat, setQuotationFormat] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState(false);
+  const [isIdle, setIsIdle] = React.useState(true);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     try {
-      if (quotationFormat.length === 0) {
+      setLoading(true); 
+      if (quotationFormat.length === 0 && isIdle) {
         // Fetch quotation formats
         const res = dispatch(getallQuotationFormatThunk()).unwrap();
         res.then((data) => {
           setQuotationFormat(data.quotationFormats);
         });
+        setIsIdle(false);
       }
     } catch (error) {
       console.error('Error fetching quotation formats:', error);
+    } finally {
+      setLoading(false);
     }
   }, [dispatch, quotationFormat]);
   

@@ -567,12 +567,44 @@ export const accountBsbRules = [
 ];
 
 export const cityRules = [
+  {
+    validator: (_: any, value: string) => {
+      if (!value) {
+        return Promise.resolve();
+      }
+      if (value.startsWith(' ') || value.endsWith(' ')) {
+        return Promise.reject('City cannot start or end with spaces');
+      }
+      return Promise.resolve();
+    },
+  },
   { required: true, message: 'City is required' },
   { min: 2, message: 'City must be at least 2 characters long' },
   { max: 100, message: 'City must not exceed 100 characters' },
   {
     pattern: /^(?=.*[A-Za-z])[A-Za-z\s.-]+$/,
     message: 'City must contain only letters and valid characters (space, dot, hyphen)',
+  },
+];
+
+export const stateRules = [
+  {
+    validator: (_: any, value: string) => {
+      if (!value) {
+        return Promise.resolve();
+      }
+      if (value.startsWith(' ') || value.endsWith(' ')) {
+        return Promise.reject('State cannot start or end with spaces');
+      }
+      return Promise.resolve();
+    },
+  },
+  { required: true, message: 'State is required' },
+  { min: 2, message: 'State must be at least 2 characters long' },
+  { max: 100, message: 'State must not exceed 100 characters' },
+  {
+    pattern: /^(?=.*[A-Za-z])[A-Za-z\s.-]+$/,
+    message: 'State must contain only letters and valid characters (space, dot, hyphen)',
   },
 ];
 
@@ -616,6 +648,17 @@ export const registrationNumberRules = [
   },
 ];
 export const addressLine1Rules = [
+  {
+    validator: (_: any, value: string) => {
+      if (!value) {
+        return Promise.resolve();
+      }
+      if (value.startsWith(' ') || value.endsWith(' ')) {
+        return Promise.reject('Address cannot start or end with spaces');
+      }
+      return Promise.resolve();
+    },
+  },
   { required: true, message: 'Address line 1 is required' },
   { min: 10, message: 'Address must be at least 10 characters long' },
   { max: 255, message: 'Address must not exceed 255 characters' },

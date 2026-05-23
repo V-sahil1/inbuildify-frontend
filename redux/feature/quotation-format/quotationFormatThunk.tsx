@@ -1,7 +1,7 @@
 import API_ENDPOINTS from "@lib/constants/apiEndpoints";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { ApiResponse } from "../auth/IAuthState";
-import api from "@lib/constants/api";
+import api, { apiWithFormDataMethods } from "@lib/constants/api";
 
 export const getallQuotationFormatThunk = createAsyncThunk(
     'quotationFormat/getall',
@@ -27,4 +27,31 @@ export const getQuotationFormatByIdThunk = createAsyncThunk(
             return error.message;
         }
     }
+);
+
+
+export const createQuotationFormatThunk = createAsyncThunk(
+  'quotationFormat/create',
+  async (payload: any, { rejectWithValue }) => {
+    try {
+      const res = await api.post<ApiResponse>(API_ENDPOINTS.QUOTATION_FORMAT, 
+        {data: payload}
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const updateQuotationFormatThunk = createAsyncThunk(
+  'quotationFormat/update',
+  async ({ id, payload }: { id: string; payload: any }, { rejectWithValue }) => {
+    try {
+      const res = await api.put<ApiResponse>(`${API_ENDPOINTS.QUOTATION_FORMAT}/${id}`, payload);
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
 );

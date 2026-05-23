@@ -193,6 +193,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
     }
     // Check if compaction report is required
     if (!quoteDetails?.property?.compactionReportUrl) {
+      // message.error('Compaction report is required');
       return;
     }
     try {

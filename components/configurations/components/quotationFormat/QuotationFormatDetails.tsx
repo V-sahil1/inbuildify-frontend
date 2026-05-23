@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import type { MenuProps } from 'antd';
 import {
   Button,
@@ -7,6 +7,7 @@ import {
   Dropdown,
   Form,
   Input,
+  message,
   Popconfirm,
   Radio,
   Select,
@@ -14,8 +15,12 @@ import {
   Tag,
   Upload,
 } from 'antd';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { fetchRole } from '@redux/feature/admin/role/roleThunk';
+import { Status } from '@lib/constants/enum';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import RichTextEditor from '@/components/common/rich-text-editor/RichTextEditor';
+import { createQuotationFormatThunk } from '@redux/feature/quotation-format/quotationFormatThunk';
 
 
 interface QuotationFormatDetailsProps {
@@ -24,15 +29,42 @@ interface QuotationFormatDetailsProps {
 }
 
 const QuotationFormatDetails: React.FC<QuotationFormatDetailsProps> = ({ startInEdit, quotationFormatData }) => {
+  const dispatch = useAppDispatch();
+  const { role, status } = useAppSelector(state => state.role);
+  const roleOptions = role.map(item => ({
+    label: item.name,
+    value: item.roleId,
+  }));
+
   const [isEditing, setIsEditing] = useState(!!startInEdit);
   const [form] = Form.useForm();
   const [footerColumnsState, setFooterColumnsState] = useState<number>(0);
   const [footerContents, setFooterContents] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
   const [assetFlags, setAssetFlags] = useState<{
     watermark: boolean;
     defaultFacade: boolean;
     draftBackground: boolean;
   }>({ watermark: false, defaultFacade: false, draftBackground: false });
+  const [imageFiles, setImageFiles] = useState<{
+    watermark: File | null;
+    defaultFacade: File | null;
+    draftBackground: File | null;
+  }>({ watermark: null, defaultFacade: null, draftBackground: null });
+
+  const fetchRoleData = async () => {
+    try {
+      await dispatch(fetchRole()).unwrap();
+    } catch (error) {
+      message.error(error || 'Failed to fetch role');
+    }
+  };
+
+  useEffect(() => {
+    if (status === Status.IDLE) {
+      fetchRoleData();
+    }
+  }, [status]);
 
   // Initialize form with API data when available
   React.useEffect(() => {
@@ -41,9 +73,9 @@ const QuotationFormatDetails: React.FC<QuotationFormatDetailsProps> = ({ startIn
       form.setFieldsValue({
         builderName: data.builderInfo?.name || '',
         formatName: data.formatName || '',
-        status: data.status ?'active' : 'inactive',
+        status: data.status ? 'active' : 'inactive',
         makeDefault: data.makeDefault || false,
-        showAccount: data.showAccount || 'Builder Account',
+        showAccount: data.showAccount || 'builder_account',
         showExel: data.showExcel || false,
         hideLogoFirstPage: data.hideLogoFirstPage || false,
         showJobAddress: data.showJobAddress,
@@ -59,8 +91,9 @@ const QuotationFormatDetails: React.FC<QuotationFormatDetailsProps> = ({ startIn
         logoPadding: data.logoPadding || '',
         labelLogoWidth: data.labelLogoSizeWidth || '',
         labelLogoHeight: data.labelLogoSizeHeight || '',
+        showQuotationWithBuilderDetailed: data.showQuotationWithBuilderDetailed || false,
       });
-      
+
       // Set asset flags based on API data
       setAssetFlags({
         watermark: !!data.watermark,
@@ -103,7 +136,7 @@ const QuotationFormatDetails: React.FC<QuotationFormatDetailsProps> = ({ startIn
     }
 
     const data = quotationFormatData;
-    
+
     const formatColumn1 = [
       { label: 'Builder Name', value: data.builderInfo?.name || '' },
       { label: 'Logo Alignment', value: data.logoAlignment || 'Left' },
@@ -128,6 +161,7 @@ const QuotationFormatDetails: React.FC<QuotationFormatDetailsProps> = ({ startIn
       { label: 'Status', value: <Tag color={data.status ? 'green' : 'red'}>{data.status ? 'Active' : 'Inactive'}</Tag> },
       { label: 'Default', value: data.makeDefault ? 'Yes' : 'No' },
       { label: 'Include Package in Price List', value: data.includePackagePriceList ? 'Yes' : 'No' },
+      { label: 'Show Quotation with Builder details', value: data.showQuotationWithBuilderDetailed ? 'Yes' : 'No' },
       { label: 'ShowExcel', value: data.showExcel ? 'Yes' : 'No' },
       { label: 'Roles Can View', value: data.roles?.map((r: any) => r.name).join(', ') || 'Select Role' },
     ];
@@ -136,7 +170,7 @@ const QuotationFormatDetails: React.FC<QuotationFormatDetailsProps> = ({ startIn
   }, [quotationFormatData]);
 
   const handleEditClick = () => {
-    
+
     setFooterColumnsState(0);
     setFooterContents([]);
     setIsEditing(true);
@@ -146,19 +180,38 @@ const QuotationFormatDetails: React.FC<QuotationFormatDetailsProps> = ({ startIn
     setIsEditing(false);
   };
 
-  const handleSave = () => {
-    const values = form.getFieldsValue();
-    // TODO: integrate with API or parent state
-    console.log('Save quotation format details', values);
-    setIsEditing(false);
+  const handleSave = async () => {
+    try {
+      setLoading(true);
+      const values = form.getFieldsValue();
+      // TODO: integrate with API or parent state
+      console.log('Save quotation format details', values);
+      const response = await dispatch(createQuotationFormatThunk(values)).unwrap();
+      if (response.success) {
+        message.success('Quotation format created successfully');
+        setIsEditing(false);
+      }
+    }
+    catch (error) {
+      message.error(error || 'Failed to save quotation format details');
+    }
+    finally {
+      setLoading(false);
+    }
   };
 
   const customFooterEnabled = Form.useWatch('customFooter', form);
   const draftBackgroundEnabled = Form.useWatch('draftBackground', form);
+  const selectedShowAccount = Form.useWatch('showAccount', form);
   const footerColumns = footerColumnsState || 0;
 
-  const setAssetFlag = (key: 'watermark' | 'defaultFacade' | 'draftBackground', value: boolean) => {
+  const setAssetFlag = (key: 'watermark' | 'defaultFacade' | 'draftBackground', value: boolean, file?: File) => {
     setAssetFlags(prev => ({ ...prev, [key]: value }));
+    if (file) {
+      setImageFiles(prev => ({ ...prev, [key]: file }));
+    } else if (!value) {
+      setImageFiles(prev => ({ ...prev, [key]: null }));
+    }
   };
 
   const footerMenuItems: MenuProps['items'] = [
@@ -194,7 +247,7 @@ const QuotationFormatDetails: React.FC<QuotationFormatDetailsProps> = ({ startIn
         {isEditing ? (
           <div className="flex items-center gap-2">
             <Button onClick={handleCancel}>Cancel</Button>
-            <Button type="primary" onClick={handleSave}>
+            <Button type="primary" onClick={handleSave} loading={loading}>
               Save
             </Button>
           </div>
@@ -236,10 +289,10 @@ const QuotationFormatDetails: React.FC<QuotationFormatDetailsProps> = ({ startIn
                 />
               </Form.Item>
               <div className="grid grid-cols-2 gap-2">
-                <Form.Item label="Logo Width" name="logoWidth" className="mb-0">
+                <Form.Item label="Logo Width" name="logoSizeWidth" className="mb-0">
                   <Input />
                 </Form.Item>
-                <Form.Item label="Logo Height" name="logoHeight" className="mb-0">
+                <Form.Item label="Logo Height" name="logoSizeHeight" className="mb-0">
                   <Input />
                 </Form.Item>
               </div>
@@ -250,10 +303,10 @@ const QuotationFormatDetails: React.FC<QuotationFormatDetailsProps> = ({ startIn
                 <Checkbox>Show Job Address in Quotation Footer</Checkbox>
               </Form.Item>
               <div className="grid grid-cols-2 gap-2">
-                <Form.Item label="Label Logo Width" name="labelLogoWidth" className="mb-0">
+                <Form.Item label="Label Logo Width" name="labelLogoSizeWidth" className="mb-0">
                   <Input />
                 </Form.Item>
-                <Form.Item label="Label Logo Height" name="labelLogoHeight" className="mb-0">
+                <Form.Item label="Label Logo Height" name="labelLogoSizeHeight" className="mb-0">
                   <Input />
                 </Form.Item>
               </div>
@@ -282,7 +335,7 @@ const QuotationFormatDetails: React.FC<QuotationFormatDetailsProps> = ({ startIn
                     {customFooterEnabled && footerColumnsState > 0 && (
                       <div>
                         <div className="flex items-center justify-between gap-4">
-                          <Form.Item label="Columns" name="footerColumns" className="mb-0 w-24">
+                          <Form.Item label="Columns" name="footerColumnCount" className="mb-0 w-24">
                             <Select
                               options={[
                                 { label: '1', value: 1 },
@@ -343,12 +396,15 @@ const QuotationFormatDetails: React.FC<QuotationFormatDetailsProps> = ({ startIn
                 <Form.Item label="Show Account" name="showAccount" className="mb-0">
                   <Select
                     options={[
-                      { label: 'Builder Account', value: 'Builder Account' },
-                      { label: 'Client Account', value: 'Client Account' },
+                      { label: 'Builder Account', value: 'builder_account' },
+                      { label: 'Company Account', value: 'company_account' },
                     ]}
+                    onChange={(value) => {
+                      form.setFieldsValue({ showAccount: value });
+                    }}
                   />
                   <div className="flex">
-                    <Form.Item name="showExel" valuePropName="checked" className="mb-0">
+                    <Form.Item name="showExcel" valuePropName="checked" className="mb-0">
                       <Checkbox>Show Exel</Checkbox>
                     </Form.Item>
                     <Form.Item name="hideLogoFirstPage" valuePropName="checked" className="mb-0">
@@ -358,21 +414,30 @@ const QuotationFormatDetails: React.FC<QuotationFormatDetailsProps> = ({ startIn
                 </Form.Item>
               </div>
               <Form.Item label="Water Mark" className="mb-0">
-                {assetFlags.watermark ? (
-                  <Button
-                    type="link"
-                    className="!p-0"
-                    onClick={() => setAssetFlag('watermark', false)}
-                  >
-                    Remove
-                  </Button>
+                {assetFlags.watermark && imageFiles.watermark ? (
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={URL.createObjectURL(imageFiles.watermark)}
+                      alt="Watermark"
+                      className="w-16 h-16 object-cover rounded"
+                    />
+                    <Button
+                      type="link"
+                      className="!p-0"
+                      onClick={() => setAssetFlag('watermark', false)}
+                    >
+                      Remove
+                    </Button>
+                  </div>
                 ) : (
                   <Upload
                     maxCount={1}
                     showUploadList={false}
-                    beforeUpload={() => false}
+                    beforeUpload={(file) => {
+                      setAssetFlag('watermark', true, file);
+                      return false;
+                    }}
                     accept="image/*"
-                    onChange={({ fileList }) => setAssetFlag('watermark', fileList.length > 0)}
                   >
                     <Button type="primary" size="small">
                       Upload
@@ -381,21 +446,30 @@ const QuotationFormatDetails: React.FC<QuotationFormatDetailsProps> = ({ startIn
                 )}
               </Form.Item>
               <Form.Item label="Default Facade" className="mb-0">
-                {assetFlags.defaultFacade ? (
-                  <Button
-                    type="link"
-                    className="!p-0"
-                    onClick={() => setAssetFlag('defaultFacade', false)}
-                  >
-                    Remove
-                  </Button>
+                {assetFlags.defaultFacade && imageFiles.defaultFacade ? (
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={URL.createObjectURL(imageFiles.defaultFacade)}
+                      alt="Default Facade"
+                      className="w-16 h-16 object-cover rounded"
+                    />
+                    <Button
+                      type="link"
+                      className="!p-0"
+                      onClick={() => setAssetFlag('defaultFacade', false)}
+                    >
+                      Remove
+                    </Button>
+                  </div>
                 ) : (
                   <Upload
                     maxCount={1}
                     showUploadList={false}
-                    beforeUpload={() => false}
+                    beforeUpload={(file) => {
+                      setAssetFlag('defaultFacade', true, file);
+                      return false;
+                    }}
                     accept="image/*"
-                    onChange={({ fileList }) => setAssetFlag('defaultFacade', fileList.length > 0)}
                   >
                     <Button type="primary" size="small">
                       Upload
@@ -414,23 +488,30 @@ const QuotationFormatDetails: React.FC<QuotationFormatDetailsProps> = ({ startIn
 
                 {draftBackgroundEnabled && (
                   <>
-                    {assetFlags.draftBackground ? (
-                      <Button
-                        type="link"
-                        className="!p-0 ml-2"
-                        onClick={() => setAssetFlag('draftBackground', false)}
-                      >
-                        Remove
-                      </Button>
+                    {assetFlags.draftBackground && imageFiles.draftBackground ? (
+                      <div className="flex items-center gap-2 ml-2">
+                        <img
+                          src={URL.createObjectURL(imageFiles.draftBackground)}
+                          alt="Draft Background"
+                          className="w-16 h-16 object-cover rounded"
+                        />
+                        <Button
+                          type="link"
+                          className="!p-0"
+                          onClick={() => setAssetFlag('draftBackground', false)}
+                        >
+                          Remove
+                        </Button>
+                      </div>
                     ) : (
                       <Upload
                         maxCount={1}
                         showUploadList={false}
-                        beforeUpload={() => false}
+                        beforeUpload={(file) => {
+                          setAssetFlag('draftBackground', true, file);
+                          return false;
+                        }}
                         accept="image/*"
-                        onChange={({ fileList }) =>
-                          setAssetFlag('draftBackground', fileList.length > 0)
-                        }
                       >
                         <Button type="primary" size="small" className="ml-2">
                           Upload
@@ -439,7 +520,7 @@ const QuotationFormatDetails: React.FC<QuotationFormatDetailsProps> = ({ startIn
                     )}
 
                     <Form.Item
-                      name="hideWatermarkFirstPage"
+                      name="hideWatermark"
                       valuePropName="checked"
                       className="mb-0 mt-2"
                     >
@@ -454,18 +535,27 @@ const QuotationFormatDetails: React.FC<QuotationFormatDetailsProps> = ({ startIn
             <div className="space-y-3">
               <Form.Item label="Status" name="status" className="mb-0">
                 <Radio.Group>
-                  <Radio value="active">Active</Radio>
-                  <Radio value="inactive">Inactive</Radio>
+                  <Radio value={true}>Active</Radio>
+                  <Radio value={false}>Inactive</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item name="makeDefault" valuePropName="checked" className="mb-0">
                 <Checkbox>Make Default</Checkbox>
               </Form.Item>
-              <Form.Item name="includePackage" valuePropName="checked" className="mb-0">
+              <Form.Item name="includePackagePriceList" valuePropName="checked" className="mb-0">
                 <Checkbox>Include Package in Price List</Checkbox>
               </Form.Item>
+              {selectedShowAccount === 'company_account' && (
+                <Form.Item
+                  name="showQuotationWithBuilderDetailed"
+                  valuePropName="checked"
+                  className="mb-0"
+                >
+                  <Checkbox>Show Quotation with Builder details</Checkbox>
+                </Form.Item>
+              )}
               <Form.Item label="Role" name="role" className="mb-0">
-                <Select placeholder="Select Roles" />
+                <Select placeholder="Select Roles" options={roleOptions} />
               </Form.Item>
             </div>
           </div>
@@ -473,13 +563,12 @@ const QuotationFormatDetails: React.FC<QuotationFormatDetailsProps> = ({ startIn
           {customFooterEnabled && footerColumnsState > 0 && (
             <Form.Item name="footerContent" className="mb-0 mt-4">
               <div
-                className={`grid gap-2 ${
-                  footerColumns === 3
-                    ? 'grid-cols-3'
-                    : footerColumns === 2
-                      ? 'grid-cols-2'
-                      : 'grid-cols-1'
-                }`}
+                className={`grid gap-2 ${footerColumns === 3
+                  ? 'grid-cols-3'
+                  : footerColumns === 2
+                    ? 'grid-cols-2'
+                    : 'grid-cols-1'
+                  }`}
               >
                 {Array.from({ length: footerColumns || 1 }).map((_, idx) => (
                   <div key={idx} className="space-y-1 w-[450px]">

@@ -88,24 +88,20 @@ export default function FileExplorer({
 
   // Get current items (folders and files)
   const getCurrentItems = () => {
-    // If we have documents from API, use them instead of rootFolders
-    if (documents && documents.length > 0 && !currentFolder) {
-      const folders = documents?.filter(doc => doc.folderId === null);
-      const files = documents?.filter(doc => doc.folderId !== null);
-      return { folders, files };
-    }
-    
-    // If we're in a folder from API response, show files from quotations array
-    if (currentFolder && currentFolder.quotations && currentFolder.quotations.length > 0) {
-      const files = currentFolder.quotations.flatMap(quot => quot.files || []);
-      return { folders: [], files };
-    }
-    
-    if (!currentFolder) {
-      return { folders: rootFolders, files: [] };
-    }
-    return { folders: currentFolder.subFolders, files: currentFolder.files };
+  // Root level
+  if (!currentFolder) {
+    return {
+      folders: documents || [],
+      files: [],
+    };
+  }
+
+  // Opened folder
+  return {
+    folders: currentFolder.subFolders || [],
+    files: currentFolder.files || [],
   };
+};
 
   // Filter items based on search query
   const filteredItems = useMemo(() => {
@@ -120,7 +116,7 @@ export default function FileExplorer({
     const filteredFolders = folders.filter(
       folder =>
         folder.folderName.toLowerCase().includes(query) ||
-        folder.owner.toLowerCase().includes(query)
+        folder.owner.toLowerCase().includes(query) 
     );
 
     const filteredFiles = files.filter(file => file.fileName.toLowerCase().includes(query));
@@ -307,7 +303,7 @@ export default function FileExplorer({
 
   // Get file icon color based on extension
   const getFileIconColor = (fileName: string) => {
-    const ext = fileName.split('.').pop()?.toLowerCase();
+    const ext = fileName?.split('.').pop()?.toLowerCase();
     const colorMap: Record<string, string> = {
       pdf: '#E74C3C',
       doc: '#3498DB',
@@ -488,9 +484,9 @@ export default function FileExplorer({
                       {folder.folderName}
                     </p>
                     <div className="flex gap-3 text-sm" style={{ color: 'var(--font-color-100)' }}>
-                      <span>{folder.itemsCount} items</span>
+                      <span>{folder.count} items</span>
                       <span>•</span>
-                      <span>Owner: {folder.ownerName}</span>
+                      <span>Owner: {folder.ownerName || currentFolder?.ownerName}</span>
                     </div>
                   </div>
                 </div>
