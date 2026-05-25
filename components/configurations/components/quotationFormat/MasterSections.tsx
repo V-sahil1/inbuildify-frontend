@@ -1,22 +1,47 @@
-import React, { useState } from 'react';
-import { Button } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Button, message } from 'antd';
+import dayjs from 'dayjs';
 import { IconEdit, IconTrash, IconPlus, IconMinus, IconCopy } from '@tabler/icons-react';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
 import { ConfirmationContentModal } from '@/components/common/ConfirmationContentModal';
+import Loading from '@/components/common/Loading';
 import {
   getCreateMasterFields,
   getQuotationFormatFields,
 } from '../../../formFields/quotationFormatFields';
+import { MasterGroup, MasterHeading, MasterItem } from '../../../../data/quotationFormatData';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { Status } from '@lib/constants/enum';
 import {
-  MasterGroup,
-  MasterHeading,
-  MasterItem,
-  mockMasters,
-} from '../../../../data/quotationFormatData';
+  getQuotationFormatMasterSectionsHeadersThunk,
+  getQuotationFormatMasterSectionsItemsThunk,
+  getQuotationFormatMasterSectionsThunk,
+  createQuotationFormatMasterSectionHeaderThunk,
+  createQuotationFormatMasterSectionItemThunk,
+  deleteQuotationFormatMasterSectionThunk,
+  deleteQuotationFormatMasterSectionHeaderThunk,
+  deleteQuotationFormatMasterSectionItemThunk,
+  updateQuotationFormatMasterSectionItemThunk,
+  updateQuotationFormatMasterSectionThunk,
+  updateQuotationFormatMasterSectionHeaderThunk,
+  DEFAULT_PAGE_LIMIT,
+} from '@redux/feature/quotation-format/quotationFormatThunk';
+
 
 const MasterSections: React.FC = () => {
-  const [masters, setMasters] = useState<MasterGroup[]>(mockMasters);
-  const [expanded, setExpanded] = useState<{ masters: number[]; headings: number[] }>({
+  const dispatch = useAppDispatch();
+  const masters = useAppSelector(state => state.quotationFormat.masters);
+  const pagination = useAppSelector(state => state.quotationFormat.pagination);
+  const headersPagination = useAppSelector(state => state.quotationFormat.headersPagination);
+  const itemsPagination = useAppSelector(state => state.quotationFormat.itemsPagination);
+  const statusState = useAppSelector(state => state.quotationFormat.status);
+  const errors = useAppSelector(state => state.quotationFormat.errors);
+
+  useEffect(() => {
+    dispatch(getQuotationFormatMasterSectionsThunk({ page: 1, limit: DEFAULT_PAGE_LIMIT }));
+  }, [dispatch]);
+
+  const [expanded, setExpanded] = useState<{ masters: (number | string)[]; headings: (number | string)[] }>({
     masters: [],
     headings: [],
   });
@@ -25,8 +50,8 @@ const MasterSections: React.FC = () => {
   const [modalType, setModalType] = useState<'heading' | 'item'>('item');
   const [isEditing, setIsEditing] = useState(false);
   const [selected, setSelected] = useState<
-    | { type: 'heading'; masterId: number; headingId: number | null }
-    | { type: 'item'; headingId: number; itemId: number | null }
+    | { type: 'heading'; masterId: number | string; headingId: number | string | null }
+    | { type: 'item'; headingId: number | string; itemId: number | string | null }
     | null
   >(null);
 
@@ -36,50 +61,112 @@ const MasterSections: React.FC = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<
     | { type: 'master'; master: MasterGroup }
-    | { type: 'heading'; masterId: number; heading: MasterHeading }
-    | { type: 'item'; headingId: number; item: MasterItem }
+    | { type: 'heading'; masterId: number | string; heading: MasterHeading }
+    | { type: 'item'; headingId: number | string; item: MasterItem }
     | null
   >(null);
 
-  const toggleMaster = (id: number) => {
+  const isFetchingMasters = statusState.fetchMasterSections === Status.PENDING;
+  const isLoadingMoreMasters = statusState.loadMoreMasterSections === Status.PENDING;
+  const isMastersError = statusState.fetchMasterSections === Status.ERROR;
+
+  const toggleMaster = (id: number | string) => {
+    const isExpanding = !expanded.masters?.includes(id);
     setExpanded(prev => ({
       ...prev,
-      masters: prev.masters.includes(id)
-        ? prev.masters.filter(x => x !== id)
+      masters: prev.masters?.includes(id)
+        ? prev.masters?.filter(x => x !== id)
         : [...prev.masters, id],
+    }));
+
+    if (isExpanding) {
+      const master = masters?.find(m => m.id === id);
+      if (master && master.masterSectionId) {
+        dispatch(getQuotationFormatMasterSectionsHeadersThunk({
+          masterSectionId: master.masterSectionId,
+          page: 1,
+          limit: DEFAULT_PAGE_LIMIT,
+        }));
+      }
+    }
+  };
+
+  const handleLoadMoreMasters = () => {
+    if (!pagination.hasMore || isLoadingMoreMasters) return;
+    dispatch(getQuotationFormatMasterSectionsThunk({
+      page: pagination.currentPage + 1,
+      limit: pagination.limit || DEFAULT_PAGE_LIMIT,
+    }));
+  };
+
+  const handleLoadMoreHeadings = (masterSectionId: string) => {
+    const pag = headersPagination[masterSectionId];
+    if (!pag || !pag.hasMore) return;
+    if (statusState.loadMoreHeaders[masterSectionId] === Status.PENDING) return;
+    dispatch(getQuotationFormatMasterSectionsHeadersThunk({
+      masterSectionId,
+      page: pag.currentPage + 1,
+      limit: pag.limit || DEFAULT_PAGE_LIMIT,
+    }));
+  };
+
+  const handleLoadMoreItems = (headingId: string) => {
+    const pag = itemsPagination[headingId];
+    if (!pag || !pag.hasMore) return;
+    if (statusState.loadMoreItems[headingId] === Status.PENDING) return;
+    dispatch(getQuotationFormatMasterSectionsItemsThunk({
+      masterSectionId: headingId,
+      page: pag.currentPage + 1,
+      limit: pag.limit || DEFAULT_PAGE_LIMIT,
     }));
   };
 
   const handleMasterEditSubmit = (values: any) => {
     if (!editingMaster) return;
 
-    setMasters(prev =>
-      prev.map(group =>
-        group.id === editingMaster.id
-          ? {
-              ...group,
-              name: values.masterName || '',
-              active: values.status ? values.status === 'active' : group.active,
-            }
-          : group
-      )
-    );
+    const targetId = editingMaster.masterSectionId || editingMaster.id;
+    if (!targetId) {
+      message.error('Master section ID is missing');
+      return;
+    }
 
-    setMasterEditOpen(false);
-    setEditingMaster(null);
+    const payload = {
+      masterName: values.masterName || '',
+      status: values.status === 'active' || values.status === true,
+    };
+
+    dispatch(updateQuotationFormatMasterSectionThunk({ id: String(targetId), payload }))
+      .unwrap()
+      .then((res) => {
+        message.success(res.message || 'Master section updated successfully');
+        setMasterEditOpen(false);
+        setEditingMaster(null);
+      })
+      .catch((err) => {
+        message.error(err || 'Failed to update master section');
+      });
   };
 
-  const toggleHeading = (id: number) => {
+  const toggleHeading = (id: number | string) => {
+    const isExpanding = !expanded.headings.includes(id);
     setExpanded(prev => ({
       ...prev,
       headings: prev.headings.includes(id)
         ? prev.headings.filter(x => x !== id)
         : [...prev.headings, id],
     }));
+
+    if (isExpanding) {
+      dispatch(getQuotationFormatMasterSectionsItemsThunk({
+        masterSectionId: String(id),
+        page: 1,
+        limit: DEFAULT_PAGE_LIMIT,
+      }));
+    }
   };
 
-  const isMasterExpanded = (id: number) => expanded.masters.includes(id);
-  const isHeadingExpanded = (id: number) => expanded.headings.includes(id);
+  const isMasterExpanded = (id: number | string) => expanded.masters?.includes(id);
+  const isHeadingExpanded = (id: number | string) => expanded.headings.includes(id);
 
   const openEditMasterModal = (master: MasterGroup) => {
     setEditingMaster(master);
@@ -99,8 +186,8 @@ const MasterSections: React.FC = () => {
       setSelected({ type: 'heading', masterId, headingId: heading.id });
       setInitialValues({
         name: heading.name,
-        startDate: heading.startDate,
-        endDate: heading.endDate,
+        startDate: heading.startDate ? dayjs(heading.startDate) : null,
+        endDate: heading.endDate ? dayjs(heading.endDate) : null,
         sortOrder: heading.sortOrder,
         status: heading.active ? 'Active' : 'Inactive',
       });
@@ -114,8 +201,8 @@ const MasterSections: React.FC = () => {
       setSelected({ type: 'item', headingId, itemId: item.id });
       setInitialValues({
         name: item.name,
-        startDate: item.startDate,
-        endDate: item.endDate,
+        startDate: item.startDate ? dayjs(item.startDate) : null,
+        endDate: item.endDate ? dayjs(item.endDate) : null,
         sortOrder: item.sortOrder,
         status: item.active ? 'Active' : 'Inactive',
       });
@@ -145,7 +232,7 @@ const MasterSections: React.FC = () => {
     if (!deleteTarget) return '';
 
     if (deleteTarget.type === 'heading') {
-      const master = masters.find(m => m.id === deleteTarget.masterId);
+      const master = masters?.find(m => m.id === deleteTarget.masterId);
       return master?.name || '';
     }
 
@@ -164,42 +251,57 @@ const MasterSections: React.FC = () => {
 
     if (deleteTarget.type === 'master') {
       const { master } = deleteTarget;
-      setMasters(prev => prev.filter(group => group.id !== master.id));
-      setExpanded(prev => ({
-        masters: prev.masters.filter(id => id !== master.id),
-        headings: prev.headings,
-      }));
+      const targetId = master.masterSectionId || master.id;
+      if (!targetId) {
+        message.error('Master section ID is missing');
+        return;
+      }
+      dispatch(deleteQuotationFormatMasterSectionThunk(String(targetId)))
+        .unwrap()
+        .then((res: any) => {
+          message.success(res?.data?.message || res?.message || 'Master section deleted successfully');
+          setExpanded(prev => ({
+            masters: prev.masters?.filter(id => id !== master.id),
+            headings: prev.headings,
+          }));
+        })
+        .catch((err) => {
+          message.error(err || 'Failed to delete master section');
+        });
     } else if (deleteTarget.type === 'heading') {
-      const { masterId, heading } = deleteTarget;
-      setMasters(prev =>
-        prev.map(group =>
-          group.id !== masterId
-            ? group
-            : {
-                ...group,
-                headings: group.headings.filter(h => h.id !== heading.id),
-              }
-        )
-      );
-      setExpanded(prev => ({
-        masters: prev.masters,
-        headings: prev.headings.filter(id => id !== heading.id),
-      }));
+      const { heading } = deleteTarget;
+      const targetId = heading.id;
+      if (!targetId) {
+        message.error('Heading ID is missing');
+        return;
+      }
+      dispatch(deleteQuotationFormatMasterSectionHeaderThunk(String(targetId)))
+        .unwrap()
+        .then((res: any) => {
+          message.success(res?.data?.message || res?.message || 'Heading deleted successfully');
+          setExpanded(prev => ({
+            masters: prev.masters,
+            headings: prev.headings.filter(id => id !== heading.id),
+          }));
+        })
+        .catch((err) => {
+          message.error(err || 'Failed to delete heading');
+        });
     } else if (deleteTarget.type === 'item') {
-      const { headingId, item } = deleteTarget;
-      setMasters(prev =>
-        prev.map(group => ({
-          ...group,
-          headings: group.headings.map(h =>
-            h.id !== headingId
-              ? h
-              : {
-                  ...h,
-                  items: (h.items || []).filter(i => i.id !== item.id),
-                }
-          ),
-        }))
-      );
+      const { item } = deleteTarget;
+      const targetId = item.id;
+      if (!targetId) {
+        message.error('Item ID is missing');
+        return;
+      }
+      dispatch(deleteQuotationFormatMasterSectionItemThunk(String(targetId)))
+        .unwrap()
+        .then((res: any) => {
+          message.success(res?.data?.message || res?.message || 'Item deleted successfully');
+        })
+        .catch((err) => {
+          message.error(err || 'Failed to delete item');
+        });
     }
 
     setDeleteModalOpen(false);
@@ -207,261 +309,304 @@ const MasterSections: React.FC = () => {
   };
 
   const handleSubmitModal = (values: any) => {
+    const sel = selected;
+    if (!sel) {
+      handleCloseModal();
+      return;
+    }
+
     if (modalType === 'heading') {
-      if (!selected || selected.type !== 'heading') {
+      if (sel.type !== 'heading') {
         handleCloseModal();
         return;
       }
-      setMasters(prev =>
-        prev.map(group => {
-          if (group.id !== selected.masterId) return group;
 
-          if (isEditing && selected.headingId != null) {
-            return {
-              ...group,
-              headings: group.headings.map(h =>
-                h.id === selected.headingId
-                  ? {
-                      ...h,
-                      name: values.name || '',
-                      startDate: values.startDate,
-                      endDate: values.endDate,
-                      active: values.status ? values.status === 'Active' : true,
-                      sortOrder: values.sortOrder ?? h.sortOrder,
-                    }
-                  : h
-              ),
-            };
-          }
+      if (!isEditing) {
+        const group = masters.find(m => m.id === sel.masterId);
+        const masterSectionId = group?.masterSectionId;
+        if (!masterSectionId) {
+          message.error('Master section ID is missing');
+          return;
+        }
 
-          const newHeading: MasterHeading = {
-            id: Date.now(),
-            name: values.name || '',
-            startDate: values.startDate,
-            endDate: values.endDate,
-            active: values.status ? values.status === 'Active' : true,
-            sortOrder: values.sortOrder ?? (group.headings?.length || 0) + 1,
-            items: [],
-          };
+        const payload = {
+          headingName: values.name || '',
+          effectiveStartDate: values.startDate || null,
+          effectiveEndDate: values.endDate || null,
+          sortOrder: values.sortOrder ? Number(values.sortOrder) : 1,
+          status: values.status === 'Active' ? true : false,
+        };
 
-          return {
-            ...group,
-            headings: [...group.headings, newHeading],
-          };
-        })
-      );
+        dispatch(createQuotationFormatMasterSectionHeaderThunk({ masterSectionId, payload }))
+          .unwrap()
+          .then((res) => {
+            message.success(res.message || 'Heading created successfully');
+            handleCloseModal();
+          })
+          .catch((err) => {
+            message.error(err || 'Failed to create heading');
+          });
+        return;
+      }
+
+      if (isEditing && sel.headingId != null) {
+        const payload = {
+          headingName: values.name || '',
+          effectiveStartDate: values.startDate || null,
+          effectiveEndDate: values.endDate || null,
+          sortOrder: values.sortOrder ? Number(values.sortOrder) : 1,
+          status: values.status === 'Active' ? true : false,
+        };
+
+        dispatch(updateQuotationFormatMasterSectionHeaderThunk({ headerId: String(sel.headingId), payload }))
+          .unwrap()
+          .then((res) => {
+            message.success(res.message || 'Heading updated successfully');
+            handleCloseModal();
+          })
+          .catch((err) => {
+            message.error(err || 'Failed to update heading');
+          });
+        return;
+      }
     } else {
-      if (!selected || selected.type !== 'item') {
+      if (sel.type !== 'item') {
         handleCloseModal();
         return;
       }
-      setMasters(prev =>
-        prev.map(group => ({
-          ...group,
-          headings: group.headings.map(heading => {
-            if (heading.id !== selected.headingId) return heading;
 
-            if (isEditing && selected.itemId != null) {
-              return {
-                ...heading,
-                items: (heading.items || []).map(item =>
-                  item.id === selected.itemId
-                    ? {
-                        ...item,
-                        name: values.name || '',
-                        startDate: values.startDate,
-                        endDate: values.endDate,
-                        active: values.status ? values.status === 'Active' : true,
-                        sortOrder: values.sortOrder ?? item.sortOrder,
-                      }
-                    : item
-                ),
-              };
-            }
+      if (!isEditing) {
+        const masterSectionHeaderId = sel.headingId;
+        if (!masterSectionHeaderId) {
+          message.error('Heading ID is missing');
+          return;
+        }
 
-            const newItem: MasterItem = {
-              id: Date.now(),
-              name: values.name || '',
-              startDate: values.startDate,
-              endDate: values.endDate,
-              active: values.status ? values.status === 'Active' : true,
-              sortOrder: values.sortOrder ?? (heading.items?.length || 0) + 1,
-            };
+        const payload = {
+          itemName: values.name || '',
+          effectiveStartDate: values.startDate || null,
+          effectiveEndDate: values.endDate || null,
+          sortOrder: values.sortOrder ? Number(values.sortOrder) : 1,
+          status: values.status === 'Active' ? true : false,
+        };
 
-            return {
-              ...heading,
-              items: heading.items ? [...heading.items, newItem] : [newItem],
-            };
-          }),
-        }))
-      );
+        dispatch(createQuotationFormatMasterSectionItemThunk({ masterSectionHeaderId: String(masterSectionHeaderId), payload }))
+          .unwrap()
+          .then((res) => {
+            message.success(res.message || 'Item created successfully');
+            handleCloseModal();
+          })
+          .catch((err) => {
+            message.error(err || 'Failed to create item');
+          });
+        return;
+      }
+
+      if (isEditing && sel.itemId != null) {
+        const payload = {
+          itemName: values.name || '',
+          effectiveStartDate: values.startDate || null,
+          effectiveEndDate: values.endDate || null,
+          sortOrder: values.sortOrder ? Number(values.sortOrder) : 1,
+          status: values.status === 'Active' ? true : false,
+        };
+
+        dispatch(updateQuotationFormatMasterSectionItemThunk({ itemId: String(sel.itemId), payload }))
+          .unwrap()
+          .then((res) => {
+            message.success(res.message || 'Item updated successfully');
+            handleCloseModal();
+          })
+          .catch((err) => {
+            message.error(err || 'Failed to update item');
+          });
+        return;
+      }
     }
     handleCloseModal();
   };
 
-  return (
-    <div className="rounded bg-card-color text-md min-h-[260px]">
-      <div className="px-2 py-3">
-        {masters.length === 0 ? (
-          <div className="h-64 flex items-center justify-center text-sm text-font-color">
-            No master found
-          </div>
-        ) : (
-          masters.map(master => (
-            <React.Fragment key={master.id}>
-              <div
-                className="flex items-center justify-between px-2 py-1 border-b border-gray-200 cursor-pointer hover:bg-gray-50"
-                onClick={() => toggleMaster(master.id)}
-              >
-                <div className="flex items-center gap-2">
-                  <span className="text-primary flex items-center justify-center w-4 h-4 border border-primary rounded-sm text-[10px]">
-                    {isMasterExpanded(master.id) ? <IconMinus size={18} /> : <IconPlus size={18} />}
-                  </span>
-                  <span className="font-semibold uppercase text-sm">{master.name}</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-xs w-16 text-right">
-                    {master.active ? 'Active' : 'Inactive'}
-                  </span>
-                  <span className="text-xs w-6 text-right" />
-                  <div className="flex items-center gap-2 w-24 justify-end">
-                    <Button
-                      type="text"
-                      size="small"
-                      icon={<IconCopy size={18} />}
-                      onClick={e => e.stopPropagation()}
-                    />
-                    <Button
-                      type="text"
-                      size="small"
-                      icon={<IconEdit size={18} />}
-                      onClick={e => {
-                        e.stopPropagation();
-                        openEditMasterModal(master);
-                      }}
-                    />
-                    <Button
-                      type="text"
-                      size="small"
-                      danger
-                      icon={<IconTrash size={18} />}
-                      onClick={e => {
-                        e.stopPropagation();
-                        openDeleteModal({ type: 'master', master });
-                      }}
-                    />
-                  </div>
-                  <div className="w-28">
-                    <Button
-                      type="primary"
-                      size="small"
-                      onClick={e => {
-                        e.stopPropagation();
-                        openStructureModal({ type: 'newHeading', masterId: master.id });
-                      }}
-                    >
-                      Add Heading
-                    </Button>
-                  </div>
-                </div>
+  const renderMasterListBody = () => {
+    if (isFetchingMasters && masters.length === 0) {
+      return (
+        <div className="h-64 flex items-center justify-center">
+          <Loading type="primary" />
+        </div>
+      );
+    }
+
+    if (isMastersError && masters.length === 0) {
+      return (
+        <div className="h-64 flex flex-col items-center justify-center text-sm text-danger gap-2">
+          <span>{errors.fetchMasterSections || 'Failed to load master sections'}</span>
+          <Button
+            size="small"
+            onClick={() =>
+              dispatch(getQuotationFormatMasterSectionsThunk({ page: 1, limit: DEFAULT_PAGE_LIMIT }))
+            }
+          >
+            Retry
+          </Button>
+        </div>
+      );
+    }
+
+    if (!masters || masters.length === 0) {
+      return (
+        <div className="h-64 flex items-center justify-center text-sm text-font-color">
+          No master sections found
+        </div>
+      );
+    }
+
+    return masters.map(master => {
+      const masterKey = String(master.masterSectionId || master.id);
+      const fetchHeadersStatus = statusState.fetchHeaders[masterKey];
+      const loadMoreHeadersStatus = statusState.loadMoreHeaders[masterKey];
+      const headersError = errors.fetchHeaders[masterKey];
+      const headersPag = master.masterSectionId ? headersPagination[master.masterSectionId] : undefined;
+      const isHeadersLoading = fetchHeadersStatus === Status.PENDING;
+      const isHeadersError = fetchHeadersStatus === Status.ERROR;
+      const isHeadersLoadMoreLoading = loadMoreHeadersStatus === Status.PENDING;
+
+      return (
+        <React.Fragment key={master.id}>
+          <div
+            className="flex items-center justify-between px-2 py-1 border-b border-gray-200 cursor-pointer hover:bg-gray-50"
+            onClick={() => toggleMaster(master.id)}
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-primary flex items-center justify-center w-4 h-4 border border-primary rounded-sm text-[10px]">
+                {isMasterExpanded(master.id) ? <IconMinus size={18} /> : <IconPlus size={18} />}
+              </span>
+              <span className="font-semibold uppercase text-sm">{master.name}</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-xs w-16 text-right">
+                {master.active ? 'Active' : 'Inactive'}
+              </span>
+              <span className="text-xs w-6 text-right" />
+              <div className="flex items-center gap-2 w-24 justify-end">
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<IconCopy size={18} />}
+                  onClick={e => e.stopPropagation()}
+                />
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<IconEdit size={18} />}
+                  onClick={e => {
+                    e.stopPropagation();
+                    openEditMasterModal(master);
+                  }}
+                />
+                <Button
+                  type="text"
+                  size="small"
+                  danger
+                  icon={<IconTrash size={18} />}
+                  onClick={e => {
+                    e.stopPropagation();
+                    openDeleteModal({ type: 'master', master });
+                  }}
+                />
               </div>
+              <div className="w-28">
+                <Button
+                  type="primary"
+                  size="small"
+                  onClick={e => {
+                    e.stopPropagation();
+                    openStructureModal({ type: 'newHeading', masterId: master.id });
+                  }}
+                >
+                  Add Heading
+                </Button>
+              </div>
+            </div>
+          </div>
 
-              {isMasterExpanded(master.id) &&
-                master.headings.map(heading => (
-                  <React.Fragment key={heading.id}>
-                    <div
-                      className="flex items-center justify-between px-2 py-1 border-b border-gray-200 cursor-pointer hover:bg-gray-50"
-                      onClick={() => toggleHeading(heading.id)}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="text-primary flex items-center justify-center w-4 h-4 border border-primary10 rounded-sm text-[10px]">
-                          {isHeadingExpanded(heading.id) ? (
-                            <IconMinus size={10} />
-                          ) : (
-                            <IconPlus size={10} />
-                          )}
-                        </span>
-                        <span className="text-sm">{heading.name}</span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs w-16 text-right">
-                          {heading.active ? 'Active' : 'Inactive'}
-                        </span>
-                        <span className="text-xs w-6 text-right">{heading.sortOrder}</span>
-                        <div className="flex items-center gap-2 w-24 justify-end">
-                          <Button
-                            type="text"
-                            size="small"
-                            icon={<IconCopy size={18} />}
-                            onClick={e => e.stopPropagation()}
-                          />
-                          <Button
-                            type="text"
-                            size="small"
-                            icon={<IconEdit size={18} />}
-                            onClick={e => {
-                              e.stopPropagation();
-                              openStructureModal({
-                                type: 'editHeading',
-                                masterId: master.id,
-                                heading,
-                              });
-                            }}
-                          />
-                          <Button
-                            type="text"
-                            size="small"
-                            danger
-                            icon={<IconTrash size={18} />}
-                            onClick={e => {
-                              e.stopPropagation();
-                              openDeleteModal({ type: 'heading', masterId: master.id, heading });
-                            }}
-                          />
-                        </div>
-                        <div className="w-28">
-                          <Button
-                            size="small"
-                            onClick={e => {
-                              e.stopPropagation();
-                              openStructureModal({ type: 'newItem', headingId: heading.id });
-                            }}
-                          >
-                            Add Item
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
+          {isMasterExpanded(master.id) && (
+            <>
+              {isHeadersLoading && (!master.headings || master.headings.length === 0) ? (
+                <div className="flex items-center justify-center py-6 border-b border-gray-100">
+                  <Loading type="primary" />
+                </div>
+              ) : isHeadersError && (!master.headings || master.headings.length === 0) ? (
+                <div className="flex flex-col items-center justify-center gap-2 py-6 text-sm text-danger border-b border-gray-100">
+                  <span>{headersError || 'Failed to load headings'}</span>
+                  <Button
+                    size="small"
+                    onClick={() =>
+                      master.masterSectionId &&
+                      dispatch(getQuotationFormatMasterSectionsHeadersThunk({
+                        masterSectionId: master.masterSectionId,
+                        page: 1,
+                        limit: DEFAULT_PAGE_LIMIT,
+                      }))
+                    }
+                  >
+                    Retry
+                  </Button>
+                </div>
+              ) : !master.headings || master.headings.length === 0 ? (
+                <div className="flex items-center justify-center py-3 text-xs text-gray-400 border-b border-gray-100">
+                  No headings found
+                </div>
+              ) : (
+                <>
+                  {master.headings.map(heading => {
+                    const headingKey = String(heading.id);
+                    const fetchItemsStatus = statusState.fetchItems[headingKey];
+                    const loadMoreItemsStatus = statusState.loadMoreItems[headingKey];
+                    const itemsError = errors.fetchItems[headingKey];
+                    const itemsPag = itemsPagination[headingKey];
+                    const isItemsLoading = fetchItemsStatus === Status.PENDING;
+                    const isItemsError = fetchItemsStatus === Status.ERROR;
+                    const isItemsLoadMoreLoading = loadMoreItemsStatus === Status.PENDING;
 
-                    {isHeadingExpanded(heading.id) &&
-                      heading.items &&
-                      heading.items.length > 0 &&
-                      heading.items.map(item => (
+                    return (
+                      <React.Fragment key={heading.id}>
                         <div
-                          key={item.id}
                           className="flex items-center justify-between px-2 py-1 border-b border-gray-200 cursor-pointer hover:bg-gray-50"
+                          onClick={() => toggleHeading(heading.id)}
                         >
-                          <span className="ml-[4%]">{item.name}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-primary flex items-center justify-center w-4 h-4 border border-primary10 rounded-sm text-[10px]">
+                              {isHeadingExpanded(heading.id) ? (
+                                <IconMinus size={10} />
+                              ) : (
+                                <IconPlus size={10} />
+                              )}
+                            </span>
+                            <span className="text-sm">{heading.name}</span>
+                          </div>
                           <div className="flex items-center gap-3">
                             <span className="text-xs w-16 text-right">
-                              {item.active ? 'Active' : 'Inactive'}
+                              {heading.active ? 'Active' : 'Inactive'}
                             </span>
-                            <span className="text-xs w-6 text-right text-danger">
-                              {item.sortOrder}
-                            </span>
+                            <span className="text-xs w-6 text-right">{heading.sortOrder}</span>
                             <div className="flex items-center gap-2 w-24 justify-end">
-                              <Button type="text" size="small" icon={<IconCopy size={18} />} />
+                              <Button
+                                type="text"
+                                size="small"
+                                icon={<IconCopy size={18} />}
+                                onClick={e => e.stopPropagation()}
+                              />
                               <Button
                                 type="text"
                                 size="small"
                                 icon={<IconEdit size={18} />}
-                                onClick={() =>
+                                onClick={e => {
+                                  e.stopPropagation();
                                   openStructureModal({
-                                    type: 'editItem',
-                                    headingId: heading.id,
-                                    item,
-                                  })
-                                }
+                                    type: 'editHeading',
+                                    masterId: master.id,
+                                    heading,
+                                  });
+                                }}
                               />
                               <Button
                                 type="text"
@@ -470,18 +615,147 @@ const MasterSections: React.FC = () => {
                                 icon={<IconTrash size={18} />}
                                 onClick={e => {
                                   e.stopPropagation();
-                                  openDeleteModal({ type: 'item', headingId: heading.id, item });
+                                  openDeleteModal({ type: 'heading', masterId: master.id, heading });
                                 }}
                               />
                             </div>
-                            <div className="w-28" />
+                            <div className="w-28">
+                              <Button
+                                size="small"
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  openStructureModal({ type: 'newItem', headingId: heading.id });
+                                }}
+                              >
+                                Add Item
+                              </Button>
+                            </div>
                           </div>
                         </div>
-                      ))}
-                  </React.Fragment>
-                ))}
-            </React.Fragment>
-          ))
+
+                        {isHeadingExpanded(heading.id) && (
+                          <>
+                            {isItemsLoading && (!heading.items || heading.items.length === 0) ? (
+                              <div className="flex items-center justify-center py-6 border-b border-gray-100">
+                                <Loading type="primary" />
+                              </div>
+                            ) : isItemsError && (!heading.items || heading.items.length === 0) ? (
+                              <div className="flex flex-col items-center justify-center gap-2 py-6 text-sm text-danger border-b border-gray-100">
+                                <span>{itemsError || 'Failed to load items'}</span>
+                                <Button
+                                  size="small"
+                                  onClick={() =>
+                                    dispatch(getQuotationFormatMasterSectionsItemsThunk({
+                                      masterSectionId: String(heading.id),
+                                      page: 1,
+                                      limit: DEFAULT_PAGE_LIMIT,
+                                    }))
+                                  }
+                                >
+                                  Retry
+                                </Button>
+                              </div>
+                            ) : !heading.items || heading.items.length === 0 ? (
+                              <div className="flex items-center justify-center py-3 text-xs text-gray-400 border-b border-gray-100">
+                                No items found
+                              </div>
+                            ) : (
+                              <>
+                                {heading.items.map(item => (
+                                  <div
+                                    key={item.id}
+                                    className="flex items-center justify-between px-2 py-1 border-b border-gray-200 cursor-pointer hover:bg-gray-50"
+                                  >
+                                    <span className="ml-[4%]">{item.name}</span>
+                                    <div className="flex items-center gap-3">
+                                      <span className="text-xs w-16 text-right">
+                                        {item.active ? 'Active' : 'Inactive'}
+                                      </span>
+                                      <span className="text-xs w-6 text-right text-danger">
+                                        {item.sortOrder}
+                                      </span>
+                                      <div className="flex items-center gap-2 w-24 justify-end">
+                                        <Button type="text" size="small" icon={<IconCopy size={18} />} />
+                                        <Button
+                                          type="text"
+                                          size="small"
+                                          icon={<IconEdit size={18} />}
+                                          onClick={() =>
+                                            openStructureModal({
+                                              type: 'editItem',
+                                              headingId: heading.id,
+                                              item,
+                                            })
+                                          }
+                                        />
+                                        <Button
+                                          type="text"
+                                          size="small"
+                                          danger
+                                          icon={<IconTrash size={18} />}
+                                          onClick={e => {
+                                            e.stopPropagation();
+                                            openDeleteModal({ type: 'item', headingId: heading.id, item });
+                                          }}
+                                        />
+                                      </div>
+                                      <div className="w-28" />
+                                    </div>
+                                  </div>
+                                ))}
+                                {itemsPag?.hasMore && (
+                                  <div className="flex items-center justify-center py-2 border-b border-gray-100">
+                                    <Button
+                                      size="small"
+                                      loading={isItemsLoadMoreLoading}
+                                      onClick={() => handleLoadMoreItems(headingKey)}
+                                    >
+                                      Load More Items
+                                    </Button>
+                                  </div>
+                                )}
+                              </>
+                            )}
+                          </>
+                        )}
+                      </React.Fragment>
+                    );
+                  })}
+                  {headersPag?.hasMore && master.masterSectionId && (
+                    <div className="flex items-center justify-center py-2 border-b border-gray-100">
+                      <Button
+                        size="small"
+                        loading={isHeadersLoadMoreLoading}
+                        onClick={() => handleLoadMoreHeadings(master.masterSectionId!)}
+                      >
+                        Load More Headings
+                      </Button>
+                    </div>
+                  )}
+                </>
+              )}
+            </>
+          )}
+        </React.Fragment>
+      );
+    });
+  };
+
+  return (
+    <div className="rounded bg-card-color text-md min-h-[260px]">
+      <div className="px-2 py-3">
+        {renderMasterListBody()}
+        {masters.length > 0 && pagination.hasMore && (
+          <div className="flex items-center justify-center py-3">
+            <Button
+              type="primary"
+              size="small"
+              loading={isLoadingMoreMasters}
+              onClick={handleLoadMoreMasters}
+            >
+              Load More
+            </Button>
+          </div>
         )}
       </div>
       <ActionDialogmodel

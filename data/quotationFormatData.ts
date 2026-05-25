@@ -1,5 +1,21 @@
+export type Pagination = {
+  currentPage: number;
+  totalPages: number;
+  totalRecords: number;
+  limit: number;
+  hasMore: boolean;
+};
+
+export const initialPagination: Pagination = {
+  currentPage: 1,
+  totalPages: 1,
+  totalRecords: 0,
+  limit: 10,
+  hasMore: false,
+};
+
 export type MasterItem = {
-  id: number;
+  id: number | string;
   name: string;
   startDate?: string;
   endDate?: string;
@@ -8,67 +24,23 @@ export type MasterItem = {
 };
 
 export type MasterHeading = {
-  id: number;
+  id: number | string;
   name: string;
   startDate?: string;
   endDate?: string;
   active: boolean;
   sortOrder: number;
   items?: MasterItem[];
+  itemsPagination?: Pagination;
 };
 
 export type MasterGroup = {
-  id: number;
+  id: number | string;
+  masterSectionId?: string;
   name: string;
   active: boolean;
   headings: MasterHeading[];
+  headingsPagination?: Pagination;
 };
 
-export const mockMasters: MasterGroup[] = [
-  {
-    id: 1,
-    name: 'MY HOME INCLUSIONS',
-    active: true,
-    headings: [
-      {
-        id: 11,
-        name: 'Site Costs And Connections',
-        active: true,
-        sortOrder: 1,
-        items: [
-          {
-            id: 111,
-            name: 'Site cost & connection based on land size up to 450m2, and up to 300mm fall overbuilding.',
-            active: true,
-            sortOrder: 1,
-          },
-          {
-            id: 112,
-            name: 'Site cost & connection based on land size up to 450m2, and up to 300mm fall overbuilding.',
-            active: true,
-            sortOrder: 2,
-          },
-        ],
-      },
-      {
-        id: 12,
-        name: 'External Features',
-        active: true,
-        sortOrder: 2,
-      },
-    ],
-  },
-  {
-    id: 2,
-    name: 'TERMS AND CONDITIONS',
-    active: true,
-    headings: [
-      {
-        id: 21,
-        name: 'Terms and Conditions',
-        active: true,
-        sortOrder: 1,
-      },
-    ],
-  },
-];
+export const mockMasters: MasterGroup[] = [];

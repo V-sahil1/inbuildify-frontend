@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Button, Table, Tabs, Typography } from 'antd';
+import { Button, Table, Tabs, Typography, message } from 'antd';
 import { useRouter } from 'next/router';
 import QuotationFormatDetails from './QuotationFormatDetails';
 import MasterSections from './MasterSections';
@@ -12,7 +12,7 @@ import {
   getSectionDetailsFields,
 } from '@/components/formFields/quotationFormatFields';
 import { useAppDispatch } from '@hooks/redux';
-import { getQuotationFormatByIdThunk } from '@redux/feature/quotation-format/quotationFormatThunk';
+import { getQuotationFormatByIdThunk, createQuotationFormatMasterSectionThunk } from '@redux/feature/quotation-format/quotationFormatThunk';
 
 const { TabPane } = Tabs as any;
 
@@ -136,9 +136,26 @@ const QuotationFormatForm: React.FC<QuotationFormatFormProps> = ({ id }) => {
         title="Create Master"
         open={activeModal === 'createMaster'}
         onCancel={() => setActiveModal(null)}
-        onSubmit={values => {
-          console.log('Master form values', values);
-          setActiveModal(null);
+        onSubmit={async values => {
+          try {
+            const quotationFormatId = Array.isArray(id) ? id[0] : id;
+            if (!quotationFormatId) {
+              message.error('Quotation Format ID is missing');
+              return;
+            }
+
+            const payload = {
+              masterName: values.masterName,
+              status: values.status === 'active',
+            };
+
+            await dispatch(createQuotationFormatMasterSectionThunk({ quotationFormatId, payload })).unwrap();
+            message.success('Master section created successfully');
+          } catch (error: any) {
+            message.error(error || 'Failed to create master section');
+          } finally {
+            setActiveModal(null);
+          }
         }}
         submitButtonText="Save"
         fields={getCreateMasterFields()}

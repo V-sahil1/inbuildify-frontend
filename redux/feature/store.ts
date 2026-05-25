@@ -44,6 +44,7 @@ import landReducer from './land/landSlice';
 import structuralReducer from './structuralengg/structuralSlice';
 import jobListReducer from './job/jobSlice';
 import todoReducer from './todo/todoSlice';
+import quotationFormatReducer from './quotation-format/quotationFormatSlice';
 
 const authPersistConfig = {
   key: 'auth',
@@ -94,6 +95,7 @@ const appReducer = combineReducers({
   structural: structuralReducer,
   jobList: jobListReducer,
   todo: todoReducer,
+  quotationFormat: quotationFormatReducer,
 });
 
 const rootReducer = (state: ReturnType<typeof appReducer> | undefined, action: any) => {
