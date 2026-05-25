@@ -6,6 +6,7 @@ import MasterSections from './MasterSections';
 import { useQuotationSectionColumns } from '@/components/table-columns/quotationSectionColumns';
 import { useCustomSectionColumns } from '@/components/table-columns/customSectionColumns';
 import { ActionDialogmodel } from '@/components/common/Models/ActionDialogModel';
+import Loading from '@/components/common/Loading';
 import {
   getCreateMasterFields,
   getCustomGroupFields,
@@ -49,6 +50,7 @@ const QuotationFormatForm: React.FC<QuotationFormatFormProps> = ({ id }) => {
     'sectionDetails' | 'createMaster' | 'customGroup' | null
   >(null);
   const [customGroupLoading, setCustomGroupLoading] = React.useState(false);
+  const [customSectionLoading, setCustomSectionLoading] = React.useState(false);
   const [customSectionData, setCustomSectionData] = React.useState<any[] | null>(null);
 
   const { columns: customColumns, data: customRows } = useCustomSectionColumns({
@@ -73,6 +75,7 @@ const QuotationFormatForm: React.FC<QuotationFormatFormProps> = ({ id }) => {
   // Fetch custom sections once when the Custom tab is activated
   const fetchAndSetCustomSections = async (qfId: string) => {
     try {
+      setCustomSectionLoading(true);
       const res: any = await dispatch(getCustomSectionByIdThunk(qfId)).unwrap();
       const apiPayload = res?.data ?? res;
       const sections = apiPayload?.customSections ?? apiPayload?.data?.customSections ?? apiPayload;
@@ -93,6 +96,8 @@ const QuotationFormatForm: React.FC<QuotationFormatFormProps> = ({ id }) => {
     } catch (err) {
       console.error('Failed to load custom sections', err);
       message.error('Failed to load custom sections');
+    } finally {
+      setCustomSectionLoading(false);
     }
   };
 
@@ -193,10 +198,17 @@ const QuotationFormatForm: React.FC<QuotationFormatFormProps> = ({ id }) => {
         <TabPane tab="Custom Section" key="custom">
           <Table
             columns={customColumns}
-            dataSource={customSectionData ?? customRows}
+            dataSource={customSectionLoading ? [] : customSectionData ?? customRows}
             pagination={false}
             rowKey="key"
             size="small"
+            locale={{
+              emptyText: customSectionLoading ? (
+                <div className="py-12 flex justify-center">
+                  <Loading type="primary" />
+                </div>
+              ) : 'No custom sections found',
+            }}
           />
         </TabPane>
       </Tabs>
