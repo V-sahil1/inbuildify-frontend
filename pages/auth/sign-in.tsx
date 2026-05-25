@@ -33,14 +33,13 @@ export default function Signin() {
     try {
       setLoading(true);
       const response = await dispatch(SignInThunk(values)).unwrap();
-      await dispatch(getUserThunk()).unwrap();
+      const fetchedUser = await dispatch(getUserThunk()).unwrap();
       message.success(response.message);
-      if(!user?.isOnboardingFinished){
+      if (!fetchedUser?.isOnboardingFinished) {
         router.push('/onboarding');
       } else {
         router.push('/');
       }
-      router.push('/');
     } catch (error) {
       message.error(error || 'sign in failed');
     } finally {
