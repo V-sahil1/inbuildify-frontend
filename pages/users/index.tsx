@@ -49,7 +49,7 @@ const Users = () => {
     { label: 'Export to XLSX', key: 'excel', icon: <IconFileSpreadsheet size={16} /> },
     { label: 'Export to CSV', key: 'csv', icon: <IconFileTypeCsv /> },
   ];
-  const canCreateUser = roleOptions.some(r => r.value === loginUser?.roleId);
+  const canCreateUser = roleOptions.find(r => r.label === 'Company Administrator')?.value === loginUser?.roleId;
   useEffect(() => {
     fetchUsersData();
   }, [filters]);
