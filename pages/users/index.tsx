@@ -22,9 +22,13 @@ import { IUser } from '@redux/feature/user/UserState';
 import { Status } from '@lib/constants/enum';
 import { UserFormDrawer } from '@/components/user/UserFormDrawer';
 import dayjs from 'dayjs';
+import { stateRules } from '@lib/constants/formInputValidations';
+import { useRoleHook } from '@hooks/useRoleHook';
 
 const Users = () => {
   const dispatch = useAppDispatch();
+  const { roleOptions } = useRoleHook();
+  const loginUser = useAppSelector(state => state.auth.user);
   const { users, status } = useAppSelector(state => state.user);
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const [drawerOpen, setDrawerOpen] = useState<'create' | 'resetPassword' | null>(null);
@@ -45,6 +49,7 @@ const Users = () => {
     { label: 'Export to XLSX', key: 'excel', icon: <IconFileSpreadsheet size={16} /> },
     { label: 'Export to CSV', key: 'csv', icon: <IconFileTypeCsv /> },
   ];
+  const canCreateUser = roleOptions.some(r => r.value === loginUser?.roleId);
   useEffect(() => {
     fetchUsersData();
   }, [filters]);
@@ -89,15 +94,17 @@ const Users = () => {
         </div>
 
         <div className="ml-auto flex items-center gap-2">
-          <Button
-            type="primary"
-            icon={<IconPlus size={16} />}
-            onClick={() => {
-              setDrawerOpen('create');
-            }}
-          >
-            New User
-          </Button>
+          {canCreateUser && (
+            <Button
+              type="primary"
+              icon={<IconPlus size={16} />}
+              onClick={() => {
+                setDrawerOpen('create');
+              }}
+            >
+              New User
+            </Button>
+          )}
 
           {viewMode === 'grid' ? (
             <TooltipButton
@@ -134,6 +141,7 @@ const Users = () => {
                   setDrawerOpen={setDrawerOpen}
                   setModalOpen={setModalOpen}
                   setSelectedUser={setSelectedUser}
+                  enabled={canCreateUser}
                 />
               ))}
           </div>

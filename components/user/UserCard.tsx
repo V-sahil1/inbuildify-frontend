@@ -10,7 +10,7 @@ import {
 } from '@tabler/icons-react';
 import TooltipButton from '../common/TooltipButton';
 
-export const UserCard = ({ user, setModalOpen, setSelectedUser, setDrawerOpen }) => {
+export const UserCard = ({ user, setModalOpen, setSelectedUser, setDrawerOpen, enabled }) => {
   return (
     <div className="bg-card-color rounded-2xl hover:shadow-lg transition-all p-4">
       <div className="flex items-center justify-between gap-4 w-full">
@@ -32,7 +32,7 @@ export const UserCard = ({ user, setModalOpen, setSelectedUser, setDrawerOpen })
         </div>
 
         {/* Right: action buttons */}
-        <div className="flex flex-col items-end gap-1">
+        {enabled && <div className="flex flex-col items-end gap-1">
           <TooltipButton
             title="Edit"
             icon={<IconPencil size={18} />}
@@ -72,7 +72,7 @@ export const UserCard = ({ user, setModalOpen, setSelectedUser, setDrawerOpen })
             }}
             type="text"
           />
-        </div>
+        </div>}
       </div>
     </div>
   );

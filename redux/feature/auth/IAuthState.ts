@@ -9,6 +9,8 @@ export interface ApiResponse<T = any, E = any> {
 }
 
 export interface User {
+  roleId: string;
+  companyId: string;
   id: string;
   name: string;
   email: string;

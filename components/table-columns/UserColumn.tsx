@@ -8,7 +8,7 @@ import {
 } from '@tabler/icons-react';
 import TooltipButton from '../common/TooltipButton';
 import { message } from 'antd';
-import { useAppDispatch } from '@hooks/redux';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import {
   createUserThunk,
   resetUserPasswordThunk,
@@ -22,6 +22,7 @@ import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 
 export const UserColumn = (setModalOpen, setSelectedUser, setDrawerOpen, selectedUser) => {
   const dispatch = useAppDispatch();
+  const { user } = useAppSelector(state => state.auth);
 
   const column = [
     {
@@ -132,6 +133,7 @@ export const UserColumn = (setModalOpen, setSelectedUser, setDrawerOpen, selecte
           ...values,
           photo: photoFile,
           signature: signatureFile,
+          companyId: user?.companyId
         });
         await dispatch(createUserThunk(formData)).unwrap();
         message.success('User created sucessfully');
