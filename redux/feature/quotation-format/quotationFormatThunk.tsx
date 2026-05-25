@@ -4,29 +4,29 @@ import { ApiResponse } from "../auth/IAuthState";
 import api, { apiWithFormDataMethods } from "@lib/constants/api";
 
 export const getallQuotationFormatThunk = createAsyncThunk(
-    'quotationFormat/getall',
-    async () => {
-        try{
-            const res = await api.get<ApiResponse>(API_ENDPOINTS.QUOTATION_FORMAT);
-            return res.data;
-            
-        } catch (error) {
-            return error.message;
-        }
+  'quotationFormat/getall',
+  async () => {
+    try {
+      const res = await api.get<ApiResponse>(API_ENDPOINTS.QUOTATION_FORMAT);
+      return res.data;
+
+    } catch (error) {
+      return error.message;
     }
+  }
 );
 
 export const getQuotationFormatByIdThunk = createAsyncThunk(
-    'quotationFormat/getById',
-    async (id: string) => {
-        try{
-            const res = await api.get<ApiResponse>(`${API_ENDPOINTS.QUOTATION_FORMAT}/${id}`);
-            return res.data;
-            
-        } catch (error) {
-            return error.message;
-        }
+  'quotationFormat/getById',
+  async (id: string) => {
+    try {
+      const res = await api.get<ApiResponse>(`${API_ENDPOINTS.QUOTATION_FORMAT}/${id}`);
+      return res.data;
+
+    } catch (error) {
+      return error.message;
     }
+  }
 );
 
 type PaginationParams = {
@@ -147,10 +147,10 @@ export const createQuotationFormatMasterSectionItemThunk = createAsyncThunk(
 
 export const createQuotationFormatThunk = createAsyncThunk(
   'quotationFormat/create',
-  async (payload: any, { rejectWithValue }) => {
+  async (payload: FormData, { rejectWithValue }) => {
     try {
-      const res = await api.post<ApiResponse>(API_ENDPOINTS.QUOTATION_FORMAT, 
-        {data: payload}
+      const res = await apiWithFormDataMethods.post<ApiResponse>(API_ENDPOINTS.QUOTATION_FORMAT,
+        payload
       );
       return res.data;
     } catch (error) {
@@ -161,9 +161,50 @@ export const createQuotationFormatThunk = createAsyncThunk(
 
 export const updateQuotationFormatThunk = createAsyncThunk(
   'quotationFormat/update',
-  async ({ id, payload }: { id: string; payload: any }, { rejectWithValue }) => {
+  async ({ id, payload }: { id: string; payload: FormData }, { rejectWithValue }) => {
     try {
-      const res = await api.put<ApiResponse>(`${API_ENDPOINTS.QUOTATION_FORMAT}/${id}`, payload);
+      const res = await apiWithFormDataMethods.put<ApiResponse>(`${API_ENDPOINTS.QUOTATION_FORMAT}/${id}`, payload);
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+// custom-section
+export const getCustomSectionByIdThunk = createAsyncThunk(
+  'quotationFormat/getCustomSectionById',
+  async (id: string) => {
+    try {
+      const res = await api.get<ApiResponse>(`${API_ENDPOINTS.QUOTATION_FORMAT_CUSTOM_SECTION}/${id}`);
+      return res.data;
+    } catch (error) {
+      return error.message;
+    }
+  }
+);
+
+
+export const createCustomSectionThunk = createAsyncThunk(
+  'quotationFormat/createCustomSection',
+  async ({ id, payload }: { id: string; payload: FormData }, { rejectWithValue }) => {
+    try {
+      const res = await api.post<ApiResponse>(`${API_ENDPOINTS.QUOTATION_FORMAT_CUSTOM_SECTION}/${id}`,
+        { data: payload }
+      );
+      return res.data;
+
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const updateCustomSectionThunk = createAsyncThunk(
+  'quotationFormat/updateCustomSection',
+  async ({ id, payload }: { id: string; payload: FormData }, { rejectWithValue }) => {
+    try {
+      const res = await api.put<ApiResponse>(`${API_ENDPOINTS.QUOTATION_FORMAT_CUSTOM_SECTION}/${id}`, { data: payload });
       return res.data;
     } catch (error) {
       return rejectWithValue(error.message);

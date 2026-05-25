@@ -267,6 +267,7 @@ class API_ENDPOINTS {
 
   //quotation-format
   public static QUOTATION_FORMAT = '/quotation-format';
+  public static QUOTATION_FORMAT_CUSTOM_SECTION = '/quotation-format-custom-section';
   public static QUOTATION_FORMAT_MASTER_SECTION = '/quotation-format-master-section';
   public static QUOTATION_FORMAT_MASTER_SECTION_HEADER = '/quotation-format-master-section-header';
   public static QUOTATION_FORMAT_MASTER_SECTION_ITEM = '/quotation-format-master-section-item';

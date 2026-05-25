@@ -1,5 +1,8 @@
-import React, { useMemo, useState } from 'react';
-import { Checkbox, Input, InputNumber } from 'antd';
+import React, { useMemo, useState, useEffect } from 'react';
+import { Checkbox, Input, InputNumber, message } from 'antd';
+import { useAppDispatch } from '@hooks/redux';
+import { updateCustomSectionThunk } from '@redux/feature/quotation-format/quotationFormatThunk';
+import { formDataGenerator } from '@lib/utils/formDataGenerator';
 
 export interface CustomSectionRow {
   key: string;
@@ -11,7 +14,13 @@ export interface CustomSectionRow {
   parentField?: string;
 }
 
-export const useCustomSectionColumns = () => {
+interface UseCustomSectionOptions {
+  data?: any[] | null;
+  setData?: (rows: any[] | null) => void;
+  quotationFormatId?: string | null;
+}
+
+export const useCustomSectionColumns = (opts?: UseCustomSectionOptions) => {
   const initialCustomSectionRows: CustomSectionRow[] = [
     {
       key: '1',
@@ -62,10 +71,48 @@ export const useCustomSectionColumns = () => {
       parentField: '',
     },
   ];
-  const [rows, setRows] = useState<CustomSectionRow[]>(initialCustomSectionRows);
+  const dispatch = useAppDispatch();
 
-  const handleRowChange = (key: string, changes: Partial<CustomSectionRow>) => {
-    setRows(prev => prev.map(row => (row.key === key ? { ...row, ...changes } : row)));
+  const [rows, setRows] = useState<any[]>(opts?.data ?? initialCustomSectionRows);
+  const [updatingIds, setUpdatingIds] = useState<string[]>([]);
+
+  // sync when parent data changes
+  useEffect(() => {
+    if (opts?.data) setRows(opts.data);
+  }, [opts?.data]);
+
+  const handleRowChange = async (record: any, changes: Partial<CustomSectionRow>) => {
+    const key = record.key;
+    const updated = { ...record, ...changes };
+
+    // optimistic update locally and in parent if setter provided
+    const newRows = rows.map(r => (r.key === key ? { ...r, ...changes } : r));
+    setRows(newRows);
+    if (opts?.setData) opts.setData(newRows);
+
+    // prepare payload for API
+    const payloadObj = {
+      // customSectionId: key,
+      fieldName: updated.field ?? updated.fieldName,
+      fieldLabel: updated.fieldLabel,
+      isApplicable: !!updated.isApplicable,
+      groupField: !!updated.groupField,
+      sortOrder: updated.sortOrder ?? 0,
+      // parentField: updated.parentField ?? '',
+    };
+
+    try {
+      setUpdatingIds(prev => [...prev, key]);
+      const formData = formDataGenerator(payloadObj);
+      const idToSend = key; // backend expects id in path
+      await dispatch(updateCustomSectionThunk({ id: idToSend, payload: formData })).unwrap();
+      message.success('Custom section updated');
+    } catch (err) {
+      console.error('Failed to update custom section', err);
+      message.error('Failed to update custom section');
+    } finally {
+      setUpdatingIds(prev => prev.filter(i => i !== key));
+    }
   };
 
   const columns = useMemo(
@@ -81,10 +128,11 @@ export const useCustomSectionColumns = () => {
         dataIndex: 'isApplicable',
         key: 'isApplicable',
         width: '10%',
-        render: (_: any, record: CustomSectionRow) => (
+        render: (_: any, record: any) => (
           <Checkbox
             checked={record.isApplicable}
-            onChange={e => handleRowChange(record.key, { isApplicable: e.target.checked })}
+            onChange={e => handleRowChange(record, { isApplicable: e.target.checked })}
+            disabled={updatingIds.includes(record.key)}
           />
         ),
       },
@@ -93,8 +141,12 @@ export const useCustomSectionColumns = () => {
         dataIndex: 'groupField',
         key: 'groupField',
         width: '10%',
-        render: (_: any, record: CustomSectionRow) => (
-          <Checkbox checked={record.groupField} disabled />
+        render: (_: any, record: any) => (
+          <Checkbox
+            checked={record.groupField}
+            onChange={e => handleRowChange(record, { groupField: e.target.checked })}
+            disabled={updatingIds.includes(record.key)}
+          />
         ),
       },
       {
@@ -102,12 +154,12 @@ export const useCustomSectionColumns = () => {
         dataIndex: 'fieldLabel',
         key: 'fieldLabel',
         width: '30%',
-        render: (_: any, record: CustomSectionRow) => (
+        render: (_: any, record: any) => (
           <Input
             size="small"
             value={record.fieldLabel}
-            disabled={!record.isApplicable}
-            onChange={e => handleRowChange(record.key, { fieldLabel: e.target.value })}
+            disabled={!record.isApplicable || updatingIds.includes(record.key)}
+            onChange={e => handleRowChange(record, { fieldLabel: e.target.value })}
           />
         ),
       },
@@ -116,27 +168,25 @@ export const useCustomSectionColumns = () => {
         dataIndex: 'sortOrder',
         key: 'sortOrder',
         width: '10%',
-        render: (_: any, record: CustomSectionRow) => (
+        render: (_: any, record: any) => (
           <InputNumber
             size="small"
             min={0}
             value={record.sortOrder}
-            disabled={!record.isApplicable}
-            onChange={value =>
-              handleRowChange(record.key, { sortOrder: value === null ? undefined : value })
-            }
+            disabled={!record.isApplicable || updatingIds.includes(record.key)}
+            onChange={value => handleRowChange(record, { sortOrder: value === null ? undefined : value })}
             style={{ width: '100%' }}
           />
         ),
       },
-      {
-        title: 'Parent Field',
-        dataIndex: 'parentField',
-        key: 'parentField',
-        width: '15%',
-      },
+      // {
+      //   title: 'Parent Field',
+      //   dataIndex: 'parentField',
+      //   key: 'parentField',
+      //   width: '15%',
+      // },
     ],
-    []
+    [rows, updatingIds]
   );
 
   return { columns, data: rows };
