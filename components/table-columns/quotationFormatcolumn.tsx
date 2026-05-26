@@ -1,10 +1,11 @@
-import { Button, Dropdown, Input, Popover, Select, Space, Tag, type MenuProps } from 'antd';
+import { Button, Dropdown, Input, Popover, Select, Space, Spin, Tag, type MenuProps } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import { debouncedURL } from '@lib/utils/debounceURL';
 import DateFilterDropdown from '@/components/common/custom-selects/DateFilterDropdown';
 import { IconCopy, IconDotsVertical, IconExternalLink } from '@tabler/icons-react';
-import { useAppDispatch } from '@hooks/redux';
-import { getallQuotationFormatThunk } from '@redux/feature/quotation-format/quotationFormatThunk';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { getallQuotationFormatThunk, copyQuotationFormatThunk, deleteQuotationFormatThunk } from '@redux/feature/quotation-format/quotationFormatThunk';
+import { message } from 'antd';
 import { formatDate } from '@lib/utils/formatDate';
 
 const { Option } = Select;
@@ -20,42 +21,50 @@ export interface QuotationFormat {
 }
 
 export const useQuotationFormatColumns = () => {
-  const [quotationFormat, setQuotationFormat] = React.useState<any[]>([]);
-  const [loading, setLoading] = React.useState(false);
-  const [isIdle, setIsIdle] = React.useState(true);
   const dispatch = useAppDispatch();
+  const quotationFormat = useAppSelector((s: any) => s.quotationFormat?.quotationFormats ?? []);
+  const getAllStatus = useAppSelector((s: any) => s.quotationFormat?.getAllStatus);
 
+  // Ensure we have data loaded once (will be cached in redux)
   useEffect(() => {
-    try {
-      setLoading(true); 
-      if (quotationFormat.length === 0 && isIdle) {
-        // Fetch quotation formats
-        const res = dispatch(getallQuotationFormatThunk()).unwrap();
-        res.then((data) => {
-          setQuotationFormat(data.quotationFormats);
-        });
-        setIsIdle(false);
-      }
-    } catch (error) {
-      console.error('Error fetching quotation formats:', error);
-    } finally {
-      setLoading(false);
+    if (!quotationFormat || quotationFormat.length === 0) {
+      dispatch(getallQuotationFormatThunk());
     }
   }, [dispatch, quotationFormat]);
-  
+
   const data: QuotationFormat[] = useMemo(() => {
-    return quotationFormat?.map((item: any, index: number) => ({
-      key: item.quotationFormatId || index.toString(),
-      builderName: item.builderInfo?.name || '',
-      formatName: item.formatName || '',
-      created: new Date(item?.createdAt).toLocaleDateString() || '',
-      updated: new Date(item?.updatedAt).toLocaleDateString() || '',
+    return (quotationFormat || []).map((item: any, index: number) => ({
+      key: item.quotationFormatId || item.id || index.toString(),
+      builderName: item.builderInfo?.name || item.builderInfo || '',
+      formatName: item.formatName || item.format || item.name || '',
+      created: item?.createdAt ? new Date(item?.createdAt).toLocaleDateString() : (item?.created ? formatDate(item.created) : ''),
+      updated: item?.updatedAt ? new Date(item?.updatedAt).toLocaleDateString() : (item?.updated ? formatDate(item.updated) : ''),
       isActive: item.status || false,
-      defaultQuotation: item.isDefault || false,
-    })) || [];
+      defaultQuotation: item.makeDefault ?? item.defaultQuotation ?? false,
+    }));
   }, [quotationFormat]);
   
   const [warningForKey, setWarningForKey] = useState<string | null>(null);
+  const [copyingKey, setCopyingKey] = useState<string | null>(null);
+  const [deletingKey, setDeletingKey] = useState<string | null>(null);
+
+  const handleQuotationFormatDelete = async (record: QuotationFormat) => {
+    if (record.defaultQuotation) {
+      setWarningForKey(record.key);
+      return;
+    }
+    try {
+      setDeletingKey(record.key);
+      await dispatch(deleteQuotationFormatThunk(record.key)).unwrap();
+      message.success('Quotation format deleted successfully');
+      // store reducer will remove item from list
+    } catch (err: any) {
+      console.error('Failed to delete quotation format', err);
+      message.error(err?.message || 'Failed to delete quotation format');
+    } finally {
+      setDeletingKey(null);
+    }
+  };
 
   const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
     delay: 500,
@@ -188,9 +197,21 @@ export const useQuotationFormatColumns = () => {
           <div>
             <Button
               type="link"
-              onClick={e => {
+              loading={copyingKey === record.key}
+              onClick={async e => {
                 e.stopPropagation();
-                console.log('copy', record);
+                if (!record.key) return;
+                try {
+                  setCopyingKey(record.key);
+                  await dispatch(copyQuotationFormatThunk(String(record.key))).unwrap();
+                  message.success('Quotation format copied successfully');
+
+                } catch (err: any) {
+                  console.error('Failed to copy quotation format', err);
+                  message.error(err?.message || 'Failed to copy quotation format');
+                } finally {
+                  setCopyingKey(null);
+                }
               }}
             >
               <IconCopy size={20} />
@@ -230,13 +251,21 @@ export const useQuotationFormatColumns = () => {
                     items: [
                       {
                         key: 'delete',
-                        label: 'Delete',
+                        label: deletingKey === record.key ? (
+                          <span className="flex items-center gap-2">
+                            <Spin size="small" />
+                            <span>Deleting...</span>
+                          </span>
+                        ) : (
+                          'Delete'
+                        ),
+                        disabled: deletingKey === record.key,
                       },
                     ],
                     onClick: info => {
                       info.domEvent.stopPropagation();
                       if (info.key === 'delete') {
-                        setWarningForKey(record.key);
+                        handleQuotationFormatDelete(record);
                       }
                     },
                   } as MenuProps

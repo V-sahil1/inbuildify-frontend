@@ -2,6 +2,11 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Status } from '@lib/constants/enum';
 import {
   getQuotationFormatMasterSectionsThunk,
+  getallQuotationFormatThunk,
+  copyQuotationFormatThunk,
+  deleteQuotationFormatThunk,
+  createQuotationFormatThunk,
+  updateQuotationFormatThunk,
   createQuotationFormatMasterSectionThunk,
   getQuotationFormatMasterSectionsHeadersThunk,
   createQuotationFormatMasterSectionHeaderThunk,
@@ -27,6 +32,9 @@ type StatusRecord = Record<string, Status>;
 type ErrorRecord = Record<string, string | null>;
 
 export interface QuotationFormatState {
+  quotationFormats: any[];
+  getAllStatus: Status;
+  getAllError: string | null;
   masters: MasterGroup[];
   pagination: Pagination;
   headersPagination: PaginationRecord;
@@ -51,6 +59,9 @@ export interface QuotationFormatState {
 }
 
 const initialState: QuotationFormatState = {
+  quotationFormats: [],
+  getAllStatus: Status.IDLE,
+  getAllError: null,
   masters: [],
   pagination: { ...initialPagination },
   headersPagination: {},
@@ -88,6 +99,9 @@ const buildPagination = (raw: any): Pagination => {
   };
 };
 
+const normalizeQuotationFormatItem = (raw: any) => raw?.data ?? raw;
+const getQuotationFormatItemId = (item: any) => String(item?.quotationFormatId ?? item?.id ?? item?.key ?? '');
+
 const quotationFormatSlice = createSlice({
   name: 'quotationFormat',
   initialState,
@@ -105,6 +119,61 @@ const quotationFormatSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(getallQuotationFormatThunk.pending, (state) => {
+        state.getAllStatus = Status.PENDING;
+        state.getAllError = null;
+      })
+      .addCase(getallQuotationFormatThunk.fulfilled, (state, action) => {
+        const raw = action.payload as any;
+        const payload = raw?.quotationFormats ?? raw?.data ?? raw ?? [];
+        state.quotationFormats = Array.isArray(payload) ? payload : [];
+        state.getAllStatus = Status.SUCCESS;
+      })
+      .addCase(getallQuotationFormatThunk.rejected, (state, action) => {
+        state.getAllStatus = Status.ERROR;
+        state.getAllError = (action.payload as string) || action.error?.message || 'Failed to load quotation formats';
+      })
+
+      .addCase(copyQuotationFormatThunk.fulfilled, (state, action) => {
+        const raw = action.payload as any;
+        const newItem = normalizeQuotationFormatItem(raw);
+        if (newItem) {
+          const builderInfo = newItem.builderInfo || state.quotationFormats.find(q => q.builderId === newItem.builderId)?.builderInfo || '';
+          state.quotationFormats = [...(state.quotationFormats || []), { ...newItem, builderInfo }];
+        }
+      })
+      .addCase(createQuotationFormatThunk.fulfilled, (state, action) => {
+        const raw = action.payload as any;
+        const newItem = normalizeQuotationFormatItem(raw);
+        if (newItem) {
+          const builderInfo = newItem.builderInfo || state.quotationFormats.find(q => q.builderId === newItem.builderId)?.builderInfo || '';
+          state.quotationFormats = [...(state.quotationFormats || []), { ...newItem, builderInfo }];
+        }
+      })
+      .addCase(updateQuotationFormatThunk.fulfilled, (state, action) => {
+        const raw = action.payload as any;
+        const updatedItem = normalizeQuotationFormatItem(raw);
+        if (!updatedItem) return;
+        const updatedId = getQuotationFormatItemId(updatedItem);
+        const builderInfo = updatedItem.builderInfo || state.quotationFormats.find(q => getQuotationFormatItemId(q) === updatedId)?.builderInfo || '';
+        let found = false;
+        state.quotationFormats = (state.quotationFormats || []).map((item: any) => {
+          if (getQuotationFormatItemId(item) === updatedId) {
+            found = true;
+            return { ...item, ...updatedItem, builderInfo };
+          }
+          return item;
+        });
+        if (!found) {
+          state.quotationFormats.push({ ...updatedItem, builderInfo });
+        }
+      })
+      .addCase(deleteQuotationFormatThunk.fulfilled, (state, action) => {
+        const deletedId = action.payload?.id;
+        if (!deletedId) return;
+        state.quotationFormats = (state.quotationFormats || []).filter(q => String(q.quotationFormatId ?? q.id ?? q.key) !== String(deletedId));
+      })
+
       .addCase(getQuotationFormatMasterSectionsThunk.pending, (state, action) => {
         const arg = action.meta.arg || {};
         if (arg.masterSectionId) return;

@@ -29,6 +29,31 @@ export const getQuotationFormatByIdThunk = createAsyncThunk(
   }
 );
 
+export const copyQuotationFormatThunk = createAsyncThunk(
+  'quotationFormat/copy',
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const res = await api.post<ApiResponse>(`${API_ENDPOINTS.QUOTATION_FORMAT}/${id}/copy`);
+      return {id,data:res.data};
+
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+
+  });
+
+  export const deleteQuotationFormatThunk = createAsyncThunk(
+    'quotationFormat/delete',
+    async (id: string, { rejectWithValue }) => {
+      try {
+        const res = await api.delete<ApiResponse>(`${API_ENDPOINTS.QUOTATION_FORMAT}/${id}`);
+        return { id, data: res.data };
+      } catch (error: any) {
+        return rejectWithValue(error.message);
+      }
+    }
+  );
+
 type PaginationParams = {
   page?: number;
   limit?: number;
@@ -107,7 +132,7 @@ export const createQuotationFormatMasterSectionThunk = createAsyncThunk(
   'quotationFormat/createMasterSection',
   async ({ quotationFormatId, payload }: { quotationFormatId: string; payload: any }, { rejectWithValue }) => {
     try {
-      const res = await api.post<ApiResponse>(`${API_ENDPOINTS.QUOTATION_FORMAT_MASTER_SECTION}/${quotationFormatId}`, {data: payload});
+      const res = await api.post<ApiResponse>(`${API_ENDPOINTS.QUOTATION_FORMAT_MASTER_SECTION}/${quotationFormatId}`, { data: payload });
       return res.data;
     } catch (error: any) {
       return rejectWithValue(error.message);
@@ -121,7 +146,7 @@ export const createQuotationFormatMasterSectionHeaderThunk = createAsyncThunk(
     try {
       const res = await api.post<ApiResponse>(
         `${API_ENDPOINTS.QUOTATION_FORMAT_MASTER_SECTION_HEADER}/${masterSectionId}`,
-        {data: payload}
+        { data: payload }
       );
       return res.data;
     } catch (error: any) {
