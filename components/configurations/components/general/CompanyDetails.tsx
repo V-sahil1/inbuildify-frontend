@@ -63,7 +63,7 @@ const CompanyDetails = () => {
         url: company.emailSignatureLogo,
       },
     ] : [];
-    
+
     const companyLogoData = company.companyLogo && company.companyLogo.trim() !== '' ? [
       {
         uid: '-1',
@@ -72,21 +72,21 @@ const CompanyDetails = () => {
         url: company.companyLogo,
       },
     ] : [];
-    
+
     setEmailSignatureLogoState(emailSignatureLogoData);
     setCompanyLogoState(companyLogoData);
 
     try {
       // Create a safe company object by filtering out potential array fields that might cause issues
       const safeCompanyData = { ...company };
-      
+
       // Remove any fields that might be arrays and cause .map() issues
       Object.keys(safeCompanyData).forEach(key => {
         if (Array.isArray(safeCompanyData[key])) {
           delete safeCompanyData[key];
         }
       });
-      
+
       form.setFieldsValue({
         ...safeCompanyData,
         timezoneId: company.timezoneId,
@@ -114,7 +114,7 @@ const CompanyDetails = () => {
       const { emailSignatureLogo, companyLogo, ...rest } = values;
       let companyLogoFile = null;
       let emailSignatureLogoFile = null;
-      
+
       // Use local state to determine what to send
       if (emailSignatureLogo && emailSignatureLogo.length > 0) {
         emailSignatureLogoFile = emailSignatureLogo[0].originFileObj || null;
@@ -122,14 +122,14 @@ const CompanyDetails = () => {
         // Image was removed (original existed but state is empty)
         emailSignatureLogoFile = '';
       }
-      
+
       if (companyLogo && companyLogo.length > 0) {
         companyLogoFile = companyLogo[0].originFileObj || null;
       } else if (company.companyLogo && companyLogoState.length === 0) {
         // Image was removed (original existed but state is empty)
         companyLogoFile = '';
       }
-      
+
       const formData = formDataGenerator({
         ...rest,
         companyLogo: companyLogoFile,
@@ -181,14 +181,20 @@ const CompanyDetails = () => {
             <Input />
           </Form.Item>
           <Form.Item label="ABN" name="abnNumber" rules={abnRules}>
-            <Input />
+            <Input
+              onKeyPress={e => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}
+            />
           </Form.Item>
           <Form.Item
             label="Timezone Name"
             name="timezoneId"
             rules={[{ required: true, message: 'TimeZone is required' }]}
           >
-            <Select options={timezoneOptions} placeholder="Select the Timezone"/>
+            <Select options={timezoneOptions} placeholder="Select the Timezone" />
           </Form.Item>
         </div>
 
@@ -212,7 +218,7 @@ const CompanyDetails = () => {
             <Input />
           </Form.Item>
           <Form.Item label="Zip / Postal Code" name={['address', 'zipCode']} rules={zipCodeRules}>
-            <Input type="number" onWheel={(e) => e.currentTarget.blur()} min={0}/>
+            <Input type="number" onWheel={(e) => e.currentTarget.blur()} min={0} />
           </Form.Item>
           <Form.Item
             label="Country"
@@ -226,7 +232,7 @@ const CompanyDetails = () => {
             name={['address', 'stateId']}
             rules={[{ required: true, message: 'State is required' }]}
           >
-            <Select options={stateOptions} placeholder="Select State" className='capitalize' disabled={!form.getFieldValue(['address', 'countryId'])}/>
+            <Select options={stateOptions} placeholder="Select State" className='capitalize' disabled={!form.getFieldValue(['address', 'countryId'])} />
           </Form.Item>
         </div>
 
@@ -240,10 +246,18 @@ const CompanyDetails = () => {
             <Input />
           </Form.Item>
           <Form.Item label="Account Number" name="accountNumber" rules={accountNumberRules}>
-            <Input />
+            <Input onKeyPress={e => {
+              if (!/[0-9]/.test(e.key)) {
+                e.preventDefault();
+              }
+            }} />
           </Form.Item>
           <Form.Item label="Account BSB" name="accountBsb" rules={accountBsbRules}>
-            <Input type="number" onWheel={(e) => e.currentTarget.blur()} min={0}/>
+            <Input onKeyPress={e => {
+              if (!/[0-9]/.test(e.key)) {
+                e.preventDefault();
+              }
+            }} onWheel={(e) => e.currentTarget.blur()} />
           </Form.Item>
         </div>
 

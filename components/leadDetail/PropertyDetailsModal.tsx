@@ -60,6 +60,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
   const [compactionInfo, setCompactionInfo] = useState<CompactionReport | null>(
     initialValues?.compactionReportContent
   );
+  const [loading, setLoading] = useState(false);
   const { stateOptions } = useStateHook();
   const { countryOptions } = useCountryHook();
   const { generatePdfUrl } = usePdf(CompactionReportPdf);
@@ -78,45 +79,47 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
   }, [compaction]);
 
   const handleSave = async () => {
-    const values = await form.validateFields();
-    const selfCompactionReportFile = selfUploadedFile || form.getFieldValue('selfCompactionReportFile');
-
-    // Determine compactionReportUrl based on scenario
-    let finalCompactionReportUrl = uploadedPdf;
-
-    // If compaction is not available and provider is self, use uploaded file
-    if (values?.compactionReport === 'not_available' && selfCompactionReportFile) {
-      finalCompactionReportUrl = selfCompactionReportFile;
-    }
-
-    const payload =
-      values?.compactionReport === 'available'
-        ? {
-          ...values,
-          compactionReportContent: compactionInfo,
-          compactionReportUrl: uploadedPdf,
-          titleDate: values.titleDate?.format('YYYY-MM-DD'),
-          clearingDate: values.clearingDate?.format('YYYY-MM-DD'),
-        }
-        : {
-          ...values,
-          titleDate: values.titleDate?.format('YYYY-MM-DD'),
-          clearingDate: values.clearingDate?.format('YYYY-MM-DD'),
-          ...(finalCompactionReportUrl && { compactionReportUrl: finalCompactionReportUrl }),
-        };
-
-    const { selfCompactionReport, ...rest } = payload;
+    setLoading(true);
     try {
-      if (leadDetail?.property) {
+      const values = await form.validateFields();
+      const selfCompactionReportFile = selfUploadedFile || form.getFieldValue('selfCompactionReportFile');
 
+      // Determine compactionReportUrl based on scenario
+      let finalCompactionReportUrl = uploadedPdf;
+
+      // If compaction is not available and provider is self, use uploaded file
+      if (values?.compactionReport === 'not_available' && selfCompactionReportFile) {
+        finalCompactionReportUrl = selfCompactionReportFile;
+      }
+
+      const payload =
+        values?.compactionReport === 'available'
+          ? {
+            ...values,
+            compactionReportContent: compactionInfo,
+            compactionReportUrl: uploadedPdf, // This will now be a File object instead of blob URL
+            titleDate: values.titleDate?.format('YYYY-MM-DD'),
+            clearingDate: values.clearingDate?.format('YYYY-MM-DD'),
+          }
+          : {
+            ...values,
+            titleDate: values.titleDate?.format('YYYY-MM-DD'),
+            clearingDate: values.clearingDate?.format('YYYY-MM-DD'),
+            ...(finalCompactionReportUrl && { compactionReportUrl: finalCompactionReportUrl }),
+          };
+
+      const { selfCompactionReport, ...rest } = payload;
+
+      if (leadDetail?.property) {
         await dispatch(
           updateLeadProperty({
             id: leadDetail?.property?.propertyDetailId,
             payload: formDataGenerator(rest),
           })
         ).unwrap();
-
         message.success('Lead Property updated successfully');
+        form.resetFields();
+        onCancel();
       } else {
         await dispatch(
           createLeadProperty({
@@ -125,10 +128,15 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
           })
         ).unwrap();
         message.success('Lead Property created successfully');
+        // Reset form and close modal after successful save
+        form.resetFields();
+        onCancel();
       }
-      onCancel();
     } catch (error) {
-      message.error(error || 'Failed to create property');
+      message.error(error instanceof Error ? error.message : error || 'Failed to create property');
+    } finally {
+      setLoading(false);
+
     }
   };
 
@@ -334,7 +342,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
       name: 'remarks',
       type: 'textarea',
       rules: [{ required: true, message: 'Please Enter remark' },
-        ...descriptionRules,
+      ...descriptionRules,
       ],
     },
   ];
@@ -343,9 +351,18 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
     setCompactionInfo(values);
     try {
       let pdfUrl = null;
+      let pdfFile = null;
       // Generate PDF from form data
       pdfUrl = await generatePdfUrl(values);
-      setUploadedPdf(pdfUrl as any);
+      // Convert blob URL to File object
+      if (pdfUrl && pdfUrl.startsWith('blob:')) {
+        const response = await fetch(pdfUrl);
+        const blob = await response.blob();
+        pdfFile = new File([blob], 'compaction-report.pdf', { type: 'application/pdf' });
+        setUploadedPdf(pdfFile as any);
+      } else {
+        setUploadedPdf(pdfUrl as any);
+      }
       setCompactionOpen(false);
     } catch (error) {
       message.error('Error processing compaction report');
@@ -371,15 +388,16 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
       title="Property Details"
       open={visible}
       onCancel={handleCancel}
+      confirmLoading={loading}
       width={900}
       centered
       style={{ top: 20 }}
       footer={[
-        <Button key="cancel" onClick={handleCancel}>
+        <Button key="cancel" onClick={handleCancel} disabled={loading}>
           Cancel
         </Button>,
         !disableSave && (
-          <Button key="save" type="primary" onClick={handleSave}>
+          <Button key="save" type="primary" onClick={handleSave} loading={loading}>
             Save
           </Button>
         ),
@@ -390,7 +408,7 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
         form={form}
         layout="vertical"
         className="mt-4"
-        disabled={disableSave}
+        disabled={disableSave || loading}
         style={{ maxHeight: '70vh', overflowY: 'auto', paddingRight: '8px' }}
         onValuesChange={(_, values) => {
           const width = values.widthM;
@@ -571,52 +589,52 @@ const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({
                 </Form.Item>
 
                 {/* {compactionReportProvider === 'self' && ( */}
-                  <Form.Item
-                    label="Upload Compaction Report"
-                    name="selfCompactionReport"
-                  >
-                    <Upload
-                      accept=".pdf"
-                      maxCount={1}
-                      beforeUpload={() => false}
-                      onChange={info => {
-                        if (info.fileList.length > 0) {
-                          const file = info.fileList[0].originFileObj;
-                          form.setFieldValue('selfCompactionReportFile', file);
-                          setSelfUploadedFile(file);
-                        } else {
-                          // File was removed
-                          form.setFieldValue('selfCompactionReportFile', null);
-                          setSelfUploadedFile(null);
-                        }
-                      }}
-                      showUploadList={{
-                        showRemoveIcon: true,
-                        showPreviewIcon: true,
-                      }}
-                      onPreview={file => {
-                        const uploadedFile = form.getFieldValue('selfCompactionReportFile');
-                        if (uploadedFile instanceof File) {
-                          const url = URL.createObjectURL(uploadedFile);
-                          window.open(url, '_blank');
-                        }
-                      }}
-                      fileList={
-                        selfUploadedFile
-                          ? [
-                            {
-                              uid: '-1',
-                              name: selfUploadedFile instanceof File ? selfUploadedFile.name : 'Self Compaction Report',
-                              status: 'done',
-                              originFileObj: selfUploadedFile instanceof File ? selfUploadedFile as any : undefined,
-                            },
-                          ]
-                          : []
+                <Form.Item
+                  label="Upload Compaction Report"
+                  name="selfCompactionReport"
+                >
+                  <Upload
+                    accept=".pdf"
+                    maxCount={1}
+                    beforeUpload={() => false}
+                    onChange={info => {
+                      if (info.fileList.length > 0) {
+                        const file = info.fileList[0].originFileObj;
+                        form.setFieldValue('selfCompactionReportFile', file);
+                        setSelfUploadedFile(file);
+                      } else {
+                        // File was removed
+                        form.setFieldValue('selfCompactionReportFile', null);
+                        setSelfUploadedFile(null);
                       }
-                    >
-                      <Button>Upload PDF</Button>
-                    </Upload>
-                  </Form.Item>
+                    }}
+                    showUploadList={{
+                      showRemoveIcon: true,
+                      showPreviewIcon: true,
+                    }}
+                    onPreview={file => {
+                      const uploadedFile = form.getFieldValue('selfCompactionReportFile');
+                      if (uploadedFile instanceof File) {
+                        const url = URL.createObjectURL(uploadedFile);
+                        window.open(url, '_blank');
+                      }
+                    }}
+                    fileList={
+                      selfUploadedFile
+                        ? [
+                          {
+                            uid: '-1',
+                            name: selfUploadedFile instanceof File ? selfUploadedFile.name : 'Self Compaction Report',
+                            status: 'done',
+                            originFileObj: selfUploadedFile instanceof File ? selfUploadedFile as any : undefined,
+                          },
+                        ]
+                        : []
+                    }
+                  >
+                    <Button>Upload PDF</Button>
+                  </Upload>
+                </Form.Item>
                 {/* )} */}
               </>
             )}

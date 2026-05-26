@@ -14,7 +14,7 @@ import {
   createDwellingType,
   updateDwellingType,
 } from '@redux/feature/admin/sales/dwellingType/dwellingTypeThunk';
-import { costRules, createSortOrderValidation, nameRules } from '@lib/constants/formInputValidations';
+import { costRules, createSortOrderValidation, nameRules, packagenameRules } from '@lib/constants/formInputValidations';
 
 export const PackageFormModal = ({ title, open, onClose, onSubmit, initialValues, isEditing }) => {
   const [form] = Form.useForm();
@@ -122,7 +122,7 @@ export const PackageFormModal = ({ title, open, onClose, onSubmit, initialValues
       <Form form={form} className="space-y-2">
         <div>
           <span>Package Name</span>
-          <Form.Item name="name" rules={nameRules}>
+          <Form.Item name="name" rules={packagenameRules}>
             <Input />
           </Form.Item>
         </div>

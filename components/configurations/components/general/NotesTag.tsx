@@ -168,8 +168,17 @@ const NotesTag: React.FC = () => {
           <Form.Item
             name="name"
             rules={[
+              {
+                validator: (_, value) => {
+                  if (value.startsWith(' ') || value.endsWith(' ')) {
+                    return Promise.reject('Name cannot start or end with spaces');
+                  }
+                  return Promise.resolve();
+                },
+              },
               { required: true, message: 'Please enter name' },
               { min: 3, message: 'name should contain at least 3 character' },
+              { max: 100, message: 'name should not exceed 100 characters' },
             ]}
             style={{ margin: 0 }}
           >

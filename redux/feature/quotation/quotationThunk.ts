@@ -501,3 +501,16 @@ export const sendQuotationEmailThunk = createAsyncThunk(
     }
   }
 );
+
+//send email to Structural Engineer
+export const sendEmailToStructuralEngineer = createAsyncThunk(
+  'quotation/sendEmailToStructuralEngineer',
+  async ({versionId}: { versionId: string }, { rejectWithValue }) => {
+    try {
+      const res = await api.post<ApiResponse>(API_ENDPOINTS.QUOTATION_VERSION + '/' + versionId + '/send-engineer-email');
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);

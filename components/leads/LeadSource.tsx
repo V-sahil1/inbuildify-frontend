@@ -288,7 +288,7 @@ export const LeadSource = () => {
 
       <div className="flex-1 md:mt-[0px] lg:mt-7">
         <div className="text-md lg:mt-6 flex flex-col gap-1 text-primary">
-          <div>
+          {/* <div>
             <HouseLandPopover onSave={handleLeadSourceEdit}>
               <button
                 className="flex items-center gap-2 hover:text-blue-800"
@@ -311,7 +311,7 @@ export const LeadSource = () => {
                 </Popconfirm>
               </div>
             )}
-          </div>
+          </div> */}
 
           <div>
             <button className="flex gap-2" onClick={() => setDrawerOpen('company')} disabled={isWinedLead}>

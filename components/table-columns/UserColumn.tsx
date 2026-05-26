@@ -20,7 +20,13 @@ import {
 import { formDataGenerator } from '@lib/utils/formDataGenerator';
 import { getUpdatedFields } from '@lib/utils/getUpdatedFields';
 
-export const UserColumn = (setModalOpen, setSelectedUser, setDrawerOpen, selectedUser) => {
+export const UserColumn = (
+  setModalOpen,
+  setSelectedUser,
+  setDrawerOpen,
+  selectedUser,
+  currentUserRoleId?: string
+) => {
   const dispatch = useAppDispatch();
 
   const column = [
@@ -128,11 +134,15 @@ export const UserColumn = (setModalOpen, setSelectedUser, setDrawerOpen, selecte
         await dispatch(updateUserThunk({ data: formData, id: selectedUser.usersId })).unwrap();
         message.success('User updated sucessfully');
       } else {
-        const formData = formDataGenerator({
+        const createPayload = {
           ...values,
           photo: photoFile,
           signature: signatureFile,
-        });
+        };
+        if (!createPayload.roleId && currentUserRoleId) {
+          createPayload.roleId = currentUserRoleId;
+        }
+        const formData = formDataGenerator(createPayload);
         await dispatch(createUserThunk(formData)).unwrap();
         message.success('User created sucessfully');
       }

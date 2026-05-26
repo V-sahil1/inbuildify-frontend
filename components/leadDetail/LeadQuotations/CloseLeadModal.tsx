@@ -141,7 +141,7 @@ const CloseLeadModal: React.FC<CloseLeadModalProps> = ({
                   >
                     {quotations?.map((quotation, index) => {
                       return (
-                        quotation?.versions[0].isApprove && (
+                        quotation?.versions[0]?.isApprove && (
                           <Radio
                             key={index}
                             className="flex items-center ml-10 p-2  font-medium"

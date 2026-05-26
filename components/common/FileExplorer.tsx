@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   IconFolderFilled,
   IconFile,
@@ -19,6 +19,8 @@ import { FolderData, FileData, formatFileSize } from '../../data/sdriveData';
 import { Dropdown, MenuProps, Empty, Input, Checkbox } from 'antd';
 import dayjs from 'dayjs';
 import TooltipButton from './TooltipButton';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
+import { getLeadDocumentsThunk } from '@redux/feature/lead/leadThunk';
 
 interface FileExplorerProps {
   rootFolders: FolderData[];
@@ -54,9 +56,27 @@ export default function FileExplorer({
   maxHeight
 }: FileExplorerProps) {
   const [currentPath, setCurrentPath] = useState<FolderData[]>([]);
-  const [currentFolder, setCurrentFolder] = useState<FolderData | null>(null);
+  const [currentFolder, setCurrentFolder] = useState<FolderData | any | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+  const [documents, setDocuments] = useState<any[]>([]);
+  const dispatch = useAppDispatch();
+  const { leadDetail } = useAppSelector(state => state.lead);
+
+  // Fetch lead documents only once when leadId is available
+  useEffect(() => {
+    if (leadDetail?.lead?.leadsId) {
+      dispatch(getLeadDocumentsThunk({ leadId: leadDetail.lead.leadsId }))
+        .unwrap()
+        .then((response) => {
+          setDocuments(response);
+        })
+        .catch((error) => {
+          console.error('Error fetching documents:', error);
+        });
+    }
+  }, [leadDetail?.lead?.leadsId]); // Remove dispatch from dependencies
+  console.log('Documents stored in local state:', documents);
 
   // Handle search change
   const handleSearchChange = (value: string) => {
@@ -68,11 +88,20 @@ export default function FileExplorer({
 
   // Get current items (folders and files)
   const getCurrentItems = () => {
-    if (!currentFolder) {
-      return { folders: rootFolders, files: [] };
-    }
-    return { folders: currentFolder.subFolders, files: currentFolder.files };
+  // Root level
+  if (!currentFolder) {
+    return {
+      folders: documents || [],
+      files: [],
+    };
+  }
+
+  // Opened folder
+  return {
+    folders: currentFolder.subFolders || [],
+    files: currentFolder.files || [],
   };
+};
 
   // Filter items based on search query
   const filteredItems = useMemo(() => {
@@ -87,13 +116,13 @@ export default function FileExplorer({
     const filteredFolders = folders.filter(
       folder =>
         folder.folderName.toLowerCase().includes(query) ||
-        folder.owner.toLowerCase().includes(query)
+        folder.owner.toLowerCase().includes(query) 
     );
 
     const filteredFiles = files.filter(file => file.fileName.toLowerCase().includes(query));
 
     return { folders: filteredFolders, files: filteredFiles };
-  }, [currentFolder, rootFolders, searchQuery]);
+  }, [currentFolder, rootFolders, searchQuery, documents]);
 
   const { folders, files } = filteredItems;
 
@@ -165,7 +194,7 @@ export default function FileExplorer({
   };
 
   // Navigate into a folder
-  const handleFolderClick = (folder: FolderData) => {
+  const handleFolderClick = (folder: any) => {
     setCurrentPath([...currentPath, currentFolder].filter(Boolean) as FolderData[]);
     setCurrentFolder(folder);
     setSelectedItems(new Set()); // Clear selection on navigation
@@ -197,17 +226,34 @@ export default function FileExplorer({
         key: 'view',
         label: 'View',
         icon: <IconEye size={16} />,
-        onClick: () => window.open(file.signUrl, '_blank'),
+        onClick: () => window.open(file.s3Key, '_blank'),
       },
       {
         key: 'download',
         label: 'Download',
         icon: <IconDownload size={16} />,
-        onClick: () => {
-          const link = document.createElement('a');
-          link.href = file.signUrl;
-          link.download = file.fileName;
-          link.click();
+        onClick: async () => {
+          try {
+            // Fetch the file from S3
+            const response = await fetch(file.s3Key);
+            const blob = await response.blob();
+            
+            // Create download link
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = file.fileName;
+            document.body.appendChild(link);
+            link.click();
+            
+            // Cleanup
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+          } catch (error) {
+            console.error('Download failed:', error);
+            // Fallback to opening in new tab
+            window.open(file.s3Key, '_blank');
+          }
         },
       },
     ];
@@ -257,7 +303,7 @@ export default function FileExplorer({
 
   // Get file icon color based on extension
   const getFileIconColor = (fileName: string) => {
-    const ext = fileName.split('.').pop()?.toLowerCase();
+    const ext = fileName?.split('.').pop()?.toLowerCase();
     const colorMap: Record<string, string> = {
       pdf: '#E74C3C',
       doc: '#3498DB',
@@ -280,6 +326,9 @@ export default function FileExplorer({
     };
     return colorMap[ext || ''] || '#7F8C8D';
   };
+
+  console.log("document", documents);
+  console.log("folders", folders);
 
   return (
     <div className="w-full">
@@ -435,9 +484,9 @@ export default function FileExplorer({
                       {folder.folderName}
                     </p>
                     <div className="flex gap-3 text-sm" style={{ color: 'var(--font-color-100)' }}>
-                      <span>{folder.itemsCount} items</span>
+                      <span>{folder.count} items</span>
                       <span>•</span>
-                      <span>Owner: {folder.owner}</span>
+                      <span>Owner: {folder.ownerName || currentFolder?.ownerName}</span>
                     </div>
                   </div>
                 </div>
@@ -498,7 +547,7 @@ export default function FileExplorer({
                       {file.fileName}
                     </p>
                     <div className="flex gap-3 text-sm" style={{ color: 'var(--font-color-100)' }}>
-                      <span>{formatFileSize(file.fileSize)}</span>
+                      <span>{formatFileSize(file.size)}</span>
                       <span>•</span>
                       <span>{formatDate(file.createdAt)}</span>
                     </div>

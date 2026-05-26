@@ -110,8 +110,8 @@ export default function App({ Component, pageProps }) {
                 <PageLoading key={routeLoaderKey} type="primary" />
               </div>
             )}
-            {/* Public standalone pages — no layout, no auth required */}
-            {[SystemRoutes.APPROVAL, SystemRoutes.SIGN_COMPLETE, SystemRoutes.SIGNING_ERROR].includes(pageUrl) ? (
+            {/* Special handling for approval page - no layout, no auth required */}
+            {pageUrl === '/approve' || pageUrl.startsWith('/external') ? (
               <Component {...pageProps} />
             ) : isAuthRoute ? (
               <AuthLayout>

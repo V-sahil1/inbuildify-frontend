@@ -53,7 +53,7 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({
     try {
       await dispatch(fetchFloorPlans(newFilters)).unwrap();
     } catch (error) {
-      message.error('Failed to fetch package data');
+      message.error((error as string) || error?.message || 'Failed to fetch package data');
     }
   };
 
@@ -61,7 +61,7 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({
     try {
       await dispatch(getFacades(newFilters)).unwrap();
     } catch (error) {
-      message.error('Failed to fetch package data');
+      message.error((error as string) || error?.message || 'Failed to fetch package data');
     }
   };
 
@@ -69,7 +69,7 @@ const QuotationFilter: React.FC<QuotationFilterProps> = ({
     try {
       await dispatch(fetchPackages(newFilters)).unwrap();
     } catch (error) {
-      message.error('Failed to fetch package data');
+      message.error((error as string) || error?.message || 'Failed to fetch package data');
     }
   };
 

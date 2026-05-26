@@ -188,7 +188,8 @@ export type QuotationVersionDetails = {
     email: string;
     price?: number;
   };
-  quotationVersionItems?: any[]; 
+  quotationVersionItems?: any[];
+  sendToEngineer?: boolean;
 };
 
 export type QuotationPriceListItem = {

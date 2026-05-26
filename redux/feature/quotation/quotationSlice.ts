@@ -187,6 +187,11 @@ const quotationSlice = createSlice({
     setSelectedFilters(state, action: PayloadAction<any>) {
       state.selectedFilters = action.payload;
     },
+    setSendToEngineer(state) {
+      if (state.quoteDetails) {
+        state.quoteDetails.sendToEngineer = true;
+      }
+    },
   },
   extraReducers(builder) {
     builder
@@ -525,4 +530,5 @@ export const {
   updateQuotationItem,
   setSelectedFilters,
   clearSelectedFloorplanFacadePackageReducer,
+  setSendToEngineer
 } = quotationSlice.actions;

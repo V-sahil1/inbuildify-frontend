@@ -34,79 +34,85 @@ export const FloorPlanItem = ({
           className="card bg-card-color p-4 rounded-xl flex flex-col items-center border border-border-color relative group"
         >
           {/* Hover overlay with blur effect */}
-          <div className="absolute inset-0 bg-black-50 bg-opacity-50 backdrop-blur-sm rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4 z-10">
-            <Tooltip title="Edit">
-              <button
-                className="p-2 bg-white bg-opacity-80 text-black rounded-full hover:bg-opacity-100 transition-all duration-200"
-                onClick={e => {
-                  e.stopPropagation();
-                  setcreateFloorPlanOpen(true);
-                  setSelectedFloorplan(floorPlan);
-                }}
-              >
-                <IconEdit />
-              </button>
-            </Tooltip>
-            <Tooltip title="Map Pricelist">
-              <Badge count={floorPlan?.pricelistItems?.length}>
+          <div className="absolute inset-0 bg-black-50 bg-opacity-50 backdrop-blur-sm rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-2 z-10">
+            {/* First row - 3 buttons */}
+            <div className="flex items-center justify-center gap-3">
+              <Tooltip title="Edit">
                 <button
-                  className="p-2 bg-white bg-opacity-80 rounded-full hover:bg-opacity-100 transition-all duration-200"
+                  className="p-2 bg-white bg-opacity-80 text-black rounded-full hover:bg-opacity-100 transition-all duration-200"
                   onClick={e => {
                     e.stopPropagation();
+                    setcreateFloorPlanOpen(true);
                     setSelectedFloorplan(floorPlan);
-                    setDrawerOpen('floorplan');
                   }}
                 >
-                  <IconDeviceIpadDollar />
+                  <IconEdit />
                 </button>
-              </Badge>
-            </Tooltip>
-            <Tooltip title="Map Facade">
-              <Badge count={floorPlan?.facade?.length}>
-                <button
-                  className="p-2 bg-white bg-opacity-80 rounded-full hover:bg-opacity-100 transition-all duration-200"
-                  onClick={e => {
+              </Tooltip>
+              <Tooltip title="Map Pricelist">
+                <Badge count={floorPlan?.pricelistItems?.length}>
+                  <button
+                    className="p-2 bg-white bg-opacity-80 rounded-full hover:bg-opacity-100 transition-all duration-200"
+                    onClick={e => {
+                      e.stopPropagation();
+                      setSelectedFloorplan(floorPlan);
+                      setDrawerOpen('floorplan');
+                    }}
+                  >
+                    <IconDeviceIpadDollar />
+                  </button>
+                </Badge>
+              </Tooltip>
+              <Tooltip title="Map Facade">
+                <Badge count={floorPlan?.facade?.length}>
+                  <button
+                    className="p-2 bg-white bg-opacity-80 rounded-full hover:bg-opacity-100 transition-all duration-200"
+                    onClick={e => {
+                      e.stopPropagation();
+                      setSelectedFloorplan(floorPlan);
+                      setDrawerOpen('facade');
+                    }}
+                  >
+                    <IconPhoto />
+                  </button>
+                </Badge>
+              </Tooltip>
+            </div>
+            {/* Second row - 2 buttons */}
+            <div className="flex items-center justify-center gap-3">
+              <Tooltip title="Quotation History">
+                <Badge>
+                  <button
+                    className="p-2 bg-white bg-opacity-80 rounded-full hover:bg-opacity-100 transition-all duration-200"
+                    onClick={e => {
+                      e.stopPropagation();
+                      setSelectedFloorplan(floorPlan);
+                      setDrawerOpen('quotation');
+                    }}
+                  >
+                    <IconClockHour7 />
+                  </button>
+                </Badge>
+              </Tooltip>
+              <Tooltip title="Remove">
+                <Popconfirm
+                  title="Are you sure you want to delete floorplan?"
+                  onConfirm={e => {
                     e.stopPropagation();
-                    setSelectedFloorplan(floorPlan);
-                    setDrawerOpen('facade');
+                    handleDeleteFloorplan(floorPlan?.floorPlanId);
                   }}
                 >
-                  <IconPhoto />
-                </button>
-              </Badge>
-            </Tooltip>
-            <Tooltip title="Quotation History">
-              <Badge>
-                <button
-                  className="p-2 bg-white bg-opacity-80 rounded-full hover:bg-opacity-100 transition-all duration-200"
-                  onClick={e => {
-                    e.stopPropagation();
-                    setSelectedFloorplan(floorPlan);
-                    setDrawerOpen('quotation');
-                  }}
-                >
-                  <IconClockHour7 />
-                </button>
-              </Badge>
-            </Tooltip>
-            <Tooltip title="Remove">
-              <Popconfirm
-                title="Are you sure you want to delete floorplan?"
-                onConfirm={e => {
-                  e.stopPropagation();
-                  handleDeleteFloorplan(floorPlan?.floorPlanId);
-                }}
-              >
-                <button
-                  className="p-2 bg-white bg-opacity-80 rounded-full hover:bg-opacity-100 transition-all duration-200"
-                  onClick={e => {
-                    e.stopPropagation();
-                  }}
-                >
-                  <IconTrash className="text-red-600" />
-                </button>
-              </Popconfirm>
-            </Tooltip>
+                  <button
+                    className="p-2 bg-white bg-opacity-80 rounded-full hover:bg-opacity-100 transition-all duration-200"
+                    onClick={e => {
+                      e.stopPropagation();
+                    }}
+                  >
+                    <IconTrash className="text-red-600" />
+                  </button>
+                </Popconfirm>
+              </Tooltip>
+            </div>
           </div>
           <Image
             src={floorPlan?.simpleImage || '/placeholder.png'} // make sure placeholder.png exists in /public
@@ -144,7 +150,7 @@ export const FloorPlanItem = ({
             </div>
 
             {/* Vertical Divider */}
-            <Divider type="horizontal" className="h-auto mx-4" />
+            <Divider type="horizontal" className="h-auto my-4" />
 
             {/* Right Section */}
             <div className="flex-1 space-y-2 ">

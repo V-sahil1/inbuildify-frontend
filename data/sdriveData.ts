@@ -6,6 +6,7 @@ export interface FileData {
     updatedAt: string;
     signUrl: string;
     thumbnailUrl: string;
+    s3Key?:string;
 }
 
 export interface FolderData {

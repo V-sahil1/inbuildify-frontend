@@ -120,6 +120,7 @@ const Leads = () => {
 
   useEffect(() => {
     if (leadSourceStatus.fetch === Status.IDLE) {
+      console.log("logout");
       getLeadSources();
     }
   }, [leadSourceStatus.fetch]);
@@ -282,19 +283,17 @@ const Leads = () => {
                 else if (lead.status === 'Convert' && lead.opportunityOutcome === 'won') router.push(`${SystemRoutes.JOB}/${lead.jobId}`);
                 else router.push(`${SystemRoutes.LEADS}/${lead.leadsId}`);
               }}
-              className={`rounded-2xl border border-border-color shadow-sm p-6 ${
-                lead.status === 'CANCELLED' || (lead.status === 'Convert' && lead.opportunityOutcome === 'lost')
+              className={`rounded-2xl border border-border-color shadow-sm p-6 ${lead.status === 'CANCELLED' || (lead.status === 'Convert' && lead.opportunityOutcome === 'lost')
                   ? 'opacity-60 cursor-not-allowed'
                   : 'cursor-pointer hover:shadow-xl hover:scale-[1.02]'
-              } 
+                } 
                 transition-all duration-200 bg-card-color flex flex-col`}
             >
               {/* Header with Tag on Top Right */}
               <div className="flex justify-between items-start mb-3">
                 <h3 className="text-lg font-semibold">{lead.name}</h3>
                 <span
-                  className={`text-xs px-3 py-1 rounded-full font-medium whitespace-nowrap ${
-                    lead.status === 'IN_PROGRESS'
+                  className={`text-xs px-3 py-1 rounded-full font-medium whitespace-nowrap ${lead.status === 'IN_PROGRESS'
                       ? 'bg-purple-100 text-purple-700'
                       : lead.status === 'COMPLETED'
                         ? 'bg-green-100 text-green-700'
@@ -303,11 +302,11 @@ const Leads = () => {
                           : lead.status === 'Convert' && lead.opportunityOutcome === 'lost'
                             ? 'bg-red-100 text-red-700'
                             : 'bg-yellow-100 text-yellow-700'
-                  }`}
+                    }`}
                 >
-                  {lead.status === 'Convert' && lead.opportunityOutcome === 'won' ? 'Job' : 
-                   lead.status === 'Convert' && lead.opportunityOutcome === 'lost' ? 'Lost' : 
-                   enumToReadable(lead.status)}
+                  {lead.status === 'Convert' && lead.opportunityOutcome === 'won' ? 'Job' :
+                    lead.status === 'Convert' && lead.opportunityOutcome === 'lost' ? 'Lost' :
+                      enumToReadable(lead.status)}
                 </span>
               </div>
 

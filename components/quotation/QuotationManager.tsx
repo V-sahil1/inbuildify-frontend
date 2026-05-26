@@ -140,7 +140,7 @@ const QuotationManager = () => {
         })
       ).unwrap();
     } catch (error) {
-      message.error(error || 'Failed to fetch quotation version detail');
+      message.error((error as string) || error?.message || 'Failed to fetch quotation version detail');
     }
   };
   const handleSelectionChange = useCallback(
@@ -188,6 +188,17 @@ const QuotationManager = () => {
                   packageId: (value as Package).packageId,
                 })
               ).unwrap();
+              
+              // Refresh quotation data after package update
+              await dispatch(
+                getQuotationVersionById({
+                  quoteId: quotationData?.quotationId,
+                  quoteVersionId: quoteVersionId
+                    ? quoteVersionId
+                    : quotationData?.versions?.[0]?.quotationVersionId,
+                })
+              ).unwrap();
+              
               setHasChanges(false);
               dispatch(setQuotationPackage(value as Package));
               return;
@@ -218,7 +229,7 @@ const QuotationManager = () => {
 
         setHasChanges(false);
       } catch (error) {
-        message.error(error || 'Failed to save changes');
+        message.error((error as string) || error?.message || 'Failed to save changes');
       }
     },
     [dispatch, quotationFilters, quoteVersionId, quoteDetails]
@@ -258,7 +269,7 @@ const QuotationManager = () => {
     try {
       await dispatch(fetchPricelistMaster({ is_active: true })).unwrap();
     } catch (e) {
-      message.error(e || 'Failed to fetch categories');
+      message.error((e as string) || (e as any)?.message || 'Failed to fetch categories');
     }
   };
 
@@ -276,7 +287,7 @@ const QuotationManager = () => {
         )
       ).unwrap();
     } catch (error) {
-      message.error(error || 'Failed to fetch custom section');
+      message.error((error as string) || error?.message || 'Failed to fetch custom section');
     }
   };
 
@@ -320,7 +331,7 @@ const QuotationManager = () => {
         dwellingType: quotationFilters.dwellingType,
       };
     } catch (error) {
-      message.error(error || 'Failed to fetch category items');
+      message.error((error as string) || error?.message || 'Failed to fetch category items');
     }
   };
 
@@ -336,7 +347,7 @@ const QuotationManager = () => {
         })
       ).unwrap();
     } catch (error) {
-      message.error(error || 'Failed to fetch quotation items');
+      message.error((error as string) || error?.message || 'Failed to fetch quotation items');
     }
   };
 
@@ -484,7 +495,7 @@ const QuotationManager = () => {
         router.push(`${SystemRoutes.QUOTATION}/${response.quotationVersionId}`);
       }
     } catch (error) {
-      message.error(error || 'Failed to create new version');
+      message.error((error as string) || error?.message || 'Failed to create new version');
     }
   };
 
@@ -499,7 +510,7 @@ const QuotationManager = () => {
         setPreviewLoading(false);
       }
     } catch (error) {
-      message.error(error || 'Failed to get url');
+      message.error((error as string) || error?.message || 'Failed to get url');
       setPreviewLoading(false);
     }
   };
@@ -556,7 +567,7 @@ const QuotationManager = () => {
         onStructuralEngineerSelect={engineer =>
           handleSelectionChange('structuralEngineer', engineer)
         }
-        onPropertyUpdate={() => { }}
+        // onPropertyUpdate={() => { }}
         isReadOnly={
           quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0) ||
           quoteDetails?.isApprove

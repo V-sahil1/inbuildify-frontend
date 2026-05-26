@@ -217,10 +217,22 @@ const BuilderDetails = () => {
             <Input />
           </Form.Item>
           <Form.Item label="Account Number" name="accountNumber" rules={accountNumberRules}>
-            <Input />
+            <Input
+              onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}
+            />
           </Form.Item>
           <Form.Item label="Account BSB" name="accountBsb" rules={accountBsbRules}>
-            <Input />
+            <Input
+              onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}
+            />
           </Form.Item>
         </div>
 
@@ -252,18 +264,18 @@ const BuilderDetails = () => {
             <Select options={stateOptions} />
           </Form.Item>
           <Form.Item label="Zip / Postal Code" name={['insurer', 'zipCode']} rules={zipCodeRules}>
-            <Input  onKeyPress={(e) => {
-                if (!/[0-9]/.test(e.key)) {
-                  e.preventDefault();
-                }
-              }} />
+            <Input onKeyPress={(e) => {
+              if (!/[0-9]/.test(e.key)) {
+                e.preventDefault();
+              }
+            }} />
           </Form.Item>
           <Form.Item label="Phone" name={['insurer', 'phoneNumber']} rules={phoneRules}>
-            <Input  onKeyPress={(e) => {
-                if (!/[0-9]/.test(e.key)) {
-                  e.preventDefault();
-                }
-              }} />
+            <Input onKeyPress={(e) => {
+              if (!/[0-9]/.test(e.key)) {
+                e.preventDefault();
+              }
+            }} />
           </Form.Item>
           <Form.Item
             label="Name of Insured"

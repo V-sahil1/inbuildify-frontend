@@ -86,25 +86,31 @@ const LeadDetailPage = () => {
   const createdQuotations: Quotation[] = leadDetail?.createdQuotations?.quotations || [];
   const { columns } = LeadDepositColumn();
   // const isJob = useMemo(() => leadDetail?.lead?.status === "JOB", [leadDetail]);
-    const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
-      filtersKey: ['search'],
-      shouldSyncURL:false
-    });
-    useEffect(() => {
-      return () => {
-        debouncedUpdateURL.cancel();
-      };
-    }, [debouncedUpdateURL]);
-
-    useEffect(()=>{
-fetchLeadActivity()
-    },[filters?.search])
+  const { debouncedUpdateURL, setParams, filters, instantFilters } = debouncedURL({
+    filtersKey: ['search'],
+    shouldSyncURL: false
+  });
+  useEffect(() => {
+    return () => {
+      debouncedUpdateURL.cancel();
+    };
+  }, [debouncedUpdateURL]);
 
   useEffect(() => {
-    if (leadId) {
+    if (user) {
+      fetchLeadActivity()
+    }
+  }, [filters?.search, user])
+
+  useEffect(() => {
+    if (leadId && user) {
       fetchData();
     }
-  }, [leadId]);
+  }, [leadId, user]);
+
+  if (leadDetail?.lead?.opportunityStatus === 'Close') {
+    router.push('/');
+  }
 
   // useEffect(() => {
   //   return () => {
@@ -230,11 +236,11 @@ fetchLeadActivity()
     }
   };
 
-  const fetchLeadActivity = async ()=>{
-    try{
-      await dispatch(getLeadActiviesThunk({id:leadId,search:filters?.search || undefined})).unwrap();
+  const fetchLeadActivity = async () => {
+    try {
+      await dispatch(getLeadActiviesThunk({ id: leadId, search: filters?.search || undefined })).unwrap();
     }
-    catch(error){
+    catch (error) {
       message.error(error || 'Failed to fetch lead activity')
     }
   }
@@ -471,7 +477,7 @@ fetchLeadActivity()
             onChange={async (activeKey) => {
               try {
                 if (activeKey === 'Activity') {
-               fetchLeadActivity();
+                  fetchLeadActivity();
                 }
               } catch (error) {
                 console.error('Error fetching activities:', error);
@@ -506,8 +512,8 @@ fetchLeadActivity()
               <LeadQuotations />
             </TabPane>
             <TabPane tab="Activity" key="Activity">
-              <ActivityCard 
-                data={leadDetail?.activities || []} 
+              <ActivityCard
+                data={leadDetail?.activities || []}
                 tabs={[
                   { type: 'own', label: 'Own', count: leadDetail?.activities?.filter(a => a.userId === user?.usersId).length || 0 },
                   { type: 'all', label: 'All', count: leadDetail?.activities?.length || 0 }
