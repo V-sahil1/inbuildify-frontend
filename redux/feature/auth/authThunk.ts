@@ -18,6 +18,20 @@ export const SignUpThunk = createAsyncThunk(
   }
 );
 
+export const CompanySignUpThunk = createAsyncThunk(
+  'auth/companySignUp',
+  async (payload: RegisterUser, { rejectWithValue }) => {
+    try {
+      const response: ApiResponse = await api.post(API_ENDPOINTS.COMPANY_REGISTER, {
+        data: payload,
+      });
+      return response;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
 export const SignInThunk = createAsyncThunk(
   'auth/signIn',
   async (payload: { email: string; password: string }, { rejectWithValue }) => {

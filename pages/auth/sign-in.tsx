@@ -4,7 +4,7 @@ import { Form, Input, Divider, message } from 'antd';
 import { IconBrandGoogleFilled, IconEye, IconEyeOff, IconLoader } from '@tabler/icons-react';
 import Link from 'next/link';
 import SystemRoutes from '@lib/constants/Routes';
-import { useAppDispatch } from '@hooks/redux';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { getUserThunk, SignInThunk } from '@redux/feature/auth/authThunk';
 import { useRouter } from 'next/navigation';
 
@@ -22,6 +22,8 @@ export default function Signin() {
   const [loading, setLoading] = useState<boolean>(false);
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const { user } = useAppSelector(state => state.auth);
+  console.log('user in signup page', user);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -31,10 +33,13 @@ export default function Signin() {
     try {
       setLoading(true);
       const response = await dispatch(SignInThunk(values)).unwrap();
-      await dispatch(getUserThunk()).unwrap();
+      const fetchedUser = await dispatch(getUserThunk()).unwrap();
       message.success(response.message);
-      
-      router.push('/');
+      if (!fetchedUser?.isOnboardingFinished) {
+        router.push('/onboarding');
+      } else {
+        router.push('/');
+      }
     } catch (error) {
       message.error(error || 'sign in failed');
     } finally {

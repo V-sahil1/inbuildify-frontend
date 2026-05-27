@@ -8,7 +8,7 @@ import {
 } from '@tabler/icons-react';
 import TooltipButton from '../common/TooltipButton';
 import { message } from 'antd';
-import { useAppDispatch } from '@hooks/redux';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import {
   createUserThunk,
   resetUserPasswordThunk,
@@ -28,6 +28,7 @@ export const UserColumn = (
   currentUserRoleId?: string
 ) => {
   const dispatch = useAppDispatch();
+  const { user } = useAppSelector(state => state.auth);
 
   const column = [
     {
@@ -138,6 +139,7 @@ export const UserColumn = (
           ...values,
           photo: photoFile,
           signature: signatureFile,
+          companyId: user?.companyId
         };
         if (!createPayload.roleId && currentUserRoleId) {
           createPayload.roleId = currentUserRoleId;

@@ -8,7 +8,7 @@ import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import { RegisterUser } from '@redux/feature/auth/IAuthState';
 import { Status } from '@lib/constants/enum';
 import { fetchRole } from '@redux/feature/admin/role/roleThunk';
-import { SignUpThunk } from '@redux/feature/auth/authThunk';
+import { CompanySignUpThunk, SignUpThunk } from '@redux/feature/auth/authThunk';
 import { useRouter } from 'next/navigation';
 
 export async function getStaticProps() {
@@ -61,6 +61,11 @@ export default function Signup() {
     label: item.name,
     value: item.roleId,
   }));
+  const ROLE_FILTER_NAME = 'Company Administrator';
+  const filteredRoleOptions = roleOptions.filter(r =>
+    String(r.label).toLowerCase() === ROLE_FILTER_NAME.toLowerCase()
+  );
+
   const fetchRoleData = async () => {
     try {
       await dispatch(fetchRole()).unwrap();
@@ -77,12 +82,13 @@ export default function Signup() {
     await form.validateFields();
     try {
       const payload = {
-        name: values.name,
+        // name: values.name,
+        companyName: values.name,
         email: values.email,
         password: values.password,
         roleId: values.roleId,
       };
-      await dispatch(SignUpThunk(payload)).unwrap();
+      await dispatch(CompanySignUpThunk(payload)).unwrap();
       message.success('Verification email has been sent to your email');
       form.resetFields();
       router.push(SystemRoutes.LOGIN);
@@ -162,7 +168,7 @@ export default function Signup() {
           <Input.Password placeholder="8+ characters required" className="form-input" />
         </Form.Item>
         <Form.Item label="Role" name="roleId">
-          <Select options={roleOptions} />
+          <Select options={filteredRoleOptions} />
         </Form.Item>
         <Form.Item
           name="terms"

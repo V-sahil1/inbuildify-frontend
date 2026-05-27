@@ -32,3 +32,19 @@ export const updateCompanyDetails = createAsyncThunk(
     }
   }
 );
+
+
+export const updateCompanyOnboarding = createAsyncThunk(
+  'companyInfo/update',
+  async (payload: { payload: FormData; id: string }, { rejectWithValue }) => {
+    try {
+      const response = await apiWithFormDataMethods.patch<ApiResponse<CompanyInfo>>(
+        `${API_ENDPOINTS.COMPANY_ONBOARDING}/${payload.id}`,
+        payload.payload
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
