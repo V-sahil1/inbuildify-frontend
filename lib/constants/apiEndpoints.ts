@@ -265,6 +265,12 @@ class API_ENDPOINTS {
   public static QUOTATION_VERSION_PDF = (id: string) => `${this.QUOTATION_VERSION}/${id}/pdf`;
   public static QUOTATION_EXTRA_ITEM = `${this.QUOTATION_VERSION_ITEM}/extra-item`
   public static QUOTATION_SEND_EMAIL = (versionId: string) => `${this.QUOTATION_VERSION}/${versionId}/send`;
+  public static QUOTATION_ENGINEER_MAIL_PREVIEW = (versionId: string) =>
+    `${this.QUOTATION_VERSION}/${versionId}/engineer-mail-preview`;
+  public static QUOTATION_GENERATE_ENGINEERING_REQUIREMENT = (versionId: string) =>
+    `${this.QUOTATION_VERSION}/${versionId}/generate-engineering-requirement`;
+  public static QUOTATION_SEND_ENGINEER_EMAIL = (versionId: string) =>
+    `${this.QUOTATION_VERSION}/${versionId}/send-engineer-email`;
 
   // location
   public static COUNTRY_BASE = '/country';

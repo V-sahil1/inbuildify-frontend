@@ -501,3 +501,68 @@ export const sendQuotationEmailThunk = createAsyncThunk(
     }
   }
 );
+
+// ---- Mail to Structural Engineer ----
+
+export interface EngineerMailPreview {
+  engineer: { name: string | null; email: string | null; phone: string | null } | null;
+  engineeringRequirement: { exists: boolean; fileId: string | null; presignedUrl: string | null };
+  compactionReport: { exists: boolean; presignedUrl: string | null };
+  emailTemplates: { templateEmailId: string; name: string; subject: string | null; emailContent: string }[];
+  sendToEngineer: boolean;
+}
+
+export const getEngineerMailPreviewThunk = createAsyncThunk(
+  'quotation/getEngineerMailPreview',
+  async ({ versionId }: { versionId: string }, { rejectWithValue }) => {
+    try {
+      const res = await api.get<ApiResponse<EngineerMailPreview>>(
+        API_ENDPOINTS.QUOTATION_ENGINEER_MAIL_PREVIEW(versionId)
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error?.response?.data?.message || error.message);
+    }
+  }
+);
+
+export const generateEngineeringRequirementThunk = createAsyncThunk(
+  'quotation/generateEngineeringRequirement',
+  async ({ versionId }: { versionId: string }, { rejectWithValue }) => {
+    try {
+      const res = await api.post<ApiResponse<{ presignedUrl: string }>>(
+        API_ENDPOINTS.QUOTATION_GENERATE_ENGINEERING_REQUIREMENT(versionId),
+        {}
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error?.response?.data?.message || error.message);
+    }
+  }
+);
+
+export const sendEngineerEmailThunk = createAsyncThunk(
+  'quotation/sendEngineerEmail',
+  async (
+    {
+      versionId,
+      subject,
+      emailBody,
+      templateEmailId,
+    }: { versionId: string; subject: string; emailBody: string; templateEmailId?: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const res = await api.post<ApiResponse>(API_ENDPOINTS.QUOTATION_SEND_ENGINEER_EMAIL(versionId), {
+        data: {
+          subject,
+          email_body: emailBody,
+          ...(templateEmailId ? { template_email_id: templateEmailId } : {}),
+        },
+      });
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error?.response?.data?.message || error.message);
+    }
+  }
+);

@@ -5,6 +5,7 @@ import { ConfirmationContentModal } from '../common/ConfirmationContentModal';
 import { ActionDialogmodel } from '../common/Models/ActionDialogModel';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import CustomSectionModal from '../common/CustomSectionModal';
+import EngineerMailPanel from '../quotation/EngineerMailPanel';
 import { formDataGenerator } from '@lib/utils/formDataGenerator';
 import {
   approveQuotation,
@@ -56,6 +57,7 @@ const FooterActions: React.FC<FooterActionsProps> = ({
   const [modalOpen, setModalOpen] = useState<'approval' | 'save' | 'custom' | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isEmailSending, setIsEmailSending] = useState(false);
+  const [engineerPanelOpen, setEngineerPanelOpen] = useState(false);
   const [sketchNum, setSketchNum] = useState('');
   const [validationError, setValidationError] = useState('');
   const previewMenu = [
@@ -272,6 +274,19 @@ const FooterActions: React.FC<FooterActionsProps> = ({
           >
             Email
           </Button>
+          <Button
+            type="primary"
+            onClick={() => {
+              if (!quoteVersionId) {
+                message.error('No quotation version found');
+                return;
+              }
+              setEngineerPanelOpen(true);
+            }}
+            disabled={disableAction || !quoteVersionId}
+          >
+            Mail to Structural Engineer
+          </Button>
           <Dropdown
             menu={{
               items: previewMenu,
@@ -334,6 +349,14 @@ const FooterActions: React.FC<FooterActionsProps> = ({
           content="Are you sure you want to create new version?"
           title="Confirmation"
           okText="Yes"
+        />
+      )}
+
+      {engineerPanelOpen && (
+        <EngineerMailPanel
+          isOpen={engineerPanelOpen}
+          onClose={() => setEngineerPanelOpen(false)}
+          quoteVersionId={quoteVersionId}
         />
       )}
 
