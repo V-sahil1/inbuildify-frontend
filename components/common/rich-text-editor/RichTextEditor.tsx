@@ -90,14 +90,16 @@ const RichTextEditor = React.forwardRef<RichTextEditorRef, RichTextEditorProps>(
     const slateValue = useMemo(() => {
       if (!value) return [{ type: 'paragraph', children: [{ text: '' }] }];
 
+      let nodes: Descendant[] | null = null;
       try {
         const parsed = JSON.parse(value);
-        if (Array.isArray(parsed)) return parsed;
+        if (Array.isArray(parsed)) nodes = parsed;
       } catch {
-        if (/<[a-z][\s\S]*>/i.test(value)) return deserialize(value);
+        if (/<[a-z][\s\S]*>/i.test(value)) nodes = deserialize(value);
       }
 
-      return [{ type: 'paragraph', children: [{ text: value }] }];
+      if (!nodes) nodes = [{ type: 'paragraph', children: [{ text: value }] }];
+      return normalizeSlateValue(nodes);
     }, [value]);
 
     const initialValueRef = useRef(slateValue);
@@ -185,6 +187,48 @@ const RichTextEditor = React.forwardRef<RichTextEditorRef, RichTextEditorProps>(
 );
 
 /** ---------------- Helper Functions ---------------- */
+
+/**
+ * Ensure a Slate value is structurally valid: a non-empty array of Element
+ * nodes, each with at least one text leaf child. Bare text leaves at the root
+ * are wrapped in a paragraph. Without this, Slate throws "Cannot get the start
+ * point in the node at path [] because it has no start text node" the moment
+ * the user tries to edit.
+ */
+const normalizeSlateValue = (nodes: any): Descendant[] => {
+  const arr = Array.isArray(nodes) ? nodes : [nodes];
+  const blocks: Descendant[] = [];
+  let inlineBuffer: any[] = [];
+
+  const flushInlines = () => {
+    if (inlineBuffer.length) {
+      blocks.push({ type: 'paragraph', children: inlineBuffer } as Descendant);
+      inlineBuffer = [];
+    }
+  };
+
+  for (const node of arr) {
+    if (!node || typeof node !== 'object') continue;
+
+    // Text leaf at the root — collect into a paragraph wrapper.
+    if ('text' in node) {
+      inlineBuffer.push(node);
+      continue;
+    }
+
+    flushInlines();
+
+    // Element node — make sure it has at least one text-leaf child.
+    if (Array.isArray(node.children) && node.children.length > 0) {
+      blocks.push(node);
+    } else {
+      blocks.push({ ...node, children: [{ text: '' }] });
+    }
+  }
+  flushInlines();
+
+  return blocks.length ? blocks : [{ type: 'paragraph', children: [{ text: '' }] }];
+};
 
 const deserialize = (html: string): Descendant[] => {
   const parser = new DOMParser();

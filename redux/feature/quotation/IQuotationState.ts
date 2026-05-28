@@ -159,6 +159,7 @@ export type QuotationVersionDetails = {
   facadeId: string | null;
   packageId: string;
   isApprove: boolean;
+  sendToEngineer?: boolean;
   sketchNumber: string | null;
   createdAt: string;
   updatedAt: string;

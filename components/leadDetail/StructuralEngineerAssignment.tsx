@@ -157,10 +157,20 @@ const StructuralEngineerAssignment: React.FC<StructuralEngineerAssignmentProps> 
       title: 'Name',
       key: 'name',
       render: (_: any, record: any) => {
+        const name = record?.structuralEngineer?.name;
+        const isSentToEngineer = record?.version?.sendToEngineer === true;
+        if (!name) {
+          return <span style={{ color: '#999', fontSize: '12px' }}>-</span>;
+        }
         return (
-          record?.structuralEngineer?.name || (
-            <span style={{ color: '#999', fontSize: '12px' }}>-</span>
-          )
+          <Space size={6}>
+            <span>{name}</span>
+            {isSentToEngineer && (
+              <Tag color="blue" style={{ marginInlineEnd: 0, fontSize: '11px' }}>
+                Sent · Locked
+              </Tag>
+            )}
+          </Space>
         );
       },
     },
@@ -279,7 +289,18 @@ const StructuralEngineerAssignment: React.FC<StructuralEngineerAssignmentProps> 
       width: 120,
       render: (_: any, record: any) => {
         const isApproved = record?.version?.isApprove;
-        const isDisabled = !record.version?.facadeId || !record.version?.floorPlanId || isApproved;
+        // Once the engineer request email has been sent the engineer is
+        // locked — the backend rejects structure_engineer_id changes, so the
+        // UI mirrors that restriction here. The "Sent · Locked" tag in the
+        // Name column already signals the state, so the action button is
+        // removed entirely (rather than just disabled) to avoid a dead button.
+        const isSentToEngineer = record?.version?.sendToEngineer === true;
+        if (isSentToEngineer) {
+          return <span style={{ color: '#999', fontSize: '12px' }}>-</span>;
+        }
+
+        const isDisabled =
+          !record.version?.facadeId || !record.version?.floorPlanId || isApproved;
         const tooltipText = isApproved
           ? 'This quotation version is already approved'
           : isDisabled

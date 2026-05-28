@@ -10,13 +10,15 @@ import {
   IconSend,
   IconAlertCircle,
 } from '@tabler/icons-react';
-import { useAppDispatch } from '@hooks/redux';
+import { useAppDispatch, useAppSelector } from '@hooks/redux';
 import RichTextEditor from '../common/rich-text-editor/RichTextEditor';
 import {
   EngineerMailPreview,
   getEngineerMailPreviewThunk,
   generateEngineeringRequirementThunk,
   sendEngineerEmailThunk,
+  getQuotationVersionById,
+  getQuotationThunk,
 } from '@redux/feature/quotation/quotationThunk';
 
 interface EngineerMailPanelProps {
@@ -33,6 +35,11 @@ interface EngineerMailPanelProps {
  */
 const EngineerMailPanel: React.FC<EngineerMailPanelProps> = ({ isOpen, onClose, quoteVersionId }) => {
   const dispatch = useAppDispatch();
+  // Read these so we can refresh the quotation version + lead's quotation list
+  // after a successful send — that's what flips quoteDetails.sendToEngineer
+  // (and version.sendToEngineer in the assignment table) to true so the edit
+  // buttons disappear without a full reload.
+  const { quoteDetails } = useAppSelector(state => state.quotation);
 
   const [animateOut, setAnimateOut] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -73,15 +80,39 @@ const EngineerMailPanel: React.FC<EngineerMailPanelProps> = ({ isOpen, onClose, 
         getEngineerMailPreviewThunk({ versionId: quoteVersionId })
       ).unwrap()) as EngineerMailPreview;
       setPreview(data);
-      // Pre-fill from the first active template, if any.
-      if (data.emailTemplates?.length) {
-        applyTemplate(data.emailTemplates[0].templateEmailId, data.emailTemplates);
+
+      // Prefer a template whose name mentions "engineer" so its body is
+      // relevant; fall back to the first template for the body content.
+      const templates = data.emailTemplates ?? [];
+      const engineerTpl =
+        templates.find(t => /engineer/i.test(t.name)) ?? templates[0];
+
+      // The panel is always for the structural engineer, so force an engineer-
+      // relevant subject + body whenever the auto-picked template is not
+      // engineer-related (the alphabetical first is often "Appointment
+      // Reminder"). The user can still edit either field before sending.
+      const ENGINEER_SUBJECT = 'Structural Engineer Report – Engineering Requirement';
+      const ENGINEER_BODY =
+        '<p>Hello,</p>' +
+        '<p>Please find the attached <strong>Engineering Requirement</strong> for the upcoming project. ' +
+        'The document outlines the floor plan, facade, package selection, and site/soil details needed ' +
+        'for the structural design.</p>' +
+        '<p>Kindly review and prepare the structural engineering report at your earliest convenience. ' +
+        'If any additional information is required, please reply to this email or use the upload link ' +
+        'provided in the attached request.</p>' +
+        '<p>Thank you for your assistance.</p>';
+
+      if (engineerTpl) {
+        const isEngineerTpl = /engineer/i.test(engineerTpl.name);
+        setSelectedTemplateId(engineerTpl.templateEmailId);
+        setSubject(isEngineerTpl ? (engineerTpl.subject ?? ENGINEER_SUBJECT) : ENGINEER_SUBJECT);
+        setEmailBody(isEngineerTpl ? (engineerTpl.emailContent ?? ENGINEER_BODY) : ENGINEER_BODY);
       } else {
         setSelectedTemplateId(undefined);
-        setSubject('');
-        setEmailBody('');
-        setEditorKey(k => k + 1);
+        setSubject(ENGINEER_SUBJECT);
+        setEmailBody(ENGINEER_BODY);
       }
+      setEditorKey(k => k + 1);
     } catch (error) {
       message.error(typeof error === 'string' ? error : 'Failed to load mail panel');
     } finally {
@@ -157,6 +188,28 @@ const EngineerMailPanel: React.FC<EngineerMailPanelProps> = ({ isOpen, onClose, 
         })
       ).unwrap();
       message.success('Email sent to the structural engineer');
+
+      // Refresh so quoteDetails.sendToEngineer flips to true (InfoCards hides
+      // the edit pencil) and the assignment table's version row reflects the
+      // lock. The thunk's URL only uses quoteVersionId, so quoteId can be any
+      // truthy string; we pass the real one when available.
+      const refreshes: Promise<unknown>[] = [
+        dispatch(
+          getQuotationVersionById({
+            quoteId: quoteDetails?.quotationId || '',
+            quoteVersionId,
+          })
+        ).unwrap(),
+      ];
+      if (quoteDetails?.leadId) {
+        refreshes.push(dispatch(getQuotationThunk(quoteDetails.leadId)).unwrap());
+      }
+      try {
+        await Promise.all(refreshes);
+      } catch {
+        // Refresh is best-effort; the user already got the success toast.
+      }
+
       handleClose();
     } catch (error) {
       message.error(typeof error === 'string' ? error : 'Failed to send email');
