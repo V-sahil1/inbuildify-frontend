@@ -46,7 +46,6 @@ const ItemsPanel: React.FC<ItemsPanelProps> = ({
     quoteDetails,
   } = useAppSelector((state: RootState) => state.quotation);
   const { priceMaster: categoryData } = useAppSelector((state: RootState) => state.masterPriceList);
-  console.log("Quotation Items", items);
 
   const userSelectedItems = useMemo(() => {
     // Get regular items from category data

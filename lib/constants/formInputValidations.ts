@@ -479,7 +479,7 @@ export const leadAddressRules = [
       if (!value) {
         return Promise.resolve();
       }
-       // Check for spaces at start or end
+      // Check for spaces at start or end
       if (value.startsWith(' ') || value.endsWith(' ')) {
         return Promise.reject('Address cannot start or end with spaces');
       }
@@ -768,3 +768,25 @@ export const createSortOrderValidation = (maxValue: number, isEditing: boolean =
   }),
 ];
 
+export const priceMasterRules = [
+  { required: true, message: 'Please enter master name' },
+  {
+    validator: (_: any, value: string) => {
+      if (!value) return Promise.resolve();
+      const cleaned = value.trim().replace(/\s+/g, ' ');
+      const lettersOnly = cleaned.replace(/\s/g, '');
+      const isValid =
+        /^[a-zA-Z\s]+$/.test(cleaned) && lettersOnly.length >= 2 && lettersOnly.length <= 100;
+
+      if (!isValid) {
+        return Promise.reject(
+          'Master Name must be at least 2 letters and at most 100 letters and can only contain letters and spaces'
+        );
+      }
+      if (value.startsWith(' ') || value.endsWith(' ')) {
+        return Promise.reject('Master Name cannot start or end with spaces');
+      }
+      return Promise.resolve();
+    },
+  },
+];

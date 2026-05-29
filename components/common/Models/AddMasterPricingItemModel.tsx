@@ -97,6 +97,8 @@ const AddMasterPricingItemModal = ({
   const [conditionLoading, setConditionLoading] = useState<string | null>(null);
 
   const conditionsList = Form.useWatch('conditions', form) || [];
+  const costOptionValue = Form.useWatch('costOption', form);
+  const isCostDisabled = costOptionValue === 'tba' || costOptionValue === 'tbc';
 
   // Get selected condition names to filter out already selected ones
   const selectedConditionNames = conditionsList
@@ -258,6 +260,10 @@ const AddMasterPricingItemModal = ({
       delete values.costOption;
     } else {
       delete values.costTypeText;
+      if (values.costOption === 'tba' || values.costOption === 'tbc') {
+        delete values.builderCost;
+        delete values.cost;
+      }
     }
     await form.validateFields();
     try {
@@ -462,6 +468,12 @@ const AddMasterPricingItemModal = ({
                   { label: 'TBA', value: 'tba' },
                   { label: 'TBC', value: 'tbc' },
                 ]}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === 'tba' || val === 'tbc') {
+                    form.setFieldsValue({ cost: undefined, builderCost: undefined });
+                  }
+                }}
               />
             </Form.Item>
           )}
@@ -472,16 +484,18 @@ const AddMasterPricingItemModal = ({
           <Form.Item
             label="Cost"
             name="cost"
-            rules={[{ required: costType !== 'Included', message: 'Please enter cost' }]}
+            rules={[{ required: costType !== 'Included' && !isCostDisabled, message: 'Please enter cost' }]}
             className="form-item-responsive"
           >
             <Input
               min={0}
+              max={100000}
               prefix="$"
               type="number"
               style={{ width: '100%' }}
               onWheel={e => e.currentTarget.blur()}
-              disabled={costType === 'Included'}
+              onKeyDown={e => (e.key === 'ArrowUp' || e.key === 'ArrowDown') && e.preventDefault()}
+              disabled={costType === 'Included' || isCostDisabled}
             />
           </Form.Item>
           {/* Builder Cost */}
@@ -489,16 +503,18 @@ const AddMasterPricingItemModal = ({
             <Form.Item
               label="Builder Cost"
               name="builderCost"
-              rules={[{ required: costType !== 'Included', message: 'Please enter cost' }]}
+              rules={[{ required: costType !== 'Included' && !isCostDisabled, message: 'Please enter cost' }]}
               className="form-item-responsive"
             >
               <Input
                 min={0}
+                max={100000}
                 prefix="$"
                 type="number"
                 style={{ width: '100%' }}
                 onWheel={e => e.currentTarget.blur()}
-                disabled={costType === 'Included'}
+                onKeyDown={e => (e.key === 'ArrowUp' || e.key === 'ArrowDown') && e.preventDefault()}
+                disabled={costType === 'Included' || isCostDisabled}
               />
             </Form.Item>
           )}
@@ -510,8 +526,40 @@ const AddMasterPricingItemModal = ({
               name="sortOrder"
               className="form-item-responsive"
               initialValue={category?.items?.length + 1 || 1}
+              rules={[
+                { required: true, message: 'Please enter sort order' },
+                {
+                  validator: (_, value) => {
+                    const num = Number(value);
+                    if (value !== undefined && value !== null && value !== '') {
+                      if (!Number.isInteger(num) || num <= 0) {
+                        return Promise.reject('Sort order must be a positive number');
+                      }
+
+                      const selectedPriceListId = form.getFieldValue('priceListId');
+                      const selectedCategory = priceMaster?.find(
+                        (item: IPriceList) => item.priceListId === selectedPriceListId
+                      );
+
+                      const itemsCount = selectedCategory?.items?.length || 0;
+                      const maxSort = categoryItem ? Math.max(itemsCount, 1) : itemsCount + 1;
+
+                      if (num > maxSort) {
+                        return Promise.reject(`Sort order must not be greater than ${maxSort}`);
+                      }
+                    }
+                    return Promise.resolve();
+                  },
+                },
+              ]}
             >
-              <Input type="number" min={1} onWheel={e => e.currentTarget.blur()} />
+              <Input
+                type="number"
+                min={1}
+                max={100000}
+                onWheel={e => e.currentTarget.blur()}
+                onKeyDown={e => (e.key === 'ArrowUp' || e.key === 'ArrowDown') && e.preventDefault()}
+              />
             </Form.Item>
             <Form.Item label="UOM" name="uom" className="form-item-responsive">
               <Select
@@ -640,9 +688,11 @@ const AddMasterPricingItemModal = ({
                         <Input
                           type="number"
                           min={0}
+                          max={100000}
                           className="w-full"
                           disabled={conditionId && editingConditionId !== conditionId}
                           onWheel={e => e.currentTarget.blur()}
+                          onKeyDown={e => (e.key === 'ArrowUp' || e.key === 'ArrowDown') && e.preventDefault()}
                         />
                       </Form.Item>
                     )}
@@ -682,9 +732,11 @@ const AddMasterPricingItemModal = ({
                         <Input
                           type="number"
                           min={0}
+                          max={100000}
                           className="w-full"
                           disabled={conditionId && editingConditionId !== conditionId}
                           onWheel={e => e.currentTarget.blur()}
+                          onKeyDown={e => (e.key === 'ArrowUp' || e.key === 'ArrowDown') && e.preventDefault()}
                         />
                       </Form.Item>
                     )}
@@ -849,9 +901,8 @@ const AddMasterPricingItemModal = ({
         <Form.Item className="mb-0">
           <button
             type="submit"
-            className={`btn btn-primary w-full md:w-auto px-8 py-2 text-base ${
-              isAddingItem ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
+            className={`btn btn-primary w-full md:w-auto px-8 py-2 text-base ${isAddingItem ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             disabled={isAddingItem}
           >
             {isAddingItem ? (

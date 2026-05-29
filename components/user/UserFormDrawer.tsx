@@ -103,7 +103,7 @@ export const UserFormDrawer = ({
               <Form.Item label="Phone" name="phone" rules={optionalPhoneRule}>
                 <Input />
               </Form.Item>
-              <Form.Item label="Login ID" name="loginId">
+              <Form.Item label="Login ID" name="loginId" rules={emailRules}>
                 <Input />
               </Form.Item>
             </div>

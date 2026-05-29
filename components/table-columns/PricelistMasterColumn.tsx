@@ -12,6 +12,7 @@ import {
 } from '@redux/feature/masterPriceList/masterPriceListThunk';
 import { useLocationAndTimezoneHook } from '@hooks/useLocationAndTimezoneHook';
 import { Status } from '@lib/constants/enum';
+import { priceMasterRules } from '@lib/constants/formInputValidations';
 
 export const PricelistMasterColumn = (
   setModalOpen,
@@ -196,18 +197,51 @@ export const PricelistMasterColumn = (
   const masterFields: FormField[] = [
     modalOpen === 'Itemcopy'
       ? {
-          label: 'Pricelist Master',
-          name: 'priceListId',
-          type: 'select',
-          options: priceMaster.map(i => ({ label: i.name, value: i.priceListId })),
-        }
-      : { label: 'Pricelist Master', name: 'name', type: 'text' },
+        label: 'Pricelist Master',
+        name: 'priceListId',
+        type: 'select',
+        options: priceMaster.map(i => ({ label: i.name, value: i.priceListId })),
+        rules: [{ required: true, message: 'Please select a pricelist master' }],
+      }
+      : {
+        label: 'Pricelist Master',
+        name: 'name',
+        type: 'text',
+        rules: priceMasterRules,
+      },
     modalOpen === 'Itemcopy' && {
       label: 'Pricelist Item Name',
       name: 'itemDescription',
       type: 'text',
+      rules: [{ required: true, message: 'Please enter pricelist item name' }],
     },
-    { label: 'Sort Order', name: 'sortOrder', type: 'number' },
+    {
+      label: 'Sort Order',
+      name: 'sortOrder',
+      type: 'number',
+      rules: [
+        { required: true, message: 'Please enter sort order' },
+        { max: 100000, message: 'Sort order must not be greater than 100000' },
+        { min: 1, message: 'Sort order must be a positive number' },
+        {
+          validator: (_, value) => {
+            const num = Number(value);
+            if (value !== undefined && value !== null && value !== '') {
+              if (!Number.isInteger(num) || num <= 0) {
+                return Promise.reject('Sort order must be a positive number');
+              }
+              const maxSort = modalOpen === 'edit' ? priceMaster.length : priceMaster.length + 1;
+              if (num > maxSort) {
+                return Promise.reject(
+                  `Sort order must not be greater than ${maxSort}`
+                );
+              }
+            }
+            return Promise.resolve();
+          },
+        },
+      ],
+    },
     modalOpen === 'edit' && {
       label: 'Status',
       name: 'isActive',
@@ -216,6 +250,7 @@ export const PricelistMasterColumn = (
         { label: 'Active', value: 'active' },
         { label: 'InActive', value: 'inactive' },
       ],
+      rules: [{ required: true, message: 'Please select status' }],
     },
     ['create', 'edit'].includes(modalOpen) && {
       label: 'Show in view list',
@@ -257,16 +292,16 @@ export const PricelistMasterColumn = (
       selectedPriceMaster
         ? modalOpen === 'edit'
           ? // edit price master
-            await dispatch(
-              updatePricelistMaster({
-                payload: { ...values, isActive: values.isActive === 'active' },
-                id: selectedPriceMaster.priceListId,
-              })
-            ).unwrap()
+          await dispatch(
+            updatePricelistMaster({
+              payload: { ...values, isActive: values.isActive === 'active' },
+              id: selectedPriceMaster.priceListId,
+            })
+          ).unwrap()
           : // copy price master
-            () => {}
+          () => { }
         : // new pricemaster
-          await dispatch(createPricelistMaster(values)).unwrap();
+        await dispatch(createPricelistMaster(values)).unwrap();
 
       message.success('Price master saved successfully');
       setModalOpen(false);

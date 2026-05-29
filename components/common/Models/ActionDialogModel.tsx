@@ -29,23 +29,23 @@ export type FormField = {
   initialValue?: any;
   min?: number;
   type?:
-    | 'email'
-    | 'phone'
-    | 'text'
-    | 'textarea'
-    | 'select'
-    | 'dynamic-select'
-    | 'url'
-    | 'number'
-    | 'checkbox'
-    | 'image'
-    | 'switch'
-    | 'date'
-    | 'texteditor'
-    | 'textEditor'
-    | 'color'
-    | 'radio'
-    | 'custom';
+  | 'email'
+  | 'phone'
+  | 'text'
+  | 'textarea'
+  | 'select'
+  | 'dynamic-select'
+  | 'url'
+  | 'number'
+  | 'checkbox'
+  | 'image'
+  | 'switch'
+  | 'date'
+  | 'texteditor'
+  | 'textEditor'
+  | 'color'
+  | 'radio'
+  | 'custom';
   mode?: 'tags' | 'multiple';
   options?: { value: string; label: string }[];
   selectAll?: {
@@ -295,11 +295,11 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
               getValueFromEvent={
                 field.type === 'checkbox'
                   ? e => {
-                      // Handle both direct boolean and event object cases
-                      if (typeof e === 'boolean') return Boolean(e);
-                      if (e && typeof e.target === 'object') return Boolean(e.target.checked);
-                      return Boolean(e);
-                    }
+                    // Handle both direct boolean and event object cases
+                    if (typeof e === 'boolean') return Boolean(e);
+                    if (e && typeof e.target === 'object') return Boolean(e.target.checked);
+                    return Boolean(e);
+                  }
                   : undefined
               }
             >
@@ -322,7 +322,7 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
                   notFoundContent={field?.notFoundContent}
                   {...(field?.mode && { mode: field?.mode })}
                   onChange={val => field.onChange?.(val)}
-                  // onChange={(val) => field.onChange?.(val, form)}
+                // onChange={(val) => field.onChange?.(val, form)}
                 />
               ) : field.type === 'radio' ? (
                 <Radio.Group onChange={field.onChange}>
@@ -398,6 +398,14 @@ export const ActionDialogmodel: React.FC<ActionDialogProps> = ({
                   onWheel={(e) => e.currentTarget.blur()}
                   min={field?.min || 0}
                   disabled={field.disabled}
+                  onKeyDown={e => {
+                    // Prevent up/down arrows, +, -, e
+                    if (
+                      ['ArrowUp', 'ArrowDown', '+', '-', 'e', 'E'].includes(e.key)
+                    ) {
+                      e.preventDefault();
+                    }
+                  }}
                   onKeyPress={e => {
                     if (!/[0-9]/.test(e.key)) {
                       e.preventDefault();

@@ -171,7 +171,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
         {/* Total */}
         <div className="table-cell text-center p-3 align-middle w-[60px] text-font-color">
           {!isIncluded && item?.extraType !== 'complimentry'
-            ? item?.extraType === 'discount' 
+            ? item?.extraType === 'discount'
               ? `-$${Math.abs((Number(priceItem?.priceListItemCost) || item.cost || 0) * quantity)}`
               : `$${Math.abs((Number(priceItem?.priceListItemCost) || item.cost || 0) * quantity)}`
             : ''}
@@ -198,7 +198,7 @@ export const QuatationItem: React.FC<QuatationItemProps> = React.memo(
                 </div>
               )
             }
-            onClick={() => handleToggle(isSelected ?priceItem :item)}
+            onClick={() => handleToggle(isSelected ? priceItem : item)}
           />
         </div>
         {isEdited.item && (

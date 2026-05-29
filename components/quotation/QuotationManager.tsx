@@ -188,7 +188,7 @@ const QuotationManager = () => {
                   packageId: (value as Package).packageId,
                 })
               ).unwrap();
-              
+
               // Refresh quotation data after package update
               await dispatch(
                 getQuotationVersionById({
@@ -198,7 +198,7 @@ const QuotationManager = () => {
                     : quotationData?.versions?.[0]?.quotationVersionId,
                 })
               ).unwrap();
-              
+
               setHasChanges(false);
               dispatch(setQuotationPackage(value as Package));
               return;
@@ -337,7 +337,6 @@ const QuotationManager = () => {
 
   const fetchQuotationPricelistItem = async () => {
     try {
-      console.log('Fetching quotation pricelist item');
       await dispatch(
         getQuotationPricelistThunk({
           quotationVersionId: quoteVersionId ?? quotationData?.versions?.[0]?.quotationVersionId,
@@ -616,7 +615,7 @@ const QuotationManager = () => {
               // }
               itemsLoading={false}
               setSelect={val => {
-                setSelectedCategory(val ? null : categoryData?.[0].priceListId);
+                setSelectedCategory(val ? null : categoryData?.[0]?.priceListId);
                 setSelect(val);
               }}
               select={onSelect}
