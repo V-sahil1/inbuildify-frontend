@@ -112,7 +112,7 @@ export default function App({ Component, pageProps }) {
             )}
             {/* Special handling for approval page - no layout, no auth required */}
                          {/* {[SystemRoutes.APPROVAL, SystemRoutes.SIGN_COMPLETE, SystemRoutes.SIGNING_ERROR].includes(pageUrl) ? ( */}
-            {pageUrl === '/approve' || pageUrl.startsWith('/external') ? (
+            {pageUrl === '/approve' || pageUrl.startsWith('/external') || pageUrl.startsWith('/quotation/view') ? (
               <Component {...pageProps} />
             ) : isAuthRoute ? (
               <AuthLayout>

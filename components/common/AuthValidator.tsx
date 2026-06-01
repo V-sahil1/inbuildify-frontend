@@ -38,7 +38,7 @@ export default function AuthValidator({ children }) {
     return path?.replace(/\/+$/, '');
   }
   const normalizedPath = normalizePath(pathname);
-  const isPublicRoute = publicRoutes.includes(normalizedPath) || normalizedPath.startsWith('/external');
+  const isPublicRoute = publicRoutes.includes(normalizedPath) || normalizedPath.startsWith('/external') || normalizedPath.startsWith('/quotation/view');
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
