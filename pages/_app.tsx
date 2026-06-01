@@ -111,7 +111,7 @@ export default function App({ Component, pageProps }) {
               </div>
             )}
             {/* Public standalone pages — no layout, no auth required */}
-            {[SystemRoutes.APPROVAL, SystemRoutes.SIGN_COMPLETE, SystemRoutes.SIGNING_ERROR].includes(pageUrl) ? (
+            {[SystemRoutes.APPROVAL, SystemRoutes.SIGN_COMPLETE, SystemRoutes.SIGNING_ERROR, SystemRoutes.EXTERNAL].includes(pageUrl) ? (
               <Component {...pageProps} />
             ) : isAuthRoute ? (
               <AuthLayout>
