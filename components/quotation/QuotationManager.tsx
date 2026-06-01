@@ -569,7 +569,8 @@ const QuotationManager = () => {
         // onPropertyUpdate={() => { }}
         isReadOnly={
           quoteDetails?.quotationVersionNo < (quotationData?.versions?.length || 0) ||
-          quoteDetails?.isApprove
+          quoteDetails?.isApprove ||
+          quoteDetails?.sendToEngineer === true
         }
         filters={quotationFilters}
       />

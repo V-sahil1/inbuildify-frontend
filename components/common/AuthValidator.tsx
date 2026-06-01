@@ -17,6 +17,7 @@ const publicRoutes = [
   SystemRoutes.APPROVAL,
   SystemRoutes.SIGN_COMPLETE,
   SystemRoutes.SIGNING_ERROR,
+  SystemRoutes.EXTERNAL,
 ];
 
 type AuthState = 'checking' | 'authenticated' | 'unauthenticated' | 'redirecting';

@@ -18,6 +18,7 @@ class SystemRoutes {
   public static EXTERNAL = `/external`;
   public static SIGN_COMPLETE = `/quotation/sign-complete`;
   public static SIGNING_ERROR = `/signing-error`;
+  public static EXTERNAL = `/external`;
   public static SETTINGS = `/settings`;
   public static SETTINGS_COLOUR = `${this.SETTINGS}/?tab=colour`;
   public static DWELLING_AND_RANGE = `${this.SETTINGS}/?tab=range-dwelling`;

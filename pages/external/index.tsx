@@ -335,8 +335,8 @@ export default function ExternalUploadPage({ type, id }: ExternalUploadPageProps
                 {message && (
                   <div
                     className={`mb-5 p-4 rounded-xl text-sm border ${message.type === 'success'
-                        ? 'bg-green-50 text-green-700 border-green-200'
-                        : 'bg-red-50 text-red-700 border-red-200'
+                      ? 'bg-green-50 text-green-700 border-green-200'
+                      : 'bg-red-50 text-red-700 border-red-200'
                       }`}
                   >
                     {message.text}
@@ -407,6 +407,7 @@ export default function ExternalUploadPage({ type, id }: ExternalUploadPageProps
                       <input
                         type="file"
                         className="hidden"
+                        accept=".pdf,application/pdf"
                         ref={fileInputRef}
                         onChange={handleFileChange}
                       />
@@ -470,8 +471,8 @@ export default function ExternalUploadPage({ type, id }: ExternalUploadPageProps
                       onClick={handleUpload}
                       disabled={!file || uploading}
                       className={`mt-5 w-full py-4 rounded-xl font-semibold transition-all ${!file || uploading
-                          ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                          : 'bg-orange-600 text-white hover:bg-orange-700 shadow-lg shadow-orange-200'
+                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                        : 'bg-orange-600 text-white hover:bg-orange-700 shadow-lg shadow-orange-200'
                         }`}
                     >
                       {uploading ? 'Uploading Report...' : 'Submit Report'}
