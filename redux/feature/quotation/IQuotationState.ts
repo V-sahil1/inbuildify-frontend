@@ -190,7 +190,6 @@ export type QuotationVersionDetails = {
     price?: number;
   };
   quotationVersionItems?: any[];
-  sendToEngineer?: boolean;
 };
 
 export type QuotationPriceListItem = {
@@ -213,7 +212,7 @@ export type QuotationPriceListItem = {
   uom?: string;
   rangeId?: string[];
   dwellingTypeId?: string[];
-  extraItem?:boolean;
+  extraItem?: boolean;
   isAutomaticallyMapped?: boolean;
   priceListItemIsSystemData?: boolean;
 };
@@ -300,7 +299,7 @@ export type ExtraItem = {
   priceListItemUom?: 'SQ_YD' | string;
   quantity?: number;
   note?: string;
-  priceListItemCostTypeText?:string;
-  priceListItemRangeId?:string[];
-  priceListItemDwellingTypeId?:string[]
+  priceListItemCostTypeText?: string;
+  priceListItemRangeId?: string[];
+  priceListItemDwellingTypeId?: string[]
 };

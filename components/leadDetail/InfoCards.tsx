@@ -453,7 +453,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
                             e?.stopPropagation();
                           }}
                         >
-                          <Tooltip title="Send Email">
+                          {/* <Tooltip title="Send Email">
                             <IconMail
                               className={`cursor-pointer ${emailLoading ? 'text-blue-500 animate-pulse' : 'text-gray-500 hover:text-blue-500'}`}
                               size={15}
@@ -461,7 +461,7 @@ const InfoCards: React.FC<InfoCardsProps> = ({
                                 e.stopPropagation();
                               }}
                             />
-                          </Tooltip>
+                          </Tooltip> */}
                         </Popconfirm>
                         <Tooltip title={quoteDetails?.sendToEngineer ? "Email already sent - cannot change engineer" : "Change Structural Engineer"}>
                           <IconEdit

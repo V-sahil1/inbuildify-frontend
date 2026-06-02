@@ -87,7 +87,7 @@ const RichTextEditor = React.forwardRef<RichTextEditorRef, RichTextEditorProps>(
       },
     }));
 
-    const slateValue = useMemo(() => {
+    const slateValue = useMemo<Descendant[]>(() => {
       if (!value) return [{ type: 'paragraph', children: [{ text: '' }] }];
 
       let nodes: Descendant[] | null = null;
