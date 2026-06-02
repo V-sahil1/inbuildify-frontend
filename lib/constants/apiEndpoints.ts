@@ -15,6 +15,7 @@ class API_ENDPOINTS {
   public static RESET_PASSWORD = `${this.AUTH_BASE}/reset-password`;
   public static UPDATE_PASSWORD = `${this.AUTH_BASE}/update-password`;
   public static LOGOUT = `${this.AUTH_BASE}/logout`;
+  public static GOOGLE_AUTH = `${this.AUTH_BASE}/google`;
 
   // user
   public static USER_BASE = '/user';
