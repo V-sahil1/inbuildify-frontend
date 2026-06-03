@@ -48,6 +48,18 @@ export const SignInThunk = createAsyncThunk(
   }
 );
 
+export const GoogleSignInThunk = createAsyncThunk(
+  'auth/googleSignIn',
+  async (_, { rejectWithValue }) => {
+    try {
+      const baseURL = process.env.NEXT_PUBLIC_API_ENDPOINT;
+      window.location.href = `${baseURL}${API_ENDPOINTS.GOOGLE_AUTH}`;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
 export const ForgetPasswordThunk = createAsyncThunk(
   'auth/forgetPassword',
   async (payload: { email: string }, { rejectWithValue }) => {

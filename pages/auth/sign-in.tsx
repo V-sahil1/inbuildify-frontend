@@ -1,12 +1,13 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Form, Input, Divider, message } from 'antd';
 import { IconBrandGoogleFilled, IconEye, IconEyeOff, IconLoader } from '@tabler/icons-react';
 import Link from 'next/link';
 import SystemRoutes from '@lib/constants/Routes';
 import { useAppDispatch, useAppSelector } from '@hooks/redux';
-import { getUserThunk, SignInThunk } from '@redux/feature/auth/authThunk';
+import { getUserThunk, GoogleSignInThunk, SignInThunk } from '@redux/feature/auth/authThunk';
 import { useRouter } from 'next/navigation';
+import { storeAuthToken, storeRefreshToken } from '@lib/constants/authToken';
 
 export async function getStaticProps() {
   return {
@@ -24,6 +25,35 @@ export default function Signin() {
   const router = useRouter();
   const { user } = useAppSelector(state => state.auth);
   console.log('user in signup page', user);
+
+  // Handle Google OAuth callback — extract tokens from URL query params
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const accessToken = params.get('accessToken');
+    const refreshToken = params.get('refreshToken');
+
+    if (accessToken && refreshToken) {
+      const handleGoogleCallback = async () => {
+        try {
+          setLoading(true);
+          storeAuthToken(accessToken);
+          storeRefreshToken(refreshToken);
+          const fetchedUser = await dispatch(getUserThunk()).unwrap();
+          message.success('Signed in with Google successfully');
+          if (!fetchedUser?.isOnboardingFinished) {
+            router.push('/onboarding');
+          } else {
+            router.push('/');
+          }
+        } catch (error) {
+          message.error(error || 'Google sign in failed');
+        } finally {
+          setLoading(false);
+        }
+      };
+      handleGoogleCallback();
+    }
+  }, []);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -54,7 +84,7 @@ export default function Signin() {
         <span className="text-font-color-100 inline-block">Free access to our dashboard.</span>
       </div>
       <div className="sm:mb-6 mb-4 text-center">
-        <button className="btn btn-white !border-border-color">
+        <button className="btn btn-white !border-border-color" onClick={() => dispatch(GoogleSignInThunk())}>
           <IconBrandGoogleFilled className="fill-font-color-100" />
           Sign in with Google
         </button>
